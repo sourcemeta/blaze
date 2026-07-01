@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 
@@ -66,7 +66,7 @@ static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_HYPERSCHEMA{
     {"https://json-schema.org/draft/2020-12/vocab/core", true},
     {"https://json-schema.org/draft/2019-09/vocab/hyper-schema", true}};
 
-TEST(Foundation_walker_2020_12, core_schema) {
+TEST(core_schema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$schema", VOCABULARIES_2020_12_CORE)};
@@ -78,7 +78,7 @@ TEST(Foundation_walker_2020_12, core_schema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, core_vocabulary) {
+TEST(core_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$vocabulary", VOCABULARIES_2020_12_CORE)};
@@ -90,7 +90,7 @@ TEST(Foundation_walker_2020_12, core_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, core_id) {
+TEST(core_id) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$id", VOCABULARIES_2020_12_CORE)};
@@ -102,7 +102,7 @@ TEST(Foundation_walker_2020_12, core_id) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, core_anchor) {
+TEST(core_anchor) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$anchor", VOCABULARIES_2020_12_CORE)};
@@ -114,7 +114,7 @@ TEST(Foundation_walker_2020_12, core_anchor) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, core_dynamicAnchor) {
+TEST(core_dynamicAnchor) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -127,7 +127,7 @@ TEST(Foundation_walker_2020_12, core_dynamicAnchor) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, core_ref) {
+TEST(core_ref) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$ref", VOCABULARIES_2020_12_CORE)};
@@ -139,7 +139,7 @@ TEST(Foundation_walker_2020_12, core_ref) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, core_dynamicRef) {
+TEST(core_dynamicRef) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$dynamicRef", VOCABULARIES_2020_12_CORE)};
@@ -151,7 +151,7 @@ TEST(Foundation_walker_2020_12, core_dynamicRef) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, core_defs) {
+TEST(core_defs) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$defs", VOCABULARIES_2020_12_CORE)};
@@ -163,7 +163,7 @@ TEST(Foundation_walker_2020_12, core_defs) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, core_comment) {
+TEST(core_comment) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$comment", VOCABULARIES_2020_12_CORE)};
@@ -175,7 +175,7 @@ TEST(Foundation_walker_2020_12, core_comment) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_allOf) {
+TEST(applicator_allOf) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("allOf", VOCABULARIES_2020_12_APPLICATOR)};
@@ -188,7 +188,7 @@ TEST(Foundation_walker_2020_12, applicator_allOf) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_anyOf) {
+TEST(applicator_anyOf) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("anyOf", VOCABULARIES_2020_12_APPLICATOR)};
@@ -201,7 +201,7 @@ TEST(Foundation_walker_2020_12, applicator_anyOf) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_oneOf) {
+TEST(applicator_oneOf) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("oneOf", VOCABULARIES_2020_12_APPLICATOR)};
@@ -214,7 +214,7 @@ TEST(Foundation_walker_2020_12, applicator_oneOf) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_not) {
+TEST(applicator_not) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("not", VOCABULARIES_2020_12_APPLICATOR)};
@@ -227,7 +227,7 @@ TEST(Foundation_walker_2020_12, applicator_not) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_if) {
+TEST(applicator_if) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("if", VOCABULARIES_2020_12_APPLICATOR)};
@@ -240,7 +240,7 @@ TEST(Foundation_walker_2020_12, applicator_if) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_then) {
+TEST(applicator_then) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("then", VOCABULARIES_2020_12_APPLICATOR)};
@@ -254,7 +254,7 @@ TEST(Foundation_walker_2020_12, applicator_then) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_else) {
+TEST(applicator_else) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("else", VOCABULARIES_2020_12_APPLICATOR)};
@@ -268,7 +268,7 @@ TEST(Foundation_walker_2020_12, applicator_else) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_dependentSchemas) {
+TEST(applicator_dependentSchemas) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -283,7 +283,7 @@ TEST(Foundation_walker_2020_12, applicator_dependentSchemas) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, applicator_prefixItems) {
+TEST(applicator_prefixItems) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -298,7 +298,7 @@ TEST(Foundation_walker_2020_12, applicator_prefixItems) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, applicator_items) {
+TEST(applicator_items) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("items", VOCABULARIES_2020_12_APPLICATOR)};
@@ -313,7 +313,7 @@ TEST(Foundation_walker_2020_12, applicator_items) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, applicator_contains_only) {
+TEST(applicator_contains_only) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -328,7 +328,7 @@ TEST(Foundation_walker_2020_12, applicator_contains_only) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, applicator_contains_with_validation) {
+TEST(applicator_contains_with_validation) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker(
@@ -345,7 +345,7 @@ TEST(Foundation_walker_2020_12, applicator_contains_with_validation) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, applicator_properties) {
+TEST(applicator_properties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -361,7 +361,7 @@ TEST(Foundation_walker_2020_12, applicator_properties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, applicator_patternProperties) {
+TEST(applicator_patternProperties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -377,7 +377,7 @@ TEST(Foundation_walker_2020_12, applicator_patternProperties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, applicator_additionalProperties) {
+TEST(applicator_additionalProperties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -395,7 +395,7 @@ TEST(Foundation_walker_2020_12, applicator_additionalProperties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, applicator_propertyNames) {
+TEST(applicator_propertyNames) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -411,7 +411,7 @@ TEST(Foundation_walker_2020_12, applicator_propertyNames) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, unevaluated_unevaluatedItems_only) {
+TEST(unevaluated_unevaluatedItems_only) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -426,7 +426,7 @@ TEST(Foundation_walker_2020_12, unevaluated_unevaluatedItems_only) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, unevaluated_unevaluatedItems_with_applicator) {
+TEST(unevaluated_unevaluatedItems_with_applicator) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker(
@@ -443,7 +443,7 @@ TEST(Foundation_walker_2020_12, unevaluated_unevaluatedItems_with_applicator) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, unevaluated_unevaluatedProperties_only) {
+TEST(unevaluated_unevaluatedProperties_only) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -459,8 +459,7 @@ TEST(Foundation_walker_2020_12, unevaluated_unevaluatedProperties_only) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12,
-     unevaluated_unevaluatedProperties_with_applicator) {
+TEST(unevaluated_unevaluatedProperties_with_applicator) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -479,7 +478,7 @@ TEST(Foundation_walker_2020_12,
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, validation_type) {
+TEST(validation_type) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("type", VOCABULARIES_2020_12_VALIDATION)};
@@ -492,7 +491,7 @@ TEST(Foundation_walker_2020_12, validation_type) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_enum) {
+TEST(validation_enum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("enum", VOCABULARIES_2020_12_VALIDATION)};
@@ -505,7 +504,7 @@ TEST(Foundation_walker_2020_12, validation_enum) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_const) {
+TEST(validation_const) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("const", VOCABULARIES_2020_12_VALIDATION)};
@@ -518,7 +517,7 @@ TEST(Foundation_walker_2020_12, validation_const) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_multipleOf) {
+TEST(validation_multipleOf) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -535,7 +534,7 @@ TEST(Foundation_walker_2020_12, validation_multipleOf) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_2020_12, validation_maximum) {
+TEST(validation_maximum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maximum", VOCABULARIES_2020_12_VALIDATION)};
@@ -552,7 +551,7 @@ TEST(Foundation_walker_2020_12, validation_maximum) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_2020_12, validation_minimum) {
+TEST(validation_minimum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minimum", VOCABULARIES_2020_12_VALIDATION)};
@@ -569,7 +568,7 @@ TEST(Foundation_walker_2020_12, validation_minimum) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_2020_12, validation_exclusiveMaximum) {
+TEST(validation_exclusiveMaximum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -586,7 +585,7 @@ TEST(Foundation_walker_2020_12, validation_exclusiveMaximum) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_2020_12, validation_exclusiveMinimum) {
+TEST(validation_exclusiveMinimum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -603,7 +602,7 @@ TEST(Foundation_walker_2020_12, validation_exclusiveMinimum) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_2020_12, validation_maxLength) {
+TEST(validation_maxLength) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -618,7 +617,7 @@ TEST(Foundation_walker_2020_12, validation_maxLength) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_2020_12, validation_minLength) {
+TEST(validation_minLength) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -633,7 +632,7 @@ TEST(Foundation_walker_2020_12, validation_minLength) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_2020_12, validation_pattern) {
+TEST(validation_pattern) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("pattern", VOCABULARIES_2020_12_VALIDATION)};
@@ -647,7 +646,7 @@ TEST(Foundation_walker_2020_12, validation_pattern) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_2020_12, validation_maxItems) {
+TEST(validation_maxItems) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -662,7 +661,7 @@ TEST(Foundation_walker_2020_12, validation_maxItems) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, validation_minItems) {
+TEST(validation_minItems) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -677,7 +676,7 @@ TEST(Foundation_walker_2020_12, validation_minItems) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, validation_uniqueItems) {
+TEST(validation_uniqueItems) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -692,7 +691,7 @@ TEST(Foundation_walker_2020_12, validation_uniqueItems) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, validation_maxContains) {
+TEST(validation_maxContains) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -707,7 +706,7 @@ TEST(Foundation_walker_2020_12, validation_maxContains) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, validation_minContains) {
+TEST(validation_minContains) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -722,7 +721,7 @@ TEST(Foundation_walker_2020_12, validation_minContains) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_2020_12, validation_maxProperties) {
+TEST(validation_maxProperties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -737,7 +736,7 @@ TEST(Foundation_walker_2020_12, validation_maxProperties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, validation_minProperties) {
+TEST(validation_minProperties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -752,7 +751,7 @@ TEST(Foundation_walker_2020_12, validation_minProperties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, validation_required) {
+TEST(validation_required) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -767,7 +766,7 @@ TEST(Foundation_walker_2020_12, validation_required) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, validation_dependentRequired) {
+TEST(validation_dependentRequired) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -782,7 +781,7 @@ TEST(Foundation_walker_2020_12, validation_dependentRequired) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_2020_12, format_annotation_format) {
+TEST(format_annotation_format) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -797,7 +796,7 @@ TEST(Foundation_walker_2020_12, format_annotation_format) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_2020_12, format_assertion_format) {
+TEST(format_assertion_format) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -812,7 +811,7 @@ TEST(Foundation_walker_2020_12, format_assertion_format) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_2020_12, content_contentEncoding) {
+TEST(content_contentEncoding) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -827,7 +826,7 @@ TEST(Foundation_walker_2020_12, content_contentEncoding) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_2020_12, content_contentMediaType) {
+TEST(content_contentMediaType) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -842,7 +841,7 @@ TEST(Foundation_walker_2020_12, content_contentMediaType) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_2020_12, content_contentSchema) {
+TEST(content_contentSchema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -857,7 +856,7 @@ TEST(Foundation_walker_2020_12, content_contentSchema) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_2020_12, metadata_title) {
+TEST(metadata_title) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("title", VOCABULARIES_2020_12_METADATA)};
@@ -870,7 +869,7 @@ TEST(Foundation_walker_2020_12, metadata_title) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_description) {
+TEST(metadata_description) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -884,7 +883,7 @@ TEST(Foundation_walker_2020_12, metadata_description) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_default) {
+TEST(metadata_default) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("default", VOCABULARIES_2020_12_METADATA)};
@@ -897,7 +896,7 @@ TEST(Foundation_walker_2020_12, metadata_default) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_deprecated) {
+TEST(metadata_deprecated) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -911,7 +910,7 @@ TEST(Foundation_walker_2020_12, metadata_deprecated) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_readOnly) {
+TEST(metadata_readOnly) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("readOnly", VOCABULARIES_2020_12_METADATA)};
@@ -924,7 +923,7 @@ TEST(Foundation_walker_2020_12, metadata_readOnly) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_writeOnly) {
+TEST(metadata_writeOnly) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("writeOnly", VOCABULARIES_2020_12_METADATA)};
@@ -937,7 +936,7 @@ TEST(Foundation_walker_2020_12, metadata_writeOnly) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_examples) {
+TEST(metadata_examples) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("examples", VOCABULARIES_2020_12_METADATA)};
@@ -950,7 +949,7 @@ TEST(Foundation_walker_2020_12, metadata_examples) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_base) {
+TEST(hyperschema_base) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("base", VOCABULARIES_2020_12_HYPERSCHEMA)};
@@ -963,7 +962,7 @@ TEST(Foundation_walker_2020_12, hyperschema_base) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_links) {
+TEST(hyperschema_links) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("links", VOCABULARIES_2020_12_HYPERSCHEMA)};
@@ -976,7 +975,7 @@ TEST(Foundation_walker_2020_12, hyperschema_links) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_href) {
+TEST(hyperschema_href) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("href", VOCABULARIES_2020_12_HYPERSCHEMA)};
@@ -989,7 +988,7 @@ TEST(Foundation_walker_2020_12, hyperschema_href) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_anchor) {
+TEST(hyperschema_anchor) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("anchor", VOCABULARIES_2020_12_HYPERSCHEMA)};
@@ -1002,7 +1001,7 @@ TEST(Foundation_walker_2020_12, hyperschema_anchor) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_anchorPointer) {
+TEST(hyperschema_anchorPointer) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1016,7 +1015,7 @@ TEST(Foundation_walker_2020_12, hyperschema_anchorPointer) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_rel) {
+TEST(hyperschema_rel) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("rel", VOCABULARIES_2020_12_HYPERSCHEMA)};
@@ -1029,7 +1028,7 @@ TEST(Foundation_walker_2020_12, hyperschema_rel) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_templatePointers) {
+TEST(hyperschema_templatePointers) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1043,7 +1042,7 @@ TEST(Foundation_walker_2020_12, hyperschema_templatePointers) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_templateRequired) {
+TEST(hyperschema_templateRequired) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1057,7 +1056,7 @@ TEST(Foundation_walker_2020_12, hyperschema_templateRequired) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_targetMediaType) {
+TEST(hyperschema_targetMediaType) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1071,7 +1070,7 @@ TEST(Foundation_walker_2020_12, hyperschema_targetMediaType) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_targetHints) {
+TEST(hyperschema_targetHints) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1085,7 +1084,7 @@ TEST(Foundation_walker_2020_12, hyperschema_targetHints) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_submissionMediaType) {
+TEST(hyperschema_submissionMediaType) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1099,7 +1098,7 @@ TEST(Foundation_walker_2020_12, hyperschema_submissionMediaType) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_hrefSchema) {
+TEST(hyperschema_hrefSchema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1113,7 +1112,7 @@ TEST(Foundation_walker_2020_12, hyperschema_hrefSchema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_targetSchema) {
+TEST(hyperschema_targetSchema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1127,7 +1126,7 @@ TEST(Foundation_walker_2020_12, hyperschema_targetSchema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_headerSchema) {
+TEST(hyperschema_headerSchema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1141,7 +1140,7 @@ TEST(Foundation_walker_2020_12, hyperschema_headerSchema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_submissionSchema) {
+TEST(hyperschema_submissionSchema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1155,7 +1154,7 @@ TEST(Foundation_walker_2020_12, hyperschema_submissionSchema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_allOf_without_vocabulary) {
+TEST(applicator_allOf_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("allOf", VOCABULARIES_2020_12_CORE)};
@@ -1166,7 +1165,7 @@ TEST(Foundation_walker_2020_12, applicator_allOf_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_anyOf_without_vocabulary) {
+TEST(applicator_anyOf_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("anyOf", VOCABULARIES_2020_12_CORE)};
@@ -1177,7 +1176,7 @@ TEST(Foundation_walker_2020_12, applicator_anyOf_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_oneOf_without_vocabulary) {
+TEST(applicator_oneOf_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("oneOf", VOCABULARIES_2020_12_CORE)};
@@ -1188,7 +1187,7 @@ TEST(Foundation_walker_2020_12, applicator_oneOf_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_not_without_vocabulary) {
+TEST(applicator_not_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("not", VOCABULARIES_2020_12_CORE)};
@@ -1199,7 +1198,7 @@ TEST(Foundation_walker_2020_12, applicator_not_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_if_without_vocabulary) {
+TEST(applicator_if_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("if", VOCABULARIES_2020_12_CORE)};
@@ -1210,7 +1209,7 @@ TEST(Foundation_walker_2020_12, applicator_if_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_then_without_vocabulary) {
+TEST(applicator_then_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("then", VOCABULARIES_2020_12_CORE)};
@@ -1221,7 +1220,7 @@ TEST(Foundation_walker_2020_12, applicator_then_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_else_without_vocabulary) {
+TEST(applicator_else_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("else", VOCABULARIES_2020_12_CORE)};
@@ -1232,8 +1231,7 @@ TEST(Foundation_walker_2020_12, applicator_else_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     applicator_dependentSchemas_without_vocabulary) {
+TEST(applicator_dependentSchemas_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1245,7 +1243,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_prefixItems_without_vocabulary) {
+TEST(applicator_prefixItems_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("prefixItems", VOCABULARIES_2020_12_CORE)};
@@ -1256,7 +1254,7 @@ TEST(Foundation_walker_2020_12, applicator_prefixItems_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_items_without_vocabulary) {
+TEST(applicator_items_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("items", VOCABULARIES_2020_12_CORE)};
@@ -1267,7 +1265,7 @@ TEST(Foundation_walker_2020_12, applicator_items_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_contains_without_vocabulary) {
+TEST(applicator_contains_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("contains", VOCABULARIES_2020_12_CORE)};
@@ -1278,7 +1276,7 @@ TEST(Foundation_walker_2020_12, applicator_contains_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_properties_without_vocabulary) {
+TEST(applicator_properties_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("properties", VOCABULARIES_2020_12_CORE)};
@@ -1289,8 +1287,7 @@ TEST(Foundation_walker_2020_12, applicator_properties_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     applicator_patternProperties_without_vocabulary) {
+TEST(applicator_patternProperties_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1302,8 +1299,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     applicator_additionalProperties_without_vocabulary) {
+TEST(applicator_additionalProperties_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1315,7 +1311,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, applicator_propertyNames_without_vocabulary) {
+TEST(applicator_propertyNames_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("propertyNames", VOCABULARIES_2020_12_CORE)};
@@ -1326,8 +1322,7 @@ TEST(Foundation_walker_2020_12, applicator_propertyNames_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     unevaluated_unevaluatedItems_without_vocabulary) {
+TEST(unevaluated_unevaluatedItems_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1339,8 +1334,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     unevaluated_unevaluatedProperties_without_vocabulary) {
+TEST(unevaluated_unevaluatedProperties_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1352,7 +1346,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_type_without_vocabulary) {
+TEST(validation_type_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("type", VOCABULARIES_2020_12_CORE)};
@@ -1363,7 +1357,7 @@ TEST(Foundation_walker_2020_12, validation_type_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_enum_without_vocabulary) {
+TEST(validation_enum_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("enum", VOCABULARIES_2020_12_CORE)};
@@ -1374,7 +1368,7 @@ TEST(Foundation_walker_2020_12, validation_enum_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_const_without_vocabulary) {
+TEST(validation_const_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("const", VOCABULARIES_2020_12_CORE)};
@@ -1385,7 +1379,7 @@ TEST(Foundation_walker_2020_12, validation_const_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_multipleOf_without_vocabulary) {
+TEST(validation_multipleOf_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("multipleOf", VOCABULARIES_2020_12_CORE)};
@@ -1396,7 +1390,7 @@ TEST(Foundation_walker_2020_12, validation_multipleOf_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_maximum_without_vocabulary) {
+TEST(validation_maximum_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maximum", VOCABULARIES_2020_12_CORE)};
@@ -1407,7 +1401,7 @@ TEST(Foundation_walker_2020_12, validation_maximum_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_minimum_without_vocabulary) {
+TEST(validation_minimum_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minimum", VOCABULARIES_2020_12_CORE)};
@@ -1418,8 +1412,7 @@ TEST(Foundation_walker_2020_12, validation_minimum_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     validation_exclusiveMaximum_without_vocabulary) {
+TEST(validation_exclusiveMaximum_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1431,8 +1424,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     validation_exclusiveMinimum_without_vocabulary) {
+TEST(validation_exclusiveMinimum_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1444,7 +1436,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_maxLength_without_vocabulary) {
+TEST(validation_maxLength_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maxLength", VOCABULARIES_2020_12_CORE)};
@@ -1455,7 +1447,7 @@ TEST(Foundation_walker_2020_12, validation_maxLength_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_minLength_without_vocabulary) {
+TEST(validation_minLength_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minLength", VOCABULARIES_2020_12_CORE)};
@@ -1466,7 +1458,7 @@ TEST(Foundation_walker_2020_12, validation_minLength_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_pattern_without_vocabulary) {
+TEST(validation_pattern_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("pattern", VOCABULARIES_2020_12_CORE)};
@@ -1477,7 +1469,7 @@ TEST(Foundation_walker_2020_12, validation_pattern_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_maxItems_without_vocabulary) {
+TEST(validation_maxItems_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maxItems", VOCABULARIES_2020_12_CORE)};
@@ -1488,7 +1480,7 @@ TEST(Foundation_walker_2020_12, validation_maxItems_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_minItems_without_vocabulary) {
+TEST(validation_minItems_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minItems", VOCABULARIES_2020_12_CORE)};
@@ -1499,7 +1491,7 @@ TEST(Foundation_walker_2020_12, validation_minItems_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_uniqueItems_without_vocabulary) {
+TEST(validation_uniqueItems_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("uniqueItems", VOCABULARIES_2020_12_CORE)};
@@ -1510,7 +1502,7 @@ TEST(Foundation_walker_2020_12, validation_uniqueItems_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_maxContains_without_vocabulary) {
+TEST(validation_maxContains_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maxContains", VOCABULARIES_2020_12_CORE)};
@@ -1521,7 +1513,7 @@ TEST(Foundation_walker_2020_12, validation_maxContains_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_minContains_without_vocabulary) {
+TEST(validation_minContains_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minContains", VOCABULARIES_2020_12_CORE)};
@@ -1532,7 +1524,7 @@ TEST(Foundation_walker_2020_12, validation_minContains_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_maxProperties_without_vocabulary) {
+TEST(validation_maxProperties_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maxProperties", VOCABULARIES_2020_12_CORE)};
@@ -1543,7 +1535,7 @@ TEST(Foundation_walker_2020_12, validation_maxProperties_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_minProperties_without_vocabulary) {
+TEST(validation_minProperties_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minProperties", VOCABULARIES_2020_12_CORE)};
@@ -1554,7 +1546,7 @@ TEST(Foundation_walker_2020_12, validation_minProperties_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, validation_required_without_vocabulary) {
+TEST(validation_required_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("required", VOCABULARIES_2020_12_CORE)};
@@ -1565,8 +1557,7 @@ TEST(Foundation_walker_2020_12, validation_required_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     validation_dependentRequired_without_vocabulary) {
+TEST(validation_dependentRequired_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1578,7 +1569,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, format_annotation_format_without_vocabulary) {
+TEST(format_annotation_format_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("format", VOCABULARIES_2020_12_CORE)};
@@ -1589,7 +1580,7 @@ TEST(Foundation_walker_2020_12, format_annotation_format_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, format_assertion_format_without_vocabulary) {
+TEST(format_assertion_format_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("format", VOCABULARIES_2020_12_CORE)};
@@ -1600,7 +1591,7 @@ TEST(Foundation_walker_2020_12, format_assertion_format_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, content_contentEncoding_without_vocabulary) {
+TEST(content_contentEncoding_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1612,7 +1603,7 @@ TEST(Foundation_walker_2020_12, content_contentEncoding_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, content_contentMediaType_without_vocabulary) {
+TEST(content_contentMediaType_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1624,7 +1615,7 @@ TEST(Foundation_walker_2020_12, content_contentMediaType_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, content_contentSchema_without_vocabulary) {
+TEST(content_contentSchema_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("contentSchema", VOCABULARIES_2020_12_CORE)};
@@ -1635,7 +1626,7 @@ TEST(Foundation_walker_2020_12, content_contentSchema_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_title_without_vocabulary) {
+TEST(metadata_title_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("title", VOCABULARIES_2020_12_CORE)};
@@ -1646,7 +1637,7 @@ TEST(Foundation_walker_2020_12, metadata_title_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_description_without_vocabulary) {
+TEST(metadata_description_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("description", VOCABULARIES_2020_12_CORE)};
@@ -1657,7 +1648,7 @@ TEST(Foundation_walker_2020_12, metadata_description_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_default_without_vocabulary) {
+TEST(metadata_default_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("default", VOCABULARIES_2020_12_CORE)};
@@ -1668,7 +1659,7 @@ TEST(Foundation_walker_2020_12, metadata_default_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_deprecated_without_vocabulary) {
+TEST(metadata_deprecated_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("deprecated", VOCABULARIES_2020_12_CORE)};
@@ -1679,7 +1670,7 @@ TEST(Foundation_walker_2020_12, metadata_deprecated_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_readOnly_without_vocabulary) {
+TEST(metadata_readOnly_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("readOnly", VOCABULARIES_2020_12_CORE)};
@@ -1690,7 +1681,7 @@ TEST(Foundation_walker_2020_12, metadata_readOnly_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_writeOnly_without_vocabulary) {
+TEST(metadata_writeOnly_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("writeOnly", VOCABULARIES_2020_12_CORE)};
@@ -1701,7 +1692,7 @@ TEST(Foundation_walker_2020_12, metadata_writeOnly_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, metadata_examples_without_vocabulary) {
+TEST(metadata_examples_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("examples", VOCABULARIES_2020_12_CORE)};
@@ -1712,7 +1703,7 @@ TEST(Foundation_walker_2020_12, metadata_examples_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_base_without_vocabulary) {
+TEST(hyperschema_base_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("base", VOCABULARIES_2020_12_CORE)};
@@ -1723,7 +1714,7 @@ TEST(Foundation_walker_2020_12, hyperschema_base_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_links_without_vocabulary) {
+TEST(hyperschema_links_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("links", VOCABULARIES_2020_12_CORE)};
@@ -1734,7 +1725,7 @@ TEST(Foundation_walker_2020_12, hyperschema_links_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_ref_without_vocabulary) {
+TEST(hyperschema_ref_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("ref", VOCABULARIES_2020_12_CORE)};
@@ -1745,7 +1736,7 @@ TEST(Foundation_walker_2020_12, hyperschema_ref_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_href_without_vocabulary) {
+TEST(hyperschema_href_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("href", VOCABULARIES_2020_12_CORE)};
@@ -1756,7 +1747,7 @@ TEST(Foundation_walker_2020_12, hyperschema_href_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_anchor_without_vocabulary) {
+TEST(hyperschema_anchor_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("anchor", VOCABULARIES_2020_12_CORE)};
@@ -1767,7 +1758,7 @@ TEST(Foundation_walker_2020_12, hyperschema_anchor_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_anchorPointer_without_vocabulary) {
+TEST(hyperschema_anchorPointer_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("anchorPointer", VOCABULARIES_2020_12_CORE)};
@@ -1778,7 +1769,7 @@ TEST(Foundation_walker_2020_12, hyperschema_anchorPointer_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_rel_without_vocabulary) {
+TEST(hyperschema_rel_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("rel", VOCABULARIES_2020_12_CORE)};
@@ -1789,8 +1780,7 @@ TEST(Foundation_walker_2020_12, hyperschema_rel_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     hyperschema_templatePointers_without_vocabulary) {
+TEST(hyperschema_templatePointers_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1802,8 +1792,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     hyperschema_templateRequired_without_vocabulary) {
+TEST(hyperschema_templateRequired_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1815,8 +1804,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     hyperschema_targetMediaType_without_vocabulary) {
+TEST(hyperschema_targetMediaType_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1828,7 +1816,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_targetHints_without_vocabulary) {
+TEST(hyperschema_targetHints_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("targetHints", VOCABULARIES_2020_12_CORE)};
@@ -1839,8 +1827,7 @@ TEST(Foundation_walker_2020_12, hyperschema_targetHints_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     hyperschema_submissionMediaType_without_vocabulary) {
+TEST(hyperschema_submissionMediaType_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1852,7 +1839,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_hrefSchema_without_vocabulary) {
+TEST(hyperschema_hrefSchema_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("hrefSchema", VOCABULARIES_2020_12_CORE)};
@@ -1863,7 +1850,7 @@ TEST(Foundation_walker_2020_12, hyperschema_hrefSchema_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_targetSchema_without_vocabulary) {
+TEST(hyperschema_targetSchema_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("targetSchema", VOCABULARIES_2020_12_CORE)};
@@ -1874,7 +1861,7 @@ TEST(Foundation_walker_2020_12, hyperschema_targetSchema_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, hyperschema_headerSchema_without_vocabulary) {
+TEST(hyperschema_headerSchema_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("headerSchema", VOCABULARIES_2020_12_CORE)};
@@ -1885,8 +1872,7 @@ TEST(Foundation_walker_2020_12, hyperschema_headerSchema_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12,
-     hyperschema_submissionSchema_without_vocabulary) {
+TEST(hyperschema_submissionSchema_without_vocabulary) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -1898,7 +1884,7 @@ TEST(Foundation_walker_2020_12,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_2020_12, schema_keyword_priority_array) {
+TEST(schema_keyword_priority_array) {
   const auto &vocabularies =
       VOCABULARIES_2020_12_APPLICATOR_UNEVALUATED_AND_VALIDATION;
 
@@ -1914,7 +1900,7 @@ TEST(Foundation_walker_2020_12, schema_keyword_priority_array) {
             2);
 }
 
-TEST(Foundation_walker_2020_12, schema_keyword_priority_object) {
+TEST(schema_keyword_priority_object) {
   const auto &vocabularies = VOCABULARIES_2020_12_UNEVALUATED_AND_APPLICATOR;
 
   const auto &walker = sourcemeta::blaze::schema_walker;
@@ -1930,7 +1916,7 @@ TEST(Foundation_walker_2020_12, schema_keyword_priority_object) {
       2);
 }
 
-TEST(Foundation_walker_2020_12, schema_keyword_priority_other) {
+TEST(schema_keyword_priority_other) {
   const auto &vocabularies = VOCABULARIES_2020_12_APPLICATOR;
   const auto &walker = sourcemeta::blaze::schema_walker;
   using namespace sourcemeta::core;
@@ -1940,7 +1926,7 @@ TEST(Foundation_walker_2020_12, schema_keyword_priority_other) {
   EXPECT_EQ(schema_keyword_priority("else", vocabularies, walker), 1);
 }
 
-TEST(Foundation_walker_2020_12, schema_keyword_priority_unknown) {
+TEST(schema_keyword_priority_unknown) {
   const auto &vocabularies = VOCABULARIES_2020_12_CORE;
   const auto &walker = sourcemeta::blaze::schema_walker;
   using namespace sourcemeta::core;
@@ -1948,7 +1934,7 @@ TEST(Foundation_walker_2020_12, schema_keyword_priority_unknown) {
   EXPECT_EQ(schema_keyword_priority("foobar", vocabularies, walker), 0);
 }
 
-TEST(Foundation_walker_2020_12, instance_locations) {
+TEST(instance_locations) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [ { "type": "string" }, { "minLength": 3 } ],
@@ -2039,7 +2025,7 @@ TEST(Foundation_walker_2020_12, instance_locations) {
   EXPECT_WALKER_ENTRY_2020_12_ORPHAN(entries, 26, "/definitions/foo", "");
 }
 
-TEST(Foundation_walker_2020_12, instance_locations_nested) {
+TEST(instance_locations_nested) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": {
@@ -2072,7 +2058,7 @@ TEST(Foundation_walker_2020_12, instance_locations_nested) {
                               "/additionalProperties/properties/foo");
 }
 
-TEST(Foundation_walker_2020_12, instance_locations_defs_with_ref) {
+TEST(instance_locations_defs_with_ref) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "common",
@@ -2098,7 +2084,7 @@ TEST(Foundation_walker_2020_12, instance_locations_defs_with_ref) {
   EXPECT_WALKER_ENTRY_2020_12_ORPHAN(entries, 2, "/$defs/foo", "");
 }
 
-TEST(Foundation_walker_2020_12, definitions_subschemas) {
+TEST(definitions_subschemas) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {

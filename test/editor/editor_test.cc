@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/editor.h>
@@ -166,7 +166,7 @@ static auto test_resolver_draft4(std::string_view identifier)
   }
 }
 
-TEST(Editor, 2020_12_bundle) {
+TEST(2020_12_bundle) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -219,7 +219,7 @@ TEST(Editor, 2020_12_bundle) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2020_12_static_dynamic_reference) {
+TEST(2020_12_static_dynamic_reference) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -253,7 +253,7 @@ TEST(Editor, 2020_12_static_dynamic_reference) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2020_12_dynamic_reference_to_static_anchor) {
+TEST(2020_12_dynamic_reference_to_static_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -280,7 +280,7 @@ TEST(Editor, 2020_12_dynamic_reference_to_static_anchor) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2020_12_dynamic_anchors_1) {
+TEST(2020_12_dynamic_anchors_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -328,7 +328,7 @@ TEST(Editor, 2020_12_dynamic_anchors_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2020_12_bundle_boolean_subschema) {
+TEST(2020_12_bundle_boolean_subschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -350,7 +350,7 @@ TEST(Editor, 2020_12_bundle_boolean_subschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2020_12_default_base_dialect) {
+TEST(2020_12_default_base_dialect) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "properties": {
@@ -372,7 +372,7 @@ TEST(Editor, 2020_12_default_base_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2020_12_default_dialect) {
+TEST(2020_12_default_dialect) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "properties": {
@@ -394,7 +394,7 @@ TEST(Editor, 2020_12_default_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2020_12_bundle_metaschema) {
+TEST(2020_12_bundle_metaschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -422,7 +422,7 @@ TEST(Editor, 2020_12_bundle_metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2019_09_bundle) {
+TEST(2019_09_bundle) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -475,7 +475,7 @@ TEST(Editor, 2019_09_bundle) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2019_09_bundle_metaschema) {
+TEST(2019_09_bundle_metaschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -503,7 +503,7 @@ TEST(Editor, 2019_09_bundle_metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, draft7_bundle) {
+TEST(draft7_bundle) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -542,7 +542,7 @@ TEST(Editor, draft7_bundle) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2019_09_static_recursive_reference) {
+TEST(2019_09_static_recursive_reference) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -568,7 +568,7 @@ TEST(Editor, 2019_09_static_recursive_reference) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2019_09_recursive_anchors_1) {
+TEST(2019_09_recursive_anchors_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -616,7 +616,7 @@ TEST(Editor, 2019_09_recursive_anchors_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, draft7_bundle_metaschema) {
+TEST(draft7_bundle_metaschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -644,7 +644,7 @@ TEST(Editor, draft7_bundle_metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, draft6_bundle) {
+TEST(draft6_bundle) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/top-level",
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -683,7 +683,7 @@ TEST(Editor, draft6_bundle) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, draft6_bundle_metaschema) {
+TEST(draft6_bundle_metaschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -711,7 +711,7 @@ TEST(Editor, draft6_bundle_metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, draft4_bundle) {
+TEST(draft4_bundle) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/top-level",
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -750,7 +750,7 @@ TEST(Editor, draft4_bundle) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, draft4_bundle_metaschema) {
+TEST(draft4_bundle_metaschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -778,7 +778,7 @@ TEST(Editor, draft4_bundle_metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Editor, 2020_12_bundle_metaschema_offline) {
+TEST(2020_12_bundle_metaschema_offline) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",

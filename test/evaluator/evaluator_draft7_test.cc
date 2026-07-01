@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -8,7 +8,7 @@
 
 #include "evaluator_utils.h"
 
-TEST(Evaluator_draft7, metaschema) {
+TEST(metaschema) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "http://json-schema.org/draft-07/schema#")};
   EXPECT_TRUE(metaschema.has_value());
@@ -17,7 +17,7 @@ TEST(Evaluator_draft7, metaschema) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 2, "");
 }
 
-TEST(Evaluator_draft7, metaschema_hyper_self) {
+TEST(metaschema_hyper_self) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
@@ -25,7 +25,7 @@ TEST(Evaluator_draft7, metaschema_hyper_self) {
                                    "");
 }
 
-TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
+TEST(metaschema_hyper_self_exhaustive) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "http://json-schema.org/draft-07/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
@@ -33,20 +33,22 @@ TEST(Evaluator_draft7, metaschema_hyper_self_exhaustive) {
                                          566, "");
 }
 
-TEST(Evaluator_draft7, invalid_ref_top_level) {
+TEST(invalid_ref_top_level) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$ref": "#/definitions/i-dont-exist"
   })JSON")};
 
-  EXPECT_THROW(
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
-                                 sourcemeta::blaze::default_schema_compiler),
-      sourcemeta::blaze::SchemaError);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &) {
+  }
 }
 
-TEST(Evaluator_draft7, invalid_ref_nested) {
+TEST(invalid_ref_nested) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
@@ -68,7 +70,7 @@ TEST(Evaluator_draft7, invalid_ref_nested) {
   }
 }
 
-TEST(Evaluator_draft7, invalid_ref_embedded) {
+TEST(invalid_ref_embedded) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -99,7 +101,7 @@ TEST(Evaluator_draft7, invalid_ref_embedded) {
   }
 }
 
-TEST(Evaluator_draft7, reference_from_unknown_keyword) {
+TEST(reference_from_unknown_keyword) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
@@ -126,7 +128,7 @@ TEST(Evaluator_draft7, reference_from_unknown_keyword) {
   }
 }
 
-TEST(Evaluator_draft7, top_level_ref_with_id) {
+TEST(top_level_ref_with_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -136,15 +138,17 @@ TEST(Evaluator_draft7, top_level_ref_with_id) {
     }
   })JSON")};
 
-  EXPECT_THROW(
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
-                                 sourcemeta::blaze::default_schema_compiler,
-                                 sourcemeta::blaze::Mode::FastValidation),
-      sourcemeta::blaze::SchemaError);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::FastValidation);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &) {
+  }
 }
 
-TEST(Evaluator_draft7, top_level_ref_with_id_exhaustive) {
+TEST(top_level_ref_with_id_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -154,15 +158,17 @@ TEST(Evaluator_draft7, top_level_ref_with_id_exhaustive) {
     }
   })JSON")};
 
-  EXPECT_THROW(
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
-                                 sourcemeta::blaze::default_schema_compiler,
-                                 sourcemeta::blaze::Mode::Exhaustive),
-      sourcemeta::blaze::SchemaError);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::Exhaustive);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &) {
+  }
 }
 
-TEST(Evaluator_draft7, format_no_tweak_fast) {
+TEST(format_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -173,7 +179,7 @@ TEST(Evaluator_draft7, format_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_no_tweak_exhaustive) {
+TEST(format_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -184,7 +190,7 @@ TEST(Evaluator_draft7, format_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_iri_valid_with_tweak_fast) {
+TEST(format_iri_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
@@ -206,7 +212,7 @@ TEST(Evaluator_draft7, format_iri_valid_with_tweak_fast) {
       "a valid IRI");
 }
 
-TEST(Evaluator_draft7, format_iri_invalid_with_tweak_fast) {
+TEST(format_iri_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
@@ -227,7 +233,7 @@ TEST(Evaluator_draft7, format_iri_invalid_with_tweak_fast) {
       "The string value \"://bad\" was expected to represent a valid IRI");
 }
 
-TEST(Evaluator_draft7, format_iri_valid_with_tweak_exhaustive) {
+TEST(format_iri_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
@@ -250,7 +256,7 @@ TEST(Evaluator_draft7, format_iri_valid_with_tweak_exhaustive) {
       "a valid IRI");
 }
 
-TEST(Evaluator_draft7, format_iri_invalid_with_tweak_exhaustive) {
+TEST(format_iri_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
@@ -272,7 +278,7 @@ TEST(Evaluator_draft7, format_iri_invalid_with_tweak_exhaustive) {
       "The string value \"://bad\" was expected to represent a valid IRI");
 }
 
-TEST(Evaluator_draft7, format_iri_no_tweak_fast) {
+TEST(format_iri_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
@@ -283,7 +289,7 @@ TEST(Evaluator_draft7, format_iri_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_iri_no_tweak_exhaustive) {
+TEST(format_iri_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
@@ -294,7 +300,7 @@ TEST(Evaluator_draft7, format_iri_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_iri_non_string_with_tweak_fast) {
+TEST(format_iri_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
@@ -308,7 +314,7 @@ TEST(Evaluator_draft7, format_iri_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_iri_non_string_with_tweak_exhaustive) {
+TEST(format_iri_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri"
@@ -323,7 +329,7 @@ TEST(Evaluator_draft7, format_iri_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_iri_reference_valid_with_tweak_fast) {
+TEST(format_iri_reference_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
@@ -345,7 +351,7 @@ TEST(Evaluator_draft7, format_iri_reference_valid_with_tweak_fast) {
       "IRI reference");
 }
 
-TEST(Evaluator_draft7, format_iri_reference_invalid_with_tweak_fast) {
+TEST(format_iri_reference_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
@@ -367,7 +373,7 @@ TEST(Evaluator_draft7, format_iri_reference_invalid_with_tweak_fast) {
       "reference");
 }
 
-TEST(Evaluator_draft7, format_iri_reference_valid_with_tweak_exhaustive) {
+TEST(format_iri_reference_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
@@ -390,7 +396,7 @@ TEST(Evaluator_draft7, format_iri_reference_valid_with_tweak_exhaustive) {
       "IRI reference");
 }
 
-TEST(Evaluator_draft7, format_iri_reference_invalid_with_tweak_exhaustive) {
+TEST(format_iri_reference_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
@@ -413,7 +419,7 @@ TEST(Evaluator_draft7, format_iri_reference_invalid_with_tweak_exhaustive) {
       "reference");
 }
 
-TEST(Evaluator_draft7, format_iri_reference_no_tweak_fast) {
+TEST(format_iri_reference_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
@@ -424,7 +430,7 @@ TEST(Evaluator_draft7, format_iri_reference_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_iri_reference_no_tweak_exhaustive) {
+TEST(format_iri_reference_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
@@ -435,7 +441,7 @@ TEST(Evaluator_draft7, format_iri_reference_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_iri_reference_non_string_with_tweak_fast) {
+TEST(format_iri_reference_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
@@ -449,7 +455,7 @@ TEST(Evaluator_draft7, format_iri_reference_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_iri_reference_non_string_with_tweak_exhaustive) {
+TEST(format_iri_reference_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "iri-reference"
@@ -464,7 +470,7 @@ TEST(Evaluator_draft7, format_iri_reference_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_date_time_valid_with_tweak_fast) {
+TEST(format_date_time_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date-time"
@@ -486,7 +492,7 @@ TEST(Evaluator_draft7, format_date_time_valid_with_tweak_fast) {
       "valid RFC 3339 date-time");
 }
 
-TEST(Evaluator_draft7, format_date_time_invalid_with_tweak_fast) {
+TEST(format_date_time_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date-time"
@@ -508,7 +514,7 @@ TEST(Evaluator_draft7, format_date_time_invalid_with_tweak_fast) {
       "3339 date-time");
 }
 
-TEST(Evaluator_draft7, format_date_time_valid_with_tweak_exhaustive) {
+TEST(format_date_time_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date-time"
@@ -531,7 +537,7 @@ TEST(Evaluator_draft7, format_date_time_valid_with_tweak_exhaustive) {
       "valid RFC 3339 date-time");
 }
 
-TEST(Evaluator_draft7, format_date_time_invalid_with_tweak_exhaustive) {
+TEST(format_date_time_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date-time"
@@ -554,7 +560,7 @@ TEST(Evaluator_draft7, format_date_time_invalid_with_tweak_exhaustive) {
       "3339 date-time");
 }
 
-TEST(Evaluator_draft7, format_date_time_no_tweak_fast) {
+TEST(format_date_time_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date-time"
@@ -565,7 +571,7 @@ TEST(Evaluator_draft7, format_date_time_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_date_time_no_tweak_exhaustive) {
+TEST(format_date_time_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date-time"
@@ -576,7 +582,7 @@ TEST(Evaluator_draft7, format_date_time_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_date_time_non_string_with_tweak_fast) {
+TEST(format_date_time_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date-time"
@@ -590,7 +596,7 @@ TEST(Evaluator_draft7, format_date_time_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_date_time_non_string_with_tweak_exhaustive) {
+TEST(format_date_time_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date-time"
@@ -605,7 +611,7 @@ TEST(Evaluator_draft7, format_date_time_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_date_valid_with_tweak_fast) {
+TEST(format_date_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date"
@@ -627,7 +633,7 @@ TEST(Evaluator_draft7, format_date_valid_with_tweak_fast) {
       "3339 full-date");
 }
 
-TEST(Evaluator_draft7, format_date_invalid_with_tweak_fast) {
+TEST(format_date_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date"
@@ -649,7 +655,7 @@ TEST(Evaluator_draft7, format_date_invalid_with_tweak_fast) {
       "3339 full-date");
 }
 
-TEST(Evaluator_draft7, format_date_valid_with_tweak_exhaustive) {
+TEST(format_date_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date"
@@ -672,7 +678,7 @@ TEST(Evaluator_draft7, format_date_valid_with_tweak_exhaustive) {
       "3339 full-date");
 }
 
-TEST(Evaluator_draft7, format_date_invalid_with_tweak_exhaustive) {
+TEST(format_date_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date"
@@ -695,7 +701,7 @@ TEST(Evaluator_draft7, format_date_invalid_with_tweak_exhaustive) {
       "3339 full-date");
 }
 
-TEST(Evaluator_draft7, format_date_no_tweak_fast) {
+TEST(format_date_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date"
@@ -706,7 +712,7 @@ TEST(Evaluator_draft7, format_date_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_date_no_tweak_exhaustive) {
+TEST(format_date_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date"
@@ -717,7 +723,7 @@ TEST(Evaluator_draft7, format_date_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_date_non_string_with_tweak_fast) {
+TEST(format_date_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date"
@@ -731,7 +737,7 @@ TEST(Evaluator_draft7, format_date_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_date_non_string_with_tweak_exhaustive) {
+TEST(format_date_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "date"
@@ -746,7 +752,7 @@ TEST(Evaluator_draft7, format_date_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_time_valid_with_tweak_fast) {
+TEST(format_time_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "time"
@@ -768,7 +774,7 @@ TEST(Evaluator_draft7, format_time_valid_with_tweak_fast) {
       "3339 full-time");
 }
 
-TEST(Evaluator_draft7, format_time_invalid_with_tweak_fast) {
+TEST(format_time_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "time"
@@ -790,7 +796,7 @@ TEST(Evaluator_draft7, format_time_invalid_with_tweak_fast) {
       "3339 full-time");
 }
 
-TEST(Evaluator_draft7, format_time_valid_with_tweak_exhaustive) {
+TEST(format_time_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "time"
@@ -813,7 +819,7 @@ TEST(Evaluator_draft7, format_time_valid_with_tweak_exhaustive) {
       "3339 full-time");
 }
 
-TEST(Evaluator_draft7, format_time_invalid_with_tweak_exhaustive) {
+TEST(format_time_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "time"
@@ -836,7 +842,7 @@ TEST(Evaluator_draft7, format_time_invalid_with_tweak_exhaustive) {
       "3339 full-time");
 }
 
-TEST(Evaluator_draft7, format_time_no_tweak_fast) {
+TEST(format_time_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "time"
@@ -847,7 +853,7 @@ TEST(Evaluator_draft7, format_time_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_time_no_tweak_exhaustive) {
+TEST(format_time_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "time"
@@ -858,7 +864,7 @@ TEST(Evaluator_draft7, format_time_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_time_non_string_with_tweak_fast) {
+TEST(format_time_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "time"
@@ -872,7 +878,7 @@ TEST(Evaluator_draft7, format_time_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_time_non_string_with_tweak_exhaustive) {
+TEST(format_time_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "time"
@@ -887,7 +893,7 @@ TEST(Evaluator_draft7, format_time_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_email_valid_with_tweak_fast) {
+TEST(format_email_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "email"
@@ -909,7 +915,7 @@ TEST(Evaluator_draft7, format_email_valid_with_tweak_fast) {
       "valid email address");
 }
 
-TEST(Evaluator_draft7, format_email_invalid_with_tweak_fast) {
+TEST(format_email_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "email"
@@ -931,7 +937,7 @@ TEST(Evaluator_draft7, format_email_invalid_with_tweak_fast) {
       "email address");
 }
 
-TEST(Evaluator_draft7, format_email_valid_with_tweak_exhaustive) {
+TEST(format_email_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "email"
@@ -954,7 +960,7 @@ TEST(Evaluator_draft7, format_email_valid_with_tweak_exhaustive) {
       "valid email address");
 }
 
-TEST(Evaluator_draft7, format_email_invalid_with_tweak_exhaustive) {
+TEST(format_email_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "email"
@@ -977,7 +983,7 @@ TEST(Evaluator_draft7, format_email_invalid_with_tweak_exhaustive) {
       "email address");
 }
 
-TEST(Evaluator_draft7, format_email_no_tweak_fast) {
+TEST(format_email_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "email"
@@ -988,7 +994,7 @@ TEST(Evaluator_draft7, format_email_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_email_no_tweak_exhaustive) {
+TEST(format_email_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "email"
@@ -999,7 +1005,7 @@ TEST(Evaluator_draft7, format_email_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_email_non_string_with_tweak_fast) {
+TEST(format_email_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "email"
@@ -1013,7 +1019,7 @@ TEST(Evaluator_draft7, format_email_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_email_non_string_with_tweak_exhaustive) {
+TEST(format_email_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "email"
@@ -1028,7 +1034,7 @@ TEST(Evaluator_draft7, format_email_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_idn_email_valid_with_tweak_fast) {
+TEST(format_idn_email_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-email"
@@ -1050,7 +1056,7 @@ TEST(Evaluator_draft7, format_idn_email_valid_with_tweak_fast) {
       "valid internationalized email address");
 }
 
-TEST(Evaluator_draft7, format_idn_email_invalid_with_tweak_fast) {
+TEST(format_idn_email_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-email"
@@ -1072,7 +1078,7 @@ TEST(Evaluator_draft7, format_idn_email_invalid_with_tweak_fast) {
       "internationalized email address");
 }
 
-TEST(Evaluator_draft7, format_idn_email_valid_with_tweak_exhaustive) {
+TEST(format_idn_email_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-email"
@@ -1095,7 +1101,7 @@ TEST(Evaluator_draft7, format_idn_email_valid_with_tweak_exhaustive) {
       "valid internationalized email address");
 }
 
-TEST(Evaluator_draft7, format_idn_email_invalid_with_tweak_exhaustive) {
+TEST(format_idn_email_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-email"
@@ -1118,7 +1124,7 @@ TEST(Evaluator_draft7, format_idn_email_invalid_with_tweak_exhaustive) {
       "internationalized email address");
 }
 
-TEST(Evaluator_draft7, format_idn_email_no_tweak_fast) {
+TEST(format_idn_email_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-email"
@@ -1129,7 +1135,7 @@ TEST(Evaluator_draft7, format_idn_email_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_idn_email_no_tweak_exhaustive) {
+TEST(format_idn_email_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-email"
@@ -1140,7 +1146,7 @@ TEST(Evaluator_draft7, format_idn_email_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_idn_email_non_string_with_tweak_fast) {
+TEST(format_idn_email_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-email"
@@ -1154,7 +1160,7 @@ TEST(Evaluator_draft7, format_idn_email_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_idn_email_non_string_with_tweak_exhaustive) {
+TEST(format_idn_email_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-email"
@@ -1169,7 +1175,7 @@ TEST(Evaluator_draft7, format_idn_email_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_hostname_valid_with_tweak_fast) {
+TEST(format_hostname_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "hostname"
@@ -1191,7 +1197,7 @@ TEST(Evaluator_draft7, format_hostname_valid_with_tweak_fast) {
       "hostname");
 }
 
-TEST(Evaluator_draft7, format_hostname_invalid_with_tweak_fast) {
+TEST(format_hostname_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "hostname"
@@ -1213,7 +1219,7 @@ TEST(Evaluator_draft7, format_hostname_invalid_with_tweak_fast) {
       "hostname");
 }
 
-TEST(Evaluator_draft7, format_hostname_valid_with_tweak_exhaustive) {
+TEST(format_hostname_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "hostname"
@@ -1236,7 +1242,7 @@ TEST(Evaluator_draft7, format_hostname_valid_with_tweak_exhaustive) {
       "hostname");
 }
 
-TEST(Evaluator_draft7, format_hostname_invalid_with_tweak_exhaustive) {
+TEST(format_hostname_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "hostname"
@@ -1259,7 +1265,7 @@ TEST(Evaluator_draft7, format_hostname_invalid_with_tweak_exhaustive) {
       "hostname");
 }
 
-TEST(Evaluator_draft7, format_hostname_no_tweak_fast) {
+TEST(format_hostname_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "hostname"
@@ -1270,7 +1276,7 @@ TEST(Evaluator_draft7, format_hostname_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_hostname_no_tweak_exhaustive) {
+TEST(format_hostname_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "hostname"
@@ -1281,7 +1287,7 @@ TEST(Evaluator_draft7, format_hostname_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_hostname_non_string_with_tweak_fast) {
+TEST(format_hostname_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "hostname"
@@ -1295,7 +1301,7 @@ TEST(Evaluator_draft7, format_hostname_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_hostname_non_string_with_tweak_exhaustive) {
+TEST(format_hostname_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "hostname"
@@ -1310,7 +1316,7 @@ TEST(Evaluator_draft7, format_hostname_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_idn_hostname_valid_with_tweak_fast) {
+TEST(format_idn_hostname_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-hostname"
@@ -1332,7 +1338,7 @@ TEST(Evaluator_draft7, format_idn_hostname_valid_with_tweak_fast) {
       "internationalized hostname");
 }
 
-TEST(Evaluator_draft7, format_idn_hostname_invalid_with_tweak_fast) {
+TEST(format_idn_hostname_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-hostname"
@@ -1354,7 +1360,7 @@ TEST(Evaluator_draft7, format_idn_hostname_invalid_with_tweak_fast) {
       "internationalized hostname");
 }
 
-TEST(Evaluator_draft7, format_idn_hostname_valid_with_tweak_exhaustive) {
+TEST(format_idn_hostname_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-hostname"
@@ -1377,7 +1383,7 @@ TEST(Evaluator_draft7, format_idn_hostname_valid_with_tweak_exhaustive) {
       "internationalized hostname");
 }
 
-TEST(Evaluator_draft7, format_idn_hostname_invalid_with_tweak_exhaustive) {
+TEST(format_idn_hostname_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-hostname"
@@ -1400,7 +1406,7 @@ TEST(Evaluator_draft7, format_idn_hostname_invalid_with_tweak_exhaustive) {
       "internationalized hostname");
 }
 
-TEST(Evaluator_draft7, format_idn_hostname_no_tweak_fast) {
+TEST(format_idn_hostname_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-hostname"
@@ -1411,7 +1417,7 @@ TEST(Evaluator_draft7, format_idn_hostname_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_idn_hostname_no_tweak_exhaustive) {
+TEST(format_idn_hostname_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-hostname"
@@ -1422,7 +1428,7 @@ TEST(Evaluator_draft7, format_idn_hostname_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_idn_hostname_non_string_with_tweak_fast) {
+TEST(format_idn_hostname_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-hostname"
@@ -1436,7 +1442,7 @@ TEST(Evaluator_draft7, format_idn_hostname_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_idn_hostname_non_string_with_tweak_exhaustive) {
+TEST(format_idn_hostname_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "idn-hostname"
@@ -1451,7 +1457,7 @@ TEST(Evaluator_draft7, format_idn_hostname_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_ipv4_valid_with_tweak_fast) {
+TEST(format_ipv4_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv4"
@@ -1473,7 +1479,7 @@ TEST(Evaluator_draft7, format_ipv4_valid_with_tweak_fast) {
       "IPv4 address");
 }
 
-TEST(Evaluator_draft7, format_ipv4_invalid_with_tweak_fast) {
+TEST(format_ipv4_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv4"
@@ -1495,7 +1501,7 @@ TEST(Evaluator_draft7, format_ipv4_invalid_with_tweak_fast) {
       "address");
 }
 
-TEST(Evaluator_draft7, format_ipv4_valid_with_tweak_exhaustive) {
+TEST(format_ipv4_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv4"
@@ -1518,7 +1524,7 @@ TEST(Evaluator_draft7, format_ipv4_valid_with_tweak_exhaustive) {
       "IPv4 address");
 }
 
-TEST(Evaluator_draft7, format_ipv4_invalid_with_tweak_exhaustive) {
+TEST(format_ipv4_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv4"
@@ -1541,7 +1547,7 @@ TEST(Evaluator_draft7, format_ipv4_invalid_with_tweak_exhaustive) {
       "address");
 }
 
-TEST(Evaluator_draft7, format_ipv4_no_tweak_fast) {
+TEST(format_ipv4_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv4"
@@ -1552,7 +1558,7 @@ TEST(Evaluator_draft7, format_ipv4_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_ipv4_no_tweak_exhaustive) {
+TEST(format_ipv4_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv4"
@@ -1563,7 +1569,7 @@ TEST(Evaluator_draft7, format_ipv4_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_ipv4_non_string_with_tweak_fast) {
+TEST(format_ipv4_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv4"
@@ -1577,7 +1583,7 @@ TEST(Evaluator_draft7, format_ipv4_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_ipv4_non_string_with_tweak_exhaustive) {
+TEST(format_ipv4_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv4"
@@ -1592,7 +1598,7 @@ TEST(Evaluator_draft7, format_ipv4_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_ipv6_valid_with_tweak_fast) {
+TEST(format_ipv6_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv6"
@@ -1614,7 +1620,7 @@ TEST(Evaluator_draft7, format_ipv6_valid_with_tweak_fast) {
       "address");
 }
 
-TEST(Evaluator_draft7, format_ipv6_invalid_with_tweak_fast) {
+TEST(format_ipv6_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv6"
@@ -1636,7 +1642,7 @@ TEST(Evaluator_draft7, format_ipv6_invalid_with_tweak_fast) {
       "IPv6 address");
 }
 
-TEST(Evaluator_draft7, format_ipv6_valid_with_tweak_exhaustive) {
+TEST(format_ipv6_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv6"
@@ -1659,7 +1665,7 @@ TEST(Evaluator_draft7, format_ipv6_valid_with_tweak_exhaustive) {
       "address");
 }
 
-TEST(Evaluator_draft7, format_ipv6_invalid_with_tweak_exhaustive) {
+TEST(format_ipv6_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv6"
@@ -1682,7 +1688,7 @@ TEST(Evaluator_draft7, format_ipv6_invalid_with_tweak_exhaustive) {
       "IPv6 address");
 }
 
-TEST(Evaluator_draft7, format_ipv6_no_tweak_fast) {
+TEST(format_ipv6_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv6"
@@ -1693,7 +1699,7 @@ TEST(Evaluator_draft7, format_ipv6_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_ipv6_no_tweak_exhaustive) {
+TEST(format_ipv6_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv6"
@@ -1704,7 +1710,7 @@ TEST(Evaluator_draft7, format_ipv6_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_ipv6_non_string_with_tweak_fast) {
+TEST(format_ipv6_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv6"
@@ -1718,7 +1724,7 @@ TEST(Evaluator_draft7, format_ipv6_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_ipv6_non_string_with_tweak_exhaustive) {
+TEST(format_ipv6_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "ipv6"
@@ -1733,7 +1739,7 @@ TEST(Evaluator_draft7, format_ipv6_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_uri_valid_with_tweak_fast) {
+TEST(format_uri_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -1755,7 +1761,7 @@ TEST(Evaluator_draft7, format_uri_valid_with_tweak_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_draft7, format_uri_invalid_with_tweak_fast) {
+TEST(format_uri_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -1776,7 +1782,7 @@ TEST(Evaluator_draft7, format_uri_invalid_with_tweak_fast) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_draft7, format_uri_valid_with_tweak_exhaustive) {
+TEST(format_uri_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -1799,7 +1805,7 @@ TEST(Evaluator_draft7, format_uri_valid_with_tweak_exhaustive) {
       "valid URI");
 }
 
-TEST(Evaluator_draft7, format_uri_invalid_with_tweak_exhaustive) {
+TEST(format_uri_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -1821,7 +1827,7 @@ TEST(Evaluator_draft7, format_uri_invalid_with_tweak_exhaustive) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_draft7, format_uri_no_tweak_fast) {
+TEST(format_uri_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -1832,7 +1838,7 @@ TEST(Evaluator_draft7, format_uri_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_uri_no_tweak_exhaustive) {
+TEST(format_uri_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -1843,7 +1849,7 @@ TEST(Evaluator_draft7, format_uri_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_uri_non_string_with_tweak_fast) {
+TEST(format_uri_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -1857,7 +1863,7 @@ TEST(Evaluator_draft7, format_uri_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_uri_non_string_with_tweak_exhaustive) {
+TEST(format_uri_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri"
@@ -1872,7 +1878,7 @@ TEST(Evaluator_draft7, format_uri_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_uri_reference_valid_with_tweak_fast) {
+TEST(format_uri_reference_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-reference"
@@ -1894,7 +1900,7 @@ TEST(Evaluator_draft7, format_uri_reference_valid_with_tweak_fast) {
       "URI reference");
 }
 
-TEST(Evaluator_draft7, format_uri_reference_invalid_with_tweak_fast) {
+TEST(format_uri_reference_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-reference"
@@ -1916,7 +1922,7 @@ TEST(Evaluator_draft7, format_uri_reference_invalid_with_tweak_fast) {
       "reference");
 }
 
-TEST(Evaluator_draft7, format_uri_reference_valid_with_tweak_exhaustive) {
+TEST(format_uri_reference_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-reference"
@@ -1939,7 +1945,7 @@ TEST(Evaluator_draft7, format_uri_reference_valid_with_tweak_exhaustive) {
       "URI reference");
 }
 
-TEST(Evaluator_draft7, format_uri_reference_invalid_with_tweak_exhaustive) {
+TEST(format_uri_reference_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-reference"
@@ -1962,7 +1968,7 @@ TEST(Evaluator_draft7, format_uri_reference_invalid_with_tweak_exhaustive) {
       "reference");
 }
 
-TEST(Evaluator_draft7, format_uri_reference_no_tweak_fast) {
+TEST(format_uri_reference_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-reference"
@@ -1973,7 +1979,7 @@ TEST(Evaluator_draft7, format_uri_reference_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_uri_reference_no_tweak_exhaustive) {
+TEST(format_uri_reference_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-reference"
@@ -1984,7 +1990,7 @@ TEST(Evaluator_draft7, format_uri_reference_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_uri_reference_non_string_with_tweak_fast) {
+TEST(format_uri_reference_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-reference"
@@ -1998,7 +2004,7 @@ TEST(Evaluator_draft7, format_uri_reference_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_uri_reference_non_string_with_tweak_exhaustive) {
+TEST(format_uri_reference_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-reference"
@@ -2013,7 +2019,7 @@ TEST(Evaluator_draft7, format_uri_reference_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_uri_template_valid_with_tweak_fast) {
+TEST(format_uri_template_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-template"
@@ -2035,7 +2041,7 @@ TEST(Evaluator_draft7, format_uri_template_valid_with_tweak_fast) {
       "a valid URI template");
 }
 
-TEST(Evaluator_draft7, format_uri_template_invalid_with_tweak_fast) {
+TEST(format_uri_template_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-template"
@@ -2057,7 +2063,7 @@ TEST(Evaluator_draft7, format_uri_template_invalid_with_tweak_fast) {
       "template");
 }
 
-TEST(Evaluator_draft7, format_uri_template_valid_with_tweak_exhaustive) {
+TEST(format_uri_template_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-template"
@@ -2080,7 +2086,7 @@ TEST(Evaluator_draft7, format_uri_template_valid_with_tweak_exhaustive) {
       "a valid URI template");
 }
 
-TEST(Evaluator_draft7, format_uri_template_invalid_with_tweak_exhaustive) {
+TEST(format_uri_template_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-template"
@@ -2103,7 +2109,7 @@ TEST(Evaluator_draft7, format_uri_template_invalid_with_tweak_exhaustive) {
       "template");
 }
 
-TEST(Evaluator_draft7, format_uri_template_no_tweak_fast) {
+TEST(format_uri_template_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-template"
@@ -2114,7 +2120,7 @@ TEST(Evaluator_draft7, format_uri_template_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_uri_template_no_tweak_exhaustive) {
+TEST(format_uri_template_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-template"
@@ -2125,7 +2131,7 @@ TEST(Evaluator_draft7, format_uri_template_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_uri_template_non_string_with_tweak_fast) {
+TEST(format_uri_template_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-template"
@@ -2139,7 +2145,7 @@ TEST(Evaluator_draft7, format_uri_template_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_uri_template_non_string_with_tweak_exhaustive) {
+TEST(format_uri_template_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri-template"
@@ -2154,7 +2160,7 @@ TEST(Evaluator_draft7, format_uri_template_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_json_pointer_valid_with_tweak_fast) {
+TEST(format_json_pointer_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "json-pointer"
@@ -2176,7 +2182,7 @@ TEST(Evaluator_draft7, format_json_pointer_valid_with_tweak_fast) {
       "Pointer");
 }
 
-TEST(Evaluator_draft7, format_json_pointer_invalid_with_tweak_fast) {
+TEST(format_json_pointer_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "json-pointer"
@@ -2198,7 +2204,7 @@ TEST(Evaluator_draft7, format_json_pointer_invalid_with_tweak_fast) {
       "valid JSON Pointer");
 }
 
-TEST(Evaluator_draft7, format_json_pointer_valid_with_tweak_exhaustive) {
+TEST(format_json_pointer_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "json-pointer"
@@ -2221,7 +2227,7 @@ TEST(Evaluator_draft7, format_json_pointer_valid_with_tweak_exhaustive) {
       "Pointer");
 }
 
-TEST(Evaluator_draft7, format_json_pointer_invalid_with_tweak_exhaustive) {
+TEST(format_json_pointer_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "json-pointer"
@@ -2244,7 +2250,7 @@ TEST(Evaluator_draft7, format_json_pointer_invalid_with_tweak_exhaustive) {
       "valid JSON Pointer");
 }
 
-TEST(Evaluator_draft7, format_json_pointer_no_tweak_fast) {
+TEST(format_json_pointer_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "json-pointer"
@@ -2255,7 +2261,7 @@ TEST(Evaluator_draft7, format_json_pointer_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_json_pointer_no_tweak_exhaustive) {
+TEST(format_json_pointer_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "json-pointer"
@@ -2266,7 +2272,7 @@ TEST(Evaluator_draft7, format_json_pointer_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_json_pointer_non_string_with_tweak_fast) {
+TEST(format_json_pointer_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "json-pointer"
@@ -2280,7 +2286,7 @@ TEST(Evaluator_draft7, format_json_pointer_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_json_pointer_non_string_with_tweak_exhaustive) {
+TEST(format_json_pointer_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "json-pointer"
@@ -2295,7 +2301,7 @@ TEST(Evaluator_draft7, format_json_pointer_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_relative_json_pointer_valid_with_tweak_fast) {
+TEST(format_relative_json_pointer_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "relative-json-pointer"
@@ -2317,7 +2323,7 @@ TEST(Evaluator_draft7, format_relative_json_pointer_valid_with_tweak_fast) {
       "JSON Pointer");
 }
 
-TEST(Evaluator_draft7, format_relative_json_pointer_invalid_with_tweak_fast) {
+TEST(format_relative_json_pointer_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "relative-json-pointer"
@@ -2339,8 +2345,7 @@ TEST(Evaluator_draft7, format_relative_json_pointer_invalid_with_tweak_fast) {
       "relative JSON Pointer");
 }
 
-TEST(Evaluator_draft7,
-     format_relative_json_pointer_valid_with_tweak_exhaustive) {
+TEST(format_relative_json_pointer_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "relative-json-pointer"
@@ -2363,8 +2368,7 @@ TEST(Evaluator_draft7,
       "JSON Pointer");
 }
 
-TEST(Evaluator_draft7,
-     format_relative_json_pointer_invalid_with_tweak_exhaustive) {
+TEST(format_relative_json_pointer_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "relative-json-pointer"
@@ -2387,7 +2391,7 @@ TEST(Evaluator_draft7,
       "relative JSON Pointer");
 }
 
-TEST(Evaluator_draft7, format_relative_json_pointer_no_tweak_fast) {
+TEST(format_relative_json_pointer_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "relative-json-pointer"
@@ -2398,7 +2402,7 @@ TEST(Evaluator_draft7, format_relative_json_pointer_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_relative_json_pointer_no_tweak_exhaustive) {
+TEST(format_relative_json_pointer_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "relative-json-pointer"
@@ -2409,8 +2413,7 @@ TEST(Evaluator_draft7, format_relative_json_pointer_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7,
-     format_relative_json_pointer_non_string_with_tweak_fast) {
+TEST(format_relative_json_pointer_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "relative-json-pointer"
@@ -2424,8 +2427,7 @@ TEST(Evaluator_draft7,
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7,
-     format_relative_json_pointer_non_string_with_tweak_exhaustive) {
+TEST(format_relative_json_pointer_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "relative-json-pointer"
@@ -2440,7 +2442,7 @@ TEST(Evaluator_draft7,
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_regex_valid_with_tweak_fast) {
+TEST(format_regex_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "regex"
@@ -2462,7 +2464,7 @@ TEST(Evaluator_draft7, format_regex_valid_with_tweak_fast) {
       "ECMA-262 regular expression");
 }
 
-TEST(Evaluator_draft7, format_regex_invalid_with_tweak_fast) {
+TEST(format_regex_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "regex"
@@ -2484,7 +2486,7 @@ TEST(Evaluator_draft7, format_regex_invalid_with_tweak_fast) {
       "regular expression");
 }
 
-TEST(Evaluator_draft7, format_regex_valid_with_tweak_exhaustive) {
+TEST(format_regex_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "regex"
@@ -2507,7 +2509,7 @@ TEST(Evaluator_draft7, format_regex_valid_with_tweak_exhaustive) {
       "ECMA-262 regular expression");
 }
 
-TEST(Evaluator_draft7, format_regex_invalid_with_tweak_exhaustive) {
+TEST(format_regex_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "regex"
@@ -2530,7 +2532,7 @@ TEST(Evaluator_draft7, format_regex_invalid_with_tweak_exhaustive) {
       "regular expression");
 }
 
-TEST(Evaluator_draft7, format_regex_no_tweak_fast) {
+TEST(format_regex_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "regex"
@@ -2541,7 +2543,7 @@ TEST(Evaluator_draft7, format_regex_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_regex_no_tweak_exhaustive) {
+TEST(format_regex_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "regex"
@@ -2552,7 +2554,7 @@ TEST(Evaluator_draft7, format_regex_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_regex_non_string_with_tweak_fast) {
+TEST(format_regex_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "regex"
@@ -2566,7 +2568,7 @@ TEST(Evaluator_draft7, format_regex_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_regex_non_string_with_tweak_exhaustive) {
+TEST(format_regex_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "regex"
@@ -2581,7 +2583,7 @@ TEST(Evaluator_draft7, format_regex_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_unknown_with_tweak_fast) {
+TEST(format_unknown_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "not-a-real-format"
@@ -2595,7 +2597,7 @@ TEST(Evaluator_draft7, format_unknown_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_unknown_with_tweak_exhaustive) {
+TEST(format_unknown_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "not-a-real-format"
@@ -2610,7 +2612,7 @@ TEST(Evaluator_draft7, format_unknown_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_keyword_value_integer_with_tweak_fast) {
+TEST(format_keyword_value_integer_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": 42
@@ -2624,7 +2626,7 @@ TEST(Evaluator_draft7, format_keyword_value_integer_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_keyword_value_integer_with_tweak_exhaustive) {
+TEST(format_keyword_value_integer_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": 42
@@ -2639,7 +2641,7 @@ TEST(Evaluator_draft7, format_keyword_value_integer_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_keyword_value_null_with_tweak_fast) {
+TEST(format_keyword_value_null_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": null
@@ -2653,7 +2655,7 @@ TEST(Evaluator_draft7, format_keyword_value_null_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_draft7, format_keyword_value_null_with_tweak_exhaustive) {
+TEST(format_keyword_value_null_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": null
@@ -2668,7 +2670,7 @@ TEST(Evaluator_draft7, format_keyword_value_null_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_draft7, format_under_properties_valid_with_tweak_fast) {
+TEST(format_under_properties_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
@@ -2694,7 +2696,7 @@ TEST(Evaluator_draft7, format_under_properties_valid_with_tweak_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_draft7, format_under_properties_invalid_with_tweak_fast) {
+TEST(format_under_properties_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
@@ -2720,7 +2722,7 @@ TEST(Evaluator_draft7, format_under_properties_invalid_with_tweak_fast) {
       "reference");
 }
 
-TEST(Evaluator_draft7, format_under_items_valid_with_tweak_fast) {
+TEST(format_under_items_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "items": { "format": "json-pointer" }
@@ -2754,7 +2756,7 @@ TEST(Evaluator_draft7, format_under_items_valid_with_tweak_fast) {
       "Pointer");
 }
 
-TEST(Evaluator_draft7, format_under_items_invalid_with_tweak_fast) {
+TEST(format_under_items_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "items": { "format": "uri-template" }
@@ -2788,7 +2790,7 @@ TEST(Evaluator_draft7, format_under_items_invalid_with_tweak_fast) {
       "template");
 }
 
-TEST(Evaluator_draft7, format_with_type_string_valid_with_tweak_fast) {
+TEST(format_with_type_string_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -2815,7 +2817,7 @@ TEST(Evaluator_draft7, format_with_type_string_valid_with_tweak_fast) {
                                "The value was expected to be of type string");
 }
 
-TEST(Evaluator_draft7, format_with_type_string_invalid_format_with_tweak_fast) {
+TEST(format_with_type_string_invalid_format_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -2838,7 +2840,7 @@ TEST(Evaluator_draft7, format_with_type_string_invalid_format_with_tweak_fast) {
       "URI");
 }
 
-TEST(Evaluator_draft7, format_with_type_string_non_string_with_tweak_fast) {
+TEST(format_with_type_string_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -2859,8 +2861,7 @@ TEST(Evaluator_draft7, format_with_type_string_non_string_with_tweak_fast) {
       "The value was expected to be of type string but it was of type integer");
 }
 
-TEST(Evaluator_draft7,
-     format_with_type_integer_short_circuits_with_tweak_fast) {
+TEST(format_with_type_integer_short_circuits_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -2880,7 +2881,7 @@ TEST(Evaluator_draft7,
                                "The value was expected to be of type integer");
 }
 
-TEST(Evaluator_draft7, format_uri_x_assertion_true_valid_no_tweak_fast) {
+TEST(format_uri_x_assertion_true_valid_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri",
@@ -2900,7 +2901,7 @@ TEST(Evaluator_draft7, format_uri_x_assertion_true_valid_no_tweak_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_draft7, format_uri_x_assertion_true_invalid_no_tweak_fast) {
+TEST(format_uri_x_assertion_true_invalid_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri",
@@ -2919,7 +2920,7 @@ TEST(Evaluator_draft7, format_uri_x_assertion_true_invalid_no_tweak_fast) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_draft7, format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
+TEST(format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri",
@@ -2939,8 +2940,7 @@ TEST(Evaluator_draft7, format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
       "valid URI");
 }
 
-TEST(Evaluator_draft7,
-     format_uri_x_assertion_true_invalid_no_tweak_exhaustive) {
+TEST(format_uri_x_assertion_true_invalid_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri",
@@ -2959,7 +2959,7 @@ TEST(Evaluator_draft7,
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_draft7, format_uri_x_assertion_false_no_tweak_fast) {
+TEST(format_uri_x_assertion_false_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri",
@@ -2971,7 +2971,7 @@ TEST(Evaluator_draft7, format_uri_x_assertion_false_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, format_uri_x_assertion_non_boolean_no_tweak_fast) {
+TEST(format_uri_x_assertion_non_boolean_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "format": "uri",
@@ -2983,7 +2983,7 @@ TEST(Evaluator_draft7, format_uri_x_assertion_non_boolean_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, x_assertion_true_without_format_no_tweak_fast) {
+TEST(x_assertion_true_without_format_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "x-format-assertion": true
@@ -2994,7 +2994,7 @@ TEST(Evaluator_draft7, x_assertion_true_without_format_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_draft7, additionalitems_annotations_none_no_empty_wrapper) {
+TEST(additionalitems_annotations_none_no_empty_wrapper) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "items": [ { "type": "string" } ],
@@ -3041,7 +3041,7 @@ TEST(Evaluator_draft7, additionalitems_annotations_none_no_empty_wrapper) {
                                "given subschema");
 }
 
-TEST(Evaluator_draft7, annotation_fast_metadata_no_effect) {
+TEST(annotation_fast_metadata_no_effect) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "T",
@@ -3062,7 +3062,7 @@ TEST(Evaluator_draft7, annotation_fast_metadata_no_effect) {
                                "The value was expected to be of type string");
 }
 
-TEST(Evaluator_draft7, annotation_fast_unknown_no_effect) {
+TEST(annotation_fast_unknown_no_effect) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "x-custom": "hi",
@@ -3083,7 +3083,7 @@ TEST(Evaluator_draft7, annotation_fast_unknown_no_effect) {
                                "The value was expected to be of type integer");
 }
 
-TEST(Evaluator_draft7, annotation_fast_properties_no_effect) {
+TEST(annotation_fast_properties_no_effect) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": { "foo": { "type": "string" } }
@@ -3107,7 +3107,7 @@ TEST(Evaluator_draft7, annotation_fast_properties_no_effect) {
                                "The value was expected to be of type string");
 }
 
-TEST(Evaluator_draft7, annotation_fast_contains_no_effect) {
+TEST(annotation_fast_contains_no_effect) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "contains": { "type": "integer" }

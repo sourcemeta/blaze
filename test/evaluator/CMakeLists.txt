@@ -1,4 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
   FOLDER "Blaze/Evaluator"
   SOURCES
     evaluator_utils.h
@@ -32,7 +32,7 @@ endif()
 
 # JSON Schema Test Suite
 # See https://github.com/json-schema-org/JSON-Schema-Test-Suite
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_official_suite
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_official_suite
   FOLDER "Blaze/Evaluator" SOURCES officialsuite.cc)
 target_compile_definitions(sourcemeta_blaze_evaluator_official_suite_unit
   PRIVATE OFFICIAL_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite")
@@ -43,7 +43,7 @@ target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sou
 
 # JSON Schema Test Suite (annotations)
 # See https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/annotations
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_annotation_suite
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_annotation_suite
   FOLDER "Blaze/Evaluator" SOURCES annotationsuite.cc)
 target_compile_definitions(sourcemeta_blaze_evaluator_annotation_suite_unit
   PRIVATE ANNOTATION_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite/annotations/tests")
@@ -56,7 +56,7 @@ target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE s
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::output)
 
 # Evaluator trace suite (JSON-driven trace tests)
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite
   FOLDER "Blaze/Evaluator" SOURCES tracesuite.cc)
 target_compile_definitions(sourcemeta_blaze_evaluator_trace_suite_unit
   PRIVATE TRACE_SUITE_PATH="${PROJECT_SOURCE_DIR}/test/evaluator")
@@ -66,7 +66,7 @@ target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE source
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::blaze::evaluator)
 
 # Evaluator trace suite with canonicalization (JSON-driven)
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite_canonical
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite_canonical
   FOLDER "Blaze/Evaluator" SOURCES tracesuite_canonical.cc)
 target_compile_definitions(sourcemeta_blaze_evaluator_trace_suite_canonical_unit
   PRIVATE TRACE_SUITE_CANONICAL_PATH="${PROJECT_SOURCE_DIR}/test/evaluator")

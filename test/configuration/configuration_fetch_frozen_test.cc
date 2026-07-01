@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/blaze/foundation.h>
@@ -56,7 +56,7 @@ static auto stub_fetcher(std::string_view uri) -> sourcemeta::core::JSON {
   throw std::runtime_error("Unknown URI: " + std::string{uri});
 }
 
-TEST(Configuration_fetch_frozen, dry_run_untracked_dependency) {
+TEST(dry_run_untracked_dependency) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -83,7 +83,7 @@ TEST(Configuration_fetch_frozen, dry_run_untracked_dependency) {
                      "unknown.json", 0, 1, "");
 }
 
-TEST(Configuration_fetch_frozen, dry_run_file_missing) {
+TEST(dry_run_file_missing) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -113,7 +113,7 @@ TEST(Configuration_fetch_frozen, dry_run_file_missing) {
                      "nonexistent.json", 0, 1, "");
 }
 
-TEST(Configuration_fetch_frozen, dry_run_up_to_date) {
+TEST(dry_run_up_to_date) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -153,7 +153,7 @@ TEST(Configuration_fetch_frozen, dry_run_up_to_date) {
                      "simple.json", 0, 1, "");
 }
 
-TEST(Configuration_fetch_frozen, dry_run_mismatched) {
+TEST(dry_run_mismatched) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -186,7 +186,7 @@ TEST(Configuration_fetch_frozen, dry_run_mismatched) {
                      "wrong-content.json", 0, 1, "");
 }
 
-TEST(Configuration_fetch_frozen, dry_run_orphaned_lock_entry) {
+TEST(dry_run_orphaned_lock_entry) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -231,7 +231,7 @@ TEST(Configuration_fetch_frozen, dry_run_orphaned_lock_entry) {
                      "orphaned.json", 0, 0, "");
 }
 
-TEST(Configuration_fetch_frozen, frozen_mismatched_fails) {
+TEST(frozen_mismatched_fails) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -267,7 +267,7 @@ TEST(Configuration_fetch_frozen, frozen_mismatched_fails) {
                      "File hash does not match lock file in frozen mode");
 }
 
-TEST(Configuration_fetch_frozen, dry_run_path_mismatch) {
+TEST(dry_run_path_mismatch) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -307,7 +307,7 @@ TEST(Configuration_fetch_frozen, dry_run_path_mismatch) {
                      "new_location.json", 0, 1, "");
 }
 
-TEST(Configuration_fetch_frozen, frozen_path_mismatch_fails) {
+TEST(frozen_path_mismatch_fails) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -350,7 +350,7 @@ TEST(Configuration_fetch_frozen, frozen_path_mismatch_fails) {
                      "Configured path does not match lock file in frozen mode");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_stops_processing) {
+TEST(callback_abort_stops_processing) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -379,7 +379,7 @@ TEST(Configuration_fetch_frozen, callback_abort_stops_processing) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, fetcher_exception_emits_error) {
+TEST(fetcher_exception_emits_error) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -418,7 +418,7 @@ TEST(Configuration_fetch_frozen, fetcher_exception_emits_error) {
   EXPECT_NE(events[1].exception, nullptr);
 }
 
-TEST(Configuration_fetch_frozen, empty_dependencies_no_events) {
+TEST(empty_dependencies_no_events) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com"
@@ -440,7 +440,7 @@ TEST(Configuration_fetch_frozen, empty_dependencies_no_events) {
   EXPECT_TRUE(events.empty());
 }
 
-TEST(Configuration_fetch_frozen, empty_dependencies_with_orphaned_lock) {
+TEST(empty_dependencies_with_orphaned_lock) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com"
@@ -467,7 +467,7 @@ TEST(Configuration_fetch_frozen, empty_dependencies_with_orphaned_lock) {
                      "orphaned.json", 0, 0, "");
 }
 
-TEST(Configuration_fetch_frozen, dry_run_multiple_mixed_results) {
+TEST(dry_run_multiple_mixed_results) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -515,7 +515,7 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_mixed_results) {
                      "simple.json", 1, 2, "");
 }
 
-TEST(Configuration_fetch_frozen, dry_run_multiple_with_untracked_and_missing) {
+TEST(dry_run_multiple_with_untracked_and_missing) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -564,7 +564,7 @@ TEST(Configuration_fetch_frozen, dry_run_multiple_with_untracked_and_missing) {
                      "untracked.json", 2, 3, "");
 }
 
-TEST(Configuration_fetch_frozen, dry_run_all_status_types) {
+TEST(dry_run_all_status_types) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -627,7 +627,7 @@ TEST(Configuration_fetch_frozen, dry_run_all_status_types) {
                      "orphaned.json", 0, 0, "");
 }
 
-TEST(Configuration_fetch_frozen, fetch_and_bundle_simple_schema) {
+TEST(fetch_and_bundle_simple_schema) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -679,7 +679,7 @@ TEST(Configuration_fetch_frozen, fetch_and_bundle_simple_schema) {
   })JSON");
 }
 
-TEST(Configuration_fetch_frozen, fetch_and_bundle_with_ref) {
+TEST(fetch_and_bundle_with_ref) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -740,7 +740,7 @@ TEST(Configuration_fetch_frozen, fetch_and_bundle_with_ref) {
   })JSON");
 }
 
-TEST(Configuration_fetch_frozen, fetch_schema_without_schema_using_default) {
+TEST(fetch_schema_without_schema_using_default) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -796,7 +796,7 @@ TEST(Configuration_fetch_frozen, fetch_schema_without_schema_using_default) {
   })JSON");
 }
 
-TEST(Configuration_fetch_frozen, fetch_schema_without_schema_no_default_fails) {
+TEST(fetch_schema_without_schema_no_default_fails) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -836,14 +836,14 @@ TEST(Configuration_fetch_frozen, fetch_schema_without_schema_no_default_fails) {
 
   try {
     std::rethrow_exception(events[3].exception);
-    FAIL() << "Expected exception to be thrown";
+    FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not determine the base dialect of the schema");
   }
 }
 
-TEST(Configuration_fetch_frozen, writer_exception_emits_error) {
+TEST(writer_exception_emits_error) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -890,7 +890,7 @@ TEST(Configuration_fetch_frozen, writer_exception_emits_error) {
   EXPECT_NE(events[5].exception, nullptr);
 }
 
-TEST(Configuration_fetch_frozen, hash_verification_failure) {
+TEST(hash_verification_failure) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -937,7 +937,7 @@ TEST(Configuration_fetch_frozen, hash_verification_failure) {
                      "Written file hash does not match lock file");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_fetch_end) {
+TEST(callback_abort_on_fetch_end) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -973,7 +973,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_fetch_end) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_bundle_start) {
+TEST(callback_abort_on_bundle_start) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1011,7 +1011,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_bundle_start) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_bundle_end) {
+TEST(callback_abort_on_bundle_end) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1051,7 +1051,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_bundle_end) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_write_start) {
+TEST(callback_abort_on_write_start) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1093,7 +1093,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_write_start) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_write_end) {
+TEST(callback_abort_on_write_end) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1137,7 +1137,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_write_end) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_verify_start) {
+TEST(callback_abort_on_verify_start) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1183,7 +1183,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_verify_start) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_verify_end) {
+TEST(callback_abort_on_verify_end) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1231,7 +1231,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_verify_end) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_orphaned) {
+TEST(callback_abort_on_orphaned) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com"
@@ -1260,7 +1260,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_orphaned) {
                      "orphaned.json", 0, 0, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, multiple_orphaned_entries) {
+TEST(multiple_orphaned_entries) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com"
@@ -1297,7 +1297,7 @@ TEST(Configuration_fetch_frozen, multiple_orphaned_entries) {
                      "orphaned3.json", 0, 0, "");
 }
 
-TEST(Configuration_fetch_frozen, resolver_returns_nullopt_during_bundle) {
+TEST(resolver_returns_nullopt_during_bundle) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1357,7 +1357,7 @@ TEST(Configuration_fetch_frozen, resolver_returns_nullopt_during_bundle) {
   EXPECT_NE(events[3].exception, nullptr);
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_fetch_start) {
+TEST(callback_abort_on_fetch_start) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1391,7 +1391,7 @@ TEST(Configuration_fetch_frozen, callback_abort_on_fetch_start) {
                      "simple.json", 0, 1, "Operation aborted by callback");
 }
 
-TEST(Configuration_fetch_frozen, up_to_date_skips_fetch_in_non_dry_run) {
+TEST(up_to_date_skips_fetch_in_non_dry_run) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1436,7 +1436,7 @@ TEST(Configuration_fetch_frozen, up_to_date_skips_fetch_in_non_dry_run) {
                      "simple.json", 0, 1, "");
 }
 
-TEST(Configuration_fetch_frozen, untracked_skips_fetch_in_non_dry_run) {
+TEST(untracked_skips_fetch_in_non_dry_run) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1468,7 +1468,7 @@ TEST(Configuration_fetch_frozen, untracked_skips_fetch_in_non_dry_run) {
                      "unknown.json", 0, 1, "");
 }
 
-TEST(Configuration_fetch_frozen, multiple_dependencies_stops_on_first_error) {
+TEST(multiple_dependencies_stops_on_first_error) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -1506,7 +1506,7 @@ TEST(Configuration_fetch_frozen, multiple_dependencies_stops_on_first_error) {
   EXPECT_NE(events[1].exception, nullptr);
 }
 
-TEST(Configuration_fetch_frozen, callback_abort_on_up_to_date) {
+TEST(callback_abort_on_up_to_date) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,19 +7,19 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12, true_boolean_schema_unchanged) {
+TEST(true_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12, false_boolean_schema_unchanged) {
+TEST(false_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12, trivial_root) {
+TEST(trivial_root) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string"
@@ -33,8 +33,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12, trivial_root) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12,
-     id_to_dollar_id_and_exclusive_minimum_lifted) {
+TEST(id_to_dollar_id_and_exclusive_minimum_lifted) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "https://example.com/root",
@@ -53,7 +52,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12, items_array_to_prefix_items) {
+TEST(items_array_to_prefix_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "items": [ { "type": "string" } ]
@@ -67,7 +66,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12, items_array_to_prefix_items) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12, ref_into_items_array_rewritten) {
+TEST(ref_into_items_array_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "items": [ { "type": "string" } ],
@@ -87,7 +86,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12, ref_into_items_array_rewritten) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12, idempotent_after_first_pass) {
+TEST(idempotent_after_first_pass) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -101,8 +100,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12, idempotent_after_first_pass) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12,
-     no_dollar_schema_with_default_dialect_draft4) {
+TEST(no_dollar_schema_with_default_dialect_draft4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com/test",
     "type": "integer"
@@ -118,8 +116,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12,
                                "http://json-schema.org/draft-04/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12,
-     no_dollar_schema_no_actionable_content_with_default_dialect_draft4) {
+TEST(no_dollar_schema_no_actionable_content_with_default_dialect_draft4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "type": "integer"
   })JSON");
@@ -133,24 +130,21 @@ TEST(AlterSchema_upgrade_Draft4_to_2020_12,
                                "http://json-schema.org/draft-04/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12,
-     true_boolean_schema_unchanged_with_default_dialect_draft4) {
+TEST(true_boolean_schema_unchanged_with_default_dialect_draft4) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-04/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12,
-     false_boolean_schema_unchanged_with_default_dialect_draft4) {
+TEST(false_boolean_schema_unchanged_with_default_dialect_draft4) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-04/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2020_12,
-     metaschema_cascade_from_draft4_emits_2020_12_vocabulary) {
+TEST(metaschema_cascade_from_draft4_emits_2020_12_vocabulary) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "https://example.com/my-dialect",

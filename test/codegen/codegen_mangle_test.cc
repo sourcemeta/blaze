@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/codegen.h>
 
@@ -6,7 +6,7 @@
 #include <string> // std::string
 #include <vector> // std::vector
 
-TEST(Codegen_mangle, prefix_only_no_symbol) {
+TEST(prefix_only_no_symbol) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -14,7 +14,7 @@ TEST(Codegen_mangle, prefix_only_no_symbol) {
             "Schema");
 }
 
-TEST(Codegen_mangle, single_lowercase_word) {
+TEST(single_lowercase_word) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -22,7 +22,7 @@ TEST(Codegen_mangle, single_lowercase_word) {
             "SchemaAddress");
 }
 
-TEST(Codegen_mangle, single_already_capitalized_word) {
+TEST(single_already_capitalized_word) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -30,7 +30,7 @@ TEST(Codegen_mangle, single_already_capitalized_word) {
             "SchemaAddress");
 }
 
-TEST(Codegen_mangle, hyphenated_two_words) {
+TEST(hyphenated_two_words) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -39,7 +39,7 @@ TEST(Codegen_mangle, hyphenated_two_words) {
             "SchemaStructuredAddress");
 }
 
-TEST(Codegen_mangle, hyphenated_three_words) {
+TEST(hyphenated_three_words) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(
@@ -48,7 +48,7 @@ TEST(Codegen_mangle, hyphenated_three_words) {
       "SchemaVeryLongName");
 }
 
-TEST(Codegen_mangle, dot_separator) {
+TEST(dot_separator) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -57,7 +57,7 @@ TEST(Codegen_mangle, dot_separator) {
             "SchemaUserProfile");
 }
 
-TEST(Codegen_mangle, whitespace_separator) {
+TEST(whitespace_separator) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -66,7 +66,7 @@ TEST(Codegen_mangle, whitespace_separator) {
             "SchemaStructuredAddress");
 }
 
-TEST(Codegen_mangle, mixed_separators) {
+TEST(mixed_separators) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -74,7 +74,7 @@ TEST(Codegen_mangle, mixed_separators) {
             "SchemaABCD");
 }
 
-TEST(Codegen_mangle, consecutive_separators) {
+TEST(consecutive_separators) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -82,7 +82,7 @@ TEST(Codegen_mangle, consecutive_separators) {
             "SchemaAB");
 }
 
-TEST(Codegen_mangle, leading_separator) {
+TEST(leading_separator) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -90,7 +90,7 @@ TEST(Codegen_mangle, leading_separator) {
             "SchemaAbc");
 }
 
-TEST(Codegen_mangle, trailing_separator) {
+TEST(trailing_separator) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -98,7 +98,7 @@ TEST(Codegen_mangle, trailing_separator) {
             "SchemaAbc");
 }
 
-TEST(Codegen_mangle, multiple_segments_with_hyphen) {
+TEST(multiple_segments_with_hyphen) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -107,7 +107,7 @@ TEST(Codegen_mangle, multiple_segments_with_hyphen) {
             "SchemaUserStructuredAddress");
 }
 
-TEST(Codegen_mangle, digit_inside_word) {
+TEST(digit_inside_word) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -115,7 +115,7 @@ TEST(Codegen_mangle, digit_inside_word) {
             "SchemaLine1");
 }
 
-TEST(Codegen_mangle, segment_starting_with_digit) {
+TEST(segment_starting_with_digit) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -123,7 +123,7 @@ TEST(Codegen_mangle, segment_starting_with_digit) {
             "Schema_2fa");
 }
 
-TEST(Codegen_mangle, digit_after_separator) {
+TEST(digit_after_separator) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -131,7 +131,7 @@ TEST(Codegen_mangle, digit_after_separator) {
             "SchemaA2b");
 }
 
-TEST(Codegen_mangle, underscore_preserved) {
+TEST(underscore_preserved) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -139,7 +139,7 @@ TEST(Codegen_mangle, underscore_preserved) {
             "SchemaFoo_bar");
 }
 
-TEST(Codegen_mangle, dollar_preserved) {
+TEST(dollar_preserved) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -147,7 +147,7 @@ TEST(Codegen_mangle, dollar_preserved) {
             "Schema$ref");
 }
 
-TEST(Codegen_mangle, empty_segment_skipped) {
+TEST(empty_segment_skipped) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -155,7 +155,7 @@ TEST(Codegen_mangle, empty_segment_skipped) {
             "SchemaName");
 }
 
-TEST(Codegen_mangle, segment_of_only_separators) {
+TEST(segment_of_only_separators) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -163,7 +163,7 @@ TEST(Codegen_mangle, segment_of_only_separators) {
             "Schema");
 }
 
-TEST(Codegen_mangle, acronym_preserved) {
+TEST(acronym_preserved) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle("Schema", pointer,
@@ -172,7 +172,7 @@ TEST(Codegen_mangle, acronym_preserved) {
             "SchemaHTTPServer");
 }
 
-TEST(Codegen_mangle, other_characters_dropped_as_boundary) {
+TEST(other_characters_dropped_as_boundary) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -180,7 +180,7 @@ TEST(Codegen_mangle, other_characters_dropped_as_boundary) {
             "SchemaFooBar");
 }
 
-TEST(Codegen_mangle, collision_same_pointer_returns_same_name) {
+TEST(collision_same_pointer_returns_same_name) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer pointer{"a"};
   EXPECT_EQ(sourcemeta::blaze::mangle(
@@ -191,7 +191,7 @@ TEST(Codegen_mangle, collision_same_pointer_returns_same_name) {
             "SchemaAddress");
 }
 
-TEST(Codegen_mangle, collision_different_pointer_gets_prefixed) {
+TEST(collision_different_pointer_gets_prefixed) {
   std::map<std::string, sourcemeta::core::Pointer> cache;
   const sourcemeta::core::Pointer first{"a"};
   const sourcemeta::core::Pointer second{"b"};

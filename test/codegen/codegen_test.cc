@@ -1,56 +1,64 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/codegen.h>
 #include <sourcemeta/blaze/foundation.h>
 
-TEST(Codegen, unsupported_dialect_draft3) {
+TEST(unsupported_dialect_draft3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string"
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(schema,
-                                          sourcemeta::blaze::schema_walker,
-                                          sourcemeta::blaze::schema_resolver,
-                                          sourcemeta::blaze::default_compiler),
-               sourcemeta::blaze::SchemaVocabularyError);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaVocabularyError &) {
+  }
 }
 
-TEST(Codegen, unsupported_keyword_error_not) {
+TEST(unsupported_keyword_error_not) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": { "type": "string" }
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(schema,
-                                          sourcemeta::blaze::schema_walker,
-                                          sourcemeta::blaze::schema_resolver,
-                                          sourcemeta::blaze::default_compiler),
-               sourcemeta::blaze::CodegenUnsupportedKeywordError);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &) {
+  }
 }
 
-TEST(Codegen, unsupported_keyword_value_error_type_not_string) {
+TEST(unsupported_keyword_value_error_type_not_string) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": 123
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(schema,
-                                          sourcemeta::blaze::schema_walker,
-                                          sourcemeta::blaze::schema_resolver,
-                                          sourcemeta::blaze::default_compiler),
-               sourcemeta::blaze::CodegenUnsupportedKeywordValueError);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &) {
+  }
 }
 
-TEST(Codegen, unsupported_keyword_value_error_unknown_type) {
+TEST(unsupported_keyword_value_error_unknown_type) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "foo"
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(schema,
-                                          sourcemeta::blaze::schema_walker,
-                                          sourcemeta::blaze::schema_resolver,
-                                          sourcemeta::blaze::default_compiler),
-               sourcemeta::blaze::CodegenUnsupportedKeywordValueError);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &) {
+  }
 }

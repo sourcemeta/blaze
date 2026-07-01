@@ -1,7 +1,7 @@
 #ifndef SOURCEMETA_BLAZE_CONFIGURATION_TEST_UTILS_H_
 #define SOURCEMETA_BLAZE_CONFIGURATION_TEST_UTILS_H_
 
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/json.h>

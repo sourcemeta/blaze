@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
-TEST(Foundation_metaschema, example_2020_12) {
+TEST(example_2020_12) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -20,7 +20,7 @@ TEST(Foundation_metaschema, example_2020_12) {
                             .value());
 }
 
-TEST(Foundation_metaschema, with_default_dialect) {
+TEST(with_default_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "type": "string"
   })JSON")};
@@ -37,28 +37,32 @@ TEST(Foundation_metaschema, with_default_dialect) {
                             .value());
 }
 
-TEST(Foundation_metaschema, no_dialect) {
+TEST(no_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "type": "string"
   })JSON")};
 
-  EXPECT_THROW(
-      sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver),
-      sourcemeta::blaze::SchemaUnknownDialectError);
+  try {
+    sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownDialectError &) {
+  }
 }
 
-TEST(Foundation_metaschema, unknown_dialect) {
+TEST(unknown_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com",
     "type": "string"
   })JSON")};
 
-  EXPECT_THROW(
-      sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver),
-      sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  }
 }
 
-TEST(Foundation_metaschema, override_returns_override_metaschema) {
+TEST(override_returns_override_metaschema) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "x-sourcemeta-dialect-override-subschema":
@@ -74,7 +78,7 @@ TEST(Foundation_metaschema, override_returns_override_metaschema) {
                             .value());
 }
 
-TEST(Foundation_metaschema, override_only_returns_override_metaschema) {
+TEST(override_only_returns_override_metaschema) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "x-sourcemeta-dialect-override-subschema":
       "https://json-schema.org/draft/2020-12/schema",
@@ -89,19 +93,21 @@ TEST(Foundation_metaschema, override_only_returns_override_metaschema) {
                             .value());
 }
 
-TEST(Foundation_metaschema, override_unresolvable) {
+TEST(override_unresolvable) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-sourcemeta-dialect-override-subschema": "https://example.com/missing",
     "type": "string"
   })JSON")};
 
-  EXPECT_THROW(
-      sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver),
-      sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  }
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema) {
+TEST(embedded_custom_metaschema) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -133,7 +139,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema) {
   EXPECT_EQ(metaschema, expected);
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema_draft7) {
+TEST(embedded_custom_metaschema_draft7) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -159,7 +165,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_draft7) {
   EXPECT_EQ(metaschema, expected);
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema_chain) {
+TEST(embedded_custom_metaschema_chain) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta-a",
     "$id": "https://example.com/schema",
@@ -192,7 +198,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_chain) {
   EXPECT_EQ(metaschema, expected);
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema_relative_dialect) {
+TEST(embedded_custom_metaschema_relative_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "meta",
     "$id": "https://example.com/schema",
@@ -219,7 +225,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_relative_dialect) {
   }
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema_precedence) {
+TEST(embedded_custom_metaschema_precedence) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -269,7 +275,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_precedence) {
   EXPECT_EQ(metaschema, expected);
 }
 
-TEST(Foundation_metaschema, try_embedded_2020_12) {
+TEST(try_embedded_2020_12) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -305,7 +311,7 @@ TEST(Foundation_metaschema, try_embedded_2020_12) {
   EXPECT_EQ(*metaschema, expected);
 }
 
-TEST(Foundation_metaschema, try_embedded_definitions_2020_12) {
+TEST(try_embedded_definitions_2020_12) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -332,7 +338,7 @@ TEST(Foundation_metaschema, try_embedded_definitions_2020_12) {
             &document.at("definitions").at("https://example.com/meta"));
 }
 
-TEST(Foundation_metaschema, try_embedded_chain) {
+TEST(try_embedded_chain) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta-a",
     "$id": "https://example.com/schema",
@@ -368,7 +374,7 @@ TEST(Foundation_metaschema, try_embedded_chain) {
   EXPECT_EQ(link, &document.at("$defs").at("https://example.com/meta-b"));
 }
 
-TEST(Foundation_metaschema, try_embedded_not_found) {
+TEST(try_embedded_not_found) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -386,7 +392,7 @@ TEST(Foundation_metaschema, try_embedded_not_found) {
       sourcemeta::blaze::schema_resolver));
 }
 
-TEST(Foundation_metaschema, try_embedded_no_containers) {
+TEST(try_embedded_no_containers) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -398,7 +404,7 @@ TEST(Foundation_metaschema, try_embedded_no_containers) {
       sourcemeta::blaze::schema_resolver));
 }
 
-TEST(Foundation_metaschema, try_embedded_relative_identifier) {
+TEST(try_embedded_relative_identifier) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "meta",
     "$id": "https://example.com/schema",
@@ -415,7 +421,7 @@ TEST(Foundation_metaschema, try_embedded_relative_identifier) {
       document, "meta", sourcemeta::blaze::schema_resolver));
 }
 
-TEST(Foundation_metaschema, try_embedded_wrong_container) {
+TEST(try_embedded_wrong_container) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -433,7 +439,7 @@ TEST(Foundation_metaschema, try_embedded_wrong_container) {
       sourcemeta::blaze::schema_resolver));
 }
 
-TEST(Foundation_metaschema, try_embedded_wrong_id_keyword) {
+TEST(try_embedded_wrong_id_keyword) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -454,7 +460,7 @@ TEST(Foundation_metaschema, try_embedded_wrong_id_keyword) {
       sourcemeta::blaze::schema_resolver));
 }
 
-TEST(Foundation_metaschema, try_embedded_self_descriptive) {
+TEST(try_embedded_self_descriptive) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -467,13 +473,16 @@ TEST(Foundation_metaschema, try_embedded_self_descriptive) {
     }
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::metaschema_try_embedded(
-                   document, "https://example.com/meta",
-                   sourcemeta::blaze::schema_resolver),
-               sourcemeta::blaze::SchemaUnknownBaseDialectError);
+  try {
+    sourcemeta::blaze::metaschema_try_embedded(
+        document, "https://example.com/meta",
+        sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  }
 }
 
-TEST(Foundation_metaschema, try_embedded_cyclic) {
+TEST(try_embedded_cyclic) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta-a",
     "$id": "https://example.com/schema",
@@ -491,13 +500,16 @@ TEST(Foundation_metaschema, try_embedded_cyclic) {
     }
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::metaschema_try_embedded(
-                   document, "https://example.com/meta-a",
-                   sourcemeta::blaze::schema_resolver),
-               sourcemeta::blaze::SchemaUnknownBaseDialectError);
+  try {
+    sourcemeta::blaze::metaschema_try_embedded(
+        document, "https://example.com/meta-a",
+        sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  }
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema_2019_09) {
+TEST(embedded_custom_metaschema_2019_09) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -529,7 +541,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_2019_09) {
   EXPECT_EQ(metaschema, expected);
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema_draft6) {
+TEST(embedded_custom_metaschema_draft6) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -555,7 +567,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_draft6) {
   EXPECT_EQ(metaschema, expected);
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema_draft4) {
+TEST(embedded_custom_metaschema_draft4) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",
@@ -581,7 +593,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_draft4) {
   EXPECT_EQ(metaschema, expected);
 }
 
-TEST(Foundation_metaschema, embedded_custom_metaschema_draft3) {
+TEST(embedded_custom_metaschema_draft3) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",
@@ -607,7 +619,7 @@ TEST(Foundation_metaschema, embedded_custom_metaschema_draft3) {
   EXPECT_EQ(metaschema, expected);
 }
 
-TEST(Foundation_metaschema, try_embedded_2019_09) {
+TEST(try_embedded_2019_09) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -642,7 +654,7 @@ TEST(Foundation_metaschema, try_embedded_2019_09) {
   EXPECT_EQ(*metaschema, expected);
 }
 
-TEST(Foundation_metaschema, try_embedded_draft7) {
+TEST(try_embedded_draft7) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -672,7 +684,7 @@ TEST(Foundation_metaschema, try_embedded_draft7) {
   EXPECT_EQ(*metaschema, expected);
 }
 
-TEST(Foundation_metaschema, try_embedded_draft6) {
+TEST(try_embedded_draft6) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -702,7 +714,7 @@ TEST(Foundation_metaschema, try_embedded_draft6) {
   EXPECT_EQ(*metaschema, expected);
 }
 
-TEST(Foundation_metaschema, try_embedded_draft4) {
+TEST(try_embedded_draft4) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",
@@ -732,7 +744,7 @@ TEST(Foundation_metaschema, try_embedded_draft4) {
   EXPECT_EQ(*metaschema, expected);
 }
 
-TEST(Foundation_metaschema, try_embedded_draft3) {
+TEST(try_embedded_draft3) {
   const auto document{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",

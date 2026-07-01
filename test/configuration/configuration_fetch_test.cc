@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/blaze/foundation.h>
@@ -50,7 +50,7 @@ static auto stub_fetcher(std::string_view uri) -> sourcemeta::core::JSON {
   throw std::runtime_error("Unknown URI: " + std::string{uri});
 }
 
-TEST(Configuration_fetch, missing_mode_untracked_fetches_and_updates_lock) {
+TEST(missing_mode_untracked_fetches_and_updates_lock) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -105,7 +105,7 @@ TEST(Configuration_fetch, missing_mode_untracked_fetches_and_updates_lock) {
   })JSON");
 }
 
-TEST(Configuration_fetch, missing_mode_file_missing_fetches_and_updates_lock) {
+TEST(missing_mode_file_missing_fetches_and_updates_lock) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -155,7 +155,7 @@ TEST(Configuration_fetch, missing_mode_file_missing_fetches_and_updates_lock) {
       "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 }
 
-TEST(Configuration_fetch, missing_mode_mismatched_fetches_and_updates_lock) {
+TEST(missing_mode_mismatched_fetches_and_updates_lock) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -208,7 +208,7 @@ TEST(Configuration_fetch, missing_mode_mismatched_fetches_and_updates_lock) {
       "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 }
 
-TEST(Configuration_fetch, missing_mode_up_to_date_skips_fetch) {
+TEST(missing_mode_up_to_date_skips_fetch) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -259,7 +259,7 @@ TEST(Configuration_fetch, missing_mode_up_to_date_skips_fetch) {
       "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 }
 
-TEST(Configuration_fetch, all_mode_up_to_date_still_fetches) {
+TEST(all_mode_up_to_date_still_fetches) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -319,7 +319,7 @@ TEST(Configuration_fetch, all_mode_up_to_date_still_fetches) {
       "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 }
 
-TEST(Configuration_fetch, fetcher_exception_emits_error) {
+TEST(fetcher_exception_emits_error) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -356,7 +356,7 @@ TEST(Configuration_fetch, fetcher_exception_emits_error) {
   EXPECT_EQ(lock.size(), 0);
 }
 
-TEST(Configuration_fetch, bundle_exception_emits_error) {
+TEST(bundle_exception_emits_error) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -415,7 +415,7 @@ TEST(Configuration_fetch, bundle_exception_emits_error) {
   EXPECT_EQ(lock.size(), 0);
 }
 
-TEST(Configuration_fetch, writer_exception_emits_error) {
+TEST(writer_exception_emits_error) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -460,7 +460,7 @@ TEST(Configuration_fetch, writer_exception_emits_error) {
   EXPECT_EQ(lock.size(), 0);
 }
 
-TEST(Configuration_fetch, callback_abort_on_fetch_start) {
+TEST(callback_abort_on_fetch_start) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -492,7 +492,7 @@ TEST(Configuration_fetch, callback_abort_on_fetch_start) {
   EXPECT_EQ(lock.size(), 0);
 }
 
-TEST(Configuration_fetch, callback_abort_on_up_to_date) {
+TEST(callback_abort_on_up_to_date) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -540,7 +540,7 @@ TEST(Configuration_fetch, callback_abort_on_up_to_date) {
       "bb4ce6cb36147103f0514dd6d084a74681add8ed5ae5d5b1390e3684068bed0f");
 }
 
-TEST(Configuration_fetch, empty_dependencies_no_events) {
+TEST(empty_dependencies_no_events) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com"
@@ -563,7 +563,7 @@ TEST(Configuration_fetch, empty_dependencies_no_events) {
   EXPECT_EQ(lock.size(), 0);
 }
 
-TEST(Configuration_fetch, fetch_and_bundle_with_ref) {
+TEST(fetch_and_bundle_with_ref) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -626,7 +626,7 @@ TEST(Configuration_fetch, fetch_and_bundle_with_ref) {
   })JSON");
 }
 
-TEST(Configuration_fetch, lock_to_json_after_fetch) {
+TEST(lock_to_json_after_fetch) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -675,8 +675,7 @@ TEST(Configuration_fetch, lock_to_json_after_fetch) {
   EXPECT_EQ(lock_json, expected);
 }
 
-TEST(Configuration_fetch,
-     path_mismatch_between_config_and_lock_triggers_fetch) {
+TEST(path_mismatch_between_config_and_lock_triggers_fetch) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -743,7 +742,7 @@ TEST(Configuration_fetch,
   })JSON");
 }
 
-TEST(Configuration_fetch, reader_exception_after_write_emits_error) {
+TEST(reader_exception_after_write_emits_error) {
   const auto configuration{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
         "base": "https://test.com",
@@ -810,8 +809,7 @@ TEST(Configuration_fetch, reader_exception_after_write_emits_error) {
   EXPECT_EQ(lock.size(), 0);
 }
 
-TEST(Configuration_fetch,
-     missing_mode_removes_orphaned_lock_entries_after_dependency_removal) {
+TEST(missing_mode_removes_orphaned_lock_entries_after_dependency_removal) {
   const auto configuration_with_two{sourcemeta::blaze::Configuration::from_json(
       sourcemeta::core::parse_json(R"JSON({
             "base": "https://test.com",

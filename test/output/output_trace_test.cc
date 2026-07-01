@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -86,7 +86,7 @@ static auto collect(std::vector<StoredTrace> &traces)
   EXPECT_TRUE(traces.at((index)).vocabulary.first);                            \
   EXPECT_FALSE(traces.at((index)).vocabulary.second.has_value());
 
-TEST(Output_trace, pass_1) {
+TEST(pass_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": false,
@@ -131,7 +131,7 @@ TEST(Output_trace, pass_1) {
                                    std::nullopt);
 }
 
-TEST(Output_trace, pass_annotations) {
+TEST(pass_annotations) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Foo Bar",
@@ -185,7 +185,7 @@ TEST(Output_trace, pass_annotations) {
                                    "#/additionalProperties", std::nullopt);
 }
 
-TEST(Output_trace, pass_with_matching_prefix_1) {
+TEST(pass_with_matching_prefix_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/helper",
@@ -240,7 +240,7 @@ TEST(Output_trace, pass_with_matching_prefix_1) {
                                    "#/$defs/helper/properties", std::nullopt);
 }
 
-TEST(Output_trace, pass_with_frame_exhaustive) {
+TEST(pass_with_frame_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Foo Bar",
@@ -312,7 +312,7 @@ TEST(Output_trace, pass_with_frame_exhaustive) {
       sourcemeta::blaze::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
 }
 
-TEST(Output_trace, pass_with_frame_fast) {
+TEST(pass_with_frame_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Foo Bar",
@@ -360,7 +360,7 @@ TEST(Output_trace, pass_with_frame_fast) {
       sourcemeta::blaze::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
 }
 
-TEST(Output_trace, nested_vocabulary_correctness) {
+TEST(nested_vocabulary_correctness) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": false,

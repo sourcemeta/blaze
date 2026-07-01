@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 
@@ -9,7 +9,7 @@
 
 #include "compiler_test_utils.h"
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_1) {
+TEST(unevaluatedProperties_1) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": { "foo": true },
@@ -41,7 +41,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_1) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_2) {
+TEST(unevaluatedProperties_2) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -79,7 +79,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_2) {
                               "https://example.com#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_3) {
+TEST(unevaluatedProperties_3) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": { "foo": true },
@@ -108,7 +108,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_3) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_4) {
+TEST(unevaluatedProperties_4) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": {
@@ -152,7 +152,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_4) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_5) {
+TEST(unevaluatedProperties_5) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [ { "unevaluatedProperties": false } ],
@@ -181,7 +181,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_5) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_6) {
+TEST(unevaluatedProperties_6) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [ { "unevaluatedProperties": false } ],
@@ -210,7 +210,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_6) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_7) {
+TEST(unevaluatedProperties_7) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/foo",
@@ -249,7 +249,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_7) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_8) {
+TEST(unevaluatedProperties_8) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -288,7 +288,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedProperties_8) {
                                 "https://example.com#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedItems_1) {
+TEST(unevaluatedItems_1) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": true,
@@ -319,7 +319,7 @@ TEST(Compiler_unevaluated_2020_12, unevaluatedItems_1) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedItems");
 }
 
-TEST(Compiler_unevaluated_2020_12, unevaluatedItems_2) {
+TEST(unevaluatedItems_2) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [ { "unevaluatedItems": false } ],

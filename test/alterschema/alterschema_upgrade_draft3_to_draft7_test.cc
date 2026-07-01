@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,7 +7,7 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft7, trivial_root_promotes_three_drafts) {
+TEST(trivial_root_promotes_three_drafts) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string"
@@ -21,7 +21,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft7, trivial_root_promotes_three_drafts) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft7, full_pipeline_combined) {
+TEST(full_pipeline_combined) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -44,8 +44,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft7, full_pipeline_combined) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft7,
-     format_host_name_and_ip_address_renamed) {
+TEST(format_host_name_and_ip_address_renamed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",

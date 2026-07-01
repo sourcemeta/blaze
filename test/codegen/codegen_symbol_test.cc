@@ -1,11 +1,11 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/codegen.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/frame.h>
 
-TEST(Codegen_symbol, nested_additional_properties_items) {
+TEST(nested_additional_properties_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -40,7 +40,7 @@ TEST(Codegen_symbol, nested_additional_properties_items) {
   EXPECT_EQ(result.at(2), "items");
 }
 
-TEST(Codegen_symbol, inside_defs) {
+TEST(inside_defs) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -71,7 +71,7 @@ TEST(Codegen_symbol, inside_defs) {
   EXPECT_EQ(result.at(1), "name");
 }
 
-TEST(Codegen_symbol, property_named_properties) {
+TEST(property_named_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -97,7 +97,7 @@ TEST(Codegen_symbol, property_named_properties) {
   EXPECT_EQ(result.at(0), "properties");
 }
 
-TEST(Codegen_symbol, anyof_child) {
+TEST(anyof_child) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [

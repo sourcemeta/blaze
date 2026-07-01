@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
@@ -96,7 +96,7 @@ static auto test_walker(std::string_view keyword,
   return unknown;
 }
 
-TEST(Foundation_walker, true) {
+TEST(true) {
   const sourcemeta::core::JSON document{true};
   std::vector<sourcemeta::core::JSON> subschemas;
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
@@ -117,7 +117,7 @@ TEST(Foundation_walker, true) {
   EXPECT_TRUE(entries.at(0).vocabularies.empty());
 }
 
-TEST(Foundation_walker, false) {
+TEST(false) {
   const sourcemeta::core::JSON document{false};
   std::vector<sourcemeta::core::JSON> subschemas;
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
@@ -137,7 +137,7 @@ TEST(Foundation_walker, false) {
   EXPECT_TRUE(entries.at(0).vocabularies.empty());
 }
 
-TEST(Foundation_walker, value) {
+TEST(value) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schema": {
@@ -195,7 +195,7 @@ TEST(Foundation_walker, value) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, value_with_dialect_no_identifier) {
+TEST(value_with_dialect_no_identifier) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schema": {
@@ -238,7 +238,7 @@ TEST(Foundation_walker, value_with_dialect_no_identifier) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, value_invalid) {
+TEST(value_invalid) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schema": [ { "foo": 1 } ]
@@ -266,7 +266,7 @@ TEST(Foundation_walker, value_invalid) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, elements) {
+TEST(elements) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schemas": [ { "foo": 1 }, { "schema": { "bar": 2 } } ]
@@ -323,7 +323,7 @@ TEST(Foundation_walker, elements) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, elements_invalid) {
+TEST(elements_invalid) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schemas": { "foo": 1 }
@@ -351,7 +351,7 @@ TEST(Foundation_walker, elements_invalid) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, members) {
+TEST(members) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schemaMap": {
@@ -412,7 +412,7 @@ TEST(Foundation_walker, members) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, members_invalid) {
+TEST(members_invalid) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schemaMap": [ { "foo": 1 } ]
@@ -440,7 +440,7 @@ TEST(Foundation_walker, members_invalid) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, value_or_elements) {
+TEST(value_or_elements) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schemaOrSchemas": {
@@ -498,7 +498,7 @@ TEST(Foundation_walker, value_or_elements) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, no_metaschema_and_no_default) {
+TEST(no_metaschema_and_no_default) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "schema": { "foo": 1 }
   })JSON");
@@ -522,7 +522,7 @@ TEST(Foundation_walker, no_metaschema_and_no_default) {
   EXPECT_FALSE(entries.at(0).base_dialect.has_value());
 }
 
-TEST(Foundation_walker, no_metaschema_with_default) {
+TEST(no_metaschema_with_default) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "schema": {
       "schema": {
@@ -579,7 +579,7 @@ TEST(Foundation_walker, no_metaschema_with_default) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, unknown_keyword_from_other_vocab) {
+TEST(unknown_keyword_from_other_vocab) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schema": {
@@ -621,7 +621,7 @@ TEST(Foundation_walker, unknown_keyword_from_other_vocab) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, multi_metaschemas) {
+TEST(multi_metaschemas) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schema": {
@@ -679,7 +679,7 @@ TEST(Foundation_walker, multi_metaschemas) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, flat) {
+TEST(flat) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schema": {
@@ -747,7 +747,7 @@ TEST(Foundation_walker, flat) {
   }
 }
 
-TEST(Foundation_walker, flat_non_modify) {
+TEST(flat_non_modify) {
   const std::string json{R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schema": {
@@ -776,7 +776,7 @@ TEST(Foundation_walker, flat_non_modify) {
   })JSON"));
 }
 
-TEST(Foundation_walker, flat_no_metaschema) {
+TEST(flat_no_metaschema) {
   const sourcemeta::core::JSON document =
       sourcemeta::core::parse_json(R"JSON({ "foo": 1 })JSON");
 
@@ -792,7 +792,7 @@ TEST(Foundation_walker, flat_no_metaschema) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(Foundation_walker, members_with_array) {
+TEST(members_with_array) {
   const std::string json{R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schemaMap": {
@@ -832,7 +832,7 @@ TEST(Foundation_walker, members_with_array) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, elements_with_string_items) {
+TEST(elements_with_string_items) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schemas": [ { "foo": 1 }, "foo" ]
@@ -867,7 +867,7 @@ TEST(Foundation_walker, elements_with_string_items) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, value_or_elements_with_string_items) {
+TEST(value_or_elements_with_string_items) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/test-metaschema",
     "schemaOrSchemas": [ { "foo": 1 }, "foo" ]
@@ -903,7 +903,7 @@ TEST(Foundation_walker, value_or_elements_with_string_items) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
-TEST(Foundation_walker, override_at_root) {
+TEST(override_at_root) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "x-sourcemeta-dialect-override-subschema":
@@ -932,7 +932,7 @@ TEST(Foundation_walker, override_at_root) {
   EXPECT_FALSE(entries.at(0).property_name);
 }
 
-TEST(Foundation_walker, override_does_not_inherit_to_children) {
+TEST(override_does_not_inherit_to_children) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "x-sourcemeta-dialect-override-subschema":
@@ -975,7 +975,7 @@ TEST(Foundation_walker, override_does_not_inherit_to_children) {
   EXPECT_FALSE(entries.at(1).property_name);
 }
 
-TEST(Foundation_walker, override_changes_child_discovery) {
+TEST(override_changes_child_discovery) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "x-sourcemeta-dialect-override-subschema":
@@ -1007,7 +1007,7 @@ TEST(Foundation_walker, override_changes_child_discovery) {
   EXPECT_FALSE(entries.at(0).property_name);
 }
 
-TEST(Foundation_walker, override_applies_at_non_resource_subschema) {
+TEST(override_applies_at_non_resource_subschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -1052,7 +1052,7 @@ TEST(Foundation_walker, override_applies_at_non_resource_subschema) {
   EXPECT_FALSE(entries.at(1).property_name);
 }
 
-TEST(Foundation_walker, override_ignored_sibling_to_ref_in_draft7) {
+TEST(override_ignored_sibling_to_ref_in_draft7) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -1112,7 +1112,7 @@ TEST(Foundation_walker, override_ignored_sibling_to_ref_in_draft7) {
   EXPECT_FALSE(entries.at(2).property_name);
 }
 
-TEST(Foundation_walker, override_honored_sibling_to_ref_in_2019_09) {
+TEST(override_honored_sibling_to_ref_in_2019_09) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$defs": {

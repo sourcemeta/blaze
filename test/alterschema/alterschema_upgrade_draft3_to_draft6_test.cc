@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,7 +7,7 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft6, trivial_root_promotes_two_drafts) {
+TEST(trivial_root_promotes_two_drafts) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string"
@@ -21,7 +21,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft6, trivial_root_promotes_two_drafts) {
   UPGRADE_DRAFT_6(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft6, full_pipeline_combined) {
+TEST(full_pipeline_combined) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com/root",
@@ -52,8 +52,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft6, full_pipeline_combined) {
   UPGRADE_DRAFT_6(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft6,
-     format_host_name_and_ip_address_renamed) {
+TEST(format_host_name_and_ip_address_renamed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",

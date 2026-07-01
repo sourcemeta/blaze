@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
@@ -35,7 +35,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_vocabulary_2019_09, parse_vocabularies_with_vocabulary) {
+TEST(parse_vocabularies_with_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -54,7 +54,7 @@ TEST(Foundation_vocabulary_2019_09, parse_vocabularies_with_vocabulary) {
   EXPECT_VOCABULARY_OPTIONAL(*result, JSON_Schema_2019_09_Validation);
 }
 
-TEST(Foundation_vocabulary_2019_09, parse_vocabularies_without_vocabulary) {
+TEST(parse_vocabularies_without_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object"
@@ -65,15 +65,14 @@ TEST(Foundation_vocabulary_2019_09, parse_vocabularies_without_vocabulary) {
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_2019_09, parse_vocabularies_boolean_schema) {
+TEST(parse_vocabularies_boolean_schema) {
   const sourcemeta::core::JSON document{true};
   const auto result{sourcemeta::blaze::parse_vocabularies(
       document, test_resolver, "https://json-schema.org/draft/2019-09/schema")};
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_2019_09,
-     parse_vocabularies_with_base_dialect_with_vocabulary) {
+TEST(parse_vocabularies_with_base_dialect_with_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$vocabulary": {
       "https://json-schema.org/draft/2019-09/vocab/core": true,
@@ -89,8 +88,7 @@ TEST(Foundation_vocabulary_2019_09,
   EXPECT_VOCABULARY_REQUIRED(*result, JSON_Schema_2019_09_Applicator);
 }
 
-TEST(Foundation_vocabulary_2019_09,
-     parse_vocabularies_with_base_dialect_without_vocabulary) {
+TEST(parse_vocabularies_with_base_dialect_without_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "type": "object"
   })JSON");
@@ -100,8 +98,7 @@ TEST(Foundation_vocabulary_2019_09,
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_2019_09,
-     parse_vocabularies_with_base_dialect_hyper) {
+TEST(parse_vocabularies_with_base_dialect_hyper) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$vocabulary": {
       "https://json-schema.org/draft/2019-09/vocab/core": true
@@ -116,8 +113,7 @@ TEST(Foundation_vocabulary_2019_09,
   EXPECT_VOCABULARY_REQUIRED(*result, JSON_Schema_2019_09_Core);
 }
 
-TEST(Foundation_vocabulary_2019_09,
-     parse_vocabularies_with_base_dialect_vocabulary_not_object_string) {
+TEST(parse_vocabularies_with_base_dialect_vocabulary_not_object_string) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$vocabulary": "not-an-object"
   })JSON");
@@ -127,8 +123,7 @@ TEST(Foundation_vocabulary_2019_09,
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_2019_09,
-     parse_vocabularies_with_base_dialect_vocabulary_entry_not_boolean) {
+TEST(parse_vocabularies_with_base_dialect_vocabulary_entry_not_boolean) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$vocabulary": {
       "https://json-schema.org/draft/2019-09/vocab/core": "not-a-bool"
@@ -140,8 +135,7 @@ TEST(Foundation_vocabulary_2019_09,
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_2019_09,
-     parse_vocabularies_with_resolver_vocabulary_not_object) {
+TEST(parse_vocabularies_with_resolver_vocabulary_not_object) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": "not-an-object"
@@ -152,8 +146,7 @@ TEST(Foundation_vocabulary_2019_09,
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_2019_09,
-     parse_vocabularies_with_resolver_vocabulary_entry_not_boolean) {
+TEST(parse_vocabularies_with_resolver_vocabulary_entry_not_boolean) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -166,7 +159,7 @@ TEST(Foundation_vocabulary_2019_09,
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_2019_09, no_vocabularies) {
+TEST(no_vocabularies) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2019-09-no-vocabularies"
   })JSON");
@@ -176,7 +169,7 @@ TEST(Foundation_vocabulary_2019_09, no_vocabularies) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2019_09_Core);
 }
 
-TEST(Foundation_vocabulary_2019_09, no_vocabularies_hyper) {
+TEST(no_vocabularies_hyper) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2019-09-hyper-no-vocabularies"
   })JSON");
@@ -186,7 +179,7 @@ TEST(Foundation_vocabulary_2019_09, no_vocabularies_hyper) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2019_09_Core);
 }
 
-TEST(Foundation_vocabulary_2019_09, hyper) {
+TEST(hyper) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/hyper-schema"
   })JSON");
@@ -202,7 +195,7 @@ TEST(Foundation_vocabulary_2019_09, hyper) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2019_09_Hyper_Schema);
 }
 
-TEST(Foundation_vocabulary_2019_09, custom_vocabularies) {
+TEST(custom_vocabularies) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2019-09-custom-vocabularies"
   })JSON");

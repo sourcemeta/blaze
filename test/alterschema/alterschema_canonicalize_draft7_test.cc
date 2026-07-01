@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -11,25 +11,19 @@
 
 #include "alterschema_test_utils.h"
 
-class CanonicalizerDraft7Test : public testing::Test {
-protected:
-  static auto SetUpTestSuite() -> void {
-    const auto meta_schema = sourcemeta::core::read_json(
-        std::filesystem::path{SCHEMAS_PATH} / "canonical-draft7.json");
-    compiled_meta_ = std::make_unique<sourcemeta::blaze::Template>(
-        sourcemeta::blaze::compile(meta_schema,
-                                   sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
-                                   sourcemeta::blaze::default_schema_compiler));
-  }
+namespace {
+auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
+  static const sourcemeta::blaze::Template schema_template{
+      sourcemeta::blaze::compile(
+          sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
+                                      "canonical-draft7.json"),
+          sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+          sourcemeta::blaze::default_schema_compiler)};
+  return schema_template;
+}
+} // namespace
 
-  static std::unique_ptr<sourcemeta::blaze::Template> compiled_meta_;
-};
-
-std::unique_ptr<sourcemeta::blaze::Template>
-    CanonicalizerDraft7Test::compiled_meta_ = nullptr;
-
-TEST_F(CanonicalizerDraft7Test, duplicate_allof_branches_2) {
+TEST(duplicate_allof_branches_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
@@ -47,10 +41,10 @@ TEST_F(CanonicalizerDraft7Test, duplicate_allof_branches_2) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, duplicate_allof_branches_3) {
+TEST(duplicate_allof_branches_3) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
@@ -68,10 +62,10 @@ TEST_F(CanonicalizerDraft7Test, duplicate_allof_branches_3) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, duplicate_allof_branches_4) {
+TEST(duplicate_allof_branches_4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
@@ -96,10 +90,10 @@ TEST_F(CanonicalizerDraft7Test, duplicate_allof_branches_4) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_boolean_as_enum_1) {
+TEST(type_boolean_as_enum_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "boolean"
@@ -110,10 +104,10 @@ TEST_F(CanonicalizerDraft7Test, type_boolean_as_enum_1) {
     "enum": [ false, true ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_boolean_as_enum_2) {
+TEST(type_boolean_as_enum_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "boolean",
@@ -124,10 +118,10 @@ TEST_F(CanonicalizerDraft7Test, type_boolean_as_enum_2) {
     false
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_null_as_enum_1) {
+TEST(type_null_as_enum_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "null"
@@ -138,10 +132,10 @@ TEST_F(CanonicalizerDraft7Test, type_null_as_enum_1) {
     "enum": [ null ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_null_as_enum_2) {
+TEST(type_null_as_enum_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "null",
@@ -152,10 +146,10 @@ TEST_F(CanonicalizerDraft7Test, type_null_as_enum_2) {
     false
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, boolean_true_1) {
+TEST(boolean_true_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "properties": {
@@ -184,10 +178,10 @@ TEST_F(CanonicalizerDraft7Test, boolean_true_1) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, min_properties_covered_by_required_1) {
+TEST(min_properties_covered_by_required_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -214,10 +208,10 @@ TEST_F(CanonicalizerDraft7Test, min_properties_covered_by_required_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, min_properties_implicit_1) {
+TEST(min_properties_implicit_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -243,10 +237,10 @@ TEST_F(CanonicalizerDraft7Test, min_properties_implicit_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, min_properties_implicit_2) {
+TEST(min_properties_implicit_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -273,11 +267,10 @@ TEST_F(CanonicalizerDraft7Test, min_properties_implicit_2) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       pattern_properties_additional_properties_false) {
+TEST(pattern_properties_additional_properties_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -295,10 +288,10 @@ TEST_F(CanonicalizerDraft7Test,
     "propertyNames": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, equal_numeric_bounds_to_enum_2) {
+TEST(equal_numeric_bounds_to_enum_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -311,10 +304,10 @@ TEST_F(CanonicalizerDraft7Test, equal_numeric_bounds_to_enum_2) {
     "enum": [ 3 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, string_bare) {
+TEST(string_bare) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string"
@@ -326,10 +319,10 @@ TEST_F(CanonicalizerDraft7Test, string_bare) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, string_with_all_keywords) {
+TEST(string_with_all_keywords) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -348,10 +341,10 @@ TEST_F(CanonicalizerDraft7Test, string_with_all_keywords) {
     "format": "email"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_bare) {
+TEST(integer_bare) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer"
@@ -363,10 +356,10 @@ TEST_F(CanonicalizerDraft7Test, integer_bare) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_with_bounds) {
+TEST(integer_with_bounds) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -382,10 +375,10 @@ TEST_F(CanonicalizerDraft7Test, integer_with_bounds) {
     "maximum": 100
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_exclusive_minimum_numeric_fold) {
+TEST(integer_exclusive_minimum_numeric_fold) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -399,10 +392,10 @@ TEST_F(CanonicalizerDraft7Test, integer_exclusive_minimum_numeric_fold) {
     "minimum": 6
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_exclusive_maximum_numeric_fold) {
+TEST(integer_exclusive_maximum_numeric_fold) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -416,10 +409,10 @@ TEST_F(CanonicalizerDraft7Test, integer_exclusive_maximum_numeric_fold) {
     "maximum": 9
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_both_exclusive_bounds_fold) {
+TEST(integer_both_exclusive_bounds_fold) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -435,10 +428,10 @@ TEST_F(CanonicalizerDraft7Test, integer_both_exclusive_bounds_fold) {
     "maximum": 9
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, number_bare) {
+TEST(number_bare) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "number"
@@ -449,10 +442,10 @@ TEST_F(CanonicalizerDraft7Test, number_bare) {
     "type": "number"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, number_with_bounds) {
+TEST(number_with_bounds) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "number",
@@ -469,10 +462,10 @@ TEST_F(CanonicalizerDraft7Test, number_with_bounds) {
     "multipleOf": 0.1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, number_with_exclusive_minimum_preserved) {
+TEST(number_with_exclusive_minimum_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "number",
@@ -485,10 +478,10 @@ TEST_F(CanonicalizerDraft7Test, number_with_exclusive_minimum_preserved) {
     "exclusiveMinimum": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, number_with_exclusive_maximum_preserved) {
+TEST(number_with_exclusive_maximum_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "number",
@@ -501,10 +494,10 @@ TEST_F(CanonicalizerDraft7Test, number_with_exclusive_maximum_preserved) {
     "exclusiveMaximum": 10
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_bare) {
+TEST(object_bare) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object"
@@ -520,10 +513,10 @@ TEST_F(CanonicalizerDraft7Test, object_bare) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_with_properties) {
+TEST(object_with_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -546,10 +539,10 @@ TEST_F(CanonicalizerDraft7Test, object_with_properties) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_with_additional_properties_schema) {
+TEST(object_with_additional_properties_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -566,10 +559,10 @@ TEST_F(CanonicalizerDraft7Test, object_with_additional_properties_schema) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_with_max_properties) {
+TEST(object_with_max_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -587,10 +580,10 @@ TEST_F(CanonicalizerDraft7Test, object_with_max_properties) {
     "maxProperties": 5
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_bare) {
+TEST(array_bare) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array"
@@ -604,10 +597,10 @@ TEST_F(CanonicalizerDraft7Test, array_bare) {
     "items": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_with_items_schema) {
+TEST(array_with_items_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -622,10 +615,10 @@ TEST_F(CanonicalizerDraft7Test, array_with_items_schema) {
     "items": { "type": "string", "minLength": 0 }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_with_max_items_and_unique) {
+TEST(array_with_max_items_and_unique) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -643,10 +636,10 @@ TEST_F(CanonicalizerDraft7Test, array_with_max_items_and_unique) {
     "uniqueItems": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_schema_items_additional_items_stripped) {
+TEST(array_schema_items_additional_items_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -662,10 +655,10 @@ TEST_F(CanonicalizerDraft7Test, array_schema_items_additional_items_stripped) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_tuple_items) {
+TEST(array_tuple_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -687,10 +680,10 @@ TEST_F(CanonicalizerDraft7Test, array_tuple_items) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_tuple_with_additional_items) {
+TEST(array_tuple_with_additional_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -711,10 +704,10 @@ TEST_F(CanonicalizerDraft7Test, array_tuple_with_additional_items) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_tuple_additional_items_false) {
+TEST(array_tuple_additional_items_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -731,10 +724,10 @@ TEST_F(CanonicalizerDraft7Test, array_tuple_additional_items_false) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_bare) {
+TEST(enum_bare) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ "red", "green", "blue" ]
@@ -745,10 +738,10 @@ TEST_F(CanonicalizerDraft7Test, enum_bare) {
     "enum": [ "red", "green", "blue" ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_with_type_matching) {
+TEST(enum_with_type_matching) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -760,10 +753,10 @@ TEST_F(CanonicalizerDraft7Test, enum_with_type_matching) {
     "enum": [ "a", "b", "c" ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, equal_numeric_bounds_number) {
+TEST(equal_numeric_bounds_number) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "number",
@@ -776,10 +769,10 @@ TEST_F(CanonicalizerDraft7Test, equal_numeric_bounds_number) {
     "enum": [ 3.5 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, ref_with_siblings_stripped) {
+TEST(ref_with_siblings_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -816,10 +809,10 @@ TEST_F(CanonicalizerDraft7Test, ref_with_siblings_stripped) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_array_to_any_of) {
+TEST(type_array_to_any_of) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": [ "string", "number" ]
@@ -833,10 +826,10 @@ TEST_F(CanonicalizerDraft7Test, type_array_to_any_of) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_array_single_element) {
+TEST(type_array_single_element) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": [ "string" ]
@@ -848,10 +841,10 @@ TEST_F(CanonicalizerDraft7Test, type_array_single_element) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, empty_subschema_to_true) {
+TEST(empty_subschema_to_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -872,10 +865,10 @@ TEST_F(CanonicalizerDraft7Test, empty_subschema_to_true) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, anyof_standalone) {
+TEST(anyof_standalone) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [
@@ -892,10 +885,10 @@ TEST_F(CanonicalizerDraft7Test, anyof_standalone) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, oneof_standalone) {
+TEST(oneof_standalone) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "oneOf": [
@@ -912,10 +905,10 @@ TEST_F(CanonicalizerDraft7Test, oneof_standalone) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, not_with_boolean_true) {
+TEST(not_with_boolean_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": {}
@@ -926,10 +919,10 @@ TEST_F(CanonicalizerDraft7Test, not_with_boolean_true) {
     "not": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, not_with_schema) {
+TEST(not_with_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": { "type": "string" }
@@ -940,10 +933,10 @@ TEST_F(CanonicalizerDraft7Test, not_with_schema) {
     "not": { "type": "string", "minLength": 0 }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, allof_single_branch) {
+TEST(allof_single_branch) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
@@ -957,10 +950,10 @@ TEST_F(CanonicalizerDraft7Test, allof_single_branch) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, unknown_keyword_prefixed) {
+TEST(unknown_keyword_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -974,10 +967,10 @@ TEST_F(CanonicalizerDraft7Test, unknown_keyword_prefixed) {
     "x-customKeyword": "value"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, definitions_subschemas_canonicalized) {
+TEST(definitions_subschemas_canonicalized) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -1024,10 +1017,10 @@ TEST_F(CanonicalizerDraft7Test, definitions_subschemas_canonicalized) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, nested_object_with_array_property) {
+TEST(nested_object_with_array_property) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1056,10 +1049,10 @@ TEST_F(CanonicalizerDraft7Test, nested_object_with_array_property) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, full_realistic_schema) {
+TEST(full_realistic_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/person",
@@ -1103,10 +1096,10 @@ TEST_F(CanonicalizerDraft7Test, full_realistic_schema) {
     "minProperties": 2
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, annotations_preserved_on_string) {
+TEST(annotations_preserved_on_string) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -1124,10 +1117,10 @@ TEST_F(CanonicalizerDraft7Test, annotations_preserved_on_string) {
     "default": "unknown"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, string_with_numeric_keywords_stripped) {
+TEST(string_with_numeric_keywords_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -1140,10 +1133,10 @@ TEST_F(CanonicalizerDraft7Test, string_with_numeric_keywords_stripped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_with_string_keywords_stripped) {
+TEST(object_with_string_keywords_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1161,10 +1154,10 @@ TEST_F(CanonicalizerDraft7Test, object_with_string_keywords_stripped) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, circular_ref_in_property) {
+TEST(circular_ref_in_property) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1207,11 +1200,10 @@ TEST_F(CanonicalizerDraft7Test, circular_ref_in_property) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       type_array_with_minimum_distributed_to_numeric) {
+TEST(type_array_with_minimum_distributed_to_numeric) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": [ "integer", "string" ],
@@ -1226,10 +1218,10 @@ TEST_F(CanonicalizerDraft7Test,
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_array_string_and_null) {
+TEST(type_array_string_and_null) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": [ "string", "null" ]
@@ -1243,10 +1235,10 @@ TEST_F(CanonicalizerDraft7Test, type_array_string_and_null) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_array_three_types_with_mixed_keywords) {
+TEST(type_array_three_types_with_mixed_keywords) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": [ "integer", "number", "string" ],
@@ -1263,10 +1255,10 @@ TEST_F(CanonicalizerDraft7Test, type_array_three_types_with_mixed_keywords) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_array_object_and_array) {
+TEST(type_array_object_and_array) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": [ "object", "array" ],
@@ -1284,10 +1276,10 @@ TEST_F(CanonicalizerDraft7Test, type_array_object_and_array) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, dependencies_property_single) {
+TEST(dependencies_property_single) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1344,10 +1336,10 @@ TEST_F(CanonicalizerDraft7Test, dependencies_property_single) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, dependencies_schema_single) {
+TEST(dependencies_schema_single) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1419,10 +1411,10 @@ TEST_F(CanonicalizerDraft7Test, dependencies_schema_single) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_with_not_sibling_wrapped) {
+TEST(type_with_not_sibling_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -1446,10 +1438,10 @@ TEST_F(CanonicalizerDraft7Test, type_with_not_sibling_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, ref_siblings_stripped_in_subschema) {
+TEST(ref_siblings_stripped_in_subschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1470,10 +1462,10 @@ TEST_F(CanonicalizerDraft7Test, ref_siblings_stripped_in_subschema) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, string_with_format_only) {
+TEST(string_with_format_only) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -1487,10 +1479,10 @@ TEST_F(CanonicalizerDraft7Test, string_with_format_only) {
     "format": "date-time"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, deeply_nested_objects) {
+TEST(deeply_nested_objects) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1531,10 +1523,10 @@ TEST_F(CanonicalizerDraft7Test, deeply_nested_objects) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, pattern_properties_with_schemas) {
+TEST(pattern_properties_with_schemas) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1557,10 +1549,10 @@ TEST_F(CanonicalizerDraft7Test, pattern_properties_with_schemas) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, allof_with_compatible_branches) {
+TEST(allof_with_compatible_branches) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
@@ -1577,10 +1569,10 @@ TEST_F(CanonicalizerDraft7Test, allof_with_compatible_branches) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_mixed_types) {
+TEST(enum_mixed_types) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 1, "two", true, null, { "x": 1 }, [ 1 ] ]
@@ -1616,10 +1608,10 @@ TEST_F(CanonicalizerDraft7Test, enum_mixed_types) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_single_value) {
+TEST(enum_single_value) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 42 ]
@@ -1630,10 +1622,10 @@ TEST_F(CanonicalizerDraft7Test, enum_single_value) {
     "enum": [ 42 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_duplicate_values_removed) {
+TEST(enum_duplicate_values_removed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 1, 2, 1, 3, 2 ]
@@ -1644,10 +1636,10 @@ TEST_F(CanonicalizerDraft7Test, enum_duplicate_values_removed) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_additional_properties_false_named) {
+TEST(object_additional_properties_false_named) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1665,11 +1657,10 @@ TEST_F(CanonicalizerDraft7Test, object_additional_properties_false_named) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       integer_exclusive_bounds_fold_then_equal_bounds_to_enum) {
+TEST(integer_exclusive_bounds_fold_then_equal_bounds_to_enum) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -1682,10 +1673,10 @@ TEST_F(CanonicalizerDraft7Test,
     "enum": [ 5 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_items_object_schema) {
+TEST(array_items_object_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -1715,10 +1706,10 @@ TEST_F(CanonicalizerDraft7Test, array_items_object_schema) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, anyof_with_nested_allof) {
+TEST(anyof_with_nested_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [
@@ -1772,10 +1763,10 @@ TEST_F(CanonicalizerDraft7Test, anyof_with_nested_allof) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, oneof_disjoint_types_to_anyof) {
+TEST(oneof_disjoint_types_to_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "oneOf": [
@@ -1792,10 +1783,10 @@ TEST_F(CanonicalizerDraft7Test, oneof_disjoint_types_to_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, not_with_object_schema) {
+TEST(not_with_object_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": { "type": "object", "required": [ "forbidden" ] }
@@ -1820,10 +1811,10 @@ TEST_F(CanonicalizerDraft7Test, not_with_object_schema) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, schema_with_id) {
+TEST(schema_with_id) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/my-schema",
@@ -1838,10 +1829,10 @@ TEST_F(CanonicalizerDraft7Test, schema_with_id) {
     "minLength": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, allof_empty_branch_dropped) {
+TEST(allof_empty_branch_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ { "type": "string" }, {} ]
@@ -1853,10 +1844,10 @@ TEST_F(CanonicalizerDraft7Test, allof_empty_branch_dropped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, multiple_x_keywords_preserved) {
+TEST(multiple_x_keywords_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -1872,10 +1863,10 @@ TEST_F(CanonicalizerDraft7Test, multiple_x_keywords_preserved) {
     "x-deprecated-since": "2.0"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_required_already_in_properties) {
+TEST(object_required_already_in_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1893,10 +1884,10 @@ TEST_F(CanonicalizerDraft7Test, object_required_already_in_properties) {
     "minProperties": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, orphan_definitions_removed) {
+TEST(orphan_definitions_removed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -1909,10 +1900,10 @@ TEST_F(CanonicalizerDraft7Test, orphan_definitions_removed) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_with_type_matching_stripped) {
+TEST(enum_with_type_matching_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -1924,10 +1915,10 @@ TEST_F(CanonicalizerDraft7Test, enum_with_type_matching_stripped) {
     "enum": [ "a", "b", "c" ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, string_cross_type_keywords_stripped) {
+TEST(string_cross_type_keywords_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -1940,10 +1931,10 @@ TEST_F(CanonicalizerDraft7Test, string_cross_type_keywords_stripped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_cross_type_keywords_stripped) {
+TEST(object_cross_type_keywords_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -1961,10 +1952,10 @@ TEST_F(CanonicalizerDraft7Test, object_cross_type_keywords_stripped) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, anyof_with_type_sibling) {
+TEST(anyof_with_type_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2020,10 +2011,10 @@ TEST_F(CanonicalizerDraft7Test, anyof_with_type_sibling) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, not_with_anyof_sibling) {
+TEST(not_with_anyof_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": { "type": "string" },
@@ -2054,10 +2045,10 @@ TEST_F(CanonicalizerDraft7Test, not_with_anyof_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_with_anyof_and_properties) {
+TEST(type_with_anyof_and_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2121,10 +2112,10 @@ TEST_F(CanonicalizerDraft7Test, type_with_anyof_and_properties) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, double_negation) {
+TEST(double_negation) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": {
@@ -2138,10 +2129,10 @@ TEST_F(CanonicalizerDraft7Test, double_negation) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, unsatisfiable_integer_min_gt_max) {
+TEST(unsatisfiable_integer_min_gt_max) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -2157,11 +2148,10 @@ TEST_F(CanonicalizerDraft7Test, unsatisfiable_integer_min_gt_max) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       integer_both_exclusive_bounds_fold_to_single_value) {
+TEST(integer_both_exclusive_bounds_fold_to_single_value) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -2174,10 +2164,10 @@ TEST_F(CanonicalizerDraft7Test,
     "enum": [ 1 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, deeply_nested_anyof) {
+TEST(deeply_nested_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [
@@ -2207,10 +2197,10 @@ TEST_F(CanonicalizerDraft7Test, deeply_nested_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_with_allof_sibling) {
+TEST(enum_with_allof_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 1, 2, 3 ],
@@ -2239,10 +2229,10 @@ TEST_F(CanonicalizerDraft7Test, enum_with_allof_sibling) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, deeply_nested_additional_properties) {
+TEST(deeply_nested_additional_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2274,10 +2264,10 @@ TEST_F(CanonicalizerDraft7Test, deeply_nested_additional_properties) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, tuple_items_with_nested_objects) {
+TEST(tuple_items_with_nested_objects) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -2322,10 +2312,10 @@ TEST_F(CanonicalizerDraft7Test, tuple_items_with_nested_objects) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_required_max_less_than_required) {
+TEST(object_required_max_less_than_required) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2355,10 +2345,10 @@ TEST_F(CanonicalizerDraft7Test, object_required_max_less_than_required) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, definitions_chain_ref) {
+TEST(definitions_chain_ref) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2396,10 +2386,10 @@ TEST_F(CanonicalizerDraft7Test, definitions_chain_ref) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, oneof_non_disjoint_stays) {
+TEST(oneof_non_disjoint_stays) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "oneOf": [
@@ -2423,10 +2413,10 @@ TEST_F(CanonicalizerDraft7Test, oneof_non_disjoint_stays) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, tuple_duplicate_schemas) {
+TEST(tuple_duplicate_schemas) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -2449,10 +2439,10 @@ TEST_F(CanonicalizerDraft7Test, tuple_duplicate_schemas) {
     "additionalItems": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, empty_subschemas_become_true) {
+TEST(empty_subschemas_become_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2474,10 +2464,10 @@ TEST_F(CanonicalizerDraft7Test, empty_subschemas_become_true) {
     "propertyNames": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, string_enum_minlength_collapsed) {
+TEST(string_enum_minlength_collapsed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -2503,10 +2493,10 @@ TEST_F(CanonicalizerDraft7Test, string_enum_minlength_collapsed) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, not_with_anyof_child) {
+TEST(not_with_anyof_child) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": {
@@ -2527,10 +2517,10 @@ TEST_F(CanonicalizerDraft7Test, not_with_anyof_child) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, object_with_enum_additional_properties) {
+TEST(object_with_enum_additional_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2552,10 +2542,10 @@ TEST_F(CanonicalizerDraft7Test, object_with_enum_additional_properties) {
     "propertyNames": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_single_true) {
+TEST(enum_single_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ true ],
@@ -2568,10 +2558,10 @@ TEST_F(CanonicalizerDraft7Test, enum_single_true) {
     "title": "Always true"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, empty_definitions_stripped) {
+TEST(empty_definitions_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {},
@@ -2584,10 +2574,10 @@ TEST_F(CanonicalizerDraft7Test, empty_definitions_stripped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, string_maxlength_zero) {
+TEST(string_maxlength_zero) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -2602,10 +2592,10 @@ TEST_F(CanonicalizerDraft7Test, string_maxlength_zero) {
     "maxLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, array_items_not_null) {
+TEST(array_items_not_null) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -2627,10 +2617,10 @@ TEST_F(CanonicalizerDraft7Test, array_items_not_null) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, deeply_nested_closed_object) {
+TEST(deeply_nested_closed_object) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2682,10 +2672,10 @@ TEST_F(CanonicalizerDraft7Test, deeply_nested_closed_object) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, number_precise_multipleof) {
+TEST(number_precise_multipleof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "number",
@@ -2702,10 +2692,10 @@ TEST_F(CanonicalizerDraft7Test, number_precise_multipleof) {
     "maximum": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, anyof_single_enum_branch) {
+TEST(anyof_single_enum_branch) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [
@@ -2718,10 +2708,10 @@ TEST_F(CanonicalizerDraft7Test, anyof_single_enum_branch) {
     "enum": [ 1 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, single_branch_oneof_unwrap) {
+TEST(single_branch_oneof_unwrap) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "oneOf": [
@@ -2735,10 +2725,10 @@ TEST_F(CanonicalizerDraft7Test, single_branch_oneof_unwrap) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, single_branch_allof_true) {
+TEST(single_branch_allof_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ true ]
@@ -2768,10 +2758,10 @@ TEST_F(CanonicalizerDraft7Test, single_branch_allof_true) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, single_branch_anyof_true) {
+TEST(single_branch_anyof_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [ true ]
@@ -2801,10 +2791,10 @@ TEST_F(CanonicalizerDraft7Test, single_branch_anyof_true) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, single_branch_oneof_true) {
+TEST(single_branch_oneof_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "oneOf": [ true ]
@@ -2834,10 +2824,10 @@ TEST_F(CanonicalizerDraft7Test, single_branch_oneof_true) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, single_branch_allof_false) {
+TEST(single_branch_allof_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ false ]
@@ -2848,10 +2838,10 @@ TEST_F(CanonicalizerDraft7Test, single_branch_allof_false) {
     "not": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, single_branch_anyof_false) {
+TEST(single_branch_anyof_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [ false ]
@@ -2862,10 +2852,10 @@ TEST_F(CanonicalizerDraft7Test, single_branch_anyof_false) {
     "not": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, single_branch_oneof_false) {
+TEST(single_branch_oneof_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "oneOf": [ false ]
@@ -2876,10 +2866,10 @@ TEST_F(CanonicalizerDraft7Test, single_branch_oneof_false) {
     "not": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, duplicate_allof_branches_dedup_to_single) {
+TEST(duplicate_allof_branches_dedup_to_single) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [
@@ -2894,10 +2884,10 @@ TEST_F(CanonicalizerDraft7Test, duplicate_allof_branches_dedup_to_single) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, duplicate_anyof_branches_dedup_to_single) {
+TEST(duplicate_anyof_branches_dedup_to_single) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [
@@ -2912,10 +2902,10 @@ TEST_F(CanonicalizerDraft7Test, duplicate_anyof_branches_dedup_to_single) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, allof_ref_with_type_and_properties) {
+TEST(allof_ref_with_type_and_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -2974,10 +2964,10 @@ TEST_F(CanonicalizerDraft7Test, allof_ref_with_type_and_properties) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, recursive_ref_in_array_items) {
+TEST(recursive_ref_in_array_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -3025,10 +3015,10 @@ TEST_F(CanonicalizerDraft7Test, recursive_ref_in_array_items) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, property_named_ref_not_a_reference) {
+TEST(property_named_ref_not_a_reference) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -3074,10 +3064,10 @@ TEST_F(CanonicalizerDraft7Test, property_named_ref_not_a_reference) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_value_containing_ref_string) {
+TEST(enum_value_containing_ref_string) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -3125,10 +3115,10 @@ TEST_F(CanonicalizerDraft7Test, enum_value_containing_ref_string) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_partial_type_match_filtered) {
+TEST(enum_partial_type_match_filtered) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -3153,10 +3143,10 @@ TEST_F(CanonicalizerDraft7Test, enum_partial_type_match_filtered) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, dependencies_tautology_stripped) {
+TEST(dependencies_tautology_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -3185,10 +3175,10 @@ TEST_F(CanonicalizerDraft7Test, dependencies_tautology_stripped) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_allof_ref_and_typed_not) {
+TEST(type_allof_ref_and_typed_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -3245,10 +3235,10 @@ TEST_F(CanonicalizerDraft7Test, type_allof_ref_and_typed_not) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_non_integral) {
+TEST(exclusive_maximum_fold_non_integral) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3262,10 +3252,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_non_integral) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_non_integral) {
+TEST(exclusive_minimum_fold_non_integral) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3279,10 +3269,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_non_integral) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, dependencies_with_existing_anyof) {
+TEST(dependencies_with_existing_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -3373,10 +3363,10 @@ TEST_F(CanonicalizerDraft7Test, dependencies_with_existing_anyof) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, full_restructure_ref_in_typed_keyword) {
+TEST(full_restructure_ref_in_typed_keyword) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -3465,10 +3455,10 @@ TEST_F(CanonicalizerDraft7Test, full_restructure_ref_in_typed_keyword) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_exponential_notation) {
+TEST(exclusive_maximum_fold_exponential_notation) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3482,10 +3472,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_exponential_notation) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_exponential_notation) {
+TEST(exclusive_minimum_fold_exponential_notation) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3499,11 +3489,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_exponential_notation) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       exclusive_maximum_fold_non_integral_exponential) {
+TEST(exclusive_maximum_fold_non_integral_exponential) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3517,11 +3506,10 @@ TEST_F(CanonicalizerDraft7Test,
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       exclusive_minimum_fold_non_integral_exponential) {
+TEST(exclusive_minimum_fold_non_integral_exponential) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3535,10 +3523,10 @@ TEST_F(CanonicalizerDraft7Test,
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, equal_bounds_to_enum_exponential) {
+TEST(equal_bounds_to_enum_exponential) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3551,10 +3539,10 @@ TEST_F(CanonicalizerDraft7Test, equal_bounds_to_enum_exponential) {
     "enum": [ 10 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_minimum_large_decimal) {
+TEST(integer_minimum_large_decimal) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3568,10 +3556,10 @@ TEST_F(CanonicalizerDraft7Test, integer_minimum_large_decimal) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_maximum_large_decimal) {
+TEST(integer_maximum_large_decimal) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3585,10 +3573,10 @@ TEST_F(CanonicalizerDraft7Test, integer_maximum_large_decimal) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, number_multiple_of_exponential) {
+TEST(number_multiple_of_exponential) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "number",
@@ -3601,10 +3589,10 @@ TEST_F(CanonicalizerDraft7Test, number_multiple_of_exponential) {
     "multipleOf": 1e-1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_real_integral) {
+TEST(exclusive_maximum_fold_real_integral) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3618,10 +3606,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_real_integral) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_real_integral) {
+TEST(exclusive_minimum_fold_real_integral) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3635,10 +3623,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_real_integral) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_int64_max) {
+TEST(exclusive_minimum_fold_int64_max) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3652,10 +3640,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_int64_max) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_int64_min) {
+TEST(exclusive_maximum_fold_int64_min) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3669,10 +3657,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_int64_min) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_large_real) {
+TEST(exclusive_minimum_fold_large_real) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3686,10 +3674,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_large_real) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_large_real) {
+TEST(exclusive_maximum_fold_large_real) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3703,10 +3691,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_large_real) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_large_integer_real) {
+TEST(exclusive_maximum_fold_large_integer_real) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3720,10 +3708,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_maximum_fold_large_integer_real) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_large_integer_real) {
+TEST(exclusive_minimum_fold_large_integer_real) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3737,10 +3725,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_fold_large_integer_real) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_maximum_integer_to_maximum_decimal) {
+TEST(exclusive_maximum_integer_to_maximum_decimal) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3754,10 +3742,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_maximum_integer_to_maximum_decimal) {
     "maximum": 10.00000000000000e+399
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_integer_to_minimum_decimal) {
+TEST(exclusive_minimum_integer_to_minimum_decimal) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3771,10 +3759,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_integer_to_minimum_decimal) {
     "minimum": 1.0e+400
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_maximum_without_type) {
+TEST(exclusive_maximum_without_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "exclusiveMaximum": 1
@@ -3799,10 +3787,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_maximum_without_type) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_without_type) {
+TEST(exclusive_minimum_without_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "exclusiveMinimum": 1
@@ -3827,10 +3815,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_without_type) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, const_to_enum_integer) {
+TEST(const_to_enum_integer) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "const": 42
@@ -3841,10 +3829,10 @@ TEST_F(CanonicalizerDraft7Test, const_to_enum_integer) {
     "enum": [ 42 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, const_to_enum_string) {
+TEST(const_to_enum_string) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "const": "hello"
@@ -3855,10 +3843,10 @@ TEST_F(CanonicalizerDraft7Test, const_to_enum_string) {
     "enum": [ "hello" ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, const_to_enum_null) {
+TEST(const_to_enum_null) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "const": null
@@ -3869,10 +3857,10 @@ TEST_F(CanonicalizerDraft7Test, const_to_enum_null) {
     "enum": [ null ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, const_to_enum_boolean) {
+TEST(const_to_enum_boolean) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "const": true
@@ -3883,10 +3871,10 @@ TEST_F(CanonicalizerDraft7Test, const_to_enum_boolean) {
     "enum": [ true ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, const_to_enum_object) {
+TEST(const_to_enum_object) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "const": { "key": "value" }
@@ -3897,10 +3885,10 @@ TEST_F(CanonicalizerDraft7Test, const_to_enum_object) {
     "enum": [ { "key": "value" } ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, const_to_enum_array) {
+TEST(const_to_enum_array) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "const": [ 1, 2, 3 ]
@@ -3911,10 +3899,10 @@ TEST_F(CanonicalizerDraft7Test, const_to_enum_array) {
     "enum": [ [ 1, 2, 3 ] ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, property_names_implicit_on_object) {
+TEST(property_names_implicit_on_object) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -3936,10 +3924,10 @@ TEST_F(CanonicalizerDraft7Test, property_names_implicit_on_object) {
     "propertyNames": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_real_with_zero_fraction) {
+TEST(integer_real_with_zero_fraction) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -3952,10 +3940,10 @@ TEST_F(CanonicalizerDraft7Test, integer_real_with_zero_fraction) {
     "enum": [ 3 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, examples_annotation_preserved) {
+TEST(examples_annotation_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -3969,10 +3957,10 @@ TEST_F(CanonicalizerDraft7Test, examples_annotation_preserved) {
     "examples": [ "foo", "bar" ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, property_names_with_schema) {
+TEST(property_names_with_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -4016,10 +4004,10 @@ TEST_F(CanonicalizerDraft7Test, property_names_with_schema) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, contains_with_schema) {
+TEST(contains_with_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -4035,10 +4023,10 @@ TEST_F(CanonicalizerDraft7Test, contains_with_schema) {
     "uniqueItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_multipleof_with_exclusive_max) {
+TEST(integer_multipleof_with_exclusive_max) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -4055,10 +4043,10 @@ TEST_F(CanonicalizerDraft7Test, integer_multipleof_with_exclusive_max) {
     "multipleOf": 3
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, definitions_exclusive_bounds_folded) {
+TEST(definitions_exclusive_bounds_folded) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -4109,10 +4097,10 @@ TEST_F(CanonicalizerDraft7Test, definitions_exclusive_bounds_folded) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_assertion_minLength_wrapped) {
+TEST(enum_assertion_minLength_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ "abc", "def" ],
@@ -4137,10 +4125,10 @@ TEST_F(CanonicalizerDraft7Test, enum_assertion_minLength_wrapped) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_assertion_multipleOf_wrapped) {
+TEST(enum_assertion_multipleOf_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 2, 4, 6 ],
@@ -4166,10 +4154,10 @@ TEST_F(CanonicalizerDraft7Test, enum_assertion_multipleOf_wrapped) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_assertion_minimum_wrapped) {
+TEST(enum_assertion_minimum_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 5, 10 ],
@@ -4195,10 +4183,10 @@ TEST_F(CanonicalizerDraft7Test, enum_assertion_minimum_wrapped) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_assertion_pattern_wrapped) {
+TEST(enum_assertion_pattern_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ "foo", "bar" ],
@@ -4224,10 +4212,10 @@ TEST_F(CanonicalizerDraft7Test, enum_assertion_pattern_wrapped) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_tautological_items_true_dropped) {
+TEST(enum_tautological_items_true_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ [ 1 ], [ 2 ] ],
@@ -4242,11 +4230,10 @@ TEST_F(CanonicalizerDraft7Test, enum_tautological_items_true_dropped) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       enum_tautological_additionalProperties_true_dropped) {
+TEST(enum_tautological_additionalProperties_true_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ { "a": 1 } ],
@@ -4262,10 +4249,10 @@ TEST_F(CanonicalizerDraft7Test,
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_constraining_items_schema_kept) {
+TEST(enum_constraining_items_schema_kept) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ [ 1 ], [ 2 ] ],
@@ -4299,11 +4286,10 @@ TEST_F(CanonicalizerDraft7Test, enum_constraining_items_schema_kept) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       enum_constraining_additionalProperties_false_kept) {
+TEST(enum_constraining_additionalProperties_false_kept) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ { "a": 1 } ],
@@ -4333,10 +4319,10 @@ TEST_F(CanonicalizerDraft7Test,
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_constraining_anyof_kept) {
+TEST(enum_constraining_anyof_kept) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ "a", "b", 1 ],
@@ -4361,10 +4347,10 @@ TEST_F(CanonicalizerDraft7Test, enum_constraining_anyof_kept) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_constraining_not_kept) {
+TEST(enum_constraining_not_kept) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 1, 2, 3 ],
@@ -4393,10 +4379,10 @@ TEST_F(CanonicalizerDraft7Test, enum_constraining_not_kept) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_constraining_oneof_kept) {
+TEST(enum_constraining_oneof_kept) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 1, 2 ],
@@ -4422,10 +4408,10 @@ TEST_F(CanonicalizerDraft7Test, enum_constraining_oneof_kept) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_mixed_assertion_and_applicator) {
+TEST(enum_mixed_assertion_and_applicator) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 1, 2, 3 ],
@@ -4458,11 +4444,10 @@ TEST_F(CanonicalizerDraft7Test, enum_mixed_assertion_and_applicator) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test,
-       enum_tautological_patternProperties_empty_dropped) {
+TEST(enum_tautological_patternProperties_empty_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ { "a": 1 } ],
@@ -4478,10 +4463,10 @@ TEST_F(CanonicalizerDraft7Test,
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_assertion_uniqueItems_wrapped) {
+TEST(enum_assertion_uniqueItems_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ [ 1, 2 ], [ 3, 4 ] ],
@@ -4514,10 +4499,10 @@ TEST_F(CanonicalizerDraft7Test, enum_assertion_uniqueItems_wrapped) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_applicator_preserves_dollar_id) {
+TEST(type_applicator_preserves_dollar_id) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "http://example.com/schema",
@@ -4545,10 +4530,10 @@ TEST_F(CanonicalizerDraft7Test, type_applicator_preserves_dollar_id) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, const_with_incompatible_type) {
+TEST(const_with_incompatible_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -4559,10 +4544,10 @@ TEST_F(CanonicalizerDraft7Test, const_with_incompatible_type) {
     false
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, const_null_with_string_type) {
+TEST(const_null_with_string_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -4573,10 +4558,10 @@ TEST_F(CanonicalizerDraft7Test, const_null_with_string_type) {
     false
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, integer_enum_with_real_equivalent) {
+TEST(integer_enum_with_real_equivalent) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -4601,10 +4586,10 @@ TEST_F(CanonicalizerDraft7Test, integer_enum_with_real_equivalent) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, property_names_false_restricts_objects) {
+TEST(property_names_false_restricts_objects) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -4621,10 +4606,10 @@ TEST_F(CanonicalizerDraft7Test, property_names_false_restricts_objects) {
     "additionalProperties": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, contains_false_restricts_arrays) {
+TEST(contains_false_restricts_arrays) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -4640,10 +4625,10 @@ TEST_F(CanonicalizerDraft7Test, contains_false_restricts_arrays) {
     "items": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, exclusive_minimum_subsumes_minimum) {
+TEST(exclusive_minimum_subsumes_minimum) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "number",
@@ -4657,10 +4642,10 @@ TEST_F(CanonicalizerDraft7Test, exclusive_minimum_subsumes_minimum) {
     "exclusiveMinimum": 5
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, draft4_id_becomes_unknown_keyword) {
+TEST(draft4_id_becomes_unknown_keyword) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "id": "http://old.com",
@@ -4676,10 +4661,10 @@ TEST_F(CanonicalizerDraft7Test, draft4_id_becomes_unknown_keyword) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_basic) {
+TEST(if_then_else_basic) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "type": "string" },
@@ -4694,10 +4679,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_basic) {
     "else": { "type": "number" }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_implicit_else) {
+TEST(if_then_implicit_else) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "type": "string" },
@@ -4711,10 +4696,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_implicit_else) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_else_implicit_then) {
+TEST(if_else_implicit_then) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "type": "number" },
@@ -4728,10 +4713,10 @@ TEST_F(CanonicalizerDraft7Test, if_else_implicit_then) {
     "else": { "type": "string", "minLength": 5 }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_only_no_then_no_else_dropped) {
+TEST(if_only_no_then_no_else_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "type": "string" },
@@ -4744,10 +4729,10 @@ TEST_F(CanonicalizerDraft7Test, if_only_no_then_no_else_dropped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_string) {
+TEST(if_then_else_with_type_string) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -4771,10 +4756,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_string) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_object) {
+TEST(if_then_else_with_type_object) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -4828,10 +4813,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_object) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_not_sibling) {
+TEST(if_then_else_with_not_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": { "type": "null" },
@@ -4852,10 +4837,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_not_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_anyof_sibling) {
+TEST(if_then_else_with_anyof_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "anyOf": [ { "type": "string" }, { "type": "number" } ],
@@ -4881,10 +4866,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_anyof_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_and_not) {
+TEST(if_then_else_with_type_and_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -4912,10 +4897,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_and_not) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_nested_canonicalized) {
+TEST(if_then_else_nested_canonicalized) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": {
@@ -4940,10 +4925,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_nested_canonicalized) {
     "else": { "type": "number" }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_all_boolean) {
+TEST(if_then_else_all_boolean) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": true,
@@ -4958,10 +4943,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_all_boolean) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_false_if) {
+TEST(if_then_else_false_if) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": false,
@@ -4976,10 +4961,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_false_if) {
     "else": { "type": "number" }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, then_without_if_stripped) {
+TEST(then_without_if_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "then": { "type": "string" },
@@ -4992,10 +4977,10 @@ TEST_F(CanonicalizerDraft7Test, then_without_if_stripped) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, else_without_if_stripped) {
+TEST(else_without_if_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "else": { "type": "string" },
@@ -5008,10 +4993,10 @@ TEST_F(CanonicalizerDraft7Test, else_without_if_stripped) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, comment_drop_simple) {
+TEST(comment_drop_simple) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$comment": "This is a comment",
@@ -5024,10 +5009,10 @@ TEST_F(CanonicalizerDraft7Test, comment_drop_simple) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, comment_drop_with_enum) {
+TEST(comment_drop_with_enum) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$comment": "Allowed values",
@@ -5039,10 +5024,10 @@ TEST_F(CanonicalizerDraft7Test, comment_drop_with_enum) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, comment_drop_nested) {
+TEST(comment_drop_nested) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -5066,10 +5051,10 @@ TEST_F(CanonicalizerDraft7Test, comment_drop_nested) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, comment_drop_on_integer) {
+TEST(comment_drop_on_integer) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$comment": "An integer value",
@@ -5084,10 +5069,10 @@ TEST_F(CanonicalizerDraft7Test, comment_drop_on_integer) {
     "minimum": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, comment_drop_on_number) {
+TEST(comment_drop_on_number) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$comment": "Any number",
@@ -5099,10 +5084,10 @@ TEST_F(CanonicalizerDraft7Test, comment_drop_on_number) {
     "type": "number"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, content_encoding_preserved) {
+TEST(content_encoding_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -5116,10 +5101,10 @@ TEST_F(CanonicalizerDraft7Test, content_encoding_preserved) {
     "contentEncoding": "base64"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, content_encoding_and_media_type_preserved) {
+TEST(content_encoding_and_media_type_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -5135,10 +5120,10 @@ TEST_F(CanonicalizerDraft7Test, content_encoding_and_media_type_preserved) {
     "contentMediaType": "application/json"
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, content_media_type_without_encoding_dropped) {
+TEST(content_media_type_without_encoding_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -5151,10 +5136,10 @@ TEST_F(CanonicalizerDraft7Test, content_media_type_without_encoding_dropped) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, read_only_preserved_on_string) {
+TEST(read_only_preserved_on_string) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -5168,10 +5153,10 @@ TEST_F(CanonicalizerDraft7Test, read_only_preserved_on_string) {
     "readOnly": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, write_only_preserved_on_string) {
+TEST(write_only_preserved_on_string) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -5185,10 +5170,10 @@ TEST_F(CanonicalizerDraft7Test, write_only_preserved_on_string) {
     "writeOnly": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, read_only_preserved_on_object) {
+TEST(read_only_preserved_on_object) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -5206,10 +5191,10 @@ TEST_F(CanonicalizerDraft7Test, read_only_preserved_on_object) {
     "minProperties": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, read_only_preserved_on_enum) {
+TEST(read_only_preserved_on_enum) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 1, 2, 3 ],
@@ -5222,10 +5207,10 @@ TEST_F(CanonicalizerDraft7Test, read_only_preserved_on_enum) {
     "readOnly": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, read_write_only_both_preserved) {
+TEST(read_write_only_both_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -5241,10 +5226,10 @@ TEST_F(CanonicalizerDraft7Test, read_write_only_both_preserved) {
     "writeOnly": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, comment_with_if_then_else) {
+TEST(comment_with_if_then_else) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$comment": "Conditional validation",
@@ -5260,10 +5245,10 @@ TEST_F(CanonicalizerDraft7Test, comment_with_if_then_else) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_annotations) {
+TEST(if_then_else_with_annotations) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "My Schema",
@@ -5282,10 +5267,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_annotations) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_id) {
+TEST(if_then_else_with_id) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "http://example.com/schema",
@@ -5302,10 +5287,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_id) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_allof_sibling) {
+TEST(if_then_else_with_allof_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ { "type": "integer", "minimum": 0 } ],
@@ -5326,10 +5311,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_allof_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_oneof_sibling) {
+TEST(if_then_else_with_oneof_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "oneOf": [ { "type": "string" }, { "type": "integer" } ],
@@ -5350,10 +5335,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_oneof_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_empty_subschemas) {
+TEST(if_then_else_empty_subschemas) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": {},
@@ -5368,10 +5353,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_empty_subschemas) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_all_false) {
+TEST(if_then_else_all_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": false,
@@ -5386,10 +5371,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_all_false) {
     "else": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_true_if_false_then) {
+TEST(if_then_else_true_if_false_then) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": true,
@@ -5404,10 +5389,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_true_if_false_then) {
     "else": { "type": "string", "minLength": 0 }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, nested_if_then_else_in_then) {
+TEST(nested_if_then_else_in_then) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "type": "object" },
@@ -5465,10 +5450,10 @@ TEST_F(CanonicalizerDraft7Test, nested_if_then_else_in_then) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, type_array_with_if_then_else) {
+TEST(type_array_with_if_then_else) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": [ "string", "number" ],
@@ -5494,10 +5479,10 @@ TEST_F(CanonicalizerDraft7Test, type_array_with_if_then_else) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, dependencies_with_if_then_else) {
+TEST(dependencies_with_if_then_else) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -5590,10 +5575,10 @@ TEST_F(CanonicalizerDraft7Test, dependencies_with_if_then_else) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, read_only_on_if_then_else) {
+TEST(read_only_on_if_then_else) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "readOnly": true,
@@ -5610,10 +5595,10 @@ TEST_F(CanonicalizerDraft7Test, read_only_on_if_then_else) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, comment_inside_if_then_else_branches) {
+TEST(comment_inside_if_then_else_branches) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "$comment": "check type", "type": "string" },
@@ -5628,10 +5613,10 @@ TEST_F(CanonicalizerDraft7Test, comment_inside_if_then_else_branches) {
     "else": { "type": "number" }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, ref_inside_if_with_type) {
+TEST(ref_inside_if_with_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -5673,10 +5658,10 @@ TEST_F(CanonicalizerDraft7Test, ref_inside_if_with_type) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_examples) {
+TEST(if_then_else_with_examples) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "examples": [ 1, "hello" ],
@@ -5693,10 +5678,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_examples) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_default) {
+TEST(if_then_else_with_default) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "default": 42,
@@ -5713,10 +5698,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_default) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, content_encoding_on_non_string_stripped) {
+TEST(content_encoding_on_non_string_stripped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "integer",
@@ -5729,10 +5714,10 @@ TEST_F(CanonicalizerDraft7Test, content_encoding_on_non_string_stripped) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, write_only_on_if_then_else_with_type) {
+TEST(write_only_on_if_then_else_with_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -5758,10 +5743,10 @@ TEST_F(CanonicalizerDraft7Test, write_only_on_if_then_else_with_type) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_with_only_else_no_then_implicit) {
+TEST(if_with_only_else_no_then_implicit) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "if": { "type": "string" },
@@ -5775,10 +5760,10 @@ TEST_F(CanonicalizerDraft7Test, if_with_only_else_no_then_implicit) {
     "else": { "type": "number" }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_x_extension) {
+TEST(if_then_else_with_x_extension) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "x-custom": "value",
@@ -5795,10 +5780,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_x_extension) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_not_and_anyof) {
+TEST(if_then_else_with_not_and_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": { "type": "null" },
@@ -5821,10 +5806,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_not_and_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_not_anyof) {
+TEST(if_then_else_with_type_not_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -5930,10 +5915,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_type_not_anyof) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_with_dependencies_and_type) {
+TEST(if_then_else_with_dependencies_and_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -6041,10 +6026,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_with_dependencies_and_type) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, enum_with_if_then_else_and_minimum) {
+TEST(enum_with_if_then_else_and_minimum) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": [ 1, 2, 3, 4, 5 ],
@@ -6088,10 +6073,10 @@ TEST_F(CanonicalizerDraft7Test, enum_with_if_then_else_and_minimum) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, ref_inside_then_with_type) {
+TEST(ref_inside_then_with_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -6133,10 +6118,10 @@ TEST_F(CanonicalizerDraft7Test, ref_inside_then_with_type) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_implicit_with_type) {
+TEST(if_then_else_implicit_with_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -6159,10 +6144,10 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_implicit_with_type) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, multiple_applicators_no_type_with_if) {
+TEST(multiple_applicators_no_type_with_if) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "not": { "type": "null" },
@@ -6185,10 +6170,10 @@ TEST_F(CanonicalizerDraft7Test, multiple_applicators_no_type_with_if) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft7Test, if_then_else_closed_object) {
+TEST(if_then_else_closed_object) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
@@ -6249,5 +6234,5 @@ TEST_F(CanonicalizerDraft7Test, if_then_else_closed_object) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }

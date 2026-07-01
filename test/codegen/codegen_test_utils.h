@@ -11,8 +11,7 @@
 
 #define EXPECT_IR_SCALAR(result, index, scalar_type, expected_pointer)         \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRScalar>(      \
-      result.at(index)))                                                       \
-      << "Expected CodegenIRScalar at index " << index;                        \
+      result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::blaze::CodegenIRScalar>(result.at(index)).pointer,  \
       expected_pointer);                                                       \
@@ -22,8 +21,7 @@
 
 #define EXPECT_IR_IMPOSSIBLE(result, index, expected_pointer)                  \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRImpossible>(  \
-      result.at(index)))                                                       \
-      << "Expected CodegenIRImpossible at index " << index;                    \
+      result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::blaze::CodegenIRImpossible>(result.at(index))       \
           .pointer,                                                            \
@@ -31,8 +29,7 @@
 
 #define EXPECT_IR_ANY(result, index, expected_pointer)                         \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRAny>(         \
-      result.at(index)))                                                       \
-      << "Expected CodegenIRAny at index " << index;                           \
+      result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::blaze::CodegenIRAny>(result.at(index)).pointer,     \
       expected_pointer)
@@ -40,14 +37,12 @@
 #define EXPECT_IR_ARRAY(result, index, expected_pointer,                       \
                         expected_items_pointer)                                \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRArray>(       \
-      result.at(index)))                                                       \
-      << "Expected CodegenIRArray at index " << index;                         \
+      result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::blaze::CodegenIRArray>(result.at(index)).pointer,   \
       expected_pointer);                                                       \
   EXPECT_TRUE(std::get<sourcemeta::blaze::CodegenIRArray>(result.at(index))    \
-                  .items.has_value())                                          \
-      << "Expected CodegenIRArray items to have a value";                      \
+                  .items.has_value());                                         \
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::blaze::CodegenIRArray>(result.at(index))            \
           .items->pointer,                                                     \
@@ -57,8 +52,7 @@
                                expected_count)                                 \
   EXPECT_TRUE(                                                                 \
       std::holds_alternative<sourcemeta::blaze::CodegenIRIntersection>(        \
-          result.at(index)))                                                   \
-      << "Expected CodegenIRIntersection at index " << index;                  \
+          result.at(index)));                                                  \
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::blaze::CodegenIRIntersection>(result.at(index))     \
           .pointer,                                                            \
@@ -71,8 +65,7 @@
 #define EXPECT_IR_CONDITIONAL(result, index, expected_pointer, expected_if,    \
                               expected_then, expected_else)                    \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRConditional>( \
-      result.at(index)))                                                       \
-      << "Expected CodegenIRConditional at index " << index;                   \
+      result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::blaze::CodegenIRConditional>(result.at(index))      \
           .pointer,                                                            \
@@ -93,8 +86,7 @@
 #define EXPECT_IR_REFERENCE(result, index, expected_pointer,                   \
                             expected_target_pointer)                           \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRReference>(   \
-      result.at(index)))                                                       \
-      << "Expected CodegenIRReference at index " << index;                     \
+      result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::blaze::CodegenIRReference>(result.at(index))        \
           .pointer,                                                            \

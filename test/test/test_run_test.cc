@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/test.h>
@@ -16,7 +16,7 @@
 #include <tuple>      // std::tuple, std::get
 #include <vector>     // std::vector
 
-TEST(TestSuite_run, empty_tests) {
+TEST(empty_tests) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": []
@@ -47,7 +47,7 @@ TEST(TestSuite_run, empty_tests) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(TestSuite_run, all_passing) {
+TEST(all_passing) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
@@ -117,7 +117,7 @@ TEST(TestSuite_run, all_passing) {
   EXPECT_EQ(std::get<3>(suite.tests[1].position), 7);
 }
 
-TEST(TestSuite_run, all_failing) {
+TEST(all_failing) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
@@ -184,7 +184,7 @@ TEST(TestSuite_run, all_failing) {
   EXPECT_EQ(std::get<3>(suite.tests[1].position), 7);
 }
 
-TEST(TestSuite_run, mixed_results) {
+TEST(mixed_results) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
@@ -268,7 +268,7 @@ TEST(TestSuite_run, mixed_results) {
   EXPECT_EQ(std::get<3>(suite.tests[2].position), 7);
 }
 
-TEST(TestSuite_run, file_path_target) {
+TEST(file_path_target) {
   const auto input{R"JSON({
     "target": "schema.json",
     "tests": [
@@ -362,7 +362,7 @@ TEST(TestSuite_run, file_path_target) {
   EXPECT_EQ(std::get<3>(suite.tests[2].position), 7);
 }
 
-TEST(TestSuite_run, default_dialect) {
+TEST(default_dialect) {
   const auto input{R"JSON({
     "target": "schema_no_dialect.json",
     "tests": [
@@ -457,7 +457,7 @@ TEST(TestSuite_run, default_dialect) {
   EXPECT_EQ(std::get<3>(suite.tests[2].position), 7);
 }
 
-TEST(TestSuite_run, timestamps_ordering) {
+TEST(timestamps_ordering) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
@@ -535,7 +535,7 @@ TEST(TestSuite_run, timestamps_ordering) {
   EXPECT_EQ(std::get<3>(suite.tests[2].position), 7);
 }
 
-TEST(TestSuite_run, multiple_targets_all_passing) {
+TEST(multiple_targets_all_passing) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -613,7 +613,7 @@ TEST(TestSuite_run, multiple_targets_all_passing) {
   EXPECT_TRUE(std::get<5>(traces[3]));
 }
 
-TEST(TestSuite_run, multiple_targets_all_failing) {
+TEST(multiple_targets_all_failing) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -690,7 +690,7 @@ TEST(TestSuite_run, multiple_targets_all_failing) {
   EXPECT_FALSE(std::get<5>(traces[3]));
 }
 
-TEST(TestSuite_run, multiple_targets_mixed_results) {
+TEST(multiple_targets_mixed_results) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -767,7 +767,7 @@ TEST(TestSuite_run, multiple_targets_mixed_results) {
   EXPECT_FALSE(std::get<5>(traces[3]));
 }
 
-TEST(TestSuite_run, multiple_targets_with_no_tests) {
+TEST(multiple_targets_with_no_tests) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -801,7 +801,7 @@ TEST(TestSuite_run, multiple_targets_with_no_tests) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(TestSuite_run, multiple_targets_single_element_matches_string_form) {
+TEST(multiple_targets_single_element_matches_string_form) {
   const auto input{R"JSON({
     "target": [ "https://json-schema.org/draft/2020-12/schema" ],
     "tests": [
@@ -835,7 +835,7 @@ TEST(TestSuite_run, multiple_targets_single_element_matches_string_form) {
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
-  ASSERT_EQ(traces.size(), 1);
+  EXPECT_EQ(traces.size(), 1);
   EXPECT_EQ(std::get<0>(traces[0]),
             "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(std::get<1>(traces[0]), 1);
@@ -845,7 +845,7 @@ TEST(TestSuite_run, multiple_targets_single_element_matches_string_form) {
   EXPECT_TRUE(std::get<5>(traces[0]));
 }
 
-TEST(TestSuite_run, multiple_targets_with_file_path_targets) {
+TEST(multiple_targets_with_file_path_targets) {
   const auto input{R"JSON({
     "target": [
       "schema.json",
@@ -895,7 +895,7 @@ TEST(TestSuite_run, multiple_targets_with_file_path_targets) {
 
   EXPECT_EQ(result.total, 2);
   EXPECT_EQ(result.passed, 2);
-  ASSERT_EQ(traces.size(), 2);
+  EXPECT_EQ(traces.size(), 2);
 
   EXPECT_EQ(std::get<0>(traces[0]), expected_file_target.recompose());
   EXPECT_EQ(std::get<1>(traces[0]), 1);
@@ -913,7 +913,7 @@ TEST(TestSuite_run, multiple_targets_with_file_path_targets) {
   EXPECT_TRUE(std::get<5>(traces[1]));
 }
 
-TEST(TestSuite_run, multiple_targets_with_default_dialect) {
+TEST(multiple_targets_with_default_dialect) {
   const auto input{R"JSON({
     "target": [
       "schema_no_dialect.json",
@@ -971,7 +971,7 @@ TEST(TestSuite_run, multiple_targets_with_default_dialect) {
 
   EXPECT_EQ(result.total, 4);
   EXPECT_EQ(result.passed, 4);
-  ASSERT_EQ(traces.size(), 4);
+  EXPECT_EQ(traces.size(), 4);
 
   EXPECT_EQ(std::get<0>(traces[0]), expected_no_dialect_target.recompose());
   EXPECT_EQ(std::get<1>(traces[0]), 1);
@@ -1002,7 +1002,7 @@ TEST(TestSuite_run, multiple_targets_with_default_dialect) {
   EXPECT_FALSE(std::get<5>(traces[3]));
 }
 
-TEST(TestSuite_run, multiple_targets_with_data_path) {
+TEST(multiple_targets_with_data_path) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -1039,7 +1039,7 @@ TEST(TestSuite_run, multiple_targets_with_data_path) {
 
   EXPECT_EQ(result.total, 2);
   EXPECT_EQ(result.passed, 2);
-  ASSERT_EQ(traces.size(), 2);
+  EXPECT_EQ(traces.size(), 2);
 
   EXPECT_EQ(std::get<0>(traces[0]),
             "https://json-schema.org/draft/2020-12/schema");
@@ -1058,7 +1058,7 @@ TEST(TestSuite_run, multiple_targets_with_data_path) {
   EXPECT_TRUE(std::get<5>(traces[1]));
 }
 
-TEST(TestSuite_run, multiple_targets_timestamps_ordering) {
+TEST(multiple_targets_timestamps_ordering) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -1097,7 +1097,7 @@ TEST(TestSuite_run, multiple_targets_timestamps_ordering) {
         traces.emplace_back(target, start, end);
       })};
 
-  ASSERT_EQ(traces.size(), 4);
+  EXPECT_EQ(traces.size(), 4);
   EXPECT_GE(result.end, result.start);
 
   for (const auto &trace : traces) {
@@ -1120,7 +1120,7 @@ TEST(TestSuite_run, multiple_targets_timestamps_ordering) {
             "https://json-schema.org/draft/2019-09/schema");
 }
 
-TEST(TestSuite_run, multiple_targets_three_targets) {
+TEST(multiple_targets_three_targets) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -1158,7 +1158,7 @@ TEST(TestSuite_run, multiple_targets_three_targets) {
 
   EXPECT_EQ(result.total, 3);
   EXPECT_EQ(result.passed, 3);
-  ASSERT_EQ(traces.size(), 3);
+  EXPECT_EQ(traces.size(), 3);
 
   EXPECT_EQ(std::get<0>(traces[0]),
             "https://json-schema.org/draft/2020-12/schema");
@@ -1184,7 +1184,7 @@ TEST(TestSuite_run, multiple_targets_three_targets) {
   EXPECT_TRUE(std::get<5>(traces[2]));
 }
 
-TEST(TestSuite_run, multiple_targets_per_target_validation_differs) {
+TEST(multiple_targets_per_target_validation_differs) {
   const auto input{R"JSON({
     "target": [
       "schema.json",
@@ -1237,7 +1237,7 @@ TEST(TestSuite_run, multiple_targets_per_target_validation_differs) {
 
   EXPECT_EQ(result.total, 2);
   EXPECT_EQ(result.passed, 1);
-  ASSERT_EQ(traces.size(), 2);
+  EXPECT_EQ(traces.size(), 2);
 
   EXPECT_EQ(std::get<0>(traces[0]), expected_schema_target.recompose());
   EXPECT_EQ(std::get<1>(traces[0]), 1);
@@ -1256,7 +1256,7 @@ TEST(TestSuite_run, multiple_targets_per_target_validation_differs) {
   EXPECT_FALSE(std::get<5>(traces[1]));
 }
 
-TEST(TestSuite_run, embedded_custom_metaschema) {
+TEST(embedded_custom_metaschema) {
   const auto input{R"JSON({
     "target": "https://example.com/schema",
     "tests": [

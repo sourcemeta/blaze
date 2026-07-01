@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/frame.h>
@@ -37,7 +37,7 @@
                                 expected_relative_pointer, expected_parent,    \
                                 expected_property_name, expected_orphan);
 
-TEST(Frame_draft3, anonymous_with_nested_schema_resource) {
+TEST(anonymous_with_nested_schema_resource) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "additionalProperties": { "id": "https://example.com" }
@@ -98,7 +98,7 @@ TEST(Frame_draft3, anonymous_with_nested_schema_resource) {
                                   "https://example.com");
 }
 
-TEST(Frame_draft3, empty_schema) {
+TEST(empty_schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema",
     "$schema": "http://json-schema.org/draft-03/schema#"
@@ -141,7 +141,7 @@ TEST(Frame_draft3, empty_schema) {
       frame, Static, "https://www.sourcemeta.com/schema", frame.root());
 }
 
-TEST(Frame_draft3, empty_schema_trailing_slash) {
+TEST(empty_schema_trailing_slash) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema#",
     "$schema": "http://json-schema.org/draft-03/schema#"
@@ -184,7 +184,7 @@ TEST(Frame_draft3, empty_schema_trailing_slash) {
       frame, Static, "https://www.sourcemeta.com/schema", frame.root());
 }
 
-TEST(Frame_draft3, one_level_applicators_without_identifiers) {
+TEST(one_level_applicators_without_identifiers) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -272,7 +272,7 @@ TEST(Frame_draft3, one_level_applicators_without_identifiers) {
       "https://www.sourcemeta.com/schema#/properties/foo");
 }
 
-TEST(Frame_draft3, one_level_applicators_with_identifiers) {
+TEST(one_level_applicators_with_identifiers) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/test/qux",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -352,7 +352,7 @@ TEST(Frame_draft3, one_level_applicators_with_identifiers) {
                                   "https://www.sourcemeta.com/foo");
 }
 
-TEST(Frame_draft3, subschema_absolute_identifier) {
+TEST(subschema_absolute_identifier) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -434,7 +434,7 @@ TEST(Frame_draft3, subschema_absolute_identifier) {
                                   "https://www.sourcemeta.com/foo");
 }
 
-TEST(Frame_draft3, id_override) {
+TEST(id_override) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -443,12 +443,15 @@ TEST(Frame_draft3, id_override) {
 
   sourcemeta::blaze::SchemaFrame frame{
       sourcemeta::blaze::SchemaFrame::Mode::References};
-  EXPECT_THROW(frame.analyse(document, sourcemeta::blaze::schema_walker,
-                             sourcemeta::blaze::schema_resolver),
-               sourcemeta::blaze::SchemaFrameError);
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &) {
+  }
 }
 
-TEST(Frame_draft3, explicit_argument_id_same) {
+TEST(explicit_argument_id_same) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema",
     "$schema": "http://json-schema.org/draft-03/schema#"
@@ -493,7 +496,7 @@ TEST(Frame_draft3, explicit_argument_id_same) {
       frame, Static, "https://www.sourcemeta.com/schema", frame.root());
 }
 
-TEST(Frame_draft3, explicit_argument_id_different) {
+TEST(explicit_argument_id_different) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -628,7 +631,7 @@ TEST(Frame_draft3, explicit_argument_id_different) {
                                   "https://www.test.com");
 }
 
-TEST(Frame_draft3, ref_metaschema) {
+TEST(ref_metaschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "$ref": "http://json-schema.org/draft-03/schema#"
@@ -669,7 +672,7 @@ TEST(Frame_draft3, ref_metaschema) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Frame_draft3, ref_with_id) {
+TEST(ref_with_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema",
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -719,7 +722,7 @@ TEST(Frame_draft3, ref_with_id) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Frame_draft3, top_level_relative_ref_with_id) {
+TEST(top_level_relative_ref_with_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com/foo",
@@ -760,7 +763,7 @@ TEST(Frame_draft3, top_level_relative_ref_with_id) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Frame_draft3, nested_relative_ref_with_id) {
+TEST(nested_relative_ref_with_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com",
@@ -825,7 +828,7 @@ TEST(Frame_draft3, nested_relative_ref_with_id) {
                                   "https://example.com#/additionalProperties");
 }
 
-TEST(Frame_draft3, top_level_id_empty_fragment_only) {
+TEST(top_level_id_empty_fragment_only) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "#",
     "$schema": "http://json-schema.org/draft-03/schema#"
@@ -864,7 +867,7 @@ TEST(Frame_draft3, top_level_id_empty_fragment_only) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Frame_draft3, top_level_id_empty_string) {
+TEST(top_level_id_empty_string) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "",
     "$schema": "http://json-schema.org/draft-03/schema#"
@@ -903,7 +906,7 @@ TEST(Frame_draft3, top_level_id_empty_string) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "", frame.root());
 }
 
-TEST(Frame_draft3, location_independent_identifier_anonymous) {
+TEST(location_independent_identifier_anonymous) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "definitions": {
@@ -984,7 +987,7 @@ TEST(Frame_draft3, location_independent_identifier_anonymous) {
   EXPECT_FRAME_LOCATION_REACHABLE(frame, Static, "#foo", "#/definitions/bar");
 }
 
-TEST(Frame_draft3, id_fragment_invalid_whitespace) {
+TEST(id_fragment_invalid_whitespace) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "#foo bar",
     "$schema": "http://json-schema.org/draft-03/schema#"
@@ -1005,7 +1008,7 @@ TEST(Frame_draft3, id_fragment_invalid_whitespace) {
   }
 }
 
-TEST(Frame_draft3, non_string_id_throws) {
+TEST(non_string_id_throws) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -1029,7 +1032,7 @@ TEST(Frame_draft3, non_string_id_throws) {
   }
 }
 
-TEST(Frame_draft3, definitions_subschemas) {
+TEST(definitions_subschemas) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "definitions": {
@@ -1077,7 +1080,7 @@ TEST(Frame_draft3, definitions_subschemas) {
                                   "#/definitions/string");
 }
 
-TEST(Frame_draft3, ref_into_definitions) {
+TEST(ref_into_definitions) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "properties": {
@@ -1142,7 +1145,7 @@ TEST(Frame_draft3, ref_into_definitions) {
                                   frame.root());
 }
 
-TEST(Frame_draft3, embedded_custom_metaschema) {
+TEST(embedded_custom_metaschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",
@@ -1264,7 +1267,7 @@ TEST(Frame_draft3, embedded_custom_metaschema) {
                                   "https://example.com/meta");
 }
 
-TEST(Frame_draft3, embedded_custom_metaschema_wrong_container) {
+TEST(embedded_custom_metaschema_wrong_container) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",
@@ -1291,7 +1294,7 @@ TEST(Frame_draft3, embedded_custom_metaschema_wrong_container) {
   }
 }
 
-TEST(Frame_draft3, embedded_custom_metaschema_wrong_id_keyword) {
+TEST(embedded_custom_metaschema_wrong_id_keyword) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",

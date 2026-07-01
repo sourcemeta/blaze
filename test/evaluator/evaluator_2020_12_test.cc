@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <optional>
 #include <string>
@@ -41,7 +41,7 @@ static auto test_resolver(std::string_view identifier)
   return sourcemeta::blaze::schema_resolver(identifier);
 }
 
-TEST(Evaluator_2020_12, metaschema_hyper_1) {
+TEST(metaschema_hyper_1) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
@@ -49,7 +49,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_1) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 24, "");
 }
 
-TEST(Evaluator_2020_12, metaschema_hyper_self) {
+TEST(metaschema_hyper_self) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
@@ -57,7 +57,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_self) {
                                    "");
 }
 
-TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
+TEST(metaschema_hyper_self_exhaustive) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
@@ -65,7 +65,7 @@ TEST(Evaluator_2020_12, metaschema_hyper_self_exhaustive) {
                                          207, "");
 }
 
-TEST(Evaluator_2020_12, dynamicRef_with_multiple_anchors) {
+TEST(dynamicRef_with_multiple_anchors) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "https://example.com/target#meta",
@@ -104,7 +104,7 @@ TEST(Evaluator_2020_12, dynamicRef_with_multiple_anchors) {
       "in scope that declared the dynamic anchor \"meta\"");
 }
 
-TEST(Evaluator_2020_12, dynamicRef_with_multiple_anchors_from_json) {
+TEST(dynamicRef_with_multiple_anchors_from_json) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "https://example.com/target#meta",
@@ -130,7 +130,7 @@ TEST(Evaluator_2020_12, dynamicRef_with_multiple_anchors_from_json) {
 
   const auto roundtripped{
       sourcemeta::blaze::from_json(sourcemeta::blaze::to_json(original))};
-  ASSERT_TRUE(roundtripped.has_value());
+  EXPECT_TRUE(roundtripped.has_value());
 
   const sourcemeta::core::JSON instance{true};
   EVALUATE_WITH_TRACE(roundtripped.value(), instance, 2);
@@ -154,7 +154,7 @@ TEST(Evaluator_2020_12, dynamicRef_with_multiple_anchors_from_json) {
       "in scope that declared the dynamic anchor \"meta\"");
 }
 
-TEST(Evaluator_2020_12, reference_from_unknown_keyword) {
+TEST(reference_from_unknown_keyword) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -181,7 +181,7 @@ TEST(Evaluator_2020_12, reference_from_unknown_keyword) {
   }
 }
 
-TEST(Evaluator_2020_12, type_integer_bounded_5) {
+TEST(type_integer_bounded_5) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -213,7 +213,7 @@ TEST(Evaluator_2020_12, type_integer_bounded_5) {
                                "greater than or equal to the integer 0");
 }
 
-TEST(Evaluator_2020_12, type_integer_lower_bound_3) {
+TEST(type_integer_lower_bound_3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -237,7 +237,7 @@ TEST(Evaluator_2020_12, type_integer_lower_bound_3) {
                                "greater than or equal to the integer 1");
 }
 
-TEST(Evaluator_2020_12, prop_type_integer_bounded_6) {
+TEST(prop_type_integer_bounded_6) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -258,7 +258,7 @@ TEST(Evaluator_2020_12, prop_type_integer_bounded_6) {
       "The value was expected to be an integer within the given range");
 }
 
-TEST(Evaluator_2020_12, prop_type_integer_bounded_6_exhaustive) {
+TEST(prop_type_integer_bounded_6_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -308,8 +308,7 @@ TEST(Evaluator_2020_12, prop_type_integer_bounded_6_exhaustive) {
                                "against the single defined property subschema");
 }
 
-TEST(Evaluator_2020_12,
-     prop_type_integer_bounded_6_exhaustive_annotations_none) {
+TEST(prop_type_integer_bounded_6_exhaustive_annotations_none) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -356,8 +355,7 @@ TEST(Evaluator_2020_12,
                                "against the single defined property subschema");
 }
 
-TEST(Evaluator_2020_12,
-     prop_type_integer_bounded_6_exhaustive_annotations_selected) {
+TEST(prop_type_integer_bounded_6_exhaustive_annotations_selected) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -410,7 +408,7 @@ TEST(Evaluator_2020_12,
                                "against the single defined property subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_contains_nested_not_short_circuited) {
+TEST(annotation_contains_nested_not_short_circuited) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "title": "x", "type": "string" }
@@ -458,7 +456,7 @@ TEST(Evaluator_2020_12, annotation_contains_nested_not_short_circuited) {
                                "subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_custom_keyword_selected) {
+TEST(annotation_custom_keyword_selected) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "My title",
@@ -482,7 +480,7 @@ TEST(Evaluator_2020_12, annotation_custom_keyword_selected) {
                                "collected as the annotation \"hello\"");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_mode_respects_tweak) {
+TEST(annotation_fast_mode_respects_tweak) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -509,8 +507,7 @@ TEST(Evaluator_2020_12, annotation_fast_mode_respects_tweak) {
                                "The value was expected to be of type string");
 }
 
-TEST(Evaluator_2020_12,
-     annotation_properties_closed_object_fast_keeps_closure) {
+TEST(annotation_properties_closed_object_fast_keeps_closure) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -565,7 +562,7 @@ TEST(Evaluator_2020_12,
       "The object value was not expected to define additional properties");
 }
 
-TEST(Evaluator_2020_12, unevaluated_properties_annotations_none_still_tracks) {
+TEST(unevaluated_properties_annotations_none_still_tracks) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": { "a": { "type": "integer" } },
@@ -594,7 +591,7 @@ TEST(Evaluator_2020_12, unevaluated_properties_annotations_none_still_tracks) {
   EXPECT_TRUE(evaluator.validate(compiled_schema, evaluated));
 }
 
-TEST(Evaluator_2020_12, prop_type_integer_lower_bound_4) {
+TEST(prop_type_integer_lower_bound_4) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -616,7 +613,7 @@ TEST(Evaluator_2020_12, prop_type_integer_lower_bound_4) {
       "The value was expected to be an integer above the given minimum");
 }
 
-TEST(Evaluator_2020_12, prop_type_integer_lower_bound_4_exhaustive) {
+TEST(prop_type_integer_lower_bound_4_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -657,7 +654,7 @@ TEST(Evaluator_2020_12, prop_type_integer_lower_bound_4_exhaustive) {
                                "The object value was expected to validate "
                                "against the single defined property subschema");
 }
-TEST(Evaluator_2020_12, format_date_time_valid_with_tweak_fast) {
+TEST(format_date_time_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date-time"
@@ -679,7 +676,7 @@ TEST(Evaluator_2020_12, format_date_time_valid_with_tweak_fast) {
       "valid RFC 3339 date-time");
 }
 
-TEST(Evaluator_2020_12, format_date_time_invalid_with_tweak_fast) {
+TEST(format_date_time_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date-time"
@@ -701,7 +698,7 @@ TEST(Evaluator_2020_12, format_date_time_invalid_with_tweak_fast) {
       "3339 date-time");
 }
 
-TEST(Evaluator_2020_12, format_date_time_valid_with_tweak_exhaustive) {
+TEST(format_date_time_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date-time"
@@ -731,7 +728,7 @@ TEST(Evaluator_2020_12, format_date_time_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"date-time\"");
 }
 
-TEST(Evaluator_2020_12, format_date_time_invalid_with_tweak_exhaustive) {
+TEST(format_date_time_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date-time"
@@ -754,7 +751,7 @@ TEST(Evaluator_2020_12, format_date_time_invalid_with_tweak_exhaustive) {
       "3339 date-time");
 }
 
-TEST(Evaluator_2020_12, format_date_time_no_tweak_fast) {
+TEST(format_date_time_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date-time"
@@ -765,7 +762,7 @@ TEST(Evaluator_2020_12, format_date_time_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_date_time_no_tweak_exhaustive) {
+TEST(format_date_time_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date-time"
@@ -782,7 +779,7 @@ TEST(Evaluator_2020_12, format_date_time_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"date-time\"");
 }
 
-TEST(Evaluator_2020_12, format_date_time_non_string_with_tweak_fast) {
+TEST(format_date_time_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date-time"
@@ -796,7 +793,7 @@ TEST(Evaluator_2020_12, format_date_time_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_date_time_non_string_with_tweak_exhaustive) {
+TEST(format_date_time_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date-time"
@@ -811,7 +808,7 @@ TEST(Evaluator_2020_12, format_date_time_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_date_valid_with_tweak_fast) {
+TEST(format_date_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date"
@@ -833,7 +830,7 @@ TEST(Evaluator_2020_12, format_date_valid_with_tweak_fast) {
       "3339 full-date");
 }
 
-TEST(Evaluator_2020_12, format_date_invalid_with_tweak_fast) {
+TEST(format_date_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date"
@@ -855,7 +852,7 @@ TEST(Evaluator_2020_12, format_date_invalid_with_tweak_fast) {
       "3339 full-date");
 }
 
-TEST(Evaluator_2020_12, format_date_valid_with_tweak_exhaustive) {
+TEST(format_date_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date"
@@ -885,7 +882,7 @@ TEST(Evaluator_2020_12, format_date_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"date\"");
 }
 
-TEST(Evaluator_2020_12, format_date_invalid_with_tweak_exhaustive) {
+TEST(format_date_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date"
@@ -908,7 +905,7 @@ TEST(Evaluator_2020_12, format_date_invalid_with_tweak_exhaustive) {
       "3339 full-date");
 }
 
-TEST(Evaluator_2020_12, format_date_no_tweak_fast) {
+TEST(format_date_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date"
@@ -919,7 +916,7 @@ TEST(Evaluator_2020_12, format_date_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_date_no_tweak_exhaustive) {
+TEST(format_date_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date"
@@ -936,7 +933,7 @@ TEST(Evaluator_2020_12, format_date_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"date\"");
 }
 
-TEST(Evaluator_2020_12, format_date_non_string_with_tweak_fast) {
+TEST(format_date_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date"
@@ -950,7 +947,7 @@ TEST(Evaluator_2020_12, format_date_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_date_non_string_with_tweak_exhaustive) {
+TEST(format_date_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "date"
@@ -965,7 +962,7 @@ TEST(Evaluator_2020_12, format_date_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_time_valid_with_tweak_fast) {
+TEST(format_time_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "time"
@@ -987,7 +984,7 @@ TEST(Evaluator_2020_12, format_time_valid_with_tweak_fast) {
       "3339 full-time");
 }
 
-TEST(Evaluator_2020_12, format_time_invalid_with_tweak_fast) {
+TEST(format_time_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "time"
@@ -1009,7 +1006,7 @@ TEST(Evaluator_2020_12, format_time_invalid_with_tweak_fast) {
       "3339 full-time");
 }
 
-TEST(Evaluator_2020_12, format_time_valid_with_tweak_exhaustive) {
+TEST(format_time_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "time"
@@ -1039,7 +1036,7 @@ TEST(Evaluator_2020_12, format_time_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"time\"");
 }
 
-TEST(Evaluator_2020_12, format_time_invalid_with_tweak_exhaustive) {
+TEST(format_time_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "time"
@@ -1062,7 +1059,7 @@ TEST(Evaluator_2020_12, format_time_invalid_with_tweak_exhaustive) {
       "3339 full-time");
 }
 
-TEST(Evaluator_2020_12, format_time_no_tweak_fast) {
+TEST(format_time_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "time"
@@ -1073,7 +1070,7 @@ TEST(Evaluator_2020_12, format_time_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_time_no_tweak_exhaustive) {
+TEST(format_time_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "time"
@@ -1090,7 +1087,7 @@ TEST(Evaluator_2020_12, format_time_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"time\"");
 }
 
-TEST(Evaluator_2020_12, format_time_non_string_with_tweak_fast) {
+TEST(format_time_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "time"
@@ -1104,7 +1101,7 @@ TEST(Evaluator_2020_12, format_time_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_time_non_string_with_tweak_exhaustive) {
+TEST(format_time_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "time"
@@ -1119,7 +1116,7 @@ TEST(Evaluator_2020_12, format_time_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_duration_valid_with_tweak_fast) {
+TEST(format_duration_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "duration"
@@ -1141,7 +1138,7 @@ TEST(Evaluator_2020_12, format_duration_valid_with_tweak_fast) {
       "duration");
 }
 
-TEST(Evaluator_2020_12, format_duration_invalid_with_tweak_fast) {
+TEST(format_duration_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "duration"
@@ -1163,7 +1160,7 @@ TEST(Evaluator_2020_12, format_duration_invalid_with_tweak_fast) {
       "duration");
 }
 
-TEST(Evaluator_2020_12, format_duration_valid_with_tweak_exhaustive) {
+TEST(format_duration_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "duration"
@@ -1193,7 +1190,7 @@ TEST(Evaluator_2020_12, format_duration_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"duration\"");
 }
 
-TEST(Evaluator_2020_12, format_duration_invalid_with_tweak_exhaustive) {
+TEST(format_duration_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "duration"
@@ -1216,7 +1213,7 @@ TEST(Evaluator_2020_12, format_duration_invalid_with_tweak_exhaustive) {
       "duration");
 }
 
-TEST(Evaluator_2020_12, format_duration_no_tweak_fast) {
+TEST(format_duration_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "duration"
@@ -1227,7 +1224,7 @@ TEST(Evaluator_2020_12, format_duration_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_duration_no_tweak_exhaustive) {
+TEST(format_duration_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "duration"
@@ -1244,7 +1241,7 @@ TEST(Evaluator_2020_12, format_duration_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"duration\"");
 }
 
-TEST(Evaluator_2020_12, format_duration_non_string_with_tweak_fast) {
+TEST(format_duration_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "duration"
@@ -1258,7 +1255,7 @@ TEST(Evaluator_2020_12, format_duration_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_duration_non_string_with_tweak_exhaustive) {
+TEST(format_duration_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "duration"
@@ -1273,7 +1270,7 @@ TEST(Evaluator_2020_12, format_duration_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_email_valid_with_tweak_fast) {
+TEST(format_email_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -1295,7 +1292,7 @@ TEST(Evaluator_2020_12, format_email_valid_with_tweak_fast) {
       "valid email address");
 }
 
-TEST(Evaluator_2020_12, format_email_invalid_with_tweak_fast) {
+TEST(format_email_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -1317,7 +1314,7 @@ TEST(Evaluator_2020_12, format_email_invalid_with_tweak_fast) {
       "email address");
 }
 
-TEST(Evaluator_2020_12, format_email_valid_with_tweak_exhaustive) {
+TEST(format_email_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -1347,7 +1344,7 @@ TEST(Evaluator_2020_12, format_email_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"email\"");
 }
 
-TEST(Evaluator_2020_12, format_email_invalid_with_tweak_exhaustive) {
+TEST(format_email_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -1370,7 +1367,7 @@ TEST(Evaluator_2020_12, format_email_invalid_with_tweak_exhaustive) {
       "email address");
 }
 
-TEST(Evaluator_2020_12, format_email_no_tweak_fast) {
+TEST(format_email_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -1381,7 +1378,7 @@ TEST(Evaluator_2020_12, format_email_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_email_no_tweak_exhaustive) {
+TEST(format_email_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -1398,7 +1395,7 @@ TEST(Evaluator_2020_12, format_email_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"email\"");
 }
 
-TEST(Evaluator_2020_12, format_email_non_string_with_tweak_fast) {
+TEST(format_email_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -1412,7 +1409,7 @@ TEST(Evaluator_2020_12, format_email_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_email_non_string_with_tweak_exhaustive) {
+TEST(format_email_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -1427,7 +1424,7 @@ TEST(Evaluator_2020_12, format_email_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_idn_email_valid_with_tweak_fast) {
+TEST(format_idn_email_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-email"
@@ -1449,7 +1446,7 @@ TEST(Evaluator_2020_12, format_idn_email_valid_with_tweak_fast) {
       "valid internationalized email address");
 }
 
-TEST(Evaluator_2020_12, format_idn_email_invalid_with_tweak_fast) {
+TEST(format_idn_email_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-email"
@@ -1471,7 +1468,7 @@ TEST(Evaluator_2020_12, format_idn_email_invalid_with_tweak_fast) {
       "internationalized email address");
 }
 
-TEST(Evaluator_2020_12, format_idn_email_valid_with_tweak_exhaustive) {
+TEST(format_idn_email_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-email"
@@ -1501,7 +1498,7 @@ TEST(Evaluator_2020_12, format_idn_email_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"idn-email\"");
 }
 
-TEST(Evaluator_2020_12, format_idn_email_invalid_with_tweak_exhaustive) {
+TEST(format_idn_email_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-email"
@@ -1524,7 +1521,7 @@ TEST(Evaluator_2020_12, format_idn_email_invalid_with_tweak_exhaustive) {
       "internationalized email address");
 }
 
-TEST(Evaluator_2020_12, format_idn_email_no_tweak_fast) {
+TEST(format_idn_email_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-email"
@@ -1535,7 +1532,7 @@ TEST(Evaluator_2020_12, format_idn_email_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_idn_email_no_tweak_exhaustive) {
+TEST(format_idn_email_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-email"
@@ -1552,7 +1549,7 @@ TEST(Evaluator_2020_12, format_idn_email_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"idn-email\"");
 }
 
-TEST(Evaluator_2020_12, format_idn_email_non_string_with_tweak_fast) {
+TEST(format_idn_email_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-email"
@@ -1566,7 +1563,7 @@ TEST(Evaluator_2020_12, format_idn_email_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_idn_email_non_string_with_tweak_exhaustive) {
+TEST(format_idn_email_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-email"
@@ -1581,7 +1578,7 @@ TEST(Evaluator_2020_12, format_idn_email_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_hostname_valid_with_tweak_fast) {
+TEST(format_hostname_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "hostname"
@@ -1603,7 +1600,7 @@ TEST(Evaluator_2020_12, format_hostname_valid_with_tweak_fast) {
       "hostname");
 }
 
-TEST(Evaluator_2020_12, format_hostname_invalid_with_tweak_fast) {
+TEST(format_hostname_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "hostname"
@@ -1625,7 +1622,7 @@ TEST(Evaluator_2020_12, format_hostname_invalid_with_tweak_fast) {
       "hostname");
 }
 
-TEST(Evaluator_2020_12, format_hostname_valid_with_tweak_exhaustive) {
+TEST(format_hostname_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "hostname"
@@ -1655,7 +1652,7 @@ TEST(Evaluator_2020_12, format_hostname_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"hostname\"");
 }
 
-TEST(Evaluator_2020_12, format_hostname_invalid_with_tweak_exhaustive) {
+TEST(format_hostname_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "hostname"
@@ -1678,7 +1675,7 @@ TEST(Evaluator_2020_12, format_hostname_invalid_with_tweak_exhaustive) {
       "hostname");
 }
 
-TEST(Evaluator_2020_12, format_hostname_no_tweak_fast) {
+TEST(format_hostname_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "hostname"
@@ -1689,7 +1686,7 @@ TEST(Evaluator_2020_12, format_hostname_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_hostname_no_tweak_exhaustive) {
+TEST(format_hostname_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "hostname"
@@ -1706,7 +1703,7 @@ TEST(Evaluator_2020_12, format_hostname_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"hostname\"");
 }
 
-TEST(Evaluator_2020_12, format_hostname_non_string_with_tweak_fast) {
+TEST(format_hostname_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "hostname"
@@ -1720,7 +1717,7 @@ TEST(Evaluator_2020_12, format_hostname_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_hostname_non_string_with_tweak_exhaustive) {
+TEST(format_hostname_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "hostname"
@@ -1735,7 +1732,7 @@ TEST(Evaluator_2020_12, format_hostname_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_idn_hostname_valid_with_tweak_fast) {
+TEST(format_idn_hostname_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-hostname"
@@ -1757,7 +1754,7 @@ TEST(Evaluator_2020_12, format_idn_hostname_valid_with_tweak_fast) {
       "internationalized hostname");
 }
 
-TEST(Evaluator_2020_12, format_idn_hostname_invalid_with_tweak_fast) {
+TEST(format_idn_hostname_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-hostname"
@@ -1779,7 +1776,7 @@ TEST(Evaluator_2020_12, format_idn_hostname_invalid_with_tweak_fast) {
       "internationalized hostname");
 }
 
-TEST(Evaluator_2020_12, format_idn_hostname_valid_with_tweak_exhaustive) {
+TEST(format_idn_hostname_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-hostname"
@@ -1809,7 +1806,7 @@ TEST(Evaluator_2020_12, format_idn_hostname_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"idn-hostname\"");
 }
 
-TEST(Evaluator_2020_12, format_idn_hostname_invalid_with_tweak_exhaustive) {
+TEST(format_idn_hostname_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-hostname"
@@ -1832,7 +1829,7 @@ TEST(Evaluator_2020_12, format_idn_hostname_invalid_with_tweak_exhaustive) {
       "internationalized hostname");
 }
 
-TEST(Evaluator_2020_12, format_idn_hostname_no_tweak_fast) {
+TEST(format_idn_hostname_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-hostname"
@@ -1843,7 +1840,7 @@ TEST(Evaluator_2020_12, format_idn_hostname_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_idn_hostname_no_tweak_exhaustive) {
+TEST(format_idn_hostname_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-hostname"
@@ -1860,7 +1857,7 @@ TEST(Evaluator_2020_12, format_idn_hostname_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"idn-hostname\"");
 }
 
-TEST(Evaluator_2020_12, format_idn_hostname_non_string_with_tweak_fast) {
+TEST(format_idn_hostname_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-hostname"
@@ -1874,7 +1871,7 @@ TEST(Evaluator_2020_12, format_idn_hostname_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_idn_hostname_non_string_with_tweak_exhaustive) {
+TEST(format_idn_hostname_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "idn-hostname"
@@ -1889,7 +1886,7 @@ TEST(Evaluator_2020_12, format_idn_hostname_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_ipv4_valid_with_tweak_fast) {
+TEST(format_ipv4_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv4"
@@ -1911,7 +1908,7 @@ TEST(Evaluator_2020_12, format_ipv4_valid_with_tweak_fast) {
       "IPv4 address");
 }
 
-TEST(Evaluator_2020_12, format_ipv4_invalid_with_tweak_fast) {
+TEST(format_ipv4_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv4"
@@ -1933,7 +1930,7 @@ TEST(Evaluator_2020_12, format_ipv4_invalid_with_tweak_fast) {
       "address");
 }
 
-TEST(Evaluator_2020_12, format_ipv4_valid_with_tweak_exhaustive) {
+TEST(format_ipv4_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv4"
@@ -1963,7 +1960,7 @@ TEST(Evaluator_2020_12, format_ipv4_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"ipv4\"");
 }
 
-TEST(Evaluator_2020_12, format_ipv4_invalid_with_tweak_exhaustive) {
+TEST(format_ipv4_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv4"
@@ -1986,7 +1983,7 @@ TEST(Evaluator_2020_12, format_ipv4_invalid_with_tweak_exhaustive) {
       "address");
 }
 
-TEST(Evaluator_2020_12, format_ipv4_no_tweak_fast) {
+TEST(format_ipv4_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv4"
@@ -1997,7 +1994,7 @@ TEST(Evaluator_2020_12, format_ipv4_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_ipv4_no_tweak_exhaustive) {
+TEST(format_ipv4_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv4"
@@ -2014,7 +2011,7 @@ TEST(Evaluator_2020_12, format_ipv4_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"ipv4\"");
 }
 
-TEST(Evaluator_2020_12, format_ipv4_non_string_with_tweak_fast) {
+TEST(format_ipv4_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv4"
@@ -2028,7 +2025,7 @@ TEST(Evaluator_2020_12, format_ipv4_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_ipv4_non_string_with_tweak_exhaustive) {
+TEST(format_ipv4_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv4"
@@ -2043,7 +2040,7 @@ TEST(Evaluator_2020_12, format_ipv4_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_ipv6_valid_with_tweak_fast) {
+TEST(format_ipv6_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv6"
@@ -2065,7 +2062,7 @@ TEST(Evaluator_2020_12, format_ipv6_valid_with_tweak_fast) {
       "address");
 }
 
-TEST(Evaluator_2020_12, format_ipv6_invalid_with_tweak_fast) {
+TEST(format_ipv6_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv6"
@@ -2087,7 +2084,7 @@ TEST(Evaluator_2020_12, format_ipv6_invalid_with_tweak_fast) {
       "IPv6 address");
 }
 
-TEST(Evaluator_2020_12, format_ipv6_valid_with_tweak_exhaustive) {
+TEST(format_ipv6_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv6"
@@ -2117,7 +2114,7 @@ TEST(Evaluator_2020_12, format_ipv6_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"ipv6\"");
 }
 
-TEST(Evaluator_2020_12, format_ipv6_invalid_with_tweak_exhaustive) {
+TEST(format_ipv6_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv6"
@@ -2140,7 +2137,7 @@ TEST(Evaluator_2020_12, format_ipv6_invalid_with_tweak_exhaustive) {
       "IPv6 address");
 }
 
-TEST(Evaluator_2020_12, format_ipv6_no_tweak_fast) {
+TEST(format_ipv6_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv6"
@@ -2151,7 +2148,7 @@ TEST(Evaluator_2020_12, format_ipv6_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_ipv6_no_tweak_exhaustive) {
+TEST(format_ipv6_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv6"
@@ -2168,7 +2165,7 @@ TEST(Evaluator_2020_12, format_ipv6_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"ipv6\"");
 }
 
-TEST(Evaluator_2020_12, format_ipv6_non_string_with_tweak_fast) {
+TEST(format_ipv6_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv6"
@@ -2182,7 +2179,7 @@ TEST(Evaluator_2020_12, format_ipv6_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_ipv6_non_string_with_tweak_exhaustive) {
+TEST(format_ipv6_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "ipv6"
@@ -2197,7 +2194,7 @@ TEST(Evaluator_2020_12, format_ipv6_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_uri_valid_with_tweak_fast) {
+TEST(format_uri_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri"
@@ -2219,7 +2216,7 @@ TEST(Evaluator_2020_12, format_uri_valid_with_tweak_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_invalid_with_tweak_fast) {
+TEST(format_uri_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri"
@@ -2240,7 +2237,7 @@ TEST(Evaluator_2020_12, format_uri_invalid_with_tweak_fast) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_valid_with_tweak_exhaustive) {
+TEST(format_uri_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri"
@@ -2270,7 +2267,7 @@ TEST(Evaluator_2020_12, format_uri_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uri\"");
 }
 
-TEST(Evaluator_2020_12, format_uri_invalid_with_tweak_exhaustive) {
+TEST(format_uri_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri"
@@ -2292,7 +2289,7 @@ TEST(Evaluator_2020_12, format_uri_invalid_with_tweak_exhaustive) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_no_tweak_fast) {
+TEST(format_uri_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri"
@@ -2303,7 +2300,7 @@ TEST(Evaluator_2020_12, format_uri_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_uri_no_tweak_exhaustive) {
+TEST(format_uri_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri"
@@ -2320,7 +2317,7 @@ TEST(Evaluator_2020_12, format_uri_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uri\"");
 }
 
-TEST(Evaluator_2020_12, format_uri_non_string_with_tweak_fast) {
+TEST(format_uri_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri"
@@ -2334,7 +2331,7 @@ TEST(Evaluator_2020_12, format_uri_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_uri_non_string_with_tweak_exhaustive) {
+TEST(format_uri_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri"
@@ -2349,7 +2346,7 @@ TEST(Evaluator_2020_12, format_uri_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_uri_reference_valid_with_tweak_fast) {
+TEST(format_uri_reference_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-reference"
@@ -2371,7 +2368,7 @@ TEST(Evaluator_2020_12, format_uri_reference_valid_with_tweak_fast) {
       "URI reference");
 }
 
-TEST(Evaluator_2020_12, format_uri_reference_invalid_with_tweak_fast) {
+TEST(format_uri_reference_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-reference"
@@ -2393,7 +2390,7 @@ TEST(Evaluator_2020_12, format_uri_reference_invalid_with_tweak_fast) {
       "reference");
 }
 
-TEST(Evaluator_2020_12, format_uri_reference_valid_with_tweak_exhaustive) {
+TEST(format_uri_reference_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-reference"
@@ -2423,7 +2420,7 @@ TEST(Evaluator_2020_12, format_uri_reference_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uri-reference\"");
 }
 
-TEST(Evaluator_2020_12, format_uri_reference_invalid_with_tweak_exhaustive) {
+TEST(format_uri_reference_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-reference"
@@ -2446,7 +2443,7 @@ TEST(Evaluator_2020_12, format_uri_reference_invalid_with_tweak_exhaustive) {
       "reference");
 }
 
-TEST(Evaluator_2020_12, format_uri_reference_no_tweak_fast) {
+TEST(format_uri_reference_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-reference"
@@ -2457,7 +2454,7 @@ TEST(Evaluator_2020_12, format_uri_reference_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_uri_reference_no_tweak_exhaustive) {
+TEST(format_uri_reference_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-reference"
@@ -2474,7 +2471,7 @@ TEST(Evaluator_2020_12, format_uri_reference_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uri-reference\"");
 }
 
-TEST(Evaluator_2020_12, format_uri_reference_non_string_with_tweak_fast) {
+TEST(format_uri_reference_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-reference"
@@ -2488,7 +2485,7 @@ TEST(Evaluator_2020_12, format_uri_reference_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_uri_reference_non_string_with_tweak_exhaustive) {
+TEST(format_uri_reference_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-reference"
@@ -2503,7 +2500,7 @@ TEST(Evaluator_2020_12, format_uri_reference_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_iri_valid_with_tweak_fast) {
+TEST(format_iri_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri"
@@ -2525,7 +2522,7 @@ TEST(Evaluator_2020_12, format_iri_valid_with_tweak_fast) {
       "a valid IRI");
 }
 
-TEST(Evaluator_2020_12, format_iri_invalid_with_tweak_fast) {
+TEST(format_iri_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri"
@@ -2546,7 +2543,7 @@ TEST(Evaluator_2020_12, format_iri_invalid_with_tweak_fast) {
       "The string value \"://bad\" was expected to represent a valid IRI");
 }
 
-TEST(Evaluator_2020_12, format_iri_valid_with_tweak_exhaustive) {
+TEST(format_iri_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri"
@@ -2576,7 +2573,7 @@ TEST(Evaluator_2020_12, format_iri_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"iri\"");
 }
 
-TEST(Evaluator_2020_12, format_iri_invalid_with_tweak_exhaustive) {
+TEST(format_iri_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri"
@@ -2598,7 +2595,7 @@ TEST(Evaluator_2020_12, format_iri_invalid_with_tweak_exhaustive) {
       "The string value \"://bad\" was expected to represent a valid IRI");
 }
 
-TEST(Evaluator_2020_12, format_iri_no_tweak_fast) {
+TEST(format_iri_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri"
@@ -2609,7 +2606,7 @@ TEST(Evaluator_2020_12, format_iri_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_iri_no_tweak_exhaustive) {
+TEST(format_iri_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri"
@@ -2626,7 +2623,7 @@ TEST(Evaluator_2020_12, format_iri_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"iri\"");
 }
 
-TEST(Evaluator_2020_12, format_iri_non_string_with_tweak_fast) {
+TEST(format_iri_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri"
@@ -2640,7 +2637,7 @@ TEST(Evaluator_2020_12, format_iri_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_iri_non_string_with_tweak_exhaustive) {
+TEST(format_iri_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri"
@@ -2655,7 +2652,7 @@ TEST(Evaluator_2020_12, format_iri_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_iri_reference_valid_with_tweak_fast) {
+TEST(format_iri_reference_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri-reference"
@@ -2677,7 +2674,7 @@ TEST(Evaluator_2020_12, format_iri_reference_valid_with_tweak_fast) {
       "IRI reference");
 }
 
-TEST(Evaluator_2020_12, format_iri_reference_invalid_with_tweak_fast) {
+TEST(format_iri_reference_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri-reference"
@@ -2699,7 +2696,7 @@ TEST(Evaluator_2020_12, format_iri_reference_invalid_with_tweak_fast) {
       "reference");
 }
 
-TEST(Evaluator_2020_12, format_iri_reference_valid_with_tweak_exhaustive) {
+TEST(format_iri_reference_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri-reference"
@@ -2729,7 +2726,7 @@ TEST(Evaluator_2020_12, format_iri_reference_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"iri-reference\"");
 }
 
-TEST(Evaluator_2020_12, format_iri_reference_invalid_with_tweak_exhaustive) {
+TEST(format_iri_reference_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri-reference"
@@ -2752,7 +2749,7 @@ TEST(Evaluator_2020_12, format_iri_reference_invalid_with_tweak_exhaustive) {
       "reference");
 }
 
-TEST(Evaluator_2020_12, format_iri_reference_no_tweak_fast) {
+TEST(format_iri_reference_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri-reference"
@@ -2763,7 +2760,7 @@ TEST(Evaluator_2020_12, format_iri_reference_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_iri_reference_no_tweak_exhaustive) {
+TEST(format_iri_reference_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri-reference"
@@ -2780,7 +2777,7 @@ TEST(Evaluator_2020_12, format_iri_reference_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"iri-reference\"");
 }
 
-TEST(Evaluator_2020_12, format_iri_reference_non_string_with_tweak_fast) {
+TEST(format_iri_reference_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri-reference"
@@ -2794,7 +2791,7 @@ TEST(Evaluator_2020_12, format_iri_reference_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_iri_reference_non_string_with_tweak_exhaustive) {
+TEST(format_iri_reference_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "iri-reference"
@@ -2809,7 +2806,7 @@ TEST(Evaluator_2020_12, format_iri_reference_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_uri_template_valid_with_tweak_fast) {
+TEST(format_uri_template_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-template"
@@ -2831,7 +2828,7 @@ TEST(Evaluator_2020_12, format_uri_template_valid_with_tweak_fast) {
       "a valid URI template");
 }
 
-TEST(Evaluator_2020_12, format_uri_template_invalid_with_tweak_fast) {
+TEST(format_uri_template_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-template"
@@ -2853,7 +2850,7 @@ TEST(Evaluator_2020_12, format_uri_template_invalid_with_tweak_fast) {
       "template");
 }
 
-TEST(Evaluator_2020_12, format_uri_template_valid_with_tweak_exhaustive) {
+TEST(format_uri_template_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-template"
@@ -2883,7 +2880,7 @@ TEST(Evaluator_2020_12, format_uri_template_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uri-template\"");
 }
 
-TEST(Evaluator_2020_12, format_uri_template_invalid_with_tweak_exhaustive) {
+TEST(format_uri_template_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-template"
@@ -2906,7 +2903,7 @@ TEST(Evaluator_2020_12, format_uri_template_invalid_with_tweak_exhaustive) {
       "template");
 }
 
-TEST(Evaluator_2020_12, format_uri_template_no_tweak_fast) {
+TEST(format_uri_template_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-template"
@@ -2917,7 +2914,7 @@ TEST(Evaluator_2020_12, format_uri_template_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_uri_template_no_tweak_exhaustive) {
+TEST(format_uri_template_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-template"
@@ -2934,7 +2931,7 @@ TEST(Evaluator_2020_12, format_uri_template_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uri-template\"");
 }
 
-TEST(Evaluator_2020_12, format_uri_template_non_string_with_tweak_fast) {
+TEST(format_uri_template_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-template"
@@ -2948,7 +2945,7 @@ TEST(Evaluator_2020_12, format_uri_template_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_uri_template_non_string_with_tweak_exhaustive) {
+TEST(format_uri_template_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri-template"
@@ -2963,7 +2960,7 @@ TEST(Evaluator_2020_12, format_uri_template_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_json_pointer_valid_with_tweak_fast) {
+TEST(format_json_pointer_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "json-pointer"
@@ -2985,7 +2982,7 @@ TEST(Evaluator_2020_12, format_json_pointer_valid_with_tweak_fast) {
       "Pointer");
 }
 
-TEST(Evaluator_2020_12, format_json_pointer_invalid_with_tweak_fast) {
+TEST(format_json_pointer_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "json-pointer"
@@ -3007,7 +3004,7 @@ TEST(Evaluator_2020_12, format_json_pointer_invalid_with_tweak_fast) {
       "valid JSON Pointer");
 }
 
-TEST(Evaluator_2020_12, format_json_pointer_valid_with_tweak_exhaustive) {
+TEST(format_json_pointer_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "json-pointer"
@@ -3037,7 +3034,7 @@ TEST(Evaluator_2020_12, format_json_pointer_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"json-pointer\"");
 }
 
-TEST(Evaluator_2020_12, format_json_pointer_invalid_with_tweak_exhaustive) {
+TEST(format_json_pointer_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "json-pointer"
@@ -3060,7 +3057,7 @@ TEST(Evaluator_2020_12, format_json_pointer_invalid_with_tweak_exhaustive) {
       "valid JSON Pointer");
 }
 
-TEST(Evaluator_2020_12, format_json_pointer_no_tweak_fast) {
+TEST(format_json_pointer_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "json-pointer"
@@ -3071,7 +3068,7 @@ TEST(Evaluator_2020_12, format_json_pointer_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_json_pointer_no_tweak_exhaustive) {
+TEST(format_json_pointer_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "json-pointer"
@@ -3088,7 +3085,7 @@ TEST(Evaluator_2020_12, format_json_pointer_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"json-pointer\"");
 }
 
-TEST(Evaluator_2020_12, format_json_pointer_non_string_with_tweak_fast) {
+TEST(format_json_pointer_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "json-pointer"
@@ -3102,7 +3099,7 @@ TEST(Evaluator_2020_12, format_json_pointer_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_json_pointer_non_string_with_tweak_exhaustive) {
+TEST(format_json_pointer_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "json-pointer"
@@ -3117,7 +3114,7 @@ TEST(Evaluator_2020_12, format_json_pointer_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_relative_json_pointer_valid_with_tweak_fast) {
+TEST(format_relative_json_pointer_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "relative-json-pointer"
@@ -3139,7 +3136,7 @@ TEST(Evaluator_2020_12, format_relative_json_pointer_valid_with_tweak_fast) {
       "JSON Pointer");
 }
 
-TEST(Evaluator_2020_12, format_relative_json_pointer_invalid_with_tweak_fast) {
+TEST(format_relative_json_pointer_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "relative-json-pointer"
@@ -3161,8 +3158,7 @@ TEST(Evaluator_2020_12, format_relative_json_pointer_invalid_with_tweak_fast) {
       "relative JSON Pointer");
 }
 
-TEST(Evaluator_2020_12,
-     format_relative_json_pointer_valid_with_tweak_exhaustive) {
+TEST(format_relative_json_pointer_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "relative-json-pointer"
@@ -3193,8 +3189,7 @@ TEST(Evaluator_2020_12,
                                "to be \"relative-json-pointer\"");
 }
 
-TEST(Evaluator_2020_12,
-     format_relative_json_pointer_invalid_with_tweak_exhaustive) {
+TEST(format_relative_json_pointer_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "relative-json-pointer"
@@ -3217,7 +3212,7 @@ TEST(Evaluator_2020_12,
       "relative JSON Pointer");
 }
 
-TEST(Evaluator_2020_12, format_relative_json_pointer_no_tweak_fast) {
+TEST(format_relative_json_pointer_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "relative-json-pointer"
@@ -3228,7 +3223,7 @@ TEST(Evaluator_2020_12, format_relative_json_pointer_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_relative_json_pointer_no_tweak_exhaustive) {
+TEST(format_relative_json_pointer_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "relative-json-pointer"
@@ -3246,8 +3241,7 @@ TEST(Evaluator_2020_12, format_relative_json_pointer_no_tweak_exhaustive) {
                                "to be \"relative-json-pointer\"");
 }
 
-TEST(Evaluator_2020_12,
-     format_relative_json_pointer_non_string_with_tweak_fast) {
+TEST(format_relative_json_pointer_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "relative-json-pointer"
@@ -3261,8 +3255,7 @@ TEST(Evaluator_2020_12,
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12,
-     format_relative_json_pointer_non_string_with_tweak_exhaustive) {
+TEST(format_relative_json_pointer_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "relative-json-pointer"
@@ -3277,7 +3270,7 @@ TEST(Evaluator_2020_12,
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_regex_valid_with_tweak_fast) {
+TEST(format_regex_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "regex"
@@ -3299,7 +3292,7 @@ TEST(Evaluator_2020_12, format_regex_valid_with_tweak_fast) {
       "ECMA-262 regular expression");
 }
 
-TEST(Evaluator_2020_12, format_regex_invalid_with_tweak_fast) {
+TEST(format_regex_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "regex"
@@ -3321,7 +3314,7 @@ TEST(Evaluator_2020_12, format_regex_invalid_with_tweak_fast) {
       "regular expression");
 }
 
-TEST(Evaluator_2020_12, format_regex_valid_with_tweak_exhaustive) {
+TEST(format_regex_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "regex"
@@ -3351,7 +3344,7 @@ TEST(Evaluator_2020_12, format_regex_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"regex\"");
 }
 
-TEST(Evaluator_2020_12, format_regex_invalid_with_tweak_exhaustive) {
+TEST(format_regex_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "regex"
@@ -3374,7 +3367,7 @@ TEST(Evaluator_2020_12, format_regex_invalid_with_tweak_exhaustive) {
       "regular expression");
 }
 
-TEST(Evaluator_2020_12, format_regex_no_tweak_fast) {
+TEST(format_regex_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "regex"
@@ -3385,7 +3378,7 @@ TEST(Evaluator_2020_12, format_regex_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_regex_no_tweak_exhaustive) {
+TEST(format_regex_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "regex"
@@ -3402,7 +3395,7 @@ TEST(Evaluator_2020_12, format_regex_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"regex\"");
 }
 
-TEST(Evaluator_2020_12, format_regex_non_string_with_tweak_fast) {
+TEST(format_regex_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "regex"
@@ -3416,7 +3409,7 @@ TEST(Evaluator_2020_12, format_regex_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_regex_non_string_with_tweak_exhaustive) {
+TEST(format_regex_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "regex"
@@ -3431,7 +3424,7 @@ TEST(Evaluator_2020_12, format_regex_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_uuid_valid_with_tweak_fast) {
+TEST(format_uuid_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uuid"
@@ -3453,7 +3446,7 @@ TEST(Evaluator_2020_12, format_uuid_valid_with_tweak_fast) {
       "to represent a valid UUID");
 }
 
-TEST(Evaluator_2020_12, format_uuid_invalid_with_tweak_fast) {
+TEST(format_uuid_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uuid"
@@ -3475,7 +3468,7 @@ TEST(Evaluator_2020_12, format_uuid_invalid_with_tweak_fast) {
       "UUID");
 }
 
-TEST(Evaluator_2020_12, format_uuid_valid_with_tweak_exhaustive) {
+TEST(format_uuid_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uuid"
@@ -3505,7 +3498,7 @@ TEST(Evaluator_2020_12, format_uuid_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uuid\"");
 }
 
-TEST(Evaluator_2020_12, format_uuid_invalid_with_tweak_exhaustive) {
+TEST(format_uuid_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uuid"
@@ -3528,7 +3521,7 @@ TEST(Evaluator_2020_12, format_uuid_invalid_with_tweak_exhaustive) {
       "UUID");
 }
 
-TEST(Evaluator_2020_12, format_uuid_no_tweak_fast) {
+TEST(format_uuid_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uuid"
@@ -3539,7 +3532,7 @@ TEST(Evaluator_2020_12, format_uuid_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, format_uuid_no_tweak_exhaustive) {
+TEST(format_uuid_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uuid"
@@ -3556,7 +3549,7 @@ TEST(Evaluator_2020_12, format_uuid_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uuid\"");
 }
 
-TEST(Evaluator_2020_12, format_uuid_non_string_with_tweak_fast) {
+TEST(format_uuid_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uuid"
@@ -3570,7 +3563,7 @@ TEST(Evaluator_2020_12, format_uuid_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_uuid_non_string_with_tweak_exhaustive) {
+TEST(format_uuid_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uuid"
@@ -3584,7 +3577,7 @@ TEST(Evaluator_2020_12, format_uuid_non_string_with_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
                                                  tweaks);
 }
-TEST(Evaluator_2020_12, format_unknown_with_tweak_fast) {
+TEST(format_unknown_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "not-a-real-format"
@@ -3598,7 +3591,7 @@ TEST(Evaluator_2020_12, format_unknown_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_unknown_with_tweak_exhaustive) {
+TEST(format_unknown_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "not-a-real-format"
@@ -3613,7 +3606,7 @@ TEST(Evaluator_2020_12, format_unknown_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_keyword_value_integer_with_tweak_fast) {
+TEST(format_keyword_value_integer_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": 42
@@ -3627,7 +3620,7 @@ TEST(Evaluator_2020_12, format_keyword_value_integer_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_keyword_value_integer_with_tweak_exhaustive) {
+TEST(format_keyword_value_integer_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": 42
@@ -3642,7 +3635,7 @@ TEST(Evaluator_2020_12, format_keyword_value_integer_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_keyword_value_null_with_tweak_fast) {
+TEST(format_keyword_value_null_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": null
@@ -3656,7 +3649,7 @@ TEST(Evaluator_2020_12, format_keyword_value_null_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_2020_12, format_keyword_value_null_with_tweak_exhaustive) {
+TEST(format_keyword_value_null_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": null
@@ -3671,7 +3664,7 @@ TEST(Evaluator_2020_12, format_keyword_value_null_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(Evaluator_2020_12, format_under_properties_valid_with_tweak_fast) {
+TEST(format_under_properties_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -3697,7 +3690,7 @@ TEST(Evaluator_2020_12, format_under_properties_valid_with_tweak_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_2020_12, format_under_properties_invalid_with_tweak_fast) {
+TEST(format_under_properties_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -3723,7 +3716,7 @@ TEST(Evaluator_2020_12, format_under_properties_invalid_with_tweak_fast) {
       "reference");
 }
 
-TEST(Evaluator_2020_12, format_under_items_valid_with_tweak_fast) {
+TEST(format_under_items_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "format": "json-pointer" }
@@ -3759,7 +3752,7 @@ TEST(Evaluator_2020_12, format_under_items_valid_with_tweak_fast) {
       "Pointer");
 }
 
-TEST(Evaluator_2020_12, format_under_items_invalid_with_tweak_fast) {
+TEST(format_under_items_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "format": "uri-template" }
@@ -3795,7 +3788,7 @@ TEST(Evaluator_2020_12, format_under_items_invalid_with_tweak_fast) {
       "template");
 }
 
-TEST(Evaluator_2020_12, format_with_type_string_valid_with_tweak_fast) {
+TEST(format_with_type_string_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -3824,8 +3817,7 @@ TEST(Evaluator_2020_12, format_with_type_string_valid_with_tweak_fast) {
                                "The value was expected to be of type string");
 }
 
-TEST(Evaluator_2020_12,
-     format_with_type_string_invalid_format_with_tweak_fast) {
+TEST(format_with_type_string_invalid_format_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -3848,7 +3840,7 @@ TEST(Evaluator_2020_12,
       "URI");
 }
 
-TEST(Evaluator_2020_12, format_with_type_string_non_string_with_tweak_fast) {
+TEST(format_with_type_string_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -3869,8 +3861,7 @@ TEST(Evaluator_2020_12, format_with_type_string_non_string_with_tweak_fast) {
       "The value was expected to be of type string but it was of type integer");
 }
 
-TEST(Evaluator_2020_12,
-     format_with_type_integer_short_circuits_with_tweak_fast) {
+TEST(format_with_type_integer_short_circuits_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -3890,7 +3881,7 @@ TEST(Evaluator_2020_12,
                                "The value was expected to be of type integer");
 }
 
-TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_valid_fast) {
+TEST(format_uri_with_assertion_vocab_valid_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/2020-12-format-assertion-meta",
     "format": "uri"
@@ -3916,7 +3907,7 @@ TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_valid_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_invalid_fast) {
+TEST(format_uri_with_assertion_vocab_invalid_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/2020-12-format-assertion-meta",
     "format": "uri"
@@ -3941,7 +3932,7 @@ TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_invalid_fast) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_valid_exhaustive) {
+TEST(format_uri_with_assertion_vocab_valid_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/2020-12-format-assertion-meta",
     "format": "uri"
@@ -3974,7 +3965,7 @@ TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_valid_exhaustive) {
       "The logical type of the instance was expected to be \"uri\"");
 }
 
-TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_invalid_exhaustive) {
+TEST(format_uri_with_assertion_vocab_invalid_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/2020-12-format-assertion-meta",
     "format": "uri"
@@ -3999,7 +3990,7 @@ TEST(Evaluator_2020_12, format_uri_with_assertion_vocab_invalid_exhaustive) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_x_assertion_true_valid_no_tweak_fast) {
+TEST(format_uri_x_assertion_true_valid_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri",
@@ -4019,7 +4010,7 @@ TEST(Evaluator_2020_12, format_uri_x_assertion_true_valid_no_tweak_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_x_assertion_true_invalid_no_tweak_fast) {
+TEST(format_uri_x_assertion_true_invalid_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri",
@@ -4038,7 +4029,7 @@ TEST(Evaluator_2020_12, format_uri_x_assertion_true_invalid_no_tweak_fast) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
+TEST(format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri",
@@ -4072,8 +4063,7 @@ TEST(Evaluator_2020_12, format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
                                " was collected as the annotation true");
 }
 
-TEST(Evaluator_2020_12,
-     format_uri_x_assertion_true_invalid_no_tweak_exhaustive) {
+TEST(format_uri_x_assertion_true_invalid_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri",
@@ -4092,7 +4082,7 @@ TEST(Evaluator_2020_12,
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_2020_12, format_uri_x_assertion_false_no_tweak_exhaustive) {
+TEST(format_uri_x_assertion_false_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "uri",
@@ -4119,7 +4109,7 @@ TEST(Evaluator_2020_12, format_uri_x_assertion_false_no_tweak_exhaustive) {
                                " was collected as the annotation false");
 }
 
-TEST(Evaluator_2020_12, x_assertion_true_without_format_no_tweak_fast) {
+TEST(x_assertion_true_without_format_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-format-assertion": true
@@ -4130,7 +4120,7 @@ TEST(Evaluator_2020_12, x_assertion_true_without_format_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_2020_12, x_assertion_true_without_format_no_tweak_exhaustive) {
+TEST(x_assertion_true_without_format_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-format-assertion": true
@@ -4149,7 +4139,7 @@ TEST(Evaluator_2020_12, x_assertion_true_without_format_no_tweak_exhaustive) {
                                " was collected as the annotation true");
 }
 
-TEST(Evaluator_2020_12, x_assertion_nested_selective_no_tweak_fast) {
+TEST(x_assertion_nested_selective_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -4178,7 +4168,7 @@ TEST(Evaluator_2020_12, x_assertion_nested_selective_no_tweak_fast) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_2020_12, x_assertion_nested_selective_valid_no_tweak_fast) {
+TEST(x_assertion_nested_selective_valid_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -4208,7 +4198,7 @@ TEST(Evaluator_2020_12, x_assertion_nested_selective_valid_no_tweak_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_metadata_title) {
+TEST(annotation_fast_metadata_title) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Test title"
@@ -4228,7 +4218,7 @@ TEST(Evaluator_2020_12, annotation_fast_metadata_title) {
                                "The title of the instance was \"Test title\"");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_metadata_selective) {
+TEST(annotation_fast_metadata_selective) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "T",
@@ -4249,7 +4239,7 @@ TEST(Evaluator_2020_12, annotation_fast_metadata_selective) {
                                "The title of the instance was \"T\"");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_format) {
+TEST(annotation_fast_format) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": "email"
@@ -4270,7 +4260,7 @@ TEST(Evaluator_2020_12, annotation_fast_format) {
       "The logical type of the instance was expected to be \"email\"");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_content_media_type) {
+TEST(annotation_fast_content_media_type) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contentMediaType": "text/plain"
@@ -4292,7 +4282,7 @@ TEST(Evaluator_2020_12, annotation_fast_content_media_type) {
       instance, 0, "The content media type of the instance was \"text/plain\"");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_properties) {
+TEST(annotation_fast_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": { "foo": { "type": "string" } }
@@ -4323,7 +4313,7 @@ TEST(Evaluator_2020_12, annotation_fast_properties) {
                                "validated against its property subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_pattern_properties) {
+TEST(annotation_fast_pattern_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "patternProperties": { "^x": { "type": "string" } }
@@ -4365,7 +4355,7 @@ TEST(Evaluator_2020_12, annotation_fast_pattern_properties) {
       "validate against the defined pattern property subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_additional_properties) {
+TEST(annotation_fast_additional_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": { "foo": { "type": "integer" } },
@@ -4414,7 +4404,7 @@ TEST(Evaluator_2020_12, annotation_fast_additional_properties) {
       "were expected to validate against this subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_prefix_items) {
+TEST(annotation_fast_prefix_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" } ]
@@ -4458,7 +4448,7 @@ TEST(Evaluator_2020_12, annotation_fast_prefix_items) {
       "corresponding subschemas");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_items) {
+TEST(annotation_fast_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" } ],
@@ -4514,7 +4504,7 @@ TEST(Evaluator_2020_12, annotation_fast_items) {
                                "described by related keywords");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_contains) {
+TEST(annotation_fast_contains) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "integer" }
@@ -4563,7 +4553,7 @@ TEST(Evaluator_2020_12, annotation_fast_contains) {
       "against the given subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_contains_min_max) {
+TEST(annotation_fast_contains_min_max) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "integer" },
@@ -4621,7 +4611,7 @@ TEST(Evaluator_2020_12, annotation_fast_contains_min_max) {
       "against the given subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_contains_nested_annotation) {
+TEST(annotation_fast_contains_nested_annotation) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "title": "hit", "type": "integer" }
@@ -4668,7 +4658,7 @@ TEST(Evaluator_2020_12, annotation_fast_contains_nested_annotation) {
       "against the given subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_unevaluated_properties) {
+TEST(annotation_fast_unevaluated_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": { "foo": { "type": "integer" } },
@@ -4717,7 +4707,7 @@ TEST(Evaluator_2020_12, annotation_fast_unevaluated_properties) {
       "expected to validate against this subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_unevaluated_items) {
+TEST(annotation_fast_unevaluated_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "prefixItems": [ { "type": "integer" } ],
@@ -4773,7 +4763,7 @@ TEST(Evaluator_2020_12, annotation_fast_unevaluated_items) {
       "expected to validate against this subschema");
 }
 
-TEST(Evaluator_2020_12, annotation_fast_unknown_keyword) {
+TEST(annotation_fast_unknown_keyword) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-custom": "hello"
@@ -4794,8 +4784,7 @@ TEST(Evaluator_2020_12, annotation_fast_unknown_keyword) {
                                "collected as the annotation \"hello\"");
 }
 
-TEST(Evaluator_2020_12,
-     annotation_exhaustive_empty_whitelist_no_short_circuit) {
+TEST(annotation_exhaustive_empty_whitelist_no_short_circuit) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "integer" }

@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
-TEST(Foundation_base_dialect_draft7, jsonschema_draft_hyperschema) {
+TEST(jsonschema_draft_hyperschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/hyper-schema#",
     "type": "object"
@@ -15,7 +15,7 @@ TEST(Foundation_base_dialect_draft7, jsonschema_draft_hyperschema) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7_Hyper);
 }
 
-TEST(Foundation_base_dialect_draft7, jsonschema_draft_schema) {
+TEST(jsonschema_draft_schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object"
@@ -27,7 +27,7 @@ TEST(Foundation_base_dialect_draft7, jsonschema_draft_schema) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
 }
 
-TEST(Foundation_base_dialect_draft7, jsonschema_draft_links) {
+TEST(jsonschema_draft_links) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/links#"
   })JSON");
@@ -38,7 +38,7 @@ TEST(Foundation_base_dialect_draft7, jsonschema_draft_links) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7_Hyper);
 }
 
-TEST(Foundation_base_dialect_draft7, jsonschema_draft_hyperschema_output) {
+TEST(jsonschema_draft_hyperschema_output) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/hyper-schema-output"
   })JSON");

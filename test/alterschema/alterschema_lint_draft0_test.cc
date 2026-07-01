@@ -1,10 +1,10 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/core/json.h>
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_lint_draft0, single_type_array_1) {
+TEST(single_type_array_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": [ "string" ]
@@ -22,7 +22,7 @@ TEST(AlterSchema_lint_draft0, single_type_array_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, drop_non_array_keywords_1) {
+TEST(drop_non_array_keywords_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "title": "Test",
@@ -46,7 +46,7 @@ TEST(AlterSchema_lint_draft0, drop_non_array_keywords_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, drop_non_boolean_keywords_1) {
+TEST(drop_non_boolean_keywords_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "title": "Test",
@@ -69,7 +69,7 @@ TEST(AlterSchema_lint_draft0, drop_non_boolean_keywords_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, drop_non_null_keywords_1) {
+TEST(drop_non_null_keywords_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "title": "Test",
@@ -92,7 +92,7 @@ TEST(AlterSchema_lint_draft0, drop_non_null_keywords_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, drop_non_numeric_keywords_1) {
+TEST(drop_non_numeric_keywords_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "title": "Test",
@@ -115,7 +115,7 @@ TEST(AlterSchema_lint_draft0, drop_non_numeric_keywords_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, drop_non_numeric_keywords_2) {
+TEST(drop_non_numeric_keywords_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "title": "Test",
@@ -138,7 +138,7 @@ TEST(AlterSchema_lint_draft0, drop_non_numeric_keywords_2) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, drop_non_object_keywords_1) {
+TEST(drop_non_object_keywords_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "title": "Test",
@@ -162,7 +162,7 @@ TEST(AlterSchema_lint_draft0, drop_non_object_keywords_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, drop_non_string_keywords_1) {
+TEST(drop_non_string_keywords_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "title": "Test",
@@ -186,7 +186,7 @@ TEST(AlterSchema_lint_draft0, drop_non_string_keywords_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, draft_official_dialect_without_empty_fragment_1) {
+TEST(draft_official_dialect_without_empty_fragment_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema",
     "type": "string"
@@ -204,7 +204,7 @@ TEST(AlterSchema_lint_draft0, draft_official_dialect_without_empty_fragment_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, draft_ref_siblings_1) {
+TEST(draft_ref_siblings_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "$ref": "#/definitions/foo",
@@ -223,7 +223,7 @@ TEST(AlterSchema_lint_draft0, draft_ref_siblings_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, draft_ref_siblings_2) {
+TEST(draft_ref_siblings_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "$ref": "#/definitions/foo",
@@ -245,7 +245,7 @@ TEST(AlterSchema_lint_draft0, draft_ref_siblings_2) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, draft_ref_siblings_3) {
+TEST(draft_ref_siblings_3) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "$ref": "#/definitions/foo",
@@ -271,7 +271,7 @@ TEST(AlterSchema_lint_draft0, draft_ref_siblings_3) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, draft_ref_siblings_4) {
+TEST(draft_ref_siblings_4) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "id": "http://example.com/schema",
@@ -293,7 +293,7 @@ TEST(AlterSchema_lint_draft0, draft_ref_siblings_4) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_1) {
+TEST(unknown_keywords_prefix_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "object",
@@ -313,7 +313,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_2) {
+TEST(unknown_keywords_prefix_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "string",
@@ -333,7 +333,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_2) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_3) {
+TEST(unknown_keywords_prefix_3) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "object",
@@ -357,7 +357,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_3) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_4) {
+TEST(unknown_keywords_prefix_4) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "object",
@@ -381,7 +381,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_4) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_5) {
+TEST(unknown_keywords_prefix_5) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "customKeyword": "value",
@@ -403,7 +403,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_5) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_6) {
+TEST(unknown_keywords_prefix_6) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "properties": {
@@ -427,7 +427,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_6) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_7) {
+TEST(unknown_keywords_prefix_7) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "foo": "original value",
@@ -449,7 +449,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_7) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_8) {
+TEST(unknown_keywords_prefix_8) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "foo": "original value",
@@ -473,7 +473,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_8) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_9) {
+TEST(unknown_keywords_prefix_9) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "object",
@@ -503,7 +503,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_9) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_10) {
+TEST(unknown_keywords_prefix_10) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "$ref": "schema",
@@ -523,7 +523,7 @@ TEST(AlterSchema_lint_draft0, unknown_keywords_prefix_10) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, draft_official_dialect_with_https_1) {
+TEST(draft_official_dialect_with_https_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft-00/schema#",
     "type": "string"
@@ -541,7 +541,7 @@ TEST(AlterSchema_lint_draft0, draft_official_dialect_with_https_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_draft0, pattern_non_ecma_regex_invalid_escape) {
+TEST(pattern_non_ecma_regex_invalid_escape) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "properties": {
@@ -560,7 +560,7 @@ TEST(AlterSchema_lint_draft0, pattern_non_ecma_regex_invalid_escape) {
       false);
 }
 
-TEST(AlterSchema_lint_draft0, pattern_non_ecma_regex_valid_simple) {
+TEST(pattern_non_ecma_regex_valid_simple) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "properties": {

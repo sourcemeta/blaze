@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
@@ -29,7 +29,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_vocabulary_draft6, parse_vocabularies_without_vocabulary) {
+TEST(parse_vocabularies_without_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "object"
@@ -40,7 +40,7 @@ TEST(Foundation_vocabulary_draft6, parse_vocabularies_without_vocabulary) {
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_draft6, parse_vocabularies_with_vocabulary) {
+TEST(parse_vocabularies_with_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$vocabulary": {
@@ -53,7 +53,7 @@ TEST(Foundation_vocabulary_draft6, parse_vocabularies_with_vocabulary) {
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Foundation_vocabulary_draft6, schema) {
+TEST(schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "object"
@@ -64,7 +64,7 @@ TEST(Foundation_vocabulary_draft6, schema) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_6);
 }
 
-TEST(Foundation_vocabulary_draft6, hyperschema) {
+TEST(hyperschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/hyper-schema#",
     "type": "object"
@@ -75,7 +75,7 @@ TEST(Foundation_vocabulary_draft6, hyperschema) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_6_Hyper);
 }
 
-TEST(Foundation_vocabulary_draft6, one_hop) {
+TEST(one_hop) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/one-hop",
     "type": "object"
@@ -86,7 +86,7 @@ TEST(Foundation_vocabulary_draft6, one_hop) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_6);
 }
 
-TEST(Foundation_vocabulary_draft6, ignore_vocabulary) {
+TEST(ignore_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/with-vocabulary",
     "type": "object"

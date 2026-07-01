@@ -1,4 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME compiler
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME compiler
   FOLDER "Blaze/Compiler"
   SOURCES
     compiler_unevaluated_2019_09_test.cc

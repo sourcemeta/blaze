@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/jsonpointer.h>
@@ -6,7 +6,7 @@
 
 #include <filesystem> // std::filesystem::path
 
-TEST(Configuration_add_dependency, single) {
+TEST(single) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
@@ -24,7 +24,7 @@ TEST(Configuration_add_dependency, single) {
       std::filesystem::path{"/test/vendor/2020-12.json"});
 }
 
-TEST(Configuration_add_dependency, multiple) {
+TEST(multiple) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
@@ -48,7 +48,7 @@ TEST(Configuration_add_dependency, multiple) {
             std::filesystem::path{"/test/vendor/common.json"});
 }
 
-TEST(Configuration_add_dependency, duplicate_uri) {
+TEST(duplicate_uri) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
@@ -62,18 +62,18 @@ TEST(Configuration_add_dependency, duplicate_uri) {
     config.add_dependency(
         sourcemeta::core::URI{"https://json-schema.org/draft/2020-12/schema"},
         std::filesystem::path{"/test/vendor/other.json"});
-    FAIL() << "The function was expected to throw";
+    FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "The dependency already exists");
     EXPECT_EQ(
         sourcemeta::core::to_string(error.location()),
         "/dependencies/https:~1~1json-schema.org~1draft~12020-12~1schema");
   } catch (...) {
-    FAIL() << "The function was expected to throw a parse error";
+    FAIL();
   }
 }
 
-TEST(Configuration_add_dependency, uri_is_canonicalised) {
+TEST(uri_is_canonicalised) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
@@ -90,7 +90,7 @@ TEST(Configuration_add_dependency, uri_is_canonicalised) {
             std::filesystem::path{"/test/vendor/2020-12.json"});
 }
 
-TEST(Configuration_add_dependency, duplicate_uri_after_canonicalisation) {
+TEST(duplicate_uri_after_canonicalisation) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
@@ -103,17 +103,17 @@ TEST(Configuration_add_dependency, duplicate_uri_after_canonicalisation) {
     config.add_dependency(
         sourcemeta::core::URI{"HTTP://Example.COM:80/schema.json"},
         std::filesystem::path{"/test/vendor/second.json"});
-    FAIL() << "The function was expected to throw";
+    FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(), "The dependency already exists");
     EXPECT_EQ(sourcemeta::core::to_string(error.location()),
               "/dependencies/http:~1~1example.com~1schema.json");
   } catch (...) {
-    FAIL() << "The function was expected to throw a parse error";
+    FAIL();
   }
 }
 
-TEST(Configuration_add_dependency, duplicate_path) {
+TEST(duplicate_path) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test/schemas";
   config.base = "https://example.com";
@@ -127,7 +127,7 @@ TEST(Configuration_add_dependency, duplicate_path) {
     config.add_dependency(
         sourcemeta::core::URI{"https://example.com/other.json"},
         std::filesystem::path{"/test/vendor/schema.json"});
-    FAIL() << "The function was expected to throw";
+    FAIL();
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {
     EXPECT_STREQ(error.what(),
                  "Multiple dependencies cannot point to the same path");
@@ -135,6 +135,6 @@ TEST(Configuration_add_dependency, duplicate_path) {
         sourcemeta::core::to_string(error.location()),
         "/dependencies/https:~1~1json-schema.org~1draft~12020-12~1schema");
   } catch (...) {
-    FAIL() << "The function was expected to throw a parse error";
+    FAIL();
   }
 }

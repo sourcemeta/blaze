@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/json.h>
 
-TEST(Configuration_applies_to, default_extensions) {
+TEST(default_extensions) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com"
   })JSON")};
@@ -18,7 +18,7 @@ TEST(Configuration_applies_to, default_extensions) {
   EXPECT_FALSE(config.applies_to("no_extension"));
 }
 
-TEST(Configuration_applies_to, single_extension_match) {
+TEST(single_extension_match) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": ".json"
@@ -31,7 +31,7 @@ TEST(Configuration_applies_to, single_extension_match) {
   EXPECT_TRUE(config.applies_to("/path/to/schema.json"));
 }
 
-TEST(Configuration_applies_to, single_extension_no_match) {
+TEST(single_extension_no_match) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": ".json"
@@ -45,7 +45,7 @@ TEST(Configuration_applies_to, single_extension_no_match) {
   EXPECT_FALSE(config.applies_to("no_extension"));
 }
 
-TEST(Configuration_applies_to, multiple_extensions_match) {
+TEST(multiple_extensions_match) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": [ ".json", ".yaml", ".yml" ]
@@ -59,7 +59,7 @@ TEST(Configuration_applies_to, multiple_extensions_match) {
   EXPECT_TRUE(config.applies_to("baz.yml"));
 }
 
-TEST(Configuration_applies_to, multiple_extensions_no_match) {
+TEST(multiple_extensions_no_match) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": [ ".json", ".yaml" ]
@@ -73,7 +73,7 @@ TEST(Configuration_applies_to, multiple_extensions_no_match) {
   EXPECT_FALSE(config.applies_to("no_extension"));
 }
 
-TEST(Configuration_applies_to, double_extension_match) {
+TEST(double_extension_match) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": ".json"
@@ -86,7 +86,7 @@ TEST(Configuration_applies_to, double_extension_match) {
   EXPECT_TRUE(config.applies_to("/path/to/bar.test.json"));
 }
 
-TEST(Configuration_applies_to, compound_extension_match) {
+TEST(compound_extension_match) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": ".schema.json"
@@ -101,7 +101,7 @@ TEST(Configuration_applies_to, compound_extension_match) {
   EXPECT_FALSE(config.applies_to("qux.schema.yaml"));
 }
 
-TEST(Configuration_applies_to, empty_string_extension) {
+TEST(empty_string_extension) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": ""
@@ -115,7 +115,7 @@ TEST(Configuration_applies_to, empty_string_extension) {
   EXPECT_TRUE(config.applies_to("any_file"));
 }
 
-TEST(Configuration_applies_to, empty_array_extension) {
+TEST(empty_array_extension) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": []
@@ -129,7 +129,7 @@ TEST(Configuration_applies_to, empty_array_extension) {
   EXPECT_TRUE(config.applies_to("any_file"));
 }
 
-TEST(Configuration_applies_to, array_with_empty_string_extension) {
+TEST(array_with_empty_string_extension) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://example.com",
     "extension": [ ".json", "" ]

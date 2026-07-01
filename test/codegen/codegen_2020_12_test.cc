@@ -1,10 +1,10 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/codegen.h>
 
 #include "codegen_test_utils.h"
 
-TEST(Codegen_2020_12, test_1) {
+TEST(test_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -22,7 +22,7 @@ TEST(Codegen_2020_12, test_1) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, default_dialect_parameter) {
+TEST(default_dialect_parameter) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "type": "string"
   })JSON")};
@@ -40,7 +40,7 @@ TEST(Codegen_2020_12, default_dialect_parameter) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, test_2) {
+TEST(test_2) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -83,7 +83,7 @@ TEST(Codegen_2020_12, test_2) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(Codegen_2020_12, test_3) {
+TEST(test_3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer"
@@ -101,7 +101,7 @@ TEST(Codegen_2020_12, test_3) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, test_4) {
+TEST(test_4) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number"
@@ -119,7 +119,7 @@ TEST(Codegen_2020_12, test_4) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, test_5) {
+TEST(test_5) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -140,7 +140,7 @@ TEST(Codegen_2020_12, test_5) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, test_6) {
+TEST(test_6) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number",
@@ -161,7 +161,7 @@ TEST(Codegen_2020_12, test_6) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, enum_null) {
+TEST(enum_null) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ null ]
@@ -179,7 +179,7 @@ TEST(Codegen_2020_12, enum_null) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, enum_boolean_true_false) {
+TEST(enum_boolean_true_false) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ true, false ]
@@ -197,7 +197,7 @@ TEST(Codegen_2020_12, enum_boolean_true_false) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, enum_boolean_false_true) {
+TEST(enum_boolean_false_true) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ false, true ]
@@ -215,7 +215,7 @@ TEST(Codegen_2020_12, enum_boolean_false_true) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, enum_string_values) {
+TEST(enum_string_values) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ "foo", "bar", "baz" ]
@@ -244,7 +244,7 @@ TEST(Codegen_2020_12, enum_string_values) {
       "baz");
 }
 
-TEST(Codegen_2020_12, const_null) {
+TEST(const_null) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": null
@@ -262,7 +262,7 @@ TEST(Codegen_2020_12, const_null) {
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(0)).symbol);
 }
 
-TEST(Codegen_2020_12, const_string) {
+TEST(const_string) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": "hello"
@@ -285,7 +285,7 @@ TEST(Codegen_2020_12, const_string) {
       "hello");
 }
 
-TEST(Codegen_2020_12, const_integer) {
+TEST(const_integer) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": 42
@@ -308,7 +308,7 @@ TEST(Codegen_2020_12, const_integer) {
       42);
 }
 
-TEST(Codegen_2020_12, const_boolean_true) {
+TEST(const_boolean_true) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": true
@@ -330,7 +330,7 @@ TEST(Codegen_2020_12, const_boolean_true) {
       std::get<CodegenIREnumeration>(result.at(0)).values.at(0).to_boolean());
 }
 
-TEST(Codegen_2020_12, object_type_only) {
+TEST(object_type_only) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object"
@@ -354,7 +354,7 @@ TEST(Codegen_2020_12, object_type_only) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(0)).additional));
 }
 
-TEST(Codegen_2020_12, object_empty_properties) {
+TEST(object_empty_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -379,7 +379,7 @@ TEST(Codegen_2020_12, object_empty_properties) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(0)).additional));
 }
 
-TEST(Codegen_2020_12, object_with_additional_properties) {
+TEST(object_with_additional_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -432,7 +432,7 @@ TEST(Codegen_2020_12, object_with_additional_properties) {
                 "additionalProperties");
 }
 
-TEST(Codegen_2020_12, object_with_impossible_property) {
+TEST(object_with_impossible_property) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -474,7 +474,7 @@ TEST(Codegen_2020_12, object_with_impossible_property) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(Codegen_2020_12, object_with_impossible_additional_properties) {
+TEST(object_with_impossible_additional_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -522,7 +522,7 @@ TEST(Codegen_2020_12, object_with_impossible_additional_properties) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(2)).additional));
 }
 
-TEST(Codegen_2020_12, array_with_items) {
+TEST(array_with_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -545,7 +545,7 @@ TEST(Codegen_2020_12, array_with_items) {
   EXPECT_SYMBOL(std::get<CodegenIRArray>(result.at(1)).items->symbol, "items");
 }
 
-TEST(Codegen_2020_12, array_nested_in_object) {
+TEST(array_nested_in_object) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -579,7 +579,7 @@ TEST(Codegen_2020_12, array_nested_in_object) {
   EXPECT_SYMBOL(std::get<CodegenIRObject>(result.at(2)).symbol);
 }
 
-TEST(Codegen_2020_12, tuple_with_prefix_items) {
+TEST(tuple_with_prefix_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -621,7 +621,7 @@ TEST(Codegen_2020_12, tuple_with_prefix_items) {
                 "items");
 }
 
-TEST(Codegen_2020_12, tuple_with_prefix_items_and_items) {
+TEST(tuple_with_prefix_items_and_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -658,7 +658,7 @@ TEST(Codegen_2020_12, tuple_with_prefix_items_and_items) {
                 "items");
 }
 
-TEST(Codegen_2020_12, anyof_two_branches) {
+TEST(anyof_two_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -694,7 +694,7 @@ TEST(Codegen_2020_12, anyof_two_branches) {
                 "1");
 }
 
-TEST(Codegen_2020_12, anyof_three_branches) {
+TEST(anyof_three_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -737,7 +737,7 @@ TEST(Codegen_2020_12, anyof_three_branches) {
                 "2");
 }
 
-TEST(Codegen_2020_12, oneof_two_branches) {
+TEST(oneof_two_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -774,7 +774,7 @@ TEST(Codegen_2020_12, oneof_two_branches) {
                 "1");
 }
 
-TEST(Codegen_2020_12, oneof_three_branches) {
+TEST(oneof_three_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -818,7 +818,7 @@ TEST(Codegen_2020_12, oneof_three_branches) {
                 "2");
 }
 
-TEST(Codegen_2020_12, ref_recursive_to_root) {
+TEST(ref_recursive_to_root) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -861,7 +861,7 @@ TEST(Codegen_2020_12, ref_recursive_to_root) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(Codegen_2020_12, nested_object_with_required_property) {
+TEST(nested_object_with_required_property) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -932,7 +932,7 @@ TEST(Codegen_2020_12, nested_object_with_required_property) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(2)).additional));
 }
 
-TEST(Codegen_2020_12, array_without_items) {
+TEST(array_without_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -960,7 +960,7 @@ TEST(Codegen_2020_12, array_without_items) {
   EXPECT_SYMBOL(std::get<CodegenIRArray>(result.at(1)).items->symbol, "items");
 }
 
-TEST(Codegen_2020_12, object_with_additional_properties_true) {
+TEST(object_with_additional_properties_true) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1011,7 +1011,7 @@ TEST(Codegen_2020_12, object_with_additional_properties_true) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(2)).additional));
 }
 
-TEST(Codegen_2020_12, object_only_additional_properties) {
+TEST(object_only_additional_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1046,7 +1046,7 @@ TEST(Codegen_2020_12, object_only_additional_properties) {
                 "additionalProperties");
 }
 
-TEST(Codegen_2020_12, embedded_resource_with_nested_id_no_duplicates) {
+TEST(embedded_resource_with_nested_id_no_duplicates) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/main",
@@ -1133,7 +1133,7 @@ TEST(Codegen_2020_12, embedded_resource_with_nested_id_no_duplicates) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(5)).additional));
 }
 
-TEST(Codegen_2020_12, boolean_true_schema) {
+TEST(boolean_true_schema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1175,7 +1175,7 @@ TEST(Codegen_2020_12, boolean_true_schema) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(Codegen_2020_12, boolean_false_schema) {
+TEST(boolean_false_schema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1217,7 +1217,7 @@ TEST(Codegen_2020_12, boolean_false_schema) {
       std::get<bool>(std::get<CodegenIRObject>(result.at(1)).additional));
 }
 
-TEST(Codegen_2020_12, object_with_pattern_properties_prefix) {
+TEST(object_with_pattern_properties_prefix) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1256,7 +1256,7 @@ TEST(Codegen_2020_12, object_with_pattern_properties_prefix) {
   EXPECT_TRUE(std::get<bool>(object.additional));
 }
 
-TEST(Codegen_2020_12, object_with_multiple_pattern_properties) {
+TEST(object_with_multiple_pattern_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1272,7 +1272,7 @@ TEST(Codegen_2020_12, object_with_multiple_pattern_properties) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_FALSE(result.empty());
+  EXPECT_FALSE(result.empty());
   EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.back()));
   const auto &object{std::get<CodegenIRObject>(result.back())};
   EXPECT_EQ(object.pattern.size(), 2);
@@ -1280,7 +1280,7 @@ TEST(Codegen_2020_12, object_with_multiple_pattern_properties) {
   EXPECT_EQ(object.pattern.at(1).prefix, "data-");
 }
 
-TEST(Codegen_2020_12, object_with_pattern_properties_and_additional_false) {
+TEST(object_with_pattern_properties_and_additional_false) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1299,7 +1299,7 @@ TEST(Codegen_2020_12, object_with_pattern_properties_and_additional_false) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_FALSE(result.empty());
+  EXPECT_FALSE(result.empty());
   EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.back()));
   const auto &object{std::get<CodegenIRObject>(result.back())};
   EXPECT_EQ(object.members.size(), 1);
@@ -1309,7 +1309,7 @@ TEST(Codegen_2020_12, object_with_pattern_properties_and_additional_false) {
   EXPECT_FALSE(std::get<bool>(object.additional));
 }
 
-TEST(Codegen_2020_12, object_with_non_prefix_pattern_properties) {
+TEST(object_with_non_prefix_pattern_properties) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1324,14 +1324,14 @@ TEST(Codegen_2020_12, object_with_non_prefix_pattern_properties) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_FALSE(result.empty());
+  EXPECT_FALSE(result.empty());
   EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.back()));
   const auto &object{std::get<CodegenIRObject>(result.back())};
   EXPECT_EQ(object.pattern.size(), 1);
   EXPECT_FALSE(object.pattern.at(0).prefix.has_value());
 }
 
-TEST(Codegen_2020_12, object_with_mixed_prefix_and_non_prefix_patterns) {
+TEST(object_with_mixed_prefix_and_non_prefix_patterns) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1347,7 +1347,7 @@ TEST(Codegen_2020_12, object_with_mixed_prefix_and_non_prefix_patterns) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_FALSE(result.empty());
+  EXPECT_FALSE(result.empty());
   EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.back()));
   const auto &object{std::get<CodegenIRObject>(result.back())};
   EXPECT_EQ(object.pattern.size(), 2);
@@ -1356,7 +1356,7 @@ TEST(Codegen_2020_12, object_with_mixed_prefix_and_non_prefix_patterns) {
   EXPECT_FALSE(object.pattern.at(1).prefix.has_value());
 }
 
-TEST(Codegen_2020_12, dynamic_ref_single_anchor) {
+TEST(dynamic_ref_single_anchor) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1375,12 +1375,12 @@ TEST(Codegen_2020_12, dynamic_ref_single_anchor) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_FALSE(result.empty());
+  EXPECT_FALSE(result.empty());
   EXPECT_IR_REFERENCE(result, 0, "/items", "/$defs/foo");
   EXPECT_IR_SCALAR(result, 1, String, "/$defs/foo");
 }
 
-TEST(Codegen_2020_12, dynamic_ref_multiple_anchors) {
+TEST(dynamic_ref_multiple_anchors) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -1410,7 +1410,7 @@ TEST(Codegen_2020_12, dynamic_ref_multiple_anchors) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_EQ(result.size(), 6);
+  EXPECT_EQ(result.size(), 6);
   EXPECT_IR_REFERENCE(result, 0, "/allOf/0", "/$defs/list");
   EXPECT_IR_SCALAR(result, 1, String, "/$defs/stringItem");
   EXPECT_TRUE(std::holds_alternative<CodegenIRUnion>(result.at(2)));
@@ -1422,7 +1422,7 @@ TEST(Codegen_2020_12, dynamic_ref_multiple_anchors) {
   EXPECT_IR_REFERENCE(result, 5, "", "/allOf/0");
 }
 
-TEST(Codegen_2020_12, dynamic_anchor_on_typed_schema) {
+TEST(dynamic_anchor_on_typed_schema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicAnchor": "item",
@@ -1439,7 +1439,7 @@ TEST(Codegen_2020_12, dynamic_anchor_on_typed_schema) {
   EXPECT_IR_SCALAR(result, 0, String, "");
 }
 
-TEST(Codegen_2020_12, allof_two_objects) {
+TEST(allof_two_objects) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1464,11 +1464,11 @@ TEST(Codegen_2020_12, allof_two_objects) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_EQ(result.size(), 7);
+  EXPECT_EQ(result.size(), 7);
   EXPECT_IR_INTERSECTION(result, 6, "", 2);
 }
 
-TEST(Codegen_2020_12, allof_ref_and_object) {
+TEST(allof_ref_and_object) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1498,7 +1498,7 @@ TEST(Codegen_2020_12, allof_ref_and_object) {
   EXPECT_IR_INTERSECTION(result, result.size() - 1, "", 2);
 }
 
-TEST(Codegen_2020_12, allof_single_element) {
+TEST(allof_single_element) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1513,11 +1513,11 @@ TEST(Codegen_2020_12, allof_single_element) {
   using namespace sourcemeta::blaze;
 
   // The canonicalizer inlines allOf with a single element
-  ASSERT_EQ(result.size(), 1);
+  EXPECT_EQ(result.size(), 1);
   EXPECT_IR_SCALAR(result, 0, String, "");
 }
 
-TEST(Codegen_2020_12, allof_three_branches) {
+TEST(allof_three_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1548,7 +1548,7 @@ TEST(Codegen_2020_12, allof_three_branches) {
   EXPECT_IR_INTERSECTION(result, result.size() - 1, "", 3);
 }
 
-TEST(Codegen_2020_12, allof_with_defs) {
+TEST(allof_with_defs) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -1582,7 +1582,7 @@ TEST(Codegen_2020_12, allof_with_defs) {
   EXPECT_IR_REFERENCE(result, 1, "/allOf/0", "/$defs/Named");
 }
 
-TEST(Codegen_2020_12, if_then_else_distinct_object_branches) {
+TEST(if_then_else_distinct_object_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": {
@@ -1611,7 +1611,7 @@ TEST(Codegen_2020_12, if_then_else_distinct_object_branches) {
   EXPECT_IR_CONDITIONAL(result, result.size() - 1, "", "/if", "/then", "/else");
 }
 
-TEST(Codegen_2020_12, if_then_else_implicit_else) {
+TEST(if_then_else_implicit_else) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -1627,7 +1627,7 @@ TEST(Codegen_2020_12, if_then_else_implicit_else) {
   EXPECT_IR_CONDITIONAL(result, result.size() - 1, "", "/if", "/then", "/else");
 }
 
-TEST(Codegen_2020_12, if_then_else_with_type_sibling) {
+TEST(if_then_else_with_type_sibling) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1647,7 +1647,7 @@ TEST(Codegen_2020_12, if_then_else_with_type_sibling) {
   EXPECT_IR_INTERSECTION(result, result.size() - 1, "", 2);
 }
 
-TEST(Codegen_2020_12, if_then_else_with_ref_branches) {
+TEST(if_then_else_with_ref_branches) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -1679,13 +1679,13 @@ TEST(Codegen_2020_12, if_then_else_with_ref_branches) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_EQ(result.size(), 11);
+  EXPECT_EQ(result.size(), 11);
   EXPECT_IR_REFERENCE(result, 0, "/then", "/$defs/Circle");
   EXPECT_IR_REFERENCE(result, 3, "/else", "/$defs/Square");
   EXPECT_IR_CONDITIONAL(result, 10, "", "/if", "/then", "/else");
 }
 
-TEST(Codegen_2020_12, if_then_else_nested_in_object_property) {
+TEST(if_then_else_nested_in_object_property) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1705,7 +1705,7 @@ TEST(Codegen_2020_12, if_then_else_nested_in_object_property) {
 
   using namespace sourcemeta::blaze;
 
-  ASSERT_EQ(result.size(), 6);
+  EXPECT_EQ(result.size(), 6);
   EXPECT_IR_SCALAR(result, 0, String, "/properties/value/then");
   EXPECT_IR_SCALAR(result, 1, String, "/properties/value/if");
   EXPECT_IR_SCALAR(result, 2, Integer, "/properties/value/else");
@@ -1713,7 +1713,7 @@ TEST(Codegen_2020_12, if_then_else_nested_in_object_property) {
                         "/properties/value/then", "/properties/value/else");
 }
 
-TEST(Codegen_2020_12, embedded_custom_metaschema) {
+TEST(embedded_custom_metaschema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sstream>
 
@@ -6,7 +6,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
-TEST(Output_standard_basic, prettify_annotations) {
+TEST(prettify_annotations) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -47,7 +47,7 @@ TEST(Output_standard_basic, prettify_annotations) {
   EXPECT_EQ(prettified.str(), expected);
 }
 
-TEST(Output_standard_basic, prettify_annotations_with_instance_positions) {
+TEST(prettify_annotations_with_instance_positions) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -92,7 +92,7 @@ TEST(Output_standard_basic, prettify_annotations_with_instance_positions) {
   EXPECT_EQ(prettified.str(), expected);
 }
 
-TEST(Output_standard_basic, prettify_errors) {
+TEST(prettify_errors) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -133,7 +133,7 @@ TEST(Output_standard_basic, prettify_errors) {
   EXPECT_EQ(prettified.str(), expected);
 }
 
-TEST(Output_standard_basic, prettify_errors_with_instance_positions) {
+TEST(prettify_errors_with_instance_positions) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {

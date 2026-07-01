@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,19 +7,19 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09, true_boolean_schema_unchanged) {
+TEST(true_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09, false_boolean_schema_unchanged) {
+TEST(false_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09, trivial_root) {
+TEST(trivial_root) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string"
@@ -33,8 +33,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09, trivial_root) {
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     ref_through_dependencies_rewritten_through_chain) {
+TEST(ref_through_dependencies_rewritten_through_chain) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "dependencies": {
@@ -58,8 +57,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     ref_through_dependencies_deep_pointer_through_chain) {
+TEST(ref_through_dependencies_deep_pointer_through_chain) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "dependencies": {
@@ -93,8 +91,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     ref_through_dependencies_in_mixed_split_through_chain) {
+TEST(ref_through_dependencies_in_mixed_split_through_chain) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "dependencies": {
@@ -122,8 +119,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     ref_through_dependencies_inside_defs_through_chain) {
+TEST(ref_through_dependencies_inside_defs_through_chain) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
@@ -155,8 +151,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     uri_fragment_ref_resolves_to_anchor_after_id_split) {
+TEST(uri_fragment_ref_resolves_to_anchor_after_id_split) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
@@ -186,8 +181,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     ref_with_sibling_validation_keywords_prefixed_through_chain) {
+TEST(ref_with_sibling_validation_keywords_prefixed_through_chain) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
@@ -219,8 +213,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     id_renamed_definitions_to_defs_dependencies_split) {
+TEST(id_renamed_definitions_to_defs_dependencies_split) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "https://example.com",
@@ -257,7 +250,6 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
 }
 
 TEST(
-    AlterSchema_upgrade_Draft4_to_2019_09,
     boolean_exclusive_minimum_folded_then_definitions_renamed_then_dependencies_split) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -285,8 +277,7 @@ TEST(
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     id_with_fragment_anchor_split_after_id_promoted) {
+TEST(id_with_fragment_anchor_split_after_id_promoted) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "#tag"
@@ -300,7 +291,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09, idempotent_after_first_pass) {
+TEST(idempotent_after_first_pass) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "string"
@@ -314,8 +305,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09, idempotent_after_first_pass) {
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     embedded_draft_4_inside_outer_draft_4_both_upgraded) {
+TEST(embedded_draft_4_inside_outer_draft_4_both_upgraded) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -341,8 +331,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     mixed_chain_with_promoted_keyword_prefixing) {
+TEST(mixed_chain_with_promoted_keyword_prefixing) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "const": "draft6-promoted",
@@ -360,8 +349,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     id_fragment_only_leading_digit_becomes_anchor) {
+TEST(id_fragment_only_leading_digit_becomes_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
@@ -379,8 +367,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     id_fragment_only_with_local_ref_chain) {
+TEST(id_fragment_only_with_local_ref_chain) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
@@ -404,8 +391,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     no_dollar_schema_with_default_dialect_draft4) {
+TEST(no_dollar_schema_with_default_dialect_draft4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com/test",
     "type": "integer"
@@ -421,8 +407,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
                                "http://json-schema.org/draft-04/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     top_level_ref_with_dollar_schema_draft4) {
+TEST(top_level_ref_with_dollar_schema_draft4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "$ref": "#/definitions/Foo",
@@ -442,8 +427,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     top_level_ref_no_dollar_schema_with_default_dialect_draft4) {
+TEST(top_level_ref_no_dollar_schema_with_default_dialect_draft4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$ref": "#/definitions/Foo",
     "definitions": {
@@ -463,8 +447,7 @@ TEST(AlterSchema_upgrade_Draft4_to_2019_09,
                                "http://json-schema.org/draft-04/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft4_to_2019_09,
-     metaschema_cascade_from_draft4_emits_2019_09_vocabulary) {
+TEST(metaschema_cascade_from_draft4_emits_2019_09_vocabulary) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "https://example.com/my-dialect",

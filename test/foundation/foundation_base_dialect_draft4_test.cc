@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
@@ -20,7 +20,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_base_dialect_draft4, jsonschema_draft_hyperschema) {
+TEST(jsonschema_draft_hyperschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/hyper-schema#",
     "type": "object"
@@ -32,7 +32,7 @@ TEST(Foundation_base_dialect_draft4, jsonschema_draft_hyperschema) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4_Hyper);
 }
 
-TEST(Foundation_base_dialect_draft4, jsonschema_draft_schema) {
+TEST(jsonschema_draft_schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object"
@@ -44,7 +44,7 @@ TEST(Foundation_base_dialect_draft4, jsonschema_draft_schema) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
 }
 
-TEST(Foundation_base_dialect_draft4, jsonschema_draft_links) {
+TEST(jsonschema_draft_links) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/links#"
   })JSON");
@@ -55,7 +55,7 @@ TEST(Foundation_base_dialect_draft4, jsonschema_draft_links) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4_Hyper);
 }
 
-TEST(Foundation_base_dialect_draft4, jsonschema_base_one_hop) {
+TEST(jsonschema_base_one_hop) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/metaschema_1"
   })JSON");
@@ -66,7 +66,7 @@ TEST(Foundation_base_dialect_draft4, jsonschema_base_one_hop) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
 }
 
-TEST(Foundation_base_dialect_draft4, jsonschema_base_two_hops) {
+TEST(jsonschema_base_two_hops) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/metaschema_2"
   })JSON");

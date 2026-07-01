@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -11,25 +11,19 @@
 
 #include "alterschema_test_utils.h"
 
-class Canonicalizer202012Test : public testing::Test {
-protected:
-  static auto SetUpTestSuite() -> void {
-    const auto meta_schema = sourcemeta::core::read_json(
-        std::filesystem::path{SCHEMAS_PATH} / "canonical-2020-12.json");
-    compiled_meta_ = std::make_unique<sourcemeta::blaze::Template>(
-        sourcemeta::blaze::compile(meta_schema,
-                                   sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
-                                   sourcemeta::blaze::default_schema_compiler));
-  }
+namespace {
+auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
+  static const sourcemeta::blaze::Template schema_template{
+      sourcemeta::blaze::compile(
+          sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
+                                      "canonical-2020-12.json"),
+          sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+          sourcemeta::blaze::default_schema_compiler)};
+  return schema_template;
+}
+} // namespace
 
-  static std::unique_ptr<sourcemeta::blaze::Template> compiled_meta_;
-};
-
-std::unique_ptr<sourcemeta::blaze::Template>
-    Canonicalizer202012Test::compiled_meta_ = nullptr;
-
-TEST_F(Canonicalizer202012Test, duplicate_allof_branches_2) {
+TEST(duplicate_allof_branches_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -52,10 +46,10 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_2) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, duplicate_allof_branches_3) {
+TEST(duplicate_allof_branches_3) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -78,10 +72,10 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_3) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, duplicate_allof_branches_4) {
+TEST(duplicate_allof_branches_4) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -111,10 +105,10 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_4) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, single_branch_allof_unwrap) {
+TEST(single_branch_allof_unwrap) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -128,10 +122,10 @@ TEST_F(Canonicalizer202012Test, single_branch_allof_unwrap) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, single_branch_anyof_unwrap) {
+TEST(single_branch_anyof_unwrap) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -145,10 +139,10 @@ TEST_F(Canonicalizer202012Test, single_branch_anyof_unwrap) {
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, single_branch_oneof_unwrap) {
+TEST(single_branch_oneof_unwrap) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -162,11 +156,10 @@ TEST_F(Canonicalizer202012Test, single_branch_oneof_unwrap) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       single_branch_allof_with_unevaluated_properties_stays) {
+TEST(single_branch_allof_with_unevaluated_properties_stays) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -186,11 +179,10 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedProperties": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       single_branch_allof_with_unevaluated_items_stays) {
+TEST(single_branch_allof_with_unevaluated_items_stays) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -211,11 +203,10 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       single_branch_anyof_with_unevaluated_properties_renamed_to_allof) {
+TEST(single_branch_anyof_with_unevaluated_properties_renamed_to_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -235,11 +226,10 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedProperties": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       single_branch_anyof_with_unevaluated_items_renamed_to_allof) {
+TEST(single_branch_anyof_with_unevaluated_items_renamed_to_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -260,11 +250,10 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       single_branch_oneof_with_unevaluated_properties_renamed_to_allof) {
+TEST(single_branch_oneof_with_unevaluated_properties_renamed_to_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -284,10 +273,10 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedProperties": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, single_branch_allof_bare_ref_stays) {
+TEST(single_branch_allof_bare_ref_stays) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#",
@@ -307,11 +296,10 @@ TEST_F(Canonicalizer202012Test, single_branch_allof_bare_ref_stays) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       duplicate_allof_branches_dedup_to_single_then_unwrap) {
+TEST(duplicate_allof_branches_dedup_to_single_then_unwrap) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -326,11 +314,10 @@ TEST_F(Canonicalizer202012Test,
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       duplicate_anyof_branches_dedup_to_single_then_unwrap) {
+TEST(duplicate_anyof_branches_dedup_to_single_then_unwrap) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -345,10 +332,10 @@ TEST_F(Canonicalizer202012Test,
     "multipleOf": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_false_simplify_preserves_id) {
+TEST(allof_false_simplify_preserves_id) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/schema",
@@ -362,10 +349,10 @@ TEST_F(Canonicalizer202012Test, allof_false_simplify_preserves_id) {
     "not": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_false_simplify_preserves_anchor) {
+TEST(allof_false_simplify_preserves_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$anchor": "myanchor",
@@ -379,10 +366,10 @@ TEST_F(Canonicalizer202012Test, allof_false_simplify_preserves_anchor) {
     "not": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_false_simplify_removes_defs) {
+TEST(allof_false_simplify_removes_defs) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -397,10 +384,10 @@ TEST_F(Canonicalizer202012Test, allof_false_simplify_removes_defs) {
     "not": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, duplicate_allof_branches_5) {
+TEST(duplicate_allof_branches_5) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "multipleOf": 2,
@@ -425,10 +412,10 @@ TEST_F(Canonicalizer202012Test, duplicate_allof_branches_5) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dependent_required_tautology_3) {
+TEST(dependent_required_tautology_3) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -453,10 +440,10 @@ TEST_F(Canonicalizer202012Test, dependent_required_tautology_3) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_boolean_as_enum_1) {
+TEST(type_boolean_as_enum_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "boolean"
@@ -467,10 +454,10 @@ TEST_F(Canonicalizer202012Test, type_boolean_as_enum_1) {
     "enum": [ false, true ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_boolean_as_enum_2) {
+TEST(type_boolean_as_enum_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "boolean",
@@ -479,10 +466,10 @@ TEST_F(Canonicalizer202012Test, type_boolean_as_enum_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json("false");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_null_as_enum_1) {
+TEST(type_null_as_enum_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "null"
@@ -493,10 +480,10 @@ TEST_F(Canonicalizer202012Test, type_null_as_enum_1) {
     "enum": [ null ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_null_as_enum_2) {
+TEST(type_null_as_enum_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "null",
@@ -505,10 +492,10 @@ TEST_F(Canonicalizer202012Test, type_null_as_enum_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json("false");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, const_as_enum_1) {
+TEST(const_as_enum_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "const": 1
@@ -519,10 +506,10 @@ TEST_F(Canonicalizer202012Test, const_as_enum_1) {
     "enum": [ 1 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_1) {
+TEST(exclusive_maximum_integer_to_maximum_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -536,10 +523,10 @@ TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_1) {
     "maximum": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_2) {
+TEST(exclusive_maximum_integer_to_maximum_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -553,10 +540,10 @@ TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_2) {
     "maximum": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_3) {
+TEST(exclusive_maximum_integer_to_maximum_3) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number",
@@ -569,10 +556,10 @@ TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_3) {
     "exclusiveMaximum": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_5) {
+TEST(exclusive_maximum_integer_to_maximum_5) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "exclusiveMaximum": 1
@@ -613,10 +600,10 @@ TEST_F(Canonicalizer202012Test, exclusive_maximum_integer_to_maximum_5) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_1) {
+TEST(exclusive_minimum_integer_to_minimum_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -630,10 +617,10 @@ TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_1) {
     "minimum": 2
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_2) {
+TEST(exclusive_minimum_integer_to_minimum_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -647,10 +634,10 @@ TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_2) {
     "minimum": 2
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_3) {
+TEST(exclusive_minimum_integer_to_minimum_3) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number",
@@ -663,10 +650,10 @@ TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_3) {
     "exclusiveMinimum": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_5) {
+TEST(exclusive_minimum_integer_to_minimum_5) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "exclusiveMinimum": 1
@@ -707,10 +694,10 @@ TEST_F(Canonicalizer202012Test, exclusive_minimum_integer_to_minimum_5) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, boolean_true_1) {
+TEST(boolean_true_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -754,10 +741,10 @@ TEST_F(Canonicalizer202012Test, boolean_true_1) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_array_to_any_of_1) {
+TEST(type_array_to_any_of_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -777,10 +764,10 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_1) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_array_to_any_of_2) {
+TEST(type_array_to_any_of_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": [ "integer", "number", "string" ],
@@ -825,10 +812,10 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_2) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_array_to_any_of_3) {
+TEST(type_array_to_any_of_3) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": [ "object", "array", "string" ],
@@ -868,10 +855,10 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_3) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_array_to_any_of_4) {
+TEST(type_array_to_any_of_4) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": [ "object", "array" ],
@@ -920,10 +907,10 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_4) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_array_to_any_of_5) {
+TEST(type_array_to_any_of_5) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": [ "string", "number" ],
@@ -1026,10 +1013,10 @@ TEST_F(Canonicalizer202012Test, type_array_to_any_of_5) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, max_contains_covered_by_max_items_1) {
+TEST(max_contains_covered_by_max_items_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1053,10 +1040,10 @@ TEST_F(Canonicalizer202012Test, max_contains_covered_by_max_items_1) {
     "items": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, min_properties_covered_by_required_1) {
+TEST(min_properties_covered_by_required_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1077,10 +1064,10 @@ TEST_F(Canonicalizer202012Test, min_properties_covered_by_required_1) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, min_properties_implicit_1) {
+TEST(min_properties_implicit_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1100,10 +1087,10 @@ TEST_F(Canonicalizer202012Test, min_properties_implicit_1) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, min_properties_implicit_2) {
+TEST(min_properties_implicit_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1124,10 +1111,10 @@ TEST_F(Canonicalizer202012Test, min_properties_implicit_2) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, min_items_given_min_contains_1) {
+TEST(min_items_given_min_contains_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1147,10 +1134,10 @@ TEST_F(Canonicalizer202012Test, min_items_given_min_contains_1) {
     "items": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, min_items_given_min_contains_2) {
+TEST(min_items_given_min_contains_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1167,11 +1154,10 @@ TEST_F(Canonicalizer202012Test, min_items_given_min_contains_2) {
     "items": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       exclusive_maximum_integer_to_maximum_decimal_1) {
+TEST(exclusive_maximum_integer_to_maximum_decimal_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -1185,11 +1171,10 @@ TEST_F(Canonicalizer202012Test,
     "maximum": 10.00000000000000e+399
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       exclusive_minimum_integer_to_minimum_decimal_1) {
+TEST(exclusive_minimum_integer_to_minimum_decimal_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -1203,10 +1188,10 @@ TEST_F(Canonicalizer202012Test,
     "minimum": 1.0e+400
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, circular_ref_through_defs_1) {
+TEST(circular_ref_through_defs_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -1235,10 +1220,10 @@ TEST_F(Canonicalizer202012Test, circular_ref_through_defs_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, conflicting_type_and_const_1) {
+TEST(conflicting_type_and_const_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1247,10 +1232,10 @@ TEST_F(Canonicalizer202012Test, conflicting_type_and_const_1) {
 
   const auto expected = sourcemeta::core::parse_json("false");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, conflicting_type_and_enum_1) {
+TEST(conflicting_type_and_enum_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1259,10 +1244,10 @@ TEST_F(Canonicalizer202012Test, conflicting_type_and_enum_1) {
 
   const auto expected = sourcemeta::core::parse_json("false");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_two_required_branches_1) {
+TEST(allof_two_required_branches_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1311,10 +1296,10 @@ TEST_F(Canonicalizer202012Test, allof_two_required_branches_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_min_max_constraints_1) {
+TEST(allof_min_max_constraints_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -1341,10 +1326,10 @@ TEST_F(Canonicalizer202012Test, allof_min_max_constraints_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_two_properties_branches_1) {
+TEST(allof_two_properties_branches_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1387,10 +1372,10 @@ TEST_F(Canonicalizer202012Test, allof_two_properties_branches_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_union_implicit_with_content_schema) {
+TEST(type_union_implicit_with_content_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contentMediaType": "application/json",
@@ -1441,10 +1426,10 @@ TEST_F(Canonicalizer202012Test, type_union_implicit_with_content_schema) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, unsatisfiable_logic_branch_type_anyof_1) {
+TEST(unsatisfiable_logic_branch_type_anyof_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1470,10 +1455,10 @@ TEST_F(Canonicalizer202012Test, unsatisfiable_logic_branch_type_anyof_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, unsatisfiable_logic_branch_type_oneof_1) {
+TEST(unsatisfiable_logic_branch_type_oneof_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number",
@@ -1503,11 +1488,10 @@ TEST_F(Canonicalizer202012Test, unsatisfiable_logic_branch_type_oneof_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       unsatisfiable_logic_branch_type_if_then_else_1) {
+TEST(unsatisfiable_logic_branch_type_if_then_else_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1531,11 +1515,10 @@ TEST_F(Canonicalizer202012Test,
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       allof_two_properties_branches_with_typed_values_1) {
+TEST(allof_two_properties_branches_with_typed_values_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1592,10 +1575,10 @@ TEST_F(Canonicalizer202012Test,
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, items_implicit_1) {
+TEST(items_implicit_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array"
@@ -1611,10 +1594,10 @@ TEST_F(Canonicalizer202012Test, items_implicit_1) {
     "items": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, items_implicit_2) {
+TEST(items_implicit_2) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1634,10 +1617,10 @@ TEST_F(Canonicalizer202012Test, items_implicit_2) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, object_anyof_untyped_branches_1) {
+TEST(object_anyof_untyped_branches_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1705,11 +1688,10 @@ TEST_F(Canonicalizer202012Test, object_anyof_untyped_branches_1) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       ref_into_subschema_broken_by_type_array_to_any_of) {
+TEST(ref_into_subschema_broken_by_type_array_to_any_of) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/schema/items",
@@ -1777,10 +1759,10 @@ TEST_F(Canonicalizer202012Test,
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, ref_into_subschema_with_existing_anyof) {
+TEST(ref_into_subschema_with_existing_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/schema/items",
@@ -1870,11 +1852,10 @@ TEST_F(Canonicalizer202012Test, ref_into_subschema_with_existing_anyof) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       ref_into_subschema_with_existing_allof_and_anyof) {
+TEST(ref_into_subschema_with_existing_allof_and_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/schema/items",
@@ -2003,11 +1984,10 @@ TEST_F(Canonicalizer202012Test,
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       unevaluated_properties_with_root_and_allof_properties) {
+TEST(unevaluated_properties_with_root_and_allof_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -2100,10 +2080,10 @@ TEST_F(Canonicalizer202012Test,
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, ref_into_nested_subschema_within_resource) {
+TEST(ref_into_nested_subschema_within_resource) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/resource/properties/nested/items",
@@ -2193,11 +2173,10 @@ TEST_F(Canonicalizer202012Test, ref_into_nested_subschema_within_resource) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       items_implicit_skipped_with_direct_unevaluated_items) {
+TEST(items_implicit_skipped_with_direct_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -2214,11 +2193,10 @@ TEST_F(Canonicalizer202012Test,
     "items": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       items_implicit_skipped_with_anyof_items_and_unevaluated_items) {
+TEST(items_implicit_skipped_with_anyof_items_and_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -2264,11 +2242,10 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       items_implicit_skipped_with_anyof_prefix_items_and_unevaluated_items) {
+TEST(items_implicit_skipped_with_anyof_prefix_items_and_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -2316,10 +2293,10 @@ TEST_F(Canonicalizer202012Test,
     "unevaluatedItems": false
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, ref_into_subschema_via_absolute_uri) {
+TEST(ref_into_subschema_via_absolute_uri) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.example.com#/items",
@@ -2387,10 +2364,10 @@ TEST_F(Canonicalizer202012Test, ref_into_subschema_via_absolute_uri) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, empty_object_as_true) {
+TEST(empty_object_as_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2410,10 +2387,10 @@ TEST_F(Canonicalizer202012Test, empty_object_as_true) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, comment_drop) {
+TEST(comment_drop) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$comment": "This is a comment",
@@ -2426,10 +2403,10 @@ TEST_F(Canonicalizer202012Test, comment_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, definitions_to_defs) {
+TEST(definitions_to_defs) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "definitions": {
@@ -2462,10 +2439,10 @@ TEST_F(Canonicalizer202012Test, definitions_to_defs) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, deprecated_false_drop) {
+TEST(deprecated_false_drop) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "deprecated": false,
@@ -2478,10 +2455,10 @@ TEST_F(Canonicalizer202012Test, deprecated_false_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, implicit_contains_keywords) {
+TEST(implicit_contains_keywords) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array"
@@ -2497,10 +2474,10 @@ TEST_F(Canonicalizer202012Test, implicit_contains_keywords) {
     "items": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, implicit_object_keywords) {
+TEST(implicit_object_keywords) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object"
@@ -2515,10 +2492,10 @@ TEST_F(Canonicalizer202012Test, implicit_object_keywords) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, property_names_implicit) {
+TEST(property_names_implicit) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2541,10 +2518,10 @@ TEST_F(Canonicalizer202012Test, property_names_implicit) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, if_then_else_implicit) {
+TEST(if_then_else_implicit) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": true,
@@ -2558,10 +2535,10 @@ TEST_F(Canonicalizer202012Test, if_then_else_implicit) {
     "else": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, no_additional_properties_implicit) {
+TEST(no_additional_properties_implicit) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2580,10 +2557,10 @@ TEST_F(Canonicalizer202012Test, no_additional_properties_implicit) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, no_additional_items_implicit_prefix) {
+TEST(no_additional_items_implicit_prefix) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -2605,10 +2582,10 @@ TEST_F(Canonicalizer202012Test, no_additional_items_implicit_prefix) {
     "items": true
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dependent_schemas_to_any_of) {
+TEST(dependent_schemas_to_any_of) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "dependentSchemas": {
@@ -2670,10 +2647,10 @@ TEST_F(Canonicalizer202012Test, dependent_schemas_to_any_of) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dependent_required_to_any_of) {
+TEST(dependent_required_to_any_of) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "dependentRequired": {
@@ -2743,11 +2720,10 @@ TEST_F(Canonicalizer202012Test, dependent_required_to_any_of) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       dependent_required_to_any_of_without_applicator) {
+TEST(dependent_required_to_any_of_without_applicator) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2020-12-validation-without-applicator",
     "dependentRequired": {
@@ -2774,8 +2750,7 @@ TEST_F(Canonicalizer202012Test,
   }
 }
 
-TEST_F(Canonicalizer202012Test,
-       dependent_schemas_to_any_of_without_validation) {
+TEST(dependent_schemas_to_any_of_without_validation) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2020-12-applicator-without-validation",
     "dependentSchemas": {
@@ -2802,7 +2777,7 @@ TEST_F(Canonicalizer202012Test,
   }
 }
 
-TEST_F(Canonicalizer202012Test, empty_defs_drop) {
+TEST(empty_defs_drop) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {},
@@ -2815,10 +2790,10 @@ TEST_F(Canonicalizer202012Test, empty_defs_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, empty_dependent_schemas_drop) {
+TEST(empty_dependent_schemas_drop) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "dependentSchemas": {},
@@ -2831,10 +2806,10 @@ TEST_F(Canonicalizer202012Test, empty_dependent_schemas_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, empty_dependent_required_drop) {
+TEST(empty_dependent_required_drop) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "dependentRequired": {},
@@ -2847,10 +2822,10 @@ TEST_F(Canonicalizer202012Test, empty_dependent_required_drop) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_with_allof) {
+TEST(type_with_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -2864,10 +2839,10 @@ TEST_F(Canonicalizer202012Test, type_with_allof) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_filter_by_type) {
+TEST(enum_filter_by_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -2891,10 +2866,10 @@ TEST_F(Canonicalizer202012Test, enum_filter_by_type) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, full_string_schema) {
+TEST(full_string_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -2912,10 +2887,10 @@ TEST_F(Canonicalizer202012Test, full_string_schema) {
     "minLength": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, full_object_schema) {
+TEST(full_object_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2941,10 +2916,10 @@ TEST_F(Canonicalizer202012Test, full_object_schema) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_with_not_and_anyof) {
+TEST(type_with_not_and_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -2975,10 +2950,10 @@ TEST_F(Canonicalizer202012Test, type_with_not_and_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, type_with_if_then_else) {
+TEST(type_with_if_then_else) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -3000,10 +2975,10 @@ TEST_F(Canonicalizer202012Test, type_with_if_then_else) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dynamic_ref_with_type_sibling) {
+TEST(dynamic_ref_with_type_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo",
@@ -3018,10 +2993,10 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_with_type_sibling) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, ref_with_type_sibling) {
+TEST(ref_with_type_sibling) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/foo",
@@ -3051,10 +3026,10 @@ TEST_F(Canonicalizer202012Test, ref_with_type_sibling) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, ref_through_unevaluated_items) {
+TEST(ref_through_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -3085,10 +3060,10 @@ TEST_F(Canonicalizer202012Test, ref_through_unevaluated_items) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, ref_through_unevaluated_properties) {
+TEST(ref_through_unevaluated_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -3119,10 +3094,10 @@ TEST_F(Canonicalizer202012Test, ref_through_unevaluated_properties) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, lone_ref_with_defs_wrapped) {
+TEST(lone_ref_with_defs_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/foo",
@@ -3143,10 +3118,10 @@ TEST_F(Canonicalizer202012Test, lone_ref_with_defs_wrapped) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, lone_dynamic_ref_wrapped) {
+TEST(lone_dynamic_ref_wrapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo"
@@ -3161,10 +3136,10 @@ TEST_F(Canonicalizer202012Test, lone_dynamic_ref_wrapped) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, ref_and_dynamic_ref_in_separate_branches) {
+TEST(ref_and_dynamic_ref_in_separate_branches) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/a",
@@ -3194,10 +3169,10 @@ TEST_F(Canonicalizer202012Test, ref_and_dynamic_ref_in_separate_branches) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_no_anchor) {
+TEST(dynamic_ref_to_static_ref_no_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#/$defs/string",
@@ -3223,11 +3198,10 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_no_anchor) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       dynamic_ref_stays_dynamic_when_target_is_dynamic_anchor) {
+TEST(dynamic_ref_stays_dynamic_when_target_is_dynamic_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo",
@@ -3255,10 +3229,10 @@ TEST_F(Canonicalizer202012Test,
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dynamic_ref_stays_dynamic_multiple_resources) {
+TEST(dynamic_ref_stays_dynamic_multiple_resources) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -3292,10 +3266,10 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_stays_dynamic_multiple_resources) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_id_no_fragment) {
+TEST(dynamic_ref_to_static_ref_id_no_fragment) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -3325,10 +3299,10 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_id_no_fragment) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_static_anchor) {
+TEST(dynamic_ref_to_static_ref_static_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#bar",
@@ -3356,10 +3330,10 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_static_anchor) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_self_root) {
+TEST(dynamic_ref_to_static_ref_self_root) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#",
@@ -3379,10 +3353,10 @@ TEST_F(Canonicalizer202012Test, dynamic_ref_to_static_ref_self_root) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, object_required_annotations_1) {
+TEST(object_required_annotations_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3422,10 +3396,10 @@ TEST_F(Canonicalizer202012Test, object_required_annotations_1) {
     "minProperties": 1
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, contains_object_anyof) {
+TEST(contains_object_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": {
@@ -3518,10 +3492,10 @@ TEST_F(Canonicalizer202012Test, contains_object_anyof) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, content_schema_object_anyof) {
+TEST(content_schema_object_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contentEncoding": "base64",
@@ -3619,10 +3593,10 @@ TEST_F(Canonicalizer202012Test, content_schema_object_anyof) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, ref_with_annotation_no_type_expansion) {
+TEST(ref_with_annotation_no_type_expansion) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/main",
@@ -3648,10 +3622,10 @@ TEST_F(Canonicalizer202012Test, ref_with_annotation_no_type_expansion) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, safe_extract_wraps_modern_ref_into_allof) {
+TEST(safe_extract_wraps_modern_ref_into_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3715,11 +3689,10 @@ TEST_F(Canonicalizer202012Test, safe_extract_wraps_modern_ref_into_allof) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       allof_ref_typed_plus_untyped_has_redundant_type_union) {
+TEST(allof_ref_typed_plus_untyped_has_redundant_type_union) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -3771,10 +3744,10 @@ TEST_F(Canonicalizer202012Test,
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_merge_type_and_required) {
+TEST(allof_merge_type_and_required) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -3795,10 +3768,10 @@ TEST_F(Canonicalizer202012Test, allof_merge_type_and_required) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_no_merge_branch_has_anchor) {
+TEST(allof_no_merge_branch_has_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -3835,10 +3808,10 @@ TEST_F(Canonicalizer202012Test, allof_no_merge_branch_has_anchor) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_no_merge_branch_has_dynamic_anchor) {
+TEST(allof_no_merge_branch_has_dynamic_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -3875,10 +3848,10 @@ TEST_F(Canonicalizer202012Test, allof_no_merge_branch_has_dynamic_anchor) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, allof_no_merge_branch_has_id) {
+TEST(allof_no_merge_branch_has_id) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -3915,11 +3888,10 @@ TEST_F(Canonicalizer202012Test, allof_no_merge_branch_has_id) {
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       ref_with_applicator_sibling_preserves_cross_refs) {
+TEST(ref_with_applicator_sibling_preserves_cross_refs) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3970,10 +3942,10 @@ TEST_F(Canonicalizer202012Test,
     }
   )JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, flatten_nested_allof_simple) {
+TEST(flatten_nested_allof_simple) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -3987,10 +3959,10 @@ TEST_F(Canonicalizer202012Test, flatten_nested_allof_simple) {
     "minLength": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_mixed_into_anyof) {
+TEST(enum_split_mixed_into_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [
@@ -4015,10 +3987,10 @@ TEST_F(Canonicalizer202012Test, enum_split_mixed_into_anyof) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_folds_integer_and_real) {
+TEST(enum_split_folds_integer_and_real) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [
@@ -4040,10 +4012,10 @@ TEST_F(Canonicalizer202012Test, enum_split_folds_integer_and_real) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_all_six_kinds) {
+TEST(enum_split_all_six_kinds) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [
@@ -4090,10 +4062,10 @@ TEST_F(Canonicalizer202012Test, enum_split_all_six_kinds) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_single_kind_string_unchanged) {
+TEST(enum_single_kind_string_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [
@@ -4108,10 +4080,10 @@ TEST_F(Canonicalizer202012Test, enum_single_kind_string_unchanged) {
     "enum": [ "a", "b", "c" ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_single_kind_number_unchanged) {
+TEST(enum_single_kind_number_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [
@@ -4126,10 +4098,10 @@ TEST_F(Canonicalizer202012Test, enum_single_kind_number_unchanged) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_in_property) {
+TEST(enum_split_in_property) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4163,10 +4135,10 @@ TEST_F(Canonicalizer202012Test, enum_split_in_property) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_in_array_items) {
+TEST(enum_split_in_array_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -4197,10 +4169,10 @@ TEST_F(Canonicalizer202012Test, enum_split_in_array_items) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_in_additional_properties) {
+TEST(enum_split_in_additional_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4231,10 +4203,10 @@ TEST_F(Canonicalizer202012Test, enum_split_in_additional_properties) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_in_pattern_properties) {
+TEST(enum_split_in_pattern_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4268,10 +4240,10 @@ TEST_F(Canonicalizer202012Test, enum_split_in_pattern_properties) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_in_not) {
+TEST(enum_split_in_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
@@ -4296,10 +4268,10 @@ TEST_F(Canonicalizer202012Test, enum_split_in_not) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_in_allof_branch) {
+TEST(enum_split_in_allof_branch) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -4346,10 +4318,10 @@ TEST_F(Canonicalizer202012Test, enum_split_in_allof_branch) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_with_reference_to_node) {
+TEST(enum_split_with_reference_to_node) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4389,10 +4361,10 @@ TEST_F(Canonicalizer202012Test, enum_split_with_reference_to_node) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_with_id) {
+TEST(enum_split_with_id) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/x",
@@ -4415,10 +4387,10 @@ TEST_F(Canonicalizer202012Test, enum_split_with_id) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_with_anchor_referenced) {
+TEST(enum_split_with_anchor_referenced) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4460,10 +4432,10 @@ TEST_F(Canonicalizer202012Test, enum_split_with_anchor_referenced) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_with_metadata) {
+TEST(enum_split_with_metadata) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [
@@ -4488,11 +4460,10 @@ TEST_F(Canonicalizer202012Test, enum_split_with_metadata) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test,
-       enum_split_with_type_specific_keyword_isolated) {
+TEST(enum_split_with_type_specific_keyword_isolated) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [
@@ -4550,10 +4521,10 @@ TEST_F(Canonicalizer202012Test,
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_anchor_referenced_twice) {
+TEST(enum_split_anchor_referenced_twice) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -4597,10 +4568,10 @@ TEST_F(Canonicalizer202012Test, enum_split_anchor_referenced_twice) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_nested_id_full_uri_ref) {
+TEST(enum_split_nested_id_full_uri_ref) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://e.com/root",
@@ -4648,10 +4619,10 @@ TEST_F(Canonicalizer202012Test, enum_split_nested_id_full_uri_ref) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_dynamic_anchor_referenced) {
+TEST(enum_split_dynamic_anchor_referenced) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4697,10 +4668,10 @@ TEST_F(Canonicalizer202012Test, enum_split_dynamic_anchor_referenced) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_deeply_nested_referenced) {
+TEST(enum_split_deeply_nested_referenced) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4767,10 +4738,10 @@ TEST_F(Canonicalizer202012Test, enum_split_deeply_nested_referenced) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_ref_sibling_isolated) {
+TEST(enum_split_ref_sibling_isolated) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -4813,10 +4784,10 @@ TEST_F(Canonicalizer202012Test, enum_split_ref_sibling_isolated) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_id_metadata_all_kinds) {
+TEST(enum_split_id_metadata_all_kinds) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://e.com/x",
@@ -4869,10 +4840,10 @@ TEST_F(Canonicalizer202012Test, enum_split_id_metadata_all_kinds) {
     ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_node_referenced_and_has_id) {
+TEST(enum_split_node_referenced_and_has_id) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4918,10 +4889,10 @@ TEST_F(Canonicalizer202012Test, enum_split_node_referenced_and_has_id) {
     }
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_node_anchor_and_pointer_ref) {
+TEST(enum_split_node_anchor_and_pointer_ref) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4969,10 +4940,10 @@ TEST_F(Canonicalizer202012Test, enum_split_node_anchor_and_pointer_ref) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(Canonicalizer202012Test, enum_split_in_anyof_branch_referenced) {
+TEST(enum_split_in_anyof_branch_referenced) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -5030,5 +5001,5 @@ TEST_F(Canonicalizer202012Test, enum_split_in_anyof_branch_referenced) {
     "patternProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }

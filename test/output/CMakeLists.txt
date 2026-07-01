@@ -1,4 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME output
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME output
   FOLDER "Blaze/Output"
   SOURCES
     output_simple_test.cc
@@ -18,7 +18,7 @@ target_link_libraries(sourcemeta_blaze_output_unit
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::blaze::compiler)
 
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze
   NAME output_standard_basic_suite
   FOLDER "Blaze/Output"
   SOURCES output_standard_basic_suite.cc)
@@ -35,7 +35,7 @@ target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
   PRIVATE sourcemeta::blaze::compiler)
 
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze
   NAME output_standard_flag_suite
   FOLDER "Blaze/Output"
   SOURCES output_standard_flag_suite.cc)

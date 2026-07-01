@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/json.h>
@@ -8,7 +8,7 @@
 
 #include <filesystem> // std::filesystem
 
-TEST(Configuration_Lock_Parse_V1, empty_dependencies) {
+TEST(empty_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
     "dependencies": {}
@@ -20,7 +20,7 @@ TEST(Configuration_Lock_Parse_V1, empty_dependencies) {
   EXPECT_EQ(lock.size(), 0);
 }
 
-TEST(Configuration_Lock_Parse_V1, single_dependency) {
+TEST(single_dependency) {
   const std::filesystem::path schema_path =
       std::filesystem::path{TEST_DIRECTORY} / "schema.json";
   const auto input{make_lock_json(
@@ -36,7 +36,7 @@ TEST(Configuration_Lock_Parse_V1, single_dependency) {
                     "d41d8cd98f00b204e9800998ecf8427e");
 }
 
-TEST(Configuration_Lock_Parse_V1, multiple_dependencies) {
+TEST(multiple_dependencies) {
   const std::filesystem::path first_path =
       std::filesystem::path{TEST_DIRECTORY} / "first.json";
   const std::filesystem::path second_path =
@@ -59,7 +59,7 @@ TEST(Configuration_Lock_Parse_V1, multiple_dependencies) {
                     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb2");
 }
 
-TEST(Configuration_Lock_Parse_V1, not_an_object) {
+TEST(not_an_object) {
   const auto input{sourcemeta::core::parse_json("[]")};
 
   try {
@@ -72,7 +72,7 @@ TEST(Configuration_Lock_Parse_V1, not_an_object) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, missing_version) {
+TEST(missing_version) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": {}
   })JSON")};
@@ -87,7 +87,7 @@ TEST(Configuration_Lock_Parse_V1, missing_version) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, unsupported_version) {
+TEST(unsupported_version) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "version": 999,
     "dependencies": {}
@@ -103,7 +103,7 @@ TEST(Configuration_Lock_Parse_V1, unsupported_version) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, dependencies_not_object) {
+TEST(dependencies_not_object) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
     "dependencies": []
@@ -120,7 +120,7 @@ TEST(Configuration_Lock_Parse_V1, dependencies_not_object) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, entry_not_object) {
+TEST(entry_not_object) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
     "dependencies": {
@@ -140,7 +140,7 @@ TEST(Configuration_Lock_Parse_V1, entry_not_object) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, missing_path) {
+TEST(missing_path) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
     "dependencies": {
@@ -163,7 +163,7 @@ TEST(Configuration_Lock_Parse_V1, missing_path) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, missing_hash) {
+TEST(missing_hash) {
   auto entry{sourcemeta::core::JSON::make_object()};
   entry.assign(
       "path",
@@ -185,7 +185,7 @@ TEST(Configuration_Lock_Parse_V1, missing_hash) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, missing_hash_algorithm) {
+TEST(missing_hash_algorithm) {
   auto entry{sourcemeta::core::JSON::make_object()};
   entry.assign(
       "path",
@@ -208,7 +208,7 @@ TEST(Configuration_Lock_Parse_V1, missing_hash_algorithm) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, unknown_hash_algorithm) {
+TEST(unknown_hash_algorithm) {
   auto entry{sourcemeta::core::JSON::make_object()};
   entry.assign(
       "path",
@@ -231,7 +231,7 @@ TEST(Configuration_Lock_Parse_V1, unknown_hash_algorithm) {
   }
 }
 
-TEST(Configuration_Lock_Parse_V1, relative_path) {
+TEST(relative_path) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "version": 1,
     "dependencies": {

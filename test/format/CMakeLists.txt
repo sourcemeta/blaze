@@ -1,4 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME format
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME format
   FOLDER "Blaze/Format"
   SOURCES format_test.cc)
 

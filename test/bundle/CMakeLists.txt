@@ -1,4 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME bundle
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME bundle
   FOLDER "Blaze/Bundle"
   SOURCES
     bundle_2020_12_test.cc

@@ -1,4 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME documentation
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME documentation
   FOLDER "Blaze/Documentation"
   SOURCES
     documentation_test_utils.h
