@@ -252,6 +252,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/description_trailing_period.h"
 #include "linter/description_trim.h"
 #include "linter/disallow_default.h"
+#include "linter/disjunctor_min_branches.h"
 #include "linter/divisible_by_default.h"
 #include "linter/duplicate_examples.h"
 #include "linter/enum_to_const.h"
@@ -482,6 +483,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UnsatisfiableMinProperties>();
     bundle.add<EnumToConst>();
     bundle.add<ForbidEmptyEnum>();
+    bundle.add<DisjunctorMinBranches>();
     bundle.add<TopLevelTitle>();
     bundle.add<TopLevelDescription>();
     bundle.add<TopLevelExamples>();

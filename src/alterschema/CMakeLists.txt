@@ -150,6 +150,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     linter/items_array_default.h
     linter/items_schema_default.h
     linter/multiple_of_default.h
+    linter/disjunctor_min_branches.h
     linter/pattern_properties_default.h
     linter/portable_anchor_names.h
     linter/properties_default.h
