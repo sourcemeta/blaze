@@ -1,5 +1,4 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME test
-  FOLDER "Blaze/Test"
   SOURCES test_case_test.cc test_suite_test.cc test_run_test.cc)
 
 target_link_libraries(sourcemeta_blaze_test_unit

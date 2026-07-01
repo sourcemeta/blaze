@@ -1,5 +1,4 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME format
-  FOLDER "Blaze/Format"
   SOURCES format_test.cc)
 
 target_link_libraries(sourcemeta_blaze_format_unit

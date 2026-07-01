@@ -1,5 +1,4 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME frame
-  FOLDER "Blaze/Frame"
   SOURCES
     frame_test_utils.h
     frame_2020_12_test.cc

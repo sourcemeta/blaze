@@ -1,5 +1,4 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME bundle
-  FOLDER "Blaze/Bundle"
   SOURCES
     bundle_2020_12_test.cc
     bundle_2019_09_test.cc
