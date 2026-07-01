@@ -77,7 +77,9 @@ TEST(simple_bundling) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine how to perform bundling in this dialect");
   }
 }
 

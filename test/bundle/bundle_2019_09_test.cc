@@ -237,7 +237,9 @@ TEST(schema_not_found) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
   }
 }
 

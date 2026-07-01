@@ -45,7 +45,8 @@ TEST(no_dialect) {
   try {
     sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownDialectError &error) {
+    EXPECT_STREQ(error.what(), "Could not determine the dialect of the schema");
   }
 }
 
@@ -58,7 +59,9 @@ TEST(unknown_dialect) {
   try {
     sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -103,7 +106,9 @@ TEST(override_unresolvable) {
   try {
     sourcemeta::blaze::metaschema(schema, sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -478,7 +483,9 @@ TEST(try_embedded_self_descriptive) {
         document, "https://example.com/meta",
         sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -505,7 +512,9 @@ TEST(try_embedded_cyclic) {
         document, "https://example.com/meta-a",
         sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 

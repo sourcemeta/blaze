@@ -83,7 +83,9 @@ TEST(no_dialect) {
     sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
                               sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 

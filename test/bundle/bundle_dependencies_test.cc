@@ -239,7 +239,9 @@ TEST(across_dialects_from_top_level_ref_draft_relative) {
                               target);
         });
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
   }
 }
 
@@ -359,7 +361,9 @@ TEST(without_default_dialect) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         [](const auto &, const auto &, const auto &, const auto &) {});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -376,7 +380,8 @@ TEST(target_no_dialect) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         [](const auto &, const auto &, const auto &, const auto &) {});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &) {
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
   }
 }
 
@@ -393,7 +398,8 @@ TEST(target_array) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         [](const auto &, const auto &, const auto &, const auto &) {});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &) {
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
   }
 }
 

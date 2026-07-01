@@ -424,7 +424,9 @@ TEST(schema_not_found) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
   }
 }
 
@@ -442,7 +444,8 @@ TEST(anchor_not_found) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &) {
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "Could not resolve schema reference");
   }
 }
 
@@ -1301,7 +1304,9 @@ TEST(custom_nested_object_path_not_object) {
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas, "", "",
         sourcemeta::core::Pointer{"x-definitions", "foo", "bar"});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not bundle to a container path that is not an object");
   }
 }
 
@@ -1468,7 +1473,9 @@ TEST(conflicting_embedded_from_prebundled) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Conflicting embedded resources with the same identifier");
   }
 }
 

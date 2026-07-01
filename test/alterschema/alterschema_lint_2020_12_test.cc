@@ -12357,7 +12357,8 @@ TEST(valid_default_throws_on_unsupported_vocabulary) {
                                    [](const auto &, const auto &, const auto &,
                                       const auto &, const auto &) {}));
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaVocabularyError &) {
+  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
+    EXPECT_STREQ(error.what(), "Cannot compile unsupported vocabulary");
   }
 }
 
@@ -12376,7 +12377,8 @@ TEST(valid_examples_throws_on_unsupported_vocabulary) {
                                    [](const auto &, const auto &, const auto &,
                                       const auto &, const auto &) {}));
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaVocabularyError &) {
+  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
+    EXPECT_STREQ(error.what(), "Cannot compile unsupported vocabulary");
   }
 }
 

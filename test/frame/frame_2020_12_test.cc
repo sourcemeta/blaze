@@ -839,7 +839,8 @@ TEST(id_override) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaFrameError &) {
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(), "Schema identifier already exists");
   }
 }
 
@@ -4865,7 +4866,9 @@ TEST(multiple_nested_no_base_dialect) {
                    sourcemeta::core::to_weak_pointer(path2),
                    sourcemeta::core::to_weak_pointer(path3)});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -4894,7 +4897,8 @@ TEST(multiple_nested_same_id) {
                   {sourcemeta::core::to_weak_pointer(path1),
                    sourcemeta::core::to_weak_pointer(path2)});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaFrameError &) {
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(), "Schema identifier already exists");
   }
 }
 
@@ -9248,7 +9252,9 @@ TEST(embedded_custom_metaschema_self_descriptive) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -9334,7 +9340,9 @@ TEST(embedded_custom_metaschema_cyclic) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -11740,7 +11748,9 @@ TEST(embedded_custom_metaschema_missing_dialect) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -11764,6 +11774,8 @@ TEST(embedded_custom_metaschema_non_string_dialect) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }

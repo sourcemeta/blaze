@@ -25,7 +25,8 @@ TEST(error_not_an_object) {
         sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "The test document must be an object");
   }
 }
 
@@ -44,7 +45,9 @@ TEST(error_no_target) {
         sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document must contain a `target` property");
   }
 }
 
@@ -64,7 +67,9 @@ TEST(error_target_neither_string_nor_array) {
         sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "The test document `target` property must be a "
+                               "URI or an array of URIs");
   }
 }
 
@@ -83,7 +88,9 @@ TEST(error_no_tests) {
         sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document must contain a `tests` property");
   }
 }
 
@@ -103,7 +110,9 @@ TEST(error_tests_not_array) {
         sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document `tests` property must be an array");
   }
 }
 
@@ -123,7 +132,9 @@ TEST(error_unresolvable_target) {
         sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
   }
 }
 
@@ -205,7 +216,10 @@ TEST(error_invalid_test_case) {
         sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "Test case documents must contain a `data` or `dataPath` property");
   }
 }
 
@@ -282,7 +296,8 @@ TEST(error_no_dialect_without_default) {
         sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(), "Could not resolve schema under test");
   }
 }
 

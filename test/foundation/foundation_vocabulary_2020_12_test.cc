@@ -255,7 +255,8 @@ TEST(core_cannot_be_optional) {
   try {
     sourcemeta::blaze::vocabularies(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(), "The core vocabulary must always be required");
   }
 }
 
@@ -267,7 +268,8 @@ TEST(core_must_be_declared) {
   try {
     sourcemeta::blaze::vocabularies(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(), "The core vocabulary must always be present");
   }
 }
 

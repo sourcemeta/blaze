@@ -42,7 +42,9 @@ TEST(boolean_unknown_dialect) {
     sourcemeta::blaze::identify(document, sourcemeta::blaze::schema_resolver,
                                 "https://www.sourcemeta.com/invalid-dialect");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -59,7 +61,9 @@ TEST(empty_object_unknown_dialect) {
     sourcemeta::blaze::identify(document, sourcemeta::blaze::schema_resolver,
                                 "https://www.sourcemeta.com/invalid-dialect");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -209,7 +213,9 @@ TEST(loose_with_unresolvable_dialect) {
   try {
     sourcemeta::blaze::identify(document, sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -219,7 +225,9 @@ TEST(reidentify_boolean) {
     sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
                                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 

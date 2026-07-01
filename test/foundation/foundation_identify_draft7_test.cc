@@ -215,7 +215,13 @@ TEST(reidentify_set_with_top_level_ref) {
     sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
                                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceObjectResourceError &) {
+  } catch (const sourcemeta::blaze::SchemaReferenceObjectResourceError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "A schema with a top-level `$ref` in JSON Schema Draft 7 and older "
+        "dialects ignores every sibling keywords (like identifiers and "
+        "meta-schema declarations) and therefore many operations, like "
+        "bundling, are not possible without undefined behavior");
   }
 }
 
@@ -230,7 +236,13 @@ TEST(reidentify_set_with_top_level_ref_and_allof) {
     sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
                                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceObjectResourceError &) {
+  } catch (const sourcemeta::blaze::SchemaReferenceObjectResourceError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "A schema with a top-level `$ref` in JSON Schema Draft 7 and older "
+        "dialects ignores every sibling keywords (like identifiers and "
+        "meta-schema declarations) and therefore many operations, like "
+        "bundling, are not possible without undefined behavior");
   }
 }
 

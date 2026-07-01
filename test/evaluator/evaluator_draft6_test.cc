@@ -757,7 +757,11 @@ TEST(invalid_ref_top_level) {
                                sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot bundle a JSON Schema Draft 7 or older with a "
+                 "top-level `$ref` (which overrides sibling keywords) without "
+                 "introducing undefined behavior");
   }
 }
 
@@ -857,7 +861,11 @@ TEST(top_level_ref_with_id) {
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot bundle a JSON Schema Draft 7 or older with a "
+                 "top-level `$ref` (which overrides sibling keywords) without "
+                 "introducing undefined behavior");
   }
 }
 
@@ -877,7 +885,11 @@ TEST(top_level_ref_with_id_exhaustive) {
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot bundle a JSON Schema Draft 7 or older with a "
+                 "top-level `$ref` (which overrides sibling keywords) without "
+                 "introducing undefined behavior");
   }
 }
 

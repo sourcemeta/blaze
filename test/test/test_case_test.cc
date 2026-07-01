@@ -21,7 +21,8 @@ TEST(error_not_an_object) {
         document, tracker, std::filesystem::path{STUBS_PATH},
         sourcemeta::core::empty_pointer, STUB_POSITION);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "Test case documents must be objects");
   }
 }
 
@@ -39,7 +40,10 @@ TEST(error_no_data_or_dataPath) {
         document, tracker, std::filesystem::path{STUBS_PATH},
         sourcemeta::core::empty_pointer, STUB_POSITION);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "Test case documents must contain a `data` or `dataPath` property");
   }
 }
 
@@ -59,7 +63,9 @@ TEST(error_both_data_and_dataPath) {
         document, tracker, std::filesystem::path{STUBS_PATH},
         sourcemeta::core::empty_pointer, STUB_POSITION);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "Test case documents must contain either a "
+                               "`data` or `dataPath` property, but not both");
   }
 }
 
@@ -78,7 +84,10 @@ TEST(error_dataPath_not_string) {
         document, tracker, std::filesystem::path{STUBS_PATH},
         sourcemeta::core::empty_pointer, STUB_POSITION);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "Test case documents must set the `dataPath` property to a string");
   }
 }
 
@@ -98,7 +107,9 @@ TEST(error_description_not_string) {
         document, tracker, std::filesystem::path{STUBS_PATH},
         sourcemeta::core::empty_pointer, STUB_POSITION);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "If you set a test case description, it must be a string");
   }
 }
 
@@ -116,7 +127,9 @@ TEST(error_no_valid) {
         document, tracker, std::filesystem::path{STUBS_PATH},
         sourcemeta::core::empty_pointer, STUB_POSITION);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Test case documents must contain a `valid` property");
   }
 }
 
@@ -135,7 +148,9 @@ TEST(error_valid_not_boolean) {
         document, tracker, std::filesystem::path{STUBS_PATH},
         sourcemeta::core::empty_pointer, STUB_POSITION);
     FAIL();
-  } catch (const sourcemeta::blaze::TestParseError &) {
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test case document `valid` property must be a boolean");
   }
 }
 

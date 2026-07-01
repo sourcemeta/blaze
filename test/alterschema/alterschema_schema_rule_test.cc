@@ -292,7 +292,8 @@ TEST(schema_rule_missing_title_throws) {
         sourcemeta::blaze::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaRuleMissingNameError &) {
+  } catch (const sourcemeta::blaze::SchemaRuleMissingNameError &error) {
+    EXPECT_STREQ(error.what(), "The schema rule is missing a title");
   }
 }
 

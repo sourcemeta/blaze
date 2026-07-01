@@ -14,7 +14,8 @@ TEST(schema_error_throw) {
   try {
     throw exception;
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(), "My error");
   }
   EXPECT_EQ(std::string{exception.what()}, "My error");
 }
@@ -28,7 +29,8 @@ TEST(resolution_error_throw) {
   try {
     throw exception;
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(), "My error");
   }
   EXPECT_EQ(std::string{exception.what()}, "My error");
   EXPECT_EQ(exception.identifier(), "https://sourcemeta.com/test");

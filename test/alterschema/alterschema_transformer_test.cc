@@ -243,7 +243,9 @@ TEST(throw_if_no_dialect_invalid_default) {
                                    transformer_callback_noop,
                                    "https://example.com/invalid"));
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -960,7 +962,9 @@ TEST(check_throw_if_no_dialect_invalid_default) {
                        sourcemeta::blaze::schema_resolver, nullptr,
                        "https://example.com/invalid");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 

@@ -73,7 +73,9 @@ TEST(without_default_id) {
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
   }
 }
 
@@ -224,7 +226,8 @@ TEST(explicit_frame_locations_only) {
                                sourcemeta::blaze::default_schema_compiler,
                                frame, frame.root());
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &) {
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "Could not resolve schema reference");
   }
 }
 

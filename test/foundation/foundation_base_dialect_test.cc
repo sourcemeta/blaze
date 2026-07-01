@@ -64,7 +64,9 @@ TEST(boolean_schema_default_dialect_custom_throws) {
     sourcemeta::blaze::base_dialect(document, test_resolver,
                                     "https://sourcemeta.com/metaschema_1");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -76,7 +78,9 @@ TEST(self_descriptive_schema_throws) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -88,7 +92,9 @@ TEST(non_resolvable_schema_with_id) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -100,7 +106,10 @@ TEST(relative_schema_uri_with_id) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &) {
+  } catch (
+      const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
+    EXPECT_STREQ(error.what(), "Relative meta-schema URIs are not valid "
+                               "according to the JSON Schema specification");
   }
 }
 
@@ -111,7 +120,10 @@ TEST(relative_schema_uri) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &) {
+  } catch (
+      const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
+    EXPECT_STREQ(error.what(), "Relative meta-schema URIs are not valid "
+                               "according to the JSON Schema specification");
   }
 }
 
@@ -122,7 +134,9 @@ TEST(non_resolvable_schema) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -132,7 +146,9 @@ TEST(non_resolvable_default_schema) {
     sourcemeta::blaze::base_dialect(document, test_resolver,
                                     "https://example.com/does-not-exist");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -144,7 +160,9 @@ TEST(id_with_custom_metaschema_throws) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -155,7 +173,9 @@ TEST(no_id_with_custom_metaschema_throws) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -167,7 +187,9 @@ TEST(self_descriptive_custom_metaschema_throws) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -178,7 +200,9 @@ TEST(metaschema_without_schema_one_hop_throws) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -190,7 +214,9 @@ TEST(id_self_descriptive_default_dialect_throws) {
     sourcemeta::blaze::base_dialect(document, test_resolver,
                                     "https://sourcemeta.com/foo-bar");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
   }
 }
 
@@ -202,7 +228,9 @@ TEST(id_default_dialect_custom_throws) {
     sourcemeta::blaze::base_dialect(document, test_resolver,
                                     "https://sourcemeta.com/metaschema_1");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -212,7 +240,9 @@ TEST(default_dialect_custom_throws) {
     sourcemeta::blaze::base_dialect(document, test_resolver,
                                     "https://sourcemeta.com/metaschema_1");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -224,7 +254,9 @@ TEST(default_dialect_precedence_custom_throws) {
     sourcemeta::blaze::base_dialect(document, test_resolver,
                                     "https://sourcemeta.com/metaschema_1");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -518,7 +550,9 @@ TEST(self_referencing_metaschema) {
   try {
     sourcemeta::blaze::base_dialect(schema, resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -548,7 +582,9 @@ TEST(indirect_metaschema_cycle) {
   try {
     sourcemeta::blaze::base_dialect(schema_a, resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -980,7 +1016,9 @@ TEST(embedded_custom_metaschema_self_descriptive) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -1005,7 +1043,9 @@ TEST(embedded_custom_metaschema_cyclic) {
   try {
     sourcemeta::blaze::base_dialect(document, test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 

@@ -4547,7 +4547,11 @@ TEST(valid_default_throws_on_invalid_ref_target) {
                                    [](const auto &, const auto &, const auto &,
                                       const auto &, const auto &) {}));
     FAIL();
-  } catch (const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &) {
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The referenced schema is not considered to be a valid "
+                 "subschema given the dialect and vocabularies in use");
   }
 }
 
@@ -4571,7 +4575,11 @@ TEST(valid_examples_throws_on_invalid_ref_target) {
                                    [](const auto &, const auto &, const auto &,
                                       const auto &, const auto &) {}));
     FAIL();
-  } catch (const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &) {
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The referenced schema is not considered to be a valid "
+                 "subschema given the dialect and vocabularies in use");
   }
 }
 

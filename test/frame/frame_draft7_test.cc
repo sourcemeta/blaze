@@ -471,7 +471,8 @@ TEST(id_override) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaFrameError &) {
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(), "Schema identifier already exists");
   }
 }
 

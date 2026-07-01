@@ -146,7 +146,9 @@ TEST(schema_without_identifier_without_dialect) {
   try {
     wrap_schema(schema, {"items"});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -265,7 +267,9 @@ TEST(schema_with_identifier_no_dialect) {
   try {
     wrap_schema(schema, {"items"});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 

@@ -173,7 +173,11 @@ TEST(across_dialects_from_top_level_ref_draft_absolute) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot bundle a JSON Schema Draft 7 or older with a "
+                 "top-level `$ref` (which overrides sibling keywords) without "
+                 "introducing undefined behavior");
   }
 }
 
@@ -189,7 +193,11 @@ TEST(across_dialects_from_top_level_ref_draft_relative) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &) {
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot bundle a JSON Schema Draft 7 or older with a "
+                 "top-level `$ref` (which overrides sibling keywords) without "
+                 "introducing undefined behavior");
   }
 }
 
@@ -307,7 +315,9 @@ TEST(without_default_dialect) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 
@@ -324,7 +334,8 @@ TEST(target_no_dialect) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &) {
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
   }
 }
 
@@ -341,7 +352,8 @@ TEST(target_array) {
         document, sourcemeta::blaze::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &) {
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
   }
 }
 

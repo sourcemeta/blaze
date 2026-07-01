@@ -14,7 +14,8 @@ TEST(unsupported_dialect_draft3) {
                                sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaVocabularyError &) {
+  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
+    EXPECT_STREQ(error.what(), "Unsupported required vocabulary");
   }
 }
 
@@ -29,7 +30,8 @@ TEST(unsupported_keyword_error_not) {
                                sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &) {
+  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &error) {
+    EXPECT_STREQ(error.what(), "Unsupported keyword in subschema");
   }
 }
 
@@ -44,7 +46,9 @@ TEST(unsupported_keyword_value_error_type_not_string) {
                                sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &) {
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected a string value");
   }
 }
 
@@ -59,6 +63,8 @@ TEST(unsupported_keyword_value_error_unknown_type) {
                                sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &) {
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Unsupported type value");
   }
 }
