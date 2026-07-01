@@ -1,5 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
-  FOLDER "Blaze/AlterSchema"
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
   SOURCES
     alterschema_canonicalize_2020_12_test.cc
     alterschema_canonicalize_2019_09_test.cc

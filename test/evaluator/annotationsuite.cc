@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -104,104 +104,94 @@ has_matching_annotations(const sourcemeta::blaze::SimpleOutput &output,
   return false;
 }
 
-class AnnotationTest : public testing::Test {
-public:
-  explicit AnnotationTest(sourcemeta::core::JSON test_schema_json,
-                          const std::string &test_default_dialect,
-                          sourcemeta::core::JSON test_instance,
-                          sourcemeta::core::JSON::Array test_assertions)
-      : schema_json{std::move(test_schema_json)},
-        instance{std::move(test_instance)},
-        assertions{std::move(test_assertions)} {
-    this->frame.analyse(this->schema_json, sourcemeta::blaze::schema_walker,
-                        sourcemeta::blaze::schema_resolver,
-                        test_default_dialect);
-    this->exhaustive_schema = sourcemeta::blaze::compile(
-        this->schema_json, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, this->frame,
-        this->frame.root(), sourcemeta::blaze::Mode::Exhaustive);
+namespace {
+auto check_assertions(const sourcemeta::blaze::SimpleOutput &output,
+                      const sourcemeta::core::JSON::Array &assertions,
+                      const sourcemeta::blaze::SchemaFrame &frame) -> void {
+  for (const auto &assertion : assertions) {
+    assert(assertion.is_object());
+    assert(assertion.defines("location"));
+    assert(assertion.at("location").is_string());
+    const auto instance_location{
+        sourcemeta::core::to_pointer(assertion.at("location").to_string())};
+    assert(assertion.defines("expected"));
+    assert(assertion.at("expected").is_object());
 
-    for (const auto &assertion : this->assertions) {
-      assert(assertion.is_object());
+    if (assertion.at("expected").empty()) {
       assert(assertion.defines("keyword"));
       assert(assertion.at("keyword").is_string());
-      this->keywords.insert(assertion.at("keyword").to_string());
-    }
-
-    std::unordered_set<sourcemeta::core::JSON::StringView> whitelist;
-    for (const auto &keyword : this->keywords) {
-      whitelist.insert(keyword);
-    }
-
-    sourcemeta::blaze::Tweaks tweaks;
-    tweaks.annotations = std::move(whitelist);
-    this->fast_validation_schema = sourcemeta::blaze::compile(
-        this->schema_json, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, this->frame,
-        this->frame.root(), sourcemeta::blaze::Mode::FastValidation, tweaks);
-  }
-
-  auto check_assertions(const sourcemeta::blaze::SimpleOutput &output) -> void {
-    for (const auto &assertion : this->assertions) {
-      assert(assertion.is_object());
-      assert(assertion.defines("location"));
-      assert(assertion.at("location").is_string());
-      const auto instance_location{
-          sourcemeta::core::to_pointer(assertion.at("location").to_string())};
-      assert(assertion.defines("expected"));
-      assert(assertion.at("expected").is_object());
-
-      if (assertion.at("expected").empty()) {
+      EXPECT_FALSE(has_matching_annotations(
+          output, sourcemeta::core::to_weak_pointer(instance_location),
+          assertion.at("keyword").to_string()));
+    } else {
+      for (const auto &entry : assertion.at("expected").as_object()) {
+        std::ostringstream schema_location;
+        schema_location << entry.first;
         assert(assertion.defines("keyword"));
         assert(assertion.at("keyword").is_string());
-        EXPECT_FALSE(has_matching_annotations(
-            output, sourcemeta::core::to_weak_pointer(instance_location),
-            assertion.at("keyword").to_string()));
-      } else {
-        for (const auto &entry : assertion.at("expected").as_object()) {
-          std::ostringstream schema_location;
-          schema_location << entry.first;
-          assert(assertion.defines("keyword"));
-          assert(assertion.at("keyword").is_string());
-          schema_location << "/" << assertion.at("keyword").to_string();
+        schema_location << "/" << assertion.at("keyword").to_string();
 
-          EXPECT_TRUE(has_annotation(
-              output, sourcemeta::core::to_weak_pointer(instance_location),
-              schema_location.str(), entry.second, frame));
-        }
+        EXPECT_TRUE(has_annotation(
+            output, sourcemeta::core::to_weak_pointer(instance_location),
+            schema_location.str(), entry.second, frame));
       }
     }
   }
+}
 
-  auto TestBody() -> void override {
-    sourcemeta::blaze::SimpleOutput output{this->instance};
-    const auto result{this->evaluator.validate(
-        this->exhaustive_schema, this->instance, std::ref(output))};
-    EXPECT_TRUE(result);
-    this->check_assertions(output);
-
-    // The same annotations must be collected in fast validation mode when the
-    // relevant keywords are whitelisted via tweaks
-    sourcemeta::blaze::SimpleOutput fast_output{this->instance};
-    const auto fast_result{this->evaluator.validate(
-        this->fast_validation_schema, this->instance, std::ref(fast_output))};
-    EXPECT_TRUE(fast_result);
-    this->check_assertions(fast_output);
-  }
-
-private:
-  sourcemeta::core::JSON schema_json;
+auto run_annotation_test(const sourcemeta::core::JSON &schema_json,
+                         const std::string &default_dialect,
+                         const sourcemeta::core::JSON &instance,
+                         const sourcemeta::core::JSON::Array &assertions)
+    -> void {
   sourcemeta::blaze::SchemaFrame frame{
       sourcemeta::blaze::SchemaFrame::Mode::References};
-  sourcemeta::blaze::Template exhaustive_schema;
+  frame.analyse(schema_json, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, default_dialect);
+  const auto exhaustive_schema{sourcemeta::blaze::compile(
+      schema_json, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::Exhaustive)};
+
   std::unordered_set<sourcemeta::core::JSON::String> keywords;
-  sourcemeta::blaze::Template fast_validation_schema;
-  sourcemeta::core::JSON instance;
-  sourcemeta::core::JSON::Array assertions;
+  for (const auto &assertion : assertions) {
+    assert(assertion.is_object());
+    assert(assertion.defines("keyword"));
+    assert(assertion.at("keyword").is_string());
+    keywords.insert(assertion.at("keyword").to_string());
+  }
+
+  std::unordered_set<sourcemeta::core::JSON::StringView> whitelist;
+  for (const auto &keyword : keywords) {
+    whitelist.insert(keyword);
+  }
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::move(whitelist);
+  const auto fast_validation_schema{sourcemeta::blaze::compile(
+      schema_json, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::FastValidation, tweaks)};
+
   sourcemeta::blaze::Evaluator evaluator;
-};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  const auto result{
+      evaluator.validate(exhaustive_schema, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+  check_assertions(output, assertions, frame);
+
+  // The same annotations must be collected in fast validation mode when the
+  // relevant keywords are whitelisted via tweaks
+  sourcemeta::blaze::SimpleOutput fast_output{instance};
+  const auto fast_result{evaluator.validate(fast_validation_schema, instance,
+                                            std::ref(fast_output))};
+  EXPECT_TRUE(fast_result);
+  check_assertions(fast_output, assertions, frame);
+}
+} // namespace
 
 static auto register_tests(const std::string &suite_name,
                            const std::string &default_dialect,
@@ -264,19 +254,16 @@ static auto register_tests(const std::string &suite_name,
       assert(test.at("assertions").is_array());
       const auto &assertions{test.at("assertions").as_array()};
 
-      testing::RegisterTest(category.str().c_str(), title.str().c_str(),
-                            nullptr, nullptr, __FILE__, __LINE__,
-                            [=]() -> AnnotationTest * {
-                              return new AnnotationTest(schema, default_dialect,
-                                                        instance, assertions);
-                            });
+      sourcemeta::core::test_register(
+          category.str(), title.str(), __FILE__, __LINE__,
+          [schema, default_dialect, instance, assertions]() -> void {
+            run_annotation_test(schema, default_dialect, instance, assertions);
+          });
     }
   }
 }
 
-int main(int argc, char **argv) {
-  testing::InitGoogleTest(&argc, argv);
-
+auto main(int argc, char **argv) -> int {
   try {
     // 2020-12
     register_tests("applicators",
@@ -318,5 +305,5 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  return RUN_ALL_TESTS();
+  return sourcemeta::core::test_run(argc, argv);
 }

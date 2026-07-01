@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/json.h>
@@ -8,7 +8,7 @@
 
 #include <unordered_map> // std::unordered_map
 
-TEST(Configuration_json, read_json_valid_1) {
+TEST(read_json_valid_1) {
   std::unordered_map<std::string, std::string> files;
   files["/test/blaze.json"] = R"JSON({
     "title": "Sourcemeta",
@@ -51,7 +51,7 @@ TEST(Configuration_json, read_json_valid_1) {
   EXPECT_EQ(manifest.extra.size(), 0);
 }
 
-TEST(Configuration_json, read_json_valid_without_path) {
+TEST(read_json_valid_without_path) {
   std::unordered_map<std::string, std::string> files;
   files["/test/blaze.json"] = R"JSON({
     "title": "Test Config Without Path",
@@ -79,7 +79,7 @@ TEST(Configuration_json, read_json_valid_without_path) {
   EXPECT_EQ(manifest.extra.size(), 0);
 }
 
-TEST(Configuration_json, read_json_base_uri_defaults_to_absolute_path) {
+TEST(read_json_base_uri_defaults_to_absolute_path) {
   std::unordered_map<std::string, std::string> files;
   files["/test/blaze.json"] = R"JSON({
     "path": "./schemas"
@@ -94,7 +94,7 @@ TEST(Configuration_json, read_json_base_uri_defaults_to_absolute_path) {
   EXPECT_EQ(manifest.base_uri.recompose(), "file:///test/schemas");
 }
 
-TEST(Configuration_json, to_json_all_fields) {
+TEST(to_json_all_fields) {
   sourcemeta::blaze::Configuration config;
   config.title = "Sourcemeta";
   config.description = "The JSON Schema company";
@@ -136,7 +136,7 @@ TEST(Configuration_json, to_json_all_fields) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_json, to_json_minimal) {
+TEST(to_json_minimal) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.absolute_path_explicit = true;
@@ -153,7 +153,7 @@ TEST(Configuration_json, to_json_minimal) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_json, to_json_empty) {
+TEST(to_json_empty) {
   sourcemeta::blaze::Configuration config;
 
   const auto result{config.to_json()};
@@ -163,7 +163,7 @@ TEST(Configuration_json, to_json_empty) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_json, to_json_with_extra) {
+TEST(to_json_with_extra) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.absolute_path_explicit = true;
@@ -182,7 +182,7 @@ TEST(Configuration_json, to_json_with_extra) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_json, to_json_roundtrip) {
+TEST(to_json_roundtrip) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": "Sourcemeta",
     "description": "The JSON Schema company",
@@ -202,7 +202,7 @@ TEST(Configuration_json, to_json_roundtrip) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_roundtrip_without_path) {
+TEST(to_json_roundtrip_without_path) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": "Test Project",
     "baseUri": "https://schemas.sourcemeta.com"
@@ -216,7 +216,7 @@ TEST(Configuration_json, to_json_roundtrip_without_path) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_roundtrip_with_dependencies) {
+TEST(to_json_roundtrip_with_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "path": "/test",
@@ -232,7 +232,7 @@ TEST(Configuration_json, to_json_roundtrip_with_dependencies) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_roundtrip_with_multiple_dependencies) {
+TEST(to_json_roundtrip_with_multiple_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "path": "/test",
@@ -249,7 +249,7 @@ TEST(Configuration_json, to_json_roundtrip_with_multiple_dependencies) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_roundtrip_with_parent_dependency) {
+TEST(to_json_roundtrip_with_parent_dependency) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "path": "/test",
@@ -265,7 +265,7 @@ TEST(Configuration_json, to_json_roundtrip_with_parent_dependency) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_roundtrip_path_differs_from_base) {
+TEST(to_json_roundtrip_path_differs_from_base) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "path": "/test/schemas",
@@ -281,7 +281,7 @@ TEST(Configuration_json, to_json_roundtrip_path_differs_from_base) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_roundtrip_dependencies_resolve_extra) {
+TEST(to_json_roundtrip_dependencies_resolve_extra) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "path": "/test",
@@ -301,7 +301,7 @@ TEST(Configuration_json, to_json_roundtrip_dependencies_resolve_extra) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_with_lint_rules) {
+TEST(to_json_with_lint_rules) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.absolute_path_explicit = true;
@@ -324,7 +324,7 @@ TEST(Configuration_json, to_json_with_lint_rules) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_json, to_json_with_lint_rules_parent) {
+TEST(to_json_with_lint_rules_parent) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.absolute_path_explicit = true;
@@ -346,7 +346,7 @@ TEST(Configuration_json, to_json_with_lint_rules_parent) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_json, to_json_empty_lint) {
+TEST(to_json_empty_lint) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.base = "https://example.com";
@@ -357,7 +357,7 @@ TEST(Configuration_json, to_json_empty_lint) {
   EXPECT_FALSE(result.defines("lint"));
 }
 
-TEST(Configuration_json, to_json_roundtrip_with_lint_rules) {
+TEST(to_json_roundtrip_with_lint_rules) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "path": "/test",
@@ -373,7 +373,7 @@ TEST(Configuration_json, to_json_roundtrip_with_lint_rules) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_roundtrip_with_lint_and_dependencies) {
+TEST(to_json_roundtrip_with_lint_and_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "path": "/test",
@@ -392,7 +392,7 @@ TEST(Configuration_json, to_json_roundtrip_with_lint_and_dependencies) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_with_ignore) {
+TEST(to_json_with_ignore) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.absolute_path_explicit = true;
@@ -413,7 +413,7 @@ TEST(Configuration_json, to_json_with_ignore) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_json, to_json_with_ignore_parent) {
+TEST(to_json_with_ignore_parent) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.absolute_path_explicit = true;
@@ -433,7 +433,7 @@ TEST(Configuration_json, to_json_with_ignore_parent) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_json, to_json_empty_ignore) {
+TEST(to_json_empty_ignore) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";
   config.base = "https://example.com";
@@ -444,7 +444,7 @@ TEST(Configuration_json, to_json_empty_ignore) {
   EXPECT_FALSE(result.defines("ignore"));
 }
 
-TEST(Configuration_json, to_json_roundtrip_with_ignore) {
+TEST(to_json_roundtrip_with_ignore) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "ignore": [ "./vendor" ],
@@ -458,7 +458,7 @@ TEST(Configuration_json, to_json_roundtrip_with_ignore) {
   EXPECT_EQ(output, input);
 }
 
-TEST(Configuration_json, to_json_roundtrip_with_ignore_and_lint) {
+TEST(to_json_roundtrip_with_ignore_and_lint) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "ignore": [ "./vendor" ],

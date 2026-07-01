@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/compiler.h>
@@ -44,7 +44,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Evaluator, unknown_vocabulary_required) {
+TEST(unknown_vocabulary_required) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/metaschema"
   })JSON")};
@@ -53,29 +53,33 @@ TEST(Evaluator, unknown_vocabulary_required) {
     sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                test_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "The compile function was expected to throw";
+    FAIL();
   } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
     EXPECT_EQ(error.uri(), "https://example.com/vocab/custom");
-    SUCCEED();
   } catch (const std::exception &) {
-    FAIL() << "The compile function was expected to throw a vocabulary error";
+    FAIL();
   }
 }
 
-TEST(Evaluator, without_default_id) {
+TEST(without_default_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "schema"
   })JSON")};
 
-  EXPECT_THROW(sourcemeta::blaze::compile(
-                   schema, sourcemeta::blaze::schema_walker, test_resolver,
-                   sourcemeta::blaze::default_schema_compiler,
-                   sourcemeta::blaze::Mode::FastValidation),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               test_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::FastValidation);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
+  }
 }
 
-TEST(Evaluator, with_default_id) {
+TEST(with_default_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "schema"
@@ -92,7 +96,7 @@ TEST(Evaluator, with_default_id) {
   EXPECT_TRUE(result);
 }
 
-TEST(Evaluator, boolean_true) {
+TEST(boolean_true) {
   const sourcemeta::core::JSON schema{true};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
@@ -107,7 +111,7 @@ TEST(Evaluator, boolean_true) {
   EXPECT_TRUE(result);
 }
 
-TEST(Evaluator, boolean_false) {
+TEST(boolean_false) {
   const sourcemeta::core::JSON schema{false};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
@@ -129,7 +133,7 @@ TEST(Evaluator, boolean_false) {
       "No instance is expected to succeed against the false schema");
 }
 
-TEST(Evaluator, reusable_evaluator) {
+TEST(reusable_evaluator) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string"
@@ -155,7 +159,7 @@ TEST(Evaluator, reusable_evaluator) {
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance_4));
 }
 
-TEST(Evaluator, cross_2012_12_ref_2019_09_without_id) {
+TEST(cross_2012_12_ref_2019_09_without_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/schema",
@@ -176,7 +180,7 @@ TEST(Evaluator, cross_2012_12_ref_2019_09_without_id) {
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
 }
 
-TEST(Evaluator, explicit_frame) {
+TEST(explicit_frame) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [ { "$ref": "https://json-schema.org/draft/2020-12/schema" } ]
@@ -201,7 +205,7 @@ TEST(Evaluator, explicit_frame) {
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
 }
 
-TEST(Evaluator, explicit_frame_locations_only) {
+TEST(explicit_frame_locations_only) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [ { "$ref": "https://json-schema.org/draft/2020-12/schema" } ]
@@ -216,15 +220,18 @@ TEST(Evaluator, explicit_frame_locations_only) {
   frame.analyse(result, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver);
 
-  EXPECT_THROW(
-      sourcemeta::blaze::compile(result, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
-                                 sourcemeta::blaze::default_schema_compiler,
-                                 frame, frame.root()),
-      sourcemeta::blaze::SchemaReferenceError);
+  try {
+    sourcemeta::blaze::compile(result, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               frame, frame.root());
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "Could not resolve schema reference");
+  }
 }
 
-TEST(Evaluator, is_annotation) {
+TEST(is_annotation) {
   EXPECT_TRUE(sourcemeta::blaze::is_annotation(
       sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent));
   EXPECT_TRUE(sourcemeta::blaze::is_annotation(
@@ -235,23 +242,23 @@ TEST(Evaluator, is_annotation) {
       sourcemeta::blaze::InstructionIndex::AssertionFail));
 }
 
-TEST(Evaluator, instruction_copy_constructible) {
+TEST(instruction_copy_constructible) {
   EXPECT_TRUE(std::is_copy_constructible_v<sourcemeta::blaze::Instruction>);
 }
 
-TEST(Evaluator, instruction_copy_assignable) {
+TEST(instruction_copy_assignable) {
   EXPECT_TRUE(std::is_copy_assignable_v<sourcemeta::blaze::Instruction>);
 }
 
-TEST(Evaluator, instruction_move_constructible) {
+TEST(instruction_move_constructible) {
   EXPECT_TRUE(std::is_move_constructible_v<sourcemeta::blaze::Instruction>);
 }
 
-TEST(Evaluator, instruction_move_assignable) {
+TEST(instruction_move_assignable) {
   EXPECT_TRUE(std::is_move_assignable_v<sourcemeta::blaze::Instruction>);
 }
 
-TEST(Evaluator, invalid_entrypoint_does_not_exist) {
+TEST(invalid_entrypoint_does_not_exist) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -267,7 +274,7 @@ TEST(Evaluator, invalid_entrypoint_does_not_exist) {
                                sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                frame, "https://example.com/does-not-exist");
-    FAIL() << "The compile function was expected to throw";
+    FAIL();
   } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/does-not-exist");
     EXPECT_STREQ(error.what(),
@@ -275,7 +282,7 @@ TEST(Evaluator, invalid_entrypoint_does_not_exist) {
   }
 }
 
-TEST(Evaluator, invalid_entrypoint_not_a_subschema) {
+TEST(invalid_entrypoint_not_a_subschema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -293,7 +300,7 @@ TEST(Evaluator, invalid_entrypoint_not_a_subschema) {
                                sourcemeta::blaze::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                frame, "#/properties");
-    FAIL() << "The compile function was expected to throw";
+    FAIL();
   } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
     EXPECT_EQ(error.identifier(), "#/properties");
     EXPECT_STREQ(error.what(),
@@ -301,7 +308,7 @@ TEST(Evaluator, invalid_entrypoint_not_a_subschema) {
   }
 }
 
-TEST(Evaluator, unsupported_required_vocabulary) {
+TEST(unsupported_required_vocabulary) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/metaschema-unsupported-required-vocab"
   })JSON")};
@@ -310,17 +317,15 @@ TEST(Evaluator, unsupported_required_vocabulary) {
     sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                test_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-    FAIL() << "The compile function was expected to throw";
+    FAIL();
   } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
     EXPECT_EQ(error.uri(), "https://example.com/vocab/unsupported-fictional");
-    SUCCEED();
   } catch (const std::exception &) {
-    FAIL() << "The compile function was expected to throw a vocabulary error";
+    FAIL();
   }
 }
 
-TEST(Evaluator,
-     unevaluated_properties_with_root_dynamic_anchor_and_default_id) {
+TEST(unevaluated_properties_with_root_dynamic_anchor_and_default_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/metadata-tree",
@@ -353,7 +358,7 @@ TEST(Evaluator,
   EXPECT_FALSE(result);
 }
 
-TEST(Evaluator, unevaluated_items_with_root_dynamic_anchor_and_default_id) {
+TEST(unevaluated_items_with_root_dynamic_anchor_and_default_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/metadata-tree",
@@ -386,8 +391,7 @@ TEST(Evaluator, unevaluated_items_with_root_dynamic_anchor_and_default_id) {
   EXPECT_FALSE(result);
 }
 
-TEST(Evaluator,
-     unevaluated_properties_with_root_recursive_anchor_and_default_id_2019_09) {
+TEST(unevaluated_properties_with_root_recursive_anchor_and_default_id_2019_09) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com/metadata-tree",
@@ -420,8 +424,7 @@ TEST(Evaluator,
   EXPECT_FALSE(result);
 }
 
-TEST(Evaluator,
-     unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
+TEST(unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/metadata-tree",

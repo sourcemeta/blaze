@@ -1,4 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME configuration
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME configuration
   SOURCES
     configuration_test_utils.h
     configuration_applies_to_test.cc

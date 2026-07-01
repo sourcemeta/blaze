@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 
@@ -13,7 +13,7 @@ static const sourcemeta::blaze::Vocabularies VOCABULARIES_DRAFT1{
 static const sourcemeta::blaze::Vocabularies VOCABULARIES_DRAFT1_HYPERSCHEMA{
     {"http://json-schema.org/draft-01/hyper-schema#", true}};
 
-TEST(Foundation_walker_draft1, schema) {
+TEST(schema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$schema", VOCABULARIES_DRAFT1)};
@@ -25,7 +25,7 @@ TEST(Foundation_walker_draft1, schema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, id) {
+TEST(id) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("id", VOCABULARIES_DRAFT1)};
@@ -37,7 +37,7 @@ TEST(Foundation_walker_draft1, id) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, ref) {
+TEST(ref) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$ref", VOCABULARIES_DRAFT1)};
@@ -49,7 +49,7 @@ TEST(Foundation_walker_draft1, ref) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, items) {
+TEST(items) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("items", VOCABULARIES_DRAFT1)};
@@ -63,7 +63,7 @@ TEST(Foundation_walker_draft1, items) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_draft1, properties) {
+TEST(properties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("properties", VOCABULARIES_DRAFT1)};
@@ -77,7 +77,7 @@ TEST(Foundation_walker_draft1, properties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_draft1, additionalProperties) {
+TEST(additionalProperties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -93,7 +93,7 @@ TEST(Foundation_walker_draft1, additionalProperties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_draft1, type) {
+TEST(type) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("type", VOCABULARIES_DRAFT1)};
@@ -105,7 +105,7 @@ TEST(Foundation_walker_draft1, type) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, enum) {
+TEST(enum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("enum", VOCABULARIES_DRAFT1)};
@@ -117,7 +117,7 @@ TEST(Foundation_walker_draft1, enum) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, maximum) {
+TEST(maximum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maximum", VOCABULARIES_DRAFT1)};
@@ -132,7 +132,7 @@ TEST(Foundation_walker_draft1, maximum) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_draft1, minimum) {
+TEST(minimum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minimum", VOCABULARIES_DRAFT1)};
@@ -147,7 +147,7 @@ TEST(Foundation_walker_draft1, minimum) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_draft1, maximumCanEqual) {
+TEST(maximumCanEqual) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maximumCanEqual", VOCABULARIES_DRAFT1)};
@@ -162,7 +162,7 @@ TEST(Foundation_walker_draft1, maximumCanEqual) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_draft1, minimumCanEqual) {
+TEST(minimumCanEqual) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minimumCanEqual", VOCABULARIES_DRAFT1)};
@@ -177,7 +177,7 @@ TEST(Foundation_walker_draft1, minimumCanEqual) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_draft1, maxLength) {
+TEST(maxLength) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maxLength", VOCABULARIES_DRAFT1)};
@@ -190,7 +190,7 @@ TEST(Foundation_walker_draft1, maxLength) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, minLength) {
+TEST(minLength) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minLength", VOCABULARIES_DRAFT1)};
@@ -203,7 +203,7 @@ TEST(Foundation_walker_draft1, minLength) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, pattern) {
+TEST(pattern) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("pattern", VOCABULARIES_DRAFT1)};
@@ -216,7 +216,7 @@ TEST(Foundation_walker_draft1, pattern) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, maxItems) {
+TEST(maxItems) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maxItems", VOCABULARIES_DRAFT1)};
@@ -229,7 +229,7 @@ TEST(Foundation_walker_draft1, maxItems) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_draft1, minItems) {
+TEST(minItems) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minItems", VOCABULARIES_DRAFT1)};
@@ -242,7 +242,7 @@ TEST(Foundation_walker_draft1, minItems) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_draft1, requires) {
+TEST(requires) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("requires", VOCABULARIES_DRAFT1)};
@@ -255,7 +255,7 @@ TEST(Foundation_walker_draft1, requires) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_draft1, format) {
+TEST(format) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("format", VOCABULARIES_DRAFT1)};
@@ -268,7 +268,7 @@ TEST(Foundation_walker_draft1, format) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, title) {
+TEST(title) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("title", VOCABULARIES_DRAFT1)};
@@ -280,7 +280,7 @@ TEST(Foundation_walker_draft1, title) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, description) {
+TEST(description) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("description", VOCABULARIES_DRAFT1)};
@@ -292,7 +292,7 @@ TEST(Foundation_walker_draft1, description) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, default) {
+TEST(default) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("default", VOCABULARIES_DRAFT1)};
@@ -304,7 +304,7 @@ TEST(Foundation_walker_draft1, default) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, disallow) {
+TEST(disallow) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("disallow", VOCABULARIES_DRAFT1)};
@@ -316,7 +316,7 @@ TEST(Foundation_walker_draft1, disallow) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, extends) {
+TEST(extends) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("extends", VOCABULARIES_DRAFT1)};
@@ -328,7 +328,7 @@ TEST(Foundation_walker_draft1, extends) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, contentEncoding) {
+TEST(contentEncoding) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("contentEncoding", VOCABULARIES_DRAFT1)};
@@ -341,7 +341,7 @@ TEST(Foundation_walker_draft1, contentEncoding) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, optional) {
+TEST(optional) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("optional", VOCABULARIES_DRAFT1)};
@@ -354,7 +354,7 @@ TEST(Foundation_walker_draft1, optional) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_draft1, maxDecimal) {
+TEST(maxDecimal) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maxDecimal", VOCABULARIES_DRAFT1)};
@@ -367,7 +367,7 @@ TEST(Foundation_walker_draft1, maxDecimal) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Real}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_links) {
+TEST(hyperschema_links) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("links", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -379,7 +379,7 @@ TEST(Foundation_walker_draft1, hyperschema_links) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_fragmentResolution) {
+TEST(hyperschema_fragmentResolution) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -392,7 +392,7 @@ TEST(Foundation_walker_draft1, hyperschema_fragmentResolution) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_root) {
+TEST(hyperschema_root) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("root", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -404,7 +404,7 @@ TEST(Foundation_walker_draft1, hyperschema_root) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_readonly) {
+TEST(hyperschema_readonly) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -417,7 +417,7 @@ TEST(Foundation_walker_draft1, hyperschema_readonly) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_pathStart) {
+TEST(hyperschema_pathStart) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -430,7 +430,7 @@ TEST(Foundation_walker_draft1, hyperschema_pathStart) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_mediaType) {
+TEST(hyperschema_mediaType) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -443,7 +443,7 @@ TEST(Foundation_walker_draft1, hyperschema_mediaType) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_alternate) {
+TEST(hyperschema_alternate) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -456,7 +456,7 @@ TEST(Foundation_walker_draft1, hyperschema_alternate) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_href) {
+TEST(hyperschema_href) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("href", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -468,7 +468,7 @@ TEST(Foundation_walker_draft1, hyperschema_href) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_rel) {
+TEST(hyperschema_rel) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("rel", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -480,7 +480,7 @@ TEST(Foundation_walker_draft1, hyperschema_rel) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_method) {
+TEST(hyperschema_method) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("method", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -492,7 +492,7 @@ TEST(Foundation_walker_draft1, hyperschema_method) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_enctype) {
+TEST(hyperschema_enctype) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("enctype", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -504,7 +504,7 @@ TEST(Foundation_walker_draft1, hyperschema_enctype) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_schema) {
+TEST(hyperschema_schema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$schema", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -516,7 +516,7 @@ TEST(Foundation_walker_draft1, hyperschema_schema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_id) {
+TEST(hyperschema_id) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("id", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -528,7 +528,7 @@ TEST(Foundation_walker_draft1, hyperschema_id) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_ref) {
+TEST(hyperschema_ref) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("$ref", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -540,7 +540,7 @@ TEST(Foundation_walker_draft1, hyperschema_ref) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_items) {
+TEST(hyperschema_items) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("items", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -554,7 +554,7 @@ TEST(Foundation_walker_draft1, hyperschema_items) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_properties) {
+TEST(hyperschema_properties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -569,7 +569,7 @@ TEST(Foundation_walker_draft1, hyperschema_properties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_additionalProperties) {
+TEST(hyperschema_additionalProperties) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -585,7 +585,7 @@ TEST(Foundation_walker_draft1, hyperschema_additionalProperties) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_type) {
+TEST(hyperschema_type) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("type", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -597,7 +597,7 @@ TEST(Foundation_walker_draft1, hyperschema_type) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_enum) {
+TEST(hyperschema_enum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("enum", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -609,7 +609,7 @@ TEST(Foundation_walker_draft1, hyperschema_enum) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_maximum) {
+TEST(hyperschema_maximum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("maximum", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -624,7 +624,7 @@ TEST(Foundation_walker_draft1, hyperschema_maximum) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_draft1, hyperschema_minimum) {
+TEST(hyperschema_minimum) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("minimum", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -639,7 +639,7 @@ TEST(Foundation_walker_draft1, hyperschema_minimum) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_draft1, hyperschema_maximumCanEqual) {
+TEST(hyperschema_maximumCanEqual) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -655,7 +655,7 @@ TEST(Foundation_walker_draft1, hyperschema_maximumCanEqual) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_draft1, hyperschema_minimumCanEqual) {
+TEST(hyperschema_minimumCanEqual) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -671,7 +671,7 @@ TEST(Foundation_walker_draft1, hyperschema_minimumCanEqual) {
   EXPECT_EQ(result.instances, instances);
 }
 
-TEST(Foundation_walker_draft1, hyperschema_maxLength) {
+TEST(hyperschema_maxLength) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -685,7 +685,7 @@ TEST(Foundation_walker_draft1, hyperschema_maxLength) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_minLength) {
+TEST(hyperschema_minLength) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -699,7 +699,7 @@ TEST(Foundation_walker_draft1, hyperschema_minLength) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_pattern) {
+TEST(hyperschema_pattern) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("pattern", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -712,7 +712,7 @@ TEST(Foundation_walker_draft1, hyperschema_pattern) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_maxItems) {
+TEST(hyperschema_maxItems) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -726,7 +726,7 @@ TEST(Foundation_walker_draft1, hyperschema_maxItems) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_minItems) {
+TEST(hyperschema_minItems) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -740,7 +740,7 @@ TEST(Foundation_walker_draft1, hyperschema_minItems) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_requires) {
+TEST(hyperschema_requires) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -754,7 +754,7 @@ TEST(Foundation_walker_draft1, hyperschema_requires) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_format) {
+TEST(hyperschema_format) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("format", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -767,7 +767,7 @@ TEST(Foundation_walker_draft1, hyperschema_format) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_title) {
+TEST(hyperschema_title) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("title", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -779,7 +779,7 @@ TEST(Foundation_walker_draft1, hyperschema_title) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_description) {
+TEST(hyperschema_description) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -792,7 +792,7 @@ TEST(Foundation_walker_draft1, hyperschema_description) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_default) {
+TEST(hyperschema_default) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("default", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -804,7 +804,7 @@ TEST(Foundation_walker_draft1, hyperschema_default) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_disallow) {
+TEST(hyperschema_disallow) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -817,7 +817,7 @@ TEST(Foundation_walker_draft1, hyperschema_disallow) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_extends) {
+TEST(hyperschema_extends) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("extends", VOCABULARIES_DRAFT1_HYPERSCHEMA)};
@@ -829,7 +829,7 @@ TEST(Foundation_walker_draft1, hyperschema_extends) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_contentEncoding) {
+TEST(hyperschema_contentEncoding) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -843,7 +843,7 @@ TEST(Foundation_walker_draft1, hyperschema_contentEncoding) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::String}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_optional) {
+TEST(hyperschema_optional) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -857,7 +857,7 @@ TEST(Foundation_walker_draft1, hyperschema_optional) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_maxDecimal) {
+TEST(hyperschema_maxDecimal) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{
@@ -871,7 +871,7 @@ TEST(Foundation_walker_draft1, hyperschema_maxDecimal) {
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Real}));
 }
 
-TEST(Foundation_walker_draft1, hyperschema_links_without_hyperschema) {
+TEST(hyperschema_links_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("links", VOCABULARIES_DRAFT1)};
@@ -882,8 +882,7 @@ TEST(Foundation_walker_draft1, hyperschema_links_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1,
-     hyperschema_fragmentResolution_without_hyperchema) {
+TEST(hyperschema_fragmentResolution_without_hyperchema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("fragmentResolution", VOCABULARIES_DRAFT1)};
@@ -894,7 +893,7 @@ TEST(Foundation_walker_draft1,
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_root_without_hyperschema) {
+TEST(hyperschema_root_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("root", VOCABULARIES_DRAFT1)};
@@ -905,7 +904,7 @@ TEST(Foundation_walker_draft1, hyperschema_root_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_readonly_without_hyperschema) {
+TEST(hyperschema_readonly_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("readonly", VOCABULARIES_DRAFT1)};
@@ -916,7 +915,7 @@ TEST(Foundation_walker_draft1, hyperschema_readonly_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_pathStart_without_hyperschema) {
+TEST(hyperschema_pathStart_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("pathStart", VOCABULARIES_DRAFT1)};
@@ -927,7 +926,7 @@ TEST(Foundation_walker_draft1, hyperschema_pathStart_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_mediaType_without_hyperschema) {
+TEST(hyperschema_mediaType_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("mediaType", VOCABULARIES_DRAFT1)};
@@ -938,7 +937,7 @@ TEST(Foundation_walker_draft1, hyperschema_mediaType_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_alternate_without_hyperschema) {
+TEST(hyperschema_alternate_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("alternate", VOCABULARIES_DRAFT1)};
@@ -949,7 +948,7 @@ TEST(Foundation_walker_draft1, hyperschema_alternate_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_href_without_hyperschema) {
+TEST(hyperschema_href_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("href", VOCABULARIES_DRAFT1)};
@@ -960,7 +959,7 @@ TEST(Foundation_walker_draft1, hyperschema_href_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_rel_without_hyperschema) {
+TEST(hyperschema_rel_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("rel", VOCABULARIES_DRAFT1)};
@@ -971,7 +970,7 @@ TEST(Foundation_walker_draft1, hyperschema_rel_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_method_without_hyperschema) {
+TEST(hyperschema_method_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("method", VOCABULARIES_DRAFT1)};
@@ -982,7 +981,7 @@ TEST(Foundation_walker_draft1, hyperschema_method_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, hyperschema_enctype_without_hyperschema) {
+TEST(hyperschema_enctype_without_hyperschema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("enctype", VOCABULARIES_DRAFT1)};
@@ -993,7 +992,7 @@ TEST(Foundation_walker_draft1, hyperschema_enctype_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(Foundation_walker_draft1, schema_keyword_priority_object) {
+TEST(schema_keyword_priority_object) {
   const auto &vocabularies = VOCABULARIES_DRAFT1;
   const auto &walker = sourcemeta::blaze::schema_walker;
   using namespace sourcemeta::core;
@@ -1003,7 +1002,7 @@ TEST(Foundation_walker_draft1, schema_keyword_priority_object) {
       schema_keyword_priority("additionalProperties", vocabularies, walker), 1);
 }
 
-TEST(Foundation_walker_draft1, schema_keyword_priority_unknown) {
+TEST(schema_keyword_priority_unknown) {
   const auto &vocabularies = VOCABULARIES_DRAFT1;
   const auto &walker = sourcemeta::blaze::schema_walker;
   using namespace sourcemeta::core;
@@ -1011,7 +1010,7 @@ TEST(Foundation_walker_draft1, schema_keyword_priority_unknown) {
   EXPECT_EQ(schema_keyword_priority("foobar", vocabularies, walker), 0);
 }
 
-TEST(Foundation_walker_draft1, instance_locations) {
+TEST(instance_locations) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-01/schema#",
     "properties": {

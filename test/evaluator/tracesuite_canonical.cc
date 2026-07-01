@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/compiler.h>
@@ -15,50 +15,39 @@
 #include <string>     // std::string
 #include <utility>    // std::move
 
-class CanonicalizeTest : public testing::Test {
-public:
-  explicit CanonicalizeTest(
-      sourcemeta::core::JSON test_data, const sourcemeta::blaze::Mode test_mode,
-      const sourcemeta::blaze::AlterSchemaMode canonicalizer_mode =
-          sourcemeta::blaze::AlterSchemaMode::Canonicalizer)
-      : data{std::move(test_data)}, mode{test_mode},
-        canonicalizer_mode_{canonicalizer_mode} {}
+namespace {
+auto run_canonicalize_test(
+    const sourcemeta::core::JSON &data, const sourcemeta::blaze::Mode mode,
+    const sourcemeta::blaze::AlterSchemaMode canonicalizer_mode) -> void {
+  auto schema{data.at("schema")};
+  const auto &instance{data.at("instance")};
+  const bool expected_valid{data.at("valid").to_boolean()};
 
-  auto TestBody() -> void override {
-    auto schema{this->data.at("schema")};
-    const auto &instance{this->data.at("instance")};
-    const bool expected_valid{this->data.at("valid").to_boolean()};
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle, canonicalizer_mode);
+  const auto canonicalize_result{
+      bundle.apply(schema, sourcemeta::blaze::schema_walker,
+                   sourcemeta::blaze::schema_resolver,
+                   [](const auto &, const auto &, const auto &, const auto &,
+                      const auto &) {})};
+  EXPECT_TRUE(canonicalize_result.first);
 
-    sourcemeta::blaze::SchemaTransformer bundle;
-    sourcemeta::blaze::add(bundle, this->canonicalizer_mode_);
-    const auto canonicalize_result{
-        bundle.apply(schema, sourcemeta::blaze::schema_walker,
-                     sourcemeta::blaze::schema_resolver,
-                     [](const auto &, const auto &, const auto &, const auto &,
-                        const auto &) {})};
-    EXPECT_TRUE(canonicalize_result.first);
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, mode)};
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
 
-    const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, this->mode)};
-    __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{evaluator.validate(compiled_schema, instance)};
 
-    sourcemeta::blaze::Evaluator evaluator;
-    const auto result{evaluator.validate(compiled_schema, instance)};
-
-    if (expected_valid) {
-      EXPECT_TRUE(result);
-    } else {
-      EXPECT_FALSE(result);
-    }
+  if (expected_valid) {
+    EXPECT_TRUE(result);
+  } else {
+    EXPECT_FALSE(result);
   }
-
-private:
-  const sourcemeta::core::JSON data;
-  const sourcemeta::blaze::Mode mode;
-  const sourcemeta::blaze::AlterSchemaMode canonicalizer_mode_;
-};
+}
+} // namespace
 
 static auto
 register_tests(const std::filesystem::path &path, const std::string &suite_name,
@@ -81,18 +70,16 @@ register_tests(const std::filesystem::path &path, const std::string &suite_name,
 
       const auto title{description + mode_suffix};
 
-      testing::RegisterTest(suite_name.c_str(), title.c_str(), nullptr, nullptr,
-                            __FILE__, __LINE__, [=]() -> CanonicalizeTest * {
-                              return new CanonicalizeTest(test_case, mode,
-                                                          canonicalizer_mode);
-                            });
+      sourcemeta::core::test_register(
+          suite_name, title, __FILE__, __LINE__,
+          [test_case, mode, canonicalizer_mode]() -> void {
+            run_canonicalize_test(test_case, mode, canonicalizer_mode);
+          });
     }
   }
 }
 
 auto main(int argc, char **argv) -> int {
-  testing::InitGoogleTest(&argc, argv);
-
   try {
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_openapi_3_1.json",
@@ -129,5 +116,5 @@ auto main(int argc, char **argv) -> int {
     return EXIT_FAILURE;
   }
 
-  return RUN_ALL_TESTS();
+  return sourcemeta::core::test_run(argc, argv);
 }

@@ -1,5 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME frame
-  FOLDER "Blaze/Frame"
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME frame
   SOURCES
     frame_test_utils.h
     frame_2020_12_test.cc
@@ -28,7 +27,7 @@ endif()
 
 # JSON Schema Referencing Suite
 # See https://github.com/python-jsonschema/referencing-suite
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME frame_referencing_suite
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME frame_referencing_suite
   SOURCES referencingsuite.cc)
 target_compile_definitions(sourcemeta_blaze_frame_referencing_suite_unit
   PRIVATE REFERENCING_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/referencing-suite/tests")

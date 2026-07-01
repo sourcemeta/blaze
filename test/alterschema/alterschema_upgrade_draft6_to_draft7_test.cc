@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,19 +7,19 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, true_boolean_schema_unchanged) {
+TEST(true_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, false_boolean_schema_unchanged) {
+TEST(false_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, trivial_root) {
+TEST(trivial_root) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string"
@@ -33,8 +33,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7, trivial_root) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     empty_object_subschema_becomes_true) {
+TEST(empty_object_subschema_becomes_true) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "object",
@@ -54,8 +53,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     dollar_schema_with_https_scheme_normalized_and_bumped) {
+TEST(dollar_schema_with_https_scheme_normalized_and_bumped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft-06/schema#",
     "type": "string"
@@ -69,8 +67,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     dollar_schema_without_empty_fragment_normalized_and_bumped) {
+TEST(dollar_schema_without_empty_fragment_normalized_and_bumped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema",
     "type": "string"
@@ -84,8 +81,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     nested_subschemas_only_root_changes) {
+TEST(nested_subschemas_only_root_changes) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "object",
@@ -117,7 +113,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, draft_6_keyword_examples_preserved) {
+TEST(draft_6_keyword_examples_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string",
@@ -145,7 +141,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7, draft_6_keyword_examples_preserved) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, idempotent_after_first_pass) {
+TEST(idempotent_after_first_pass) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string"
@@ -160,7 +156,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7, idempotent_after_first_pass) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, already_draft_7_unchanged) {
+TEST(already_draft_7_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string"
@@ -174,7 +170,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7, already_draft_7_unchanged) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, already_2019_09_left_unchanged) {
+TEST(already_2019_09_left_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com/root",
@@ -190,8 +186,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7, already_2019_09_left_unchanged) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     nested_2019_09_resource_left_unchanged) {
+TEST(nested_2019_09_resource_left_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "https://example.com/outer",
@@ -221,8 +216,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     embedded_older_dialect_resource_transitively_upgraded) {
+TEST(embedded_older_dialect_resource_transitively_upgraded) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "https://example.com/outer",
@@ -252,7 +246,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, single_item_enum_becomes_const) {
+TEST(single_item_enum_becomes_const) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "enum": [ "only" ]
@@ -266,8 +260,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7, single_item_enum_becomes_const) {
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     single_item_enum_in_nested_subschema_becomes_const) {
+TEST(single_item_enum_in_nested_subschema_becomes_const) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "object",
@@ -297,8 +290,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     enum_with_existing_const_is_left_alone) {
+TEST(enum_with_existing_const_is_left_alone) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "const": "only",
@@ -314,8 +306,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     unrelated_custom_keyword_left_unchanged) {
+TEST(unrelated_custom_keyword_left_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string",
@@ -333,8 +324,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     promoted_annotation_keyword_prefixed_to_preserve_metaschema_validity) {
+TEST(promoted_annotation_keyword_prefixed_to_preserve_metaschema_validity) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string",
@@ -352,8 +342,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     custom_keyword_named_after_draft_7_addition_prefixed) {
+TEST(custom_keyword_named_after_draft_7_addition_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string",
@@ -369,8 +358,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     embedded_draft_6_resource_also_upgraded) {
+TEST(embedded_draft_6_resource_also_upgraded) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "https://example.com/outer",
@@ -400,8 +388,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
   UPGRADE_DRAFT_7(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7,
-     no_dollar_schema_with_default_dialect_draft6) {
+TEST(no_dollar_schema_with_default_dialect_draft6) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/test",
     "type": "integer"
@@ -417,7 +404,7 @@ TEST(AlterSchema_upgrade_Draft6_to_Draft7,
                                "http://json-schema.org/draft-06/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft6_to_Draft7, format_values_preserved) {
+TEST(format_values_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "object",

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -8,7 +8,7 @@
 
 #include "evaluator_utils.h"
 
-TEST(Evaluator_openapi_3_1, format_uri_valid_with_tweak_fast) {
+TEST(format_uri_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "format": "uri"
@@ -30,7 +30,7 @@ TEST(Evaluator_openapi_3_1, format_uri_valid_with_tweak_fast) {
       "valid URI");
 }
 
-TEST(Evaluator_openapi_3_1, format_uri_invalid_with_tweak_fast) {
+TEST(format_uri_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "format": "uri"
@@ -51,7 +51,7 @@ TEST(Evaluator_openapi_3_1, format_uri_invalid_with_tweak_fast) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_openapi_3_1, format_uri_valid_with_tweak_exhaustive) {
+TEST(format_uri_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "format": "uri"
@@ -81,7 +81,7 @@ TEST(Evaluator_openapi_3_1, format_uri_valid_with_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uri\"");
 }
 
-TEST(Evaluator_openapi_3_1, format_uri_invalid_with_tweak_exhaustive) {
+TEST(format_uri_invalid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "format": "uri"
@@ -103,7 +103,7 @@ TEST(Evaluator_openapi_3_1, format_uri_invalid_with_tweak_exhaustive) {
       "The string value \"://bad\" was expected to represent a valid URI");
 }
 
-TEST(Evaluator_openapi_3_1, format_uri_no_tweak_fast) {
+TEST(format_uri_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "format": "uri"
@@ -114,7 +114,7 @@ TEST(Evaluator_openapi_3_1, format_uri_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(Evaluator_openapi_3_1, format_uri_no_tweak_exhaustive) {
+TEST(format_uri_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "format": "uri"
@@ -131,7 +131,7 @@ TEST(Evaluator_openapi_3_1, format_uri_no_tweak_exhaustive) {
       "The logical type of the instance was expected to be \"uri\"");
 }
 
-TEST(Evaluator_openapi_3_1, format_uri_non_string_with_tweak_fast) {
+TEST(format_uri_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "format": "uri"
@@ -145,7 +145,7 @@ TEST(Evaluator_openapi_3_1, format_uri_non_string_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
-TEST(Evaluator_openapi_3_1, format_uri_non_string_with_tweak_exhaustive) {
+TEST(format_uri_non_string_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "format": "uri"

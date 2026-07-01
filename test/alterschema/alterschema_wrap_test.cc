@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/foundation.h>
@@ -25,7 +25,7 @@ static auto wrap_schema(const sourcemeta::core::JSON &schema,
   return {std::move(result), sourcemeta::core::to_pointer(base)};
 }
 
-TEST(AlterSchema_wrap, schema_without_identifier) {
+TEST(schema_without_identifier) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": {
@@ -44,7 +44,7 @@ TEST(AlterSchema_wrap, schema_without_identifier) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, schema_without_identifier_and_relative_uri) {
+TEST(schema_without_identifier_and_relative_uri) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": {
@@ -76,7 +76,7 @@ TEST(AlterSchema_wrap, schema_without_identifier_and_relative_uri) {
   EXPECT_EQ(base.at(0).to_property(), "$ref");
 }
 
-TEST(AlterSchema_wrap, schema_without_identifier_with_default_dialect) {
+TEST(schema_without_identifier_with_default_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "items": {
       "type": "string"
@@ -95,8 +95,7 @@ TEST(AlterSchema_wrap, schema_without_identifier_with_default_dialect) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap,
-     schema_without_identifier_with_different_default_dialect) {
+TEST(schema_without_identifier_with_different_default_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": {
@@ -116,7 +115,7 @@ TEST(AlterSchema_wrap,
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, schema_without_identifier_empty_pointer) {
+TEST(schema_without_identifier_empty_pointer) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": {
@@ -137,18 +136,23 @@ TEST(AlterSchema_wrap, schema_without_identifier_empty_pointer) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, schema_without_identifier_without_dialect) {
+TEST(schema_without_identifier_without_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "items": {
       "type": "string"
     }
   })JSON")};
 
-  EXPECT_THROW(wrap_schema(schema, {"items"}),
-               sourcemeta::blaze::SchemaUnknownBaseDialectError);
+  try {
+    wrap_schema(schema, {"items"});
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
-TEST(AlterSchema_wrap, schema_with_identifier) {
+TEST(schema_with_identifier) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://sourcemeta.com/1",
@@ -168,7 +172,7 @@ TEST(AlterSchema_wrap, schema_with_identifier) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, schema_with_identifier_trailing_empty_fragment) {
+TEST(schema_with_identifier_trailing_empty_fragment) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://sourcemeta.com/1#",
@@ -188,7 +192,7 @@ TEST(AlterSchema_wrap, schema_with_identifier_trailing_empty_fragment) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, schema_with_identifier_different_default_dialect) {
+TEST(schema_with_identifier_different_default_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://sourcemeta.com/1",
@@ -209,7 +213,7 @@ TEST(AlterSchema_wrap, schema_with_identifier_different_default_dialect) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, schema_with_identifier_default_dialect) {
+TEST(schema_with_identifier_default_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://sourcemeta.com/1",
     "items": {
@@ -229,7 +233,7 @@ TEST(AlterSchema_wrap, schema_with_identifier_default_dialect) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, schema_with_identifier_empty_pointer) {
+TEST(schema_with_identifier_empty_pointer) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://sourcemeta.com/1",
@@ -252,7 +256,7 @@ TEST(AlterSchema_wrap, schema_with_identifier_empty_pointer) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, schema_with_identifier_no_dialect) {
+TEST(schema_with_identifier_no_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://sourcemeta.com/1",
     "items": {
@@ -260,11 +264,16 @@ TEST(AlterSchema_wrap, schema_with_identifier_no_dialect) {
     }
   })JSON")};
 
-  EXPECT_THROW(wrap_schema(schema, {"items"}),
-               sourcemeta::blaze::SchemaUnknownBaseDialectError);
+  try {
+    wrap_schema(schema, {"items"});
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
-TEST(AlterSchema_wrap, draft4_standalone_ref_with_default_dialect) {
+TEST(draft4_standalone_ref_with_default_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://example.com"
   })JSON")};
@@ -281,7 +290,7 @@ TEST(AlterSchema_wrap, draft4_standalone_ref_with_default_dialect) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, draft4_top_level_ref_with_id_empty) {
+TEST(draft4_top_level_ref_with_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "https://example.com",
@@ -306,7 +315,7 @@ TEST(AlterSchema_wrap, draft4_top_level_ref_with_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, draft4_top_level_ref_without_id_empty) {
+TEST(draft4_top_level_ref_without_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "$ref": "#/definitions/foo",
@@ -329,7 +338,7 @@ TEST(AlterSchema_wrap, draft4_top_level_ref_without_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, draft6_standalone_ref_with_default_dialect) {
+TEST(draft6_standalone_ref_with_default_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://example.com"
   })JSON")};
@@ -346,7 +355,7 @@ TEST(AlterSchema_wrap, draft6_standalone_ref_with_default_dialect) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, draft6_top_level_ref_with_id_empty) {
+TEST(draft6_top_level_ref_with_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "https://example.com",
@@ -371,7 +380,7 @@ TEST(AlterSchema_wrap, draft6_top_level_ref_with_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, draft6_top_level_ref_without_id_empty) {
+TEST(draft6_top_level_ref_without_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$ref": "#/definitions/foo",
@@ -394,7 +403,7 @@ TEST(AlterSchema_wrap, draft6_top_level_ref_without_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, draft7_standalone_ref_with_default_dialect) {
+TEST(draft7_standalone_ref_with_default_dialect) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://example.com"
   })JSON")};
@@ -411,7 +420,7 @@ TEST(AlterSchema_wrap, draft7_standalone_ref_with_default_dialect) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, draft7_top_level_ref_with_id_empty) {
+TEST(draft7_top_level_ref_with_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com",
@@ -436,7 +445,7 @@ TEST(AlterSchema_wrap, draft7_top_level_ref_with_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, draft7_top_level_ref_without_id_empty) {
+TEST(draft7_top_level_ref_without_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$ref": "#/definitions/foo",
@@ -459,7 +468,7 @@ TEST(AlterSchema_wrap, draft7_top_level_ref_without_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2019_09_top_level_ref_with_id_empty) {
+TEST(2019_09_top_level_ref_with_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com",
@@ -484,7 +493,7 @@ TEST(AlterSchema_wrap, 2019_09_top_level_ref_with_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2019_09_top_level_ref_with_id_defs_foo) {
+TEST(2019_09_top_level_ref_with_id_defs_foo) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com",
@@ -504,7 +513,7 @@ TEST(AlterSchema_wrap, 2019_09_top_level_ref_with_id_defs_foo) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2019_09_top_level_ref_without_id_empty) {
+TEST(2019_09_top_level_ref_without_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$ref": "#/$defs/foo",
@@ -527,7 +536,7 @@ TEST(AlterSchema_wrap, 2019_09_top_level_ref_without_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2019_09_top_level_ref_without_id_defs_foo) {
+TEST(2019_09_top_level_ref_without_id_defs_foo) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$ref": "#/$defs/foo",
@@ -546,7 +555,7 @@ TEST(AlterSchema_wrap, 2019_09_top_level_ref_without_id_defs_foo) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2020_12_top_level_ref_with_id_empty) {
+TEST(2020_12_top_level_ref_with_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com",
@@ -571,7 +580,7 @@ TEST(AlterSchema_wrap, 2020_12_top_level_ref_with_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2020_12_top_level_ref_with_id_defs_foo) {
+TEST(2020_12_top_level_ref_with_id_defs_foo) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com",
@@ -591,7 +600,7 @@ TEST(AlterSchema_wrap, 2020_12_top_level_ref_with_id_defs_foo) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2020_12_top_level_ref_without_id_empty) {
+TEST(2020_12_top_level_ref_without_id_empty) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/foo",
@@ -614,7 +623,7 @@ TEST(AlterSchema_wrap, 2020_12_top_level_ref_without_id_empty) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2020_12_top_level_ref_without_id_defs_foo) {
+TEST(2020_12_top_level_ref_without_id_defs_foo) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/foo",
@@ -633,7 +642,7 @@ TEST(AlterSchema_wrap, 2020_12_top_level_ref_without_id_defs_foo) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, subschema_with_direct_ref) {
+TEST(subschema_with_direct_ref) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com",
@@ -670,7 +679,7 @@ TEST(AlterSchema_wrap, subschema_with_direct_ref) {
   EXPECT_EQ(base.at(0).to_property(), "$ref");
 }
 
-TEST(AlterSchema_wrap, subschema_with_nested_ref) {
+TEST(subschema_with_nested_ref) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com",
@@ -717,7 +726,7 @@ TEST(AlterSchema_wrap, subschema_with_nested_ref) {
   EXPECT_EQ(base.at(0).to_property(), "$ref");
 }
 
-TEST(AlterSchema_wrap, 2020_12_boolean_subschema_true) {
+TEST(2020_12_boolean_subschema_true) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com",
@@ -734,7 +743,7 @@ TEST(AlterSchema_wrap, 2020_12_boolean_subschema_true) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2020_12_boolean_subschema_false) {
+TEST(2020_12_boolean_subschema_false) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com",
@@ -751,7 +760,7 @@ TEST(AlterSchema_wrap, 2020_12_boolean_subschema_false) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2020_12_top_level_boolean_true) {
+TEST(2020_12_top_level_boolean_true) {
   const auto schema{sourcemeta::core::parse_json("true")};
   const auto [result, base]{
       wrap_schema(schema, {}, "https://json-schema.org/draft/2020-12/schema")};
@@ -760,7 +769,7 @@ TEST(AlterSchema_wrap, 2020_12_top_level_boolean_true) {
   EXPECT_TRUE(base.empty());
 }
 
-TEST(AlterSchema_wrap, 2020_12_top_level_boolean_false) {
+TEST(2020_12_top_level_boolean_false) {
   const auto schema{sourcemeta::core::parse_json("false")};
   const auto [result, base]{
       wrap_schema(schema, {}, "https://json-schema.org/draft/2020-12/schema")};

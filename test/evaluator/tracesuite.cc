@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -31,101 +31,91 @@ static auto to_instruction_index(const std::string_view name)
   std::unreachable();
 }
 
-class TraceTest : public testing::Test {
-public:
-  explicit TraceTest(sourcemeta::core::JSON test_data,
-                     const sourcemeta::blaze::Mode test_mode,
-                     const char *test_mode_key)
-      : data{std::move(test_data)}, mode{test_mode}, mode_key{test_mode_key} {}
+namespace {
+auto run_trace_test(const sourcemeta::core::JSON &data,
+                    const sourcemeta::blaze::Mode mode, const char *mode_key)
+    -> void {
+  const auto &schema{data.at("schema")};
+  const auto &instance{data.at("instance")};
+  const bool expected_valid{data.at("valid").to_boolean()};
 
-  auto TestBody() -> void override {
-    const auto &schema{this->data.at("schema")};
-    const auto &instance{this->data.at("instance")};
-    const bool expected_valid{this->data.at("valid").to_boolean()};
+  const auto &mode_data{data.at(mode_key)};
 
-    const auto &mode_data{this->data.at(this->mode_key)};
+  const auto pre{mode_data.defines("pre")
+                     ? mode_data.at("pre")
+                     : sourcemeta::core::JSON{sourcemeta::core::JSON::Array{}}};
+  const auto post{
+      mode_data.defines("post")
+          ? mode_data.at("post")
+          : sourcemeta::core::JSON{sourcemeta::core::JSON::Array{}}};
+  const auto trace_descriptions{
+      mode_data.defines("descriptions")
+          ? mode_data.at("descriptions")
+          : sourcemeta::core::JSON{sourcemeta::core::JSON::Array{}}};
 
-    const auto pre{
-        mode_data.defines("pre")
-            ? mode_data.at("pre")
-            : sourcemeta::core::JSON{sourcemeta::core::JSON::Array{}}};
-    const auto post{
-        mode_data.defines("post")
-            ? mode_data.at("post")
-            : sourcemeta::core::JSON{sourcemeta::core::JSON::Array{}}};
-    const auto trace_descriptions{
-        mode_data.defines("descriptions")
-            ? mode_data.at("descriptions")
-            : sourcemeta::core::JSON{sourcemeta::core::JSON::Array{}}};
+  assert(pre.size() == post.size());
+  assert(pre.size() == trace_descriptions.size());
+  const auto count{pre.size()};
 
-    assert(pre.size() == post.size());
-    assert(pre.size() == trace_descriptions.size());
-    const auto count{pre.size()};
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, mode)};
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
+  EVALUATE_WITH_TRACE(compiled_schema, instance, count);
 
-    const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, this->mode)};
-    __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
-    EVALUATE_WITH_TRACE(compiled_schema, instance, count);
+  if (expected_valid) {
+    EXPECT_TRUE(result);
+  } else {
+    EXPECT_FALSE(result);
+  }
 
-    if (expected_valid) {
-      EXPECT_TRUE(result);
+  for (std::size_t index = 0; index < pre.size(); index++) {
+    const auto &expected{pre.at(index)};
+    assert(expected.is_array());
+    assert(expected.size() == 4);
+    const auto &expected_type{expected.at(0).to_string()};
+    if (expected_type == "Annotation") {
+      EVALUATE_TRACE_PRE_ANNOTATION(index, expected.at(1).to_string(),
+                                    expected.at(2).to_string(),
+                                    expected.at(3).to_string());
     } else {
-      EXPECT_FALSE(result);
-    }
-
-    for (std::size_t index = 0; index < pre.size(); index++) {
-      const auto &expected{pre.at(index)};
-      assert(expected.is_array());
-      assert(expected.size() == 4);
-      const auto &expected_type{expected.at(0).to_string()};
-      if (expected_type == "Annotation") {
-        EVALUATE_TRACE_PRE_ANNOTATION(index, expected.at(1).to_string(),
-                                      expected.at(2).to_string(),
-                                      expected.at(3).to_string());
-      } else {
-        __EVALUATE_TRACE_PRE(index, to_instruction_index(expected_type),
-                             expected.at(1).to_string(),
-                             expected.at(2).to_string(),
-                             expected.at(3).to_string());
-      }
-    }
-
-    for (std::size_t index = 0; index < post.size(); index++) {
-      const auto &expected{post.at(index)};
-      assert(expected.is_array());
-      assert(expected.size() >= 5);
-      const auto &expected_type{expected.at(1).to_string()};
-      if (expected_type == "Annotation") {
-        assert(expected.size() == 6);
-        EVALUATE_TRACE_POST_ANNOTATION(
-            index, expected.at(2).to_string(), expected.at(3).to_string(),
-            expected.at(4).to_string(), expected.at(5));
-      } else if (expected.at(0).to_boolean()) {
-        __EVALUATE_TRACE_POST_SUCCESS(
-            index, to_instruction_index(expected_type),
-            expected.at(2).to_string(), expected.at(3).to_string(),
-            expected.at(4).to_string());
-      } else {
-        __EVALUATE_TRACE_POST_FAILURE(
-            index, to_instruction_index(expected_type),
-            expected.at(2).to_string(), expected.at(3).to_string(),
-            expected.at(4).to_string());
-      }
-    }
-
-    for (std::size_t index = 0; index < trace_descriptions.size(); index++) {
-      EVALUATE_TRACE_POST_DESCRIBE(instance, index,
-                                   trace_descriptions.at(index).to_string());
+      __EVALUATE_TRACE_PRE(index, to_instruction_index(expected_type),
+                           expected.at(1).to_string(),
+                           expected.at(2).to_string(),
+                           expected.at(3).to_string());
     }
   }
 
-private:
-  const sourcemeta::core::JSON data;
-  const sourcemeta::blaze::Mode mode;
-  const char *mode_key;
-};
+  for (std::size_t index = 0; index < post.size(); index++) {
+    const auto &expected{post.at(index)};
+    assert(expected.is_array());
+    assert(expected.size() >= 5);
+    const auto &expected_type{expected.at(1).to_string()};
+    if (expected_type == "Annotation") {
+      assert(expected.size() == 6);
+      EVALUATE_TRACE_POST_ANNOTATION(
+          index, expected.at(2).to_string(), expected.at(3).to_string(),
+          expected.at(4).to_string(), expected.at(5));
+    } else if (expected.at(0).to_boolean()) {
+      __EVALUATE_TRACE_POST_SUCCESS(index, to_instruction_index(expected_type),
+                                    expected.at(2).to_string(),
+                                    expected.at(3).to_string(),
+                                    expected.at(4).to_string());
+    } else {
+      __EVALUATE_TRACE_POST_FAILURE(index, to_instruction_index(expected_type),
+                                    expected.at(2).to_string(),
+                                    expected.at(3).to_string(),
+                                    expected.at(4).to_string());
+    }
+  }
+
+  for (std::size_t index = 0; index < trace_descriptions.size(); index++) {
+    EVALUATE_TRACE_POST_DESCRIBE(instance, index,
+                                 trace_descriptions.at(index).to_string());
+  }
+}
+} // namespace
 
 static auto register_tests(const std::filesystem::path &path,
                            const std::string &suite_name) -> void {
@@ -152,17 +142,16 @@ static auto register_tests(const std::filesystem::path &path,
                             ? "_fast"
                             : "_exhaustive")};
 
-      testing::RegisterTest(suite_name.c_str(), title.c_str(), nullptr, nullptr,
-                            __FILE__, __LINE__, [=]() -> TraceTest * {
-                              return new TraceTest(test_case, mode, mode_key);
-                            });
+      sourcemeta::core::test_register(suite_name, title, __FILE__, __LINE__,
+                                      [test_case, mode, mode_key]() -> void {
+                                        run_trace_test(test_case, mode,
+                                                       mode_key);
+                                      });
     }
   }
 }
 
 auto main(int argc, char **argv) -> int {
-  testing::InitGoogleTest(&argc, argv);
-
   try {
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_openapi_3_1.json",
@@ -193,5 +182,5 @@ auto main(int argc, char **argv) -> int {
     return EXIT_FAILURE;
   }
 
-  return RUN_ALL_TESTS();
+  return sourcemeta::core::test_run(argc, argv);
 }

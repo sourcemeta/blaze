@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/compiler.h>
@@ -6,7 +6,7 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
-TEST(AlterSchema_schema_rule, schema_rule_pass_when_all_subschemas_conform) {
+TEST(schema_rule_pass_when_all_subschemas_conform) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/must_be_object",
@@ -40,7 +40,7 @@ TEST(AlterSchema_schema_rule, schema_rule_pass_when_all_subschemas_conform) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_fail_root_and_nested_subschema) {
+TEST(schema_rule_fail_root_and_nested_subschema) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/require_type",
@@ -103,7 +103,7 @@ TEST(AlterSchema_schema_rule, schema_rule_fail_root_and_nested_subschema) {
   EXPECT_FALSE(std::get<4>(entries.at(1)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_no_description_in_rule_schema) {
+TEST(schema_rule_no_description_in_rule_schema) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/no_description",
@@ -137,7 +137,7 @@ TEST(AlterSchema_schema_rule, schema_rule_no_description_in_rule_schema) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_no_description_fails) {
+TEST(schema_rule_no_description_fails) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/no_description",
@@ -181,7 +181,7 @@ TEST(AlterSchema_schema_rule, schema_rule_no_description_fails) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_nested_property_fails) {
+TEST(schema_rule_nested_property_fails) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/error_detail",
@@ -236,7 +236,7 @@ TEST(AlterSchema_schema_rule, schema_rule_nested_property_fails) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_all_subschemas_pass) {
+TEST(schema_rule_all_subschemas_pass) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/all_pass",
@@ -279,21 +279,25 @@ TEST(AlterSchema_schema_rule, schema_rule_all_subschemas_pass) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_missing_title_throws) {
+TEST(schema_rule_missing_title_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object"
   })JSON")};
 
   sourcemeta::blaze::SchemaTransformer bundle;
-  EXPECT_THROW(bundle.add<sourcemeta::blaze::SchemaRule>(
-                   rule_schema, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::SchemaRuleMissingNameError);
+  try {
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaRuleMissingNameError &error) {
+    EXPECT_STREQ(error.what(), "The schema rule is missing a title");
+  }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_non_string_title_throws) {
+TEST(schema_rule_non_string_title_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": 123,
@@ -315,7 +319,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_title_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_uppercase_title_throws) {
+TEST(schema_rule_uppercase_title_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Test/Rule",
@@ -339,7 +343,7 @@ TEST(AlterSchema_schema_rule, schema_rule_uppercase_title_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_space_in_title_throws) {
+TEST(schema_rule_space_in_title_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test rule",
@@ -363,7 +367,7 @@ TEST(AlterSchema_schema_rule, schema_rule_space_in_title_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_empty_title_throws) {
+TEST(schema_rule_empty_title_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "",
@@ -385,8 +389,7 @@ TEST(AlterSchema_schema_rule, schema_rule_empty_title_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule,
-     schema_rule_valid_title_with_digits_and_underscores) {
+TEST(schema_rule_valid_title_with_digits_and_underscores) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "my_rule_2/check_v3",
@@ -420,7 +423,7 @@ TEST(AlterSchema_schema_rule,
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_invalid_name_error_preserves_name) {
+TEST(schema_rule_invalid_name_error_preserves_name) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Bad Name!",
@@ -444,7 +447,7 @@ TEST(AlterSchema_schema_rule, schema_rule_invalid_name_error_preserves_name) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_missing_title_error_message) {
+TEST(schema_rule_missing_title_error_message) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object"
@@ -464,7 +467,7 @@ TEST(AlterSchema_schema_rule, schema_rule_missing_title_error_message) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_title_with_hyphen_throws) {
+TEST(schema_rule_title_with_hyphen_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "my-rule",
@@ -488,7 +491,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_with_hyphen_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_title_with_dot_throws) {
+TEST(schema_rule_title_with_dot_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "my.rule",
@@ -512,7 +515,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_with_dot_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_title_only_digits) {
+TEST(schema_rule_title_only_digits) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "123",
@@ -546,7 +549,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_only_digits) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_title_only_underscores) {
+TEST(schema_rule_title_only_underscores) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "___",
@@ -580,7 +583,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_only_underscores) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_non_string_description_integer) {
+TEST(schema_rule_non_string_description_integer) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/integer_desc",
@@ -625,7 +628,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_integer) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_non_string_description_boolean) {
+TEST(schema_rule_non_string_description_boolean) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/bool_desc",
@@ -670,7 +673,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_boolean) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_non_string_description_null) {
+TEST(schema_rule_non_string_description_null) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/null_desc",
@@ -715,8 +718,7 @@ TEST(AlterSchema_schema_rule, schema_rule_non_string_description_null) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule,
-     schema_rule_with_default_dialect_no_schema_keyword) {
+TEST(schema_rule_with_default_dialect_no_schema_keyword) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "title": "test/require_type_no_schema",
     "description": "Every subschema must define a type",
@@ -767,8 +769,7 @@ TEST(AlterSchema_schema_rule,
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule,
-     schema_rule_with_default_dialect_and_schema_keyword) {
+TEST(schema_rule_with_default_dialect_and_schema_keyword) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/require_type_with_schema",
@@ -820,7 +821,7 @@ TEST(AlterSchema_schema_rule,
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_multiple_rules_in_bundle) {
+TEST(schema_rule_multiple_rules_in_bundle) {
   const auto rule_schema_1{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/require_type",
@@ -885,7 +886,7 @@ TEST(AlterSchema_schema_rule, schema_rule_multiple_rules_in_bundle) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_boolean_true_schema_conforms) {
+TEST(schema_rule_boolean_true_schema_conforms) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/must_be_object",
@@ -933,7 +934,7 @@ TEST(AlterSchema_schema_rule, schema_rule_boolean_true_schema_conforms) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_title_with_special_chars_throws) {
+TEST(schema_rule_title_with_special_chars_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test@rule#1",
@@ -957,7 +958,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_with_special_chars_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_title_boolean_throws) {
+TEST(schema_rule_title_boolean_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": true,
@@ -979,7 +980,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_boolean_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_title_null_throws) {
+TEST(schema_rule_title_null_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": null,
@@ -1001,7 +1002,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_null_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_title_array_throws) {
+TEST(schema_rule_title_array_throws) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": [ "foo" ],
@@ -1023,7 +1024,7 @@ TEST(AlterSchema_schema_rule, schema_rule_title_array_throws) {
   }
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_property_names_pattern_fail) {
+TEST(schema_rule_property_names_pattern_fail) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "all_properties_camelcase",
@@ -1082,7 +1083,7 @@ TEST(AlterSchema_schema_rule, schema_rule_property_names_pattern_fail) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_schema_rule, schema_rule_non_empty_instance_location) {
+TEST(schema_rule_non_empty_instance_location) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/foo_must_be_string",

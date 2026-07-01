@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
@@ -15,7 +15,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Foundation_identify_draft7, valid_one_hop) {
+TEST(valid_one_hop) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",
     "$schema": "https://sourcemeta.com/metaschema"
@@ -24,7 +24,7 @@ TEST(Foundation_identify_draft7, valid_one_hop) {
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
-TEST(Foundation_identify_draft7, old_one_hop) {
+TEST(old_one_hop) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com/my-schema",
     "$schema": "https://sourcemeta.com/metaschema"
@@ -33,7 +33,7 @@ TEST(Foundation_identify_draft7, old_one_hop) {
   EXPECT_TRUE(id.empty());
 }
 
-TEST(Foundation_identify_draft7, id_boolean_default_dialect) {
+TEST(id_boolean_default_dialect) {
   const sourcemeta::core::JSON document{true};
   const auto id{
       sourcemeta::blaze::identify(document, sourcemeta::blaze::schema_resolver,
@@ -41,7 +41,7 @@ TEST(Foundation_identify_draft7, id_boolean_default_dialect) {
   EXPECT_TRUE(id.empty());
 }
 
-TEST(Foundation_identify_draft7, empty_object_default_dialect) {
+TEST(empty_object_default_dialect) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("{}");
   const auto id{
       sourcemeta::blaze::identify(document, sourcemeta::blaze::schema_resolver,
@@ -49,7 +49,7 @@ TEST(Foundation_identify_draft7, empty_object_default_dialect) {
   EXPECT_TRUE(id.empty());
 }
 
-TEST(Foundation_identify_draft7, valid_id) {
+TEST(valid_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -59,7 +59,7 @@ TEST(Foundation_identify_draft7, valid_id) {
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
-TEST(Foundation_identify_draft7, old_id) {
+TEST(old_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -69,7 +69,7 @@ TEST(Foundation_identify_draft7, old_id) {
   EXPECT_TRUE(id.empty());
 }
 
-TEST(Foundation_identify_draft7, default_dialect_precedence) {
+TEST(default_dialect_precedence) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -80,7 +80,7 @@ TEST(Foundation_identify_draft7, default_dialect_precedence) {
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
-TEST(Foundation_identify_draft7, base_dialect_shortcut) {
+TEST(base_dialect_shortcut) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -90,7 +90,7 @@ TEST(Foundation_identify_draft7, base_dialect_shortcut) {
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
-TEST(Foundation_identify_draft7, anonymize_with_base_dialect) {
+TEST(anonymize_with_base_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -108,7 +108,7 @@ TEST(Foundation_identify_draft7, anonymize_with_base_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_identify_draft7, anonymize_with_base_dialect_no_id) {
+TEST(anonymize_with_base_dialect_no_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#"
   })JSON");
@@ -125,7 +125,7 @@ TEST(Foundation_identify_draft7, anonymize_with_base_dialect_no_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_identify_draft7, sibling_ref) {
+TEST(sibling_ref) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -135,7 +135,7 @@ TEST(Foundation_identify_draft7, sibling_ref) {
   EXPECT_TRUE(id.empty());
 }
 
-TEST(Foundation_identify_draft7, reidentify_replace) {
+TEST(reidentify_replace) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -152,7 +152,7 @@ TEST(Foundation_identify_draft7, reidentify_replace) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_identify_draft7, reidentify_set) {
+TEST(reidentify_set) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#"
   })JSON");
@@ -168,7 +168,7 @@ TEST(Foundation_identify_draft7, reidentify_set) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_identify_draft7, reidentify_replace_default_dialect) {
+TEST(reidentify_replace_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema"
   })JSON");
@@ -184,7 +184,7 @@ TEST(Foundation_identify_draft7, reidentify_replace_default_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_identify_draft7, reidentify_replace_base_dialect_shortcut) {
+TEST(reidentify_replace_base_dialect_shortcut) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -205,32 +205,48 @@ TEST(Foundation_identify_draft7, reidentify_replace_base_dialect_shortcut) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Foundation_identify_draft7, reidentify_set_with_top_level_ref) {
+TEST(reidentify_set_with_top_level_ref) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$ref": "https://example.com/schema"
   })JSON");
 
-  EXPECT_THROW(
-      sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
-                                    sourcemeta::blaze::schema_resolver),
-      sourcemeta::blaze::SchemaReferenceObjectResourceError);
+  try {
+    sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
+                                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaReferenceObjectResourceError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "A schema with a top-level `$ref` in JSON Schema Draft 7 and older "
+        "dialects ignores every sibling keywords (like identifiers and "
+        "meta-schema declarations) and therefore many operations, like "
+        "bundling, are not possible without undefined behavior");
+  }
 }
 
-TEST(Foundation_identify_draft7, reidentify_set_with_top_level_ref_and_allof) {
+TEST(reidentify_set_with_top_level_ref_and_allof) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$ref": "https://example.com/schema",
     "allOf": [ { "type": "string" } ]
   })JSON");
 
-  EXPECT_THROW(
-      sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
-                                    sourcemeta::blaze::schema_resolver),
-      sourcemeta::blaze::SchemaReferenceObjectResourceError);
+  try {
+    sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
+                                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaReferenceObjectResourceError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "A schema with a top-level `$ref` in JSON Schema Draft 7 and older "
+        "dialects ignores every sibling keywords (like identifiers and "
+        "meta-schema declarations) and therefore many operations, like "
+        "bundling, are not possible without undefined behavior");
+  }
 }
 
-TEST(Foundation_identify_draft7, id_empty_fragment_only) {
+TEST(id_empty_fragment_only) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "#",
     "$schema": "http://json-schema.org/draft-07/schema#"
@@ -240,7 +256,7 @@ TEST(Foundation_identify_draft7, id_empty_fragment_only) {
   EXPECT_TRUE(id.empty());
 }
 
-TEST(Foundation_identify_draft7, id_empty_string) {
+TEST(id_empty_string) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "",
     "$schema": "http://json-schema.org/draft-07/schema#"

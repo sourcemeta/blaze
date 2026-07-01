@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -14,36 +14,27 @@
 #include <string>     // std::string
 #include <utility>    // std::move, std::pair
 
-class StandardBasicTest : public testing::Test {
-public:
-  explicit StandardBasicTest(sourcemeta::core::JSON test_data,
-                             const sourcemeta::blaze::Mode test_mode,
-                             const char *test_mode_key)
-      : data{std::move(test_data)}, mode{test_mode}, mode_key{test_mode_key} {}
+namespace {
+auto run_standard_basic_test(const sourcemeta::core::JSON &data,
+                             const sourcemeta::blaze::Mode mode,
+                             const char *mode_key) -> void {
+  const auto &schema{data.at("schema")};
+  const auto &instance{data.at("instance")};
+  const auto &expected{data.at(mode_key)};
 
-  auto TestBody() -> void override {
-    const auto &schema{this->data.at("schema")};
-    const auto &instance{this->data.at("instance")};
-    const auto &expected{this->data.at(this->mode_key)};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, mode)};
 
-    const auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, this->mode)};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
 
-    sourcemeta::blaze::Evaluator evaluator;
-    const auto result{
-        sourcemeta::blaze::standard(evaluator, schema_template, instance,
-                                    sourcemeta::blaze::StandardOutput::Basic)};
-
-    EXPECT_EQ(result, expected);
-  }
-
-private:
-  const sourcemeta::core::JSON data;
-  const sourcemeta::blaze::Mode mode;
-  const char *mode_key;
-};
+  EXPECT_EQ(result, expected);
+}
+} // namespace
 
 static auto register_tests(const std::filesystem::path &path,
                            const std::string &suite_name) -> void {
@@ -72,18 +63,16 @@ static auto register_tests(const std::filesystem::path &path,
                             ? "_fast"
                             : "_exhaustive")};
 
-      testing::RegisterTest(suite_name.c_str(), title.c_str(), nullptr, nullptr,
-                            __FILE__, __LINE__, [=]() -> StandardBasicTest * {
-                              return new StandardBasicTest(test_data, mode,
-                                                           mode_key);
-                            });
+      sourcemeta::core::test_register(suite_name, title, __FILE__, __LINE__,
+                                      [test_data, mode, mode_key]() -> void {
+                                        run_standard_basic_test(test_data, mode,
+                                                                mode_key);
+                                      });
     }
   }
 }
 
 auto main(int argc, char **argv) -> int {
-  testing::InitGoogleTest(&argc, argv);
-
   try {
     register_tests(std::filesystem::path{OUTPUT_SUITE_PATH} /
                        "output_standard_basic.json",
@@ -93,5 +82,5 @@ auto main(int argc, char **argv) -> int {
     return EXIT_FAILURE;
   }
 
-  return RUN_ALL_TESTS();
+  return sourcemeta::core::test_run(argc, argv);
 }

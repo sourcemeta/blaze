@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,19 +7,19 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, true_boolean_schema_unchanged) {
+TEST(true_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, false_boolean_schema_unchanged) {
+TEST(false_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, trivial_root) {
+TEST(trivial_root) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string"
@@ -33,7 +33,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12, trivial_root) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, dependencies_split_then_carried) {
+TEST(dependencies_split_then_carried) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "dependencies": {
@@ -55,7 +55,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12, dependencies_split_then_carried) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, definitions_to_defs_then_carried) {
+TEST(definitions_to_defs_then_carried) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -73,7 +73,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12, definitions_to_defs_then_carried) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, items_array_to_prefix_items) {
+TEST(items_array_to_prefix_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "items": [ { "type": "string" } ]
@@ -87,7 +87,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12, items_array_to_prefix_items) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, ref_into_items_array_rewritten) {
+TEST(ref_into_items_array_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "items": [ { "type": "string" } ],
@@ -107,8 +107,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12, ref_into_items_array_rewritten) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12,
-     ref_into_definitions_rewritten_to_defs) {
+TEST(ref_into_definitions_rewritten_to_defs) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
@@ -132,8 +131,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12,
-     contains_unchanged_when_no_unevaluated_items) {
+TEST(contains_unchanged_when_no_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "array",
@@ -149,7 +147,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12, idempotent_on_2020_12) {
+TEST(idempotent_on_2020_12) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -163,8 +161,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12, idempotent_on_2020_12) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12,
-     no_dollar_schema_with_default_dialect_draft7) {
+TEST(no_dollar_schema_with_default_dialect_draft7) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/test",
     "type": "integer"
@@ -180,8 +177,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12,
                                "http://json-schema.org/draft-07/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12,
-     no_dollar_schema_no_actionable_content_with_default_dialect_draft7) {
+TEST(no_dollar_schema_no_actionable_content_with_default_dialect_draft7) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "type": "integer"
   })JSON");
@@ -195,24 +191,21 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12,
                                "http://json-schema.org/draft-07/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12,
-     true_boolean_schema_unchanged_with_default_dialect_draft7) {
+TEST(true_boolean_schema_unchanged_with_default_dialect_draft7) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-07/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12,
-     false_boolean_schema_unchanged_with_default_dialect_draft7) {
+TEST(false_boolean_schema_unchanged_with_default_dialect_draft7) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "http://json-schema.org/draft-07/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12,
-     custom_dollar_vocabulary_remains_prefixed) {
+TEST(custom_dollar_vocabulary_remains_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$vocabulary": { "https://example.com/vocab": true }
@@ -226,8 +219,7 @@ TEST(AlterSchema_upgrade_Draft7_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft7_to_2020_12,
-     metaschema_cascade_emits_2020_12_vocabulary) {
+TEST(metaschema_cascade_emits_2020_12_vocabulary) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/my-dialect",

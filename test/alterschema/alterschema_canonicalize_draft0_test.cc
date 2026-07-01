@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -11,25 +11,19 @@
 
 #include "alterschema_test_utils.h"
 
-class CanonicalizerDraft0Test : public testing::Test {
-protected:
-  static auto SetUpTestSuite() -> void {
-    const auto meta_schema = sourcemeta::core::read_json(
-        std::filesystem::path{SCHEMAS_PATH} / "canonical-draft1.json");
-    compiled_meta_ = std::make_unique<sourcemeta::blaze::Template>(
-        sourcemeta::blaze::compile(meta_schema,
-                                   sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
-                                   sourcemeta::blaze::default_schema_compiler));
-  }
+namespace {
+auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
+  static const sourcemeta::blaze::Template schema_template{
+      sourcemeta::blaze::compile(
+          sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
+                                      "canonical-draft1.json"),
+          sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+          sourcemeta::blaze::default_schema_compiler)};
+  return schema_template;
+}
+} // namespace
 
-  static std::unique_ptr<sourcemeta::blaze::Template> compiled_meta_;
-};
-
-std::unique_ptr<sourcemeta::blaze::Template>
-    CanonicalizerDraft0Test::compiled_meta_ = nullptr;
-
-TEST_F(CanonicalizerDraft0Test, type_boolean_as_enum) {
+TEST(type_boolean_as_enum) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "boolean"
@@ -40,10 +34,10 @@ TEST_F(CanonicalizerDraft0Test, type_boolean_as_enum) {
     "enum": [ false, true ]
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft0Test, integer_minimal) {
+TEST(integer_minimal) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "integer"
@@ -55,10 +49,10 @@ TEST_F(CanonicalizerDraft0Test, integer_minimal) {
     "maxDecimal": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft0Test, array_minimal) {
+TEST(array_minimal) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "array"
@@ -71,10 +65,10 @@ TEST_F(CanonicalizerDraft0Test, array_minimal) {
     "minItems": 0
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST_F(CanonicalizerDraft0Test, object_with_property_optional_implicit) {
+TEST(object_with_property_optional_implicit) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "object",
@@ -92,5 +86,5 @@ TEST_F(CanonicalizerDraft0Test, object_with_property_optional_implicit) {
     "additionalProperties": {}
   })JSON");
 
-  CANONICALIZE_AND_VALIDATE(document, expected, *compiled_meta_);
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }

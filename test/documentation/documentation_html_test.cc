@@ -1,11 +1,11 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/documentation.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
-TEST(Documentation_HTML, 2020_12_type_string) {
+TEST(2020_12_type_string) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -36,7 +36,7 @@ TEST(Documentation_HTML, 2020_12_type_string) {
             "</table>");
 }
 
-TEST(Documentation_HTML, 2020_12_pattern_property_path) {
+TEST(2020_12_pattern_property_path) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -84,7 +84,7 @@ TEST(Documentation_HTML, 2020_12_pattern_property_path) {
             "</table>");
 }
 
-TEST(Documentation_HTML, draft4_pattern_property_path) {
+TEST(draft4_pattern_property_path) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
@@ -132,7 +132,7 @@ TEST(Documentation_HTML, draft4_pattern_property_path) {
             "</table>");
 }
 
-TEST(Documentation_HTML, draft4_recursive_ref_display) {
+TEST(draft4_recursive_ref_display) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
@@ -181,7 +181,7 @@ TEST(Documentation_HTML, draft4_recursive_ref_display) {
             "</table>");
 }
 
-TEST(Documentation_HTML, 2020_12_array_type_no_inline_items) {
+TEST(2020_12_array_type_no_inline_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -220,7 +220,7 @@ TEST(Documentation_HTML, 2020_12_array_type_no_inline_items) {
             "</table>");
 }
 
-TEST(Documentation_HTML, 2020_12_external_ref) {
+TEST(2020_12_external_ref) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://example.com/foo.json"

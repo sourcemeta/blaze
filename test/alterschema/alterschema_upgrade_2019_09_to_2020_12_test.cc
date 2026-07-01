@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,19 +7,19 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, true_boolean_schema_unchanged) {
+TEST(true_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, false_boolean_schema_unchanged) {
+TEST(false_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, already_2020_12_unchanged) {
+TEST(already_2020_12_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -33,7 +33,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, already_2020_12_unchanged) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, schema_bumped) {
+TEST(schema_bumped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema"
   })JSON");
@@ -45,8 +45,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, schema_bumped) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     schema_bumped_keeps_other_keywords) {
+TEST(schema_bumped_keeps_other_keywords) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "string",
@@ -62,8 +61,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     custom_prefixItems_keyword_prefixed) {
+TEST(custom_prefixItems_keyword_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "prefixItems": "i-was-custom-in-2019-09"
@@ -77,8 +75,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     custom_dynamic_anchor_keyword_prefixed) {
+TEST(custom_dynamic_anchor_keyword_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$dynamicAnchor": "i-was-custom"
@@ -92,8 +89,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     recursive_anchor_true_at_root_with_recursive_ref) {
+TEST(recursive_anchor_true_at_root_with_recursive_ref) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$recursiveAnchor": true,
@@ -111,7 +107,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, recursive_anchor_false_dropped) {
+TEST(recursive_anchor_false_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$recursiveAnchor": false,
@@ -126,8 +122,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, recursive_anchor_false_dropped) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     recursive_ref_with_no_recursive_anchor_keeps_static_fallback) {
+TEST(recursive_ref_with_no_recursive_anchor_keeps_static_fallback) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
@@ -143,8 +138,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     recursive_anchor_in_embedded_resource_does_not_affect_outer) {
+TEST(recursive_anchor_in_embedded_resource_does_not_affect_outer) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com/outer",
@@ -178,8 +172,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     recursive_anchor_deeply_nested_renamed_anyway) {
+TEST(recursive_anchor_deeply_nested_renamed_anyway) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
@@ -207,7 +200,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, items_array_to_prefix_items) {
+TEST(items_array_to_prefix_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "items": [ { "type": "string" }, { "type": "integer" } ]
@@ -221,8 +214,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, items_array_to_prefix_items) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     items_array_with_additional_items_schema) {
+TEST(items_array_with_additional_items_schema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "items": [ { "type": "string" } ],
@@ -238,7 +230,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, empty_items_array_alone_dropped) {
+TEST(empty_items_array_alone_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "items": []
@@ -251,8 +243,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, empty_items_array_alone_dropped) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     empty_items_array_with_additional_items_collapses_to_items) {
+TEST(empty_items_array_with_additional_items_collapses_to_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "items": [],
@@ -267,7 +258,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, items_schema_alone_unchanged) {
+TEST(items_schema_alone_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "items": { "type": "string" }
@@ -281,8 +272,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, items_schema_alone_unchanged) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     items_schema_with_stray_additional_items_dropped) {
+TEST(items_schema_with_stray_additional_items_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "items": { "type": "string" },
@@ -297,8 +287,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     ref_into_items_array_rewritten_to_prefix_items) {
+TEST(ref_into_items_array_rewritten_to_prefix_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "items": [ { "type": "string" } ],
@@ -318,7 +307,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, anchor_with_colon_sanitized) {
+TEST(anchor_with_colon_sanitized) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$defs": {
@@ -338,8 +327,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, anchor_with_colon_sanitized) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     anchor_collision_after_sanitization_double_prefixed) {
+TEST(anchor_collision_after_sanitization_double_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$defs": {
@@ -359,8 +347,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     anchor_referenced_via_full_uri_rewritten) {
+TEST(anchor_referenced_via_full_uri_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com/root",
@@ -382,8 +369,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     contains_without_unevaluated_items_unchanged) {
+TEST(contains_without_unevaluated_items_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -399,8 +385,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     contains_wrapped_into_top_level_not) {
+TEST(contains_wrapped_into_top_level_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -418,8 +403,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     contains_with_min_max_keeps_them_inside_wrapper) {
+TEST(contains_with_min_max_keeps_them_inside_wrapper) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -445,8 +429,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     ref_into_contains_rewritten_after_wrap) {
+TEST(ref_into_contains_rewritten_after_wrap) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -474,8 +457,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     ref_into_contains_with_existing_not_rewritten_via_allof) {
+TEST(ref_into_contains_with_existing_not_rewritten_via_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -507,8 +489,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     contains_with_existing_not_uses_allof) {
+TEST(contains_with_existing_not_uses_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -530,8 +511,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     contains_with_existing_allof_but_no_not_uses_top_level_not) {
+TEST(contains_with_existing_allof_but_no_not_uses_top_level_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -551,8 +531,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     contains_with_existing_not_and_allof_appends_to_allof) {
+TEST(contains_with_existing_not_and_allof_appends_to_allof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
@@ -576,8 +555,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     contains_inside_anyof_each_branch_wrapped_independently) {
+TEST(contains_inside_anyof_each_branch_wrapped_independently) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "unevaluatedItems": false,
@@ -606,7 +584,6 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
 }
 
 TEST(
-    AlterSchema_upgrade_2019_09_to_2020_12,
     contains_alongside_unevaluated_items_preserves_2019_09_conservative_reading) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -625,8 +602,7 @@ TEST(
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     custom_dynamic_ref_with_collision_double_prefixed) {
+TEST(custom_dynamic_ref_with_collision_double_prefixed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$dynamicRef": "original",
@@ -642,8 +618,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     no_dollar_schema_with_default_dialect_2019_09) {
+TEST(no_dollar_schema_with_default_dialect_2019_09) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com/test",
     "type": "integer"
@@ -659,8 +634,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
                                "https://json-schema.org/draft/2019-09/schema");
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     no_dollar_schema_with_default_dialect_2019_09_with_recursive_anchor) {
+TEST(no_dollar_schema_with_default_dialect_2019_09_with_recursive_anchor) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$recursiveAnchor": true,
     "type": "object"
@@ -676,8 +650,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
                                "https://json-schema.org/draft/2019-09/schema");
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     no_dollar_schema_no_actionable_content_with_default_dialect_2019_09) {
+TEST(no_dollar_schema_no_actionable_content_with_default_dialect_2019_09) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "type": "integer"
   })JSON");
@@ -691,23 +664,21 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
                                "https://json-schema.org/draft/2019-09/schema");
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     true_boolean_schema_unchanged_with_default_dialect_2019_09) {
+TEST(true_boolean_schema_unchanged_with_default_dialect_2019_09) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "https://json-schema.org/draft/2019-09/schema");
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     false_boolean_schema_unchanged_with_default_dialect_2019_09) {
+TEST(false_boolean_schema_unchanged_with_default_dialect_2019_09) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_2020_12_WITH_DIALECT(document, expected,
                                "https://json-schema.org/draft/2019-09/schema");
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, format_values_preserved) {
+TEST(format_values_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
@@ -765,7 +736,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, format_values_preserved) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12, vocabulary_core_uri_rewritten) {
+TEST(vocabulary_core_uri_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -783,8 +754,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12, vocabulary_core_uri_rewritten) {
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_direct_rename_uris_rewritten) {
+TEST(vocabulary_direct_rename_uris_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -808,8 +778,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_format_maps_to_format_annotation_required) {
+TEST(vocabulary_format_maps_to_format_annotation_required) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -829,8 +798,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_format_maps_to_format_annotation_optional) {
+TEST(vocabulary_format_maps_to_format_annotation_optional) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -850,8 +818,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_applicator_emits_applicator_and_unevaluated_required) {
+TEST(vocabulary_applicator_emits_applicator_and_unevaluated_required) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -872,8 +839,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_applicator_emits_applicator_and_unevaluated_optional) {
+TEST(vocabulary_applicator_emits_applicator_and_unevaluated_optional) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -894,8 +860,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_applicator_keeps_existing_unevaluated_value) {
+TEST(vocabulary_applicator_keeps_existing_unevaluated_value) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -917,8 +882,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_applicator_after_existing_unevaluated_preserves_order) {
+TEST(vocabulary_applicator_after_existing_unevaluated_preserves_order) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -938,8 +902,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_custom_uri_passes_through_intact) {
+TEST(vocabulary_custom_uri_passes_through_intact) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -961,8 +924,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_hyper_schema_uri_left_intact) {
+TEST(vocabulary_hyper_schema_uri_left_intact) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -982,8 +944,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_full_official_set_and_custom) {
+TEST(vocabulary_full_official_set_and_custom) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-meta",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1018,8 +979,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_already_2020_12_uris_unchanged) {
+TEST(vocabulary_already_2020_12_uris_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -1039,8 +999,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_empty_object_unchanged) {
+TEST(vocabulary_empty_object_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {}
@@ -1054,8 +1013,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_non_object_left_untouched) {
+TEST(vocabulary_non_object_left_untouched) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": "not-an-object"
@@ -1069,8 +1027,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_explicit_2020_12_wins_over_2019_09_equivalent) {
+TEST(vocabulary_explicit_2020_12_wins_over_2019_09_equivalent) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -1089,8 +1046,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_explicit_2020_12_wins_over_2019_09_equivalent_reversed_order) {
+TEST(vocabulary_explicit_2020_12_wins_over_2019_09_equivalent_reversed_order) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -1109,8 +1065,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_explicit_2020_12_applicator_wins_unevaluated_from_2019_09) {
+TEST(vocabulary_explicit_2020_12_applicator_wins_unevaluated_from_2019_09) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -1130,8 +1085,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_explicit_2020_12_applicator_wins_unevaluated_reversed_order) {
+TEST(vocabulary_explicit_2020_12_applicator_wins_unevaluated_reversed_order) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -1151,8 +1105,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_explicit_2020_12_applicator_alone_does_not_emit_unevaluated) {
+TEST(vocabulary_explicit_2020_12_applicator_alone_does_not_emit_unevaluated) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -1170,8 +1123,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_both_applicators_with_explicit_unevaluated_keeps_unevaluated) {
+TEST(vocabulary_both_applicators_with_explicit_unevaluated_keeps_unevaluated) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -1192,8 +1144,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_explicit_2020_12_format_annotation_wins_over_2019_09_format) {
+TEST(vocabulary_explicit_2020_12_format_annotation_wins_over_2019_09_format) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$vocabulary": {
@@ -1212,8 +1163,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_inside_embedded_meta_schema_rewritten) {
+TEST(vocabulary_inside_embedded_meta_schema_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1248,8 +1198,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_outer_and_embedded_meta_schema_both_rewritten) {
+TEST(vocabulary_outer_and_embedded_meta_schema_both_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer-meta",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1292,8 +1241,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_inside_embedded_meta_schema_format_mapped) {
+TEST(vocabulary_inside_embedded_meta_schema_format_mapped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1327,8 +1275,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_inside_embedded_meta_schema_custom_uri_passes_through) {
+TEST(vocabulary_inside_embedded_meta_schema_custom_uri_passes_through) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1362,8 +1309,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_inside_embedded_meta_schema_hyper_uri_left_intact) {
+TEST(vocabulary_inside_embedded_meta_schema_hyper_uri_left_intact) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1397,8 +1343,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_inside_embedded_meta_schema_explicit_2020_12_wins) {
+TEST(vocabulary_inside_embedded_meta_schema_explicit_2020_12_wins) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1431,8 +1376,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_inside_multiple_sibling_embedded_meta_schemas_rewritten) {
+TEST(vocabulary_inside_multiple_sibling_embedded_meta_schemas_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1483,8 +1427,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_inside_deeply_nested_embedded_meta_schema_rewritten) {
+TEST(vocabulary_inside_deeply_nested_embedded_meta_schema_rewritten) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1541,8 +1484,7 @@ TEST(AlterSchema_upgrade_2019_09_to_2020_12,
   UPGRADE_2020_12(document, expected);
 }
 
-TEST(AlterSchema_upgrade_2019_09_to_2020_12,
-     vocabulary_inside_embedded_meta_schema_keeps_existing_unevaluated) {
+TEST(vocabulary_inside_embedded_meta_schema_keeps_existing_unevaluated) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/outer",
     "$schema": "https://json-schema.org/draft/2019-09/schema",

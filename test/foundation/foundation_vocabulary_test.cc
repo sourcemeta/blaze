@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
@@ -9,23 +9,33 @@
 #include <unordered_set> // std::unordered_set
 #include <variant>       // std::variant
 
-TEST(Foundation_vocabulary, core_vocabularies_boolean_without_default) {
+TEST(core_vocabularies_boolean_without_default) {
   const sourcemeta::core::JSON document{true};
-  EXPECT_THROW(sourcemeta::blaze::vocabularies(
-                   document, sourcemeta::blaze::schema_resolver),
-               sourcemeta::blaze::SchemaUnknownBaseDialectError);
+  try {
+    sourcemeta::blaze::vocabularies(document,
+                                    sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
-TEST(Foundation_vocabulary, unresolvable_dialect) {
+TEST(unresolvable_dialect) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://non-existent.com/dialect"
   })JSON");
-  EXPECT_THROW(sourcemeta::blaze::vocabularies(
-                   document, sourcemeta::blaze::schema_resolver),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::vocabularies(document,
+                                    sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
+  }
 }
 
-TEST(Foundation_vocabulary, override_returns_override_vocabularies) {
+TEST(override_returns_override_vocabularies) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "x-sourcemeta-dialect-override-subschema":
@@ -45,7 +55,7 @@ TEST(Foundation_vocabulary, override_returns_override_vocabularies) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Content);
 }
 
-TEST(Foundation_vocabulary, override_only_returns_override_vocabularies) {
+TEST(override_only_returns_override_vocabularies) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "x-sourcemeta-dialect-override-subschema":
       "http://json-schema.org/draft-07/schema#"
@@ -57,18 +67,23 @@ TEST(Foundation_vocabulary, override_only_returns_override_vocabularies) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
 }
 
-TEST(Foundation_vocabulary, override_unresolvable) {
+TEST(override_unresolvable) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-sourcemeta-dialect-override-subschema":
       "https://non-existent.com/dialect"
   })JSON");
-  EXPECT_THROW(sourcemeta::blaze::vocabularies(
-                   document, sourcemeta::blaze::schema_resolver),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::vocabularies(document,
+                                    sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
+  }
 }
 
-TEST(Foundation_vocabulary, known_vocabulary_to_string) {
+TEST(known_vocabulary_to_string) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
 #define EXPECT_VOCABULARY_URI(vocabulary, expected_uri)                        \
@@ -157,7 +172,7 @@ TEST(Foundation_vocabulary, known_vocabulary_to_string) {
 #undef EXPECT_VOCABULARY_URI
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unsupported_all_supported_by_enum) {
+TEST(throw_if_any_unsupported_all_supported_by_enum) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -168,12 +183,10 @@ TEST(Foundation_vocabulary, throw_if_any_unsupported_all_supported_by_enum) {
   const std::unordered_set<sourcemeta::blaze::Vocabularies::URI> supported{
       Known::JSON_Schema_2020_12_Core, Known::JSON_Schema_2020_12_Applicator};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary,
-     throw_if_any_unsupported_all_supported_custom_by_string) {
+TEST(throw_if_any_unsupported_all_supported_custom_by_string) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -186,12 +199,10 @@ TEST(Foundation_vocabulary,
       sourcemeta::core::JSON::String{"https://example.com/custom-vocab-1"},
       sourcemeta::core::JSON::String{"https://example.com/custom-vocab-2"}};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary,
-     throw_if_any_unsupported_mixed_known_enum_and_custom_string) {
+TEST(throw_if_any_unsupported_mixed_known_enum_and_custom_string) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -203,11 +214,10 @@ TEST(Foundation_vocabulary,
       Known::JSON_Schema_2020_12_Core, Known::JSON_Schema_2020_12_Applicator,
       sourcemeta::core::JSON::String{"https://example.com/custom-vocab"}};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unsupported_missing_required_known) {
+TEST(throw_if_any_unsupported_missing_required_known) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -228,7 +238,7 @@ TEST(Foundation_vocabulary, throw_if_any_unsupported_missing_required_known) {
   }
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unsupported_missing_required_custom) {
+TEST(throw_if_any_unsupported_missing_required_custom) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -247,7 +257,7 @@ TEST(Foundation_vocabulary, throw_if_any_unsupported_missing_required_custom) {
   }
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unsupported_optional_not_checked) {
+TEST(throw_if_any_unsupported_optional_not_checked) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -257,11 +267,10 @@ TEST(Foundation_vocabulary, throw_if_any_unsupported_optional_not_checked) {
   const std::unordered_set<sourcemeta::blaze::Vocabularies::URI> supported{
       Known::JSON_Schema_2020_12_Core};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unsupported_empty_vocabularies) {
+TEST(throw_if_any_unsupported_empty_vocabularies) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{};
@@ -269,12 +278,10 @@ TEST(Foundation_vocabulary, throw_if_any_unsupported_empty_vocabularies) {
   const std::unordered_set<sourcemeta::blaze::Vocabularies::URI> supported{
       Known::JSON_Schema_2020_12_Core};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary,
-     throw_if_any_unsupported_known_vocab_as_string_in_vocabularies) {
+TEST(throw_if_any_unsupported_known_vocab_as_string_in_vocabularies) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{};
@@ -283,12 +290,10 @@ TEST(Foundation_vocabulary,
   const std::unordered_set<sourcemeta::blaze::Vocabularies::URI> supported{
       Known::JSON_Schema_2020_12_Core};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary,
-     throw_if_any_unsupported_custom_supported_by_string) {
+TEST(throw_if_any_unsupported_custom_supported_by_string) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -299,11 +304,10 @@ TEST(Foundation_vocabulary,
       Known::JSON_Schema_2020_12_Core,
       sourcemeta::core::JSON::String{"https://example.com/custom-vocab"}};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary, contains_any_empty_vocabularies) {
+TEST(contains_any_empty_vocabularies) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{};
@@ -314,7 +318,7 @@ TEST(Foundation_vocabulary, contains_any_empty_vocabularies) {
                                  Known::JSON_Schema_2020_12_Applicator}));
 }
 
-TEST(Foundation_vocabulary, contains_any_single_match) {
+TEST(contains_any_single_match) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -328,7 +332,7 @@ TEST(Foundation_vocabulary, contains_any_single_match) {
                                          Known::JSON_Schema_2020_12_Core}));
 }
 
-TEST(Foundation_vocabulary, contains_any_no_match) {
+TEST(contains_any_no_match) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -341,7 +345,7 @@ TEST(Foundation_vocabulary, contains_any_no_match) {
                                           Known::JSON_Schema_2020_12_Content}));
 }
 
-TEST(Foundation_vocabulary, contains_any_multiple_vocabularies) {
+TEST(contains_any_multiple_vocabularies) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -360,7 +364,7 @@ TEST(Foundation_vocabulary, contains_any_multiple_vocabularies) {
       {Known::JSON_Schema_2020_12_Content, Known::JSON_Schema_Draft_7}));
 }
 
-TEST(Foundation_vocabulary, contains_any_empty_list) {
+TEST(contains_any_empty_list) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -369,7 +373,7 @@ TEST(Foundation_vocabulary, contains_any_empty_list) {
   EXPECT_FALSE(vocabularies.contains_any({}));
 }
 
-TEST(Foundation_vocabulary, contains_any_matches_both_required_and_optional) {
+TEST(contains_any_matches_both_required_and_optional) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -381,7 +385,7 @@ TEST(Foundation_vocabulary, contains_any_matches_both_required_and_optional) {
       vocabularies.contains_any({Known::JSON_Schema_2020_12_Validation}));
 }
 
-TEST(Foundation_vocabulary, uri_to_string_known_variant) {
+TEST(uri_to_string_known_variant) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
   using URI = sourcemeta::blaze::Vocabularies::URI;
 
@@ -391,7 +395,7 @@ TEST(Foundation_vocabulary, uri_to_string_known_variant) {
   EXPECT_EQ(stream.str(), "https://json-schema.org/draft/2020-12/vocab/core");
 }
 
-TEST(Foundation_vocabulary, uri_to_string_custom_variant) {
+TEST(uri_to_string_custom_variant) {
   using URI = sourcemeta::blaze::Vocabularies::URI;
 
   const URI vocabulary{
@@ -401,7 +405,7 @@ TEST(Foundation_vocabulary, uri_to_string_custom_variant) {
   EXPECT_EQ(stream.str(), "https://example.com/custom-vocab");
 }
 
-TEST(Foundation_vocabulary, to_string_known) {
+TEST(to_string_known) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   EXPECT_EQ(sourcemeta::blaze::to_string(Known::JSON_Schema_2020_12_Core),
@@ -416,7 +420,7 @@ TEST(Foundation_vocabulary, to_string_known) {
             "https://spec.openapis.org/oas/3.2/vocab/base");
 }
 
-TEST(Foundation_vocabulary, to_string_uri_known_variant) {
+TEST(to_string_uri_known_variant) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
   using URI = sourcemeta::blaze::Vocabularies::URI;
 
@@ -425,7 +429,7 @@ TEST(Foundation_vocabulary, to_string_uri_known_variant) {
             "https://json-schema.org/draft/2020-12/vocab/validation");
 }
 
-TEST(Foundation_vocabulary, to_string_uri_custom_variant) {
+TEST(to_string_uri_custom_variant) {
   using URI = sourcemeta::blaze::Vocabularies::URI;
 
   const URI vocabulary{
@@ -434,12 +438,12 @@ TEST(Foundation_vocabulary, to_string_uri_custom_variant) {
             "https://example.com/my-vocab");
 }
 
-TEST(Foundation_vocabulary, has_unknown_empty_vocabularies) {
+TEST(has_unknown_empty_vocabularies) {
   const sourcemeta::blaze::Vocabularies vocabularies{};
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary, has_unknown_only_known_required) {
+TEST(has_unknown_only_known_required) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -449,7 +453,7 @@ TEST(Foundation_vocabulary, has_unknown_only_known_required) {
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary, has_unknown_only_known_optional) {
+TEST(has_unknown_only_known_optional) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -459,7 +463,7 @@ TEST(Foundation_vocabulary, has_unknown_only_known_optional) {
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary, has_unknown_with_custom_required) {
+TEST(has_unknown_with_custom_required) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -469,7 +473,7 @@ TEST(Foundation_vocabulary, has_unknown_with_custom_required) {
   EXPECT_TRUE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary, has_unknown_with_custom_optional) {
+TEST(has_unknown_with_custom_optional) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -479,7 +483,7 @@ TEST(Foundation_vocabulary, has_unknown_with_custom_optional) {
   EXPECT_TRUE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary, has_unknown_with_multiple_custom) {
+TEST(has_unknown_with_multiple_custom) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -490,35 +494,32 @@ TEST(Foundation_vocabulary, has_unknown_with_multiple_custom) {
   EXPECT_TRUE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unknown_required_empty) {
+TEST(throw_if_any_unknown_required_empty) {
   const sourcemeta::blaze::Vocabularies vocabularies{};
-  EXPECT_NO_THROW(
-      vocabularies.throw_if_any_unknown_required("Unknown vocabulary"));
+  vocabularies.throw_if_any_unknown_required("Unknown vocabulary");
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unknown_required_only_known) {
+TEST(throw_if_any_unknown_required_only_known) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
       {Known::JSON_Schema_2020_12_Core, true},
       {Known::JSON_Schema_2020_12_Applicator, true}};
 
-  EXPECT_NO_THROW(
-      vocabularies.throw_if_any_unknown_required("Unknown vocabulary"));
+  vocabularies.throw_if_any_unknown_required("Unknown vocabulary");
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unknown_required_only_optional) {
+TEST(throw_if_any_unknown_required_only_optional) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
       {Known::JSON_Schema_2020_12_Core, true}};
   vocabularies.insert("https://example.com/custom-vocab", false);
 
-  EXPECT_NO_THROW(
-      vocabularies.throw_if_any_unknown_required("Unknown vocabulary"));
+  vocabularies.throw_if_any_unknown_required("Unknown vocabulary");
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unknown_required_with_required) {
+TEST(throw_if_any_unknown_required_with_required) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -534,8 +535,7 @@ TEST(Foundation_vocabulary, throw_if_any_unknown_required_with_required) {
   }
 }
 
-TEST(Foundation_vocabulary,
-     throw_if_any_unknown_required_mixed_required_optional) {
+TEST(throw_if_any_unknown_required_mixed_required_optional) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -552,7 +552,7 @@ TEST(Foundation_vocabulary,
   }
 }
 
-TEST(Foundation_vocabulary, contains_any_openapi_3_1_base) {
+TEST(contains_any_openapi_3_1_base) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -564,7 +564,7 @@ TEST(Foundation_vocabulary, contains_any_openapi_3_1_base) {
   EXPECT_FALSE(vocabularies.contains_any({Known::OpenAPI_3_2_Base}));
 }
 
-TEST(Foundation_vocabulary, contains_any_openapi_3_2_base) {
+TEST(contains_any_openapi_3_2_base) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -576,7 +576,7 @@ TEST(Foundation_vocabulary, contains_any_openapi_3_2_base) {
   EXPECT_FALSE(vocabularies.contains_any({Known::OpenAPI_3_1_Base}));
 }
 
-TEST(Foundation_vocabulary, insert_openapi_3_1_base_by_string) {
+TEST(insert_openapi_3_1_base_by_string) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -589,7 +589,7 @@ TEST(Foundation_vocabulary, insert_openapi_3_1_base_by_string) {
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary, insert_openapi_3_2_base_by_string) {
+TEST(insert_openapi_3_2_base_by_string) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   sourcemeta::blaze::Vocabularies vocabularies{
@@ -602,8 +602,7 @@ TEST(Foundation_vocabulary, insert_openapi_3_2_base_by_string) {
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary,
-     throw_if_any_unsupported_openapi_required_not_in_supported) {
+TEST(throw_if_any_unsupported_openapi_required_not_in_supported) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -621,8 +620,7 @@ TEST(Foundation_vocabulary,
   }
 }
 
-TEST(Foundation_vocabulary,
-     throw_if_any_unsupported_openapi_optional_not_checked) {
+TEST(throw_if_any_unsupported_openapi_optional_not_checked) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -632,11 +630,10 @@ TEST(Foundation_vocabulary,
   const std::unordered_set<sourcemeta::blaze::Vocabularies::URI> supported{
       Known::JSON_Schema_2020_12_Core};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary, throw_if_any_unsupported_openapi_in_supported) {
+TEST(throw_if_any_unsupported_openapi_in_supported) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -645,11 +642,10 @@ TEST(Foundation_vocabulary, throw_if_any_unsupported_openapi_in_supported) {
   const std::unordered_set<sourcemeta::blaze::Vocabularies::URI> supported{
       Known::JSON_Schema_2020_12_Core, Known::OpenAPI_3_1_Base};
 
-  EXPECT_NO_THROW(vocabularies.throw_if_any_unsupported(
-      supported, "Unsupported vocabulary"));
+  vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
 
-TEST(Foundation_vocabulary, has_unknown_with_openapi_vocabularies) {
+TEST(has_unknown_with_openapi_vocabularies) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
   const sourcemeta::blaze::Vocabularies vocabularies{
@@ -660,7 +656,7 @@ TEST(Foundation_vocabulary, has_unknown_with_openapi_vocabularies) {
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema) {
+TEST(embedded_custom_metaschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -686,7 +682,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_2019_09) {
+TEST(embedded_custom_metaschema_2019_09) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -712,7 +708,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_2019_09) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2019_09_Validation);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_draft7) {
+TEST(embedded_custom_metaschema_draft7) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -733,7 +729,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_draft7) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_draft4) {
+TEST(embedded_custom_metaschema_draft4) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",
@@ -754,7 +750,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_draft4) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_4);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_chain) {
+TEST(embedded_custom_metaschema_chain) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta-a",
     "$id": "https://example.com/schema",
@@ -787,7 +783,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_chain) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_without_vocabulary) {
+TEST(embedded_custom_metaschema_without_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -808,7 +804,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_without_vocabulary) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_definitions_2020_12) {
+TEST(embedded_custom_metaschema_definitions_2020_12) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -833,7 +829,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_definitions_2020_12) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_wrong_container) {
+TEST(embedded_custom_metaschema_wrong_container) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -857,7 +853,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_wrong_container) {
   }
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_precedence) {
+TEST(embedded_custom_metaschema_precedence) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -899,7 +895,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_precedence) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_draft6) {
+TEST(embedded_custom_metaschema_draft6) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -920,7 +916,7 @@ TEST(Foundation_vocabulary, embedded_custom_metaschema_draft6) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_6);
 }
 
-TEST(Foundation_vocabulary, embedded_custom_metaschema_draft3) {
+TEST(embedded_custom_metaschema_draft3) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",

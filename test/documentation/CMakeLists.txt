@@ -1,5 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME documentation
-  FOLDER "Blaze/Documentation"
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME documentation
   SOURCES
     documentation_test_utils.h
     documentation_2020_12_test.cc

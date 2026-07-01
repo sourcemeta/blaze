@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/foundation.h>
@@ -28,7 +28,7 @@ static auto transformer_callback_trace(TestTransformTraces &traces) -> auto {
   };
 }
 
-TEST(AlterSchema_transformer, flat_document_no_applicators) {
+TEST(flat_document_no_applicators) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -67,7 +67,7 @@ TEST(AlterSchema_transformer, flat_document_no_applicators) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, embedded_resource_match_check) {
+TEST(embedded_resource_match_check) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -102,7 +102,7 @@ TEST(AlterSchema_transformer, embedded_resource_match_check) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, embedded_resource_match_check_with_default_id) {
+TEST(embedded_resource_match_check_with_default_id) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -135,7 +135,7 @@ TEST(AlterSchema_transformer, embedded_resource_match_check_with_default_id) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, embedded_resource_vocabularies_check) {
+TEST(embedded_resource_vocabularies_check) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDraftTag>(), "example_rule_draft_tag");
   EXPECT_EQ(bundle.add<ExampleRuleModernTag>(), "example_rule_modern_tag");
@@ -176,7 +176,7 @@ TEST(AlterSchema_transformer, embedded_resource_vocabularies_check) {
   EXPECT_TRUE(std::get<4>(entries.at(1)));
 }
 
-TEST(AlterSchema_transformer, embedded_resource_vocabularies_apply) {
+TEST(embedded_resource_vocabularies_apply) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDraftTag>(), "example_rule_draft_tag");
   EXPECT_EQ(bundle.add<ExampleRuleModernTag>(), "example_rule_modern_tag");
@@ -226,7 +226,7 @@ TEST(AlterSchema_transformer, embedded_resource_vocabularies_apply) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, throw_if_no_dialect_invalid_default) {
+TEST(throw_if_no_dialect_invalid_default) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -237,11 +237,16 @@ TEST(AlterSchema_transformer, throw_if_no_dialect_invalid_default) {
     "qux": "xxx"
   })JSON");
 
-  EXPECT_THROW(static_cast<void>(bundle.apply(
-                   document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
-                   transformer_callback_noop, "https://example.com/invalid")),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    static_cast<void>(bundle.apply(document, sourcemeta::blaze::schema_walker,
+                                   sourcemeta::blaze::schema_resolver,
+                                   transformer_callback_noop,
+                                   "https://example.com/invalid"));
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
+  }
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "foo": "bar",
@@ -253,7 +258,7 @@ TEST(AlterSchema_transformer, throw_if_no_dialect_invalid_default) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, with_default_dialect) {
+TEST(with_default_dialect) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -291,7 +296,7 @@ TEST(AlterSchema_transformer, with_default_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, with_explicit_default_dialect_same) {
+TEST(with_explicit_default_dialect_same) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -331,7 +336,7 @@ TEST(AlterSchema_transformer, with_explicit_default_dialect_same) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, throw_on_rules_called_twice) {
+TEST(throw_on_rules_called_twice) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRuleConflictsWith1>(),
@@ -351,13 +356,12 @@ TEST(AlterSchema_transformer, throw_on_rules_called_twice) {
       const sourcemeta::blaze::SchemaTransformRuleProcessedTwiceError &error) {
     EXPECT_EQ(error.name(), "example_rule_1");
     EXPECT_EQ(sourcemeta::core::to_string(error.location()), "");
-    SUCCEED();
   } catch (...) {
     FAIL();
   }
 }
 
-TEST(AlterSchema_transformer, top_level_rule) {
+TEST(top_level_rule) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule3>(), "example_rule_3");
 
@@ -393,7 +397,7 @@ TEST(AlterSchema_transformer, top_level_rule) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, walker_2020_12) {
+TEST(walker_2020_12) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule4>(), "example_rule_4");
 
@@ -446,7 +450,7 @@ TEST(AlterSchema_transformer, walker_2020_12) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, mismatch_default_dialect) {
+TEST(mismatch_default_dialect) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule4>(), "example_rule_4");
 
@@ -500,7 +504,7 @@ TEST(AlterSchema_transformer, mismatch_default_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rule_pointers) {
+TEST(rule_pointers) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule5>(), "example_rule_5");
 
@@ -540,7 +544,7 @@ TEST(AlterSchema_transformer, rule_pointers) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, multi_dialect_rules) {
+TEST(multi_dialect_rules) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule4>(), "example_rule_4");
 
@@ -595,7 +599,7 @@ TEST(AlterSchema_transformer, multi_dialect_rules) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, dialect_specific_rules) {
+TEST(dialect_specific_rules) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule6>(), "example_rule_6");
 
@@ -654,7 +658,7 @@ TEST(AlterSchema_transformer, dialect_specific_rules) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, dialect_specific_rules_without_ids) {
+TEST(dialect_specific_rules_without_ids) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule6>(), "example_rule_6");
 
@@ -692,7 +696,7 @@ TEST(AlterSchema_transformer, dialect_specific_rules_without_ids) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, check_top_level) {
+TEST(check_top_level) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1WithPointer>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -736,7 +740,7 @@ TEST(AlterSchema_transformer, check_top_level) {
   EXPECT_TRUE(std::get<4>(entries.at(1)));
 }
 
-TEST(AlterSchema_transformer, check_top_level_with_id) {
+TEST(check_top_level_with_id) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -764,7 +768,7 @@ TEST(AlterSchema_transformer, check_top_level_with_id) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_top_level_with_id_and_default_id) {
+TEST(check_top_level_with_id_and_default_id) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -793,7 +797,7 @@ TEST(AlterSchema_transformer, check_top_level_with_id_and_default_id) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_multiple_pointers) {
+TEST(check_multiple_pointers) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleWithManyPointers>(),
             "example_rule_with_many_pointers");
@@ -828,7 +832,7 @@ TEST(AlterSchema_transformer, check_multiple_pointers) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_with_description) {
+TEST(check_with_description) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1WithDescription>(), "example_rule_1");
 
@@ -860,7 +864,7 @@ TEST(AlterSchema_transformer, check_with_description) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_no_match) {
+TEST(check_no_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -885,7 +889,7 @@ TEST(AlterSchema_transformer, check_no_match) {
   EXPECT_TRUE(entries.empty());
 }
 
-TEST(AlterSchema_transformer, check_partial_match) {
+TEST(check_partial_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -924,7 +928,7 @@ TEST(AlterSchema_transformer, check_partial_match) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_empty) {
+TEST(check_empty) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -942,7 +946,7 @@ TEST(AlterSchema_transformer, check_empty) {
   EXPECT_TRUE(entries.empty());
 }
 
-TEST(AlterSchema_transformer, check_throw_if_no_dialect_invalid_default) {
+TEST(check_throw_if_no_dialect_invalid_default) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -953,13 +957,18 @@ TEST(AlterSchema_transformer, check_throw_if_no_dialect_invalid_default) {
     "qux": "xxx"
   })JSON");
 
-  EXPECT_THROW((void)bundle.check(document, sourcemeta::blaze::schema_walker,
-                                  sourcemeta::blaze::schema_resolver, nullptr,
-                                  "https://example.com/invalid"),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    (void)bundle.check(document, sourcemeta::blaze::schema_walker,
+                       sourcemeta::blaze::schema_resolver, nullptr,
+                       "https://example.com/invalid");
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
+  }
 }
 
-TEST(AlterSchema_transformer, check_with_default_dialect) {
+TEST(check_with_default_dialect) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -1000,7 +1009,7 @@ TEST(AlterSchema_transformer, check_with_default_dialect) {
   EXPECT_TRUE(std::get<4>(entries.at(1)));
 }
 
-TEST(AlterSchema_transformer, remove_rule_by_name) {
+TEST(remove_rule_by_name) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -1039,7 +1048,7 @@ TEST(AlterSchema_transformer, remove_rule_by_name) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, unfixable_apply) {
+TEST(unfixable_apply) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleUnfixable1>(), "example_rule_unfixable_1");
 
@@ -1076,7 +1085,7 @@ TEST(AlterSchema_transformer, unfixable_apply) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, unfixable_check) {
+TEST(unfixable_check) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleUnfixable1>(), "example_rule_unfixable_1");
 
@@ -1103,7 +1112,7 @@ TEST(AlterSchema_transformer, unfixable_check) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, rereference_not_hit) {
+TEST(rereference_not_hit) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsNoRereference>(),
             "example_rule_definitions_to_defs_no_rereference");
@@ -1144,7 +1153,7 @@ TEST(AlterSchema_transformer, rereference_not_hit) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_not_fixed_ref) {
+TEST(rereference_not_fixed_ref) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsNoRereference>(),
             "example_rule_definitions_to_defs_no_rereference");
@@ -1166,11 +1175,10 @@ TEST(AlterSchema_transformer, rereference_not_fixed_ref) {
         bundle.apply(document, sourcemeta::blaze::schema_walker,
                      sourcemeta::blaze::schema_resolver,
                      transformer_callback_trace(entries));
-    FAIL() << "The transformation was expected to throw";
+    FAIL();
   } catch (const sourcemeta::blaze::SchemaBrokenReferenceError &error) {
     EXPECT_EQ(error.identifier(), "#/definitions/foo");
     EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/$ref");
-    SUCCEED();
   } catch (...) {
     FAIL();
   }
@@ -1198,7 +1206,7 @@ TEST(AlterSchema_transformer, rereference_not_fixed_ref) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_not_fixed_id) {
+TEST(rereference_not_fixed_id) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleRemoveIdentifiers>(),
             "example_rule_remove_identifiers");
@@ -1244,7 +1252,7 @@ TEST(AlterSchema_transformer, rereference_not_fixed_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_not_fixed_anchor) {
+TEST(rereference_not_fixed_anchor) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleRemoveIdentifiers>(),
             "example_rule_remove_identifiers");
@@ -1287,7 +1295,7 @@ TEST(AlterSchema_transformer, rereference_not_fixed_anchor) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_fixed_1) {
+TEST(rereference_fixed_1) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
             "example_rule_definitions_to_defs_with_rereference");
@@ -1330,7 +1338,7 @@ TEST(AlterSchema_transformer, rereference_fixed_1) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_fixed_2) {
+TEST(rereference_fixed_2) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
             "example_rule_definitions_to_defs_with_rereference");
@@ -1375,7 +1383,7 @@ TEST(AlterSchema_transformer, rereference_fixed_2) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_fixed_3) {
+TEST(rereference_fixed_3) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
             "example_rule_definitions_to_defs_with_rereference");
@@ -1422,7 +1430,7 @@ TEST(AlterSchema_transformer, rereference_fixed_3) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_fixed_4) {
+TEST(rereference_fixed_4) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
             "example_rule_definitions_to_defs_with_rereference");
@@ -1469,7 +1477,7 @@ TEST(AlterSchema_transformer, rereference_fixed_4) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_fixed_5) {
+TEST(rereference_fixed_5) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
             "example_rule_definitions_to_defs_with_rereference");
@@ -1525,7 +1533,7 @@ TEST(AlterSchema_transformer, rereference_fixed_5) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_fixed_6) {
+TEST(rereference_fixed_6) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
             "example_rule_definitions_to_defs_with_rereference");
@@ -1585,7 +1593,7 @@ TEST(AlterSchema_transformer, rereference_fixed_6) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, rereference_fixed_7) {
+TEST(rereference_fixed_7) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
             "example_rule_definitions_to_defs_with_rereference");
@@ -1662,7 +1670,7 @@ TEST(AlterSchema_transformer, rereference_fixed_7) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_transformer, iterators) {
+TEST(iterators) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -1679,7 +1687,7 @@ TEST(AlterSchema_transformer, iterators) {
   EXPECT_TRUE(rules.contains("example_rule_3"));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_string_match) {
+TEST(check_exclude_keyword_string_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1700,7 +1708,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_string_match) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_string_no_match) {
+TEST(check_exclude_keyword_string_no_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1722,7 +1730,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_string_no_match) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_array_match) {
+TEST(check_exclude_keyword_array_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1743,7 +1751,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_array_match) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_array_multiple_match) {
+TEST(check_exclude_keyword_array_multiple_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1764,7 +1772,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_array_multiple_match) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_array_no_match) {
+TEST(check_exclude_keyword_array_no_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1786,7 +1794,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_array_no_match) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_wrong_type) {
+TEST(check_exclude_keyword_wrong_type) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1808,7 +1816,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_wrong_type) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_nested_only) {
+TEST(check_exclude_keyword_nested_only) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1836,7 +1844,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_nested_only) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_multiple_rules) {
+TEST(check_exclude_keyword_multiple_rules) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -1860,7 +1868,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_multiple_rules) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_no_keyword_set) {
+TEST(check_exclude_keyword_no_keyword_set) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1881,7 +1889,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_no_keyword_set) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, apply_exclude_keyword_string_match) {
+TEST(apply_exclude_keyword_string_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1903,7 +1911,7 @@ TEST(AlterSchema_transformer, apply_exclude_keyword_string_match) {
   EXPECT_TRUE(document.defines("foo"));
 }
 
-TEST(AlterSchema_transformer, apply_exclude_keyword_string_no_match) {
+TEST(apply_exclude_keyword_string_no_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1931,7 +1939,7 @@ TEST(AlterSchema_transformer, apply_exclude_keyword_string_no_match) {
   EXPECT_FALSE(document.defines("foo"));
 }
 
-TEST(AlterSchema_transformer, apply_exclude_keyword_array_match) {
+TEST(apply_exclude_keyword_array_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -1953,7 +1961,7 @@ TEST(AlterSchema_transformer, apply_exclude_keyword_array_match) {
   EXPECT_TRUE(document.defines("foo"));
 }
 
-TEST(AlterSchema_transformer, apply_exclude_keyword_array_multiple_match) {
+TEST(apply_exclude_keyword_array_multiple_match) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
   EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
@@ -1978,7 +1986,7 @@ TEST(AlterSchema_transformer, apply_exclude_keyword_array_multiple_match) {
   EXPECT_TRUE(document.defines("bar"));
 }
 
-TEST(AlterSchema_transformer, apply_exclude_keyword_nested_selective) {
+TEST(apply_exclude_keyword_nested_selective) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -2011,7 +2019,7 @@ TEST(AlterSchema_transformer, apply_exclude_keyword_nested_selective) {
   EXPECT_TRUE(document.at("properties").at("test").defines("foo"));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_empty_string) {
+TEST(check_exclude_keyword_empty_string) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -2033,7 +2041,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_empty_string) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_empty_array) {
+TEST(check_exclude_keyword_empty_array) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -2055,7 +2063,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_empty_array) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_boolean) {
+TEST(check_exclude_keyword_boolean) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -2077,7 +2085,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_boolean) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_null) {
+TEST(check_exclude_keyword_null) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -2099,7 +2107,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_null) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_object) {
+TEST(check_exclude_keyword_object) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -2121,7 +2129,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_object) {
   EXPECT_TRUE(std::get<4>(entries.at(0)));
 }
 
-TEST(AlterSchema_transformer, check_exclude_keyword_array_with_non_strings) {
+TEST(check_exclude_keyword_array_with_non_strings) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
 
@@ -2142,7 +2150,7 @@ TEST(AlterSchema_transformer, check_exclude_keyword_array_with_non_strings) {
   EXPECT_EQ(entries.size(), 0);
 }
 
-TEST(AlterSchema_transformer, rereference_fixed_through_subschema_with_id) {
+TEST(rereference_fixed_through_subschema_with_id) {
   sourcemeta::blaze::SchemaTransformer bundle;
   EXPECT_EQ(bundle.add<ExampleRuleDefinitionsToDefsWithRereference>(),
             "example_rule_definitions_to_defs_with_rereference");

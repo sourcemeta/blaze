@@ -1,11 +1,11 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/frame.h>
 
 #include "compiler_test_utils.h"
 
-TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_1) {
+TEST(unevaluatedProperties_1) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "properties": { "foo": true },
@@ -37,7 +37,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_1) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_2) {
+TEST(unevaluatedProperties_2) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -75,7 +75,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_2) {
                               "https://example.com#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_3) {
+TEST(unevaluatedProperties_3) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com",
@@ -117,7 +117,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_3) {
       "https://example.com/tree#/properties/branches/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_4) {
+TEST(unevaluatedProperties_4) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "properties": { "foo": true },
@@ -159,7 +159,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedProperties_4) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
-TEST(Compiler_unevaluated_2019_09, unevaluatedItems_1) {
+TEST(unevaluatedItems_1) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "items": true,
@@ -188,7 +188,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedItems_1) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedItems");
 }
 
-TEST(Compiler_unevaluated_2019_09, unevaluatedItems_2) {
+TEST(unevaluatedItems_2) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "$id": "https://example.com",
@@ -223,7 +223,7 @@ TEST(Compiler_unevaluated_2019_09, unevaluatedItems_2) {
   EXPECT_UNEVALUATED_RESOLVED(result, "https://example.com#/unevaluatedItems");
 }
 
-TEST(Compiler_unevaluated_2019_09, unevaluatedItems_3) {
+TEST(unevaluatedItems_3) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "additionalItems": {"type": "number"},

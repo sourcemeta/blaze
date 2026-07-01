@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -55,7 +55,7 @@
               (expected_value));                                               \
   }
 
-TEST(Output_simple, success_string_1) {
+TEST(success_string_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -81,7 +81,7 @@ TEST(Output_simple, success_string_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_meaningless_if_1) {
+TEST(fail_meaningless_if_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "properties": {
@@ -130,7 +130,7 @@ TEST(Output_simple, fail_meaningless_if_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_dynamic_anchor_1) {
+TEST(success_dynamic_anchor_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#foo",
@@ -162,7 +162,7 @@ TEST(Output_simple, success_dynamic_anchor_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_oneof_1) {
+TEST(success_oneof_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -191,7 +191,7 @@ TEST(Output_simple, success_oneof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_anyof_1) {
+TEST(success_anyof_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -220,7 +220,7 @@ TEST(Output_simple, success_anyof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_not_1) {
+TEST(success_not_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
@@ -248,7 +248,7 @@ TEST(Output_simple, success_not_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_string) {
+TEST(fail_string) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -278,7 +278,7 @@ TEST(Output_simple, fail_string) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_string_over_ref) {
+TEST(fail_string_over_ref) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
@@ -312,7 +312,7 @@ TEST(Output_simple, fail_string_over_ref) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_string_with_matching_base) {
+TEST(fail_string_with_matching_base) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
@@ -348,7 +348,7 @@ TEST(Output_simple, fail_string_with_matching_base) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_string_with_non_matching_base) {
+TEST(fail_string_with_non_matching_base) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/string",
@@ -383,7 +383,7 @@ TEST(Output_simple, fail_string_with_non_matching_base) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_oneof_1) {
+TEST(fail_oneof_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -415,7 +415,7 @@ TEST(Output_simple, fail_oneof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_oneof_2) {
+TEST(fail_oneof_2) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -453,7 +453,7 @@ TEST(Output_simple, fail_oneof_2) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_not_1) {
+TEST(fail_not_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
@@ -484,7 +484,7 @@ TEST(Output_simple, fail_not_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_not_not_1) {
+TEST(fail_not_not_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
@@ -517,7 +517,7 @@ TEST(Output_simple, fail_not_not_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_anyof_1) {
+TEST(fail_anyof_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -556,7 +556,7 @@ TEST(Output_simple, fail_anyof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_anyof_2) {
+TEST(fail_anyof_2) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -594,7 +594,7 @@ TEST(Output_simple, fail_anyof_2) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_if_then_1) {
+TEST(success_if_then_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -621,7 +621,7 @@ TEST(Output_simple, success_if_then_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_if_else_1) {
+TEST(success_if_else_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -648,7 +648,7 @@ TEST(Output_simple, success_if_else_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_if_then_1) {
+TEST(fail_if_then_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -678,7 +678,7 @@ TEST(Output_simple, fail_if_then_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_if_else_1) {
+TEST(fail_if_else_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -708,7 +708,7 @@ TEST(Output_simple, fail_if_else_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_contains_1) {
+TEST(success_contains_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "contains": { "type": "string" }
@@ -735,7 +735,7 @@ TEST(Output_simple, success_contains_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_contains_1) {
+TEST(fail_contains_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "contains": { "type": "string" }
@@ -774,7 +774,7 @@ TEST(Output_simple, fail_contains_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_contains_mincontains_1) {
+TEST(success_contains_mincontains_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" },
@@ -802,7 +802,7 @@ TEST(Output_simple, success_contains_mincontains_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, success_contains_maxcontains_1) {
+TEST(success_contains_maxcontains_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" },
@@ -830,7 +830,7 @@ TEST(Output_simple, success_contains_maxcontains_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_contains_mincontains_1) {
+TEST(fail_contains_mincontains_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" },
@@ -870,7 +870,7 @@ TEST(Output_simple, fail_contains_mincontains_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_contains_maxcontains_1) {
+TEST(fail_contains_maxcontains_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "string" },
@@ -901,7 +901,7 @@ TEST(Output_simple, fail_contains_maxcontains_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, fail_nested_oneof_anyof_1) {
+TEST(fail_nested_oneof_anyof_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -946,7 +946,7 @@ TEST(Output_simple, fail_nested_oneof_anyof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, annotations_failure_2) {
+TEST(annotations_failure_2) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -993,7 +993,7 @@ TEST(Output_simple, annotations_failure_2) {
                           sourcemeta::core::JSON{"Bar"});
 }
 
-TEST(Output_simple, annotations_success_oneof_1) {
+TEST(annotations_success_oneof_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -1026,7 +1026,7 @@ TEST(Output_simple, annotations_success_oneof_1) {
                           sourcemeta::core::JSON{"Second"});
 }
 
-TEST(Output_simple, annotations_success_if_then_1) {
+TEST(annotations_success_if_then_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -1057,7 +1057,7 @@ TEST(Output_simple, annotations_success_if_then_1) {
                           sourcemeta::core::JSON{"Then Title"});
 }
 
-TEST(Output_simple, annotations_success_if_else_1) {
+TEST(annotations_success_if_else_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -1088,7 +1088,7 @@ TEST(Output_simple, annotations_success_if_else_1) {
                           sourcemeta::core::JSON{"Else Title"});
 }
 
-TEST(Output_simple, annotations_failure_oneof_1) {
+TEST(annotations_failure_oneof_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -1126,7 +1126,7 @@ TEST(Output_simple, annotations_failure_oneof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, annotations_failure_anyof_1) {
+TEST(annotations_failure_anyof_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -1164,7 +1164,7 @@ TEST(Output_simple, annotations_failure_anyof_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, annotations_failure_if_then_1) {
+TEST(annotations_failure_if_then_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "type": "string" },
@@ -1194,7 +1194,7 @@ TEST(Output_simple, annotations_failure_if_then_1) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, annotations_success_1) {
+TEST(annotations_success_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "My Schema",
@@ -1264,7 +1264,7 @@ TEST(Output_simple, annotations_success_1) {
                           sourcemeta::core::JSON{true});
 }
 
-TEST(Output_simple, annotations_success_2) {
+TEST(annotations_success_2) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -1302,7 +1302,7 @@ TEST(Output_simple, annotations_success_2) {
                           sourcemeta::core::JSON{"Third branch"});
 }
 
-TEST(Output_simple, annotations_success_3) {
+TEST(annotations_success_3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": {
@@ -1331,7 +1331,7 @@ TEST(Output_simple, annotations_success_3) {
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
-TEST(Output_simple, annotations_success_4) {
+TEST(annotations_success_4) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "boolean" }
@@ -1364,7 +1364,7 @@ TEST(Output_simple, annotations_success_4) {
                           sourcemeta::core::JSON{2});
 }
 
-TEST(Output_simple, annotations_success_5) {
+TEST(annotations_success_5) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "boolean" }
@@ -1397,7 +1397,7 @@ TEST(Output_simple, annotations_success_5) {
                           sourcemeta::core::JSON{2});
 }
 
-TEST(Output_simple, annotations_success_6) {
+TEST(annotations_success_6) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "boolean" }
@@ -1430,7 +1430,7 @@ TEST(Output_simple, annotations_success_6) {
                           sourcemeta::core::JSON{1});
 }
 
-TEST(Output_simple, annotations_success_7) {
+TEST(annotations_success_7) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "boolean" }
@@ -1461,7 +1461,7 @@ TEST(Output_simple, annotations_success_7) {
                           sourcemeta::core::JSON{0});
 }
 
-TEST(Output_simple, annotations_success_8) {
+TEST(annotations_success_8) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedItems": true
@@ -1493,7 +1493,7 @@ TEST(Output_simple, annotations_success_8) {
                           0, sourcemeta::core::JSON{true});
 }
 
-TEST(Output_simple, annotations_success_9) {
+TEST(annotations_success_9) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "boolean" },
@@ -1532,7 +1532,7 @@ TEST(Output_simple, annotations_success_9) {
                           0, sourcemeta::core::JSON{true});
 }
 
-TEST(Output_simple, annotations_success_10) {
+TEST(annotations_success_10) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "number", "title": "Test" }
@@ -1565,7 +1565,7 @@ TEST(Output_simple, annotations_success_10) {
                           0, sourcemeta::core::JSON{"Test"});
 }
 
-TEST(Output_simple, annotations_failure_1) {
+TEST(annotations_failure_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Foo",

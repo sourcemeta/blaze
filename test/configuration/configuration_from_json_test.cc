@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/json.h>
@@ -8,16 +8,16 @@
     input, base, expected_message, expected_location)                          \
   try {                                                                        \
     (void)sourcemeta::blaze::Configuration::from_json((input), (base));        \
-    FAIL() << "The function was expected to throw";                            \
+    FAIL();                                                                    \
   } catch (const sourcemeta::blaze::ConfigurationParseError &error) {          \
     EXPECT_STREQ(error.what(), (expected_message));                            \
     EXPECT_EQ(sourcemeta::core::to_string(error.location()),                   \
               (expected_location));                                            \
   } catch (...) {                                                              \
-    FAIL() << "The function was expected to throw a parse error";              \
+    FAIL();                                                                    \
   }
 
-TEST(Configuration_from_json, valid_1) {
+TEST(valid_1) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": "Sourcemeta",
     "description": "The JSON Schema company",
@@ -59,7 +59,7 @@ TEST(Configuration_from_json, valid_1) {
   EXPECT_EQ(manifest.extra.size(), 0);
 }
 
-TEST(Configuration_from_json, valid_2) {
+TEST(valid_2) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": "./schemas"
   })JSON")};
@@ -87,7 +87,7 @@ TEST(Configuration_from_json, valid_2) {
   EXPECT_EQ(manifest.extra.size(), 0);
 }
 
-TEST(Configuration_from_json, valid_3) {
+TEST(valid_3) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": "/foo/bar/schemas"
   })JSON")};
@@ -110,7 +110,7 @@ TEST(Configuration_from_json, valid_3) {
   EXPECT_EQ(manifest.extra.size(), 0);
 }
 
-TEST(Configuration_from_json, valid_4) {
+TEST(valid_4) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": "/foo/bar/schemas",
     "x-foo": "bar"
@@ -137,7 +137,7 @@ TEST(Configuration_from_json, valid_4) {
   EXPECT_EQ(manifest.extra.at("x-foo").to_string(), "bar");
 }
 
-TEST(Configuration_from_json, valid_without_path) {
+TEST(valid_without_path) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": "Test Project"
   })JSON")};
@@ -165,7 +165,7 @@ TEST(Configuration_from_json, valid_without_path) {
   EXPECT_EQ(manifest.extra.size(), 0);
 }
 
-TEST(Configuration_from_json, valid_extension_with_leading_dot) {
+TEST(valid_extension_with_leading_dot) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "extension": [ ".json", ".schema" ]
   })JSON")};
@@ -178,7 +178,7 @@ TEST(Configuration_from_json, valid_extension_with_leading_dot) {
   EXPECT_TRUE(manifest.extension.contains(".schema"));
 }
 
-TEST(Configuration_from_json, valid_extension_without_leading_dot) {
+TEST(valid_extension_without_leading_dot) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "extension": [ "json", "schema" ]
   })JSON")};
@@ -191,13 +191,13 @@ TEST(Configuration_from_json, valid_extension_without_leading_dot) {
   EXPECT_TRUE(manifest.extension.contains(".schema"));
 }
 
-TEST(Configuration_from_json, invalid_1) {
+TEST(invalid_1) {
   const auto input{sourcemeta::core::parse_json("[]")};
   EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
       input, TEST_DIRECTORY, "The configuration must be an object", "");
 }
 
-TEST(Configuration_from_json, invalid_2) {
+TEST(invalid_2) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": 1
   })JSON")};
@@ -206,7 +206,7 @@ TEST(Configuration_from_json, invalid_2) {
       input, TEST_DIRECTORY, "The title property must be a string", "/title");
 }
 
-TEST(Configuration_from_json, invalid_3) {
+TEST(invalid_3) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "description": 1
   })JSON")};
@@ -216,7 +216,7 @@ TEST(Configuration_from_json, invalid_3) {
       "/description");
 }
 
-TEST(Configuration_from_json, invalid_4) {
+TEST(invalid_4) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "email": 1
   })JSON")};
@@ -225,7 +225,7 @@ TEST(Configuration_from_json, invalid_4) {
       input, TEST_DIRECTORY, "The email property must be a string", "/email");
 }
 
-TEST(Configuration_from_json, invalid_5) {
+TEST(invalid_5) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "github": 1
   })JSON")};
@@ -234,7 +234,7 @@ TEST(Configuration_from_json, invalid_5) {
       input, TEST_DIRECTORY, "The github property must be a string", "/github");
 }
 
-TEST(Configuration_from_json, invalid_6) {
+TEST(invalid_6) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "website": 1
   })JSON")};
@@ -244,7 +244,7 @@ TEST(Configuration_from_json, invalid_6) {
       "/website");
 }
 
-TEST(Configuration_from_json, invalid_7) {
+TEST(invalid_7) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": 1
   })JSON")};
@@ -253,7 +253,7 @@ TEST(Configuration_from_json, invalid_7) {
       input, TEST_DIRECTORY, "The path property must be a string", "/path");
 }
 
-TEST(Configuration_from_json, invalid_8) {
+TEST(invalid_8) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": 1
   })JSON")};
@@ -263,7 +263,7 @@ TEST(Configuration_from_json, invalid_8) {
       "/baseUri");
 }
 
-TEST(Configuration_from_json, invalid_9) {
+TEST(invalid_9) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "defaultDialect": 1
   })JSON")};
@@ -273,7 +273,7 @@ TEST(Configuration_from_json, invalid_9) {
       "/defaultDialect");
 }
 
-TEST(Configuration_from_json, invalid_10) {
+TEST(invalid_10) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "resolve": 1
   })JSON")};
@@ -283,7 +283,7 @@ TEST(Configuration_from_json, invalid_10) {
       "/resolve");
 }
 
-TEST(Configuration_from_json, invalid_11) {
+TEST(invalid_11) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "resolve": {
       "foo": 1
@@ -295,7 +295,7 @@ TEST(Configuration_from_json, invalid_11) {
       "/resolve/foo");
 }
 
-TEST(Configuration_from_json, invalid_12) {
+TEST(invalid_12) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "%"
   })JSON")};
@@ -305,7 +305,7 @@ TEST(Configuration_from_json, invalid_12) {
       "/baseUri");
 }
 
-TEST(Configuration_from_json, invalid_13) {
+TEST(invalid_13) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "relative"
   })JSON")};
@@ -315,7 +315,7 @@ TEST(Configuration_from_json, invalid_13) {
       "/baseUri");
 }
 
-TEST(Configuration_from_json, invalid_14) {
+TEST(invalid_14) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "resolve": {
       "foo": "%"
@@ -328,7 +328,7 @@ TEST(Configuration_from_json, invalid_14) {
       "/resolve/foo");
 }
 
-TEST(Configuration_from_json, valid_extension_string_with_leading_dot) {
+TEST(valid_extension_string_with_leading_dot) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "extension": ".schema"
   })JSON")};
@@ -340,7 +340,7 @@ TEST(Configuration_from_json, valid_extension_string_with_leading_dot) {
   EXPECT_TRUE(manifest.extension.contains(".schema"));
 }
 
-TEST(Configuration_from_json, valid_extension_string_without_leading_dot) {
+TEST(valid_extension_string_without_leading_dot) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "extension": "schema"
   })JSON")};
@@ -352,7 +352,7 @@ TEST(Configuration_from_json, valid_extension_string_without_leading_dot) {
   EXPECT_TRUE(manifest.extension.contains(".schema"));
 }
 
-TEST(Configuration_from_json, invalid_15) {
+TEST(invalid_15) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "extension": 1
   })JSON")};
@@ -362,7 +362,7 @@ TEST(Configuration_from_json, invalid_15) {
       "The extension property must be a string or an array", "/extension");
 }
 
-TEST(Configuration_from_json, invalid_16) {
+TEST(invalid_16) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "extension": [ "json", 1 ]
   })JSON")};
@@ -373,7 +373,7 @@ TEST(Configuration_from_json, invalid_16) {
 }
 
 // For backwards compatibility when we add new fields
-TEST(Configuration_from_json, unknown_field_ignored) {
+TEST(unknown_field_ignored) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": "Test Project",
     "unknown": 1
@@ -398,7 +398,7 @@ TEST(Configuration_from_json, unknown_field_ignored) {
   EXPECT_EQ(manifest.extra.size(), 0);
 }
 
-TEST(Configuration_from_json, dependencies_empty) {
+TEST(dependencies_empty) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": {}
   })JSON")};
@@ -409,7 +409,7 @@ TEST(Configuration_from_json, dependencies_empty) {
   EXPECT_EQ(manifest.dependencies.size(), 0);
 }
 
-TEST(Configuration_from_json, dependencies_single) {
+TEST(dependencies_single) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
@@ -427,7 +427,7 @@ TEST(Configuration_from_json, dependencies_single) {
       std::filesystem::path{TEST_DIRECTORY} / "vendor" / "2020-12.json");
 }
 
-TEST(Configuration_from_json, dependencies_multiple) {
+TEST(dependencies_multiple) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json",
@@ -450,7 +450,7 @@ TEST(Configuration_from_json, dependencies_multiple) {
             std::filesystem::path{TEST_DIRECTORY} / "vendor" / "common.json");
 }
 
-TEST(Configuration_from_json, dependencies_resolved_from_config_location) {
+TEST(dependencies_resolved_from_config_location) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": "./foo/bar",
     "dependencies": {
@@ -473,7 +473,7 @@ TEST(Configuration_from_json, dependencies_resolved_from_config_location) {
       std::filesystem::path{TEST_DIRECTORY} / "vendor" / "2020-12.json");
 }
 
-TEST(Configuration_from_json, dependencies_not_object) {
+TEST(dependencies_not_object) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": []
   })JSON")};
@@ -483,7 +483,7 @@ TEST(Configuration_from_json, dependencies_not_object) {
       "/dependencies");
 }
 
-TEST(Configuration_from_json, dependencies_value_not_string) {
+TEST(dependencies_value_not_string) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": {
       "https://example.com/schema.json": 123
@@ -496,7 +496,7 @@ TEST(Configuration_from_json, dependencies_value_not_string) {
       "/dependencies/https:~1~1example.com~1schema.json");
 }
 
-TEST(Configuration_from_json, dependencies_duplicate_paths) {
+TEST(dependencies_duplicate_paths) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": {
       "https://example.com/first.json": "./vendor/schema.json",
@@ -510,7 +510,7 @@ TEST(Configuration_from_json, dependencies_duplicate_paths) {
       "/dependencies/https:~1~1example.com~1first.json");
 }
 
-TEST(Configuration_from_json, dependencies_invalid_uri_key) {
+TEST(dependencies_invalid_uri_key) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "dependencies": {
       "%": "./vendor/schema.json"
@@ -522,7 +522,7 @@ TEST(Configuration_from_json, dependencies_invalid_uri_key) {
                                              "/dependencies/%");
 }
 
-TEST(Configuration_from_json, dependencies_with_resolve) {
+TEST(dependencies_with_resolve) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "resolve": {
       "https://internal.corp/foo.json": "./local/foo.json"
@@ -547,7 +547,7 @@ TEST(Configuration_from_json, dependencies_with_resolve) {
       std::filesystem::path{TEST_DIRECTORY} / "vendor" / "2020-12.json");
 }
 
-TEST(Configuration_from_json, lint_empty_object) {
+TEST(lint_empty_object) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": {}
   })JSON")};
@@ -558,7 +558,7 @@ TEST(Configuration_from_json, lint_empty_object) {
   EXPECT_TRUE(manifest.lint.rules.empty());
 }
 
-TEST(Configuration_from_json, lint_rules_empty) {
+TEST(lint_rules_empty) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": { "rules": [] }
   })JSON")};
@@ -569,7 +569,7 @@ TEST(Configuration_from_json, lint_rules_empty) {
   EXPECT_TRUE(manifest.lint.rules.empty());
 }
 
-TEST(Configuration_from_json, lint_rules_single) {
+TEST(lint_rules_single) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": { "rules": [ "./rules/my-rule.json" ] }
   })JSON")};
@@ -584,7 +584,7 @@ TEST(Configuration_from_json, lint_rules_single) {
                                         "rules" / "my-rule.json"));
 }
 
-TEST(Configuration_from_json, lint_rules_multiple) {
+TEST(lint_rules_multiple) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": { "rules": [ "./rules/a.json", "./rules/b.json" ] }
   })JSON")};
@@ -603,7 +603,7 @@ TEST(Configuration_from_json, lint_rules_multiple) {
                 std::filesystem::path{TEST_DIRECTORY} / "rules" / "b.json"));
 }
 
-TEST(Configuration_from_json, lint_rules_absolute_path) {
+TEST(lint_rules_absolute_path) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": { "rules": [ "/absolute/path/rule.json" ] }
   })JSON")};
@@ -618,7 +618,7 @@ TEST(Configuration_from_json, lint_rules_absolute_path) {
                                         "/absolute/path/rule.json"));
 }
 
-TEST(Configuration_from_json, lint_rules_with_other_fields) {
+TEST(lint_rules_with_other_fields) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": "Test",
     "dependencies": {
@@ -639,7 +639,7 @@ TEST(Configuration_from_json, lint_rules_with_other_fields) {
                                         "rules" / "my-rule.json"));
 }
 
-TEST(Configuration_from_json, lint_rules_resolved_from_config_location) {
+TEST(lint_rules_resolved_from_config_location) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": "./foo/bar",
     "lint": { "rules": [ "./rules/my-rule.json" ] }
@@ -659,8 +659,7 @@ TEST(Configuration_from_json, lint_rules_resolved_from_config_location) {
                                         "rules" / "my-rule.json"));
 }
 
-TEST(Configuration_from_json,
-     lint_rules_multiple_resolved_from_config_location) {
+TEST(lint_rules_multiple_resolved_from_config_location) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": "./foo/bar",
     "lint": { "rules": [ "./rules/a.json", "./rules/b.json" ] }
@@ -682,7 +681,7 @@ TEST(Configuration_from_json,
                 std::filesystem::path{TEST_DIRECTORY} / "rules" / "b.json"));
 }
 
-TEST(Configuration_from_json, lint_not_object) {
+TEST(lint_not_object) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": 1
   })JSON")};
@@ -691,7 +690,7 @@ TEST(Configuration_from_json, lint_not_object) {
       input, TEST_DIRECTORY, "The lint property must be an object", "/lint");
 }
 
-TEST(Configuration_from_json, lint_rules_not_array) {
+TEST(lint_rules_not_array) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": { "rules": 1 }
   })JSON")};
@@ -701,7 +700,7 @@ TEST(Configuration_from_json, lint_rules_not_array) {
       "/lint/rules");
 }
 
-TEST(Configuration_from_json, lint_rules_element_not_string) {
+TEST(lint_rules_element_not_string) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": { "rules": [ 1 ] }
   })JSON")};
@@ -711,7 +710,7 @@ TEST(Configuration_from_json, lint_rules_element_not_string) {
       "The values in the lint rules array must be strings", "/lint/rules/0");
 }
 
-TEST(Configuration_from_json, lint_rules_mixed_types) {
+TEST(lint_rules_mixed_types) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "lint": { "rules": [ "./a.json", 2 ] }
   })JSON")};
@@ -721,7 +720,7 @@ TEST(Configuration_from_json, lint_rules_mixed_types) {
       "The values in the lint rules array must be strings", "/lint/rules/1");
 }
 
-TEST(Configuration_from_json, ignore_empty) {
+TEST(ignore_empty) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "ignore": []
   })JSON")};
@@ -732,7 +731,7 @@ TEST(Configuration_from_json, ignore_empty) {
   EXPECT_TRUE(manifest.ignore.empty());
 }
 
-TEST(Configuration_from_json, ignore_single) {
+TEST(ignore_single) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "ignore": [ "./vendor" ]
   })JSON")};
@@ -747,7 +746,7 @@ TEST(Configuration_from_json, ignore_single) {
                 std::filesystem::path{TEST_DIRECTORY} / "vendor"));
 }
 
-TEST(Configuration_from_json, ignore_multiple) {
+TEST(ignore_multiple) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "ignore": [ "./vendor", "./build" ]
   })JSON")};
@@ -766,7 +765,7 @@ TEST(Configuration_from_json, ignore_multiple) {
                 std::filesystem::path{TEST_DIRECTORY} / "build"));
 }
 
-TEST(Configuration_from_json, ignore_absolute_path) {
+TEST(ignore_absolute_path) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "ignore": [ "/absolute/path/vendor" ]
   })JSON")};
@@ -781,7 +780,7 @@ TEST(Configuration_from_json, ignore_absolute_path) {
                                     "/absolute/path/vendor"));
 }
 
-TEST(Configuration_from_json, ignore_with_other_fields) {
+TEST(ignore_with_other_fields) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": "Test",
     "dependencies": {
@@ -804,7 +803,7 @@ TEST(Configuration_from_json, ignore_with_other_fields) {
   EXPECT_EQ(manifest.lint.rules.size(), 1);
 }
 
-TEST(Configuration_from_json, ignore_resolved_from_config_location) {
+TEST(ignore_resolved_from_config_location) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": "./foo/bar",
     "ignore": [ "./vendor" ]
@@ -824,7 +823,7 @@ TEST(Configuration_from_json, ignore_resolved_from_config_location) {
                 std::filesystem::path{TEST_DIRECTORY} / "vendor"));
 }
 
-TEST(Configuration_from_json, ignore_multiple_resolved_from_config_location) {
+TEST(ignore_multiple_resolved_from_config_location) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "path": "./foo/bar",
     "ignore": [ "./vendor", "./build" ]
@@ -846,7 +845,7 @@ TEST(Configuration_from_json, ignore_multiple_resolved_from_config_location) {
                 std::filesystem::path{TEST_DIRECTORY} / "build"));
 }
 
-TEST(Configuration_from_json, ignore_not_array) {
+TEST(ignore_not_array) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "ignore": 1
   })JSON")};
@@ -855,7 +854,7 @@ TEST(Configuration_from_json, ignore_not_array) {
       input, TEST_DIRECTORY, "The ignore property must be an array", "/ignore");
 }
 
-TEST(Configuration_from_json, ignore_element_not_string) {
+TEST(ignore_element_not_string) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "ignore": [ 1 ]
   })JSON")};
@@ -865,7 +864,7 @@ TEST(Configuration_from_json, ignore_element_not_string) {
       "/ignore/0");
 }
 
-TEST(Configuration_from_json, ignore_mixed_types) {
+TEST(ignore_mixed_types) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "ignore": [ "./vendor", 2 ]
   })JSON")};

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,20 +7,19 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, true_boolean_schema_unchanged) {
+TEST(true_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("true");
   const auto expected = sourcemeta::core::parse_json("true");
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, false_boolean_schema_unchanged) {
+TEST(false_boolean_schema_unchanged) {
   auto document = sourcemeta::core::parse_json("false");
   const auto expected = sourcemeta::core::parse_json("false");
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     custom_keyword_named_after_draft_4_addition_prefixed_multipleOf) {
+TEST(custom_keyword_named_after_draft_4_addition_prefixed_multipleOf) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",
@@ -36,8 +35,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     custom_keywords_named_after_draft_4_additions_prefixed_all) {
+TEST(custom_keywords_named_after_draft_4_additions_prefixed_all) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -65,7 +63,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, prefixed_collision_iterates) {
+TEST(prefixed_collision_iterates) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "not": "original",
@@ -81,8 +79,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, prefixed_collision_iterates) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     unrelated_custom_keyword_left_unchanged) {
+TEST(unrelated_custom_keyword_left_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",
@@ -100,7 +97,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, trivial_root) {
+TEST(trivial_root) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string"
@@ -114,8 +111,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, trivial_root) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     dollar_schema_with_https_scheme_normalized_and_bumped) {
+TEST(dollar_schema_with_https_scheme_normalized_and_bumped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft-03/schema#",
     "type": "string"
@@ -129,8 +125,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     dollar_schema_without_empty_fragment_normalized_and_bumped) {
+TEST(dollar_schema_without_empty_fragment_normalized_and_bumped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema",
     "type": "string"
@@ -144,7 +139,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, idempotent_after_first_pass) {
+TEST(idempotent_after_first_pass) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string"
@@ -159,7 +154,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, idempotent_after_first_pass) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, already_draft_4_unchanged) {
+TEST(already_draft_4_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string"
@@ -173,7 +168,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, already_draft_4_unchanged) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, already_draft_6_unchanged) {
+TEST(already_draft_6_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "https://example.com/root",
@@ -189,8 +184,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, already_draft_6_unchanged) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     nested_draft_4_resource_left_unchanged) {
+TEST(nested_draft_4_resource_left_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com/outer",
@@ -220,7 +214,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, type_any_dropped) {
+TEST(type_any_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "any"
@@ -233,8 +227,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, type_any_dropped) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     type_array_with_any_collapses_to_no_type) {
+TEST(type_array_with_any_collapses_to_no_type) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": [ "string", "any" ]
@@ -247,8 +240,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     type_array_with_simple_strings_unchanged) {
+TEST(type_array_with_simple_strings_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": [ "string", "number" ]
@@ -262,7 +254,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, type_any_in_nested_subschema) {
+TEST(type_any_in_nested_subschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -282,8 +274,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, type_any_in_nested_subschema) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     type_array_with_subschema_becomes_anyOf) {
+TEST(type_array_with_subschema_becomes_anyOf) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": [
@@ -306,8 +297,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     type_array_only_strings_left_unchanged) {
+TEST(type_array_only_strings_left_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": [ "string", "number", "null" ]
@@ -321,8 +311,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     type_array_with_two_subschemas_becomes_anyOf) {
+TEST(type_array_with_two_subschemas_becomes_anyOf) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": [ { "type": "string" }, { "type": "number" } ]
@@ -339,7 +328,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, disallow_single_string_to_not) {
+TEST(disallow_single_string_to_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "disallow": "string"
@@ -353,8 +342,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, disallow_single_string_to_not) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     disallow_array_of_strings_to_not_with_type_array) {
+TEST(disallow_array_of_strings_to_not_with_type_array) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "disallow": [ "string", "number" ]
@@ -368,8 +356,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     disallow_array_with_mixed_strings_and_subschemas_to_not_anyof) {
+TEST(disallow_array_with_mixed_strings_and_subschemas_to_not_anyof) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "disallow": [
@@ -394,8 +381,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     disallow_in_nested_subschema_translated) {
+TEST(disallow_in_nested_subschema_translated) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -415,7 +401,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, extends_single_schema_to_allOf) {
+TEST(extends_single_schema_to_allOf) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": { "type": "string" }
@@ -429,7 +415,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, extends_single_schema_to_allOf) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, extends_array_of_schemas_to_allOf) {
+TEST(extends_array_of_schemas_to_allOf) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": [ { "type": "string" }, { "minLength": 1 } ]
@@ -443,7 +429,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, extends_array_of_schemas_to_allOf) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, extends_with_ref_to_definitions) {
+TEST(extends_with_ref_to_definitions) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "definitions": {
@@ -463,8 +449,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, extends_with_ref_to_definitions) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     definitions_left_unchanged_with_extends) {
+TEST(definitions_left_unchanged_with_extends) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "definitions": {
@@ -484,7 +469,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, divisibleBy_renamed_to_multipleOf) {
+TEST(divisibleBy_renamed_to_multipleOf) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "integer",
@@ -500,8 +485,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, divisibleBy_renamed_to_multipleOf) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     divisibleBy_in_nested_subschema_renamed) {
+TEST(divisibleBy_in_nested_subschema_renamed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -521,8 +505,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     required_true_inside_properties_lifted_to_parent_array) {
+TEST(required_true_inside_properties_lifted_to_parent_array) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -547,8 +530,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     required_false_dropped_no_parent_required_added) {
+TEST(required_false_dropped_no_parent_required_added) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -568,8 +550,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     required_true_with_only_required_property_becomes_empty_object) {
+TEST(required_true_with_only_required_property_becomes_empty_object) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -590,8 +571,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     required_true_with_existing_parent_required_array_dedups) {
+TEST(required_true_with_existing_parent_required_array_dedups) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -615,8 +595,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     required_true_in_property_with_ref_lifted) {
+TEST(required_true_in_property_with_ref_lifted) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -643,8 +622,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     dependencies_string_form_to_array_form) {
+TEST(dependencies_string_form_to_array_form) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "dependencies": {
@@ -662,7 +640,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, dependencies_array_form_unchanged) {
+TEST(dependencies_array_form_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "dependencies": {
@@ -680,7 +658,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, dependencies_array_form_unchanged) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, dependencies_schema_form_unchanged) {
+TEST(dependencies_schema_form_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "dependencies": {
@@ -698,8 +676,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, dependencies_schema_form_unchanged) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     dependencies_mixed_string_and_other_forms) {
+TEST(dependencies_mixed_string_and_other_forms) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "dependencies": {
@@ -721,7 +698,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, embedded_draft_3_resource_upgraded) {
+TEST(embedded_draft_3_resource_upgraded) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com/outer",
@@ -751,7 +728,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, embedded_draft_3_resource_upgraded) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, idempotent_after_full_transform) {
+TEST(idempotent_after_full_transform) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com/root",
@@ -781,8 +758,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, idempotent_after_full_transform) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     embedded_draft_3_subresource_independently_upgraded) {
+TEST(embedded_draft_3_subresource_independently_upgraded) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com/outer",
@@ -813,8 +789,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     no_dollar_schema_with_default_dialect_draft3) {
+TEST(no_dollar_schema_with_default_dialect_draft3) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "type": "any",
     "extends": { "type": "string" }
@@ -829,8 +804,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
                                "http://json-schema.org/draft-03/schema#");
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     official_suite_extends_with_required_in_property) {
+TEST(official_suite_extends_with_required_in_property) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "properties": { "bar": { "type": "integer", "required": true }},
@@ -858,8 +832,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     official_suite_disallow_with_subschema) {
+TEST(official_suite_disallow_with_subschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "disallow": [
@@ -891,8 +864,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     disallow_string_any_collapses_to_unsatisfiable) {
+TEST(disallow_string_any_collapses_to_unsatisfiable) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "disallow": "any"
@@ -906,8 +878,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     disallow_array_with_any_collapses_to_unsatisfiable) {
+TEST(disallow_array_with_any_collapses_to_unsatisfiable) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "disallow": [ "string", "any" ]
@@ -921,8 +892,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     disallow_array_with_any_and_subschema_collapses_to_unsatisfiable) {
+TEST(disallow_array_with_any_and_subschema_collapses_to_unsatisfiable) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "disallow": [ "any", { "type": "object" } ]
@@ -936,8 +906,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     disallow_with_unexpected_value_type_left_intact) {
+TEST(disallow_with_unexpected_value_type_left_intact) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "disallow": 42
@@ -951,8 +920,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     extends_with_unexpected_value_type_left_intact) {
+TEST(extends_with_unexpected_value_type_left_intact) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": 42
@@ -966,7 +934,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_host_name_renamed) {
+TEST(format_host_name_renamed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",
@@ -982,7 +950,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_host_name_renamed) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_ip_address_renamed) {
+TEST(format_ip_address_renamed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",
@@ -998,8 +966,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_ip_address_renamed) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     format_unchanged_values_are_preserved) {
+TEST(format_unchanged_values_are_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -1025,8 +992,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     format_removed_values_are_preserved_verbatim) {
+TEST(format_removed_values_are_preserved_verbatim) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -1058,7 +1024,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_triggers_rule_alone) {
+TEST(format_rename_triggers_rule_alone) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "format": "host-name"
@@ -1072,7 +1038,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_triggers_rule_alone) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_inside_properties) {
+TEST(format_rename_inside_properties) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -1094,8 +1060,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_inside_properties) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     format_rename_with_other_draft_3_rewrites) {
+TEST(format_rename_with_other_draft_3_rewrites) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",
@@ -1115,8 +1080,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     format_non_string_value_left_unchanged) {
+TEST(format_non_string_value_left_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",
@@ -1132,7 +1096,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_is_idempotent) {
+TEST(format_rename_is_idempotent) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",
@@ -1149,8 +1113,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_is_idempotent) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     format_host_name_under_draft_4_unchanged) {
+TEST(format_host_name_under_draft_4_unchanged) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string",
@@ -1166,8 +1129,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     format_rename_inside_nested_draft_3_resource) {
+TEST(format_rename_inside_nested_draft_3_resource) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com/outer",
@@ -1199,7 +1161,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_inside_definitions) {
+TEST(format_rename_inside_definitions) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "definitions": {
@@ -1217,8 +1179,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4, format_rename_inside_definitions) {
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     format_rename_inside_items_subschema) {
+TEST(format_rename_inside_items_subschema) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "array",
@@ -1234,8 +1195,7 @@ TEST(AlterSchema_upgrade_Draft3_to_Draft4,
   UPGRADE_DRAFT_4(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_Draft4,
-     format_value_unrelated_to_known_names_is_preserved) {
+TEST(format_value_unrelated_to_known_names_is_preserved) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",

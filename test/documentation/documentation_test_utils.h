@@ -1,7 +1,7 @@
 #ifndef SOURCEMETA_BLAZE_DOCUMENTATION_TEST_UTILS_H_
 #define SOURCEMETA_BLAZE_DOCUMENTATION_TEST_UTILS_H_
 
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/documentation.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -14,15 +14,15 @@
 static auto collect_identifiers_and_check(
     const sourcemeta::core::JSON &table, std::set<std::int64_t> &identifiers,
     std::set<std::int64_t> &recursive_ref_targets) -> void {
-  ASSERT_TRUE(table.is_object());
-  ASSERT_TRUE(table.defines("identifier"));
-  ASSERT_TRUE(table.defines("rows"));
+  EXPECT_TRUE(table.is_object());
+  EXPECT_TRUE(table.defines("identifier"));
+  EXPECT_TRUE(table.defines("rows"));
 
   const auto table_id{table.at("identifier").to_integer()};
   EXPECT_TRUE(identifiers.insert(table_id).second);
 
   const auto &rows{table.at("rows")};
-  ASSERT_TRUE(rows.is_array());
+  EXPECT_TRUE(rows.is_array());
 
   const auto has_children{table.defines("children") &&
                           !table.at("children").empty()};
@@ -31,8 +31,8 @@ static auto collect_identifiers_and_check(
   std::set<std::string> paths;
   for (std::size_t index = 0; index < rows.array_size(); ++index) {
     const auto &row{rows.at(index)};
-    ASSERT_TRUE(row.is_object());
-    ASSERT_TRUE(row.defines("identifier"));
+    EXPECT_TRUE(row.is_object());
+    EXPECT_TRUE(row.defines("identifier"));
 
     const auto row_id{row.at("identifier").to_integer()};
     EXPECT_TRUE(identifiers.insert(row_id).second);

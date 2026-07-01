@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/core/json.h>
@@ -7,7 +7,7 @@
 
 #include <unordered_map> // std::unordered_map
 
-TEST(Configuration_Lock, to_json_empty) {
+TEST(to_json_empty) {
   sourcemeta::blaze::Configuration::Lock lock;
 
   const auto result{lock.to_json("/base")};
@@ -20,7 +20,7 @@ TEST(Configuration_Lock, to_json_empty) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_Lock, to_json_single_entry) {
+TEST(to_json_single_entry) {
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/schema.json",
                "/absolute/path/to/schema.json",
@@ -42,7 +42,7 @@ TEST(Configuration_Lock, to_json_single_entry) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_Lock, to_json_multiple_entries) {
+TEST(to_json_multiple_entries) {
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace("https://example.com/first.json", "/path/to/first.json",
                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1");
@@ -70,7 +70,7 @@ TEST(Configuration_Lock, to_json_multiple_entries) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Configuration_Lock, to_json_unknown_hash_algorithm) {
+TEST(to_json_unknown_hash_algorithm) {
   sourcemeta::blaze::Configuration::Lock lock;
   lock.emplace(
       "https://example.com/schema.json", "/absolute/path/to/schema.json",
@@ -90,7 +90,7 @@ TEST(Configuration_Lock, to_json_unknown_hash_algorithm) {
   }
 }
 
-TEST(Configuration_Lock, check_untracked) {
+TEST(check_untracked) {
   sourcemeta::blaze::Configuration::Lock lock;
 
   std::unordered_map<std::string, std::string> files;
@@ -103,7 +103,7 @@ TEST(Configuration_Lock, check_untracked) {
             sourcemeta::blaze::Configuration::Lock::Entry::Status::Untracked);
 }
 
-TEST(Configuration_Lock, check_file_missing) {
+TEST(check_file_missing) {
   const auto schema_path{std::filesystem::path{TEST_DIRECTORY} / "schema.json"};
 
   sourcemeta::blaze::Configuration::Lock lock;
@@ -119,7 +119,7 @@ TEST(Configuration_Lock, check_file_missing) {
             sourcemeta::blaze::Configuration::Lock::Entry::Status::FileMissing);
 }
 
-TEST(Configuration_Lock, check_mismatched) {
+TEST(check_mismatched) {
   const auto schema_path{std::filesystem::path{TEST_DIRECTORY} / "schema.json"};
 
   sourcemeta::blaze::Configuration::Lock lock;
@@ -136,7 +136,7 @@ TEST(Configuration_Lock, check_mismatched) {
             sourcemeta::blaze::Configuration::Lock::Entry::Status::Mismatched);
 }
 
-TEST(Configuration_Lock, check_up_to_date) {
+TEST(check_up_to_date) {
   const auto schema_path{std::filesystem::path{TEST_DIRECTORY} / "schema.json"};
   const std::string content{"{ \"type\": \"string\" }\n"};
 
@@ -155,7 +155,7 @@ TEST(Configuration_Lock, check_up_to_date) {
             sourcemeta::blaze::Configuration::Lock::Entry::Status::UpToDate);
 }
 
-TEST(Configuration_Lock, check_path_mismatch) {
+TEST(check_path_mismatch) {
   const auto old_path{std::filesystem::path{TEST_DIRECTORY} / "old.json"};
   const auto new_path{std::filesystem::path{TEST_DIRECTORY} / "new.json"};
   const std::string content{"{ \"type\": \"string\" }\n"};

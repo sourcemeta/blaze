@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
-TEST(Foundation_parse_type, null_string) {
+TEST(null_string) {
   const sourcemeta::core::JSON type{"null"};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_TRUE(result.test(
@@ -11,7 +11,7 @@ TEST(Foundation_parse_type, null_string) {
   EXPECT_EQ(result.count(), 1);
 }
 
-TEST(Foundation_parse_type, boolean_string) {
+TEST(boolean_string) {
   const sourcemeta::core::JSON type{"boolean"};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_TRUE(result.test(
@@ -19,7 +19,7 @@ TEST(Foundation_parse_type, boolean_string) {
   EXPECT_EQ(result.count(), 1);
 }
 
-TEST(Foundation_parse_type, object_string) {
+TEST(object_string) {
   const sourcemeta::core::JSON type{"object"};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_TRUE(result.test(
@@ -27,7 +27,7 @@ TEST(Foundation_parse_type, object_string) {
   EXPECT_EQ(result.count(), 1);
 }
 
-TEST(Foundation_parse_type, array_string) {
+TEST(array_string) {
   const sourcemeta::core::JSON type{"array"};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_TRUE(result.test(
@@ -35,7 +35,7 @@ TEST(Foundation_parse_type, array_string) {
   EXPECT_EQ(result.count(), 1);
 }
 
-TEST(Foundation_parse_type, number_string) {
+TEST(number_string) {
   const sourcemeta::core::JSON type{"number"};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_TRUE(result.test(
@@ -45,7 +45,7 @@ TEST(Foundation_parse_type, number_string) {
   EXPECT_EQ(result.count(), 2);
 }
 
-TEST(Foundation_parse_type, integer_string) {
+TEST(integer_string) {
   const sourcemeta::core::JSON type{"integer"};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_TRUE(result.test(
@@ -53,7 +53,7 @@ TEST(Foundation_parse_type, integer_string) {
   EXPECT_EQ(result.count(), 1);
 }
 
-TEST(Foundation_parse_type, string_string) {
+TEST(string_string) {
   const sourcemeta::core::JSON type{"string"};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_TRUE(result.test(
@@ -61,13 +61,13 @@ TEST(Foundation_parse_type, string_string) {
   EXPECT_EQ(result.count(), 1);
 }
 
-TEST(Foundation_parse_type, unknown_string) {
+TEST(unknown_string) {
   const sourcemeta::core::JSON type{"foo"};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_EQ(result.count(), 0);
 }
 
-TEST(Foundation_parse_type, array_single) {
+TEST(array_single) {
   const auto type{sourcemeta::core::parse_json(R"JSON([ "string" ])JSON")};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_TRUE(result.test(
@@ -75,7 +75,7 @@ TEST(Foundation_parse_type, array_single) {
   EXPECT_EQ(result.count(), 1);
 }
 
-TEST(Foundation_parse_type, array_multiple) {
+TEST(array_multiple) {
   const auto type{sourcemeta::core::parse_json(
       R"JSON([ "string", "null", "object" ])JSON")};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
@@ -88,7 +88,7 @@ TEST(Foundation_parse_type, array_multiple) {
   EXPECT_EQ(result.count(), 3);
 }
 
-TEST(Foundation_parse_type, array_with_number) {
+TEST(array_with_number) {
   const auto type{
       sourcemeta::core::parse_json(R"JSON([ "number", "boolean" ])JSON")};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
@@ -101,13 +101,13 @@ TEST(Foundation_parse_type, array_with_number) {
   EXPECT_EQ(result.count(), 3);
 }
 
-TEST(Foundation_parse_type, array_empty) {
+TEST(array_empty) {
   const auto type{sourcemeta::core::parse_json(R"JSON([])JSON")};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_EQ(result.count(), 0);
 }
 
-TEST(Foundation_parse_type, non_string_non_array) {
+TEST(non_string_non_array) {
   const sourcemeta::core::JSON type{42};
   const auto result{sourcemeta::blaze::parse_schema_type(type)};
   EXPECT_EQ(result.count(), 0);

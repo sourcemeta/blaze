@@ -1,5 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME editor
-  FOLDER "Blaze/Editor"
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME editor
   SOURCES editor_test.cc)
 
 target_link_libraries(sourcemeta_blaze_editor_unit

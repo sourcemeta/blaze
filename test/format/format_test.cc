@@ -1,11 +1,11 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/format.h>
 #include <sourcemeta/blaze/foundation.h>
 
 #include <sstream>
 
-TEST(Format, example_1) {
+TEST(example_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "title": "My example schema",
     "type": "object",
@@ -23,7 +23,7 @@ TEST(Format, example_1) {
 })JSON");
 }
 
-TEST(Format, example_2) {
+TEST(example_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "default": 1,
     "$ref": "other",
@@ -43,7 +43,7 @@ TEST(Format, example_2) {
 })JSON");
 }
 
-TEST(Format, nested_objects) {
+TEST(nested_objects) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "type": "object",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -73,19 +73,23 @@ TEST(Format, nested_objects) {
 })JSON");
 }
 
-TEST(Format, no_dialect) {
+TEST(no_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "type": "string",
     "description": "test"
   })JSON");
 
-  EXPECT_THROW(sourcemeta::blaze::format(document,
-                                         sourcemeta::blaze::schema_walker,
-                                         sourcemeta::blaze::schema_resolver),
-               sourcemeta::blaze::SchemaUnknownBaseDialectError);
+  try {
+    sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
+                              sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
-TEST(Format, no_dialect_with_default) {
+TEST(no_dialect_with_default) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "type": "string",
     "description": "test"
@@ -102,7 +106,7 @@ TEST(Format, no_dialect_with_default) {
 })JSON");
 }
 
-TEST(Format, properties_container_not_reordered) {
+TEST(properties_container_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -135,7 +139,7 @@ TEST(Format, properties_container_not_reordered) {
 })JSON");
 }
 
-TEST(Format, enum_objects_not_reordered) {
+TEST(enum_objects_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -161,7 +165,7 @@ TEST(Format, enum_objects_not_reordered) {
 })JSON");
 }
 
-TEST(Format, const_object_not_reordered) {
+TEST(const_object_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -183,7 +187,7 @@ TEST(Format, const_object_not_reordered) {
 })JSON");
 }
 
-TEST(Format, default_object_not_reordered) {
+TEST(default_object_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -205,7 +209,7 @@ TEST(Format, default_object_not_reordered) {
 })JSON");
 }
 
-TEST(Format, examples_objects_not_reordered) {
+TEST(examples_objects_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -231,7 +235,7 @@ TEST(Format, examples_objects_not_reordered) {
 })JSON");
 }
 
-TEST(Format, typo_keyword_not_reordered) {
+TEST(typo_keyword_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -255,7 +259,7 @@ TEST(Format, typo_keyword_not_reordered) {
 })JSON");
 }
 
-TEST(Format, correct_keyword_is_reordered) {
+TEST(correct_keyword_is_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -279,7 +283,7 @@ TEST(Format, correct_keyword_is_reordered) {
 })JSON");
 }
 
-TEST(Format, nested_properties_subschemas_reordered) {
+TEST(nested_properties_subschemas_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -319,7 +323,7 @@ TEST(Format, nested_properties_subschemas_reordered) {
 })JSON");
 }
 
-TEST(Format, pattern_properties_container_not_reordered) {
+TEST(pattern_properties_container_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -354,7 +358,7 @@ TEST(Format, pattern_properties_container_not_reordered) {
 })JSON");
 }
 
-TEST(Format, definitions_container_not_reordered) {
+TEST(definitions_container_not_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
@@ -387,7 +391,7 @@ TEST(Format, definitions_container_not_reordered) {
 })JSON");
 }
 
-TEST(Format, embedded_resource_reordered) {
+TEST(embedded_resource_reordered) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -427,7 +431,7 @@ TEST(Format, embedded_resource_reordered) {
 })JSON");
 }
 
-TEST(Format, boolean_subschema_does_not_crash) {
+TEST(boolean_subschema_does_not_crash) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -454,7 +458,7 @@ TEST(Format, boolean_subschema_does_not_crash) {
 })JSON");
 }
 
-TEST(Format, reorder_does_not_invalidate_child_pointers) {
+TEST(reorder_does_not_invalidate_child_pointers) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "not": {},
     "$schema": "https://json-schema.org/draft/2020-12/schema"

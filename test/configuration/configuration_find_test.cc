@@ -1,8 +1,8 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
 
-TEST(Configuration_find, file_no_configuration) {
+TEST(file_no_configuration) {
   const std::filesystem::path base{TEST_DIRECTORY};
   const auto path{base / "stubs"};
   EXPECT_TRUE(std::filesystem::exists(path));
@@ -10,13 +10,13 @@ TEST(Configuration_find, file_no_configuration) {
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Configuration_find, directory_no_configuration) {
+TEST(directory_no_configuration) {
   const std::filesystem::path path{TEST_DIRECTORY};
   const auto result{sourcemeta::blaze::Configuration::find(path)};
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Configuration_find, unknown_no_configuration) {
+TEST(unknown_no_configuration) {
   const std::filesystem::path base{TEST_DIRECTORY};
   const auto path{base / "xyz"};
   EXPECT_FALSE(std::filesystem::exists(path));
@@ -24,7 +24,7 @@ TEST(Configuration_find, unknown_no_configuration) {
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Configuration_find, directory_sibling) {
+TEST(directory_sibling) {
   const std::filesystem::path base{TEST_DIRECTORY};
   const auto path{base / "stubs" / "foo"};
   const auto result{sourcemeta::blaze::Configuration::find(path)};
@@ -32,7 +32,7 @@ TEST(Configuration_find, directory_sibling) {
   EXPECT_EQ(result.value(), path / "jsonschema.json");
 }
 
-TEST(Configuration_find, file_nested) {
+TEST(file_nested) {
   const std::filesystem::path base{TEST_DIRECTORY};
   const auto path{base / "stubs" / "foo" / "bar" / "baz.json"};
   const auto result{sourcemeta::blaze::Configuration::find(path)};
@@ -40,7 +40,7 @@ TEST(Configuration_find, file_nested) {
   EXPECT_EQ(result.value(), base / "stubs" / "foo" / "jsonschema.json");
 }
 
-TEST(Configuration_find, unknown_nested) {
+TEST(unknown_nested) {
   const std::filesystem::path base{TEST_DIRECTORY};
   const auto path{base / "stubs" / "foo" / "bar" / "xyz.json"};
   EXPECT_FALSE(std::filesystem::exists(path));

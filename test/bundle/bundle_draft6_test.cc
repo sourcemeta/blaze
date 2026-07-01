@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
@@ -78,7 +78,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Bundle_draft6, no_references_no_id) {
+TEST(no_references_no_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#"
   })JSON");
@@ -94,7 +94,7 @@ TEST(Bundle_draft6, no_references_no_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, const_no_references_no_id) {
+TEST(const_no_references_no_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#"
   })JSON");
@@ -110,7 +110,7 @@ TEST(Bundle_draft6, const_no_references_no_id) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Bundle_draft6, simple_with_id) {
+TEST(simple_with_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -159,7 +159,7 @@ TEST(Bundle_draft6, simple_with_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, simple_without_id) {
+TEST(simple_without_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "properties": {
@@ -206,7 +206,7 @@ TEST(Bundle_draft6, simple_without_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, schema_not_found) {
+TEST(schema_not_found) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -215,13 +215,18 @@ TEST(Bundle_draft6, schema_not_found) {
     }
   })JSON");
 
-  EXPECT_THROW(sourcemeta::blaze::bundle(
-                   document, sourcemeta::blaze::schema_walker, test_resolver,
-                   sourcemeta::blaze::BundleMode::NonOfficialMetaschemas),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::bundle(
+        document, sourcemeta::blaze::schema_walker, test_resolver,
+        sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
+  }
 }
 
-TEST(Bundle_draft6, idempotency) {
+TEST(idempotency) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -268,7 +273,7 @@ TEST(Bundle_draft6, idempotency) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, pre_embedded) {
+TEST(pre_embedded) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -316,7 +321,7 @@ TEST(Bundle_draft6, pre_embedded) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, taken_definitions_entry) {
+TEST(taken_definitions_entry) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -364,7 +369,7 @@ TEST(Bundle_draft6, taken_definitions_entry) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, recursive) {
+TEST(recursive) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive" } ]
@@ -391,7 +396,7 @@ TEST(Bundle_draft6, recursive) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, recursive_empty_fragment) {
+TEST(recursive_empty_fragment) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ]
@@ -418,7 +423,7 @@ TEST(Bundle_draft6, recursive_empty_fragment) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, anonymous_no_dialect) {
+TEST(anonymous_no_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "allOf": [ { "$ref": "https://www.sourcemeta.com/anonymous" } ]
   })JSON");
@@ -441,7 +446,7 @@ TEST(Bundle_draft6, anonymous_no_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, metaschema) {
+TEST(metaschema) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -469,7 +474,7 @@ TEST(Bundle_draft6, metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, metaschema_references_mode) {
+TEST(metaschema_references_mode) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -487,7 +492,7 @@ TEST(Bundle_draft6, metaschema_references_mode) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, relative_base_uri_with_ref) {
+TEST(relative_base_uri_with_ref) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "common",
@@ -517,7 +522,7 @@ TEST(Bundle_draft6, relative_base_uri_with_ref) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, hyperschema_smoke) {
+TEST(hyperschema_smoke) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/hyper-schema#",
     "allOf": [
@@ -532,7 +537,7 @@ TEST(Bundle_draft6, hyperschema_smoke) {
   EXPECT_TRUE(document.is_object());
 }
 
-TEST(Bundle_draft6, hyperschema_1) {
+TEST(hyperschema_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "allOf": [
@@ -555,7 +560,7 @@ TEST(Bundle_draft6, hyperschema_1) {
                   .defines("http://json-schema.org/draft-06/hyper-schema#"));
 }
 
-TEST(Bundle_draft6, hyperschema_ref_metaschema) {
+TEST(hyperschema_ref_metaschema) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/hyper-schema#",
     "allOf": [
@@ -575,7 +580,7 @@ TEST(Bundle_draft6, hyperschema_ref_metaschema) {
                   .defines("http://json-schema.org/draft-06/schema#"));
 }
 
-TEST(Bundle_draft6, standalone_ref_with_default_dialect) {
+TEST(standalone_ref_with_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://www.sourcemeta.com/test-1"
   })JSON");
@@ -599,7 +604,7 @@ TEST(Bundle_draft6, standalone_ref_with_default_dialect) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, ref_with_fragment_to_id_with_trailing_hash) {
+TEST(ref_with_fragment_to_id_with_trailing_hash) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -636,7 +641,7 @@ TEST(Bundle_draft6, ref_with_fragment_to_id_with_trailing_hash) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft6, metaschema_offline_idempotent) {
+TEST(metaschema_offline_idempotent) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string",

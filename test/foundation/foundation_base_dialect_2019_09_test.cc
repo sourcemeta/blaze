@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_schema) {
+TEST(jsonschema_schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object"
@@ -15,7 +15,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_schema) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_hyperschema) {
+TEST(jsonschema_hyperschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/hyper-schema",
     "type": "object"
@@ -27,7 +27,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_hyperschema) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09_Hyper);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_links) {
+TEST(jsonschema_links) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/links"
   })JSON");
@@ -38,7 +38,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_links) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_output) {
+TEST(jsonschema_output) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/output/schema"
   })JSON");
@@ -49,7 +49,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_output) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_output_hyperschema) {
+TEST(jsonschema_output_hyperschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/output/hyper-schema"
   })JSON");
@@ -60,7 +60,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_output_hyperschema) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_meta_applicator) {
+TEST(jsonschema_meta_applicator) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/meta/applicator"
   })JSON");
@@ -71,7 +71,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_meta_applicator) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_meta_content) {
+TEST(jsonschema_meta_content) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/meta/content"
   })JSON");
@@ -82,7 +82,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_meta_content) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_meta_core) {
+TEST(jsonschema_meta_core) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/meta/core"
   })JSON");
@@ -93,7 +93,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_meta_core) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_meta_format) {
+TEST(jsonschema_meta_format) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/meta/format"
   })JSON");
@@ -104,7 +104,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_meta_format) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_meta_hyperschema) {
+TEST(jsonschema_meta_hyperschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/meta/hyper-schema"
   })JSON");
@@ -115,7 +115,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_meta_hyperschema) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09_Hyper);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_meta_meta_data) {
+TEST(jsonschema_meta_meta_data) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/meta/meta-data"
   })JSON");
@@ -126,7 +126,7 @@ TEST(Foundation_base_dialect_2019_09, jsonschema_meta_meta_data) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
-TEST(Foundation_base_dialect_2019_09, jsonschema_meta_validation) {
+TEST(jsonschema_meta_validation) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/meta/validation"
   })JSON");

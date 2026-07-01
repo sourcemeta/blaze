@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
@@ -104,7 +104,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Bundle_dependencies, multiple_refs) {
+TEST(multiple_refs) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -141,7 +141,7 @@ TEST(Bundle_dependencies, multiple_refs) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Bundle_dependencies, across_dialects) {
+TEST(across_dialects) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -169,7 +169,7 @@ TEST(Bundle_dependencies, across_dialects) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Bundle_dependencies, across_dialects_top_level_ref_draft) {
+TEST(across_dialects_top_level_ref_draft) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -196,7 +196,7 @@ TEST(Bundle_dependencies, across_dialects_top_level_ref_draft) {
                     "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Bundle_dependencies, across_dialects_from_top_level_ref_draft_absolute) {
+TEST(across_dialects_from_top_level_ref_draft_absolute) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -220,7 +220,7 @@ TEST(Bundle_dependencies, across_dialects_from_top_level_ref_draft_absolute) {
                     "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Bundle_dependencies, across_dialects_from_top_level_ref_draft_relative) {
+TEST(across_dialects_from_top_level_ref_draft_relative) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -230,18 +230,22 @@ TEST(Bundle_dependencies, across_dialects_from_top_level_ref_draft_relative) {
   std::vector<std::tuple<std::string, sourcemeta::core::Pointer, std::string>>
       traces;
 
-  EXPECT_THROW(sourcemeta::blaze::dependencies(
-                   document, sourcemeta::blaze::schema_walker, test_resolver,
-                   [&traces](const auto &origin, const auto &pointer,
-                             const auto &target, const auto &) {
-                     traces.emplace_back(
-                         origin, sourcemeta::core::to_pointer(pointer), target);
-                   }),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::dependencies(
+        document, sourcemeta::blaze::schema_walker, test_resolver,
+        [&traces](const auto &origin, const auto &pointer, const auto &target,
+                  const auto &) {
+          traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
+                              target);
+        });
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
+  }
 }
 
-TEST(Bundle_dependencies,
-     across_dialects_from_top_level_ref_draft_with_default_dialect) {
+TEST(across_dialects_from_top_level_ref_draft_with_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://www.sourcemeta.com/test-4"
   })JSON");
@@ -264,7 +268,7 @@ TEST(Bundle_dependencies,
                     "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Bundle_dependencies, across_dialects_const) {
+TEST(across_dialects_const) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -292,7 +296,7 @@ TEST(Bundle_dependencies, across_dialects_const) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Bundle_dependencies, with_default_id) {
+TEST(with_default_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "items": { "$ref": "test-2" }
@@ -320,7 +324,7 @@ TEST(Bundle_dependencies, with_default_id) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Bundle_dependencies, with_default_dialect) {
+TEST(with_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" }
@@ -345,21 +349,25 @@ TEST(Bundle_dependencies, with_default_dialect) {
                     "https://www.sourcemeta.com/test-1");
 }
 
-TEST(Bundle_dependencies, without_default_dialect) {
+TEST(without_default_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/test-1" }
     }
   })JSON");
 
-  EXPECT_THROW(
-      sourcemeta::blaze::dependencies(
-          document, sourcemeta::blaze::schema_walker, test_resolver,
-          [](const auto &, const auto &, const auto &, const auto &) {}),
-      sourcemeta::blaze::SchemaUnknownBaseDialectError);
+  try {
+    sourcemeta::blaze::dependencies(
+        document, sourcemeta::blaze::schema_walker, test_resolver,
+        [](const auto &, const auto &, const auto &, const auto &) {});
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
-TEST(Bundle_dependencies, target_no_dialect) {
+TEST(target_no_dialect) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -367,14 +375,17 @@ TEST(Bundle_dependencies, target_no_dialect) {
     }
   })JSON");
 
-  EXPECT_THROW(
-      sourcemeta::blaze::dependencies(
-          document, sourcemeta::blaze::schema_walker, test_resolver,
-          [](const auto &, const auto &, const auto &, const auto &) {}),
-      sourcemeta::blaze::SchemaReferenceError);
+  try {
+    sourcemeta::blaze::dependencies(
+        document, sourcemeta::blaze::schema_walker, test_resolver,
+        [](const auto &, const auto &, const auto &, const auto &) {});
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
+  }
 }
 
-TEST(Bundle_dependencies, target_array) {
+TEST(target_array) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -382,14 +393,17 @@ TEST(Bundle_dependencies, target_array) {
     }
   })JSON");
 
-  EXPECT_THROW(
-      sourcemeta::blaze::dependencies(
-          document, sourcemeta::blaze::schema_walker, test_resolver,
-          [](const auto &, const auto &, const auto &, const auto &) {}),
-      sourcemeta::blaze::SchemaReferenceError);
+  try {
+    sourcemeta::blaze::dependencies(
+        document, sourcemeta::blaze::schema_walker, test_resolver,
+        [](const auto &, const auto &, const auto &, const auto &) {});
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
+  }
 }
 
-TEST(Bundle_dependencies, custom_paths_no_external) {
+TEST(custom_paths_no_external) {
   auto document{sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -429,7 +443,7 @@ TEST(Bundle_dependencies, custom_paths_no_external) {
   EXPECT_EQ(traces.size(), 0);
 }
 
-TEST(Bundle_dependencies, custom_paths_with_externals) {
+TEST(custom_paths_with_externals) {
   auto document{sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$ref": "#/common/test"
@@ -477,7 +491,7 @@ TEST(Bundle_dependencies, custom_paths_with_externals) {
                     "/allOf/0/$ref", "https://www.sourcemeta.com/test-4");
 }
 
-TEST(Bundle_dependencies, multiple_refs_to_same_target_within_schema) {
+TEST(multiple_refs_to_same_target_within_schema) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -518,7 +532,7 @@ TEST(Bundle_dependencies, multiple_refs_to_same_target_within_schema) {
                     "https://www.sourcemeta.com/test-1");
 }
 
-TEST(Bundle_dependencies, ref_to_official_schema_without_recursion) {
+TEST(ref_to_official_schema_without_recursion) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -542,7 +556,7 @@ TEST(Bundle_dependencies, ref_to_official_schema_without_recursion) {
                     "https://json-schema.org/draft/2020-12/schema");
 }
 
-TEST(Bundle_dependencies, custom_metaschema_official_boundary) {
+TEST(custom_metaschema_official_boundary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://www.sourcemeta.com/custom-metaschema",
@@ -575,7 +589,7 @@ TEST(Bundle_dependencies, custom_metaschema_official_boundary) {
                     "https://json-schema.org/draft/2020-12/meta/validation");
 }
 
-TEST(Bundle_dependencies, sibling_schemas_with_shared_dependency) {
+TEST(sibling_schemas_with_shared_dependency) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -608,7 +622,7 @@ TEST(Bundle_dependencies, sibling_schemas_with_shared_dependency) {
                     "https://www.sourcemeta.com/deep");
 }
 
-TEST(Bundle_dependencies, embedded_custom_metaschema_offline) {
+TEST(embedded_custom_metaschema_offline) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -644,7 +658,7 @@ TEST(Bundle_dependencies, embedded_custom_metaschema_offline) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(Bundle_dependencies, embedded_custom_metaschema_offline_2019_09) {
+TEST(embedded_custom_metaschema_offline_2019_09) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -680,7 +694,7 @@ TEST(Bundle_dependencies, embedded_custom_metaschema_offline_2019_09) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft7) {
+TEST(embedded_custom_metaschema_offline_draft7) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -712,7 +726,7 @@ TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft7) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft6) {
+TEST(embedded_custom_metaschema_offline_draft6) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/schema",
@@ -744,7 +758,7 @@ TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft6) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft4) {
+TEST(embedded_custom_metaschema_offline_draft4) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",
@@ -776,7 +790,7 @@ TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft4) {
   EXPECT_TRUE(traces.empty());
 }
 
-TEST(Bundle_dependencies, embedded_custom_metaschema_offline_draft3) {
+TEST(embedded_custom_metaschema_offline_draft3) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
     "id": "https://example.com/schema",

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/test.h>
@@ -13,21 +13,24 @@
 #include <optional>   // std::optional, std::nullopt
 #include <tuple>      // std::get
 
-TEST(TestSuite_parse, error_not_an_object) {
+TEST(error_not_an_object) {
   const auto input{"[]"};
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::blaze::schema_resolver,
-                   sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "The test document must be an object");
+  }
 }
 
-TEST(TestSuite_parse, error_no_target) {
+TEST(error_no_target) {
   const auto input{R"JSON({
     "tests": []
   })JSON"};
@@ -36,15 +39,19 @@ TEST(TestSuite_parse, error_no_target) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::blaze::schema_resolver,
-                   sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document must contain a `target` property");
+  }
 }
 
-TEST(TestSuite_parse, error_target_neither_string_nor_array) {
+TEST(error_target_neither_string_nor_array) {
   const auto input{R"JSON({
     "target": 123,
     "tests": []
@@ -54,15 +61,19 @@ TEST(TestSuite_parse, error_target_neither_string_nor_array) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::blaze::schema_resolver,
-                   sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "The test document `target` property must be a "
+                               "URI or an array of URIs");
+  }
 }
 
-TEST(TestSuite_parse, error_no_tests) {
+TEST(error_no_tests) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema"
   })JSON"};
@@ -71,15 +82,19 @@ TEST(TestSuite_parse, error_no_tests) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::blaze::schema_resolver,
-                   sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document must contain a `tests` property");
+  }
 }
 
-TEST(TestSuite_parse, error_tests_not_array) {
+TEST(error_tests_not_array) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": {}
@@ -89,15 +104,19 @@ TEST(TestSuite_parse, error_tests_not_array) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::blaze::schema_resolver,
-                   sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test document `tests` property must be an array");
+  }
 }
 
-TEST(TestSuite_parse, error_unresolvable_target) {
+TEST(error_unresolvable_target) {
   const auto input{R"JSON({
     "target": "https://example.com/non-existent-schema",
     "tests": []
@@ -107,15 +126,19 @@ TEST(TestSuite_parse, error_unresolvable_target) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::blaze::schema_resolver,
-                   sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
+  }
 }
 
-TEST(TestSuite_parse, valid_empty_tests) {
+TEST(valid_empty_tests) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": []
@@ -129,7 +152,7 @@ TEST(TestSuite_parse, valid_empty_tests) {
       sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  ASSERT_EQ(result.targets.size(), 1);
+  EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
             "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(result.schemas_fast.size(), 1);
@@ -137,7 +160,7 @@ TEST(TestSuite_parse, valid_empty_tests) {
   EXPECT_TRUE(result.tests.empty());
 }
 
-TEST(TestSuite_parse, valid_with_test_cases) {
+TEST(valid_with_test_cases) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
@@ -154,7 +177,7 @@ TEST(TestSuite_parse, valid_with_test_cases) {
       sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  ASSERT_EQ(result.targets.size(), 1);
+  EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
             "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(result.schemas_fast.size(), 1);
@@ -174,7 +197,7 @@ TEST(TestSuite_parse, valid_with_test_cases) {
   EXPECT_EQ(std::get<3>(result.tests[1].position), 68);
 }
 
-TEST(TestSuite_parse, error_invalid_test_case) {
+TEST(error_invalid_test_case) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
@@ -187,15 +210,20 @@ TEST(TestSuite_parse, error_invalid_test_case) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::blaze::schema_resolver,
-                   sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "Test case documents must contain a `data` or `dataPath` property");
+  }
 }
 
-TEST(TestSuite_parse, valid_with_file_path_target) {
+TEST(valid_with_file_path_target) {
   const auto input{R"JSON({
     "target": "schema.json",
     "tests": [
@@ -224,7 +252,7 @@ TEST(TestSuite_parse, valid_with_file_path_target) {
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema.json")};
 
-  ASSERT_EQ(result.targets.size(), 1);
+  EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), expected_target.recompose());
   EXPECT_EQ(result.schemas_fast.size(), 1);
   EXPECT_EQ(result.schemas_exhaustive.size(), 1);
@@ -243,7 +271,7 @@ TEST(TestSuite_parse, valid_with_file_path_target) {
   EXPECT_EQ(std::get<3>(result.tests[1].position), 66);
 }
 
-TEST(TestSuite_parse, error_no_dialect_without_default) {
+TEST(error_no_dialect_without_default) {
   const auto input{R"JSON({
     "target": "schema_no_dialect.json",
     "tests": []
@@ -262,14 +290,18 @@ TEST(TestSuite_parse, error_no_dialect_without_default) {
         return sourcemeta::blaze::schema_resolver(identifier);
       }};
 
-  EXPECT_THROW(sourcemeta::blaze::TestSuite::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   test_resolver, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::default_schema_compiler),
-               sourcemeta::blaze::SchemaResolutionError);
+  try {
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
+        sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(), "Could not resolve schema under test");
+  }
 }
 
-TEST(TestSuite_parse, valid_with_default_dialect) {
+TEST(valid_with_default_dialect) {
   const auto input{R"JSON({
     "target": "schema_no_dialect.json",
     "tests": [
@@ -299,7 +331,7 @@ TEST(TestSuite_parse, valid_with_default_dialect) {
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
 
-  ASSERT_EQ(result.targets.size(), 1);
+  EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), expected_target.recompose());
   EXPECT_EQ(result.schemas_fast.size(), 1);
   EXPECT_EQ(result.schemas_exhaustive.size(), 1);
@@ -317,7 +349,7 @@ TEST(TestSuite_parse, valid_with_default_dialect) {
   EXPECT_EQ(std::get<3>(result.tests[1].position), 67);
 }
 
-TEST(TestSuite_parse, error_target_object) {
+TEST(error_target_object) {
   const auto input{R"JSON({
     "target": { "uri": "https://json-schema.org/draft/2020-12/schema" },
     "tests": []
@@ -343,7 +375,7 @@ TEST(TestSuite_parse, error_target_object) {
   }
 }
 
-TEST(TestSuite_parse, error_target_null) {
+TEST(error_target_null) {
   const auto input{R"JSON({
     "target": null,
     "tests": []
@@ -369,7 +401,7 @@ TEST(TestSuite_parse, error_target_null) {
   }
 }
 
-TEST(TestSuite_parse, error_target_empty_array) {
+TEST(error_target_empty_array) {
   const auto input{R"JSON({
     "target": [],
     "tests": []
@@ -395,7 +427,7 @@ TEST(TestSuite_parse, error_target_empty_array) {
   }
 }
 
-TEST(TestSuite_parse, error_target_array_first_element_not_string) {
+TEST(error_target_array_first_element_not_string) {
   const auto input{R"JSON({
     "target": [
       123,
@@ -424,7 +456,7 @@ TEST(TestSuite_parse, error_target_array_first_element_not_string) {
   }
 }
 
-TEST(TestSuite_parse, error_target_array_trailing_element_not_string) {
+TEST(error_target_array_trailing_element_not_string) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -453,7 +485,7 @@ TEST(TestSuite_parse, error_target_array_trailing_element_not_string) {
   }
 }
 
-TEST(TestSuite_parse, error_target_array_element_null) {
+TEST(error_target_array_element_null) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -482,7 +514,7 @@ TEST(TestSuite_parse, error_target_array_element_null) {
   }
 }
 
-TEST(TestSuite_parse, error_target_array_element_array) {
+TEST(error_target_array_element_array) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -511,7 +543,7 @@ TEST(TestSuite_parse, error_target_array_element_array) {
   }
 }
 
-TEST(TestSuite_parse, error_target_array_unresolvable_entry) {
+TEST(error_target_array_unresolvable_entry) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -537,7 +569,7 @@ TEST(TestSuite_parse, error_target_array_unresolvable_entry) {
   }
 }
 
-TEST(TestSuite_parse, valid_target_array_single_element) {
+TEST(valid_target_array_single_element) {
   const auto input{R"JSON({
     "target": [ "https://json-schema.org/draft/2020-12/schema" ],
     "tests": [
@@ -553,7 +585,7 @@ TEST(TestSuite_parse, valid_target_array_single_element) {
       sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  ASSERT_EQ(result.targets.size(), 1);
+  EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
             "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(result.schemas_fast.size(), 1);
@@ -561,7 +593,7 @@ TEST(TestSuite_parse, valid_target_array_single_element) {
   EXPECT_EQ(result.tests.size(), 1);
 }
 
-TEST(TestSuite_parse, valid_target_array_multiple_uris) {
+TEST(valid_target_array_multiple_uris) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -582,7 +614,7 @@ TEST(TestSuite_parse, valid_target_array_multiple_uris) {
       sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  ASSERT_EQ(result.targets.size(), 3);
+  EXPECT_EQ(result.targets.size(), 3);
   EXPECT_EQ(result.targets[0], "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(result.targets[1], "https://json-schema.org/draft/2019-09/schema");
   EXPECT_EQ(result.targets[2], "http://json-schema.org/draft-07/schema");
@@ -591,7 +623,7 @@ TEST(TestSuite_parse, valid_target_array_multiple_uris) {
   EXPECT_EQ(result.tests.size(), 2);
 }
 
-TEST(TestSuite_parse, valid_target_array_with_file_paths) {
+TEST(valid_target_array_with_file_paths) {
   const auto input{R"JSON({
     "target": [ "schema.json" ],
     "tests": [
@@ -619,14 +651,14 @@ TEST(TestSuite_parse, valid_target_array_with_file_paths) {
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema.json")};
 
-  ASSERT_EQ(result.targets.size(), 1);
+  EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), expected_target.recompose());
   EXPECT_EQ(result.schemas_fast.size(), 1);
   EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
 }
 
-TEST(TestSuite_parse, valid_target_array_mixed_uri_and_file_path) {
+TEST(valid_target_array_mixed_uri_and_file_path) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -657,7 +689,7 @@ TEST(TestSuite_parse, valid_target_array_mixed_uri_and_file_path) {
   const auto expected_file_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema.json")};
 
-  ASSERT_EQ(result.targets.size(), 2);
+  EXPECT_EQ(result.targets.size(), 2);
   EXPECT_EQ(result.targets[0], "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(result.targets[1], expected_file_target.recompose());
   EXPECT_EQ(result.schemas_fast.size(), 2);
@@ -665,7 +697,7 @@ TEST(TestSuite_parse, valid_target_array_mixed_uri_and_file_path) {
   EXPECT_EQ(result.tests.size(), 1);
 }
 
-TEST(TestSuite_parse, valid_target_array_with_default_dialect) {
+TEST(valid_target_array_with_default_dialect) {
   const auto input{R"JSON({
     "target": [
       "schema_no_dialect.json",
@@ -697,7 +729,7 @@ TEST(TestSuite_parse, valid_target_array_with_default_dialect) {
   const auto expected_file_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
 
-  ASSERT_EQ(result.targets.size(), 2);
+  EXPECT_EQ(result.targets.size(), 2);
   EXPECT_EQ(result.targets[0], expected_file_target.recompose());
   EXPECT_EQ(result.targets[1], "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(result.schemas_fast.size(), 2);
@@ -705,7 +737,7 @@ TEST(TestSuite_parse, valid_target_array_with_default_dialect) {
   EXPECT_EQ(result.tests.size(), 1);
 }
 
-TEST(TestSuite_parse, valid_target_array_preserves_test_case_positions) {
+TEST(valid_target_array_preserves_test_case_positions) {
   const auto input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
@@ -725,8 +757,8 @@ TEST(TestSuite_parse, valid_target_array_preserves_test_case_positions) {
       sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  ASSERT_EQ(result.targets.size(), 2);
-  ASSERT_EQ(result.tests.size(), 2);
+  EXPECT_EQ(result.targets.size(), 2);
+  EXPECT_EQ(result.tests.size(), 2);
   EXPECT_TRUE(result.tests[0].description.empty());
   EXPECT_TRUE(result.tests[0].valid);
   EXPECT_EQ(result.tests[1].description, "Not an object");

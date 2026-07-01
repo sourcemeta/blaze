@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/codegen.h>
 
@@ -10,46 +10,34 @@
 #include <sstream>    // std::ostringstream
 #include <string>     // std::string
 
-class TypeScriptE2ETest : public testing::Test {
-public:
-  explicit TypeScriptE2ETest(const std::filesystem::path &test_directory)
-      : directory{test_directory} {}
+namespace {
+auto run_typescript_e2e(const std::filesystem::path &directory) -> void {
+  const auto schema_path{directory / "schema.json"};
+  const auto options_path{directory / "options.json"};
+  const auto expected_path{directory / "expected.d.ts"};
 
-  auto TestBody() -> void override {
-    const auto schema_path{this->directory / "schema.json"};
-    const auto options_path{this->directory / "options.json"};
-    const auto expected_path{this->directory / "expected.d.ts"};
+  const auto schema{sourcemeta::core::read_json(schema_path)};
+  const auto options{sourcemeta::core::read_json(options_path)};
 
-    const auto schema{sourcemeta::core::read_json(schema_path)};
-    const auto options{sourcemeta::core::read_json(options_path)};
+  const auto expected{sourcemeta::core::read_file_to_string(expected_path)};
 
-    const auto expected{sourcemeta::core::read_file_to_string(expected_path)};
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
 
-    const auto result{
-        sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
-                                   sourcemeta::blaze::default_compiler)};
-
-    std::ostringstream output;
-    if (options.defines("defaultPrefix")) {
-      sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(
-          output, result, options.at("defaultPrefix").to_string());
-    } else {
-      sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(output,
-                                                                 result);
-    }
-
-    EXPECT_EQ(output.str(), expected)
-        << "Generated TypeScript does not match expected output";
+  std::ostringstream output;
+  if (options.defines("defaultPrefix")) {
+    sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(
+        output, result, options.at("defaultPrefix").to_string());
+  } else {
+    sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(output, result);
   }
 
-private:
-  const std::filesystem::path directory;
-};
+  EXPECT_EQ(output.str(), expected);
+}
+} // namespace
 
 auto main(int argc, char **argv) -> int {
-  testing::InitGoogleTest(&argc, argv);
-
   const std::filesystem::path e2e_path{E2E_TYPESCRIPT_PATH};
   for (const auto &dialect_entry :
        std::filesystem::directory_iterator(e2e_path)) {
@@ -66,13 +54,12 @@ auto main(int argc, char **argv) -> int {
 
       const auto case_name{case_entry.path().filename().string()};
       const auto test_name{dialect_name + "/" + case_name};
-      testing::RegisterTest("Codegen_e2e_typescript", test_name.c_str(),
-                            nullptr, nullptr, __FILE__, __LINE__,
-                            [=]() -> TypeScriptE2ETest * {
-                              return new TypeScriptE2ETest(case_entry.path());
-                            });
+      const auto case_path{case_entry.path()};
+      sourcemeta::core::test_register(
+          "Codegen_e2e_typescript", test_name, __FILE__, __LINE__,
+          [case_path]() -> void { run_typescript_e2e(case_path); });
     }
   }
 
-  return RUN_ALL_TESTS();
+  return sourcemeta::core::test_run(argc, argv);
 }

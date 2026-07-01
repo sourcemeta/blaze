@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/foundation.h>
@@ -31,7 +31,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(Bundle_draft2, no_references_no_id) {
+TEST(no_references_no_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-02/schema#"
   })JSON");
@@ -47,7 +47,7 @@ TEST(Bundle_draft2, no_references_no_id) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft2, const_no_references_no_id) {
+TEST(const_no_references_no_id) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-02/schema#"
   })JSON");
@@ -63,7 +63,7 @@ TEST(Bundle_draft2, const_no_references_no_id) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(Bundle_draft2, simple_bundling) {
+TEST(simple_bundling) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com",
     "$schema": "http://json-schema.org/draft-02/schema#",
@@ -72,13 +72,18 @@ TEST(Bundle_draft2, simple_bundling) {
     }
   })JSON");
 
-  EXPECT_THROW(sourcemeta::blaze::bundle(
-                   document, sourcemeta::blaze::schema_walker, test_resolver,
-                   sourcemeta::blaze::BundleMode::NonOfficialMetaschemas),
-               sourcemeta::blaze::SchemaError);
+  try {
+    sourcemeta::blaze::bundle(
+        document, sourcemeta::blaze::schema_walker, test_resolver,
+        sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine how to perform bundling in this dialect");
+  }
 }
 
-TEST(Bundle_draft2, metaschema) {
+TEST(metaschema) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"
@@ -96,7 +101,7 @@ TEST(Bundle_draft2, metaschema) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(Bundle_draft2, metaschema_references_mode) {
+TEST(metaschema_references_mode) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta/1.json",
     "type": "string"

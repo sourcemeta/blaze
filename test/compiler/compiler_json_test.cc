@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 
@@ -19,7 +19,7 @@
     EXPECT_EQ(sourcemeta::blaze::to_json(template_back.value()), (result));    \
   }
 
-TEST(Compiler_JSON, example_1) {
+TEST(example_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -52,7 +52,7 @@ TEST(Compiler_JSON, example_1) {
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
 
-TEST(Compiler_JSON, example_2) {
+TEST(example_2) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": {
@@ -106,7 +106,7 @@ TEST(Compiler_JSON, example_2) {
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
 
-TEST(Compiler_JSON, example_3) {
+TEST(example_3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "pattern": "^f"
@@ -139,7 +139,7 @@ TEST(Compiler_JSON, example_3) {
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
 
-TEST(Compiler_JSON, example_4) {
+TEST(example_4) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/top",
@@ -219,7 +219,7 @@ TEST(Compiler_JSON, example_4) {
             "https://other.com/nested#/type");
 }
 
-TEST(Compiler_JSON, example_5) {
+TEST(example_5) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/top",
@@ -262,7 +262,7 @@ TEST(Compiler_JSON, example_5) {
             "https://example.com/top#/foo%25");
 }
 
-TEST(Compiler_JSON, example_6) {
+TEST(example_6) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/top",
@@ -341,7 +341,7 @@ TEST(Compiler_JSON, example_6) {
             "https://example.com/top#/additionalProperties");
 }
 
-TEST(Compiler_JSON, without_expected_1) {
+TEST(without_expected_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "id": "http://example.com/top#",
@@ -376,7 +376,7 @@ TEST(Compiler_JSON, without_expected_1) {
   EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
 }
 
-TEST(Compiler_JSON, without_expected_2) {
+TEST(without_expected_2) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "patternProperties": {
@@ -393,7 +393,7 @@ TEST(Compiler_JSON, without_expected_2) {
   EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
 }
 
-TEST(Compiler_JSON, invalid_1) {
+TEST(invalid_1) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "d": false,
     "t": false,
@@ -406,7 +406,7 @@ TEST(Compiler_JSON, invalid_1) {
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Compiler_JSON, invalid_version) {
+TEST(invalid_version) {
   const auto input{sourcemeta::core::parse_json(R"JSON([
     6,
     false,
@@ -430,7 +430,7 @@ TEST(Compiler_JSON, invalid_version) {
   EXPECT_FALSE(result.has_value());
 }
 
-TEST(Compiler_JSON, unreachable_refs_are_pruned) {
+TEST(unreachable_refs_are_pruned) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/documentation.h>
@@ -12,25 +12,19 @@
 
 #include "documentation_test_utils.h"
 
-class Documentation202012Test : public testing::Test {
-protected:
-  static auto SetUpTestSuite() -> void {
-    const auto meta_schema = sourcemeta::core::read_json(
-        std::filesystem::path{SCHEMAS_PATH} / "documentation.json");
-    compiled_schema_ = std::make_unique<sourcemeta::blaze::Template>(
-        sourcemeta::blaze::compile(meta_schema,
-                                   sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
-                                   sourcemeta::blaze::default_schema_compiler));
-  }
+namespace {
+auto compiled_schema() -> const sourcemeta::blaze::Template & {
+  static const sourcemeta::blaze::Template schema_template{
+      sourcemeta::blaze::compile(
+          sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
+                                      "documentation.json"),
+          sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+          sourcemeta::blaze::default_schema_compiler)};
+  return schema_template;
+}
+} // namespace
 
-  static std::unique_ptr<sourcemeta::blaze::Template> compiled_schema_;
-};
-
-std::unique_ptr<sourcemeta::blaze::Template>
-    Documentation202012Test::compiled_schema_ = nullptr;
-
-TEST_F(Documentation202012Test, type_string) {
+TEST(type_string) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -48,11 +42,11 @@ TEST_F(Documentation202012Test, type_string) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, required_covered_by_properties_no_constraint) {
+TEST(required_covered_by_properties_no_constraint) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -92,11 +86,11 @@ TEST_F(Documentation202012Test, required_covered_by_properties_no_constraint) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_required_with_annotations) {
+TEST(object_required_with_annotations) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -185,11 +179,11 @@ TEST_F(Documentation202012Test, object_required_with_annotations) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_additional_properties_false) {
+TEST(object_additional_properties_false) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -217,11 +211,11 @@ TEST_F(Documentation202012Test, object_additional_properties_false) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_additional_properties_true) {
+TEST(object_additional_properties_true) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -254,11 +248,11 @@ TEST_F(Documentation202012Test, object_additional_properties_true) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_open_implicit) {
+TEST(object_open_implicit) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -290,11 +284,11 @@ TEST_F(Documentation202012Test, object_open_implicit) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_closed_unevaluated_false) {
+TEST(object_closed_unevaluated_false) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -322,11 +316,11 @@ TEST_F(Documentation202012Test, object_closed_unevaluated_false) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_closed_additional_false) {
+TEST(object_closed_additional_false) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -354,11 +348,11 @@ TEST_F(Documentation202012Test, object_closed_additional_false) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_additional_properties_typed) {
+TEST(object_additional_properties_typed) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -391,11 +385,11 @@ TEST_F(Documentation202012Test, object_additional_properties_typed) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_items_string) {
+TEST(array_items_string) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -440,11 +434,11 @@ TEST_F(Documentation202012Test, array_items_string) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, nested_object_with_default) {
+TEST(nested_object_with_default) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -559,11 +553,11 @@ TEST_F(Documentation202012Test, nested_object_with_default) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, string_min_length) {
+TEST(string_min_length) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -583,11 +577,11 @@ TEST_F(Documentation202012Test, string_min_length) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, string_max_length) {
+TEST(string_max_length) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -607,11 +601,11 @@ TEST_F(Documentation202012Test, string_max_length) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, string_min_max_length) {
+TEST(string_min_max_length) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -632,11 +626,11 @@ TEST_F(Documentation202012Test, string_min_max_length) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, string_exact_length) {
+TEST(string_exact_length) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -657,11 +651,11 @@ TEST_F(Documentation202012Test, string_exact_length) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, number_minimum_maximum) {
+TEST(number_minimum_maximum) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number",
@@ -682,11 +676,11 @@ TEST_F(Documentation202012Test, number_minimum_maximum) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, integer_exclusive_bounds) {
+TEST(integer_exclusive_bounds) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",
@@ -707,11 +701,11 @@ TEST_F(Documentation202012Test, integer_exclusive_bounds) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_min_max_items) {
+TEST(array_min_max_items) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -762,11 +756,11 @@ TEST_F(Documentation202012Test, array_min_max_items) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_unique_items) {
+TEST(array_unique_items) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -815,11 +809,11 @@ TEST_F(Documentation202012Test, array_unique_items) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_unique_items_false) {
+TEST(array_unique_items_false) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -865,11 +859,11 @@ TEST_F(Documentation202012Test, array_unique_items_false) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_items_with_constraints) {
+TEST(array_items_with_constraints) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -900,11 +894,11 @@ TEST_F(Documentation202012Test, array_items_with_constraints) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_min_max_properties) {
+TEST(object_min_max_properties) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -949,11 +943,11 @@ TEST_F(Documentation202012Test, object_min_max_properties) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, string_pattern) {
+TEST(string_pattern) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -973,11 +967,11 @@ TEST_F(Documentation202012Test, string_pattern) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, number_multiple_of) {
+TEST(number_multiple_of) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "number",
@@ -997,11 +991,11 @@ TEST_F(Documentation202012Test, number_multiple_of) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, enum_single_string) {
+TEST(enum_single_string) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ "active" ]
@@ -1022,11 +1016,11 @@ TEST_F(Documentation202012Test, enum_single_string) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, enum_multiple_strings) {
+TEST(enum_multiple_strings) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ "admin", "editor", "viewer", "guest" ]
@@ -1047,11 +1041,11 @@ TEST_F(Documentation202012Test, enum_multiple_strings) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, enum_mixed_types) {
+TEST(enum_mixed_types) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ "yes", "no", 1, 0, true, false, null ]
@@ -1166,11 +1160,11 @@ TEST_F(Documentation202012Test, enum_mixed_types) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, enum_exactly_ten) {
+TEST(enum_exactly_ten) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" ]
@@ -1202,11 +1196,11 @@ TEST_F(Documentation202012Test, enum_exactly_ten) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, enum_overflow) {
+TEST(enum_overflow) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "enum": [ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l" ]
@@ -1228,11 +1222,11 @@ TEST_F(Documentation202012Test, enum_overflow) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, contains_flat_inline) {
+TEST(contains_flat_inline) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1283,11 +1277,11 @@ TEST_F(Documentation202012Test, contains_flat_inline) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, contains_with_min_contains) {
+TEST(contains_with_min_contains) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1339,11 +1333,11 @@ TEST_F(Documentation202012Test, contains_with_min_contains) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, contains_with_max_contains) {
+TEST(contains_with_max_contains) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1396,11 +1390,11 @@ TEST_F(Documentation202012Test, contains_with_max_contains) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, contains_with_min_and_max_contains) {
+TEST(contains_with_min_and_max_contains) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1454,11 +1448,11 @@ TEST_F(Documentation202012Test, contains_with_min_and_max_contains) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, contains_min_contains_zero) {
+TEST(contains_min_contains_zero) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -1510,11 +1504,11 @@ TEST_F(Documentation202012Test, contains_min_contains_zero) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, string_all_annotations) {
+TEST(string_all_annotations) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1543,11 +1537,11 @@ TEST_F(Documentation202012Test, string_all_annotations) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_write_only) {
+TEST(property_write_only) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1609,11 +1603,11 @@ TEST_F(Documentation202012Test, property_write_only) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, nested_property_annotations) {
+TEST(nested_property_annotations) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1709,11 +1703,11 @@ TEST_F(Documentation202012Test, nested_property_annotations) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, content_encoding_and_media_type) {
+TEST(content_encoding_and_media_type) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1737,11 +1731,11 @@ TEST_F(Documentation202012Test, content_encoding_and_media_type) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, content_schema_flat) {
+TEST(content_schema_flat) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -1770,11 +1764,11 @@ TEST_F(Documentation202012Test, content_schema_flat) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_names_flat) {
+TEST(property_names_flat) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1822,11 +1816,11 @@ TEST_F(Documentation202012Test, property_names_flat) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_names_flat_pattern) {
+TEST(property_names_flat_pattern) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1872,11 +1866,11 @@ TEST_F(Documentation202012Test, property_names_flat_pattern) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, pattern_properties_only) {
+TEST(pattern_properties_only) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -1931,11 +1925,11 @@ TEST_F(Documentation202012Test, pattern_properties_only) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_with_anyof) {
+TEST(property_with_anyof) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2038,11 +2032,11 @@ TEST_F(Documentation202012Test, property_with_anyof) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, additional_properties_object_deep) {
+TEST(additional_properties_object_deep) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2119,11 +2113,11 @@ TEST_F(Documentation202012Test, additional_properties_object_deep) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, additional_properties_array_object_deep) {
+TEST(additional_properties_array_object_deep) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2230,11 +2224,11 @@ TEST_F(Documentation202012Test, additional_properties_array_object_deep) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, unevaluated_properties_object_deep) {
+TEST(unevaluated_properties_object_deep) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2329,11 +2323,11 @@ TEST_F(Documentation202012Test, unevaluated_properties_object_deep) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_additional_properties_object_deep) {
+TEST(property_additional_properties_object_deep) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2452,11 +2446,11 @@ TEST_F(Documentation202012Test, property_additional_properties_object_deep) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, additional_properties_with_anyof) {
+TEST(additional_properties_with_anyof) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2559,11 +2553,11 @@ TEST_F(Documentation202012Test, additional_properties_with_anyof) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, items_with_anyof) {
+TEST(items_with_anyof) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -2651,11 +2645,11 @@ TEST_F(Documentation202012Test, items_with_anyof) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_with_not) {
+TEST(property_with_not) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2735,11 +2729,11 @@ TEST_F(Documentation202012Test, property_with_not) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, pattern_property_with_oneof) {
+TEST(pattern_property_with_oneof) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2836,11 +2830,11 @@ TEST_F(Documentation202012Test, pattern_property_with_oneof) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, pattern_property_nested_object) {
+TEST(pattern_property_nested_object) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2893,11 +2887,11 @@ TEST_F(Documentation202012Test, pattern_property_nested_object) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, pattern_properties_with_properties) {
+TEST(pattern_properties_with_properties) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -2969,11 +2963,11 @@ TEST_F(Documentation202012Test, pattern_properties_with_properties) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, pattern_properties_with_additional) {
+TEST(pattern_properties_with_additional) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3005,12 +2999,11 @@ TEST_F(Documentation202012Test, pattern_properties_with_additional) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test,
-       pattern_properties_with_properties_and_additional) {
+TEST(pattern_properties_with_properties_and_additional) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3059,11 +3052,11 @@ TEST_F(Documentation202012Test,
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, pattern_properties_additional_false) {
+TEST(pattern_properties_additional_false) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3099,11 +3092,11 @@ TEST_F(Documentation202012Test, pattern_properties_additional_false) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_name_with_slash) {
+TEST(property_name_with_slash) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3159,11 +3152,11 @@ TEST_F(Documentation202012Test, property_name_with_slash) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_name_with_tilde) {
+TEST(property_name_with_tilde) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3219,11 +3212,11 @@ TEST_F(Documentation202012Test, property_name_with_tilde) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_name_with_slash_and_tilde) {
+TEST(property_name_with_slash_and_tilde) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3279,11 +3272,11 @@ TEST_F(Documentation202012Test, property_name_with_slash_and_tilde) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, tuple_prefix_items) {
+TEST(tuple_prefix_items) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -3323,11 +3316,11 @@ TEST_F(Documentation202012Test, tuple_prefix_items) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, tuple_prefix_items_with_tail) {
+TEST(tuple_prefix_items_with_tail) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -3374,11 +3367,11 @@ TEST_F(Documentation202012Test, tuple_prefix_items_with_tail) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, tuple_prefix_items_complex) {
+TEST(tuple_prefix_items_complex) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -3503,11 +3496,11 @@ TEST_F(Documentation202012Test, tuple_prefix_items_complex) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, tuple_prefix_items_required) {
+TEST(tuple_prefix_items_required) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -3557,11 +3550,11 @@ TEST_F(Documentation202012Test, tuple_prefix_items_required) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_unevaluated_properties) {
+TEST(object_unevaluated_properties) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3594,11 +3587,11 @@ TEST_F(Documentation202012Test, object_unevaluated_properties) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, tuple_unevaluated_items) {
+TEST(tuple_unevaluated_items) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -3640,11 +3633,11 @@ TEST_F(Documentation202012Test, tuple_unevaluated_items) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_boolean_true) {
+TEST(property_boolean_true) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3699,11 +3692,11 @@ TEST_F(Documentation202012Test, property_boolean_true) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_boolean_false) {
+TEST(property_boolean_false) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3758,11 +3751,11 @@ TEST_F(Documentation202012Test, property_boolean_false) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, external_ref_property) {
+TEST(external_ref_property) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3818,11 +3811,11 @@ TEST_F(Documentation202012Test, external_ref_property) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, external_ref_root) {
+TEST(external_ref_root) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://example.com/user.json"
@@ -3843,11 +3836,11 @@ TEST_F(Documentation202012Test, external_ref_root) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, dynamic_ref_with_anchor) {
+TEST(dynamic_ref_with_anchor) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/root",
@@ -3944,11 +3937,11 @@ TEST_F(Documentation202012Test, dynamic_ref_with_anchor) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, dynamic_ref_standalone) {
+TEST(dynamic_ref_standalone) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$dynamicRef": "#target"
@@ -3966,11 +3959,11 @@ TEST_F(Documentation202012Test, dynamic_ref_standalone) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, no_dynamic_anchor_by_default) {
+TEST(no_dynamic_anchor_by_default) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
@@ -3988,11 +3981,11 @@ TEST_F(Documentation202012Test, no_dynamic_anchor_by_default) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, internal_ref_non_recursive) {
+TEST(internal_ref_non_recursive) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4175,11 +4168,11 @@ TEST_F(Documentation202012Test, internal_ref_non_recursive) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, internal_ref_recursive_root) {
+TEST(internal_ref_recursive_root) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4285,11 +4278,11 @@ TEST_F(Documentation202012Test, internal_ref_recursive_root) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, internal_ref_recursive_via_def) {
+TEST(internal_ref_recursive_via_def) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "#/$defs/node",
@@ -4424,11 +4417,11 @@ TEST_F(Documentation202012Test, internal_ref_recursive_via_def) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, internal_ref_recursive_with_id) {
+TEST(internal_ref_recursive_with_id) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/tree",
@@ -4535,11 +4528,11 @@ TEST_F(Documentation202012Test, internal_ref_recursive_with_id) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
+TEST(internal_ref_shared_def_with_recursion) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4733,11 +4726,11 @@ TEST_F(Documentation202012Test, internal_ref_shared_def_with_recursion) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_with_anyof) {
+TEST(object_with_anyof) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -4914,11 +4907,11 @@ TEST_F(Documentation202012Test, object_with_anyof) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, if_then_else) {
+TEST(if_then_else) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "if": { "const": true },
@@ -4988,11 +4981,11 @@ TEST_F(Documentation202012Test, if_then_else) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, allof_simple) {
+TEST(allof_simple) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "allOf": [
@@ -5046,11 +5039,11 @@ TEST_F(Documentation202012Test, allof_simple) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, dependent_schemas) {
+TEST(dependent_schemas) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -5290,11 +5283,11 @@ TEST_F(Documentation202012Test, dependent_schemas) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, dependent_required) {
+TEST(dependent_required) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -5481,11 +5474,11 @@ TEST_F(Documentation202012Test, dependent_required) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, contains_branching) {
+TEST(contains_branching) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -5566,11 +5559,11 @@ TEST_F(Documentation202012Test, contains_branching) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, content_schema_branching) {
+TEST(content_schema_branching) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -5654,11 +5647,11 @@ TEST_F(Documentation202012Test, content_schema_branching) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, oneOf_simple) {
+TEST(oneOf_simple) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "oneOf": [
@@ -5712,11 +5705,11 @@ TEST_F(Documentation202012Test, oneOf_simple) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, property_names_branching) {
+TEST(property_names_branching) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -5834,11 +5827,11 @@ TEST_F(Documentation202012Test, property_names_branching) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, not_type_only) {
+TEST(not_type_only) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": { "type": "string" }
@@ -5873,11 +5866,11 @@ TEST_F(Documentation202012Test, not_type_only) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, not_flat) {
+TEST(not_flat) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -5924,11 +5917,11 @@ TEST_F(Documentation202012Test, not_flat) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, not_branching) {
+TEST(not_branching) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -6037,11 +6030,11 @@ TEST_F(Documentation202012Test, not_branching) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, anyof_unevaluated) {
+TEST(anyof_unevaluated) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -6184,11 +6177,11 @@ TEST_F(Documentation202012Test, anyof_unevaluated) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, root_boolean_false) {
+TEST(root_boolean_false) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "not": true
@@ -6223,11 +6216,11 @@ TEST_F(Documentation202012Test, root_boolean_false) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, no_type_keyword_produces_any) {
+TEST(no_type_keyword_produces_any) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "anyOf": [
@@ -6275,11 +6268,11 @@ TEST_F(Documentation202012Test, no_type_keyword_produces_any) {
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, default_explicit_null) {
+TEST(default_explicit_null) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -6339,11 +6332,11 @@ TEST_F(Documentation202012Test, default_explicit_null) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, recursive_ref_walk_schema_cycle) {
+TEST(recursive_ref_walk_schema_cycle) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/tree",
@@ -6442,11 +6435,11 @@ TEST_F(Documentation202012Test, recursive_ref_walk_schema_cycle) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_items_ref_to_object) {
+TEST(array_items_ref_to_object) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -6529,11 +6522,11 @@ TEST_F(Documentation202012Test, array_items_ref_to_object) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_items_ref_to_string) {
+TEST(array_items_ref_to_string) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -6581,11 +6574,11 @@ TEST_F(Documentation202012Test, array_items_ref_to_string) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_items_object_with_properties) {
+TEST(array_items_object_with_properties) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -6667,11 +6660,11 @@ TEST_F(Documentation202012Test, array_items_object_with_properties) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, array_items_ref_to_object_with_properties) {
+TEST(array_items_ref_to_object_with_properties) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -6754,11 +6747,11 @@ TEST_F(Documentation202012Test, array_items_ref_to_object_with_properties) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, object_property_array_of_objects) {
+TEST(object_property_array_of_objects) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -6882,11 +6875,11 @@ TEST_F(Documentation202012Test, object_property_array_of_objects) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, mutual_ref_cycle_in_type_expression) {
+TEST(mutual_ref_cycle_in_type_expression) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -6945,12 +6938,11 @@ TEST_F(Documentation202012Test, mutual_ref_cycle_in_type_expression) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test,
-       array_items_object_with_unevaluated_properties) {
+TEST(array_items_object_with_unevaluated_properties) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -6997,11 +6989,11 @@ TEST_F(Documentation202012Test,
   })JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test, recursive_ref_inside_array_items) {
+TEST(recursive_ref_inside_array_items) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -7122,12 +7114,11 @@ TEST_F(Documentation202012Test, recursive_ref_inside_array_items) {
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }
 
-TEST_F(Documentation202012Test,
-       object_property_array_items_unevaluated_properties) {
+TEST(object_property_array_items_unevaluated_properties) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -7256,6 +7247,6 @@ TEST_F(Documentation202012Test,
   )JSON")};
 
   EXPECT_DOCUMENTATION(schema, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, *compiled_schema_,
+                       sourcemeta::blaze::schema_resolver, compiled_schema(),
                        expected);
 }

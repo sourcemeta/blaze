@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/test.h>
 
@@ -10,19 +10,23 @@
 static const sourcemeta::core::PointerPositionTracker::Position STUB_POSITION{
     0, 0, 0, 0};
 
-TEST(TestCase_parse, error_not_an_object) {
+TEST(error_not_an_object) {
   const auto input{"[]"};
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestCase::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::empty_pointer, STUB_POSITION),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "Test case documents must be objects");
+  }
 }
 
-TEST(TestCase_parse, error_no_data_or_dataPath) {
+TEST(error_no_data_or_dataPath) {
   const auto input{R"JSON({
     "valid": true
   })JSON"};
@@ -31,13 +35,19 @@ TEST(TestCase_parse, error_no_data_or_dataPath) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestCase::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::empty_pointer, STUB_POSITION),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "Test case documents must contain a `data` or `dataPath` property");
+  }
 }
 
-TEST(TestCase_parse, error_both_data_and_dataPath) {
+TEST(error_both_data_and_dataPath) {
   const auto input{R"JSON({
     "data": {},
     "dataPath": "data.json",
@@ -48,13 +58,18 @@ TEST(TestCase_parse, error_both_data_and_dataPath) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestCase::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::empty_pointer, STUB_POSITION),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "Test case documents must contain either a "
+                               "`data` or `dataPath` property, but not both");
+  }
 }
 
-TEST(TestCase_parse, error_dataPath_not_string) {
+TEST(error_dataPath_not_string) {
   const auto input{R"JSON({
     "dataPath": 123,
     "valid": true
@@ -64,13 +79,19 @@ TEST(TestCase_parse, error_dataPath_not_string) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestCase::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::empty_pointer, STUB_POSITION),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "Test case documents must set the `dataPath` property to a string");
+  }
 }
 
-TEST(TestCase_parse, error_description_not_string) {
+TEST(error_description_not_string) {
   const auto input{R"JSON({
     "data": {},
     "description": 123,
@@ -81,13 +102,18 @@ TEST(TestCase_parse, error_description_not_string) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestCase::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::empty_pointer, STUB_POSITION),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "If you set a test case description, it must be a string");
+  }
 }
 
-TEST(TestCase_parse, error_no_valid) {
+TEST(error_no_valid) {
   const auto input{R"JSON({
     "data": {}
   })JSON"};
@@ -96,13 +122,18 @@ TEST(TestCase_parse, error_no_valid) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestCase::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::empty_pointer, STUB_POSITION),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Test case documents must contain a `valid` property");
+  }
 }
 
-TEST(TestCase_parse, error_valid_not_boolean) {
+TEST(error_valid_not_boolean) {
   const auto input{R"JSON({
     "data": {},
     "valid": "true"
@@ -112,13 +143,18 @@ TEST(TestCase_parse, error_valid_not_boolean) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  EXPECT_THROW(sourcemeta::blaze::TestCase::parse(
-                   document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::empty_pointer, STUB_POSITION),
-               sourcemeta::blaze::TestParseError);
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The test case document `valid` property must be a boolean");
+  }
 }
 
-TEST(TestCase_parse, valid_with_inline_data_true) {
+TEST(valid_with_inline_data_true) {
   const auto input{R"JSON({
     "data": { "foo": 1 },
     "valid": true
@@ -138,7 +174,7 @@ TEST(TestCase_parse, valid_with_inline_data_true) {
   EXPECT_EQ(result.position, STUB_POSITION);
 }
 
-TEST(TestCase_parse, valid_with_inline_data_false) {
+TEST(valid_with_inline_data_false) {
   const auto input{R"JSON({
     "data": { "foo": 1 },
     "valid": false
@@ -158,7 +194,7 @@ TEST(TestCase_parse, valid_with_inline_data_false) {
   EXPECT_EQ(result.position, STUB_POSITION);
 }
 
-TEST(TestCase_parse, valid_with_description) {
+TEST(valid_with_description) {
   const auto input{R"JSON({
     "data": {},
     "description": "My test case",
@@ -177,7 +213,7 @@ TEST(TestCase_parse, valid_with_description) {
   EXPECT_EQ(result.position, STUB_POSITION);
 }
 
-TEST(TestCase_parse, valid_with_dataPath_json) {
+TEST(valid_with_dataPath_json) {
   const auto input{R"JSON({
     "dataPath": "data.json",
     "valid": true
@@ -197,7 +233,7 @@ TEST(TestCase_parse, valid_with_dataPath_json) {
   EXPECT_EQ(result.position, STUB_POSITION);
 }
 
-TEST(TestCase_parse, valid_with_dataPath_yaml) {
+TEST(valid_with_dataPath_yaml) {
   const auto input{R"JSON({
     "dataPath": "data.yaml",
     "valid": true
@@ -217,7 +253,7 @@ TEST(TestCase_parse, valid_with_dataPath_yaml) {
   EXPECT_EQ(result.position, STUB_POSITION);
 }
 
-TEST(TestCase_parse, valid_with_dataPath_and_description) {
+TEST(valid_with_dataPath_and_description) {
   const auto input{R"JSON({
     "dataPath": "data.json",
     "description": "External data test",

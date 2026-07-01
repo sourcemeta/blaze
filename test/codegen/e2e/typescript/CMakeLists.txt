@@ -1,5 +1,4 @@
-sourcemeta_googletest(NAMESPACE sourcemeta PROJECT blaze NAME codegen_e2e_typescript
-  FOLDER "Blaze/Codegen/E2E/TypeScript"
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME codegen_e2e_typescript
   SOURCES e2e.cc)
 
 target_link_libraries(sourcemeta_blaze_codegen_e2e_typescript_unit

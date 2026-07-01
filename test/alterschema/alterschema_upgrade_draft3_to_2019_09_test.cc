@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
 
@@ -7,7 +7,7 @@
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_upgrade_Draft3_to_2019_09, trivial_root) {
+TEST(trivial_root) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string"
@@ -21,8 +21,7 @@ TEST(AlterSchema_upgrade_Draft3_to_2019_09, trivial_root) {
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_2019_09,
-     definitions_renamed_via_definitions_to_defs_chain) {
+TEST(definitions_renamed_via_definitions_to_defs_chain) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "definitions": {
@@ -42,8 +41,7 @@ TEST(AlterSchema_upgrade_Draft3_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_2019_09,
-     format_host_name_and_ip_address_renamed) {
+TEST(format_host_name_and_ip_address_renamed) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object",
@@ -67,8 +65,7 @@ TEST(AlterSchema_upgrade_Draft3_to_2019_09,
   UPGRADE_2019_09(document, expected);
 }
 
-TEST(AlterSchema_upgrade_Draft3_to_2019_09,
-     metaschema_cascade_from_draft3_emits_2019_09_vocabulary) {
+TEST(metaschema_cascade_from_draft3_emits_2019_09_vocabulary) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "id": "https://example.com/my-dialect",

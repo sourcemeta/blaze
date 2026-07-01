@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <cassert>
 #include <cctype>
@@ -222,29 +222,19 @@ static auto slugify(const std::string &input, std::ostream &output) -> void {
   }
 }
 
-class OfficialTest : public testing::Test {
-public:
-  explicit OfficialTest(bool test_valid,
-                        sourcemeta::blaze::Template test_schema,
-                        sourcemeta::core::JSON test_instance)
-      : valid{test_valid}, schema{std::move(test_schema)},
-        instance{std::move(test_instance)} {}
-
-  auto TestBody() -> void override {
-    const auto result{this->evaluator.validate(this->schema, this->instance)};
-    if (this->valid) {
-      EXPECT_TRUE(result);
-    } else {
-      EXPECT_FALSE(result);
-    }
-  }
-
-private:
-  const bool valid;
-  const sourcemeta::blaze::Template schema;
-  const sourcemeta::core::JSON instance;
+namespace {
+auto run_official_test(const bool valid,
+                       const sourcemeta::blaze::Template &schema,
+                       const sourcemeta::core::JSON &instance) -> void {
   sourcemeta::blaze::Evaluator evaluator;
-};
+  const auto result{evaluator.validate(schema, instance)};
+  if (valid) {
+    EXPECT_TRUE(result);
+  } else {
+    EXPECT_FALSE(result);
+  }
+}
+} // namespace
 
 static auto register_tests(
     const std::filesystem::path &subdirectory, const std::string &suite_name,
@@ -316,10 +306,10 @@ static auto register_tests(
           title << "__";
           slugify(test_case.at("description").to_string(), title);
 
-          testing::RegisterTest(
-              suite_name.c_str(), title.str().c_str(), nullptr, nullptr,
-              __FILE__, __LINE__, [=]() -> OfficialTest * {
-                return new OfficialTest(valid, schema_template, instance);
+          sourcemeta::core::test_register(
+              suite_name, title.str(), __FILE__, __LINE__,
+              [valid, schema_template, instance]() -> void {
+                run_official_test(valid, schema_template, instance);
               });
         }
       }
@@ -327,9 +317,7 @@ static auto register_tests(
   }
 }
 
-int main(int argc, char **argv) {
-  testing::InitGoogleTest(&argc, argv);
-
+auto main(int argc, char **argv) -> int {
   try {
     // 2020-12
     register_tests("draft2020-12", "JSONSchemaOfficialSuite_2020_12",
@@ -412,5 +400,5 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  return RUN_ALL_TESTS();
+  return sourcemeta::core::test_run(argc, argv);
 }

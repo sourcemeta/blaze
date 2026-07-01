@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
@@ -6,7 +6,7 @@
 
 #include <vector>
 
-TEST(Foundation_keyword_iterator, draft_2020_12) {
+TEST(draft_2020_12) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -98,7 +98,7 @@ TEST(Foundation_keyword_iterator, draft_2020_12) {
   EXPECT_EQ(entries.at(15).subschema.get(), sourcemeta::core::JSON{true});
 }
 
-TEST(Foundation_keyword_iterator, draft_2019_09) {
+TEST(draft_2019_09) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "string",
@@ -191,7 +191,7 @@ TEST(Foundation_keyword_iterator, draft_2019_09) {
   EXPECT_EQ(entries.at(15).subschema.get(), sourcemeta::core::JSON{true});
 }
 
-TEST(Foundation_keyword_iterator, draft7) {
+TEST(draft7) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "string",
@@ -261,7 +261,7 @@ TEST(Foundation_keyword_iterator, draft7) {
   EXPECT_EQ(entries.at(10).subschema.get(), sourcemeta::core::JSON{"string"});
 }
 
-TEST(Foundation_keyword_iterator, draft6) {
+TEST(draft6) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "string",
@@ -319,7 +319,7 @@ TEST(Foundation_keyword_iterator, draft6) {
   EXPECT_EQ(entries.at(7).subschema.get(), sourcemeta::core::JSON{"string"});
 }
 
-TEST(Foundation_keyword_iterator, draft4) {
+TEST(draft4) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "string",
@@ -377,7 +377,7 @@ TEST(Foundation_keyword_iterator, draft4) {
   EXPECT_EQ(entries.at(7).subschema.get(), sourcemeta::core::JSON{"string"});
 }
 
-TEST(Foundation_keyword_iterator, draft3) {
+TEST(draft3) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "string",
@@ -430,7 +430,7 @@ TEST(Foundation_keyword_iterator, draft3) {
   EXPECT_EQ(entries.at(6).subschema.get(), sourcemeta::core::JSON{true});
 }
 
-TEST(Foundation_keyword_iterator, draft2) {
+TEST(draft2) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-02/schema#",
     "type": "string",
@@ -469,7 +469,7 @@ TEST(Foundation_keyword_iterator, draft2) {
   EXPECT_EQ(entries.at(3).subschema.get(), sourcemeta::core::JSON{true});
 }
 
-TEST(Foundation_keyword_iterator, draft1) {
+TEST(draft1) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-01/schema#",
     "type": "string",
@@ -508,7 +508,7 @@ TEST(Foundation_keyword_iterator, draft1) {
   EXPECT_EQ(entries.at(3).subschema.get(), sourcemeta::core::JSON{true});
 }
 
-TEST(Foundation_keyword_iterator, draft0) {
+TEST(draft0) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
     "type": "string",
@@ -547,7 +547,7 @@ TEST(Foundation_keyword_iterator, draft0) {
   EXPECT_EQ(entries.at(3).subschema.get(), sourcemeta::core::JSON{true});
 }
 
-TEST(Foundation_keyword_iterator, unknown_keyword) {
+TEST(unknown_keyword) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "foobar": 0
@@ -579,7 +579,7 @@ TEST(Foundation_keyword_iterator, unknown_keyword) {
   EXPECT_EQ(entries.at(1).vocabularies.size(), 7);
 }
 
-TEST(Foundation_keyword_iterator, with_default_dialect) {
+TEST(with_default_dialect) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "properties": {},
     "patternProperties": {},
@@ -615,7 +615,7 @@ TEST(Foundation_keyword_iterator, with_default_dialect) {
   EXPECT_EQ(entries.at(2).subschema.get(), sourcemeta::core::JSON{true});
 }
 
-TEST(Foundation_keyword_iterator, no_default_dialect) {
+TEST(no_default_dialect) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "properties": {},
     "patternProperties": {},
@@ -648,7 +648,7 @@ TEST(Foundation_keyword_iterator, no_default_dialect) {
   EXPECT_EQ(entries.at(2).subschema.get(), sourcemeta::core::parse_json("{}"));
 }
 
-TEST(Foundation_keyword_iterator, boolean_true) {
+TEST(boolean_true) {
   const sourcemeta::core::JSON document{true};
 
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;
@@ -661,7 +661,7 @@ TEST(Foundation_keyword_iterator, boolean_true) {
   EXPECT_TRUE(entries.empty());
 }
 
-TEST(Foundation_keyword_iterator, boolean_false) {
+TEST(boolean_false) {
   const sourcemeta::core::JSON document{false};
 
   std::vector<sourcemeta::blaze::SchemaIteratorEntry> entries;

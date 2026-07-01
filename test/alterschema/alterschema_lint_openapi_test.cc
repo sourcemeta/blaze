@@ -1,10 +1,10 @@
-#include <gtest/gtest.h>
+#include <sourcemeta/core/test.h>
 
 #include <sourcemeta/core/json.h>
 
 #include "alterschema_test_utils.h"
 
-TEST(AlterSchema_lint_openapi_3_1, discriminator_known_with_vocabulary) {
+TEST(openapi_3_1_discriminator_known_with_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "type": "object",
@@ -24,7 +24,7 @@ TEST(AlterSchema_lint_openapi_3_1, discriminator_known_with_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi_3_1, xml_known_with_vocabulary) {
+TEST(openapi_3_1_xml_known_with_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "type": "object",
@@ -44,7 +44,7 @@ TEST(AlterSchema_lint_openapi_3_1, xml_known_with_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi_3_1, externalDocs_known_with_vocabulary) {
+TEST(openapi_3_1_externalDocs_known_with_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "type": "object",
@@ -64,7 +64,7 @@ TEST(AlterSchema_lint_openapi_3_1, externalDocs_known_with_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi_3_1, example_known_with_vocabulary) {
+TEST(openapi_3_1_example_known_with_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "type": "string",
@@ -84,7 +84,7 @@ TEST(AlterSchema_lint_openapi_3_1, example_known_with_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi_3_2, discriminator_known_with_vocabulary) {
+TEST(openapi_3_2_discriminator_known_with_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
     "type": "object",
@@ -104,7 +104,7 @@ TEST(AlterSchema_lint_openapi_3_2, discriminator_known_with_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi_3_2, xml_known_with_vocabulary) {
+TEST(openapi_3_2_xml_known_with_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
     "type": "object",
@@ -124,7 +124,7 @@ TEST(AlterSchema_lint_openapi_3_2, xml_known_with_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi_3_2, externalDocs_known_with_vocabulary) {
+TEST(openapi_3_2_externalDocs_known_with_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
     "type": "object",
@@ -144,7 +144,7 @@ TEST(AlterSchema_lint_openapi_3_2, externalDocs_known_with_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi_3_2, example_known_with_vocabulary) {
+TEST(openapi_3_2_example_known_with_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
     "type": "string",
@@ -164,7 +164,7 @@ TEST(AlterSchema_lint_openapi_3_2, example_known_with_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi, discriminator_unknown_without_vocabulary) {
+TEST(openapi_discriminator_unknown_without_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -184,7 +184,7 @@ TEST(AlterSchema_lint_openapi, discriminator_unknown_without_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi, xml_unknown_without_vocabulary) {
+TEST(openapi_xml_unknown_without_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -204,7 +204,7 @@ TEST(AlterSchema_lint_openapi, xml_unknown_without_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi, externalDocs_unknown_without_vocabulary) {
+TEST(openapi_externalDocs_unknown_without_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -224,7 +224,7 @@ TEST(AlterSchema_lint_openapi, externalDocs_unknown_without_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi, example_unknown_without_vocabulary) {
+TEST(openapi_example_unknown_without_vocabulary) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string",
@@ -244,7 +244,7 @@ TEST(AlterSchema_lint_openapi, example_unknown_without_vocabulary) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(AlterSchema_lint_openapi_3_1, pattern_non_ecma_regex_invalid_escape) {
+TEST(openapi_3_1_pattern_non_ecma_regex_invalid_escape) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "title": "Test",
@@ -266,7 +266,7 @@ TEST(AlterSchema_lint_openapi_3_1, pattern_non_ecma_regex_invalid_escape) {
       false);
 }
 
-TEST(AlterSchema_lint_openapi_3_1, pattern_non_ecma_regex_valid) {
+TEST(openapi_3_1_pattern_non_ecma_regex_valid) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "title": "Test",
@@ -283,7 +283,7 @@ TEST(AlterSchema_lint_openapi_3_1, pattern_non_ecma_regex_valid) {
   EXPECT_EQ(traces.size(), 0);
 }
 
-TEST(AlterSchema_lint_openapi_3_2, pattern_non_ecma_regex_invalid_escape) {
+TEST(openapi_3_2_pattern_non_ecma_regex_invalid_escape) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
     "title": "Test",
@@ -305,7 +305,7 @@ TEST(AlterSchema_lint_openapi_3_2, pattern_non_ecma_regex_invalid_escape) {
       false);
 }
 
-TEST(AlterSchema_lint_openapi_3_2, pattern_non_ecma_regex_valid) {
+TEST(openapi_3_2_pattern_non_ecma_regex_valid) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
     "title": "Test",
@@ -322,8 +322,7 @@ TEST(AlterSchema_lint_openapi_3_2, pattern_non_ecma_regex_valid) {
   EXPECT_EQ(traces.size(), 0);
 }
 
-TEST(AlterSchema_lint_openapi_3_1,
-     pattern_properties_non_ecma_regex_invalid_escape) {
+TEST(openapi_3_1_pattern_properties_non_ecma_regex_invalid_escape) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "title": "Test",
@@ -345,7 +344,7 @@ TEST(AlterSchema_lint_openapi_3_1,
       false);
 }
 
-TEST(AlterSchema_lint_openapi_3_1, pattern_properties_non_ecma_regex_valid) {
+TEST(openapi_3_1_pattern_properties_non_ecma_regex_valid) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "title": "Test",
@@ -362,8 +361,7 @@ TEST(AlterSchema_lint_openapi_3_1, pattern_properties_non_ecma_regex_valid) {
   EXPECT_EQ(traces.size(), 0);
 }
 
-TEST(AlterSchema_lint_openapi_3_2,
-     pattern_properties_non_ecma_regex_invalid_escape) {
+TEST(openapi_3_2_pattern_properties_non_ecma_regex_invalid_escape) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
     "title": "Test",
@@ -385,7 +383,7 @@ TEST(AlterSchema_lint_openapi_3_2,
       false);
 }
 
-TEST(AlterSchema_lint_openapi_3_2, pattern_properties_non_ecma_regex_valid) {
+TEST(openapi_3_2_pattern_properties_non_ecma_regex_valid) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
     "title": "Test",
