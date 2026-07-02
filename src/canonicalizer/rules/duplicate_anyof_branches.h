@@ -30,7 +30,7 @@ public:
     const auto *any_of{schema.try_at("anyOf")};
     ONLY_CONTINUE_IF(any_of && any_of->is_array() && !any_of->unique());
     // TODO: Highlight which specific entries in `anyOf` are duplicated
-    return APPLIES_TO_KEYWORDS("anyOf");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

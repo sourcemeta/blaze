@@ -83,7 +83,7 @@ public:
       }
     }
 
-    return APPLIES_TO_KEYWORDS(KEYWORD);
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

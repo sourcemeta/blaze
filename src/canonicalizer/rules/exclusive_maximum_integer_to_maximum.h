@@ -29,7 +29,7 @@ public:
                      type->to_string() == "integer");
     const auto *exclusive_maximum{schema.try_at("exclusiveMaximum")};
     ONLY_CONTINUE_IF(exclusive_maximum && exclusive_maximum->is_number());
-    return APPLIES_TO_KEYWORDS("exclusiveMaximum", "type");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

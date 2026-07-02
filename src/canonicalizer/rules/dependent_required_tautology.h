@@ -35,7 +35,7 @@ public:
                       return element.is_string() &&
                              dependent_required->defines(element.to_string());
                     }));
-    return APPLIES_TO_KEYWORDS("dependentRequired", "required");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

@@ -23,7 +23,7 @@ public:
              Vocabularies::Known::JSON_Schema_2019_09_Validation}) &&
         schema.is_object() && schema.defines("maxContains") &&
         !schema.defines("contains"));
-    return APPLIES_TO_KEYWORDS("maxContains");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

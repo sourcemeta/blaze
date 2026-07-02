@@ -28,7 +28,7 @@ public:
     const auto *required{schema.try_at("required")};
     ONLY_CONTINUE_IF(required && required->is_array() && !required->unique());
     // TODO: Highlight which specific entries in `required` are duplicated
-    return APPLIES_TO_KEYWORDS("required");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

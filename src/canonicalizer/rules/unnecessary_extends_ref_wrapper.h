@@ -28,7 +28,8 @@ public:
     // subschema only declares `extends`
     if (extends->is_object()) {
       ONLY_CONTINUE_IF(extends->size() == 1 && extends->defines("$ref"));
-      return APPLIES_TO_POINTERS({{"extends", "$ref"}});
+      this->locations_ = {{"extends", "$ref"}};
+      return true;
     }
 
     if (extends->is_array()) {
@@ -36,14 +37,15 @@ public:
       const auto &branch{extends->at(0)};
       ONLY_CONTINUE_IF(branch.is_object());
       ONLY_CONTINUE_IF(branch.size() == 1 && branch.defines("$ref"));
-      return APPLIES_TO_POINTERS({{"extends", 0, "$ref"}});
+      this->locations_ = {{"extends", 0, "$ref"}};
+      return true;
     }
 
     return false;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
-    const auto &location{result.locations.at(0)};
+  auto transform(JSON &schema, const Result &) const -> void override {
+    const auto &location{this->locations_.at(0)};
     if (location.size() == 3) {
       auto value{schema.at("extends").at(0).at("$ref")};
       schema.at("extends").into(std::move(value));
@@ -53,4 +55,7 @@ public:
     }
     schema.rename("extends", "$ref");
   }
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };

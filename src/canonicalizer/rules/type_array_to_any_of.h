@@ -54,7 +54,7 @@ public:
       }
     }
 
-    return APPLIES_TO_KEYWORDS("type");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

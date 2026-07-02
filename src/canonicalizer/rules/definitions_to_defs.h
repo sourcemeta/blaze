@@ -21,7 +21,7 @@ public:
                           Vocabularies::Known::JSON_Schema_2019_09_Core}) &&
                      schema.is_object() && schema.defines("definitions") &&
                      !schema.defines("$defs"));
-    return APPLIES_TO_KEYWORDS("definitions");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

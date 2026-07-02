@@ -32,12 +32,13 @@ public:
     }
 
     ONLY_CONTINUE_IF(!locations.empty());
-    return APPLIES_TO_POINTERS(std::move(locations));
+    this->locations_ = std::move(locations);
+    return true;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
+  auto transform(JSON &schema, const Result &) const -> void override {
     this->renames_.clear();
-    for (const auto &location : result.locations) {
+    for (const auto &location : this->locations_) {
       const auto &keyword{location.at(0).to_property()};
       assert(schema.defines(keyword));
       std::string prefixed_name = "x-" + keyword;
@@ -67,4 +68,7 @@ public:
 
 private:
   mutable std::unordered_map<std::string, std::string> renames_;
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };

@@ -42,14 +42,15 @@ public:
     }
 
     ONLY_CONTINUE_IF(has_non_false);
-    return APPLIES_TO_POINTERS(std::move(false_locations));
+    this->locations_ = std::move(false_locations);
+    return true;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
+  auto transform(JSON &schema, const Result &) const -> void override {
     static const JSON::String KEYWORD{"anyOf"};
 
     std::unordered_set<std::size_t> indices_to_remove;
-    for (const auto &location : result.locations) {
+    for (const auto &location : this->locations_) {
       indices_to_remove.insert(location.at(1).to_index());
     }
 
@@ -63,4 +64,7 @@ public:
 
     schema.assign(KEYWORD, std::move(new_anyof));
   }
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };

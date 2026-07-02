@@ -22,7 +22,7 @@ public:
     const auto *all_of{schema.try_at("allOf")};
     ONLY_CONTINUE_IF(all_of && all_of->is_array() && !all_of->empty());
     ONLY_CONTINUE_IF(std::ranges::any_of(all_of->as_array(), is_empty_schema));
-    return APPLIES_TO_KEYWORDS("allOf");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

@@ -54,7 +54,7 @@ public:
       ONLY_CONTINUE_IF(frame.traverse(reference_base).has_value());
     }
 
-    return APPLIES_TO_KEYWORDS(KEYWORD);
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

@@ -118,12 +118,16 @@ public:
     }
 
     ONLY_CONTINUE_IF(!positions.empty());
-    return APPLIES_TO_POINTERS(std::move(positions));
+    this->locations_ = std::move(positions);
+    return true;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
-    for (const auto &location : result.locations) {
+  auto transform(JSON &schema, const Result &) const -> void override {
+    for (const auto &location : this->locations_) {
       schema.erase(location.at(0).to_property());
     }
   }
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };

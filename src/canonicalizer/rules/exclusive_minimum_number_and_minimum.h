@@ -28,7 +28,7 @@ public:
     ONLY_CONTINUE_IF(minimum && minimum->is_number());
     const auto *exclusive_minimum{schema.try_at("exclusiveMinimum")};
     ONLY_CONTINUE_IF(exclusive_minimum && exclusive_minimum->is_number());
-    return APPLIES_TO_KEYWORDS("exclusiveMinimum", "minimum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

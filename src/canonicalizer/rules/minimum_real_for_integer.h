@@ -35,7 +35,7 @@ public:
     const auto *minimum{schema.try_at("minimum")};
     ONLY_CONTINUE_IF(minimum && minimum->is_number() &&
                      !minimum->is_integral());
-    return APPLIES_TO_KEYWORDS("minimum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

@@ -32,7 +32,7 @@ public:
         required && required->is_array() && required->unique() &&
         std::cmp_greater(required->size(), static_cast<std::uint64_t>(
                                                min_properties->to_integer())));
-    return APPLIES_TO_KEYWORDS("minProperties", "required");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

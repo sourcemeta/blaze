@@ -32,7 +32,7 @@ public:
     ONLY_CONTINUE_IF(enum_value && enum_value->is_array() &&
                      !enum_value->unique());
     // TODO: Highlight which specific entries in `enum` are duplicated
-    return APPLIES_TO_KEYWORDS("enum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

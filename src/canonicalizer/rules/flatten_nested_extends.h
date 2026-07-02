@@ -37,7 +37,7 @@ public:
     ONLY_CONTINUE_IF(!this->flatten_indices_.empty());
     ONLY_CONTINUE_IF(!frame.has_references_through(
         location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
-    return APPLIES_TO_KEYWORDS(KEYWORD);
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

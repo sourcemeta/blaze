@@ -23,7 +23,7 @@ public:
     const auto dialect{sourcemeta::blaze::dialect(schema)};
     ONLY_CONTINUE_IF(!dialect.empty());
     ONLY_CONTINUE_IF(dialect != location.dialect);
-    return APPLIES_TO_KEYWORDS("$schema");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

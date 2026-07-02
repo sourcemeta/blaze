@@ -78,7 +78,7 @@ auto SchemaTransformRule::check(
   auto result{this->condition(schema, root, vocabularies, frame, location,
                               walker, resolver, is_metaschema)};
 
-  if (result.applies && !exclude_keyword.empty() && schema.is_object()) {
+  if (result && !exclude_keyword.empty() && schema.is_object()) {
     const auto *exclude_value{schema.try_at(exclude_keyword)};
     if (exclude_value != nullptr &&
         ((exclude_value->is_string() &&
@@ -156,7 +156,7 @@ auto SchemaTransformer::apply(core::JSON &schema,
                                  resolver, frame, entry.second, exclude_keyword,
                                  is_metaschema)};
 
-        if (!outcome.applies) {
+        if (!outcome) {
           continue;
         }
 
@@ -258,8 +258,7 @@ auto SchemaTransformer::apply(core::JSON &schema,
 
         if (rule->check(current, schema, new_vocabularies, walker, resolver,
                         frame, new_location.value().get(), exclude_keyword,
-                        is_metaschema)
-                .applies) {
+                        is_metaschema)) {
           std::ostringstream error;
           error << "Rule condition holds after application: " << rule->name();
           throw std::runtime_error(error.str());

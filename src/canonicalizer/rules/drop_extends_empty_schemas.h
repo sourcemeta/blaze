@@ -30,7 +30,8 @@ public:
     ONLY_CONTINUE_IF(!frame.has_references_through(keyword_pointer));
 
     if (sourcemeta::blaze::is_empty_schema(*extends)) {
-      return APPLIES_TO_POINTERS({Pointer{KEYWORD}});
+      this->locations_ = {Pointer{KEYWORD}};
+      return true;
     }
 
     if (extends->is_array() && !extends->empty()) {
@@ -41,14 +42,15 @@ public:
         }
       }
       ONLY_CONTINUE_IF(!locations.empty());
-      return APPLIES_TO_POINTERS(std::move(locations));
+      this->locations_ = std::move(locations);
+      return true;
     }
 
     return false;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
-    if (result.locations.size() == 1 && result.locations.at(0).size() == 1) {
+  auto transform(JSON &schema, const Result &) const -> void override {
+    if (this->locations_.size() == 1 && this->locations_.at(0).size() == 1) {
       schema.erase("extends");
       return;
     }
@@ -66,4 +68,7 @@ public:
       schema.assign("extends", std::move(new_extends));
     }
   }
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };

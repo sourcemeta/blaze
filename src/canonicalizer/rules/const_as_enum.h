@@ -23,7 +23,7 @@ public:
                           Vocabularies::Known::JSON_Schema_Draft_6}) &&
                      schema.is_object() && schema.defines("const") &&
                      !schema.defines("enum"));
-    return APPLIES_TO_KEYWORDS("const");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

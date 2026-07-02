@@ -32,7 +32,7 @@ public:
 
     const auto *type{schema.try_at("type")};
     ONLY_CONTINUE_IF(type && type->is_string() && type->to_string() == "null");
-    return APPLIES_TO_KEYWORDS("type");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

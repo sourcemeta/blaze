@@ -41,7 +41,7 @@ public:
     ONLY_CONTINUE_IF(!(exclusive_maximum && exclusive_maximum->is_number() &&
                        *exclusive_maximum <= *maximum));
 
-    return APPLIES_TO_KEYWORDS("minimum", "maximum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

@@ -33,7 +33,7 @@ public:
     ONLY_CONTINUE_IF(current_types.any());
     ONLY_CONTINUE_IF(
         current_types.test(std::to_underlying(const_value->type())));
-    return APPLIES_TO_KEYWORDS("const", "type");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

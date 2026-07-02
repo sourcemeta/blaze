@@ -69,7 +69,7 @@ public:
       }
 
       this->keyword_ = &KEYWORD_DYNAMIC_REF;
-      return APPLIES_TO_KEYWORDS("$dynamicRef");
+      return true;
     }
 
     if (vocabularies.contains(Vocabularies::Known::JSON_Schema_2019_09_Core) &&
@@ -104,7 +104,7 @@ public:
       }
 
       this->keyword_ = &KEYWORD_RECURSIVE_REF;
-      return APPLIES_TO_KEYWORDS("$recursiveRef");
+      return true;
     }
 
     return false;

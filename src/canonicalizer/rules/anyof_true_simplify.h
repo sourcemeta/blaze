@@ -59,7 +59,7 @@ public:
           (entry.is_object() && entry.empty())) {
         ONLY_CONTINUE_IF(!frame.has_references_through(
             location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
-        return APPLIES_TO_POINTERS({Pointer{KEYWORD, index}});
+        return true;
       }
     }
 

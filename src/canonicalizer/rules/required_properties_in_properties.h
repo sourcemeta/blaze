@@ -59,13 +59,14 @@ public:
     }
 
     ONLY_CONTINUE_IF(!locations.empty());
-    return APPLIES_TO_POINTERS(std::move(locations));
+    this->locations_ = std::move(locations);
+    return true;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
+  auto transform(JSON &schema, const Result &) const -> void override {
     schema.assign_if_missing("properties",
                              sourcemeta::core::JSON::make_object());
-    for (const auto &location : result.locations) {
+    for (const auto &location : this->locations_) {
       const auto &property{
           schema.at("required").at(location.at(1).to_index()).to_string()};
       schema.at("properties").assign(property, sourcemeta::core::JSON{true});
@@ -81,4 +82,7 @@ private:
     return properties && properties->is_object() &&
            properties->defines(property);
   };
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };

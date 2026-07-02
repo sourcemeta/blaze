@@ -51,7 +51,8 @@ public:
             return dependent &&
                    (dependent->is_array() || dependent->is_string());
           }));
-      return APPLIES_TO_KEYWORDS("dependencies", "properties");
+      this->locations_ = {Pointer{"dependencies"}, Pointer{"properties"}};
+      return true;
     }
 
     const auto *required{schema.try_at("required")};
@@ -65,12 +66,13 @@ public:
           const auto *dependent{dependencies->try_at(element.to_string())};
           return dependent && (dependent->is_array() || dependent->is_string());
         }));
-    return APPLIES_TO_KEYWORDS("dependencies", "required");
+    this->locations_ = {Pointer{"dependencies"}, Pointer{"required"}};
+    return true;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
+  auto transform(JSON &schema, const Result &) const -> void override {
     const bool is_draft_3_path{
-        std::ranges::any_of(result.locations, [](const auto &pointer) -> auto {
+        std::ranges::any_of(this->locations_, [](const auto &pointer) -> auto {
           return pointer.size() == 1 && pointer.at(0).is_property() &&
                  pointer.at(0).to_property() == "properties";
         })};
@@ -179,4 +181,7 @@ private:
       }
     }
   }
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };

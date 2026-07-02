@@ -29,7 +29,7 @@ public:
     const auto *max_items{schema.try_at("maxItems")};
     ONLY_CONTINUE_IF(max_items && max_items->is_integer() &&
                      max_contains->to_integer() > max_items->to_integer());
-    return APPLIES_TO_KEYWORDS("maxContains", "maxItems");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

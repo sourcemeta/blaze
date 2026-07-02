@@ -29,7 +29,7 @@ public:
     const auto *enum_value{schema.try_at("enum")};
     ONLY_CONTINUE_IF(enum_value && enum_value->is_array() &&
                      enum_value->contains(*const_value));
-    return APPLIES_TO_KEYWORDS("const", "enum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

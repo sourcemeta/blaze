@@ -28,7 +28,7 @@ public:
     ONLY_CONTINUE_IF(maximum && maximum->is_number());
     const auto *exclusive_maximum{schema.try_at("exclusiveMaximum")};
     ONLY_CONTINUE_IF(exclusive_maximum && exclusive_maximum->is_number());
-    return APPLIES_TO_KEYWORDS("exclusiveMaximum", "maximum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

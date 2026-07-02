@@ -40,11 +40,12 @@ public:
                     schema, "definitions", has_definitions, orphans);
 
     ONLY_CONTINUE_IF(!orphans.empty());
-    return APPLIES_TO_POINTERS(std::move(orphans));
+    this->locations_ = std::move(orphans);
+    return true;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
-    for (const auto &pointer : result.locations) {
+  auto transform(JSON &schema, const Result &) const -> void override {
+    for (const auto &pointer : this->locations_) {
       assert(pointer.size() == 2);
       assert(pointer.at(0).is_property());
       assert(pointer.at(1).is_property());
@@ -144,4 +145,7 @@ private:
       }
     }
   }
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };

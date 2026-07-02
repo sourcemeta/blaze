@@ -31,7 +31,7 @@ public:
     ONLY_CONTINUE_IF(entry.is_boolean() && !entry.to_boolean());
     ONLY_CONTINUE_IF(!frame.has_references_through(
         location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
-    return APPLIES_TO_POINTERS({Pointer{KEYWORD, 0}});
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

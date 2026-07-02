@@ -10,12 +10,9 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <cassert>     // assert
-#include <concepts>    // std::derived_from, std::same_as
+#include <concepts>    // std::derived_from
 #include <functional>  // std::function
-#include <iterator>    // std::make_move_iterator, std::begin, std::end
 #include <memory>      // std::make_unique, std::unique_ptr
-#include <optional>    // std::optional, std::nullopt
 #include <string>      // std::string
 #include <string_view> // std::string_view
 #include <tuple>       // std::tuple
@@ -52,38 +49,7 @@ public:
   [[nodiscard]] auto message() const noexcept -> std::string_view;
 
   /// The result of evaluating a rule
-  struct Result {
-    Result(const bool applies_) : applies{applies_} {}
-    Result(const sourcemeta::core::Pointer &pointer)
-        : applies{true}, locations{pointer} {
-      assert(this->locations.size() == 1);
-    }
-
-    template <typename T>
-      requires std::same_as<typename T::value_type, sourcemeta::core::Pointer>
-    Result(T &&container) : applies{true} {
-      auto &&input = std::forward<T>(container);
-      if constexpr (requires { input.size(); }) {
-        locations.reserve(input.size());
-      }
-
-#if __cpp_lib_containers_ranges >= 202202L
-      locations.assign_range(input);
-#else
-      locations.assign(std::make_move_iterator(std::begin(input)),
-                       std::make_move_iterator(std::end(input)));
-#endif
-    }
-
-    Result(std::vector<sourcemeta::core::Pointer> &&locations_,
-           sourcemeta::core::JSON::String &&description_)
-        : applies{true}, locations{std::move(locations_)},
-          description{std::move(description_)} {}
-
-    bool applies;
-    std::vector<sourcemeta::core::Pointer> locations;
-    std::optional<sourcemeta::core::JSON::String> description;
-  };
+  using Result = bool;
 
   /// Check if the rule applies to a schema
   [[nodiscard]] auto

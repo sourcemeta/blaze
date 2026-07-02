@@ -37,7 +37,7 @@ public:
         dialect == "http://json-schema.org/draft/2019-09/schema#" ||
         dialect == "http://json-schema.org/draft/2019-09/hyper-schema" ||
         dialect == "http://json-schema.org/draft/2019-09/hyper-schema#");
-    return APPLIES_TO_KEYWORDS("$schema");
+    return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Result &) const

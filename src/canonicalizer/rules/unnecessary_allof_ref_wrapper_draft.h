@@ -32,7 +32,7 @@ public:
     ONLY_CONTINUE_IF(entry.is_object());
     ONLY_CONTINUE_IF(entry.size() == 1 && entry.defines("$ref"));
 
-    return APPLIES_TO_POINTERS({{"allOf", 0, "$ref"}});
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

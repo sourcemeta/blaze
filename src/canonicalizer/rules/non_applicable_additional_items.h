@@ -33,13 +33,7 @@ public:
         location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
 
     const auto *items{schema.try_at("items")};
-    if (items && is_schema(*items)) {
-      return APPLIES_TO_KEYWORDS(KEYWORD, "items");
-    } else if (!items) {
-      return APPLIES_TO_KEYWORDS(KEYWORD);
-    } else {
-      return false;
-    }
+    return (items && is_schema(*items)) || !items;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

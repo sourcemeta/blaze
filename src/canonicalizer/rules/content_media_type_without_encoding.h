@@ -23,7 +23,7 @@ public:
                           Vocabularies::Known::JSON_Schema_Draft_7}) &&
                      schema.is_object() && schema.defines("contentMediaType") &&
                      !schema.defines("contentEncoding"));
-    return APPLIES_TO_KEYWORDS("contentMediaType");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

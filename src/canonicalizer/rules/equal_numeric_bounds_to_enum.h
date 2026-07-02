@@ -47,7 +47,7 @@ public:
     const auto *maximum_can_equal{schema.try_at("maximumCanEqual")};
     ONLY_CONTINUE_IF(!(maximum_can_equal && maximum_can_equal->is_boolean() &&
                        !maximum_can_equal->to_boolean()));
-    return APPLIES_TO_KEYWORDS("minimum", "maximum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

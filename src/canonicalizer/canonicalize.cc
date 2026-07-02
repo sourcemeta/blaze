@@ -30,19 +30,6 @@ namespace sourcemeta::blaze::canonicalizer {
 
 using namespace sourcemeta::core;
 
-template <typename... Args>
-auto APPLIES_TO_KEYWORDS(Args &&...args) -> SchemaTransformRule::Result {
-  std::vector<Pointer> result;
-  result.reserve(sizeof...(args));
-  (result.push_back(Pointer{std::forward<Args>(args)}), ...);
-  return result;
-}
-
-inline auto APPLIES_TO_POINTERS(std::vector<Pointer> &&keywords)
-    -> SchemaTransformRule::Result {
-  return {std::move(keywords)};
-}
-
 // TODO: Move upstream
 inline auto IS_IN_PLACE_APPLICATOR(const SchemaKeywordType type) -> bool {
   return type == SchemaKeywordType::ApplicatorValueOrElementsInPlace ||

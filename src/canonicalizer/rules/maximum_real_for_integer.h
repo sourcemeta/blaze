@@ -35,7 +35,7 @@ public:
     const auto *maximum{schema.try_at("maximum")};
     ONLY_CONTINUE_IF(maximum && maximum->is_number() &&
                      !maximum->is_integral());
-    return APPLIES_TO_KEYWORDS("maximum");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

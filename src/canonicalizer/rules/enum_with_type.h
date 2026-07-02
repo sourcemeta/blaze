@@ -37,7 +37,7 @@ public:
             {Vocabularies::Known::JSON_Schema_Draft_3,
              Vocabularies::Known::JSON_Schema_Draft_3_Hyper})) {
       if (type->is_string() && type->to_string() == "any") {
-        return APPLIES_TO_KEYWORDS("enum", "type");
+        return true;
       }
 
       if (type->is_array()) {
@@ -58,7 +58,7 @@ public:
         }
 
         if (has_tautology) {
-          return APPLIES_TO_KEYWORDS("enum", "type");
+          return true;
         }
 
         if (has_unknown_subschema) {
@@ -80,7 +80,7 @@ public:
                  (integer_matches_integral && item.is_integral());
         }));
 
-    return APPLIES_TO_KEYWORDS("enum", "type");
+    return true;
   }
 
   auto transform(JSON &schema, const Result &) const -> void override {

@@ -57,13 +57,14 @@ public:
     keyword_pointer.push_back(std::cref(KEYWORD));
     ONLY_CONTINUE_IF(!frame.has_references_through(keyword_pointer));
 
-    return APPLIES_TO_POINTERS(std::move(locations));
+    this->locations_ = std::move(locations);
+    return true;
   }
 
-  auto transform(JSON &schema, const Result &result) const -> void override {
+  auto transform(JSON &schema, const Result &) const -> void override {
     std::vector<std::size_t> dead_indices;
-    dead_indices.reserve(result.locations.size());
-    for (const auto &location : result.locations) {
+    dead_indices.reserve(this->locations_.size());
+    for (const auto &location : this->locations_) {
       assert(location.size() == 2);
       dead_indices.push_back(location.at(1).to_index());
     }
@@ -95,4 +96,7 @@ private:
       return entry.is_string() && entry.to_string() != "any";
     });
   }
+
+private:
+  mutable std::vector<sourcemeta::core::Pointer> locations_;
 };
