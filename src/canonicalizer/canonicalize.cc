@@ -177,7 +177,6 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "canonicalizer/type_with_applicator_to_extends.h"
 #include "canonicalizer/unevaluated_items_to_items.h"
 #include "canonicalizer/unevaluated_properties_to_additional_properties.h"
-#include "canonicalizer/unsatisfiable_can_equal_bounds.h"
 #include "canonicalizer/unsatisfiable_exclusive_equal_bounds.h"
 #include "canonicalizer/unsatisfiable_type_and_enum.h"
 #include "common/allof_false_simplify.h"

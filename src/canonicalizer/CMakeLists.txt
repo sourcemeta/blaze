@@ -69,7 +69,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     canonicalizer/type_with_applicator_to_extends.h
     canonicalizer/unevaluated_items_to_items.h
     canonicalizer/unevaluated_properties_to_additional_properties.h
-    canonicalizer/unsatisfiable_can_equal_bounds.h
     canonicalizer/unsatisfiable_exclusive_equal_bounds.h
     canonicalizer/unsatisfiable_type_and_enum.h
 
