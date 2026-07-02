@@ -9,7 +9,7 @@
 #include <filesystem> // std::filesystem::path
 #include <memory>     // std::unique_ptr
 
-#include "alterschema_test_utils.h"
+#include "canonicalizer_test_utils.h"
 
 namespace {
 auto compiled_metaschema() -> const sourcemeta::blaze::Template & {

@@ -9,7 +9,7 @@
 #include <filesystem> // std::filesystem::path
 #include <memory>     // std::unique_ptr
 
-#include "alterschema_test_utils.h"
+#include "canonicalizer_test_utils.h"
 
 namespace {
 auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
@@ -2731,15 +2731,9 @@ TEST(dependent_required_to_any_of_without_applicator) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaTransformer bundle;
-  sourcemeta::blaze::add(bundle,
-                         sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
-
   try {
-    [[maybe_unused]] const auto result{bundle.apply(
-        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
-        [](const auto &, const auto &, const auto &, const auto &,
-           const auto &) {})};
+    sourcemeta::blaze::canonicalize(document, sourcemeta::blaze::schema_walker,
+                                    canonicalizer_test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaError &error) {
     EXPECT_STREQ(error.what(),
@@ -2758,15 +2752,9 @@ TEST(dependent_schemas_to_any_of_without_validation) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaTransformer bundle;
-  sourcemeta::blaze::add(bundle,
-                         sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
-
   try {
-    [[maybe_unused]] const auto result{bundle.apply(
-        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
-        [](const auto &, const auto &, const auto &, const auto &,
-           const auto &) {})};
+    sourcemeta::blaze::canonicalize(document, sourcemeta::blaze::schema_walker,
+                                    canonicalizer_test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaError &error) {
     EXPECT_STREQ(error.what(),
