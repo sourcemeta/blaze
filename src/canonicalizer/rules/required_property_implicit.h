@@ -1,9 +1,8 @@
 class RequiredPropertyImplicit final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   RequiredPropertyImplicit()
-      : SchemaTransformRule{"required_property_implicit", ""} {};
+      : SchemaTransformRule{"required_property_implicit"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -12,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains(Vocabularies::Known::JSON_Schema_Draft_3) &&
         schema.is_object());
@@ -34,8 +32,8 @@ public:
     return false;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    std::vector<JSON::String> keys;
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    std::vector<sourcemeta::core::JSON::String> keys;
     for (const auto &entry : schema.at("properties").as_object()) {
       if (entry.second.is_object() && !entry.second.empty() &&
           !entry.second.defines("$ref") && !entry.second.defines("required")) {

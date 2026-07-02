@@ -1,11 +1,8 @@
 class UnsatisfiableDropValidation final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   UnsatisfiableDropValidation()
-      : SchemaTransformRule{"unsatisfiable_drop_validation",
-                            "Do not place assertions or applicators next to an "
-                            "unsatisfiable negation"} {};
+      : SchemaTransformRule{"unsatisfiable_drop_validation"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Applicator,
                           Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -44,7 +40,7 @@ public:
 
     ONLY_CONTINUE_IF(!trigger_keyword.empty());
 
-    std::vector<Pointer> positions;
+    std::vector<sourcemeta::core::Pointer> positions;
     for (const auto &entry : schema.as_object()) {
       if (entry.first == trigger_keyword) {
         continue;
@@ -56,11 +52,12 @@ public:
       }
 
       if (frame.has_references_through(
-              location.pointer, WeakPointer::Token{std::cref(entry.first)})) {
+              location.pointer,
+              sourcemeta::core::WeakPointer::Token{std::cref(entry.first)})) {
         continue;
       }
 
-      positions.push_back(Pointer{entry.first});
+      positions.push_back(sourcemeta::core::Pointer{entry.first});
     }
 
     ONLY_CONTINUE_IF(!positions.empty());
@@ -68,7 +65,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     for (const auto &location : this->locations_) {
       schema.erase(location.at(0).to_property());
     }

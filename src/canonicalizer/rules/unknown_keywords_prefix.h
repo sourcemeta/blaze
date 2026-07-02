@@ -1,21 +1,16 @@
 class UnknownKeywordsPrefix final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  UnknownKeywordsPrefix()
-      : SchemaTransformRule{
-            "unknown_keywords_prefix",
-            "Future versions of JSON Schema will refuse to evaluate unknown "
-            "keywords or custom keywords from optional vocabularies that don't "
-            "have an x- prefix"} {};
+  UnknownKeywordsPrefix() : SchemaTransformRule{"unknown_keywords_prefix"} {};
 
   [[nodiscard]] auto
-  condition(const JSON &schema, const JSON &, const Vocabularies &vocabularies,
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &, const Vocabularies &vocabularies,
             const SchemaFrame &, const SchemaFrame::Location &,
-            const SchemaWalker &walker, const SchemaResolver &,
-            const bool) const -> SchemaTransformRule::Result override {
+            const SchemaWalker &walker, const SchemaResolver &) const
+      -> bool override {
     ONLY_CONTINUE_IF(schema.is_object());
-    std::vector<Pointer> locations;
+    std::vector<sourcemeta::core::Pointer> locations;
     for (const auto &entry : schema.as_object()) {
       if (entry.first.starts_with("x-")) {
         continue;
@@ -27,7 +22,7 @@ public:
           // this seemingly unknown keyword might belong to one of those, and
           // thus it might not be safe to flag it
           !vocabularies.has_unknown()) {
-        locations.push_back(Pointer{entry.first});
+        locations.push_back(sourcemeta::core::Pointer{entry.first});
       }
     }
 
@@ -36,7 +31,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     this->renames_.clear();
     for (const auto &location : this->locations_) {
       const auto &keyword{location.at(0).to_property()};
@@ -51,13 +46,15 @@ public:
     }
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     for (const auto &[old_name, new_name] : this->renames_) {
-      const auto result{target.rebase(current.concat(Pointer{old_name}),
-                                      current.concat(Pointer{new_name}))};
+      auto result{
+          target.rebase(current.concat(sourcemeta::core::Pointer{old_name}),
+                        current.concat(sourcemeta::core::Pointer{new_name}))};
       if (result != target) {
         return result;
       }

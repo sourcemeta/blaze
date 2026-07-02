@@ -1,9 +1,8 @@
 class DependentRequiredToAnyOf final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   DependentRequiredToAnyOf()
-      : SchemaTransformRule{"dependent_required_to_any_of", ""} {};
+      : SchemaTransformRule{"dependent_required_to_any_of"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -12,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -39,34 +37,36 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    auto result_branches{JSON::make_array()};
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    auto result_branches{sourcemeta::core::JSON::make_array()};
 
-    std::vector<JSON::String> processed;
+    std::vector<sourcemeta::core::JSON::String> processed;
     for (const auto &entry : schema.at("dependentRequired").as_object()) {
       if (!entry.second.is_array()) {
         continue;
       }
 
-      auto required_all{JSON::make_array()};
-      required_all.push_back(JSON{entry.first});
+      auto required_all{sourcemeta::core::JSON::make_array()};
+      required_all.push_back(sourcemeta::core::JSON{entry.first});
       for (const auto &dependent : entry.second.as_array()) {
         required_all.push_back(dependent);
       }
 
-      auto absence_branch{JSON::make_object()};
-      absence_branch.assign("properties", JSON::make_object());
-      absence_branch.at("properties").assign(entry.first, JSON{false});
+      auto absence_branch{sourcemeta::core::JSON::make_object()};
+      absence_branch.assign("properties",
+                            sourcemeta::core::JSON::make_object());
+      absence_branch.at("properties")
+          .assign(entry.first, sourcemeta::core::JSON{false});
 
-      auto required_branch{JSON::make_object()};
-      required_branch.assign("type", JSON{"object"});
+      auto required_branch{sourcemeta::core::JSON::make_object()};
+      required_branch.assign("type", sourcemeta::core::JSON{"object"});
       required_branch.assign("required", std::move(required_all));
 
-      auto pair{JSON::make_array()};
+      auto pair{sourcemeta::core::JSON::make_array()};
       pair.push_back(std::move(absence_branch));
       pair.push_back(std::move(required_branch));
 
-      auto wrapper{JSON::make_object()};
+      auto wrapper{sourcemeta::core::JSON::make_object()};
       wrapper.assign("anyOf", std::move(pair));
       result_branches.push_back(std::move(wrapper));
 

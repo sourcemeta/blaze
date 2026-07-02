@@ -1,11 +1,7 @@
 class DuplicateEnumValues final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::false_type;
-  DuplicateEnumValues()
-      : SchemaTransformRule{"duplicate_enum_values",
-                            "Setting duplicate values in `enum` is "
-                            "considered an anti-pattern"} {};
+  DuplicateEnumValues() : SchemaTransformRule{"duplicate_enum_values"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Validation,
                           Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -35,11 +30,13 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     // We want to be super careful to maintain the current ordering
     // as we delete the duplicates
     auto &enumeration{schema.at("enum")};
-    std::unordered_set<JSON, HashJSON<JSON>> cache;
+    std::unordered_set<sourcemeta::core::JSON,
+                       sourcemeta::core::HashJSON<sourcemeta::core::JSON>>
+        cache;
     for (auto iterator = enumeration.as_array().cbegin();
          iterator != enumeration.as_array().cend();) {
       if (cache.contains(*iterator)) {

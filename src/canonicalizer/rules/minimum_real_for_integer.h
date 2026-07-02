@@ -1,12 +1,7 @@
 class MinimumRealForInteger final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::false_type;
-  MinimumRealForInteger()
-      : SchemaTransformRule{
-            "minimum_real_for_integer",
-            "If an instance is guaranteed to be an integer, setting a real "
-            "number lower bound is the same as a ceil of that lower bound"} {};
+  MinimumRealForInteger() : SchemaTransformRule{"minimum_real_for_integer"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Validation,
                           Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -38,7 +32,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     if (schema.at("minimum").is_decimal()) {
       const auto current{schema.at("minimum").to_decimal()};
       auto new_value{current.to_integral()};

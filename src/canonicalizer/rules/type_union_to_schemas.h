@@ -1,8 +1,7 @@
 class TypeUnionToSchemas final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  TypeUnionToSchemas() : SchemaTransformRule{"type_union_to_schemas", ""} {};
+  TypeUnionToSchemas() : SchemaTransformRule{"type_union_to_schemas"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -11,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
                                    Vocabularies::Known::JSON_Schema_Draft_1,
@@ -32,8 +30,8 @@ public:
     return false;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    auto new_array{JSON::make_array()};
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    auto new_array{sourcemeta::core::JSON::make_array()};
     for (const auto &element : schema.at("type").as_array()) {
       if (element.is_string()) {
         new_array.push_back(type_string_to_schema(element.to_string()));
@@ -45,30 +43,31 @@ public:
   }
 
 private:
-  static auto type_string_to_schema(const std::string &type_name) -> JSON {
+  static auto type_string_to_schema(const std::string &type_name)
+      -> sourcemeta::core::JSON {
     if (type_name == "null") {
-      auto result{JSON::make_object()};
-      auto values{JSON::make_array()};
-      values.push_back(JSON{nullptr});
+      auto result{sourcemeta::core::JSON::make_object()};
+      auto values{sourcemeta::core::JSON::make_array()};
+      values.push_back(sourcemeta::core::JSON{nullptr});
       result.assign("enum", std::move(values));
       return result;
     }
 
     if (type_name == "boolean") {
-      auto result{JSON::make_object()};
-      auto values{JSON::make_array()};
-      values.push_back(JSON{false});
-      values.push_back(JSON{true});
+      auto result{sourcemeta::core::JSON::make_object()};
+      auto values{sourcemeta::core::JSON::make_array()};
+      values.push_back(sourcemeta::core::JSON{false});
+      values.push_back(sourcemeta::core::JSON{true});
       result.assign("enum", std::move(values));
       return result;
     }
 
     if (type_name == "any") {
-      return JSON::make_object();
+      return sourcemeta::core::JSON::make_object();
     }
 
-    auto result{JSON::make_object()};
-    result.assign("type", JSON{type_name});
+    auto result{sourcemeta::core::JSON::make_object()};
+    result.assign("type", sourcemeta::core::JSON{type_name});
     return result;
   }
 };

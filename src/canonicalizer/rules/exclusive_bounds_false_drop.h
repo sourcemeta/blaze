@@ -1,12 +1,8 @@
 class ExclusiveBoundsFalseDrop final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveBoundsFalseDrop()
-      : SchemaTransformRule{
-            "exclusive_bounds_false_drop",
-            "Setting `exclusiveMinimum` or `exclusiveMaximum` to `false` "
-            "adds no constraint"} {};
+      : SchemaTransformRule{"exclusive_bounds_false_drop"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper,
@@ -28,16 +23,16 @@ public:
         type && type->is_string() &&
         (type->to_string() == "integer" || type->to_string() == "number"));
 
-    std::vector<Pointer> locations;
+    std::vector<sourcemeta::core::Pointer> locations;
     const auto *exclusive_min{schema.try_at("exclusiveMinimum")};
     if (exclusive_min && exclusive_min->is_boolean() &&
         !exclusive_min->to_boolean()) {
-      locations.push_back(Pointer{"exclusiveMinimum"});
+      locations.push_back(sourcemeta::core::Pointer{"exclusiveMinimum"});
     }
     const auto *exclusive_max{schema.try_at("exclusiveMaximum")};
     if (exclusive_max && exclusive_max->is_boolean() &&
         !exclusive_max->to_boolean()) {
-      locations.push_back(Pointer{"exclusiveMaximum"});
+      locations.push_back(sourcemeta::core::Pointer{"exclusiveMaximum"});
     }
 
     ONLY_CONTINUE_IF(!locations.empty());
@@ -45,7 +40,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     for (const auto &location : this->locations_) {
       schema.erase(location.at(0).to_property());
     }

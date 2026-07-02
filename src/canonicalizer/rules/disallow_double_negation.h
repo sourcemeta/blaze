@@ -1,14 +1,7 @@
 class DisallowDoubleNegation final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DisallowDoubleNegation()
-      : SchemaTransformRule{
-            "disallow_double_negation",
-            "A `disallow` whose single negated schema is itself a `disallow` "
-            "of "
-            "a single schema is a double negation equivalent to the inner "
-            "schema"} {};
+  DisallowDoubleNegation() : SchemaTransformRule{"disallow_double_negation"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -17,9 +10,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"disallow"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"disallow"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -54,7 +46,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto inner{schema.at("disallow").at(0).at("disallow").at(0)};
     schema.erase("disallow");
 
@@ -69,10 +61,11 @@ public:
     }
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     auto old_prefix{current.concat({"disallow", 0, "disallow", 0})};
     while (
         target.starts_with(old_prefix.concat({"disallow", 0, "disallow", 0}))) {

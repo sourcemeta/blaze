@@ -1,13 +1,7 @@
 class DisallowExtendsToType final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DisallowExtendsToType()
-      : SchemaTransformRule{
-            "disallow_extends_to_type",
-            "Negating a conjunction is the disjunction of the negations: an "
-            "`extends` under `disallow` becomes a `type` union where each "
-            "branch is its own single negation"} {};
+  DisallowExtendsToType() : SchemaTransformRule{"disallow_extends_to_type"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -42,7 +35,7 @@ public:
     // The conjuncts relocate to distinct `type` branches (handled by
     // `rereference`), but the wrapper schema itself is dissolved rather than
     // moved, so a reference straight at it has no new home: bail in that case
-    static const JSON::String DISALLOW{"disallow"};
+    static const sourcemeta::core::JSON::String DISALLOW{"disallow"};
     auto wrapper_pointer{location.pointer};
     wrapper_pointer.push_back(std::cref(DISALLOW));
     wrapper_pointer.push_back(static_cast<std::size_t>(0));
@@ -51,12 +44,12 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    auto branches{JSON::make_array()};
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    auto branches{sourcemeta::core::JSON::make_array()};
     for (auto &branch : schema.at("disallow").at(0).at("extends").as_array()) {
-      auto negation{JSON::make_array()};
+      auto negation{sourcemeta::core::JSON::make_array()};
       negation.push_back(std::move(branch));
-      auto element{JSON::make_object()};
+      auto element{sourcemeta::core::JSON::make_object()};
       element.assign("disallow", std::move(negation));
       branches.push_back(std::move(element));
     }
@@ -65,10 +58,11 @@ public:
     schema.assign("type", std::move(branches));
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     const auto extends_prefix{current.concat({"disallow", 0, "extends"})};
     if (!target.starts_with(extends_prefix)) {
       return target;

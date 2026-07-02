@@ -1,12 +1,8 @@
 class OneOfToAnyOfDisjointTypes final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   OneOfToAnyOfDisjointTypes()
-      : SchemaTransformRule{
-            "oneof_to_anyof_disjoint_types",
-            "A `oneOf` where all branches have disjoint types can be safely "
-            "converted to `anyOf`"} {};
+      : SchemaTransformRule{"oneof_to_anyof_disjoint_types"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,9 +11,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"oneOf"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"oneOf"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Applicator,
                           Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -45,7 +40,7 @@ public:
          Vocabularies::Known::JSON_Schema_Draft_7,
          Vocabularies::Known::JSON_Schema_Draft_6})};
 
-    std::vector<JSON::TypeSet> type_sets;
+    std::vector<sourcemeta::core::JSON::TypeSet> type_sets;
     type_sets.reserve(oneof_value->size());
 
     for (const auto &branch : oneof_value->as_array()) {
@@ -63,11 +58,11 @@ public:
         ONLY_CONTINUE_IF(branch_types.any());
         type_sets.push_back(branch_types);
       } else if (const_value && !has_enum) {
-        JSON::TypeSet branch_types;
+        sourcemeta::core::JSON::TypeSet branch_types;
         branch_types.set(std::to_underlying(const_value->type()));
         type_sets.push_back(branch_types);
       } else if (has_enum && !const_value) {
-        JSON::TypeSet branch_types;
+        sourcemeta::core::JSON::TypeSet branch_types;
         for (const auto &item : enum_value->as_array()) {
           branch_types.set(std::to_underlying(item.type()));
         }
@@ -86,16 +81,18 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     schema.rename("oneOf", "anyOf");
   }
 
-  [[nodiscard]] auto
-  rereference(const std::string_view, const Pointer &origin [[maybe_unused]],
-              const Pointer &target, const Pointer &current) const
-      -> Pointer override {
-    const Pointer oneof_prefix{current.concat("oneOf")};
-    const Pointer anyof_prefix{current.concat("anyOf")};
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &origin
+                                 [[maybe_unused]],
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    const sourcemeta::core::Pointer oneof_prefix{current.concat("oneOf")};
+    const sourcemeta::core::Pointer anyof_prefix{current.concat("anyOf")};
     return target.rebase(oneof_prefix, anyof_prefix);
   }
 };

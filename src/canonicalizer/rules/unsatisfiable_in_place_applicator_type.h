@@ -1,12 +1,8 @@
 class UnsatisfiableInPlaceApplicatorType final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   UnsatisfiableInPlaceApplicatorType()
-      : SchemaTransformRule{
-            "unsatisfiable_in_place_applicator_type",
-            "An in-place applicator branch that defines a `type` with no "
-            "overlap with the parent `type` can never be satisfied"} {};
+      : SchemaTransformRule{"unsatisfiable_in_place_applicator_type"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(schema.is_object() && schema.defines("type"));
     ONLY_CONTINUE_IF(vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_2020_12_Validation,
@@ -32,7 +27,7 @@ public:
     const auto parent_types{parse_schema_type(schema.at("type"))};
     ONLY_CONTINUE_IF(parent_types.any());
 
-    std::vector<Pointer> locations;
+    std::vector<sourcemeta::core::Pointer> locations;
 
     for (const auto &entry : schema.as_object()) {
       const auto &keyword{entry.first};
@@ -57,7 +52,7 @@ public:
 
           const auto branch_types{parse_schema_type(*branch_type)};
           if (branch_types.any() && (parent_types & branch_types).none()) {
-            locations.push_back(Pointer{keyword, index});
+            locations.push_back(sourcemeta::core::Pointer{keyword, index});
           }
         }
       } else if (keyword_type ==
@@ -74,7 +69,7 @@ public:
 
         const auto branch_types{parse_schema_type(*branch_type)};
         if (branch_types.any() && (parent_types & branch_types).none()) {
-          locations.push_back(Pointer{keyword});
+          locations.push_back(sourcemeta::core::Pointer{keyword});
         }
       }
     }
@@ -84,16 +79,16 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     for (const auto &location : this->locations_) {
       if (location.size() == 2) {
         const auto &keyword{location.at(0).to_property()};
         const auto index{location.at(1).to_index()};
-        schema.at(keyword).at(index).into(JSON{false});
+        schema.at(keyword).at(index).into(sourcemeta::core::JSON{false});
       } else {
         assert(location.size() == 1);
         const auto &keyword{location.at(0).to_property()};
-        schema.at(keyword).into(JSON{false});
+        schema.at(keyword).into(sourcemeta::core::JSON{false});
       }
     }
   }

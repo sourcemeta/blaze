@@ -1,12 +1,8 @@
 class NonApplicableEnumValidationKeywords final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   NonApplicableEnumValidationKeywords()
-      : SchemaTransformRule{
-            "non_applicable_enum_validation_keywords",
-            "Setting validation keywords that do not apply to any item in "
-            "`enum` is considered an anti-pattern"} {};
+      : SchemaTransformRule{"non_applicable_enum_validation_keywords"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Validation,
                           Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -44,7 +39,7 @@ public:
         {Vocabularies::Known::JSON_Schema_Draft_3,
          Vocabularies::Known::JSON_Schema_Draft_3_Hyper})};
 
-    std::vector<Pointer> positions;
+    std::vector<sourcemeta::core::Pointer> positions;
     for (const auto &entry : schema.as_object()) {
       const auto &metadata = walker(entry.first, vocabularies);
 
@@ -60,7 +55,7 @@ public:
       // Check if there's any overlap between keyword's applicable types and
       // enum types
       if ((metadata.instances & enum_types).none()) {
-        positions.push_back(Pointer{entry.first});
+        positions.push_back(sourcemeta::core::Pointer{entry.first});
       }
     }
 
@@ -70,7 +65,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     for (const auto &location : this->locations_) {
       schema.erase(location.at(0).to_property());
     }

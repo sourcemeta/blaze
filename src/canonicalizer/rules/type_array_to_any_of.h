@@ -1,12 +1,7 @@
 class TypeArrayToAnyOf final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  TypeArrayToAnyOf()
-      : SchemaTransformRule{
-            "type_array_to_any_of",
-            "Setting `type` to more than one choice is syntax sugar to "
-            "`anyOf` over the corresponding types"} {};
+  TypeArrayToAnyOf() : SchemaTransformRule{"type_array_to_any_of"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
 
     ONLY_CONTINUE_IF(
         ((vocabularies.contains(
@@ -57,7 +51,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     this->keyword_branch_index_.clear();
     auto disjunctors{sourcemeta::core::JSON::make_array()};
     std::size_t branch_index{0};
@@ -113,9 +107,10 @@ public:
   }
 
   [[nodiscard]] auto rereference(const std::string_view reference,
-                                 const Pointer &origin, const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+                                 const sourcemeta::core::Pointer &origin,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     const auto relative{target.resolve_from(current)};
     assert(!relative.empty() && relative.at(0).is_property());
     const auto &keyword{relative.at(0).to_property()};
@@ -125,9 +120,10 @@ public:
                                               current);
     }
 
-    const Pointer old_prefix{current.concat(keyword)};
-    const Pointer new_prefix{current.concat(this->disjunctors_prefix_)
-                                 .concat(Pointer{match->second, keyword})};
+    const sourcemeta::core::Pointer old_prefix{current.concat(keyword)};
+    const sourcemeta::core::Pointer new_prefix{
+        current.concat(this->disjunctors_prefix_)
+            .concat(sourcemeta::core::Pointer{match->second, keyword})};
     return target.rebase(old_prefix, new_prefix);
   }
 
@@ -135,5 +131,5 @@ private:
   mutable std::unordered_map<std::string, sourcemeta::core::JSON::TypeSet>
       keyword_instances_;
   mutable std::unordered_map<std::string, std::size_t> keyword_branch_index_;
-  mutable Pointer disjunctors_prefix_;
+  mutable sourcemeta::core::Pointer disjunctors_prefix_;
 };

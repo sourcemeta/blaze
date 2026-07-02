@@ -1,11 +1,7 @@
 class ConstAsEnum final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  ConstAsEnum()
-      : SchemaTransformRule{"const_as_enum",
-                            "Setting `const` is syntax sugar for an "
-                            "enumeration of a single value"} {};
+  ConstAsEnum() : SchemaTransformRule{"const_as_enum"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Validation,
                           Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -26,7 +21,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto values = sourcemeta::core::JSON::make_array();
     values.push_back(schema.at("const"));
     schema.at("const").into(std::move(values));

@@ -1,9 +1,8 @@
 class AllOfMergeCompatibleBranches final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   AllOfMergeCompatibleBranches()
-      : SchemaTransformRule{"allof_merge_compatible_branches", ""} {};
+      : SchemaTransformRule{"allof_merge_compatible_branches"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -12,9 +11,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"allOf"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"allOf"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Applicator,
                           Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -27,7 +25,8 @@ public:
     ONLY_CONTINUE_IF(all_of && all_of->is_array() && all_of->size() >= 2);
 
     ONLY_CONTINUE_IF(!frame.has_references_through(
-        location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
+        location.pointer,
+        sourcemeta::core::WeakPointer::Token{std::cref(KEYWORD)}));
 
     const auto &branches{*all_of};
 
@@ -72,8 +71,8 @@ public:
     return false;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    static const JSON::String KEYWORD{"allOf"};
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    static const sourcemeta::core::JSON::String KEYWORD{"allOf"};
     auto &target{schema.at(KEYWORD).at(this->merge_into_)};
     const auto &source{schema.at(KEYWORD).at(this->merge_from_)};
     target.merge(source.as_object());
@@ -82,11 +81,12 @@ public:
                   static_cast<std::ptrdiff_t>(this->merge_from_)));
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
-    static const JSON::String KEYWORD{"allOf"};
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    static const sourcemeta::core::JSON::String KEYWORD{"allOf"};
     const auto relative{target.resolve_from(current)};
     if (relative.size() < 2 || !relative.at(0).is_property() ||
         relative.at(0).to_property() != KEYWORD || !relative.at(1).is_index()) {
@@ -95,16 +95,18 @@ public:
 
     const auto index{relative.at(1).to_index()};
     if (index == this->merge_from_) {
-      const Pointer old_prefix{
-          current.concat(Pointer{KEYWORD, this->merge_from_})};
-      const Pointer new_prefix{
-          current.concat(Pointer{KEYWORD, this->merge_into_})};
+      const sourcemeta::core::Pointer old_prefix{current.concat(
+          sourcemeta::core::Pointer{KEYWORD, this->merge_from_})};
+      const sourcemeta::core::Pointer new_prefix{current.concat(
+          sourcemeta::core::Pointer{KEYWORD, this->merge_into_})};
       return target.rebase(old_prefix, new_prefix);
     }
 
     if (index > this->merge_from_) {
-      const Pointer old_prefix{current.concat(Pointer{KEYWORD, index})};
-      const Pointer new_prefix{current.concat(Pointer{KEYWORD, index - 1})};
+      const sourcemeta::core::Pointer old_prefix{
+          current.concat(sourcemeta::core::Pointer{KEYWORD, index})};
+      const sourcemeta::core::Pointer new_prefix{
+          current.concat(sourcemeta::core::Pointer{KEYWORD, index - 1})};
       return target.rebase(old_prefix, new_prefix);
     }
 
@@ -112,17 +114,20 @@ public:
   }
 
 private:
-  static auto is_type_only_branch(const JSON &branch) -> bool {
+  static auto is_type_only_branch(const sourcemeta::core::JSON &branch)
+      -> bool {
     return branch.size() == 1 && branch.defines("type");
   }
 
-  static auto has_in_place_applicators(const JSON &branch) -> bool {
+  static auto has_in_place_applicators(const sourcemeta::core::JSON &branch)
+      -> bool {
     return branch.defines("anyOf") || branch.defines("oneOf") ||
            branch.defines("allOf") || branch.defines("not") ||
            branch.defines("if");
   }
 
-  static auto is_mergeable_branch(const JSON &branch) -> bool {
+  static auto is_mergeable_branch(const sourcemeta::core::JSON &branch)
+      -> bool {
     if (!branch.is_object()) {
       return false;
     }
@@ -133,8 +138,9 @@ private:
            !branch.defines("$recursiveAnchor");
   }
 
-  static auto has_overlapping_keywords(const JSON &branch_a,
-                                       const JSON &branch_b) -> bool {
+  static auto has_overlapping_keywords(const sourcemeta::core::JSON &branch_a,
+                                       const sourcemeta::core::JSON &branch_b)
+      -> bool {
     for (const auto &entry : branch_a.as_object()) {
       if (branch_b.defines(entry.first)) {
         return true;
@@ -144,14 +150,15 @@ private:
   }
 
   static auto
-  has_cross_dependencies(const JSON &branch_a, const JSON &branch_b,
+  has_cross_dependencies(const sourcemeta::core::JSON &branch_a,
+                         const sourcemeta::core::JSON &branch_b,
                          const sourcemeta::blaze::SchemaWalker &walker,
                          const sourcemeta::blaze::Vocabularies &vocabularies)
       -> bool {
     for (const auto &entry_a : branch_a.as_object()) {
       const auto &metadata{walker(entry_a.first, vocabularies)};
       for (const auto &dependency : metadata.dependencies) {
-        if (branch_b.defines(JSON::String{dependency})) {
+        if (branch_b.defines(sourcemeta::core::JSON::String{dependency})) {
           return true;
         }
       }
@@ -160,7 +167,7 @@ private:
     for (const auto &entry_b : branch_b.as_object()) {
       const auto &metadata{walker(entry_b.first, vocabularies)};
       for (const auto &dependency : metadata.dependencies) {
-        if (branch_a.defines(JSON::String{dependency})) {
+        if (branch_a.defines(sourcemeta::core::JSON::String{dependency})) {
           return true;
         }
       }

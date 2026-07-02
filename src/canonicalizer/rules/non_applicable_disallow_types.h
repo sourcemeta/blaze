@@ -1,12 +1,8 @@
 class NonApplicableDisallowTypes final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   NonApplicableDisallowTypes()
-      : SchemaTransformRule{
-            "non_applicable_disallow_types",
-            "`disallow` entries whose type cannot overlap with the parent "
-            "`type` can never match and can be dropped"} {};
+      : SchemaTransformRule{"non_applicable_disallow_types"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,9 +11,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"disallow"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"disallow"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -33,10 +28,10 @@ public:
     const auto parent_types{parse_schema_type(*parent_type_value)};
     ONLY_CONTINUE_IF(parent_types.any());
 
-    std::vector<Pointer> locations;
+    std::vector<sourcemeta::core::Pointer> locations;
     for (std::size_t index = 0; index < disallow->size(); ++index) {
       const auto &entry{disallow->at(index)};
-      JSON::TypeSet entry_types;
+      sourcemeta::core::JSON::TypeSet entry_types;
       if (entry.is_string() && entry.to_string() != "any") {
         entry_types = parse_schema_type(entry);
       } else if (entry.is_object()) {
@@ -47,7 +42,7 @@ public:
       }
 
       if (entry_types.any() && (parent_types & entry_types).none()) {
-        locations.push_back(Pointer{KEYWORD, index});
+        locations.push_back(sourcemeta::core::Pointer{KEYWORD, index});
       }
     }
 
@@ -61,7 +56,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     std::vector<std::size_t> dead_indices;
     dead_indices.reserve(this->locations_.size());
     for (const auto &location : this->locations_) {
@@ -69,7 +64,7 @@ public:
       dead_indices.push_back(location.at(1).to_index());
     }
 
-    auto new_disallow{JSON::make_array()};
+    auto new_disallow{sourcemeta::core::JSON::make_array()};
     const auto &disallow{schema.at("disallow")};
     for (std::size_t index = 0; index < disallow.size(); ++index) {
       if (std::ranges::find(dead_indices, index) == dead_indices.end()) {

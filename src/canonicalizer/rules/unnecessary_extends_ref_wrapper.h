@@ -1,11 +1,8 @@
 class UnnecessaryExtendsRefWrapper final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   UnnecessaryExtendsRefWrapper()
-      : SchemaTransformRule{"unnecessary_extends_ref_wrapper",
-                            "Wrapping `$ref` in `extends` is only necessary if "
-                            "there are other sibling keywords"} {};
+      : SchemaTransformRule{"unnecessary_extends_ref_wrapper"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_Draft_3,
          Vocabularies::Known::JSON_Schema_Draft_3_Hyper}));
@@ -44,7 +40,7 @@ public:
     return false;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     const auto &location{this->locations_.at(0)};
     if (location.size() == 3) {
       auto value{schema.at("extends").at(0).at("$ref")};

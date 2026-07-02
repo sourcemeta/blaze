@@ -1,8 +1,8 @@
 sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
   FOLDER "Blaze/Canonicalizer"
-  SOURCES canonicalize.cc transformer.cc
-    canonicalizer_transformer.h
-    canonicalizer_error.h
+  SOURCES canonicalize.cc
+    rule.h
+    helpers.h
 
     # Rules
     rules/additional_items_implicit.h
@@ -140,13 +140,5 @@ target_link_libraries(sourcemeta_blaze_canonicalizer PUBLIC
   sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_canonicalizer PUBLIC
   sourcemeta::blaze::frame)
-target_link_libraries(sourcemeta_blaze_canonicalizer PUBLIC
-  sourcemeta::blaze::compiler)
-target_link_libraries(sourcemeta_blaze_canonicalizer PRIVATE
-  sourcemeta::blaze::evaluator)
-target_link_libraries(sourcemeta_blaze_canonicalizer PRIVATE
-  sourcemeta::blaze::output)
-target_link_libraries(sourcemeta_blaze_canonicalizer PRIVATE
-  sourcemeta::core::regex)
 target_link_libraries(sourcemeta_blaze_canonicalizer PRIVATE
   sourcemeta::core::uri)

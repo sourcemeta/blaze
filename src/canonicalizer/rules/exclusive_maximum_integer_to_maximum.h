@@ -1,12 +1,8 @@
 class ExclusiveMaximumIntegerToMaximum final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ExclusiveMaximumIntegerToMaximum()
-      : SchemaTransformRule{
-            "exclusive_maximum_integer_to_maximum",
-            "Setting `exclusiveMaximum` when `type` is `integer` is syntax "
-            "sugar for `maximum`"} {};
+      : SchemaTransformRule{"exclusive_maximum_integer_to_maximum"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Validation,
                           Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -32,7 +27,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     if (schema.at("exclusiveMaximum").is_integer()) {
       if (schema.at("exclusiveMaximum").to_integer() >
           std::numeric_limits<std::int64_t>::min()) {

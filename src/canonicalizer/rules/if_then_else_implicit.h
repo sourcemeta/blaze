@@ -1,8 +1,7 @@
 class IfThenElseImplicit final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  IfThenElseImplicit() : SchemaTransformRule{"if_then_else_implicit", ""} {};
+  IfThenElseImplicit() : SchemaTransformRule{"if_then_else_implicit"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -11,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_Draft_7,
@@ -24,12 +22,12 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     if (!schema.defines("then")) {
-      schema.assign("then", JSON{true});
+      schema.assign("then", sourcemeta::core::JSON{true});
     }
     if (!schema.defines("else")) {
-      schema.assign("else", JSON{true});
+      schema.assign("else", sourcemeta::core::JSON{true});
     }
   }
 };

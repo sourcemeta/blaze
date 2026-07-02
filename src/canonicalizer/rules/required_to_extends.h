@@ -1,13 +1,7 @@
 class RequiredToExtends final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  RequiredToExtends()
-      : SchemaTransformRule{
-            "required_to_extends",
-            "In Draft 3 canonical form, `required` is only ever a sibling of "
-            "`extends`; its other siblings are wrapped into an `extends` "
-            "branch"} {};
+  RequiredToExtends() : SchemaTransformRule{"required_to_extends"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -35,7 +28,7 @@ public:
     return false;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     this->wrapped_keywords_.clear();
     for (const auto &entry : schema.as_object()) {
       if (!stays_at_top(entry.first)) {
@@ -43,7 +36,7 @@ public:
       }
     }
 
-    auto branch{JSON::make_object()};
+    auto branch{sourcemeta::core::JSON::make_object()};
     for (const auto &keyword : this->wrapped_keywords_) {
       branch.assign(keyword, schema.at(keyword));
     }
@@ -58,23 +51,24 @@ public:
     } else if (schema.defines("extends")) {
       // Draft 3 allows `extends` to be a single schema; preserve it as the
       // first branch of the new array
-      auto extends{JSON::make_array()};
+      auto extends{sourcemeta::core::JSON::make_array()};
       extends.push_back(schema.at("extends"));
       this->branch_index_ = extends.size();
       extends.push_back(std::move(branch));
       schema.assign("extends", std::move(extends));
     } else {
       this->branch_index_ = 0;
-      auto extends{JSON::make_array()};
+      auto extends{sourcemeta::core::JSON::make_array()};
       extends.push_back(std::move(branch));
       schema.assign("extends", std::move(extends));
     }
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     for (const auto &keyword : this->wrapped_keywords_) {
       const auto keyword_prefix{current.concat(keyword)};
       if (target.starts_with(keyword_prefix)) {

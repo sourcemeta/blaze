@@ -1,17 +1,14 @@
 class DropAllOfEmptySchemas final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DropAllOfEmptySchemas()
-      : SchemaTransformRule{"drop_allof_empty_schemas",
-                            "Empty schemas in `allOf` are redundant and can be "
-                            "removed"} {};
+  DropAllOfEmptySchemas() : SchemaTransformRule{"drop_allof_empty_schemas"} {};
 
   [[nodiscard]] auto
-  condition(const JSON &schema, const JSON &, const Vocabularies &vocabularies,
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &, const Vocabularies &vocabularies,
             const SchemaFrame &, const SchemaFrame::Location &,
-            const SchemaWalker &, const SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const SchemaWalker &, const SchemaResolver &) const
+      -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_2020_12_Applicator,
          Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -25,8 +22,8 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    auto new_allof{JSON::make_array()};
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    auto new_allof{sourcemeta::core::JSON::make_array()};
     for (const auto &entry : schema.at("allOf").as_array()) {
       if (!is_empty_schema(entry)) {
         new_allof.push_back(entry);

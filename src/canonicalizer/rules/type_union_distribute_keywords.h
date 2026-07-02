@@ -1,12 +1,8 @@
 class TypeUnionDistributeKeywords final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   TypeUnionDistributeKeywords()
-      : SchemaTransformRule{
-            "type_union_distribute_keywords",
-            "A type-specific keyword sibling to a `type` union belongs inside "
-            "the branch of the type that it applies to"} {};
+      : SchemaTransformRule{"type_union_distribute_keywords"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -31,7 +26,7 @@ public:
     this->moves_.clear();
     this->wrap_keywords_.clear();
     this->wrap_ = false;
-    std::vector<JSON::String> movable;
+    std::vector<sourcemeta::core::JSON::String> movable;
     for (const auto &entry : schema.as_object()) {
       // `required` is a property-presence flag, not a value assertion, so it
       // is never pushed into a branch
@@ -89,11 +84,11 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     if (this->wrap_) {
-      auto union_branch{JSON::make_object()};
+      auto union_branch{sourcemeta::core::JSON::make_object()};
       union_branch.assign("type", schema.at("type"));
-      auto sibling_branch{JSON::make_object()};
+      auto sibling_branch{sourcemeta::core::JSON::make_object()};
       for (const auto &keyword : this->wrap_keywords_) {
         sibling_branch.assign(keyword, schema.at(keyword));
       }
@@ -109,7 +104,7 @@ public:
         this->sibling_index_ = schema.at("extends").size();
         schema.at("extends").push_back(std::move(sibling_branch));
       } else {
-        auto extends{JSON::make_array()};
+        auto extends{sourcemeta::core::JSON::make_array()};
         this->type_index_ = 0;
         extends.push_back(std::move(union_branch));
         this->sibling_index_ = 1;
@@ -133,10 +128,11 @@ public:
     }
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     if (this->wrap_) {
       const auto type_prefix{current.concat("type")};
       if (target.starts_with(type_prefix)) {

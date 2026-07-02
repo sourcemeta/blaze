@@ -1,13 +1,7 @@
 class EnumSplitByType final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  EnumSplitByType()
-      : SchemaTransformRule{
-            "enum_split_by_type",
-            "An `enum` whose values span more than one type is the disjunction "
-            "of its single-type subsets, so it splits into a union of "
-            "single-type enums"} {};
+  EnumSplitByType() : SchemaTransformRule{"enum_split_by_type"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     const bool any_of_dialect{
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_4,
                                    Vocabularies::Known::JSON_Schema_Draft_6,
@@ -42,7 +35,7 @@ public:
     ONLY_CONTINUE_IF(enumeration && enumeration->is_array() &&
                      !enumeration->empty());
 
-    JSON::TypeSet kinds;
+    sourcemeta::core::JSON::TypeSet kinds;
     for (const auto &value : enumeration->as_array()) {
       kinds.set(static_cast<std::size_t>(kind_of(value)));
     }
@@ -60,8 +53,8 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    auto branches{JSON::make_array()};
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    auto branches{sourcemeta::core::JSON::make_array()};
     for (const auto &value : schema.at("enum").as_array()) {
       const auto kind{kind_of(value)};
       bool merged{false};
@@ -74,9 +67,9 @@ public:
       }
 
       if (!merged) {
-        auto values{JSON::make_array()};
+        auto values{sourcemeta::core::JSON::make_array()};
         values.push_back(value);
-        auto branch{JSON::make_object()};
+        auto branch{sourcemeta::core::JSON::make_object()};
         branch.assign("enum", std::move(values));
         branches.push_back(std::move(branch));
       }
