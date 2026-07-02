@@ -1,11 +1,7 @@
 class DraftRefSiblings final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DraftRefSiblings()
-      : SchemaTransformRule{"draft_ref_siblings",
-                            "In Draft 7 and older dialects, keywords sibling "
-                            "to `$ref` are never evaluated"} {}
+  DraftRefSiblings() : SchemaTransformRule{"draft_ref_siblings"} {}
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_Draft_7,
          Vocabularies::Known::JSON_Schema_Draft_6,
@@ -27,7 +22,7 @@ public:
          Vocabularies::Known::JSON_Schema_Draft_0}));
     ONLY_CONTINUE_IF(schema.is_object() && schema.defines("$ref"));
 
-    std::vector<Pointer> locations;
+    std::vector<sourcemeta::core::Pointer> locations;
     for (const auto &entry : schema.as_object()) {
       const auto &metadata{walker(entry.first, vocabularies)};
       if (metadata.type == sourcemeta::blaze::SchemaKeywordType::Reference ||
@@ -37,7 +32,7 @@ public:
           entry.first == "$schema") {
         continue;
       } else {
-        locations.push_back(Pointer{entry.first});
+        locations.push_back(sourcemeta::core::Pointer{entry.first});
       }
     }
 
@@ -46,7 +41,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     for (const auto &location : this->locations_) {
       schema.erase(location.at(0).to_property());
     }

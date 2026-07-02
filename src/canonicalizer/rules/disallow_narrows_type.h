@@ -1,13 +1,7 @@
 class DisallowNarrowsType final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DisallowNarrowsType()
-      : SchemaTransformRule{
-            "disallow_narrows_type",
-            "When `disallow` excludes types that are also in the parent "
-            "`type`, those types can be removed from `type` and the "
-            "corresponding `disallow` entries dropped"} {};
+  DisallowNarrowsType() : SchemaTransformRule{"disallow_narrows_type"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,9 +10,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"disallow"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"disallow"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -31,14 +24,14 @@ public:
     ONLY_CONTINUE_IF(parent_type && parent_type->is_array() &&
                      parent_type->size() > 1);
 
-    std::unordered_set<JSON::String> parent_type_names;
+    std::unordered_set<sourcemeta::core::JSON::String> parent_type_names;
     for (const auto &entry : parent_type->as_array()) {
       ONLY_CONTINUE_IF(entry.is_string() && entry.to_string() != "any");
       parent_type_names.insert(entry.to_string());
     }
 
-    std::vector<Pointer> locations;
-    std::unordered_set<JSON::String> narrowed_types;
+    std::vector<sourcemeta::core::Pointer> locations;
+    std::unordered_set<sourcemeta::core::JSON::String> narrowed_types;
     for (std::size_t index = 0; index < disallow->size(); ++index) {
       const auto entry_types{extract_type_names(disallow->at(index))};
       if (entry_types.empty()) {
@@ -53,7 +46,7 @@ public:
         continue;
       }
 
-      locations.push_back(Pointer{KEYWORD, index});
+      locations.push_back(sourcemeta::core::Pointer{KEYWORD, index});
       narrowed_types.insert(entry_types.cbegin(), entry_types.cend());
     }
 
@@ -68,8 +61,8 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    std::unordered_set<JSON::String> narrowed_types;
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    std::unordered_set<sourcemeta::core::JSON::String> narrowed_types;
     std::vector<std::size_t> dead_indices;
     dead_indices.reserve(this->locations_.size());
     const auto &disallow{schema.at("disallow")};
@@ -81,7 +74,7 @@ public:
       narrowed_types.insert(entry_types.cbegin(), entry_types.cend());
     }
 
-    auto new_type{JSON::make_array()};
+    auto new_type{sourcemeta::core::JSON::make_array()};
     for (const auto &entry : schema.at("type").as_array()) {
       if (entry.is_string() && !narrowed_types.contains(entry.to_string())) {
         new_type.push_back(entry);
@@ -89,7 +82,7 @@ public:
     }
     schema.assign("type", std::move(new_type));
 
-    auto new_disallow{JSON::make_array()};
+    auto new_disallow{sourcemeta::core::JSON::make_array()};
     for (std::size_t index = 0; index < disallow.size(); ++index) {
       if (std::ranges::find(dead_indices, index) == dead_indices.end()) {
         new_disallow.push_back(disallow.at(index));
@@ -104,8 +97,8 @@ public:
 
 private:
   static auto extract_type_names(const sourcemeta::core::JSON &entry)
-      -> std::unordered_set<JSON::String> {
-    std::unordered_set<JSON::String> result;
+      -> std::unordered_set<sourcemeta::core::JSON::String> {
+    std::unordered_set<sourcemeta::core::JSON::String> result;
     if (entry.is_string()) {
       if (entry.to_string() != "any") {
         result.insert(entry.to_string());
@@ -130,7 +123,7 @@ private:
     }
     for (const auto &type_entry : entry_type->as_array()) {
       if (!type_entry.is_string() || type_entry.to_string() == "any") {
-        return std::unordered_set<JSON::String>{};
+        return std::unordered_set<sourcemeta::core::JSON::String>{};
       }
       result.insert(type_entry.to_string());
     }

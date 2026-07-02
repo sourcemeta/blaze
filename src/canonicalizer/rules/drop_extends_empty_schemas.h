@@ -1,11 +1,8 @@
 class DropExtendsEmptySchemas final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   DropExtendsEmptySchemas()
-      : SchemaTransformRule{
-            "drop_extends_empty_schemas",
-            "Empty schemas in `extends` are redundant and can be removed"} {};
+      : SchemaTransformRule{"drop_extends_empty_schemas"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,9 +11,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"extends"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"extends"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -30,15 +26,15 @@ public:
     ONLY_CONTINUE_IF(!frame.has_references_through(keyword_pointer));
 
     if (sourcemeta::blaze::is_empty_schema(*extends)) {
-      this->locations_ = {Pointer{KEYWORD}};
+      this->locations_ = {sourcemeta::core::Pointer{KEYWORD}};
       return true;
     }
 
     if (extends->is_array() && !extends->empty()) {
-      std::vector<Pointer> locations;
+      std::vector<sourcemeta::core::Pointer> locations;
       for (std::size_t index = 0; index < extends->size(); ++index) {
         if (sourcemeta::blaze::is_empty_schema(extends->at(index))) {
-          locations.push_back(Pointer{KEYWORD, index});
+          locations.push_back(sourcemeta::core::Pointer{KEYWORD, index});
         }
       }
       ONLY_CONTINUE_IF(!locations.empty());
@@ -49,13 +45,13 @@ public:
     return false;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     if (this->locations_.size() == 1 && this->locations_.at(0).size() == 1) {
       schema.erase("extends");
       return;
     }
 
-    auto new_extends{JSON::make_array()};
+    auto new_extends{sourcemeta::core::JSON::make_array()};
     for (const auto &entry : schema.at("extends").as_array()) {
       if (!sourcemeta::blaze::is_empty_schema(entry)) {
         new_extends.push_back(entry);

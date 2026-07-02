@@ -1,11 +1,8 @@
 class NonApplicableTypeSpecificKeywords final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   NonApplicableTypeSpecificKeywords()
-      : SchemaTransformRule{"non_applicable_type_specific_keywords",
-                            "Avoid keywords that don't apply to the type or "
-                            "types that the current subschema expects"} {};
+      : SchemaTransformRule{"non_applicable_type_specific_keywords"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(schema.is_object());
 
     const auto *type_value{schema.try_at("type")};
@@ -68,7 +64,7 @@ public:
     // so we cannot remove anything from it.
     ONLY_CONTINUE_IF(current_types.any());
 
-    std::vector<Pointer> positions;
+    std::vector<sourcemeta::core::Pointer> positions;
     for (const auto &entry : schema.as_object()) {
       const auto &metadata{walker(entry.first, vocabularies)};
 
@@ -109,11 +105,12 @@ public:
       if ((metadata.instances & current_types).none()) {
         // Skip keywords that have references pointing to them
         if (frame.has_references_through(
-                location.pointer, WeakPointer::Token{std::cref(entry.first)})) {
+                location.pointer,
+                sourcemeta::core::WeakPointer::Token{std::cref(entry.first)})) {
           continue;
         }
 
-        positions.push_back(Pointer{entry.first});
+        positions.push_back(sourcemeta::core::Pointer{entry.first});
       }
     }
 
@@ -122,7 +119,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     for (const auto &location : this->locations_) {
       schema.erase(location.at(0).to_property());
     }

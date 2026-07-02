@@ -1,14 +1,7 @@
 class DuplicateAnyOfBranches final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DuplicateAnyOfBranches()
-      : SchemaTransformRule{
-            "duplicate_anyof_branches",
-            "Setting duplicate subschemas in `anyOf` is redundant, as it "
-            "produces "
-            "unnecessary additional validation that is guaranteed to not "
-            "affect the validation result"} {};
+  DuplicateAnyOfBranches() : SchemaTransformRule{"duplicate_anyof_branches"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -17,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Applicator,
                           Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -33,15 +25,18 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     this->index_mapping_.clear();
     const auto &original{schema.at("anyOf")};
 
-    std::unordered_map<std::reference_wrapper<const JSON>, std::size_t,
-                       HashJSON<std::reference_wrapper<const JSON>>,
-                       EqualJSON<std::reference_wrapper<const JSON>>>
+    std::unordered_map<
+        std::reference_wrapper<const sourcemeta::core::JSON>, std::size_t,
+        sourcemeta::core::HashJSON<
+            std::reference_wrapper<const sourcemeta::core::JSON>>,
+        sourcemeta::core::EqualJSON<
+            std::reference_wrapper<const sourcemeta::core::JSON>>>
         seen;
-    auto result{JSON::make_array()};
+    auto result{sourcemeta::core::JSON::make_array()};
 
     for (std::size_t index = 0; index < original.size(); ++index) {
       const auto &value{original.at(index)};
@@ -59,16 +54,17 @@ public:
     schema.assign("anyOf", std::move(result));
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     const auto anyof_prefix{current.concat("anyOf")};
     const auto relative{target.resolve_from(anyof_prefix)};
     const auto old_index{relative.at(0).to_index()};
     const auto new_index{this->index_mapping_.at(old_index)};
-    const Pointer old_prefix{anyof_prefix.concat(old_index)};
-    const Pointer new_prefix{anyof_prefix.concat(new_index)};
+    const sourcemeta::core::Pointer old_prefix{anyof_prefix.concat(old_index)};
+    const sourcemeta::core::Pointer new_prefix{anyof_prefix.concat(new_index)};
     return target.rebase(old_prefix, new_prefix);
   }
 

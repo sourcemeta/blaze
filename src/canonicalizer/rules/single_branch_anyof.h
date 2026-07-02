@@ -1,8 +1,7 @@
 class SingleBranchAnyOf final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  SingleBranchAnyOf() : SchemaTransformRule{"single_branch_anyof", ""} {};
+  SingleBranchAnyOf() : SchemaTransformRule{"single_branch_anyof"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -11,9 +10,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"anyOf"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"anyOf"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Applicator,
                           Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -25,7 +23,8 @@ public:
     const auto *any_of{schema.try_at(KEYWORD)};
     ONLY_CONTINUE_IF(any_of && any_of->is_array() && any_of->size() == 1);
     ONLY_CONTINUE_IF(!frame.has_references_through(
-        location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
+        location.pointer,
+        sourcemeta::core::WeakPointer::Token{std::cref(KEYWORD)}));
     this->has_unevaluated_ =
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_2020_12_Unevaluated,
@@ -35,7 +34,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     if (this->has_unevaluated_) {
       schema.rename("anyOf", "allOf");
       return;
@@ -46,7 +45,7 @@ public:
       if (branch.to_boolean()) {
         schema.erase("anyOf");
       } else {
-        schema.into(JSON{false});
+        schema.into(sourcemeta::core::JSON{false});
       }
       return;
     }
@@ -55,17 +54,18 @@ public:
     schema.erase("anyOf");
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
-    static const JSON::String KEYWORD{"anyOf"};
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    static const sourcemeta::core::JSON::String KEYWORD{"anyOf"};
     if (this->has_unevaluated_) {
       const auto old_prefix{current.concat(KEYWORD)};
-      const Pointer new_prefix{current.concat("allOf")};
+      const sourcemeta::core::Pointer new_prefix{current.concat("allOf")};
       return target.rebase(old_prefix, new_prefix);
     }
-    const auto prefix{current.concat(Pointer{KEYWORD, 0})};
+    const auto prefix{current.concat(sourcemeta::core::Pointer{KEYWORD, 0})};
     if (!target.starts_with(prefix)) {
       return target;
     }
@@ -73,7 +73,8 @@ public:
     if (relative.empty()) {
       return target;
     }
-    const Pointer new_prefix{current.concat({relative.at(0)})};
+    const sourcemeta::core::Pointer new_prefix{
+        current.concat({relative.at(0)})};
     return target.rebase(prefix.concat({relative.at(0)}), new_prefix);
   }
 

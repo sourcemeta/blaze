@@ -1,8 +1,7 @@
 class SingleBranchAllOf final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  SingleBranchAllOf() : SchemaTransformRule{"single_branch_allof", ""} {};
+  SingleBranchAllOf() : SchemaTransformRule{"single_branch_allof"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -11,9 +10,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"allOf"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"allOf"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Applicator,
                           Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -31,7 +29,8 @@ public:
           (schema.defines("unevaluatedProperties") ||
            schema.defines("unevaluatedItems"))));
     ONLY_CONTINUE_IF(!frame.has_references_through(
-        location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
+        location.pointer,
+        sourcemeta::core::WeakPointer::Token{std::cref(KEYWORD)}));
     const auto &branch{all_of->at(0)};
     if (branch.is_object()) {
       ONLY_CONTINUE_IF(!branch.defines("$ref") &&
@@ -41,13 +40,13 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto &branch{schema.at("allOf").at(0)};
     if (branch.is_boolean()) {
       if (branch.to_boolean()) {
         schema.erase("allOf");
       } else {
-        schema.into(JSON{false});
+        schema.into(sourcemeta::core::JSON{false});
       }
       return;
     }
@@ -56,12 +55,13 @@ public:
     schema.erase("allOf");
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
-    static const JSON::String KEYWORD{"allOf"};
-    const auto prefix{current.concat(Pointer{KEYWORD, 0})};
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    static const sourcemeta::core::JSON::String KEYWORD{"allOf"};
+    const auto prefix{current.concat(sourcemeta::core::Pointer{KEYWORD, 0})};
     if (!target.starts_with(prefix)) {
       return target;
     }
@@ -69,7 +69,8 @@ public:
     if (relative.empty()) {
       return target;
     }
-    const Pointer new_prefix{current.concat({relative.at(0)})};
+    const sourcemeta::core::Pointer new_prefix{
+        current.concat({relative.at(0)})};
     return target.rebase(prefix.concat({relative.at(0)}), new_prefix);
   }
 };

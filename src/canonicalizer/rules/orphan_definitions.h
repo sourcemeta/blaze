@@ -1,12 +1,7 @@
 class OrphanDefinitions final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  OrphanDefinitions()
-      : SchemaTransformRule{
-            "orphan_definitions",
-            "Schema definitions in `$defs` or `definitions` that "
-            "are never internally referenced can be removed"} {};
+  OrphanDefinitions() : SchemaTransformRule{"orphan_definitions"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +10,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &resolver, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &resolver) const
+      -> bool override {
     ONLY_CONTINUE_IF(schema.is_object());
     const bool has_modern_core{
         vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core) ||
@@ -33,7 +28,7 @@ public:
     const auto base{frame.traverse(frame.root())};
     ONLY_CONTINUE_IF(base.has_value());
 
-    std::vector<Pointer> orphans;
+    std::vector<sourcemeta::core::Pointer> orphans;
     collect_orphans(frame, base->get(), walker, resolver, location.pointer,
                     schema, "$defs", has_defs, orphans);
     collect_orphans(frame, base->get(), walker, resolver, location.pointer,
@@ -44,7 +39,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     for (const auto &pointer : this->locations_) {
       assert(pointer.size() == 2);
       assert(pointer.at(0).is_property());
@@ -67,7 +62,8 @@ public:
 private:
   static auto
   subtree_has_dynamic_anchor(const sourcemeta::blaze::SchemaFrame &frame,
-                             const WeakPointer &entry_pointer) -> bool {
+                             const sourcemeta::core::WeakPointer &entry_pointer)
+      -> bool {
     for (const auto &[key, location] : frame.locations()) {
       if (key.first != sourcemeta::blaze::SchemaReferenceType::Dynamic) {
         continue;
@@ -88,7 +84,7 @@ private:
       const sourcemeta::blaze::SchemaFrame::Location &base,
       const sourcemeta::blaze::SchemaWalker &walker,
       const sourcemeta::blaze::SchemaResolver &resolver,
-      const WeakPointer &pointer) -> bool {
+      const sourcemeta::core::WeakPointer &pointer) -> bool {
     for (const auto &reference : frame.references()) {
       const auto destination{frame.traverse(reference.second.destination)};
       if (!destination.has_value()) {
@@ -121,16 +117,18 @@ private:
                   const sourcemeta::blaze::SchemaFrame::Location &base,
                   const sourcemeta::blaze::SchemaWalker &walker,
                   const sourcemeta::blaze::SchemaResolver &resolver,
-                  const WeakPointer &prefix, const JSON &schema,
-                  const JSON::String &container, const bool has_container,
-                  std::vector<Pointer> &orphans) -> void {
+                  const sourcemeta::core::WeakPointer &prefix,
+                  const sourcemeta::core::JSON &schema,
+                  const sourcemeta::core::JSON::String &container,
+                  const bool has_container,
+                  std::vector<sourcemeta::core::Pointer> &orphans) -> void {
     if (!has_container || !schema.at(container).is_object()) {
       return;
     }
 
     for (const auto &entry : schema.at(container).as_object()) {
-      const WeakPointer entry_pointer{std::cref(container),
-                                      std::cref(entry.first)};
+      const sourcemeta::core::WeakPointer entry_pointer{std::cref(container),
+                                                        std::cref(entry.first)};
       const auto absolute_entry_pointer{prefix.concat(entry_pointer)};
       const auto entry_location{frame.traverse(
           absolute_entry_pointer,
@@ -141,7 +139,7 @@ private:
                                            absolute_entry_pointer) &&
           !(!frame.standalone() &&
             subtree_has_dynamic_anchor(frame, absolute_entry_pointer))) {
-        orphans.push_back(Pointer{container, entry.first});
+        orphans.push_back(sourcemeta::core::Pointer{container, entry.first});
       }
     }
   }

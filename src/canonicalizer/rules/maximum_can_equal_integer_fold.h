@@ -1,9 +1,8 @@
 class MaximumCanEqualIntegerFold final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   MaximumCanEqualIntegerFold()
-      : SchemaTransformRule{"maximum_can_equal_integer_fold", ""} {};
+      : SchemaTransformRule{"maximum_can_equal_integer_fold"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -12,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
                                    Vocabularies::Known::JSON_Schema_Draft_1,
@@ -31,7 +29,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     const auto &maximum{schema.at("maximum")};
     if (maximum.is_integer()) {
       if (maximum.to_integer() > std::numeric_limits<std::int64_t>::min()) {

@@ -1,13 +1,8 @@
 class DisallowArrayToExtends final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   DisallowArrayToExtends()
-      : SchemaTransformRule{
-            "disallow_array_to_extends",
-            "A multi-way `disallow` is the conjunction of single negations: "
-            "each element becomes its own single-element `disallow` in an "
-            "`extends` branch"} {};
+      : SchemaTransformRule{"disallow_array_to_extends"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -28,12 +22,12 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    auto branches{JSON::make_array()};
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    auto branches{sourcemeta::core::JSON::make_array()};
     for (const auto &element : schema.at("disallow").as_array()) {
-      auto negation{JSON::make_array()};
+      auto negation{sourcemeta::core::JSON::make_array()};
       negation.push_back(element);
-      auto branch{JSON::make_object()};
+      auto branch{sourcemeta::core::JSON::make_object()};
       branch.assign("disallow", std::move(negation));
       branches.push_back(std::move(branch));
     }
@@ -46,7 +40,7 @@ public:
         schema.at("extends").push_back(std::move(branch));
       }
     } else if (schema.defines("extends")) {
-      auto extends{JSON::make_array()};
+      auto extends{sourcemeta::core::JSON::make_array()};
       extends.push_back(schema.at("extends"));
       this->extends_start_ = extends.size();
       for (auto &branch : branches.as_array()) {
@@ -59,10 +53,11 @@ public:
     }
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     const auto disallow_prefix{current.concat("disallow")};
     if (!target.starts_with(disallow_prefix)) {
       return target;
@@ -75,7 +70,7 @@ public:
 
     const auto index{relative.at(0).to_index()};
     return target.rebase(
-        current.concat(Pointer{"disallow", index}),
+        current.concat(sourcemeta::core::Pointer{"disallow", index}),
         current.concat(
             {"extends", this->extends_start_ + index, "disallow", 0}));
   }

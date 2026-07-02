@@ -1,11 +1,7 @@
 class TypeUnionImplicit final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  TypeUnionImplicit()
-      : SchemaTransformRule{
-            "type_union_implicit",
-            "Not setting `type` is equivalent to accepting any type"} {};
+  TypeUnionImplicit() : SchemaTransformRule{"type_union_implicit"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,9 +10,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &resolver, const bool) const
-      -> SchemaTransformRule::Result override {
-    using namespace sourcemeta::core;
+            const sourcemeta::blaze::SchemaResolver &resolver) const
+      -> bool override {
     ONLY_CONTINUE_IF(schema.is_object() && !schema.empty());
     ONLY_CONTINUE_IF(!vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_0,
@@ -60,7 +55,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto types{sourcemeta::core::JSON::make_array()};
 
     types.push_back(sourcemeta::core::JSON{"null"});
@@ -82,7 +77,6 @@ private:
       const sourcemeta::blaze::SchemaFrame::Location &location,
       const sourcemeta::blaze::SchemaWalker &walker,
       const sourcemeta::blaze::SchemaResolver &resolver) -> bool {
-    using namespace sourcemeta::core;
     auto walk_pointer{location.pointer};
     auto walk_parent{location.parent};
     while (walk_parent.has_value()) {
@@ -107,7 +101,7 @@ private:
       if (walk_keyword_type == SchemaKeywordType::ApplicatorElementsInPlace &&
           walk_relative.size() >= 2 && walk_relative.at(1).is_index()) {
         const auto branch_index{walk_relative.at(1).to_index()};
-        const auto &allof_parent{get(root, wp)};
+        const auto &allof_parent{sourcemeta::core::get(root, wp)};
         const auto &keyword_name{walk_relative.at(0).to_property()};
         const auto *branches{allof_parent.is_object()
                                  ? allof_parent.try_at(keyword_name)

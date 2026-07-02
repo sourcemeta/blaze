@@ -1,9 +1,8 @@
 class EnumDropRedundantValidation final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   EnumDropRedundantValidation()
-      : SchemaTransformRule{"enum_drop_redundant_validation", ""} {};
+      : SchemaTransformRule{"enum_drop_redundant_validation"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -12,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_Draft_0,
@@ -86,7 +84,8 @@ public:
 
       if (entry.second.is_boolean() && entry.second.to_boolean()) {
         if (!frame.has_references_through(
-                location.pointer, WeakPointer::Token{std::cref(entry.first)})) {
+                location.pointer,
+                sourcemeta::core::WeakPointer::Token{std::cref(entry.first)})) {
           this->keywords_.emplace_back(entry.first);
         }
         continue;
@@ -98,7 +97,8 @@ public:
       }
 
       if (!frame.has_references_through(
-              location.pointer, WeakPointer::Token{std::cref(entry.first)})) {
+              location.pointer,
+              sourcemeta::core::WeakPointer::Token{std::cref(entry.first)})) {
         this->wrap_keywords_.emplace_back(entry.first);
       }
     }
@@ -107,7 +107,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     for (const auto &keyword : this->keywords_) {
       schema.erase(keyword);
     }
@@ -116,9 +116,9 @@ public:
       return;
     }
 
-    auto new_allof{JSON::make_array()};
+    auto new_allof{sourcemeta::core::JSON::make_array()};
     for (const auto &keyword : this->wrap_keywords_) {
-      auto branch{JSON::make_object()};
+      auto branch{sourcemeta::core::JSON::make_object()};
       branch.assign(keyword, schema.at(keyword));
       if (keyword == "if" && this->has_if_group_) {
         if (schema.defines("then")) {
@@ -140,7 +140,7 @@ public:
       }
     }
 
-    auto enum_branch{JSON::make_object()};
+    auto enum_branch{sourcemeta::core::JSON::make_object()};
     enum_branch.assign("enum", schema.at("enum"));
     schema.erase("enum");
     new_allof.push_back(std::move(enum_branch));
@@ -150,8 +150,8 @@ public:
   }
 
 private:
-  mutable std::vector<JSON::String> keywords_;
-  mutable std::vector<JSON::String> wrap_keywords_;
+  mutable std::vector<sourcemeta::core::JSON::String> keywords_;
+  mutable std::vector<sourcemeta::core::JSON::String> wrap_keywords_;
   mutable bool has_if_group_{false};
   mutable bool is_pre_draft4_{false};
 };

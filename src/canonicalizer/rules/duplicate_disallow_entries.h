@@ -1,13 +1,8 @@
 class DuplicateDisallowEntries final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   DuplicateDisallowEntries()
-      : SchemaTransformRule{
-            "duplicate_disallow_entries",
-            "Setting duplicate subschemas in `disallow` is redundant, as "
-            "negating the same subschema more than once is guaranteed to not "
-            "affect the validation result"} {};
+      : SchemaTransformRule{"duplicate_disallow_entries"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_3,
                           Vocabularies::Known::JSON_Schema_Draft_3_Hyper}) &&
@@ -33,19 +27,23 @@ public:
     // as its own `extends` branch
     const std::string keyword{"disallow"};
     ONLY_CONTINUE_IF(!frame.has_references_through(
-        location.pointer, WeakPointer::Token{std::cref(keyword)}));
+        location.pointer,
+        sourcemeta::core::WeakPointer::Token{std::cref(keyword)}));
 
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     const auto &original{schema.at("disallow")};
 
-    std::unordered_set<std::reference_wrapper<const JSON>,
-                       HashJSON<std::reference_wrapper<const JSON>>,
-                       EqualJSON<std::reference_wrapper<const JSON>>>
+    std::unordered_set<
+        std::reference_wrapper<const sourcemeta::core::JSON>,
+        sourcemeta::core::HashJSON<
+            std::reference_wrapper<const sourcemeta::core::JSON>>,
+        sourcemeta::core::EqualJSON<
+            std::reference_wrapper<const sourcemeta::core::JSON>>>
         seen;
-    auto result{JSON::make_array()};
+    auto result{sourcemeta::core::JSON::make_array()};
 
     for (const auto &element : original.as_array()) {
       if (seen.emplace(std::cref(element)).second) {

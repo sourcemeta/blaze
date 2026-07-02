@@ -1,11 +1,7 @@
 class SingleTypeArray final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::false_type;
-  SingleTypeArray()
-      : SchemaTransformRule{"single_type_array",
-                            "Setting `type` to an array of a single type is "
-                            "the same as directly declaring such type"} {};
+  SingleTypeArray() : SchemaTransformRule{"single_type_array"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Validation,
                           Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -35,7 +30,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto type{schema.at("type").front()};
     schema.at("type").into(std::move(type));
   }

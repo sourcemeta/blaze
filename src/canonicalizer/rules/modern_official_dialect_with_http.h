@@ -1,12 +1,8 @@
 class ModernOfficialDialectWithHttp final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ModernOfficialDialectWithHttp()
-      : SchemaTransformRule{
-            "modern_official_dialect_with_http",
-            "The official dialect URI of 2019-09 and later must use "
-            "\"https://\" instead of \"http://\""} {};
+      : SchemaTransformRule{"modern_official_dialect_with_http"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     using sourcemeta::blaze::SchemaBaseDialect;
     ONLY_CONTINUE_IF(
         location.base_dialect == SchemaBaseDialect::JSON_Schema_2020_12 ||
@@ -40,8 +35,7 @@ public:
     return true;
   }
 
-  auto transform(sourcemeta::core::JSON &schema, const Result &) const
-      -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     const auto &old_dialect{schema.at("$schema").to_string()};
     std::string new_dialect{"https://"};
     new_dialect += old_dialect.substr(7);

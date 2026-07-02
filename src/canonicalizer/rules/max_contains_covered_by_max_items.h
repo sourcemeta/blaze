@@ -1,13 +1,8 @@
 class MaxContainsCoveredByMaxItems final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::false_type;
   MaxContainsCoveredByMaxItems()
-      : SchemaTransformRule{
-            "max_contains_covered_by_max_items",
-            "Setting the `maxContains` keyword to a number greater than or "
-            "equal to the array upper bound does not add any further "
-            "constraint"} {};
+      : SchemaTransformRule{"max_contains_covered_by_max_items"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_2020_12_Validation,
@@ -32,7 +26,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     schema.assign("maxContains", schema.at("maxItems"));
   }
 };

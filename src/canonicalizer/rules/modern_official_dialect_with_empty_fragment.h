@@ -1,13 +1,9 @@
 class ModernOfficialDialectWithEmptyFragment final
     : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   ModernOfficialDialectWithEmptyFragment()
-      : SchemaTransformRule{
-            "modern_official_dialect_with_empty_fragment",
-            "The official dialect URI of 2019-09 and newer versions must "
-            "not contain the empty fragment"} {};
+      : SchemaTransformRule{"modern_official_dialect_with_empty_fragment"} {};
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
@@ -15,9 +11,8 @@ public:
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
-                               const bool) const
-      -> SchemaTransformRule::Result override {
+                               const sourcemeta::blaze::SchemaResolver &) const
+      -> bool override {
     ONLY_CONTINUE_IF(schema.is_object());
     const auto *schema_keyword{schema.try_at("$schema")};
     ONLY_CONTINUE_IF(schema_keyword && schema_keyword->is_string());
@@ -30,8 +25,7 @@ public:
     return true;
   }
 
-  auto transform(sourcemeta::core::JSON &schema, const Result &) const
-      -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto dialect{std::move(schema.at("$schema")).to_string()};
     dialect.pop_back();
     schema.at("$schema").into(sourcemeta::core::JSON{dialect});

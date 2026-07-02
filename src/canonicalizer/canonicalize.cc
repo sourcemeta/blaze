@@ -1,103 +1,251 @@
 #include <sourcemeta/blaze/canonicalizer.h>
-
-#include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/evaluator.h>
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/frame.h>
-#include <sourcemeta/blaze/output.h>
-#include <sourcemeta/core/regex.h>
+
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/uri.h>
 
-#include "canonicalizer_transformer.h"
-
-// For built-in rules
 #include <algorithm>     // std::sort, std::unique, std::ranges::none_of
 #include <array>         // std::array
 #include <bit>           // std::popcount
 #include <cassert>       // assert
 #include <cmath>         // std::floor, std::ceil, std::isfinite
+#include <concepts>      // std::derived_from
 #include <cstddef>       // std::size_t
-#include <functional>    // std::ref
-#include <iterator>      // std::back_inserter
+#include <cstdint>       // std::uint64_t
+#include <functional>    // std::hash, std::ref
 #include <limits>        // std::numeric_limits
-#include <memory>        // std::unique_ptr, std::make_unique
-#include <sstream>       // std::ostringstream
+#include <memory>        // std::make_unique, std::unique_ptr
+#include <optional>      // std::optional, std::nullopt
+#include <string>        // std::string
 #include <string_view>   // std::string_view
+#include <tuple>         // std::tuple
+#include <type_traits>   // std::is_same_v, std::true_type
 #include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
 #include <utility>       // std::move, std::to_underlying
+#include <vector>        // std::vector
 
-namespace sourcemeta::blaze::canonicalizer {
+namespace sourcemeta::blaze {
 
-using namespace sourcemeta::core;
+namespace {
 
-// TODO: Move upstream
-inline auto IS_IN_PLACE_APPLICATOR(const SchemaKeywordType type) -> bool {
-  return type == SchemaKeywordType::ApplicatorValueOrElementsInPlace ||
-         type == SchemaKeywordType::ApplicatorMembersInPlaceSome ||
-         type == SchemaKeywordType::ApplicatorElementsInPlace ||
-         type == SchemaKeywordType::ApplicatorElementsInPlaceSome ||
-         type == SchemaKeywordType::ApplicatorElementsInPlaceSomeNegate ||
-         type == SchemaKeywordType::ApplicatorValueInPlaceMaybe ||
-         type == SchemaKeywordType::ApplicatorValueInPlaceOther ||
-         type == SchemaKeywordType::ApplicatorValueInPlaceNegate;
+#include "rule.h"
+
+using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool>;
+
+/// Construct a rule entry for the given rule type
+template <std::derived_from<SchemaTransformRule> T>
+[[nodiscard]] auto make_rule() -> Rule {
+  return {std::make_unique<T>(),
+          std::is_same_v<typename T::reframe_after_transform, std::true_type>};
 }
 
-// Walk up from a schema location, continuing as long as the traversal
-// predicate returns true for each keyword type encountered. Returns a
-// reference to the pointer of the ancestor where the match callback returned
-// true, or nullopt if no match was found or the traversal predicate stopped
-// the walk.
-template <typename TraversePredicate, typename MatchCallback>
-auto WALK_UP(const JSON &root, const SchemaFrame &frame,
-             const SchemaFrame::Location &location, const SchemaWalker &walker,
-             const SchemaResolver &resolver,
-             const TraversePredicate &should_continue,
-             const MatchCallback &matches)
-    -> std::optional<std::reference_wrapper<const WeakPointer>> {
-  auto current_pointer{location.pointer};
-  auto current_parent{location.parent};
+/// Re-analyse the frame, honouring any identifier already present in the schema
+auto analyse_frame(sourcemeta::blaze::SchemaFrame &target,
+                   sourcemeta::core::JSON &schema,
+                   const sourcemeta::blaze::SchemaWalker &walker,
+                   const sourcemeta::blaze::SchemaResolver &resolver,
+                   const std::string_view default_dialect,
+                   const std::string_view default_id) -> void {
+  if (!blaze::identify(schema, resolver, default_dialect).empty()) {
+    target.analyse(schema, walker, resolver, default_dialect);
+  } else {
+    target.analyse(schema, walker, resolver, default_dialect, default_id);
+  }
+}
 
-  while (current_parent.has_value()) {
-    const auto &parent_pointer{current_parent.value()};
-    const auto relative_pointer{current_pointer.resolve_from(parent_pointer)};
-    assert(!relative_pointer.empty() && relative_pointer.at(0).is_property());
-    const auto parent{frame.traverse(frame.uri(parent_pointer).value().get())};
-    assert(parent.has_value());
-    const auto parent_vocabularies{
-        frame.vocabularies(parent.value().get(), resolver)};
-    const auto keyword_type{
-        walker(relative_pointer.at(0).to_property(), parent_vocabularies).type};
+/// Apply the given rules top-down to every subschema until none of them applies
+auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
+           const sourcemeta::blaze::SchemaWalker &walker,
+           const sourcemeta::blaze::SchemaResolver &resolver,
+           const std::string_view default_dialect = "",
+           const std::string_view default_id = "") -> void {
+  assert(!rules.empty());
 
-    if (!should_continue(keyword_type)) {
-      return std::nullopt;
+  struct ProcessedRuleHasher {
+    auto operator()(const std::tuple<core::Pointer, std::string_view,
+                                     core::JSON> &value) const noexcept
+        -> std::size_t {
+      return core::Pointer::Hasher{}(std::get<0>(value)) ^
+             (std::hash<std::string_view>{}(std::get<1>(value)) << 1) ^
+             (std::hash<std::uint64_t>{}(std::get<2>(value).fast_hash()) << 2);
+    }
+  };
+
+  std::unordered_set<std::tuple<core::Pointer, std::string_view, core::JSON>,
+                     ProcessedRuleHasher>
+      processed_rules;
+
+  blaze::SchemaFrame frame{blaze::SchemaFrame::Mode::References};
+
+  struct PotentiallyBrokenReference {
+    core::Pointer origin;
+    core::JSON::String original;
+    core::JSON::String destination;
+    core::JSON::String fragment;
+    core::Pointer target_pointer;
+    std::size_t target_relative_pointer;
+  };
+
+  std::vector<PotentiallyBrokenReference> potentially_broken_references;
+
+  while (true) {
+    if (frame.empty()) {
+      if (schema.is_boolean()) {
+        break;
+      }
+
+      analyse_frame(frame, schema, walker, resolver, default_dialect,
+                    default_id);
     }
 
-    if (matches(get(root, parent_pointer), parent_vocabularies)) {
-      return std::cref(parent.value().get().pointer);
+    std::unordered_set<core::Pointer, core::Pointer::Hasher> visited;
+    bool applied{false};
+
+    for (const auto &entry : frame.locations()) {
+      if (entry.second.type != blaze::SchemaFrame::LocationType::Resource &&
+          entry.second.type != blaze::SchemaFrame::LocationType::Subschema) {
+        continue;
+      }
+
+      const auto [visited_iterator, inserted] =
+          visited.insert(core::to_pointer(entry.second.pointer));
+      if (!inserted) {
+        continue;
+      }
+      const auto &entry_pointer{*visited_iterator};
+      auto &current{core::get(schema, entry_pointer)};
+      const auto current_vocabularies{
+          frame.vocabularies(entry.second, resolver)};
+
+      for (const auto &[rule, reframe_after_transform] : rules) {
+        const auto outcome{rule->condition(current, schema,
+                                           current_vocabularies, frame,
+                                           entry.second, walker, resolver)};
+
+        if (!outcome) {
+          continue;
+        }
+
+        potentially_broken_references.clear();
+        for (const auto &reference : frame.references()) {
+          const auto destination{frame.traverse(reference.second.destination)};
+          if (!destination.has_value() ||
+              !reference.second.fragment.has_value() ||
+              !reference.second.fragment.value().starts_with('/')) {
+            continue;
+          }
+
+          const auto &target{destination.value().get()};
+          potentially_broken_references.push_back(
+              {.origin = core::to_pointer(reference.first.second),
+               .original = core::JSON::String{reference.second.original},
+               .destination = reference.second.destination,
+               .fragment =
+                   core::JSON::String{reference.second.fragment.value()},
+               .target_pointer = core::to_pointer(target.pointer),
+               .target_relative_pointer = target.relative_pointer});
+        }
+
+        rule->transform(current);
+
+        applied = true;
+
+        if (reframe_after_transform) {
+          analyse_frame(frame, schema, walker, resolver, default_dialect,
+                        default_id);
+        } else if (current.is_boolean()) {
+          std::tuple<core::Pointer, std::string_view, core::JSON> mark{
+              entry_pointer, rule->name(), current};
+          assert(!processed_rules.contains(mark));
+          processed_rules.emplace(std::move(mark));
+          frame.reset();
+          goto blaze_transformer_start_again;
+        }
+
+        const auto new_location{
+            frame.traverse(core::to_weak_pointer(entry_pointer))};
+        assert(new_location.has_value());
+
+        // Fix broken references before re-checking the condition,
+        // as the re-check may mutate rule state that rereference needs
+        bool references_fixed{false};
+        const auto resource_offset{new_location.value().get().relative_pointer};
+        const auto current_slice{entry_pointer.slice(resource_offset)};
+        for (const auto &saved_reference : potentially_broken_references) {
+          if (core::try_get(schema, saved_reference.target_pointer)) {
+            continue;
+          }
+
+          // If the origin was also relocated, resolve its new location
+          auto effective_origin{saved_reference.origin};
+          if (!core::try_get(schema, saved_reference.origin.initial())) {
+            const auto new_origin{rule->rereference(
+                saved_reference.destination, saved_reference.origin,
+                saved_reference.origin.slice(resource_offset), current_slice)};
+            if (!new_origin.has_value()) {
+              continue;
+            }
+            effective_origin = saved_reference.origin.slice(0, resource_offset)
+                                   .concat(new_origin.value());
+            if (!core::try_get(schema, effective_origin.initial())) {
+              continue;
+            }
+          }
+
+          const auto new_relative{rule->rereference(
+              saved_reference.destination, saved_reference.origin,
+              saved_reference.target_pointer.slice(
+                  saved_reference.target_relative_pointer),
+              current_slice)};
+          if (!new_relative.has_value()) {
+            continue;
+          }
+          const auto new_fragment{
+              saved_reference.fragment ==
+                      core::to_string(saved_reference.target_pointer)
+                  ? saved_reference.target_pointer
+                        .slice(0, saved_reference.target_relative_pointer)
+                        .concat(new_relative.value())
+                  : new_relative.value()};
+
+          core::URI original{saved_reference.original};
+          original.fragment(core::to_string(new_fragment));
+          core::set(schema, effective_origin, core::JSON{original.recompose()});
+          references_fixed = true;
+        }
+
+        const auto new_vocabularies{
+            frame.vocabularies(new_location.value().get(), resolver)};
+
+        assert(!rule->condition(current, schema, new_vocabularies, frame,
+                                new_location.value().get(), walker, resolver));
+
+        std::tuple<core::Pointer, std::string_view, core::JSON> mark{
+            entry_pointer, rule->name(), current};
+        assert(!processed_rules.contains(mark));
+        processed_rules.emplace(std::move(mark));
+
+        if (references_fixed) {
+          frame.reset();
+        }
+
+        if (references_fixed || reframe_after_transform) {
+          goto blaze_transformer_start_again;
+        }
+      }
     }
 
-    current_pointer = parent_pointer;
-    current_parent = parent.value().get().parent;
+  blaze_transformer_start_again:
+    if (!applied) {
+      break;
+    }
   }
-
-  return std::nullopt;
 }
 
-template <typename MatchCallback>
-auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
-                                  const SchemaFrame::Location &location,
-                                  const SchemaWalker &walker,
-                                  const SchemaResolver &resolver,
-                                  const MatchCallback &matches)
-    -> std::optional<std::reference_wrapper<const WeakPointer>> {
-  return WALK_UP(root, frame, location, walker, resolver,
-                 IS_IN_PLACE_APPLICATOR, matches);
-}
-
-#define ONLY_CONTINUE_IF(condition)                                            \
-  if (!(condition)) {                                                          \
-    return false;                                                              \
-  }
+#include "helpers.h"
 
 #include "rules/additional_items_implicit.h"
 #include "rules/allof_false_simplify.h"
@@ -227,155 +375,141 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 
 #undef ONLY_CONTINUE_IF
 
-namespace {
-
-auto add_canonicalizer_rules(
-    sourcemeta::blaze::canonicalizer::SchemaTransformer &bundle) -> void {
-  bundle.add<ExclusiveMinimumBooleanIntegerFold>();
-  bundle.add<ExclusiveMaximumBooleanIntegerFold>();
-  bundle.add<UnsatisfiableExclusiveEqualBounds>();
-  bundle.add<MinimumCanEqualIntegerFold>();
-  bundle.add<MaximumCanEqualIntegerFold>();
-  bundle.add<MinimumCanEqualTrueDrop>();
-  bundle.add<MaximumCanEqualTrueDrop>();
-  bundle.add<CommentDrop>();
-  bundle.add<DeprecatedFalseDrop>();
-  bundle.add<RecursiveAnchorFalseDrop>();
-  bundle.add<UnevaluatedItemsToItems>();
-  bundle.add<UnevaluatedPropertiesToAdditionalProperties>();
-  bundle.add<IfThenElseImplicit>();
-  bundle.add<ImplicitObjectKeywords>();
-  bundle.add<ImplicitContainsKeywords>();
-  bundle.add<ExtendsToArray>();
-  bundle.add<DisallowToArrayOfSchemas>();
-  bundle.add<InlineSingleUseRef>();
-  bundle.add<AllOfMergeCompatibleBranches>();
-  bundle.add<TypeInheritInPlace>();
-  bundle.add<TypeUnionImplicit>();
-  bundle.add<TypeArrayToAnyOf>();
-  bundle.add<DefinitionsToDefs>();
-  bundle.add<ContentMediaTypeWithoutEncoding>();
-  bundle.add<ContentSchemaWithoutMediaType>();
-  bundle.add<DraftOfficialDialectWithHttps>();
-  bundle.add<DraftOfficialDialectWithoutEmptyFragment>();
-  bundle.add<NonApplicableTypeSpecificKeywords>();
-  bundle.add<NonApplicableDisallowTypes>();
-  bundle.add<DisallowNarrowsType>();
-  bundle.add<AnyOfRemoveFalseSchemas>();
-  bundle.add<AnyOfTrueSimplify>();
-  bundle.add<DuplicateAllOfBranches>();
-  bundle.add<DuplicateAnyOfBranches>();
-  bundle.add<FlattenNestedAllOf>();
-  bundle.add<FlattenNestedExtends>();
-  bundle.add<FlattenNestedAnyOf>();
-  bundle.add<Draft3TypeAny>();
-  bundle.add<UnsatisfiableInPlaceApplicatorType>();
-  bundle.add<AllOfFalseSimplify>();
-  bundle.add<AnyOfFalseSimplify>();
-  bundle.add<OneOfFalseSimplify>();
-  bundle.add<DoubleNegationElimination>();
-  bundle.add<OneOfToAnyOfDisjointTypes>();
-  bundle.add<UnsatisfiableDropValidation>();
-  bundle.add<ElseWithoutIf>();
-  bundle.add<IfWithoutThenElse>();
-  bundle.add<IgnoredMetaschema>();
-  bundle.add<MaxContainsWithoutContains>();
-  bundle.add<MinContainsWithoutContains>();
-  bundle.add<NotFalse>();
-  bundle.add<ThenWithoutIf>();
-  bundle.add<DependenciesPropertyTautology>();
-  bundle.add<DependentRequiredTautology>();
-  bundle.add<EqualNumericBoundsToEnum>();
-  bundle.add<MaximumRealForInteger>();
-  bundle.add<MinimumRealForInteger>();
-  bundle.add<SingleTypeArray>();
-  bundle.add<EnumWithType>();
-  bundle.add<NonApplicableEnumValidationKeywords>();
-  bundle.add<DuplicateEnumValues>();
-  bundle.add<DuplicateRequiredValues>();
-  bundle.add<ConstWithType>();
-  bundle.add<ConstInEnum>();
-  bundle.add<NonApplicableAdditionalItems>();
-  bundle.add<ModernOfficialDialectWithEmptyFragment>();
-  bundle.add<ModernOfficialDialectWithHttp>();
-  bundle.add<ExclusiveMaximumNumberAndMaximum>();
-  bundle.add<ExclusiveMinimumNumberAndMinimum>();
-  bundle.add<ExclusiveBoundsFalseDrop>();
-  bundle.add<DraftRefSiblings>();
-  bundle.add<DynamicRefToStaticRef>();
-  bundle.add<UnknownKeywordsPrefix>();
-  bundle.add<UnknownLocalRef>();
-  bundle.add<RequiredPropertiesInProperties>();
-  bundle.add<OrphanDefinitions>();
-  bundle.add<ConstAsEnum>();
-  bundle.add<EqualNumericBoundsToConst>();
-  bundle.add<ExclusiveMaximumIntegerToMaximum>();
-  bundle.add<ExclusiveMinimumIntegerToMinimum>();
-  bundle.add<TypeBooleanAsEnum>();
-  bundle.add<TypeNullAsEnum>();
-  bundle.add<MaxContainsCoveredByMaxItems>();
-  bundle.add<MinItemsGivenMinContains>();
-  bundle.add<MinPropertiesCoveredByRequired>();
-  bundle.add<MinLengthImplicit>();
-  bundle.add<MultipleOfImplicit>();
-  bundle.add<DivisibleByImplicit>();
-  bundle.add<MaxDecimalImplicit>();
-  bundle.add<ItemsImplicit>();
-  bundle.add<UnnecessaryAllOfRefWrapperDraft>();
-  bundle.add<UnnecessaryExtendsRefWrapper>();
-  bundle.add<DropAllOfEmptySchemas>();
-  bundle.add<DropExtendsEmptySchemas>();
-  bundle.add<EmptyObjectAsTrue>();
-  bundle.add<UnsatisfiableTypeAndEnum>();
-  bundle.add<EnumFilterByType>();
-  bundle.add<TypeUnionToSchemas>();
-  bundle.add<TypeUnionDistributeKeywords>();
-  bundle.add<DependenciesToAnyOf>();
-  bundle.add<DependenciesToExtendsDisallow>();
-  bundle.add<DependentSchemasToAnyOf>();
-  bundle.add<DependentRequiredToAnyOf>();
-  bundle.add<EnumDropRedundantValidation>();
-  bundle.add<EnumSplitByType>();
-  bundle.add<TypeWithApplicatorToAllOf>();
-  bundle.add<TypeWithApplicatorToExtends>();
-  bundle.add<EmptyDefinitionsDrop>();
-  bundle.add<EmptyDefsDrop>();
-  bundle.add<EmptyDependenciesDrop>();
-  bundle.add<EmptyDependentSchemasDrop>();
-  bundle.add<EmptyDependentRequiredDrop>();
-  bundle.add<EmptyDisallowDrop>();
-  bundle.add<AdditionalItemsImplicit>();
-  bundle.add<RequiredPropertyImplicit>();
-  bundle.add<OptionalPropertyImplicit>();
-  bundle.add<DuplicateDisallowEntries>();
-  bundle.add<DisallowArrayToExtends>();
-  bundle.add<DisallowExtendsToType>();
-  bundle.add<DisallowTypeUnionToExtends>();
-  bundle.add<DisallowDoubleNegation>();
-  bundle.add<RequiredToExtends>();
-  bundle.add<SingleBranchAllOf>();
-  bundle.add<SingleBranchAnyOf>();
-  bundle.add<SingleBranchOneOf>();
-}
-
 } // namespace
-
-} // namespace sourcemeta::blaze::canonicalizer
-
-namespace sourcemeta::blaze {
 
 auto canonicalize(sourcemeta::core::JSON &schema,
                   const sourcemeta::blaze::SchemaWalker &walker,
                   const sourcemeta::blaze::SchemaResolver &resolver,
                   const std::string_view default_dialect,
                   const std::string_view default_id) -> void {
-  sourcemeta::blaze::canonicalizer::SchemaTransformer bundle;
-  sourcemeta::blaze::canonicalizer::add_canonicalizer_rules(bundle);
-  bundle.apply(
-      schema, walker, resolver,
-      [](const auto &, const auto &, const auto &, const auto &,
-         const auto &) -> void {},
-      default_dialect, default_id);
+  std::vector<Rule> rules;
+  rules.reserve(125);
+  rules.push_back(make_rule<ExclusiveMinimumBooleanIntegerFold>());
+  rules.push_back(make_rule<ExclusiveMaximumBooleanIntegerFold>());
+  rules.push_back(make_rule<UnsatisfiableExclusiveEqualBounds>());
+  rules.push_back(make_rule<MinimumCanEqualIntegerFold>());
+  rules.push_back(make_rule<MaximumCanEqualIntegerFold>());
+  rules.push_back(make_rule<MinimumCanEqualTrueDrop>());
+  rules.push_back(make_rule<MaximumCanEqualTrueDrop>());
+  rules.push_back(make_rule<CommentDrop>());
+  rules.push_back(make_rule<DeprecatedFalseDrop>());
+  rules.push_back(make_rule<RecursiveAnchorFalseDrop>());
+  rules.push_back(make_rule<UnevaluatedItemsToItems>());
+  rules.push_back(make_rule<UnevaluatedPropertiesToAdditionalProperties>());
+  rules.push_back(make_rule<IfThenElseImplicit>());
+  rules.push_back(make_rule<ImplicitObjectKeywords>());
+  rules.push_back(make_rule<ImplicitContainsKeywords>());
+  rules.push_back(make_rule<ExtendsToArray>());
+  rules.push_back(make_rule<DisallowToArrayOfSchemas>());
+  rules.push_back(make_rule<InlineSingleUseRef>());
+  rules.push_back(make_rule<AllOfMergeCompatibleBranches>());
+  rules.push_back(make_rule<TypeInheritInPlace>());
+  rules.push_back(make_rule<TypeUnionImplicit>());
+  rules.push_back(make_rule<TypeArrayToAnyOf>());
+  rules.push_back(make_rule<DefinitionsToDefs>());
+  rules.push_back(make_rule<ContentMediaTypeWithoutEncoding>());
+  rules.push_back(make_rule<ContentSchemaWithoutMediaType>());
+  rules.push_back(make_rule<DraftOfficialDialectWithHttps>());
+  rules.push_back(make_rule<DraftOfficialDialectWithoutEmptyFragment>());
+  rules.push_back(make_rule<NonApplicableTypeSpecificKeywords>());
+  rules.push_back(make_rule<NonApplicableDisallowTypes>());
+  rules.push_back(make_rule<DisallowNarrowsType>());
+  rules.push_back(make_rule<AnyOfRemoveFalseSchemas>());
+  rules.push_back(make_rule<AnyOfTrueSimplify>());
+  rules.push_back(make_rule<DuplicateAllOfBranches>());
+  rules.push_back(make_rule<DuplicateAnyOfBranches>());
+  rules.push_back(make_rule<FlattenNestedAllOf>());
+  rules.push_back(make_rule<FlattenNestedExtends>());
+  rules.push_back(make_rule<FlattenNestedAnyOf>());
+  rules.push_back(make_rule<Draft3TypeAny>());
+  rules.push_back(make_rule<UnsatisfiableInPlaceApplicatorType>());
+  rules.push_back(make_rule<AllOfFalseSimplify>());
+  rules.push_back(make_rule<AnyOfFalseSimplify>());
+  rules.push_back(make_rule<OneOfFalseSimplify>());
+  rules.push_back(make_rule<DoubleNegationElimination>());
+  rules.push_back(make_rule<OneOfToAnyOfDisjointTypes>());
+  rules.push_back(make_rule<UnsatisfiableDropValidation>());
+  rules.push_back(make_rule<ElseWithoutIf>());
+  rules.push_back(make_rule<IfWithoutThenElse>());
+  rules.push_back(make_rule<IgnoredMetaschema>());
+  rules.push_back(make_rule<MaxContainsWithoutContains>());
+  rules.push_back(make_rule<MinContainsWithoutContains>());
+  rules.push_back(make_rule<NotFalse>());
+  rules.push_back(make_rule<ThenWithoutIf>());
+  rules.push_back(make_rule<DependenciesPropertyTautology>());
+  rules.push_back(make_rule<DependentRequiredTautology>());
+  rules.push_back(make_rule<EqualNumericBoundsToEnum>());
+  rules.push_back(make_rule<MaximumRealForInteger>());
+  rules.push_back(make_rule<MinimumRealForInteger>());
+  rules.push_back(make_rule<SingleTypeArray>());
+  rules.push_back(make_rule<EnumWithType>());
+  rules.push_back(make_rule<NonApplicableEnumValidationKeywords>());
+  rules.push_back(make_rule<DuplicateEnumValues>());
+  rules.push_back(make_rule<DuplicateRequiredValues>());
+  rules.push_back(make_rule<ConstWithType>());
+  rules.push_back(make_rule<ConstInEnum>());
+  rules.push_back(make_rule<NonApplicableAdditionalItems>());
+  rules.push_back(make_rule<ModernOfficialDialectWithEmptyFragment>());
+  rules.push_back(make_rule<ModernOfficialDialectWithHttp>());
+  rules.push_back(make_rule<ExclusiveMaximumNumberAndMaximum>());
+  rules.push_back(make_rule<ExclusiveMinimumNumberAndMinimum>());
+  rules.push_back(make_rule<ExclusiveBoundsFalseDrop>());
+  rules.push_back(make_rule<DraftRefSiblings>());
+  rules.push_back(make_rule<DynamicRefToStaticRef>());
+  rules.push_back(make_rule<UnknownKeywordsPrefix>());
+  rules.push_back(make_rule<UnknownLocalRef>());
+  rules.push_back(make_rule<RequiredPropertiesInProperties>());
+  rules.push_back(make_rule<OrphanDefinitions>());
+  rules.push_back(make_rule<ConstAsEnum>());
+  rules.push_back(make_rule<EqualNumericBoundsToConst>());
+  rules.push_back(make_rule<ExclusiveMaximumIntegerToMaximum>());
+  rules.push_back(make_rule<ExclusiveMinimumIntegerToMinimum>());
+  rules.push_back(make_rule<TypeBooleanAsEnum>());
+  rules.push_back(make_rule<TypeNullAsEnum>());
+  rules.push_back(make_rule<MaxContainsCoveredByMaxItems>());
+  rules.push_back(make_rule<MinItemsGivenMinContains>());
+  rules.push_back(make_rule<MinPropertiesCoveredByRequired>());
+  rules.push_back(make_rule<MinLengthImplicit>());
+  rules.push_back(make_rule<MultipleOfImplicit>());
+  rules.push_back(make_rule<DivisibleByImplicit>());
+  rules.push_back(make_rule<MaxDecimalImplicit>());
+  rules.push_back(make_rule<ItemsImplicit>());
+  rules.push_back(make_rule<UnnecessaryAllOfRefWrapperDraft>());
+  rules.push_back(make_rule<UnnecessaryExtendsRefWrapper>());
+  rules.push_back(make_rule<DropAllOfEmptySchemas>());
+  rules.push_back(make_rule<DropExtendsEmptySchemas>());
+  rules.push_back(make_rule<EmptyObjectAsTrue>());
+  rules.push_back(make_rule<UnsatisfiableTypeAndEnum>());
+  rules.push_back(make_rule<EnumFilterByType>());
+  rules.push_back(make_rule<TypeUnionToSchemas>());
+  rules.push_back(make_rule<TypeUnionDistributeKeywords>());
+  rules.push_back(make_rule<DependenciesToAnyOf>());
+  rules.push_back(make_rule<DependenciesToExtendsDisallow>());
+  rules.push_back(make_rule<DependentSchemasToAnyOf>());
+  rules.push_back(make_rule<DependentRequiredToAnyOf>());
+  rules.push_back(make_rule<EnumDropRedundantValidation>());
+  rules.push_back(make_rule<EnumSplitByType>());
+  rules.push_back(make_rule<TypeWithApplicatorToAllOf>());
+  rules.push_back(make_rule<TypeWithApplicatorToExtends>());
+  rules.push_back(make_rule<EmptyDefinitionsDrop>());
+  rules.push_back(make_rule<EmptyDefsDrop>());
+  rules.push_back(make_rule<EmptyDependenciesDrop>());
+  rules.push_back(make_rule<EmptyDependentSchemasDrop>());
+  rules.push_back(make_rule<EmptyDependentRequiredDrop>());
+  rules.push_back(make_rule<EmptyDisallowDrop>());
+  rules.push_back(make_rule<AdditionalItemsImplicit>());
+  rules.push_back(make_rule<RequiredPropertyImplicit>());
+  rules.push_back(make_rule<OptionalPropertyImplicit>());
+  rules.push_back(make_rule<DuplicateDisallowEntries>());
+  rules.push_back(make_rule<DisallowArrayToExtends>());
+  rules.push_back(make_rule<DisallowExtendsToType>());
+  rules.push_back(make_rule<DisallowTypeUnionToExtends>());
+  rules.push_back(make_rule<DisallowDoubleNegation>());
+  rules.push_back(make_rule<RequiredToExtends>());
+  rules.push_back(make_rule<SingleBranchAllOf>());
+  rules.push_back(make_rule<SingleBranchAnyOf>());
+  rules.push_back(make_rule<SingleBranchOneOf>());
+  apply(rules, schema, walker, resolver, default_dialect, default_id);
 }
 
 } // namespace sourcemeta::blaze

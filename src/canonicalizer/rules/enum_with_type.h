@@ -1,12 +1,7 @@
 class EnumWithType final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  EnumWithType()
-      : SchemaTransformRule{
-            "enum_with_type",
-            "Setting `type` alongside `enum` is considered an anti-pattern, as "
-            "the enumeration choices already imply their respective types"} {};
+  EnumWithType() : SchemaTransformRule{"enum_with_type"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_2020_12_Validation,
          Vocabularies::Known::JSON_Schema_2019_09_Validation,
@@ -72,7 +66,8 @@ public:
     const bool integer_matches_integral{
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_6,
                                    Vocabularies::Known::JSON_Schema_Draft_7}) &&
-        current_types.test(std::to_underlying(JSON::Type::Integer))};
+        current_types.test(
+            std::to_underlying(sourcemeta::core::JSON::Type::Integer))};
     ONLY_CONTINUE_IF(std::ranges::all_of(
         enum_value->as_array(),
         [&current_types, integer_matches_integral](const auto &item) -> auto {
@@ -83,7 +78,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     schema.erase("type");
   }
 };

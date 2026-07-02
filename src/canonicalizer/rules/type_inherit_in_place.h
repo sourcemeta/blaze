@@ -1,12 +1,7 @@
 class TypeInheritInPlace final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  TypeInheritInPlace()
-      : SchemaTransformRule{
-            "type_inherit_in_place",
-            "An untyped schema inside an in-place applicator inherits "
-            "the type from its nearest typed ancestor"} {};
+  TypeInheritInPlace() : SchemaTransformRule{"type_inherit_in_place"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,9 +10,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &resolver, const bool) const
-      -> SchemaTransformRule::Result override {
-    using namespace sourcemeta::core;
+            const sourcemeta::blaze::SchemaResolver &resolver) const
+      -> bool override {
     ONLY_CONTINUE_IF(schema.is_object());
     ONLY_CONTINUE_IF(vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_2020_12_Validation,
@@ -55,12 +49,12 @@ public:
           return IS_IN_PLACE_APPLICATOR(keyword_type) &&
                  keyword_type != SchemaKeywordType::ApplicatorElementsInPlace;
         },
-        [](const JSON &ancestor_schema, const Vocabularies &) -> bool {
-          return ancestor_schema.defines("type");
-        })};
+        [](const sourcemeta::core::JSON &ancestor_schema, const Vocabularies &)
+            -> bool { return ancestor_schema.defines("type"); })};
 
     if (ancestor.has_value()) {
-      const auto &ancestor_type{get(root, ancestor.value().get()).at("type")};
+      const auto &ancestor_type{
+          sourcemeta::core::get(root, ancestor.value().get()).at("type")};
       if (ancestor_type.is_array()) {
         for (const auto &element : ancestor_type.as_array()) {
           if (!element.is_string()) {
@@ -96,7 +90,7 @@ public:
       if (walk_keyword_type == SchemaKeywordType::ApplicatorElementsInPlace &&
           walk_relative.size() >= 2 && walk_relative.at(1).is_index()) {
         const auto branch_index{walk_relative.at(1).to_index()};
-        const auto &allof_parent{get(root, wp)};
+        const auto &allof_parent{sourcemeta::core::get(root, wp)};
         const auto &keyword_name{walk_relative.at(0).to_property()};
         const auto *branches{allof_parent.is_object()
                                  ? allof_parent.try_at(keyword_name)
@@ -120,7 +114,7 @@ public:
                 !sibling_enum->empty()) {
               const auto inferred{infer_type_from_enum(*sibling_enum)};
               if (!inferred.empty()) {
-                this->inherited_type_ = JSON{inferred};
+                this->inherited_type_ = sourcemeta::core::JSON{inferred};
                 return true;
               }
             }
@@ -128,8 +122,8 @@ public:
             if (sibling_ref && sibling_ref->is_string()) {
               const auto ref_target{frame.traverse(sibling_ref->to_string())};
               if (ref_target.has_value()) {
-                const auto &ref_schema{
-                    get(root, ref_target.value().get().pointer)};
+                const auto &ref_schema{sourcemeta::core::get(
+                    root, ref_target.value().get().pointer)};
                 const auto *ref_type{ref_schema.is_object()
                                          ? ref_schema.try_at("type")
                                          : nullptr};
@@ -150,7 +144,7 @@ public:
     return false;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     schema.assign("type", this->inherited_type_);
   }
 

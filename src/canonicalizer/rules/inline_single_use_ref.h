@@ -1,8 +1,7 @@
 class InlineSingleUseRef final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  InlineSingleUseRef() : SchemaTransformRule{"inline_single_use_ref", ""} {};
+  InlineSingleUseRef() : SchemaTransformRule{"inline_single_use_ref"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -11,8 +10,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(schema.is_object() && schema.size() == 1);
 
     const auto *ref{schema.try_at("$ref")};
@@ -94,14 +92,15 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     schema.into(std::move(this->target_copy_));
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     if (target.starts_with(this->target_pointer_)) {
       const auto relative{target.resolve_from(this->target_pointer_)};
       return current.concat(relative);
@@ -110,6 +109,6 @@ public:
   }
 
 private:
-  mutable Pointer target_pointer_;
+  mutable sourcemeta::core::Pointer target_pointer_;
   mutable sourcemeta::core::JSON target_copy_{sourcemeta::core::JSON{nullptr}};
 };

@@ -1,9 +1,8 @@
 class TypeWithApplicatorToAllOf final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   TypeWithApplicatorToAllOf()
-      : SchemaTransformRule{"type_with_applicator_to_allof", ""} {};
+      : SchemaTransformRule{"type_with_applicator_to_allof"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -12,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
             {Vocabularies::Known::JSON_Schema_Draft_4,
@@ -192,7 +190,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     this->typed_keywords_.clear();
 
     if (this->strategy_ == Strategy::MergeIntoAllOf) {
@@ -200,7 +198,7 @@ public:
         if (!schema.defines(applicator)) {
           continue;
         }
-        auto branch{JSON::make_object()};
+        auto branch{sourcemeta::core::JSON::make_object()};
         branch.assign(applicator, schema.at(applicator));
         if (std::string_view{applicator} == "if" && this->has_if_then_else_) {
           if (schema.defines("then")) {
@@ -224,7 +222,7 @@ public:
       return;
     }
 
-    auto typed_branch{JSON::make_object()};
+    auto typed_branch{sourcemeta::core::JSON::make_object()};
     for (const auto &entry : schema.as_object()) {
       if (entry.first == "not" || entry.first == "anyOf" ||
           entry.first == "allOf" || entry.first == "oneOf" ||
@@ -258,25 +256,25 @@ public:
         schema.at("allOf").push_back(std::move(typed_branch));
       } else {
         this->typed_branch_index_ = 0;
-        auto new_allof{JSON::make_array()};
+        auto new_allof{sourcemeta::core::JSON::make_array()};
         new_allof.push_back(std::move(typed_branch));
         schema.assign("allOf", std::move(new_allof));
       }
 
       if (this->has_modern_ref_ && schema.defines("$ref")) {
-        auto branch{JSON::make_object()};
+        auto branch{sourcemeta::core::JSON::make_object()};
         branch.assign("$ref", schema.at("$ref"));
         schema.at("allOf").push_back(std::move(branch));
         schema.erase("$ref");
       }
       if (this->has_dynamic_ref_ && schema.defines("$dynamicRef")) {
-        auto branch{JSON::make_object()};
+        auto branch{sourcemeta::core::JSON::make_object()};
         branch.assign("$dynamicRef", schema.at("$dynamicRef"));
         schema.at("allOf").push_back(std::move(branch));
         schema.erase("$dynamicRef");
       }
       if (this->has_recursive_ref_ && schema.defines("$recursiveRef")) {
-        auto branch{JSON::make_object()};
+        auto branch{sourcemeta::core::JSON::make_object()};
         branch.assign("$recursiveRef", schema.at("$recursiveRef"));
         schema.at("allOf").push_back(std::move(branch));
         schema.erase("$recursiveRef");
@@ -289,7 +287,7 @@ public:
         if (this->applicators_with_refs_ & applicator_bit(applicator)) {
           continue;
         }
-        auto branch{JSON::make_object()};
+        auto branch{sourcemeta::core::JSON::make_object()};
         branch.assign(applicator, schema.at(applicator));
         if (std::string_view{applicator} == "if" && this->has_if_then_else_) {
           if (schema.defines("then")) {
@@ -314,11 +312,11 @@ public:
       return;
     }
 
-    auto new_allof{JSON::make_array()};
+    auto new_allof{sourcemeta::core::JSON::make_array()};
     this->applicator_indices_ = 0;
 
     if (this->has_modern_ref_ && schema.defines("$ref")) {
-      auto branch{JSON::make_object()};
+      auto branch{sourcemeta::core::JSON::make_object()};
       branch.assign("$ref", schema.at("$ref"));
       if (this->ref_annotations_only_ && !this->typed_keywords_.empty()) {
         for (const auto &entry : typed_branch.as_object()) {
@@ -329,7 +327,7 @@ public:
       new_allof.push_back(std::move(branch));
     }
     if (this->has_dynamic_ref_ && schema.defines("$dynamicRef")) {
-      auto branch{JSON::make_object()};
+      auto branch{sourcemeta::core::JSON::make_object()};
       branch.assign("$dynamicRef", schema.at("$dynamicRef"));
       if (this->ref_annotations_only_ && !this->typed_keywords_.empty()) {
         for (const auto &entry : typed_branch.as_object()) {
@@ -340,7 +338,7 @@ public:
       new_allof.push_back(std::move(branch));
     }
     if (this->has_recursive_ref_ && schema.defines("$recursiveRef")) {
-      auto branch{JSON::make_object()};
+      auto branch{sourcemeta::core::JSON::make_object()};
       branch.assign("$recursiveRef", schema.at("$recursiveRef"));
       if (this->ref_annotations_only_ && !this->typed_keywords_.empty()) {
         for (const auto &entry : typed_branch.as_object()) {
@@ -355,7 +353,7 @@ public:
       if (!schema.defines(applicator)) {
         continue;
       }
-      auto branch{JSON::make_object()};
+      auto branch{sourcemeta::core::JSON::make_object()};
       branch.assign(applicator, schema.at(applicator));
       if (std::string_view{applicator} == "if" && this->has_if_then_else_) {
         if (schema.defines("then")) {
@@ -373,7 +371,7 @@ public:
       new_allof.push_back(std::move(typed_branch));
     }
 
-    auto new_schema{JSON::make_object()};
+    auto new_schema{sourcemeta::core::JSON::make_object()};
     if (schema.defines("$schema")) {
       new_schema.assign("$schema", schema.at("$schema"));
     }
@@ -420,23 +418,24 @@ public:
     schema.into(std::move(new_schema));
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
     const auto relative{target.resolve_from(current)};
     if (relative.empty() || !relative.at(0).is_property()) {
       return target;
     }
 
     const auto &keyword{relative.at(0).to_property()};
-    static const JSON::String allof_keyword{"allOf"};
+    static const sourcemeta::core::JSON::String allof_keyword{"allOf"};
 
     for (const auto &typed_kw : this->typed_keywords_) {
       if (typed_kw == keyword) {
-        const Pointer old_prefix{current.concat(keyword)};
+        const sourcemeta::core::Pointer old_prefix{current.concat(keyword)};
         if (this->strategy_ == Strategy::SafeExtract) {
-          const Pointer new_prefix{current.concat(
+          const sourcemeta::core::Pointer new_prefix{current.concat(
               {allof_keyword, this->typed_branch_index_, keyword})};
           return target.rebase(old_prefix, new_prefix);
         } else {
@@ -445,7 +444,7 @@ public:
                                         (this->has_recursive_ref_ ? 1U : 0U) +
                                         static_cast<std::size_t>(std::popcount(
                                             this->applicator_indices_))};
-          const Pointer new_prefix{
+          const sourcemeta::core::Pointer new_prefix{
               current.concat({allof_keyword, typed_index, keyword})};
           return target.rebase(old_prefix, new_prefix);
         }
@@ -468,8 +467,8 @@ public:
         if (keyword == applicator ||
             (this->has_if_then_else_ && std::string_view{applicator} == "if" &&
              (keyword == "then" || keyword == "else"))) {
-          const Pointer old_prefix{current.concat(keyword)};
-          const Pointer new_prefix{
+          const sourcemeta::core::Pointer old_prefix{current.concat(keyword)};
+          const sourcemeta::core::Pointer new_prefix{
               current.concat({allof_keyword, index, keyword})};
           return target.rebase(old_prefix, new_prefix);
         }

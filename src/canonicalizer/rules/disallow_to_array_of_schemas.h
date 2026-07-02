@@ -1,9 +1,8 @@
 class DisallowToArrayOfSchemas final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   DisallowToArrayOfSchemas()
-      : SchemaTransformRule{"disallow_to_array_of_schemas", ""} {};
+      : SchemaTransformRule{"disallow_to_array_of_schemas"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -12,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_0,
                                    Vocabularies::Known::JSON_Schema_Draft_1,
@@ -41,11 +39,11 @@ public:
     return false;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     const auto &disallow{schema.at("disallow")};
 
     if (disallow.is_string()) {
-      auto array{JSON::make_array()};
+      auto array{sourcemeta::core::JSON::make_array()};
       if (this->convert_to_schemas_) {
         array.push_back(type_string_to_schema(disallow.to_string()));
       } else {
@@ -55,7 +53,7 @@ public:
       return;
     }
 
-    auto new_array{JSON::make_array()};
+    auto new_array{sourcemeta::core::JSON::make_array()};
     for (const auto &element : disallow.as_array()) {
       if (element.is_string() && this->convert_to_schemas_) {
         new_array.push_back(type_string_to_schema(element.to_string()));
@@ -66,39 +64,42 @@ public:
     schema.assign("disallow", std::move(new_array));
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
-    return target.rebase(current.concat("disallow"),
-                         current.concat(Pointer{"disallow", 0}));
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    return target.rebase(
+        current.concat("disallow"),
+        current.concat(sourcemeta::core::Pointer{"disallow", 0}));
   }
 
 private:
-  static auto type_string_to_schema(const std::string &type_name) -> JSON {
+  static auto type_string_to_schema(const std::string &type_name)
+      -> sourcemeta::core::JSON {
     if (type_name == "null") {
-      auto result{JSON::make_object()};
-      auto values{JSON::make_array()};
-      values.push_back(JSON{nullptr});
+      auto result{sourcemeta::core::JSON::make_object()};
+      auto values{sourcemeta::core::JSON::make_array()};
+      values.push_back(sourcemeta::core::JSON{nullptr});
       result.assign("enum", std::move(values));
       return result;
     }
 
     if (type_name == "boolean") {
-      auto result{JSON::make_object()};
-      auto values{JSON::make_array()};
-      values.push_back(JSON{false});
-      values.push_back(JSON{true});
+      auto result{sourcemeta::core::JSON::make_object()};
+      auto values{sourcemeta::core::JSON::make_array()};
+      values.push_back(sourcemeta::core::JSON{false});
+      values.push_back(sourcemeta::core::JSON{true});
       result.assign("enum", std::move(values));
       return result;
     }
 
     if (type_name == "any") {
-      return JSON::make_object();
+      return sourcemeta::core::JSON::make_object();
     }
 
-    auto result{JSON::make_object()};
-    result.assign("type", JSON{type_name});
+    auto result{sourcemeta::core::JSON::make_object()};
+    result.assign("type", sourcemeta::core::JSON{type_name});
     return result;
   }
 

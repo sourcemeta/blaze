@@ -1,13 +1,8 @@
 class DependenciesPropertyTautology final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   DependenciesPropertyTautology()
-      : SchemaTransformRule{
-            "dependencies_property_tautology",
-            "Defining requirements for a property using `dependencies` "
-            "that is already marked as required is an unnecessarily complex "
-            "use of `dependencies`"} {};
+      : SchemaTransformRule{"dependencies_property_tautology"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -16,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_Draft_7,
                           Vocabularies::Known::JSON_Schema_Draft_6,
@@ -51,7 +45,8 @@ public:
             return dependent &&
                    (dependent->is_array() || dependent->is_string());
           }));
-      this->locations_ = {Pointer{"dependencies"}, Pointer{"properties"}};
+      this->locations_ = {sourcemeta::core::Pointer{"dependencies"},
+                          sourcemeta::core::Pointer{"properties"}};
       return true;
     }
 
@@ -66,11 +61,12 @@ public:
           const auto *dependent{dependencies->try_at(element.to_string())};
           return dependent && (dependent->is_array() || dependent->is_string());
         }));
-    this->locations_ = {Pointer{"dependencies"}, Pointer{"required"}};
+    this->locations_ = {sourcemeta::core::Pointer{"dependencies"},
+                        sourcemeta::core::Pointer{"required"}};
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     const bool is_draft_3_path{
         std::ranges::any_of(this->locations_, [](const auto &pointer) -> auto {
           return pointer.size() == 1 && pointer.at(0).is_property() &&
@@ -84,7 +80,7 @@ public:
   }
 
 private:
-  static auto transform_array(JSON &schema) -> void {
+  static auto transform_array(sourcemeta::core::JSON &schema) -> void {
     auto requirements{schema.at("required")};
     while (true) {
       bool match{false};
@@ -121,11 +117,11 @@ private:
     schema.assign("required", requirements);
   }
 
-  static auto transform_boolean(JSON &schema) -> void {
+  static auto transform_boolean(sourcemeta::core::JSON &schema) -> void {
     while (true) {
       bool match{false};
 
-      std::vector<JSON::String> snapshot;
+      std::vector<sourcemeta::core::JSON::String> snapshot;
       for (const auto &entry : schema.at("properties").as_object()) {
         if (!entry.second.is_object()) {
           continue;
@@ -142,7 +138,7 @@ private:
         }
 
         const auto dependents_copy{schema.at("dependencies").at(name)};
-        std::vector<JSON::String> new_required;
+        std::vector<sourcemeta::core::JSON::String> new_required;
         if (dependents_copy.is_string()) {
           new_required.push_back(dependents_copy.to_string());
         } else if (dependents_copy.is_array()) {
@@ -157,8 +153,8 @@ private:
 
         for (const auto &dependency_name : new_required) {
           if (!schema.at("properties").defines(dependency_name)) {
-            auto new_property{JSON::make_object()};
-            new_property.assign("required", JSON{true});
+            auto new_property{sourcemeta::core::JSON::make_object()};
+            new_property.assign("required", sourcemeta::core::JSON{true});
             schema.at("properties")
                 .assign(dependency_name, std::move(new_property));
             match = true;
@@ -167,7 +163,7 @@ private:
             const auto *current_required{existing.try_at("required")};
             if (!current_required || !current_required->is_boolean() ||
                 !current_required->to_boolean()) {
-              existing.assign("required", JSON{true});
+              existing.assign("required", sourcemeta::core::JSON{true});
               match = true;
             }
           }

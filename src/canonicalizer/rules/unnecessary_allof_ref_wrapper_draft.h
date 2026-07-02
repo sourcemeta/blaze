@@ -1,11 +1,8 @@
 class UnnecessaryAllOfRefWrapperDraft final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
   UnnecessaryAllOfRefWrapperDraft()
-      : SchemaTransformRule{"unnecessary_allof_ref_wrapper_draft",
-                            "Wrapping `$ref` in `allOf` is only necessary if "
-                            "there are other sibling keywords"} {};
+      : SchemaTransformRule{"unnecessary_allof_ref_wrapper_draft"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -14,8 +11,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Vocabularies::Known::JSON_Schema_Draft_7,
                                    Vocabularies::Known::JSON_Schema_Draft_6,
@@ -35,7 +31,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto value{schema.at("allOf").at(0).at("$ref")};
     schema.at("allOf").into(std::move(value));
     schema.rename("allOf", "$ref");

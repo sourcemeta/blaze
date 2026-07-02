@@ -6,13 +6,8 @@ private:
   static inline const std::string KEYWORD_RECURSIVE_REF{"$recursiveRef"};
 
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  DynamicRefToStaticRef()
-      : SchemaTransformRule{
-            "dynamic_ref_to_static_ref",
-            "A dynamic reference whose destination is unambiguous can be "
-            "expressed as a static reference"} {};
+  DynamicRefToStaticRef() : SchemaTransformRule{"dynamic_ref_to_static_ref"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -21,8 +16,7 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(schema.is_object() && !schema.defines("$ref"));
 
     if (vocabularies.contains(Vocabularies::Known::JSON_Schema_2020_12_Core) &&
@@ -110,8 +104,7 @@ public:
     return false;
   }
 
-  auto transform(sourcemeta::core::JSON &schema, const Result &) const
-      -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     assert(this->keyword_ != nullptr);
     schema.rename(*this->keyword_, "$ref");
   }

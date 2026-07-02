@@ -1,12 +1,7 @@
 class FlattenNestedAllOf final : public SchemaTransformRule {
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  FlattenNestedAllOf()
-      : SchemaTransformRule{
-            "flatten_nested_allof",
-            "An `allOf` branch that only contains another `allOf` can "
-            "be flattened into the parent `allOf`"} {};
+  FlattenNestedAllOf() : SchemaTransformRule{"flatten_nested_allof"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,9 +10,8 @@ public:
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
-    static const JSON::String KEYWORD{"allOf"};
+            const sourcemeta::blaze::SchemaResolver &) const -> bool override {
+    static const sourcemeta::core::JSON::String KEYWORD{"allOf"};
     ONLY_CONTINUE_IF(vocabularies.contains_any(
                          {Vocabularies::Known::JSON_Schema_2020_12_Applicator,
                           Vocabularies::Known::JSON_Schema_2019_09_Applicator,
@@ -39,15 +33,16 @@ public:
 
     ONLY_CONTINUE_IF(!this->flatten_indices_.empty());
     ONLY_CONTINUE_IF(!frame.has_references_through(
-        location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
+        location.pointer,
+        sourcemeta::core::WeakPointer::Token{std::cref(KEYWORD)}));
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
-    static const JSON::String KEYWORD{"allOf"};
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    static const sourcemeta::core::JSON::String KEYWORD{"allOf"};
     this->index_mapping_.clear();
     const auto &original{schema.at(KEYWORD)};
-    auto result{JSON::make_array()};
+    auto result{sourcemeta::core::JSON::make_array()};
     std::size_t new_index{0};
     std::size_t flatten_cursor{0};
 
@@ -67,11 +62,12 @@ public:
     schema.assign(KEYWORD, std::move(result));
   }
 
-  [[nodiscard]] auto rereference(const std::string_view, const Pointer &,
-                                 const Pointer &target,
-                                 const Pointer &current) const
-      -> Pointer override {
-    static const JSON::String KEYWORD{"allOf"};
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    static const sourcemeta::core::JSON::String KEYWORD{"allOf"};
     const auto prefix{current.concat(KEYWORD)};
     if (!target.starts_with(prefix)) {
       return target;
@@ -83,15 +79,15 @@ public:
     const auto old_index{relative.at(0).to_index()};
     for (const auto &[outer, inner, mapped] : this->index_mapping_) {
       if (outer == old_index && inner.has_value()) {
-        const Pointer old_prefix{
+        const sourcemeta::core::Pointer old_prefix{
             prefix.concat({old_index, KEYWORD, inner.value()})};
         if (target.starts_with(old_prefix)) {
-          const Pointer new_prefix{prefix.concat(mapped)};
+          const sourcemeta::core::Pointer new_prefix{prefix.concat(mapped)};
           return target.rebase(old_prefix, new_prefix);
         }
       } else if (outer == old_index) {
-        const Pointer old_prefix{prefix.concat(old_index)};
-        const Pointer new_prefix{prefix.concat(mapped)};
+        const sourcemeta::core::Pointer old_prefix{prefix.concat(old_index)};
+        const sourcemeta::core::Pointer new_prefix{prefix.concat(mapped)};
         return target.rebase(old_prefix, new_prefix);
       }
     }
@@ -99,8 +95,9 @@ public:
   }
 
 private:
-  auto collect_leaves_(const JSON &node, const JSON::String &keyword,
-                       std::size_t outer_index, JSON &result,
+  auto collect_leaves_(const sourcemeta::core::JSON &node,
+                       const sourcemeta::core::JSON::String &keyword,
+                       std::size_t outer_index, sourcemeta::core::JSON &result,
                        std::size_t &new_index) const -> void {
     const auto &inner{node.at(keyword)};
     for (std::size_t inner_index = 0; inner_index < inner.size();

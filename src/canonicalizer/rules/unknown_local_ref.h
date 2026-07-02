@@ -4,24 +4,21 @@ private:
   static inline const std::string KEYWORD{"$ref"};
 
 public:
-  using mutates = std::true_type;
   using reframe_after_transform = std::true_type;
-  UnknownLocalRef()
-      : SchemaTransformRule{
-            "unknown_local_ref",
-            "Local references that point to unknown locations are invalid and "
-            "will result in evaluation failures"} {};
+  UnknownLocalRef() : SchemaTransformRule{"unknown_local_ref"} {};
 
   [[nodiscard]] auto
-  condition(const JSON &schema, const JSON &, const Vocabularies &vocabularies,
+  condition(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::JSON &, const Vocabularies &vocabularies,
             const SchemaFrame &frame, const SchemaFrame::Location &location,
-            const SchemaWalker &, const SchemaResolver &, const bool) const
-      -> SchemaTransformRule::Result override {
+            const SchemaWalker &, const SchemaResolver &) const
+      -> bool override {
     ONLY_CONTINUE_IF(vocabularies.contains_any(
         {Vocabularies::Known::JSON_Schema_2020_12_Core,
          Vocabularies::Known::JSON_Schema_2019_09_Core,
-         // In JSON Schema Draft 7 and older, `$ref` overrides siblings.
-         // However, we do not need to worry about this case here, as if the
+         // In sourcemeta::core::JSON Schema Draft 7 and older, `$ref` overrides
+         // siblings. However, we do not need to worry about this case here, as
+         // if the
          // `$ref` points to an unknown local location, the entire schema is
          // invalid anyway. We just help at least making the schema valid
          Vocabularies::Known::JSON_Schema_Draft_7,
@@ -57,7 +54,7 @@ public:
     return true;
   }
 
-  auto transform(JSON &schema, const Result &) const -> void override {
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
     schema.erase(KEYWORD);
   }
 };
