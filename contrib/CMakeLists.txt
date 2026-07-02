@@ -71,7 +71,7 @@ if(BLAZE_CODEGEN)
     PRIVATE sourcemeta::core::options)
 endif()
 
-if(BLAZE_ALTERSCHEMA)
+if(BLAZE_CANONICALIZER)
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze
     NAME contrib_canonicalize
     FOLDER "Blaze/Contrib" SOURCES canonicalize.cc)
@@ -82,8 +82,10 @@ if(BLAZE_ALTERSCHEMA)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::blaze::format)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
-    PRIVATE sourcemeta::blaze::alterschema)
+    PRIVATE sourcemeta::blaze::canonicalizer)
+endif()
 
+if(BLAZE_ALTERSCHEMA)
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze
     NAME contrib_upgrade
     FOLDER "Blaze/Contrib" SOURCES upgrade.cc)

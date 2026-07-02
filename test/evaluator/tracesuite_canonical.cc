@@ -1,6 +1,6 @@
 #include <sourcemeta/core/test.h>
 
-#include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/blaze/canonicalizer.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
@@ -16,21 +16,14 @@
 #include <utility>    // std::move
 
 namespace {
-auto run_canonicalize_test(
-    const sourcemeta::core::JSON &data, const sourcemeta::blaze::Mode mode,
-    const sourcemeta::blaze::AlterSchemaMode canonicalizer_mode) -> void {
+auto run_canonicalize_test(const sourcemeta::core::JSON &data,
+                           const sourcemeta::blaze::Mode mode) -> void {
   auto schema{data.at("schema")};
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
 
-  sourcemeta::blaze::SchemaTransformer bundle;
-  sourcemeta::blaze::add(bundle, canonicalizer_mode);
-  const auto canonicalize_result{
-      bundle.apply(schema, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
-                   [](const auto &, const auto &, const auto &, const auto &,
-                      const auto &) {})};
-  EXPECT_TRUE(canonicalize_result.first);
+  sourcemeta::blaze::canonicalize(schema, sourcemeta::blaze::schema_walker,
+                                  sourcemeta::blaze::schema_resolver);
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       schema, sourcemeta::blaze::schema_walker,
@@ -49,10 +42,8 @@ auto run_canonicalize_test(
 }
 } // namespace
 
-static auto
-register_tests(const std::filesystem::path &path, const std::string &suite_name,
-               const sourcemeta::blaze::AlterSchemaMode canonicalizer_mode =
-                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer) -> void {
+static auto register_tests(const std::filesystem::path &path,
+                           const std::string &suite_name) -> void {
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
   assert(suite.is_array());
@@ -70,11 +61,10 @@ register_tests(const std::filesystem::path &path, const std::string &suite_name,
 
       const auto title{description + mode_suffix};
 
-      sourcemeta::core::test_register(
-          suite_name, title, __FILE__, __LINE__,
-          [test_case, mode, canonicalizer_mode]() -> void {
-            run_canonicalize_test(test_case, mode, canonicalizer_mode);
-          });
+      sourcemeta::core::test_register(suite_name, title, __FILE__, __LINE__,
+                                      [test_case, mode]() -> void {
+                                        run_canonicalize_test(test_case, mode);
+                                      });
     }
   }
 }
@@ -89,28 +79,22 @@ auto main(int argc, char **argv) -> int {
                    "Canonicalize_OpenAPI_3_2");
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_draft7.json",
-                   "Canonicalize_draft7",
-                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+                   "Canonicalize_draft7");
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_2019_09.json",
-                   "Canonicalize_2019_09",
-                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+                   "Canonicalize_2019_09");
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_draft6.json",
-                   "Canonicalize_draft6",
-                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+                   "Canonicalize_draft6");
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_2020_12.json",
-                   "Canonicalize_2020_12",
-                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+                   "Canonicalize_2020_12");
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_draft4.json",
-                   "Canonicalize_draft4",
-                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+                   "Canonicalize_draft4");
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_draft3.json",
-                   "Canonicalize_draft3",
-                   sourcemeta::blaze::AlterSchemaMode::Canonicalizer);
+                   "Canonicalize_draft3");
   } catch (const std::exception &error) {
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
