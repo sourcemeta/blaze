@@ -22,24 +22,6 @@ namespace sourcemeta::blaze::canonicalizer {
 #endif
 
 /// @ingroup canonicalizer
-/// An error that represents that a schema operation cannot continue
-class SOURCEMETA_BLAZE_CANONICALIZER_EXPORT SchemaAbortError
-    : public std::exception {
-public:
-  SchemaAbortError(const char *message) : message_{message} {}
-  SchemaAbortError(std::string message) = delete;
-  SchemaAbortError(std::string &&message) = delete;
-  SchemaAbortError(std::string_view message) = delete;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
-
-private:
-  const char *message_;
-};
-
-/// @ingroup canonicalizer
 /// An error that represents a broken schema reference after transformation
 class SOURCEMETA_BLAZE_CANONICALIZER_EXPORT SchemaBrokenReferenceError
     : public std::exception {

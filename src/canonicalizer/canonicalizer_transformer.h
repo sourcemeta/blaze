@@ -12,12 +12,10 @@
 
 #include <cassert>     // assert
 #include <concepts>    // std::derived_from, std::same_as
-#include <cstdint>     // std::uint8_t
 #include <functional>  // std::function
 #include <iterator>    // std::make_move_iterator, std::begin, std::end
 #include <memory>      // std::make_unique, std::unique_ptr
 #include <optional>    // std::optional, std::nullopt
-#include <set>         // std::set
 #include <string>      // std::string
 #include <string_view> // std::string_view
 #include <tuple>       // std::tuple
@@ -122,7 +120,7 @@ public:
   /// The rule transformation. If this virtual method is not overriden,
   /// then the rule is considered to not mutate the schema
   virtual auto transform(sourcemeta::core::JSON &schema,
-                         const Result &result) const -> void;
+                         const Result &result) const -> void = 0;
 
 private:
 // Exporting symbols that depends on the standard C++ library is considered
@@ -170,39 +168,19 @@ public:
     return std::get<0>(entry)->name();
   }
 
-  /// Remove a rule from the bundle
-  auto remove(const std::string_view name) -> bool;
-
   /// The callback that is called whenever the condition of a rule holds true
   using Callback = std::function<void(
       const sourcemeta::core::Pointer &, const std::string_view,
       const std::string_view, const SchemaTransformRule::Result &, const bool)>;
 
   /// Apply the bundle of rules to a schema
-  [[nodiscard]] auto
-  apply(sourcemeta::core::JSON &schema,
-        const sourcemeta::blaze::SchemaWalker &walker,
-        const sourcemeta::blaze::SchemaResolver &resolver,
-        const Callback &callback, std::string_view default_dialect = "",
-        std::string_view default_id = "",
-        const sourcemeta::core::JSON::String &exclude_keyword = "",
-        const bool is_metaschema = false) const
-      -> std::pair<bool, std::uint8_t>;
-
-  /// Report back the rules from the bundle that need to be applied to a
-  /// schema
-  [[nodiscard]] auto
-  check(const sourcemeta::core::JSON &schema,
-        const sourcemeta::blaze::SchemaWalker &walker,
-        const sourcemeta::blaze::SchemaResolver &resolver,
-        const Callback &callback, std::string_view default_dialect = "",
-        std::string_view default_id = "",
-        const sourcemeta::core::JSON::String &exclude_keyword = "",
-        const bool is_metaschema = false) const
-      -> std::pair<bool, std::uint8_t>;
-
-  [[nodiscard]] auto begin() const -> auto { return this->rules.cbegin(); }
-  [[nodiscard]] auto end() const -> auto { return this->rules.cend(); }
+  auto apply(sourcemeta::core::JSON &schema,
+             const sourcemeta::blaze::SchemaWalker &walker,
+             const sourcemeta::blaze::SchemaResolver &resolver,
+             const Callback &callback, std::string_view default_dialect = "",
+             std::string_view default_id = "",
+             const sourcemeta::core::JSON::String &exclude_keyword = "",
+             const bool is_metaschema = false) const -> void;
 
 private:
 #if defined(_MSC_VER)

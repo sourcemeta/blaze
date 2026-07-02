@@ -4,13 +4,12 @@
 #include <sourcemeta/blaze/frame.h>
 #include <sourcemeta/core/uri.h>
 
-#include <algorithm>     // std::erase_if
 #include <cassert>       // assert
 #include <functional>    // std::hash
 #include <sstream>       // std::ostringstream
 #include <tuple>         // std::tuple
 #include <unordered_set> // std::unordered_set
-#include <utility>       // std::move, std::pair
+#include <utility>       // std::move
 #include <vector>        // std::vector
 
 namespace {
@@ -25,85 +24,6 @@ struct ProcessedRuleHasher {
            (std::hash<std::uint64_t>{}(std::get<2>(value).fast_hash()) << 2);
   }
 };
-
-auto calculate_health_percentage(const std::size_t subschemas,
-                                 const std::size_t failed_subschemas)
-    -> std::uint8_t {
-  assert(failed_subschemas <= subschemas);
-  if (subschemas == 0) {
-    return 100;
-  }
-
-  const auto result{100 - (failed_subschemas * 100 / subschemas)};
-  assert(result <= 100);
-  return static_cast<std::uint8_t>(result);
-}
-
-auto check_rules(
-    const sourcemeta::core::JSON &schema,
-    const sourcemeta::blaze::SchemaFrame &frame,
-    const std::vector<std::tuple<
-        std::unique_ptr<sourcemeta::blaze::canonicalizer::SchemaTransformRule>,
-        bool, bool>> &rules,
-    const sourcemeta::blaze::SchemaWalker &walker,
-    const sourcemeta::blaze::SchemaResolver &resolver,
-    const sourcemeta::blaze::canonicalizer::SchemaTransformer::Callback
-        &callback,
-    const sourcemeta::core::JSON::String &exclude_keyword,
-    const bool non_mutating_only, const bool is_metaschema)
-    -> std::pair<bool, std::uint8_t> {
-  std::unordered_set<sourcemeta::core::Pointer,
-                     sourcemeta::core::Pointer::Hasher>
-      visited;
-  bool result{true};
-  std::size_t subschema_count{0};
-  std::size_t subschema_failures{0};
-
-  for (const auto &entry : frame.locations()) {
-    if (entry.second.type !=
-            sourcemeta::blaze::SchemaFrame::LocationType::Resource &&
-        entry.second.type !=
-            sourcemeta::blaze::SchemaFrame::LocationType::Subschema) {
-      continue;
-    }
-
-    const auto [visited_iterator, inserted] =
-        visited.insert(sourcemeta::core::to_pointer(entry.second.pointer));
-    if (!inserted) {
-      continue;
-    }
-    const auto &entry_pointer{*visited_iterator};
-
-    subschema_count += 1;
-
-    const auto &current{sourcemeta::core::get(schema, entry_pointer)};
-    const auto current_vocabularies{frame.vocabularies(entry.second, resolver)};
-
-    bool subschema_failed{false};
-    for (const auto &[rule, mutates, _] : rules) {
-      if (non_mutating_only && mutates) {
-        continue;
-      }
-
-      const auto outcome{rule->check(current, schema, current_vocabularies,
-                                     walker, resolver, frame, entry.second,
-                                     exclude_keyword, is_metaschema)};
-      if (outcome.applies) {
-        subschema_failed = true;
-        callback(entry_pointer, rule->name(), rule->message(), outcome,
-                 mutates);
-      }
-    }
-
-    if (subschema_failed) {
-      subschema_failures += 1;
-      result = false;
-    }
-  }
-
-  return {result,
-          calculate_health_percentage(subschema_count, subschema_failures)};
-}
 
 auto analyse_frame(sourcemeta::blaze::SchemaFrame &frame,
                    const sourcemeta::core::JSON &schema,
@@ -139,11 +59,6 @@ auto SchemaTransformRule::message() const noexcept -> std::string_view {
   return this->message_;
 }
 
-auto SchemaTransformRule::transform(core::JSON &, const Result &) const
-    -> void {
-  throw SchemaAbortError("This rule cannot be automatically transformed");
-}
-
 auto SchemaTransformRule::rereference(const std::string_view reference,
                                       const core::Pointer &origin,
                                       const core::Pointer &,
@@ -177,21 +92,6 @@ auto SchemaTransformRule::check(
   return result;
 }
 
-auto SchemaTransformer::check(const core::JSON &schema,
-                              const blaze::SchemaWalker &walker,
-                              const blaze::SchemaResolver &resolver,
-                              const SchemaTransformer::Callback &callback,
-                              std::string_view default_dialect,
-                              std::string_view default_id,
-                              const core::JSON::String &exclude_keyword,
-                              const bool is_metaschema) const
-    -> std::pair<bool, std::uint8_t> {
-  blaze::SchemaFrame frame{blaze::SchemaFrame::Mode::References};
-  analyse_frame(frame, schema, walker, resolver, default_dialect, default_id);
-  return check_rules(schema, frame, this->rules, walker, resolver, callback,
-                     exclude_keyword, false, is_metaschema);
-}
-
 auto SchemaTransformer::apply(core::JSON &schema,
                               const blaze::SchemaWalker &walker,
                               const blaze::SchemaResolver &resolver,
@@ -199,8 +99,7 @@ auto SchemaTransformer::apply(core::JSON &schema,
                               std::string_view default_dialect,
                               std::string_view default_id,
                               const core::JSON::String &exclude_keyword,
-                              const bool is_metaschema) const
-    -> std::pair<bool, std::uint8_t> {
+                              const bool is_metaschema) const -> void {
   assert(!this->rules.empty());
   std::unordered_set<std::tuple<core::Pointer, std::string_view, core::JSON>,
                      ProcessedRuleHasher>
@@ -390,23 +289,6 @@ auto SchemaTransformer::apply(core::JSON &schema,
       break;
     }
   }
-
-  if (frame.empty() && !schema.is_boolean()) {
-    analyse_frame(frame, schema, walker, resolver, default_dialect, default_id);
-  }
-
-  if (frame.empty()) {
-    return {true, static_cast<std::uint8_t>(100)};
-  }
-
-  return check_rules(schema, frame, this->rules, walker, resolver, callback,
-                     exclude_keyword, true, is_metaschema);
-}
-
-auto SchemaTransformer::remove(const std::string_view name) -> bool {
-  return std::erase_if(this->rules, [&name](const auto &entry) -> auto {
-           return std::get<0>(entry)->name() == name;
-         }) > 0;
 }
 
 } // namespace sourcemeta::blaze::canonicalizer
