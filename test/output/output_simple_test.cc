@@ -7,6 +7,8 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/jsonpointer.h>
 
+#include <unordered_set>
+
 #define EXPECT_OUTPUT(traces, index, expected_instance_location,               \
                       expected_evaluate_path, expected_schema_location,        \
                       expected_message)                                        \
@@ -1024,6 +1026,52 @@ TEST(annotations_success_oneof_1) {
   EXPECT_ANNOTATION_ENTRY(output, "", "/oneOf/1/title", "#/oneOf/1/title", 1);
   EXPECT_ANNOTATION_VALUE(output, "", "/oneOf/1/title", "#/oneOf/1/title", 0,
                           sourcemeta::core::JSON{"Second"});
+}
+
+TEST(annotations_success_whitelist_oneof_within_object_property) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "value": {
+        "oneOf": [
+          { "type": "string", "x-custom": "First" },
+          { "type": "integer", "x-custom": "Second" }
+        ]
+      }
+    }
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "value": "foo" })JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 1);
+
+  EXPECT_ANNOTATION_ENTRY(output, "/value",
+                          "/properties/value/oneOf/0/x-custom",
+                          "#/properties/value/oneOf/0/x-custom", 1);
+  EXPECT_ANNOTATION_VALUE(output, "/value",
+                          "/properties/value/oneOf/0/x-custom",
+                          "#/properties/value/oneOf/0/x-custom", 0,
+                          sourcemeta::core::JSON{"First"});
 }
 
 TEST(annotations_success_if_then_1) {
