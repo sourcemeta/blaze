@@ -15,11 +15,11 @@ auto language_specificity(const std::string_view range,
   if (range == "*") {
     return 1;
   }
-  if (sourcemeta::core::http_iequals_ascii(range, candidate)) {
+  if (sourcemeta::core::equals_ignore_case(range, candidate)) {
     return candidate.size() + 1;
   }
   if (range.size() > candidate.size() && range[candidate.size()] == '-' &&
-      sourcemeta::core::http_iequals_ascii(
+      sourcemeta::core::equals_ignore_case(
           sourcemeta::core::http_subview(range, 0, candidate.size()),
           candidate)) {
     return candidate.size();

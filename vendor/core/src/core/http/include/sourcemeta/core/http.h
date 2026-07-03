@@ -6,6 +6,7 @@
 #endif
 
 // NOLINTBEGIN(misc-include-cleaner)
+#include <sourcemeta/core/http_aws_sigv4.h>
 #include <sourcemeta/core/http_error.h>
 #include <sourcemeta/core/http_message.h>
 #include <sourcemeta/core/http_method.h>
@@ -252,6 +253,82 @@ auto http_format_links(std::span<const HTTPLink> links, std::string &out)
 /// ```
 SOURCEMETA_CORE_HTTP_EXPORT
 auto http_format_links(std::span<const HTTPLink> links) -> std::string;
+
+/// @ingroup http
+/// The `SameSite` attribute of a cookie per RFC 6265bis §5.2.
+enum class HTTPCookieSameSite : std::uint8_t { Strict, Lax, None };
+
+/// @ingroup http
+/// A cookie to serialise into an RFC 6265 §4.1 `Set-Cookie` response header
+/// value. The caller owns the backing storage for every field. A valid cookie
+/// has a name that is an RFC 9110 §5.6.2 token and a value made of RFC 6265
+/// §4.1.1 cookie-octets. RFC 6265bis §5.7 requires a cookie with a same-site
+/// mode of none to also be secure.
+struct HTTPCookie {
+  std::string_view name{};
+  std::string_view value{};
+  std::optional<std::string_view> path{};
+  std::optional<std::string_view> domain{};
+  std::optional<std::chrono::seconds> max_age{};
+  bool http_only{false};
+  bool secure{false};
+  std::optional<HTTPCookieSameSite> same_site{};
+};
+
+/// @ingroup http
+/// Test whether a cookie can be serialised into a valid RFC 6265 §4.1
+/// `Set-Cookie` header value: the name is a non-empty RFC 9110 §5.6.2 token,
+/// the value is made of RFC 6265 §4.1.1 cookie-octets, any path is made of RFC
+/// 6265bis av-octets, any domain is a valid RFC 1123 host name allowing an
+/// ignorable leading dot, a present `max_age` is not negative, per RFC 6265bis
+/// §5.7 a `HTTPCookieSameSite::None` cookie is also `secure`, and the RFC
+/// 6265bis §4.1.3 `__Secure-` and `__Host-` name prefixes carry their required
+/// attributes. For example:
+///
+/// ```cpp
+/// #include <sourcemeta/core/http.h>
+/// #include <cassert>
+///
+/// assert(sourcemeta::core::http_cookie_valid({.name = "a", .value = "b"}));
+/// assert(!sourcemeta::core::http_cookie_valid({.name = "a", .value = "b;c"}));
+/// ```
+SOURCEMETA_CORE_HTTP_EXPORT
+auto http_cookie_valid(const HTTPCookie &cookie) -> bool;
+
+/// @ingroup http
+/// Append an RFC 6265 §4.1 `Set-Cookie` header value to `out`, returning `true`
+/// on success. When the cookie is not `http_cookie_valid`, `out` is left
+/// unchanged and this returns `false`. For example:
+///
+/// ```cpp
+/// #include <sourcemeta/core/http.h>
+/// #include <cassert>
+/// #include <string>
+///
+/// std::string buffer;
+/// const auto ok{sourcemeta::core::http_serialize_cookie(
+///     {.name = "session", .value = "abc", .http_only = true}, buffer)};
+/// assert(ok);
+/// assert(buffer == "session=abc; HttpOnly");
+/// ```
+SOURCEMETA_CORE_HTTP_EXPORT
+auto http_serialize_cookie(const HTTPCookie &cookie, std::string &out) -> bool;
+
+/// @ingroup http
+/// Serialise an RFC 6265 §4.1 `Set-Cookie` header value, returning no value
+/// when the cookie is not `http_cookie_valid`. For example:
+///
+/// ```cpp
+/// #include <sourcemeta/core/http.h>
+/// #include <cassert>
+///
+/// const auto value{sourcemeta::core::http_serialize_cookie(
+///     {.name = "session", .value = "abc", .secure = true})};
+/// assert(value == "session=abc; Secure");
+/// ```
+SOURCEMETA_CORE_HTTP_EXPORT
+auto http_serialize_cookie(const HTTPCookie &cookie)
+    -> std::optional<std::string>;
 
 /// @ingroup http
 /// Test whether a comma-separated header value per RFC 9110 §5.6.1 lists any

@@ -737,6 +737,64 @@ public:
   /// ```
   static auto canonicalize(std::string_view input) -> std::string;
 
+  /// Percent-encode a string per RFC 3986, escaping every octet outside the
+  /// unreserved set. The input can optionally be treated as possibly already
+  /// encoded, preserving valid escapes and decoding needlessly encoded
+  /// unreserved octets so the result is stable under repeated application. For
+  /// example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// assert(sourcemeta::core::URI::escape("foo bar/baz") == "foo%20bar%2Fbaz");
+  /// assert(sourcemeta::core::URI::escape("a b%2Fc", true) == "a%20b%2Fc");
+  /// ```
+  [[nodiscard]] static auto escape(std::string_view input,
+                                   bool maybe_encoded = false) -> std::string;
+
+  /// Percent-encode a string per RFC 3986, appending the result to an existing
+  /// string rather than allocating a new one, optionally treating the input as
+  /// possibly already encoded. The output must not alias the input. For
+  /// example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  /// #include <string>
+  ///
+  /// std::string output{"key="};
+  /// sourcemeta::core::URI::escape("foo bar", output);
+  /// assert(output == "key=foo%20bar");
+  /// ```
+  static auto escape(std::string_view input, std::string &output,
+                     bool maybe_encoded = false) -> void;
+
+  /// Percent-decode every escape sequence in a string per RFC 3986, leaving
+  /// malformed sequences untouched. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// const auto decoded{sourcemeta::core::URI::unescape("foo%20bar%2Fbaz")};
+  /// assert(decoded == "foo bar/baz");
+  /// ```
+  [[nodiscard]] static auto unescape(std::string_view input) -> std::string;
+
+  /// Remove the "." and ".." segments from a URI path per RFC 3986 Section
+  /// 5.2.4, preserving leading ".." segments in a relative path. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// assert(sourcemeta::core::URI::normalize_path("/foo/bar/../baz") ==
+  ///        "/foo/baz");
+  /// ```
+  [[nodiscard]] static auto normalize_path(std::string_view path)
+      -> std::string;
+
   /// Check if the given string is a valid URI scheme per RFC 3986
   /// (`ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )`). For example:
   ///

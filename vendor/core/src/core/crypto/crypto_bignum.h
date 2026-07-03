@@ -7,10 +7,12 @@
 // required, since verification consumes only public inputs
 
 #include <sourcemeta/core/numeric.h>
+#include <sourcemeta/core/text.h>
 
 #include <array>       // std::array
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint8_t, std::uint64_t
+#include <optional>    // std::optional
 #include <string>      // std::string
 #include <string_view> // std::string_view
 
@@ -62,33 +64,13 @@ inline auto bignum_from_u64(const std::uint64_t value) noexcept -> Bignum {
 }
 
 inline auto bignum_from_hex(const std::string_view hex) -> Bignum {
-  const auto nibble{[](const char character) noexcept -> std::uint8_t {
-    if (character >= '0' && character <= '9') {
-      return static_cast<std::uint8_t>(character - '0');
-    } else if (character >= 'a' && character <= 'f') {
-      return static_cast<std::uint8_t>(character - 'a' + 10);
-    } else {
-      return static_cast<std::uint8_t>(character - 'A' + 10);
-    }
-  }};
-
-  std::string bytes;
-  bytes.reserve((hex.size() + 1) / 2);
-
-  // An odd length means the leading nibble forms a byte on its own, as if a
-  // zero had been prepended
-  std::size_t index{0};
-  if (hex.size() % 2 != 0) {
-    bytes.push_back(static_cast<char>(nibble(hex[0])));
-    index = 1;
+  // An odd length is decoded as if a zero nibble had been prepended
+  const auto bytes{hex_to_bytes(hex, true)};
+  if (!bytes.has_value()) {
+    return Bignum{};
   }
 
-  for (; index + 1 < hex.size(); index += 2) {
-    bytes.push_back(
-        static_cast<char>((nibble(hex[index]) << 4u) | nibble(hex[index + 1])));
-  }
-
-  return bignum_from_bytes(bytes);
+  return bignum_from_bytes(bytes.value());
 }
 
 inline auto bignum_is_zero(const Bignum &value) noexcept -> bool {
