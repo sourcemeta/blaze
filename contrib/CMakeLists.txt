@@ -44,6 +44,23 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   target_link_libraries(sourcemeta_blaze_contrib_trace
     PRIVATE sourcemeta::blaze::output)
 
+  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_jsonld
+    FOLDER "Blaze/Contrib" SOURCES jsonld.cc)
+  target_link_libraries(sourcemeta_blaze_contrib_jsonld
+    PRIVATE sourcemeta::core::io)
+  target_link_libraries(sourcemeta_blaze_contrib_jsonld
+    PRIVATE sourcemeta::core::json)
+  target_link_libraries(sourcemeta_blaze_contrib_jsonld
+    PRIVATE sourcemeta::core::jsonpointer)
+  target_link_libraries(sourcemeta_blaze_contrib_jsonld
+    PRIVATE sourcemeta::blaze::foundation)
+  target_link_libraries(sourcemeta_blaze_contrib_jsonld
+    PRIVATE sourcemeta::blaze::compiler)
+  target_link_libraries(sourcemeta_blaze_contrib_jsonld
+    PRIVATE sourcemeta::blaze::evaluator)
+  target_link_libraries(sourcemeta_blaze_contrib_jsonld
+    PRIVATE sourcemeta::blaze::output)
+
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_perf
       FOLDER "Blaze/Contrib" SOURCES perf.cc)
