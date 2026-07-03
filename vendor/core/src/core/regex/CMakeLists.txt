@@ -6,3 +6,4 @@ if(SOURCEMETA_CORE_INSTALL)
 endif()
 
 target_link_libraries(sourcemeta_core_regex PRIVATE PCRE2::pcre2)
+target_link_libraries(sourcemeta_core_regex PRIVATE sourcemeta::core::text)

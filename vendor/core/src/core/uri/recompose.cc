@@ -1,10 +1,10 @@
+#include <sourcemeta/core/text.h>
 #include <sourcemeta/core/unicode.h>
 #include <sourcemeta/core/uri.h>
 
 #include "escaping.h"
 
 #include <array>    // std::array
-#include <cctype>   // std::isxdigit
 #include <charconv> // std::to_chars
 #include <cstdint>  // std::uint32_t
 #include <iomanip>  // std::hex, std::uppercase
@@ -26,8 +26,8 @@ auto escape_component_to_string(std::string &output, std::string_view input,
 
     // Preserve existing percent-encoded sequences
     if (character == URI_PERCENT && index + 2 < input.size() &&
-        std::isxdigit(static_cast<unsigned char>(input[index + 1])) &&
-        std::isxdigit(static_cast<unsigned char>(input[index + 2]))) {
+        hex_digit_value(input[index + 1]) >= 0 &&
+        hex_digit_value(input[index + 2]) >= 0) {
       output += input[index];
       output += input[index + 1];
       output += input[index + 2];

@@ -57,10 +57,17 @@ struct JSONLDReference {
 };
 
 /// @ingroup jsonld
-/// A position that is an array, asserted as an RDF list when ordered and as a
-/// set otherwise
+/// The container form of a collection position. List and Set range over an
+/// array; Language and Index range over an object.
+enum class JSONLDContainer : std::uint8_t { List, Set, Language, Index };
+
+/// @ingroup jsonld
+/// A position that is a collection. A List is asserted as an RDF list and a Set
+/// as a set, both ranging over an array. A Language container ranges over an
+/// object of language tag to string, and an Index container over an object
+/// whose keys are index labels that carry no RDF.
 struct JSONLDCollection {
-  bool ordered{false};
+  JSONLDContainer container{JSONLDContainer::Set};
 };
 
 /// @ingroup jsonld
