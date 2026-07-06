@@ -107,7 +107,11 @@ public:
   /// take ownership of the trace without copying when the output is no longer
   /// needed
   [[nodiscard]] auto release() && -> container_type {
-    return std::move(this->output);
+    auto result{std::move(this->output)};
+    // A moved-from container is left in a valid but unspecified state, so
+    // clear it to honor the documented empty postcondition portably
+    this->output.clear();
+    return result;
   }
 
   // NOLINTNEXTLINE(bugprone-exception-escape)
