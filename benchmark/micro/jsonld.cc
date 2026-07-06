@@ -22,12 +22,12 @@ static constexpr std::size_t catalog_member_count{256};
 static constexpr std::size_t relations_per_member{3};
 
 // A string value that never risks the const char* to bool constructor selection
-static sourcemeta::core::JSON string_value(std::string value) {
+static auto string_value(std::string value) -> sourcemeta::core::JSON {
   return sourcemeta::core::JSON{std::move(value)};
 }
 
-static sourcemeta::core::JSON make_person(const std::size_t index,
-                                          const bool include_relations) {
+static auto make_person(const std::size_t index, const bool include_relations)
+    -> sourcemeta::core::JSON {
   auto person{sourcemeta::core::JSON::make_object()};
   person.assign("name", string_value("Person " + std::to_string(index)));
   person.assign(
@@ -66,7 +66,7 @@ static sourcemeta::core::JSON make_person(const std::size_t index,
   return person;
 }
 
-static sourcemeta::core::JSON make_catalog(const std::size_t count) {
+static auto make_catalog(const std::size_t count) -> sourcemeta::core::JSON {
   auto members{sourcemeta::core::JSON::make_array()};
   for (std::size_t index = 0; index < count; index += 1) {
     members.push_back(make_person(index, true));
@@ -77,7 +77,7 @@ static sourcemeta::core::JSON make_catalog(const std::size_t count) {
   return catalog;
 }
 
-static void Micro_JSONLD_Catalog(benchmark::State &state) {
+static auto Micro_JSONLD_Catalog(benchmark::State &state) -> void {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/catalog",
