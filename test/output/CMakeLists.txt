@@ -2,10 +2,13 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME output
   SOURCES
     output_simple_test.cc
     output_standard_basic_test.cc
-    output_trace_test.cc)
+    output_trace_test.cc
+    output_jsonld_test.cc)
 
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::core::json)
+target_link_libraries(sourcemeta_blaze_output_unit
+  PRIVATE sourcemeta::core::jsonld)
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(sourcemeta_blaze_output_unit
