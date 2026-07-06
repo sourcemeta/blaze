@@ -39,7 +39,9 @@ namespace sourcemeta::core {
 /// @ingroup http
 /// A content coding supported by this implementation.
 enum class HTTPContentEncoding : std::uint8_t {
+  /// The identity coding that applies no transformation.
   Identity,
+  /// The gzip coding per RFC 9110 §8.4.1.3.
   GZIP,
 };
 
@@ -180,8 +182,11 @@ auto http_cache_control_max_age(const std::string_view cache_control) noexcept
 /// every field, must URI-escape `target`, and must ensure parameter values are
 /// valid `quoted-string` content.
 struct HTTPLink {
+  /// The link target reference
   std::string_view target;
+  /// The link relation type
   std::string_view rel;
+  /// The additional target attributes of the link
   std::span<const std::pair<std::string_view, std::string_view>> parameters{};
 };
 
@@ -256,7 +261,14 @@ auto http_format_links(std::span<const HTTPLink> links) -> std::string;
 
 /// @ingroup http
 /// The `SameSite` attribute of a cookie per RFC 6265bis §5.2.
-enum class HTTPCookieSameSite : std::uint8_t { Strict, Lax, None };
+enum class HTTPCookieSameSite : std::uint8_t {
+  /// The cookie is withheld from every cross-site request.
+  Strict,
+  /// The cookie is sent on top-level cross-site navigations only.
+  Lax,
+  /// The cookie is sent on every cross-site request.
+  None
+};
 
 /// @ingroup http
 /// A cookie to serialise into an RFC 6265 §4.1 `Set-Cookie` response header
@@ -265,13 +277,21 @@ enum class HTTPCookieSameSite : std::uint8_t { Strict, Lax, None };
 /// §4.1.1 cookie-octets. RFC 6265bis §5.7 requires a cookie with a same-site
 /// mode of none to also be secure.
 struct HTTPCookie {
+  /// The cookie name
   std::string_view name{};
+  /// The cookie value
   std::string_view value{};
+  /// The path the cookie is scoped to
   std::optional<std::string_view> path{};
+  /// The host the cookie is scoped to
   std::optional<std::string_view> domain{};
+  /// The cookie lifetime
   std::optional<std::chrono::seconds> max_age{};
+  /// Whether the cookie is withheld from scripts
   bool http_only{false};
+  /// Whether the cookie is only sent over secure channels
   bool secure{false};
+  /// The cross-site request policy for the cookie
   std::optional<HTTPCookieSameSite> same_site{};
 };
 

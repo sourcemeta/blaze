@@ -16,6 +16,7 @@ private:
   using internal = typename std::vector<PointerT>;
 
 public:
+  /// Construct a walker over every location in a JSON document
   GenericPointerWalker(const JSON &document) {
     PointerT accumulator;
     this->walk(document, accumulator);

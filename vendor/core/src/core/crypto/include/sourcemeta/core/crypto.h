@@ -14,6 +14,7 @@
 /// #include <sourcemeta/core/crypto.h>
 /// ```
 
+#include <sourcemeta/core/crypto_aes_gcm.h>
 #include <sourcemeta/core/crypto_base64.h>
 #include <sourcemeta/core/crypto_crc32.h>
 #include <sourcemeta/core/crypto_fnv128.h>
@@ -22,6 +23,7 @@
 #include <sourcemeta/core/crypto_sha256.h>
 #include <sourcemeta/core/crypto_sha384.h>
 #include <sourcemeta/core/crypto_sha512.h>
+#include <sourcemeta/core/crypto_sign.h>
 #include <sourcemeta/core/crypto_uuid.h>
 #include <sourcemeta/core/crypto_verify.h>
 

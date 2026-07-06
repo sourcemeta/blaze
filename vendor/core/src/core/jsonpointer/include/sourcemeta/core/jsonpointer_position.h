@@ -45,16 +45,21 @@ namespace sourcemeta::core {
 /// ```
 class SOURCEMETA_CORE_JSONPOINTER_EXPORT PointerPositionTracker {
 public:
+  /// The pointer type used to look up positions
   using Pointer = GenericPointer<JSON::String, PropertyHashJSON<JSON::String>>;
+  /// The start and end line and column numbers of a value
   using Position =
       std::tuple<std::uint64_t, std::uint64_t, std::uint64_t, std::uint64_t>;
   auto operator()(const JSON::ParsePhase phase, const JSON::Type,
                   const std::uint64_t line, const std::uint64_t column,
                   const JSON::ParseContext context, const std::size_t index,
                   const JSON::String &property) -> void;
+  /// Get the position of the value at a given pointer
   [[nodiscard]] auto get(const Pointer &pointer) const
       -> std::optional<Position>;
+  /// Get the number of tracked positions
   [[nodiscard]] auto size() const -> std::size_t;
+  /// Serialise the tracked positions as a JSON document
   [[nodiscard]] auto to_json() const -> JSON;
 
 private:

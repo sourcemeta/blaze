@@ -25,28 +25,33 @@ auto strip_trailing_zeros(std::int64_t &coefficient, std::int32_t &exponent)
     return;
   }
 
+  // The exponent is already clamped to the representable range at parse time,
+  // so a strip is only performed when the exponent can absorb the matching
+  // increment. Otherwise the increment would overflow, and dividing the
+  // coefficient without it would change the represented value
+  constexpr std::int32_t maximum{std::numeric_limits<std::int32_t>::max()};
   constexpr std::int64_t POWER_OF_10_16 = 10000000000000000LL;
-  if (coefficient % POWER_OF_10_16 == 0) {
+  if (exponent <= maximum - 16 && coefficient % POWER_OF_10_16 == 0) {
     coefficient /= POWER_OF_10_16;
     exponent += 16;
   }
 
-  if (coefficient % 100000000 == 0) {
+  if (exponent <= maximum - 8 && coefficient % 100000000 == 0) {
     coefficient /= 100000000;
     exponent += 8;
   }
 
-  if (coefficient % 10000 == 0) {
+  if (exponent <= maximum - 4 && coefficient % 10000 == 0) {
     coefficient /= 10000;
     exponent += 4;
   }
 
-  if (coefficient % 100 == 0) {
+  if (exponent <= maximum - 2 && coefficient % 100 == 0) {
     coefficient /= 100;
     exponent += 2;
   }
 
-  if (coefficient % 10 == 0) {
+  if (exponent <= maximum - 1 && coefficient % 10 == 0) {
     coefficient /= 10;
     exponent += 1;
   }
@@ -469,12 +474,22 @@ Decimal::Decimal(const std::int64_t value) {
     this->coefficient_ = static_cast<std::int64_t>(absolute_value % BASE);
     this->coefficient_high_ = absolute_value / BASE;
     this->flags_ = FLAG_BIG | FLAG_SIGN | FLAG_INTEGER_LITERAL;
-  } else if (value < 0) {
-    this->coefficient_ = -value;
-    this->flags_ = FLAG_SIGN | FLAG_INTEGER_LITERAL;
+    return;
+  }
+
+  const bool negative{value < 0};
+  const auto magnitude{static_cast<std::uint64_t>(negative ? -value : value)};
+  // A magnitude beyond the compact range must use the big representation, since
+  // the compact arithmetic paths assume operands fit within it
+  if (magnitude > static_cast<std::uint64_t>(COMPACT_MAX)) {
+    this->coefficient_ = static_cast<std::int64_t>(magnitude % BASE);
+    this->coefficient_high_ = magnitude / BASE;
+    this->flags_ = static_cast<std::uint8_t>(FLAG_BIG | FLAG_INTEGER_LITERAL |
+                                             (negative ? FLAG_SIGN : 0));
   } else {
-    this->coefficient_ = value;
-    this->flags_ = FLAG_INTEGER_LITERAL;
+    this->coefficient_ = static_cast<std::int64_t>(magnitude);
+    this->flags_ = static_cast<std::uint8_t>(FLAG_INTEGER_LITERAL |
+                                             (negative ? FLAG_SIGN : 0));
   }
 }
 

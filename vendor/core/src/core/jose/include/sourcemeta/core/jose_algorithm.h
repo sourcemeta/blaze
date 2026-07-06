@@ -17,15 +17,25 @@ namespace sourcemeta::core {
 /// family and the null algorithm are intentionally absent, which makes
 /// algorithm confusion attacks unrepresentable in the type system.
 enum class JWSAlgorithm : std::uint8_t {
+  /// RSASSA-PKCS1-v1_5 using SHA-256.
   RS256,
+  /// RSASSA-PKCS1-v1_5 using SHA-384.
   RS384,
+  /// RSASSA-PKCS1-v1_5 using SHA-512.
   RS512,
+  /// RSASSA-PSS using SHA-256 and MGF1 with SHA-256.
   PS256,
+  /// RSASSA-PSS using SHA-384 and MGF1 with SHA-384.
   PS384,
+  /// RSASSA-PSS using SHA-512 and MGF1 with SHA-512.
   PS512,
+  /// ECDSA using the NIST P-256 curve and SHA-256.
   ES256,
+  /// ECDSA using the NIST P-384 curve and SHA-384.
   ES384,
+  /// ECDSA using the NIST P-521 curve and SHA-512.
   ES512,
+  /// Edwards-curve Digital Signature Algorithm.
   EdDSA
 };
 

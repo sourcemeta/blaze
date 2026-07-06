@@ -15,12 +15,24 @@
 namespace sourcemeta::core {
 
 /// @ingroup http
+/// The credentials used to sign a request with AWS Signature Version 4. The
+/// session token is left empty when using long-term credentials.
+struct HTTPAWSCredentials {
+  /// The access key identifier
+  std::string_view access_key_id;
+  /// The secret access key
+  std::string_view secret_access_key;
+  /// The temporary session token used with short-term credentials
+  std::string_view session_token;
+};
+
+/// @ingroup http
 /// Compute the AWS Signature Version 4 canonical request from a request method,
-/// path, query, headers, and payload hash. The path and query are percent-
-/// encoded during canonicalization, so they must be provided in decoded form.
-/// When `normalize` is set the path is normalised by collapsing sequential
-/// slashes and removing dot segments, which every service except Amazon S3
-/// requires. For example:
+/// path, query, headers, and payload hash. Each path segment and query
+/// parameter is decoded and re-encoded into canonical form, so the path and
+/// query may be passed exactly as they appear in the request target. The path
+/// is optionally normalised by collapsing sequential slashes and removing dot
+/// segments, which every service except Amazon S3 requires. For example:
 ///
 /// ```cpp
 /// #include <sourcemeta/core/http.h>

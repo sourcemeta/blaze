@@ -75,6 +75,11 @@ auto from_imf_fixdate(const std::string_view value) noexcept
   if (!is_valid_broken_down_time(parts)) {
     return std::nullopt;
   }
+  // RFC 9110 §5.6.7: HTTP-date is case sensitive
+  if (!is_case_sensitive_day_abbreviation(value.substr(0, 3), parts.tm_wday) ||
+      !is_case_sensitive_month_abbreviation(value.substr(8, 3), parts.tm_mon)) {
+    return std::nullopt;
+  }
 #if defined(_MSC_VER)
   return std::chrono::system_clock::from_time_t(_mkgmtime(&parts));
 #else

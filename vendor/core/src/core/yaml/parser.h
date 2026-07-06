@@ -10,7 +10,8 @@
 #include <sourcemeta/core/yaml_roundtrip.h>
 
 #include <cassert>       // assert
-#include <cstdint>       // std::uint64_t
+#include <cstdint>       // std::uint64_t, std::int64_t
+#include <limits>        // std::numeric_limits
 #include <optional>      // std::optional
 #include <sstream>       // std::ostringstream
 #include <string>        // std::string
@@ -894,12 +895,21 @@ private:
       return JSON{Decimal{value}};
     }
 
-    const auto as_integer{static_cast<std::int64_t>(result.value())};
-    if (result.value() == static_cast<double>(as_integer)) {
-      return JSON{as_integer};
+    // Only convert to an integer when the value is within the representable
+    // range, since casting an out-of-range double to an integer is undefined
+    // behavior
+    const auto number{result.value()};
+    if (number >=
+            static_cast<double>(std::numeric_limits<std::int64_t>::min()) &&
+        number <
+            static_cast<double>(std::numeric_limits<std::int64_t>::max())) {
+      const auto as_integer{static_cast<std::int64_t>(number)};
+      if (number == static_cast<double>(as_integer)) {
+        return JSON{as_integer};
+      }
     }
 
-    return JSON{result.value()};
+    return JSON{number};
   }
 
   auto parse_flow_mapping(const Token &start_token,

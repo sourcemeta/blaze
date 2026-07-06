@@ -9,6 +9,7 @@
 #include <exception>        // std::terminate
 #include <functional>       // std::reference_wrapper
 #include <initializer_list> // std::initializer_list
+#include <limits>           // std::numeric_limits
 #include <memory>           // std::construct_at
 #include <sstream>          // std::basic_istringstream
 #include <stdexcept>        // std::invalid_argument
@@ -552,7 +553,16 @@ auto JSON::operator+(const JSON &other) const -> JSON {
                                                : Decimal{other.to_real()};
     return JSON{left + right};
   } else if (this->is_integer() && other.is_integer()) {
-    return JSON{this->to_integer() + other.to_integer()};
+    const auto left{this->to_integer()};
+    const auto right{other.to_integer()};
+    // Promote to arbitrary precision when the sum would not fit, since signed
+    // integer overflow is undefined behavior
+    if ((right > 0 && left > std::numeric_limits<Integer>::max() - right) ||
+        (right < 0 && left < std::numeric_limits<Integer>::min() - right)) {
+      return JSON{Decimal{left} + Decimal{right}};
+    }
+
+    return JSON{left + right};
   } else if (this->is_integer() && other.is_real()) {
     return JSON{this->as_real() + other.to_real()};
   } else if (this->is_real() && other.is_integer()) {
@@ -575,7 +585,16 @@ auto JSON::operator-(const JSON &other) const -> JSON {
                                                : Decimal{other.to_real()};
     return JSON{left - right};
   } else if (this->is_integer() && other.is_integer()) {
-    return JSON{this->to_integer() - other.to_integer()};
+    const auto left{this->to_integer()};
+    const auto right{other.to_integer()};
+    // Promote to arbitrary precision when the difference would not fit, since
+    // signed integer overflow is undefined behavior
+    if ((right < 0 && left > std::numeric_limits<Integer>::max() + right) ||
+        (right > 0 && left < std::numeric_limits<Integer>::min() + right)) {
+      return JSON{Decimal{left} - Decimal{right}};
+    }
+
+    return JSON{left - right};
   } else if (this->is_integer() && other.is_real()) {
     return JSON{this->as_real() - other.to_real()};
   } else if (this->is_real() && other.is_integer()) {

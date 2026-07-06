@@ -37,6 +37,7 @@
 namespace sourcemeta::core {
 
 /// @ingroup uri
+/// A parsed URI that can be inspected, resolved, and recomposed
 class SOURCEMETA_CORE_URI_EXPORT URI {
 public:
   /// Default constructor creates an empty URI
@@ -227,6 +228,26 @@ public:
   /// ```
   [[nodiscard]] auto port() const -> std::optional<std::uint32_t>;
 
+  /// Get the recomposed authority component of the URI, if any, in the RFC 3986
+  /// form `[ userinfo "@" ] host [ ":" port ]`, with IPv6 hosts wrapped in
+  /// brackets. A URI with an empty authority, such as `file:///path`, returns a
+  /// present but empty value, so a caller must not treat a present value as
+  /// necessarily non-empty. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/uri.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::core::URI uri{"https://example.com:8443/foo"};
+  /// assert(uri.authority().has_value());
+  /// assert(uri.authority().value() == "example.com:8443");
+  ///
+  /// const sourcemeta::core::URI file{"file:///path"};
+  /// assert(file.authority().has_value());
+  /// assert(file.authority().value().empty());
+  /// ```
+  [[nodiscard]] auto authority() const -> std::optional<std::string>;
+
   /// Get the path part of the URI, if any. For example:
   ///
   /// ```cpp
@@ -265,6 +286,7 @@ public:
   /// uri.path(std::move(path));
   /// assert(uri.path().has_value());
   /// assert(uri.path().value() == "/foo/bar");
+  /// ```
   auto path(std::string &&path) -> URI &;
 
   /// Append a path to the existing URI path or set a path if such component
@@ -279,6 +301,7 @@ public:
   /// sourcemeta::core::URI uri{"https://www.sourcemeta.com/foo"};
   /// uri.append_path("bar/baz");
   /// assert(uri.recompose() == "https://www.sourcemeta.com/foo/bar/baz");
+  /// ```
   auto append_path(std::string_view path) -> URI &;
 
   /// Append a path to the existing URI from a parsed reference. The
@@ -293,6 +316,7 @@ public:
   /// const sourcemeta::core::URI reference{"bar/baz"};
   /// uri.append_path(reference);
   /// assert(uri.recompose() == "https://www.sourcemeta.com/foo/bar/baz");
+  /// ```
   auto append_path(const URI &reference) -> URI &;
 
   /// Append a path to the existing URI from a parsed reference, moving the
@@ -322,6 +346,7 @@ public:
   /// sourcemeta::core::URI uri{"https://www.sourcemeta.com/foo"};
   /// uri.extension("json");
   /// assert(uri.recompose() == "https://www.sourcemeta.com/foo.json");
+  /// ```
   auto extension(std::string &&extension) -> URI &;
 
   /// Get the fragment part of the URI, if any. For example:
