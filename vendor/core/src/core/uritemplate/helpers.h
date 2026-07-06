@@ -436,8 +436,14 @@ auto expand_expression(
 
         if (object_key.has_value()) {
           encode<T>(result, object_key.value());
-          result += '=';
-          encode<T>(result, actual_value);
+          if (actual_value.empty()) {
+            if constexpr (has_empty_suffix<T>::value) {
+              result += T::empty_suffix;
+            }
+          } else {
+            result += '=';
+            encode<T>(result, actual_value);
+          }
         } else if constexpr (T::named) {
           result += variable.name;
           if (actual_value.empty()) {
@@ -452,20 +458,23 @@ auto expand_expression(
           encode<T>(result, actual_value);
         }
       } else {
+        // An associative-array pair always contributes its key, so it is never
+        // empty even when the pair value is the empty string
+        const bool value_empty{!object_key.has_value() && actual_value.empty()};
         if (first_var && first_value) {
           if constexpr (has_prefix<T>::value) {
             result += T::prefix;
           }
           first_var = false;
-          append_name<T>(result, variable.name, actual_value.empty(), has_more);
+          append_name<T>(result, variable.name, value_empty, has_more);
         } else if (first_value) {
           result += T::separator;
-          append_name<T>(result, variable.name, actual_value.empty(), has_more);
+          append_name<T>(result, variable.name, value_empty, has_more);
         } else {
           result += ',';
         }
 
-        if (!first_value || !actual_value.empty() || has_more) {
+        if (!first_value || !value_empty || has_more) {
           if (object_key.has_value()) {
             encode<T>(result, object_key.value());
             result += ',';

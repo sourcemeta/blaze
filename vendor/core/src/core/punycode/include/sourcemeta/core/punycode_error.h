@@ -19,8 +19,10 @@ namespace sourcemeta::core {
 #endif
 
 /// @ingroup punycode
+/// An error that represents a Punycode encoding or decoding failure
 class SOURCEMETA_CORE_PUNYCODE_EXPORT PunycodeError : public std::exception {
 public:
+  /// Construct an error with the given message
   PunycodeError(const char *message) : message_{message} {}
   PunycodeError(std::string message) = delete;
   PunycodeError(std::string &&message) = delete;

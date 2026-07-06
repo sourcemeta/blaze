@@ -3,11 +3,33 @@
 
 #include <sourcemeta/core/time.h>
 
-#include <cstdint> // std::uint8_t, std::uint16_t
-#include <ctime>   // std::tm
-#include <utility> // std::cmp_greater
+#include <array>       // std::array
+#include <cstdint>     // std::uint8_t, std::uint16_t
+#include <ctime>       // std::tm
+#include <string_view> // std::string_view
+#include <utility>     // std::cmp_greater
 
 namespace sourcemeta::core {
+
+// RFC 9110 §5.6.7: "HTTP-date is case sensitive". The standard library's
+// std::get_time matches day and month names case-insensitively on some
+// implementations, so the exact spelling is verified against the parsed index
+inline auto is_case_sensitive_day_abbreviation(const std::string_view name,
+                                               const int weekday) -> bool {
+  static constexpr std::array<std::string_view, 7> names{
+      {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}};
+  return weekday >= 0 && weekday < 7 &&
+         name == names[static_cast<std::size_t>(weekday)];
+}
+
+inline auto is_case_sensitive_month_abbreviation(const std::string_view name,
+                                                 const int month) -> bool {
+  static constexpr std::array<std::string_view, 12> names{
+      {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
+       "Nov", "Dec"}};
+  return month >= 0 && month < 12 &&
+         name == names[static_cast<std::size_t>(month)];
+}
 
 // Validate the calendar fields of a broken-down time, since the conversion to
 // an epoch time point would otherwise silently normalise out-of-range values

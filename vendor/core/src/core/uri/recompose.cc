@@ -4,13 +4,14 @@
 
 #include "escaping.h"
 
-#include <array>    // std::array
-#include <charconv> // std::to_chars
-#include <cstdint>  // std::uint32_t
-#include <iomanip>  // std::hex, std::uppercase
-#include <optional> // std::optional
-#include <sstream>  // std::ostringstream
-#include <string>   // std::string
+#include <array>       // std::array
+#include <charconv>    // std::to_chars
+#include <cstdint>     // std::uint32_t
+#include <iomanip>     // std::hex, std::uppercase
+#include <optional>    // std::optional
+#include <sstream>     // std::ostringstream
+#include <string>      // std::string
+#include <string_view> // std::string_view
 
 namespace sourcemeta::core {
 
@@ -96,6 +97,38 @@ auto escape_component_to_string(std::string &output, std::string_view input,
   }
 }
 
+auto recompose_authority(std::string &output,
+                         const std::optional<std::string_view> user_info,
+                         const std::optional<std::string_view> host,
+                         const std::optional<std::uint32_t> port,
+                         const bool ip_literal, const bool iri) -> void {
+  if (user_info.has_value()) {
+    escape_component_to_string(output, user_info.value(),
+                               URIEscapeMode::UserInfo, iri);
+    output += '@';
+  }
+
+  if (host.has_value()) {
+    if (ip_literal) {
+      output += '[';
+      output += host.value();
+      output += ']';
+    } else {
+      escape_component_to_string(output, host.value(),
+                                 URIEscapeMode::SkipSubDelims, iri);
+    }
+  }
+
+  if (port.has_value()) {
+    output += ':';
+    std::array<char, 20> port_buffer{};
+    const auto [end_pointer, error_code] =
+        std::to_chars(port_buffer.data(),
+                      port_buffer.data() + port_buffer.size(), port.value());
+    output.append(port_buffer.data(), end_pointer);
+  }
+}
+
 } // namespace
 
 auto URI::recompose() const -> std::string {
@@ -178,6 +211,18 @@ auto URI::recompose_relative() const -> std::string {
   return result;
 }
 
+auto URI::authority() const -> std::optional<std::string> {
+  if (!this->userinfo().has_value() && !this->host().has_value() &&
+      !this->port().has_value()) {
+    return std::nullopt;
+  }
+
+  std::string result;
+  recompose_authority(result, this->userinfo(), this->host(), this->port(),
+                      this->ip_literal_, this->iri_);
+  return result;
+}
+
 auto URI::recompose_without_fragment() const -> std::optional<std::string> {
   std::string result;
   result.reserve(256);
@@ -190,43 +235,11 @@ auto URI::recompose_without_fragment() const -> std::optional<std::string> {
   }
 
   // Authority
-  const auto user_info{this->userinfo()};
-  const auto result_host{this->host()};
-  const auto result_port{this->port()};
-  const bool has_authority{user_info.has_value() || result_host.has_value() ||
-                           result_port.has_value()};
-
-  // Add "//" prefix when we have authority (with or without scheme)
-  if (has_authority) {
+  if (this->userinfo().has_value() || this->host().has_value() ||
+      this->port().has_value()) {
     result += "//";
-  }
-
-  if (user_info.has_value()) {
-    escape_component_to_string(result, user_info.value(),
-                               URIEscapeMode::UserInfo, this->iri_);
-    result += '@';
-  }
-
-  // Host
-  if (result_host.has_value()) {
-    if (this->ip_literal_) {
-      result += '[';
-      result += result_host.value();
-      result += ']';
-    } else {
-      escape_component_to_string(result, result_host.value(),
-                                 URIEscapeMode::SkipSubDelims, this->iri_);
-    }
-  }
-
-  // Port
-  if (result_port.has_value()) {
-    result += ':';
-    std::array<char, 20> port_buffer{};
-    const auto [end_pointer, error_code] = std::to_chars(
-        port_buffer.data(), port_buffer.data() + port_buffer.size(),
-        result_port.value());
-    result.append(port_buffer.data(), end_pointer);
+    recompose_authority(result, this->userinfo(), this->host(), this->port(),
+                        this->ip_literal_, this->iri_);
   }
 
   // Path

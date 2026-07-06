@@ -106,6 +106,23 @@ inline auto edwards_point_equal(const EdwardsPoint &left,
                         bignum_mod_multiply(right.y, left.z, prime)) == 0;
 }
 
+// Encode a point into the little-endian y coordinate with the low bit of x in
+// the final bit (RFC 8032 Section 5.1.2), the inverse of the point decoding
+inline auto edwards_point_encode(const EdwardsPoint &point, const Bignum &prime,
+                                 const std::size_t length) -> std::string {
+  const auto z_inverse{bignum_mod_inverse(point.z, prime)};
+  const auto x{bignum_mod_multiply(point.x, z_inverse, prime)};
+  const auto y{bignum_mod_multiply(point.y, z_inverse, prime)};
+  const auto big_endian{bignum_to_bytes(y, length)};
+  std::string encoding{big_endian.rbegin(), big_endian.rend()};
+  if (bignum_get_bit(x, 0)) {
+    encoding.back() =
+        static_cast<char>(static_cast<std::uint8_t>(encoding.back()) | 0x80u);
+  }
+
+  return encoding;
+}
+
 // Recover an Ed25519 point from its 32-byte encoding (RFC 8032 Section 5.1.3),
 // returning no value when the encoding does not name a point on the curve
 inline auto edwards25519_decode_point(const std::string_view encoding,
@@ -287,6 +304,64 @@ inline auto edwards25519_verify(const std::string_view public_key,
   return edwards_point_equal(left, right, parameters.prime);
 }
 
+// Produce an Ed25519 signature over a message (RFC 8032 Section 5.1.6), given
+// the 32-byte secret seed
+inline auto edwards25519_sign(const std::string_view secret,
+                              const std::string_view message)
+    -> std::optional<std::string> {
+  if (secret.size() != 32) {
+    return std::nullopt;
+  }
+
+  const auto parameters{edwards25519()};
+  const auto hashed{sha512_digest(secret)};
+  const std::string_view digest{reinterpret_cast<const char *>(hashed.data()),
+                                hashed.size()};
+
+  // The secret scalar is the pruned first half, the prefix the second half
+  std::string scalar_bytes{digest.substr(0, 32)};
+  scalar_bytes.front() = static_cast<char>(
+      static_cast<std::uint8_t>(scalar_bytes.front()) & 0xf8u);
+  scalar_bytes.back() = static_cast<char>(
+      (static_cast<std::uint8_t>(scalar_bytes.back()) & 0x7fu) | 0x40u);
+  const auto scalar_a{bignum_from_bytes_little_endian(scalar_bytes)};
+  const auto prefix{digest.substr(32)};
+
+  const auto public_key{edwards_point_encode(
+      edwards_point_scalar_multiply(scalar_a, parameters.base, parameters),
+      parameters.prime, 32)};
+
+  // r = SHA-512(prefix || M) reduced, then R = [r]B
+  std::string nonce_preimage{prefix};
+  nonce_preimage.append(message);
+  const auto nonce_digest{sha512_digest(nonce_preimage)};
+  auto scalar_r{bignum_from_bytes_little_endian(
+      std::string_view{reinterpret_cast<const char *>(nonce_digest.data()),
+                       nonce_digest.size()})};
+  bignum_reduce(scalar_r, parameters.order);
+  const auto encoded_r{edwards_point_encode(
+      edwards_point_scalar_multiply(scalar_r, parameters.base, parameters),
+      parameters.prime, 32)};
+
+  // k = SHA-512(R || A || M) reduced, then S = (r + k * a) mod L
+  std::string challenge_preimage{encoded_r};
+  challenge_preimage.append(public_key);
+  challenge_preimage.append(message);
+  const auto challenge_digest{sha512_digest(challenge_preimage)};
+  auto scalar_k{bignum_from_bytes_little_endian(
+      std::string_view{reinterpret_cast<const char *>(challenge_digest.data()),
+                       challenge_digest.size()})};
+  bignum_reduce(scalar_k, parameters.order);
+  const auto scalar_s{bignum_mod_add(
+      scalar_r, bignum_mod_multiply(scalar_k, scalar_a, parameters.order),
+      parameters.order)};
+
+  const auto scalar_s_big_endian{bignum_to_bytes(scalar_s, 32)};
+  std::string signature{encoded_r};
+  signature.append(scalar_s_big_endian.rbegin(), scalar_s_big_endian.rend());
+  return signature;
+}
+
 // Recover an Ed448 point from its 57-byte encoding (RFC 8032 Section 5.2.3),
 // returning no value when the encoding does not name a point on the curve
 inline auto edwards448_decode_point(const std::string_view encoding,
@@ -441,6 +516,65 @@ inline auto edwards448_verify(const std::string_view public_key,
       edwards_point_scalar_multiply(scalar_k, public_point.value(), parameters),
       parameters)};
   return edwards_point_equal(left, right, parameters.prime);
+}
+
+// Produce an Ed448 signature over a message (RFC 8032 Section 5.2.6), given the
+// 57-byte secret seed
+inline auto edwards448_sign(const std::string_view secret,
+                            const std::string_view message)
+    -> std::optional<std::string> {
+  if (secret.size() != 57) {
+    return std::nullopt;
+  }
+
+  const auto parameters{edwards448()};
+  const auto digest{shake256(secret, 114)};
+
+  // The secret scalar is the pruned first half, the prefix the second half
+  std::string scalar_bytes{digest.substr(0, 57)};
+  scalar_bytes.front() = static_cast<char>(
+      static_cast<std::uint8_t>(scalar_bytes.front()) & 0xfcu);
+  scalar_bytes[55] =
+      static_cast<char>(static_cast<std::uint8_t>(scalar_bytes[55]) | 0x80u);
+  scalar_bytes[56] = '\x00';
+  const auto scalar_a{bignum_from_bytes_little_endian(scalar_bytes)};
+  const auto prefix{std::string_view{digest}.substr(57)};
+
+  const auto public_key{edwards_point_encode(
+      edwards_point_scalar_multiply(scalar_a, parameters.base, parameters),
+      parameters.prime, 57)};
+
+  // dom4 is "SigEd448" followed by the zero pre-hash flag and an empty context
+  std::string domain{"SigEd448"};
+  domain.push_back('\x00');
+  domain.push_back('\x00');
+
+  // r = SHAKE256(dom4 || prefix || M) reduced, then R = [r]B
+  std::string nonce_preimage{domain};
+  nonce_preimage.append(prefix);
+  nonce_preimage.append(message);
+  auto scalar_r{bignum_from_bytes_little_endian(shake256(nonce_preimage, 114))};
+  bignum_reduce(scalar_r, parameters.order);
+  const auto encoded_r{edwards_point_encode(
+      edwards_point_scalar_multiply(scalar_r, parameters.base, parameters),
+      parameters.prime, 57)};
+
+  // k = SHAKE256(dom4 || R || A || M) reduced, then S = (r + k * a) mod L
+  std::string challenge_preimage{domain};
+  challenge_preimage.append(encoded_r);
+  challenge_preimage.append(public_key);
+  challenge_preimage.append(message);
+  auto scalar_k{
+      bignum_from_bytes_little_endian(shake256(challenge_preimage, 114))};
+  bignum_reduce(scalar_k, parameters.order);
+  const auto scalar_s{bignum_mod_add(
+      scalar_r, bignum_mod_multiply(scalar_k, scalar_a, parameters.order),
+      parameters.order)};
+
+  const auto scalar_s_big_endian{bignum_to_bytes(scalar_s, 57)};
+  std::string signature{encoded_r};
+  signature.append(scalar_s_big_endian.rbegin(), scalar_s_big_endian.rend());
+  return signature;
 }
 
 } // namespace sourcemeta::core

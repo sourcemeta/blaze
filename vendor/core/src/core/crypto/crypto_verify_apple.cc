@@ -1,6 +1,7 @@
 #include <sourcemeta/core/crypto_verify.h>
 #include <sourcemeta/core/text.h>
 
+#include "crypto_der.h"
 #include "crypto_eddsa.h"
 #include "crypto_eddsa_apple.h"
 #include "crypto_helpers.h"

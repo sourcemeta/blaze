@@ -2,38 +2,11 @@
 
 #include <sourcemeta/core/crypto.h>
 
+#include "jose_key.h"
+
 #include <optional>    // std::optional
 #include <string_view> // std::string_view
 #include <utility>     // std::unreachable
-
-namespace {
-
-auto hash_for(const sourcemeta::core::JWSAlgorithm algorithm)
-    -> sourcemeta::core::SignatureHashFunction {
-  using sourcemeta::core::JWSAlgorithm;
-  using sourcemeta::core::SignatureHashFunction;
-  switch (algorithm) {
-    case JWSAlgorithm::RS256:
-    case JWSAlgorithm::PS256:
-    case JWSAlgorithm::ES256:
-      return SignatureHashFunction::SHA256;
-    case JWSAlgorithm::RS384:
-    case JWSAlgorithm::PS384:
-    case JWSAlgorithm::ES384:
-      return SignatureHashFunction::SHA384;
-    case JWSAlgorithm::RS512:
-    case JWSAlgorithm::PS512:
-    case JWSAlgorithm::ES512:
-      return SignatureHashFunction::SHA512;
-    // The Edwards-curve algorithm fixes its own hash, so it never reaches here
-    case JWSAlgorithm::EdDSA:
-      break;
-  }
-
-  std::unreachable();
-}
-
-} // namespace
 
 namespace sourcemeta::core {
 
@@ -64,13 +37,14 @@ auto jws_verify_signature(const std::optional<JWSAlgorithm> algorithm,
     case JWSAlgorithm::RS384:
     case JWSAlgorithm::RS512:
       return key.type() == JWK::Type::RSA &&
-             rsassa_pkcs1_v15_verify(*public_key, hash_for(algorithm.value()),
+             rsassa_pkcs1_v15_verify(*public_key,
+                                     jws_hash_for(algorithm.value()),
                                      signing_input, signature);
     case JWSAlgorithm::PS256:
     case JWSAlgorithm::PS384:
     case JWSAlgorithm::PS512:
       return key.type() == JWK::Type::RSA &&
-             rsassa_pss_verify(*public_key, hash_for(algorithm.value()),
+             rsassa_pss_verify(*public_key, jws_hash_for(algorithm.value()),
                                signing_input, signature);
     // Each ECDSA algorithm is pinned to exactly one curve (RFC 7518 Section
     // 3.4), so the key's curve is checked independently of any algorithm it

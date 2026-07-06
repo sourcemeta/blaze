@@ -240,6 +240,7 @@ auto to_json(const T &value) -> JSON {
 }
 
 /// @ingroup json
+/// Convert a file time point into JSON
 template <typename T>
   requires std::is_same_v<T, std::filesystem::file_time_type>
 auto to_json(const T value) -> JSON {
@@ -356,6 +357,7 @@ auto from_json(const JSON &value) -> std::optional<T> {
 }
 
 /// @ingroup json
+/// Convert an optional value into JSON, using null when empty
 template <typename T> auto to_json(const std::optional<T> &value) -> JSON {
   return value.has_value() ? to_json(value.value()) : JSON{nullptr};
 }
@@ -379,6 +381,7 @@ auto from_json(const JSON &value) -> std::optional<T> {
 }
 
 /// @ingroup json
+/// Convert a range of list-like elements into a JSON array
 template <json_auto_list_like T>
 auto to_json(typename T::const_iterator begin, typename T::const_iterator end)
     -> JSON {
@@ -397,6 +400,8 @@ auto to_json(typename T::const_iterator begin, typename T::const_iterator end)
 }
 
 /// @ingroup json
+/// Convert a range of list-like elements into a JSON array using a custom
+/// callback
 template <json_auto_list_like T,
           std::invocable<const typename T::value_type &> F>
 auto to_json(typename T::const_iterator begin, typename T::const_iterator end,
@@ -421,6 +426,7 @@ template <json_auto_list_like T> auto to_json(const T &value) -> JSON {
 }
 
 /// @ingroup json
+/// Convert a list-like value into a JSON array using a custom callback
 template <json_auto_list_like T,
           std::invocable<const typename T::value_type &> F>
 auto to_json(const T &value, const F &callback) -> JSON {
@@ -457,6 +463,7 @@ auto from_json(const JSON &value) -> std::optional<T> {
 }
 
 /// @ingroup json
+/// Convert a JSON array into a list-like value using a custom callback
 template <json_auto_list_like T>
 auto from_json(
     const JSON &value,
@@ -539,6 +546,7 @@ auto from_json(const JSON &value) -> std::optional<T> {
 }
 
 /// @ingroup json
+/// Convert a JSON object into a map-like value using a custom callback
 template <json_auto_map_like T>
 auto from_json(
     const JSON &value,
@@ -569,6 +577,7 @@ auto to_json(const T &value, const F &callback) -> JSON {
 }
 
 /// @ingroup json
+/// Convert a pair into a JSON array of two elements
 template <typename L, typename R>
 auto to_json(const std::pair<L, R> &value) -> JSON {
   auto tuple{JSON::make_array()};
