@@ -103,6 +103,13 @@ public:
     return this->annotations_;
   }
 
+  /// Move out the collected error entries, leaving this output empty. Useful to
+  /// take ownership of the trace without copying when the output is no longer
+  /// needed
+  [[nodiscard]] auto release() && -> container_type {
+    return std::move(this->output);
+  }
+
   // NOLINTNEXTLINE(bugprone-exception-escape)
   struct Location {
     auto operator<(const Location &other) const noexcept -> bool {
