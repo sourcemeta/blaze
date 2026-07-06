@@ -23,7 +23,8 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
     micro/draft6.cc
     micro/draft7.cc
     micro/2019_09.cc
-    micro/2020_12.cc)
+    micro/2020_12.cc
+    micro/jsonld.cc)
 endif()
 
 if(BLAZE_ALTERSCHEMA)
