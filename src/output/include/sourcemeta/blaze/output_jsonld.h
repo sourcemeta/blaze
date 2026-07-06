@@ -20,7 +20,15 @@ namespace sourcemeta::blaze {
 
 /// @ingroup output
 /// The descriptor facet that a JSON-LD resolution error is about
-enum class JSONLDFacet : std::uint8_t { Type, Predicate };
+enum class JSONLDFacet : std::uint8_t {
+  Type,
+  Predicate,
+  Datatype,
+  Language,
+  Direction,
+  Graph,
+  JSON
+};
 
 /// @ingroup output
 /// The instance conforms but one of its JSON-LD annotations cannot be resolved
