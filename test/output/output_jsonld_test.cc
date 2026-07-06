@@ -13,10 +13,10 @@
 #include <unordered_set> // std::unordered_set
 #include <variant>       // std::get, std::holds_alternative
 
-#define __JSON_LD_EVALUATE(schema, instance)                                   \
+#define JSON_LD_EVALUATE_WITH(schema, instance, ...)                           \
   sourcemeta::blaze::Tweaks tweaks;                                            \
-  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{ \
-      "x-jsonld-id", "x-jsonld-type"};                                         \
+  tweaks.annotations =                                                         \
+      std::unordered_set<sourcemeta::core::JSON::StringView>{__VA_ARGS__};     \
   const auto schema_template{sourcemeta::blaze::compile(                       \
       (schema), sourcemeta::blaze::schema_walker,                              \
       sourcemeta::blaze::schema_resolver,                                      \
@@ -26,17 +26,24 @@
   const auto outcome{                                                          \
       sourcemeta::blaze::jsonld(evaluator, schema_template, (instance))};
 
-#define EXPECT_JSON_LD_VALUE(schema, instance, expected)                       \
+#define JSON_LD_EVALUATE(schema, instance)                                     \
+  JSON_LD_EVALUATE_WITH(schema, instance, "x-jsonld-id", "x-jsonld-type")
+
+#define EXPECT_JSON_LD_VALUE_WITH(schema, instance, expected, ...)             \
   {                                                                            \
-    __JSON_LD_EVALUATE(schema, instance)                                       \
+    JSON_LD_EVALUATE_WITH(schema, instance, __VA_ARGS__)                       \
     EXPECT_TRUE(std::holds_alternative<sourcemeta::core::JSON>(outcome));      \
     const auto &document{std::get<sourcemeta::core::JSON>(outcome)};           \
     EXPECT_EQ(document, (expected));                                           \
     EXPECT_TRUE(sourcemeta::core::jsonld_is_expanded(document));               \
   }
 
+#define EXPECT_JSON_LD_VALUE(schema, instance, expected)                       \
+  EXPECT_JSON_LD_VALUE_WITH(schema, instance, expected, "x-jsonld-id",         \
+                            "x-jsonld-type")
+
 #define EXPECT_JSON_LD_INVALID(schema, instance, destination)                  \
-  __JSON_LD_EVALUATE(schema, instance)                                         \
+  JSON_LD_EVALUATE(schema, instance)                                           \
   EXPECT_TRUE(                                                                 \
       std::holds_alternative<sourcemeta::blaze::JSONLDInvalid>(outcome));      \
   const auto &destination{std::get<sourcemeta::blaze::JSONLDInvalid>(outcome)};
@@ -57,7 +64,7 @@
                                         expected_instance_location,            \
                                         expected_facet, expected_message)      \
   {                                                                            \
-    __JSON_LD_EVALUATE(schema, instance)                                       \
+    JSON_LD_EVALUATE(schema, instance)                                         \
     EXPECT_TRUE(                                                               \
         std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(      \
             outcome));                                                         \
@@ -1783,4 +1790,61 @@ TEST(JSONLD_edge_on_collection_element_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/pair/0", sourcemeta::blaze::JSONLDFacet::Predicate,
       "A JSON-LD predicate cannot be assigned to an array element");
+}
+
+TEST(JSONLD_array_of_undescribed_objects_with_described_children) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "friends": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/knows",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-jsonld-id": "https://schema.org/name"
+            }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "friends": [ { "name": "Ada" }, { "name": "Bob" } ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/knows": [
+        { "https://schema.org/name": [ { "@value": "Ada" } ] },
+        { "https://schema.org/name": [ { "@value": "Bob" } ] }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_collected_but_unhandled_keyword_creates_no_descriptor) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "meta": {
+        "type": "object",
+        "x-jsonld-container": "@index"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "meta": { "a": 1 } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE_WITH(schema, instance, expected, "x-jsonld-id",
+                            "x-jsonld-type", "x-jsonld-container");
 }

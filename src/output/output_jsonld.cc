@@ -107,6 +107,13 @@ auto resolve(const sourcemeta::core::JSON &instance,
     }
 
     const auto &keyword{location.evaluate_path.back().to_property()};
+    // Only the keywords resolved below may contribute facts. An unhandled
+    // keyword must not create an accumulator entry, as the empty facts would
+    // otherwise materialize a spurious node or literal descriptor
+    if (keyword != "x-jsonld-id" && keyword != "x-jsonld-type") {
+      continue;
+    }
+
     auto &facts{accumulator[location.instance_location]};
     if (keyword == "x-jsonld-id") {
       for (const auto &value : values) {
