@@ -17,6 +17,12 @@ static auto is_mailbox(const std::string_view value) -> bool {
     return false;
   }
 
+  // RFC 5321 §4.5.3.1.3: a path is at most 256 octets including the enclosing
+  // angle brackets, so the mailbox it carries is at most 254
+  if (value.size() > 254) {
+    return false;
+  }
+
   std::string_view::size_type position{0};
 
   if (value[0] == '"') {

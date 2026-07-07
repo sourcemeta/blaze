@@ -328,12 +328,25 @@ public:
    * Operators
    */
 
-  auto operator<(const JSON &other) const noexcept -> bool;
-  auto operator<=(const JSON &other) const noexcept -> bool;
-  auto operator>(const JSON &other) const noexcept -> bool;
-  auto operator>=(const JSON &other) const noexcept -> bool;
-  auto operator==(const JSON &other) const noexcept -> bool;
-  auto operator!=(const JSON &) const noexcept -> bool = default;
+  auto operator<(const JSON &other) const -> bool;
+  auto operator<=(const JSON &other) const -> bool;
+  auto operator>(const JSON &other) const -> bool;
+  auto operator>=(const JSON &other) const -> bool;
+
+  /// Compare two JSON instances for equality. Numbers compare by exact
+  /// mathematical value across the integer, real, and decimal representations,
+  /// so the same value in different forms is equal. A real compares by the
+  /// exact number its floating point form stores, which can differ from the
+  /// same digits written as a decimal. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/json.h>
+  /// #include <cassert>
+  ///
+  /// assert(sourcemeta::core::JSON{2} == sourcemeta::core::JSON{2.0});
+  /// ```
+  auto operator==(const JSON &other) const -> bool;
+  auto operator!=(const JSON &) const -> bool = default;
 
   /// Add two numeric JSON instances and get a new instance with the result. For
   /// example:

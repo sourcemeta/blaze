@@ -27,6 +27,8 @@ struct PrivateKey::Internal {
   EVP_PKEY *key;
   // The field width for the elliptic curve raw signature encoding
   std::size_t field_bytes;
+  // Set for an id-RSASSA-PSS key, which is refused for PKCS1v15 signing
+  bool rsa_pss_restricted{false};
 };
 
 } // namespace sourcemeta::core
@@ -281,9 +283,10 @@ auto make_private_key(const std::string_view pem) -> std::optional<PrivateKey> {
     return std::nullopt;
   }
 
+  const auto base_id{EVP_PKEY_get_base_id(key)};
   PrivateKey::Type kind{};
   std::size_t field_bytes{0};
-  switch (EVP_PKEY_get_base_id(key)) {
+  switch (base_id) {
     case EVP_PKEY_RSA:
     case EVP_PKEY_RSA_PSS:
       kind = PrivateKey::Type::RSA;
@@ -308,8 +311,11 @@ auto make_private_key(const std::string_view pem) -> std::optional<PrivateKey> {
       return std::nullopt;
   }
 
-  return PrivateKey{new PrivateKey::Internal{
-      .kind = kind, .key = key, .field_bytes = field_bytes}};
+  return PrivateKey{new PrivateKey::Internal{.kind = kind,
+                                             .key = key,
+                                             .field_bytes = field_bytes,
+                                             .rsa_pss_restricted =
+                                                 base_id == EVP_PKEY_RSA_PSS}};
 }
 
 auto make_ec_private_key(const EllipticCurve curve,
@@ -352,6 +358,11 @@ auto rsassa_pkcs1_v15_sign(const PrivateKey &key,
     -> std::optional<std::string> {
   const auto *internal{key.internal()};
   if (internal == nullptr || internal->kind != PrivateKey::Type::RSA) {
+    return std::nullopt;
+  }
+
+  // An id-RSASSA-PSS key is restricted to PSS and must not sign PKCS1v15
+  if (internal->rsa_pss_restricted) {
     return std::nullopt;
   }
 

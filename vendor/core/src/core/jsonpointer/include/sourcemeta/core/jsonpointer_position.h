@@ -43,6 +43,11 @@ namespace sourcemeta::core {
 /// assert(std::get<3>(foo.value()) == 2);
 /// assert(std::get<4>(foo.value()) == 14);
 /// ```
+///
+/// The tracker keeps references to the property names of the document it was
+/// populated from, so that document must outlive every query against the
+/// tracker. Reading the tracker after the source document has been destroyed is
+/// undefined behavior.
 class SOURCEMETA_CORE_JSONPOINTER_EXPORT PointerPositionTracker {
 public:
   /// The pointer type used to look up positions

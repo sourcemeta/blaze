@@ -2,7 +2,7 @@
 #define SOURCEMETA_CORE_PUNYCODE_ERROR_H_
 
 #ifndef SOURCEMETA_CORE_PUNYCODE_EXPORT
-#include <sourcemeta/core/punycode_error.h>
+#include <sourcemeta/core/punycode_export.h>
 #endif
 
 #include <exception>   // std::exception

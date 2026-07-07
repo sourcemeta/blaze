@@ -5,12 +5,11 @@
 #include <charconv>    // std::from_chars
 #include <chrono>      // std::chrono::system_clock
 #include <cstddef>     // std::size_t
-#include <ctime>       // std::time_t, std::tm, timegm, gmtime_r, gmtime_s
+#include <ctime>       // std::tm
 #include <iomanip>     // std::put_time
 #include <locale>      // std::locale
 #include <optional>    // std::optional, std::nullopt
 #include <sstream>     // std::ostringstream
-#include <stdexcept>   // std::runtime_error
 #include <string>      // std::string
 #include <string_view> // std::string_view
 
@@ -42,20 +41,10 @@ namespace sourcemeta::core {
 
 auto to_iso8601_basic(const std::chrono::system_clock::time_point time)
     -> std::string {
-  const std::time_t ctime = std::chrono::system_clock::to_time_t(time);
-  std::tm buffer;
-#if defined(_MSC_VER)
-  if (gmtime_s(&buffer, &ctime) != 0) {
-    throw std::runtime_error("Could not convert time point to ISO 8601 basic");
-  }
-#else
-  if (gmtime_r(&ctime, &buffer) == nullptr) {
-    throw std::runtime_error("Could not convert time point to ISO 8601 basic");
-  }
-#endif
+  const auto parts{time_point_to_broken_down(time)};
   std::ostringstream stream;
   stream.imbue(std::locale::classic());
-  stream << std::put_time(&buffer, FORMAT_ISO8601_BASIC);
+  stream << std::put_time(&parts, FORMAT_ISO8601_BASIC);
   return stream.str();
 }
 
@@ -84,11 +73,7 @@ auto from_iso8601_basic(const std::string_view value) noexcept
   if (!is_valid_broken_down_time(parts)) {
     return std::nullopt;
   }
-#if defined(_MSC_VER)
-  return std::chrono::system_clock::from_time_t(_mkgmtime(&parts));
-#else
-  return std::chrono::system_clock::from_time_t(timegm(&parts));
-#endif
+  return broken_down_time_to_time_point(parts);
 }
 
 } // namespace sourcemeta::core

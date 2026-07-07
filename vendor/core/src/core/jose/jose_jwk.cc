@@ -84,6 +84,10 @@ auto JWK::parse(const JSON &value, JWK &result) -> bool {
       return false;
     }
 
+    if (!jwk_rsa_modulus_is_allowed(decoded_modulus.value())) {
+      return false;
+    }
+
     result.type_ = Type::RSA;
     parsed_key =
         make_rsa_public_key(decoded_modulus.value(), decoded_exponent.value());

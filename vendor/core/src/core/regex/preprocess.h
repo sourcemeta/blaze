@@ -80,6 +80,12 @@ inline auto parse_hex_digits(const std::string &content, std::size_t start,
   int value = 0;
   for (std::size_t offset = 0; offset < count; ++offset) {
     value = (value << 4) | hex_digit_value(content[start + offset]);
+    // Stop once the value is unambiguously past the Unicode range, so a long
+    // "\u{...}" digit run cannot overflow the accumulator. The callers only
+    // care whether the result is a small ASCII value
+    if (value > 0x10FFFF) {
+      return value;
+    }
   }
 
   return value;
@@ -634,7 +640,38 @@ struct PreprocessResult {
   std::optional<std::string> transformed;
 };
 
+// Character classes nest through set operations and the expansion below is
+// recursive, so a pattern that nests past this many levels is rejected up front
+// to keep the recursion from overflowing the stack on attacker-controlled input
+constexpr std::size_t MAXIMUM_CLASS_DEPTH{64};
+
+inline auto exceeds_class_depth(const std::string &pattern) -> bool {
+  std::size_t depth{0};
+  for (std::size_t position = 0; position < pattern.size(); ++position) {
+    if (pattern[position] == '\\') {
+      // Skip the escaped character so an escaped bracket does not open a class
+      position += 1;
+      continue;
+    }
+
+    if (pattern[position] == '[') {
+      depth += 1;
+      if (depth > MAXIMUM_CLASS_DEPTH) {
+        return true;
+      }
+    } else if (pattern[position] == ']' && depth > 0) {
+      depth -= 1;
+    }
+  }
+
+  return false;
+}
+
 inline auto preprocess_regex(const std::string &pattern) -> PreprocessResult {
+  if (exceeds_class_depth(pattern)) {
+    return {.ecma_valid = false, .transformed = std::nullopt};
+  }
+
   std::string result;
   result.reserve(pattern.size() * 2);
   bool in_class = false;

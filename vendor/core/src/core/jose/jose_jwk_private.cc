@@ -101,6 +101,10 @@ auto JWKPrivate::parse(const JSON &value, JWKPrivate &result) -> bool {
       return false;
     }
 
+    if (!jwk_rsa_modulus_is_allowed(modulus.value())) {
+      return false;
+    }
+
     result.type_ = Type::RSA;
     parsed_key = make_rsa_private_key(modulus.value(), public_exponent.value(),
                                       private_exponent.value(), prime1.value(),
