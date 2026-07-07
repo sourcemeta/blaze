@@ -206,14 +206,13 @@ auto container_placement_error(
 
       // A null member, or a null item in an array member, is treated as absent
       const auto &member{entry.second};
-      const bool usable{
-          member.is_null() || member.is_string() ||
-          (member.is_array() &&
-           std::ranges::all_of(
-               member.as_array(),
-               [](const sourcemeta::core::JSON &element) -> bool {
-                 return element.is_string() || element.is_null();
-               }))};
+      const bool usable{member.is_null() || member.is_string() ||
+                        (member.is_array() &&
+                         std::ranges::all_of(
+                             member.as_array(),
+                             [](const sourcemeta::core::JSON &element) -> bool {
+                               return element.is_string() || element.is_null();
+                             }))};
       if (!usable) {
         return facet_error(
             pointer, sourcemeta::blaze::JSONLDFacet::Container,
