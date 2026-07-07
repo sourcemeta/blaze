@@ -8,8 +8,10 @@
 #include <sourcemeta/core/uritemplate.h>
 
 #include <algorithm>     // std::ranges::sort, std::ranges::any_of
+#include <deque>         // std::deque
 #include <functional>    // std::ref
 #include <optional>      // std::optional
+#include <sstream>       // std::ostringstream
 #include <string>        // std::string
 #include <string_view>   // std::string_view
 #include <tuple>         // std::tie, std::make_tuple
@@ -303,18 +305,20 @@ auto literal_error(const sourcemeta::core::WeakPointer &pointer,
 
 // Expand an x-jsonld-self URI Template into a concrete identifier. An object
 // binds each variable to the member of that name, and a scalar binds the
-// reserved variable this to its own value. A variable that cannot bind to a
-// non-empty string, or a result that is not an absolute IRI, is a fail-loud
-// resolution error
+// reserved variable this to its own value. A string binds directly and any
+// other scalar binds through its JSON stringification, whereas an object,
+// array, absent, or null value cannot bind. A binding that is not usable, or a
+// result that is not an absolute IRI, is a fail-loud resolution error
 auto expand_self(const sourcemeta::core::WeakPointer &pointer,
                  const sourcemeta::core::JSON::String &pattern,
                  const sourcemeta::core::JSON &value)
     -> std::variant<sourcemeta::core::JSON::String,
                     sourcemeta::blaze::JSONLDResolutionError> {
   std::optional<sourcemeta::blaze::JSONLDResolutionError> failure;
+  std::deque<std::string> stringified;
   const sourcemeta::core::URITemplate uri_template{pattern};
   auto expanded{uri_template.expand(
-      [&value, &pointer, &failure](
+      [&value, &pointer, &failure, &stringified](
           const std::string_view name) -> sourcemeta::core::URITemplateValue {
         const sourcemeta::core::JSON *bound{nullptr};
         if (value.is_object()) {
@@ -323,19 +327,40 @@ auto expand_self(const sourcemeta::core::WeakPointer &pointer,
           bound = &value;
         }
 
-        if (bound == nullptr || !bound->is_string() ||
-            bound->to_string().empty()) {
+        if (bound == nullptr || bound->is_object() || bound->is_array() ||
+            bound->is_null()) {
           if (!failure.has_value()) {
             failure = facet_error(
                 pointer, sourcemeta::blaze::JSONLDFacet::Self,
                 "A JSON-LD self identity template variable must bind to a "
-                "non-empty string");
+                "string, number, or boolean");
           }
 
           return std::nullopt;
         }
 
-        return std::make_tuple(std::string_view{bound->to_string()},
+        if (bound->is_string()) {
+          if (bound->to_string().empty()) {
+            if (!failure.has_value()) {
+              failure = facet_error(
+                  pointer, sourcemeta::blaze::JSONLDFacet::Self,
+                  "A JSON-LD self identity template variable cannot bind to an "
+                  "empty string");
+            }
+
+            return std::nullopt;
+          }
+
+          return std::make_tuple(std::string_view{bound->to_string()},
+                                 std::nullopt, false);
+        }
+
+        // A number or boolean has no direct string, so it binds through its
+        // compact JSON form, kept alive for the duration of the expansion
+        std::ostringstream stream;
+        sourcemeta::core::stringify(*bound, stream);
+        stringified.push_back(stream.str());
+        return std::make_tuple(std::string_view{stringified.back()},
                                std::nullopt, false);
       })};
 
@@ -536,6 +561,22 @@ auto resolve(const sourcemeta::core::JSON &instance,
     std::ranges::sort(facts.types);
 
     const auto &value{sourcemeta::core::get(instance, pointer)};
+
+    // A language container materializes its members directly as language-tagged
+    // strings, never consulting their descriptors, so a member cannot carry a
+    // JSON-LD annotation of its own
+    if (!pointer.empty()) {
+      auto parent{pointer};
+      parent.pop_back();
+      const auto parent_facts{accumulator.find(parent)};
+      if (parent_facts != accumulator.cend() &&
+          parent_facts->second.container ==
+              sourcemeta::core::JSONLDContainer::Language) {
+        return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Container,
+                           "A JSON-LD language container member cannot carry a "
+                           "JSON-LD annotation");
+      }
+    }
 
     // A container sets the collection shape and stands alone, excluding every
     // other fact and choosing the value shape it ranges over
