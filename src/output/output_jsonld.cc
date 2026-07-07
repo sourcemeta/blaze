@@ -512,6 +512,20 @@ auto resolve(const sourcemeta::core::JSON &instance,
               : "A JSON-LD predicate cannot be assigned to an array element");
     }
 
+    // A container member belongs to a collection, not a node, so it has no
+    // parent to attach a predicate to
+    if (!facts.edges.empty() && !pointer.empty()) {
+      auto parent{pointer};
+      parent.pop_back();
+      const auto parent_facts{accumulator.find(parent)};
+      if (parent_facts != accumulator.cend() &&
+          parent_facts->second.container.has_value()) {
+        return facet_error(
+            pointer, sourcemeta::blaze::JSONLDFacet::Predicate,
+            "A JSON-LD predicate cannot be assigned to a container member");
+      }
+    }
+
     // A reverse predicate makes its value the subject, so the value must be a
     // node or an array of nodes. A literal cannot be a subject
     if (std::ranges::any_of(
