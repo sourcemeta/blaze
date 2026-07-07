@@ -25,6 +25,7 @@ struct Facts {
   std::optional<sourcemeta::core::JSON::String> datatype;
   std::optional<sourcemeta::core::JSON::String> language;
   std::optional<sourcemeta::core::JSONLDDirection> direction;
+  std::optional<sourcemeta::core::JSONLDContainer> container;
   bool json{false};
   bool graph{false};
 };
@@ -32,30 +33,52 @@ struct Facts {
 using Accumulator = std::unordered_map<sourcemeta::core::WeakPointer, Facts,
                                        sourcemeta::core::WeakPointer::Hasher>;
 
-// Give the undescribed elements of a collection a default kind so they still
-// materialize, a scalar as a literal and a nested array as an inner collection
 auto fill_collection(sourcemeta::core::JSONLDWeakAnnotationMap &map,
                      const Accumulator &accumulator,
                      const sourcemeta::core::WeakPointer &pointer,
-                     const sourcemeta::core::JSON &array) -> void {
-  for (std::size_t index = 0; index < array.size(); index += 1) {
-    auto element_pointer{pointer};
-    element_pointer.push_back(index);
-    if (accumulator.contains(element_pointer)) {
-      continue;
-    }
+                     const sourcemeta::core::JSON &value) -> void;
 
-    const auto &element{array.at(index)};
-    if (element.is_array()) {
-      map.emplace(
-          element_pointer,
-          sourcemeta::core::JSONLDDescriptor{
-              .edges = {}, .value = sourcemeta::core::JSONLDCollection{}});
-      fill_collection(map, accumulator, element_pointer, element);
-    } else if (!element.is_object()) {
-      map.emplace(std::move(element_pointer),
-                  sourcemeta::core::JSONLDDescriptor{
-                      .edges = {}, .value = sourcemeta::core::JSONLDLiteral{}});
+// Give an undescribed collection member a default kind so it still
+// materializes, a scalar as a literal and a nested array as an inner collection
+auto fill_element(sourcemeta::core::JSONLDWeakAnnotationMap &map,
+                  const Accumulator &accumulator,
+                  sourcemeta::core::WeakPointer element_pointer,
+                  const sourcemeta::core::JSON &element) -> void {
+  if (accumulator.contains(element_pointer)) {
+    return;
+  }
+
+  if (element.is_array()) {
+    map.emplace(
+        element_pointer,
+        sourcemeta::core::JSONLDDescriptor{
+            .edges = {}, .value = sourcemeta::core::JSONLDCollection{}});
+    fill_collection(map, accumulator, element_pointer, element);
+  } else if (!element.is_object()) {
+    map.emplace(std::move(element_pointer),
+                sourcemeta::core::JSONLDDescriptor{
+                    .edges = {}, .value = sourcemeta::core::JSONLDLiteral{}});
+  }
+}
+
+// Default the undescribed members of a collection, whether it ranges over an
+// array or over an object
+auto fill_collection(sourcemeta::core::JSONLDWeakAnnotationMap &map,
+                     const Accumulator &accumulator,
+                     const sourcemeta::core::WeakPointer &pointer,
+                     const sourcemeta::core::JSON &value) -> void {
+  if (value.is_array()) {
+    for (std::size_t index = 0; index < value.size(); index += 1) {
+      auto element_pointer{pointer};
+      element_pointer.push_back(index);
+      fill_element(map, accumulator, std::move(element_pointer),
+                   value.at(index));
+    }
+  } else {
+    for (const auto &entry : value.as_object()) {
+      auto element_pointer{pointer};
+      element_pointer.push_back(std::cref(entry.first));
+      fill_element(map, accumulator, std::move(element_pointer), entry.second);
     }
   }
 }
@@ -117,6 +140,85 @@ auto parse_direction(const sourcemeta::core::JSON &value)
   }
   if (text == "rtl") {
     return sourcemeta::core::JSONLDDirection::RTL;
+  }
+
+  return std::nullopt;
+}
+
+auto parse_container(const sourcemeta::core::JSON &value)
+    -> std::optional<sourcemeta::core::JSONLDContainer> {
+  if (!value.is_string()) {
+    return std::nullopt;
+  }
+
+  const auto &text{value.to_string()};
+  if (text == "@list") {
+    return sourcemeta::core::JSONLDContainer::List;
+  }
+  if (text == "@set") {
+    return sourcemeta::core::JSONLDContainer::Set;
+  }
+  if (text == "@language") {
+    return sourcemeta::core::JSONLDContainer::Language;
+  }
+  if (text == "@index") {
+    return sourcemeta::core::JSONLDContainer::Index;
+  }
+
+  return std::nullopt;
+}
+
+// A container overrides the value shape, as a list or set ranges over an array
+// and a language or index map ranges over an object. A language map only holds
+// string members, which is what the materializer requires
+auto container_placement_error(
+    const sourcemeta::core::WeakPointer &pointer,
+    const sourcemeta::core::JSONLDContainer container,
+    const sourcemeta::core::JSON &value)
+    -> std::optional<sourcemeta::blaze::JSONLDResolutionError> {
+  if (container == sourcemeta::core::JSONLDContainer::List ||
+      container == sourcemeta::core::JSONLDContainer::Set) {
+    if (!value.is_array()) {
+      return facet_error(
+          pointer, sourcemeta::blaze::JSONLDFacet::Container,
+          "A JSON-LD list or set container can only be assigned to an array "
+          "value");
+    }
+
+    return std::nullopt;
+  }
+
+  if (!value.is_object()) {
+    return facet_error(
+        pointer, sourcemeta::blaze::JSONLDFacet::Container,
+        "A JSON-LD language or index container can only be assigned to an "
+        "object value");
+  }
+
+  if (container == sourcemeta::core::JSONLDContainer::Language) {
+    for (const auto &entry : value.as_object()) {
+      if (entry.first != "@none" &&
+          !sourcemeta::core::is_langtag(entry.first)) {
+        return facet_error(
+            pointer, sourcemeta::blaze::JSONLDFacet::Container,
+            "A JSON-LD language container requires BCP 47 language tag keys");
+      }
+
+      // A null member, or a null item in an array member, is treated as absent
+      const auto &member{entry.second};
+      const bool usable{member.is_null() || member.is_string() ||
+                        (member.is_array() &&
+                         std::ranges::all_of(
+                             member.as_array(),
+                             [](const sourcemeta::core::JSON &element) -> bool {
+                               return element.is_string() || element.is_null();
+                             }))};
+      if (!usable) {
+        return facet_error(
+            pointer, sourcemeta::blaze::JSONLDFacet::Container,
+            "A JSON-LD language container requires string or null members");
+      }
+    }
   }
 
   return std::nullopt;
@@ -327,6 +429,24 @@ auto resolve(const sourcemeta::core::JSON &instance,
           accumulator[instance_location].graph = true;
         }
       }
+    } else if (keyword == "x-jsonld-container") {
+      for (const auto &value : values) {
+        const auto parsed{parse_container(value)};
+        if (!parsed.has_value()) {
+          return facet_error(
+              instance_location, sourcemeta::blaze::JSONLDFacet::Container,
+              R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")");
+        }
+
+        auto &container{accumulator[instance_location].container};
+        if (container.has_value() && container.value() != parsed.value()) {
+          return facet_error(
+              instance_location, sourcemeta::blaze::JSONLDFacet::Container,
+              "A JSON-LD container cannot be assigned more than one value");
+        }
+
+        container = parsed;
+      }
     }
   }
 
@@ -342,6 +462,24 @@ auto resolve(const sourcemeta::core::JSON &instance,
     std::ranges::sort(facts.types);
 
     const auto &value{sourcemeta::core::get(instance, pointer)};
+
+    // A container sets the collection shape and stands alone, excluding every
+    // other fact and choosing the value shape it ranges over
+    if (facts.container.has_value()) {
+      if (!facts.types.empty() || facts.graph || facts.datatype.has_value() ||
+          facts.language.has_value() || facts.direction.has_value() ||
+          facts.json) {
+        return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Container,
+                           "A JSON-LD container cannot be combined with any "
+                           "other JSON-LD annotation");
+      }
+
+      if (const auto error{container_placement_error(
+              pointer, facts.container.value(), value)};
+          error.has_value()) {
+        return error.value();
+      }
+    }
 
     // A JSON literal preserves any value verbatim, so it stands alone and
     // excludes every other fact
@@ -375,6 +513,20 @@ auto resolve(const sourcemeta::core::JSON &instance,
               : "A JSON-LD predicate cannot be assigned to an array element");
     }
 
+    // A container member belongs to a collection, not a node, so it has no
+    // parent to attach a predicate to
+    if (!facts.edges.empty() && !pointer.empty()) {
+      auto parent{pointer};
+      parent.pop_back();
+      const auto parent_facts{accumulator.find(parent)};
+      if (parent_facts != accumulator.cend() &&
+          parent_facts->second.container.has_value()) {
+        return facet_error(
+            pointer, sourcemeta::blaze::JSONLDFacet::Predicate,
+            "A JSON-LD predicate cannot be assigned to a container member");
+      }
+    }
+
     // A reverse predicate makes its value the subject, so the value must be a
     // node or an array of nodes. A literal cannot be a subject
     if (std::ranges::any_of(
@@ -382,7 +534,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
               return edge.reverse;
             })) {
       const bool points_to_node{
-          !facts.json &&
+          !facts.json && !facts.container.has_value() &&
           (value.is_object() ||
            (value.is_array() &&
             std::ranges::all_of(value.as_array(),
@@ -399,6 +551,9 @@ auto resolve(const sourcemeta::core::JSON &instance,
     descriptor.edges = std::move(facts.edges);
     if (facts.json) {
       descriptor.value = sourcemeta::core::JSONLDLiteral{.json = true};
+    } else if (facts.container.has_value()) {
+      descriptor.value = sourcemeta::core::JSONLDCollection{
+          .container = facts.container.value()};
     } else if (value.is_object()) {
       descriptor.value = sourcemeta::core::JSONLDNode{
           .id = {}, .types = std::move(facts.types), .graph = facts.graph};
@@ -413,7 +568,14 @@ auto resolve(const sourcemeta::core::JSON &instance,
 
     map.emplace(pointer, std::move(descriptor));
 
-    if (value.is_array() && !facts.json) {
+    // A language container reads its object members directly, but every other
+    // collection needs its undescribed members defaulted so they materialize
+    if (facts.container.has_value()) {
+      if (facts.container.value() !=
+          sourcemeta::core::JSONLDContainer::Language) {
+        fill_collection(map, accumulator, pointer, value);
+      }
+    } else if (value.is_array() && !facts.json) {
       fill_collection(map, accumulator, pointer, value);
     }
   }

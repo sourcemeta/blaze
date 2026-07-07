@@ -22,10 +22,11 @@ namespace sourcemeta::blaze {
 /// @ingroup output
 /// The x-jsonld-* keywords that jsonld() resolves. Use these as the annotation
 /// whitelist when compiling a schema so that its annotations are collected.
-inline constexpr std::array<sourcemeta::core::JSON::StringView, 8>
+inline constexpr std::array<sourcemeta::core::JSON::StringView, 9>
     JSONLD_KEYWORDS{{"x-jsonld-id", "x-jsonld-type", "x-jsonld-reverse",
                      "x-jsonld-datatype", "x-jsonld-language",
-                     "x-jsonld-direction", "x-jsonld-json", "x-jsonld-graph"}};
+                     "x-jsonld-direction", "x-jsonld-json", "x-jsonld-graph",
+                     "x-jsonld-container"}};
 
 /// @ingroup output
 /// The descriptor facet that a JSON-LD resolution error is about
@@ -36,7 +37,8 @@ enum class JSONLDFacet : std::uint8_t {
   Language,
   Direction,
   Graph,
-  JSON
+  JSON,
+  Container
 };
 
 /// @ingroup output
