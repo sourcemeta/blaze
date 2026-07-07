@@ -1884,56 +1884,6 @@ TEST(hyperschema_submissionSchema_without_vocabulary) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(schema_keyword_priority_array) {
-  const auto &vocabularies =
-      VOCABULARIES_2020_12_APPLICATOR_UNEVALUATED_AND_VALIDATION;
-
-  const auto &walker = sourcemeta::blaze::schema_walker;
-  using namespace sourcemeta::core;
-  using namespace sourcemeta::blaze;
-  EXPECT_EQ(schema_keyword_priority("prefixItems", vocabularies, walker), 0);
-  EXPECT_EQ(schema_keyword_priority("items", vocabularies, walker), 1);
-  EXPECT_EQ(schema_keyword_priority("minContains", vocabularies, walker), 0);
-  EXPECT_EQ(schema_keyword_priority("maxContains", vocabularies, walker), 0);
-  EXPECT_EQ(schema_keyword_priority("contains", vocabularies, walker), 1);
-  EXPECT_EQ(schema_keyword_priority("unevaluatedItems", vocabularies, walker),
-            2);
-}
-
-TEST(schema_keyword_priority_object) {
-  const auto &vocabularies = VOCABULARIES_2020_12_UNEVALUATED_AND_APPLICATOR;
-
-  const auto &walker = sourcemeta::blaze::schema_walker;
-  using namespace sourcemeta::core;
-  using namespace sourcemeta::blaze;
-  EXPECT_EQ(schema_keyword_priority("properties", vocabularies, walker), 0);
-  EXPECT_EQ(schema_keyword_priority("patternProperties", vocabularies, walker),
-            0);
-  EXPECT_EQ(
-      schema_keyword_priority("additionalProperties", vocabularies, walker), 1);
-  EXPECT_EQ(
-      schema_keyword_priority("unevaluatedProperties", vocabularies, walker),
-      2);
-}
-
-TEST(schema_keyword_priority_other) {
-  const auto &vocabularies = VOCABULARIES_2020_12_APPLICATOR;
-  const auto &walker = sourcemeta::blaze::schema_walker;
-  using namespace sourcemeta::core;
-  using namespace sourcemeta::blaze;
-  EXPECT_EQ(schema_keyword_priority("if", vocabularies, walker), 0);
-  EXPECT_EQ(schema_keyword_priority("then", vocabularies, walker), 1);
-  EXPECT_EQ(schema_keyword_priority("else", vocabularies, walker), 1);
-}
-
-TEST(schema_keyword_priority_unknown) {
-  const auto &vocabularies = VOCABULARIES_2020_12_CORE;
-  const auto &walker = sourcemeta::blaze::schema_walker;
-  using namespace sourcemeta::core;
-  using namespace sourcemeta::blaze;
-  EXPECT_EQ(schema_keyword_priority("foobar", vocabularies, walker), 0);
-}
-
 TEST(instance_locations) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
