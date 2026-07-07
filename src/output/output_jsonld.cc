@@ -5,12 +5,14 @@
 #include <sourcemeta/core/langtag.h>
 #include <sourcemeta/core/text.h>
 #include <sourcemeta/core/uri.h>
+#include <sourcemeta/core/uritemplate.h>
 
 #include <algorithm>     // std::ranges::sort, std::ranges::any_of
 #include <functional>    // std::ref
 #include <optional>      // std::optional
 #include <string>        // std::string
-#include <tuple>         // std::tie
+#include <string_view>   // std::string_view
+#include <tuple>         // std::tie, std::make_tuple
 #include <unordered_map> // std::unordered_map
 #include <utility>       // std::move
 #include <variant>       // std::variant, std::get, std::holds_alternative
@@ -26,6 +28,7 @@ struct Facts {
   std::optional<sourcemeta::core::JSON::String> language;
   std::optional<sourcemeta::core::JSONLDDirection> direction;
   std::optional<sourcemeta::core::JSONLDContainer> container;
+  std::optional<sourcemeta::core::JSON::String> self;
   bool json{false};
   bool graph{false};
 };
@@ -230,7 +233,9 @@ auto placement_error(const sourcemeta::core::WeakPointer &pointer,
                      const Facts &facts, const sourcemeta::core::JSON &value)
     -> std::optional<sourcemeta::blaze::JSONLDResolutionError> {
   if (!value.is_object()) {
-    if (!facts.types.empty()) {
+    // A self identity promotes a scalar to a reference, which carries its own
+    // types, so a type is only misplaced on a scalar that has no self identity
+    if (!facts.types.empty() && !facts.self.has_value()) {
       return facet_error(
           pointer, sourcemeta::blaze::JSONLDFacet::Type,
           "A JSON-LD type can only be assigned to an object value");
@@ -294,6 +299,57 @@ auto literal_error(const sourcemeta::core::WeakPointer &pointer,
   }
 
   return std::nullopt;
+}
+
+// Expand an x-jsonld-self URI Template into a concrete identifier. An object
+// binds each variable to the member of that name, and a scalar binds the
+// reserved variable this to its own value. A variable that cannot bind to a
+// non-empty string, or a result that is not an absolute IRI, is a fail-loud
+// resolution error
+auto expand_self(const sourcemeta::core::WeakPointer &pointer,
+                 const sourcemeta::core::JSON::String &pattern,
+                 const sourcemeta::core::JSON &value)
+    -> std::variant<sourcemeta::core::JSON::String,
+                    sourcemeta::blaze::JSONLDResolutionError> {
+  std::optional<sourcemeta::blaze::JSONLDResolutionError> failure;
+  const sourcemeta::core::URITemplate uri_template{pattern};
+  auto expanded{uri_template.expand(
+      [&value, &pointer, &failure](
+          const std::string_view name) -> sourcemeta::core::URITemplateValue {
+        const sourcemeta::core::JSON *bound{nullptr};
+        if (value.is_object()) {
+          bound = value.try_at(name);
+        } else if (name == "this") {
+          bound = &value;
+        }
+
+        if (bound == nullptr || !bound->is_string() ||
+            bound->to_string().empty()) {
+          if (!failure.has_value()) {
+            failure = facet_error(
+                pointer, sourcemeta::blaze::JSONLDFacet::Self,
+                "A JSON-LD self identity template variable must bind to a "
+                "non-empty string");
+          }
+
+          return std::nullopt;
+        }
+
+        return std::make_tuple(std::string_view{bound->to_string()},
+                               std::nullopt, false);
+      })};
+
+  if (failure.has_value()) {
+    return failure.value();
+  }
+
+  if (!sourcemeta::core::URI::is_iri(expanded)) {
+    return facet_error(
+        pointer, sourcemeta::blaze::JSONLDFacet::Self,
+        "A JSON-LD self identity must expand to an absolute IRI");
+  }
+
+  return sourcemeta::core::JSON::String{std::move(expanded)};
 }
 
 // Turn the JSON-LD annotations into a resolved map, or the first error found.
@@ -447,6 +503,24 @@ auto resolve(const sourcemeta::core::JSON &instance,
 
         container = parsed;
       }
+    } else if (keyword == "x-jsonld-self") {
+      for (const auto &value : values) {
+        if (!value.is_string() ||
+            !sourcemeta::core::URITemplate::is_uritemplate(value.to_string())) {
+          return facet_error(
+              instance_location, sourcemeta::blaze::JSONLDFacet::Self,
+              "The value of x-jsonld-self must be a URI Template");
+        }
+
+        auto &self{accumulator[instance_location].self};
+        if (self.has_value() && self.value() != value.to_string()) {
+          return facet_error(
+              instance_location, sourcemeta::blaze::JSONLDFacet::Self,
+              "A JSON-LD self identity cannot be assigned more than one value");
+        }
+
+        self = value.to_string();
+      }
     }
   }
 
@@ -468,7 +542,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
     if (facts.container.has_value()) {
       if (!facts.types.empty() || facts.graph || facts.datatype.has_value() ||
           facts.language.has_value() || facts.direction.has_value() ||
-          facts.json) {
+          facts.json || facts.self.has_value()) {
         return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Container,
                            "A JSON-LD container cannot be combined with any "
                            "other JSON-LD annotation");
@@ -485,10 +559,29 @@ auto resolve(const sourcemeta::core::JSON &instance,
     // excludes every other fact
     if (facts.json &&
         (!facts.types.empty() || facts.graph || facts.datatype.has_value() ||
-         facts.language.has_value() || facts.direction.has_value())) {
+         facts.language.has_value() || facts.direction.has_value() ||
+         facts.self.has_value())) {
       return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::JSON,
                          "A JSON-LD JSON literal cannot be combined with any "
                          "other JSON-LD annotation");
+    }
+
+    // A self identity mints an @id, promoting a scalar to a reference and
+    // giving an object its identifier. It describes a node, so it excludes the
+    // literal facets and cannot apply to an array collection
+    if (facts.self.has_value()) {
+      if (facts.datatype.has_value() || facts.language.has_value() ||
+          facts.direction.has_value()) {
+        return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Self,
+                           "A JSON-LD self identity cannot carry a datatype, "
+                           "language, or direction");
+      }
+
+      if (value.is_array()) {
+        return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Self,
+                           "A JSON-LD self identity can only be assigned to an "
+                           "object or scalar value");
+      }
     }
 
     if (const auto error{placement_error(pointer, facts, value)};
@@ -535,7 +628,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
             })) {
       const bool points_to_node{
           !facts.json && !facts.container.has_value() &&
-          (value.is_object() ||
+          (value.is_object() || facts.self.has_value() ||
            (value.is_array() &&
             std::ranges::all_of(value.as_array(),
                                 [](const sourcemeta::core::JSON &element)
@@ -547,6 +640,19 @@ auto resolve(const sourcemeta::core::JSON &instance,
       }
     }
 
+    std::optional<sourcemeta::core::JSON::String> identifier;
+    if (facts.self.has_value()) {
+      auto expanded{expand_self(pointer, facts.self.value(), value)};
+      if (std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(
+              expanded)) {
+        return std::get<sourcemeta::blaze::JSONLDResolutionError>(
+            std::move(expanded));
+      }
+
+      identifier =
+          std::get<sourcemeta::core::JSON::String>(std::move(expanded));
+    }
+
     sourcemeta::core::JSONLDDescriptor descriptor;
     descriptor.edges = std::move(facts.edges);
     if (facts.json) {
@@ -555,10 +661,15 @@ auto resolve(const sourcemeta::core::JSON &instance,
       descriptor.value = sourcemeta::core::JSONLDCollection{
           .container = facts.container.value()};
     } else if (value.is_object()) {
-      descriptor.value = sourcemeta::core::JSONLDNode{
-          .id = {}, .types = std::move(facts.types), .graph = facts.graph};
+      descriptor.value =
+          sourcemeta::core::JSONLDNode{.id = std::move(identifier),
+                                       .types = std::move(facts.types),
+                                       .graph = facts.graph};
     } else if (value.is_array()) {
       descriptor.value = sourcemeta::core::JSONLDCollection{};
+    } else if (identifier.has_value()) {
+      descriptor.value = sourcemeta::core::JSONLDReference{
+          .id = std::move(identifier.value()), .types = std::move(facts.types)};
     } else {
       descriptor.value =
           sourcemeta::core::JSONLDLiteral{.datatype = std::move(facts.datatype),
