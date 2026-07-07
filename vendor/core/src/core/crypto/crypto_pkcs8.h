@@ -5,6 +5,7 @@
 #include <sourcemeta/core/crypto_verify.h>
 
 #include "crypto_der.h"
+#include "crypto_helpers.h"
 
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint8_t
@@ -41,6 +42,8 @@ inline auto pem_to_der(const std::string_view pem)
     }
   }
 
+  // The base64 body carries the whole private key, so it is wiped once decoded
+  const SecureScope base64_scope{base64};
   return base64_decode(base64);
 }
 
@@ -53,6 +56,9 @@ struct PKCS8Key {
   EllipticCurve curve;
   EdwardsCurve edwards_curve;
   std::string_view key;
+  // Set when the algorithm is id-RSASSA-PSS rather than rsaEncryption, so that
+  // such a key is refused for RSASSA-PKCS1-v1_5 signing (RFC 8017 Appendix A.2)
+  bool rsa_pss_restricted{false};
 };
 
 // Parse an RFC 5958 PrivateKeyInfo, identifying the algorithm from its object
@@ -101,7 +107,8 @@ inline auto parse_pkcs8(const std::string_view der) -> std::optional<PKCS8Key> {
     return PKCS8Key{.kind = PKCS8KeyKind::RSA,
                     .curve = {},
                     .edwards_curve = {},
-                    .key = private_key->content};
+                    .key = private_key->content,
+                    .rsa_pss_restricted = oid->content == rsa_pss};
   }
 
   if (oid->content == ed25519 || oid->content == ed448) {

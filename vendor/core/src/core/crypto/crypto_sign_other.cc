@@ -276,15 +276,21 @@ auto sign_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
                                 .y = parameters.generator_y,
                                 .z = bignum_from_u64(1)};
 
-  const auto private_octets{bignum_to_bytes(private_scalar, order_bytes)};
+  auto private_octets{bignum_to_bytes(private_scalar, order_bytes)};
+  const SecureScope private_octets_scope{private_octets};
   const auto hashed_octets{
       bits2octets(digest, parameters.order, order_bits, order_bytes)};
 
-  // RFC 6979 Section 3.2 steps b to g: seed the HMAC generator
+  // RFC 6979 Section 3.2 steps b to g: seed the HMAC generator. The generator
+  // state and the private octets are derived from the private key, so each is
+  // wiped when leaving this function
   const auto output_bytes{hash_sizes(hash).output_bytes};
   std::string hmac_value(output_bytes, '\x01');
+  const SecureScope hmac_value_scope{hmac_value};
   std::string hmac_key(output_bytes, '\x00');
+  const SecureScope hmac_key_scope{hmac_key};
   std::string seed{hmac_value};
+  const SecureScope seed_scope{seed};
   seed.push_back('\x00');
   seed.append(private_octets);
   seed.append(hashed_octets);
@@ -298,8 +304,10 @@ auto sign_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
   hmac_value = hmac(hash, hmac_key, hmac_value);
 
   for (std::size_t attempt = 0; attempt < 256; ++attempt) {
-    // RFC 6979 Section 3.2 step h.2: draw enough output to cover the order
+    // RFC 6979 Section 3.2 step h.2: draw enough output to cover the order. The
+    // candidate is the secret nonce, so it is wiped when the attempt ends
     std::string candidate;
+    const SecureScope candidate_scope{candidate};
     while (candidate.size() * 8 < order_bits) {
       hmac_value = hmac(hash, hmac_key, hmac_value);
       candidate.append(hmac_value);
@@ -314,6 +322,7 @@ auto sign_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
 
     // RFC 6979 Section 3.2 step h: reseed before the next candidate
     std::string reseed{hmac_value};
+    const SecureScope reseed_scope{reseed};
     reseed.push_back('\x00');
     hmac_key = hmac(hash, hmac_key, reseed);
     hmac_value = hmac(hash, hmac_key, hmac_value);
@@ -335,11 +344,19 @@ struct PrivateKey::Internal {
   EllipticCurve elliptic_curve;
   std::string edwards_seed;
   EdwardsCurve edwards_curve;
+  bool rsa_pss_restricted{false};
 };
 
 PrivateKey::PrivateKey(Internal *internal) noexcept : internal_{internal} {}
 
-PrivateKey::~PrivateKey() { delete internal_; }
+PrivateKey::~PrivateKey() {
+  if (internal_ != nullptr) {
+    secure_zero(internal_->private_exponent);
+    secure_zero(internal_->scalar);
+    secure_zero(internal_->edwards_seed);
+    delete internal_;
+  }
+}
 
 PrivateKey::PrivateKey(PrivateKey &&other) noexcept
     : internal_{other.internal_} {
@@ -348,7 +365,13 @@ PrivateKey::PrivateKey(PrivateKey &&other) noexcept
 
 auto PrivateKey::operator=(PrivateKey &&other) noexcept -> PrivateKey & {
   if (this != &other) {
-    delete internal_;
+    if (internal_ != nullptr) {
+      secure_zero(internal_->private_exponent);
+      secure_zero(internal_->scalar);
+      secure_zero(internal_->edwards_seed);
+      delete internal_;
+    }
+
     internal_ = other.internal_;
     other.internal_ = nullptr;
   }
@@ -359,11 +382,13 @@ auto PrivateKey::operator=(PrivateKey &&other) noexcept -> PrivateKey & {
 auto PrivateKey::type() const noexcept -> Type { return internal_->kind; }
 
 auto make_private_key(const std::string_view pem) -> std::optional<PrivateKey> {
-  const auto der{pem_to_der(pem)};
+  auto der{pem_to_der(pem)};
   if (!der.has_value()) {
     return std::nullopt;
   }
 
+  // The decoded PKCS#8 holds the whole private key, so it is wiped on return
+  const SecureScope der_scope{der.value()};
   const auto parsed{parse_pkcs8(der.value())};
   if (!parsed.has_value()) {
     return std::nullopt;
@@ -416,7 +441,8 @@ auto make_private_key(const std::string_view pem) -> std::optional<PrivateKey> {
           .scalar = {},
           .elliptic_curve = {},
           .edwards_seed = {},
-          .edwards_curve = {}}};
+          .edwards_curve = {},
+          .rsa_pss_restricted = parsed->rsa_pss_restricted}};
     }
     case PKCS8KeyKind::EllipticCurve: {
       // RFC 5915 Section 3: ECPrivateKey is a SEQUENCE whose second field is
@@ -526,6 +552,11 @@ auto rsassa_pkcs1_v15_sign(const PrivateKey &key,
     -> std::optional<std::string> {
   const auto *internal{key.internal()};
   if (internal == nullptr || internal->kind != PrivateKey::Type::RSA) {
+    return std::nullopt;
+  }
+
+  // An id-RSASSA-PSS key is restricted to PSS and must not sign PKCS1v15
+  if (internal->rsa_pss_restricted) {
     return std::nullopt;
   }
 

@@ -137,9 +137,12 @@ auto compress_pages(const std::vector<std::uint8_t> &values) -> TwoStageTable {
 }
 
 auto build_pages(const std::vector<PropertyEntry> &entries) -> TwoStageTable {
+  // RFC 5892 Section 2.10: a code point not covered by the derived-property
+  // data defaults to Unassigned (which validation treats as disallowed), so an
+  // uncovered code point fails closed rather than being accepted
   std::vector<std::uint8_t> values(
       TOTAL_CODEPOINTS,
-      static_cast<std::uint8_t>(sourcemeta::core::IDNAProperty::PValid));
+      static_cast<std::uint8_t>(sourcemeta::core::IDNAProperty::Unassigned));
   for (const auto &entry : entries) {
     for (std::uint32_t codepoint{entry.first}; codepoint <= entry.last;
          codepoint += 1) {

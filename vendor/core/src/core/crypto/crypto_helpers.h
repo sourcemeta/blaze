@@ -18,6 +18,38 @@ namespace sourcemeta::core {
 // the range of valid key sizes
 inline constexpr std::size_t MAXIMUM_KEY_BYTES{512};
 
+// Overwrite a buffer that held secret material so it does not linger in freed
+// memory. The volatile access stops the compiler from eliding the write as a
+// dead store
+inline auto secure_zero(void *const data, const std::size_t size) noexcept
+    -> void {
+  if (data == nullptr) {
+    return;
+  }
+
+  auto *pointer{static_cast<volatile unsigned char *>(data)};
+  for (std::size_t index{0}; index < size; index += 1) {
+    pointer[index] = 0;
+  }
+}
+
+inline auto secure_zero(std::string &value) noexcept -> void {
+  secure_zero(value.data(), value.size());
+}
+
+// Overwrite the referenced buffer when leaving the current scope, so secret
+// material a local holds is wiped across every return path without threading a
+// manual call through each one
+struct SecureScope {
+  explicit SecureScope(std::string &value) noexcept : target{value} {}
+  SecureScope(const SecureScope &) = delete;
+  auto operator=(const SecureScope &) -> SecureScope & = delete;
+  SecureScope(SecureScope &&) = delete;
+  auto operator=(SecureScope &&) -> SecureScope & = delete;
+  ~SecureScope() { secure_zero(this->target); }
+  std::string &target;
+};
+
 // Whether a signature representative, as a big-endian integer, is strictly
 // less than the modulus. RFC 8017 Section 5.2.2 requires this range check, so
 // that an unreduced signature, which an attacker forges by adding the modulus

@@ -4574,13 +4574,10 @@ TEST(integer_enum_with_real_equivalent) {
       "allOf": [
         {
           "multipleOf": 1,
-          "type": "number"
+          "type": "integer"
         },
         {
-          "enum": [
-            3,
-            3.0
-          ]
+          "enum": [ 3 ]
         }
       ]
     }

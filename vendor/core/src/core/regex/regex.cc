@@ -74,8 +74,10 @@ auto to_regex(const std::string_view pattern) -> std::optional<Regex> {
   pcre2_code *pcre2_regex_raw{pcre2_compile(
       reinterpret_cast<PCRE2_SPTR>(preprocessed.transformed.value().c_str()),
       preprocessed.transformed.value().size(),
-      PCRE2_UTF | PCRE2_UCP | PCRE2_NO_AUTO_CAPTURE | PCRE2_DOTALL |
-          PCRE2_DOLLAR_ENDONLY | PCRE2_NEVER_BACKSLASH_C | PCRE2_NO_UTF_CHECK |
+      // Capturing groups are kept enabled so that ECMA-262 numbered
+      // backreferences like (a)\1 compile and match, at a small tracking cost
+      PCRE2_UTF | PCRE2_UCP | PCRE2_DOTALL | PCRE2_DOLLAR_ENDONLY |
+          PCRE2_NEVER_BACKSLASH_C | PCRE2_MATCH_INVALID_UTF |
           PCRE2_ALLOW_EMPTY_CLASS,
       &pcre2_error_code, &pcre2_error_offset, nullptr)};
 
@@ -142,8 +144,10 @@ auto is_regex_ecma(const std::string_view pattern) -> bool {
   pcre2_code *pcre2_regex_raw{pcre2_compile(
       reinterpret_cast<PCRE2_SPTR>(preprocessed.transformed.value().c_str()),
       preprocessed.transformed.value().size(),
-      PCRE2_UTF | PCRE2_UCP | PCRE2_NO_AUTO_CAPTURE | PCRE2_DOTALL |
-          PCRE2_DOLLAR_ENDONLY | PCRE2_NEVER_BACKSLASH_C | PCRE2_NO_UTF_CHECK |
+      // Capturing groups are kept enabled so that ECMA-262 numbered
+      // backreferences like (a)\1 compile and match, at a small tracking cost
+      PCRE2_UTF | PCRE2_UCP | PCRE2_DOTALL | PCRE2_DOLLAR_ENDONLY |
+          PCRE2_NEVER_BACKSLASH_C | PCRE2_MATCH_INVALID_UTF |
           PCRE2_ALLOW_EMPTY_CLASS,
       &pcre2_error_code, &pcre2_error_offset, nullptr)};
 

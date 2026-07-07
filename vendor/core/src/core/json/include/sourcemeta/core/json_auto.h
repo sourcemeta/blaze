@@ -13,7 +13,7 @@
 #include <optional>   // std::optional, std::nullopt, std::bad_optional_access
 #include <tuple> // std::tuple, std::apply, std::tuple_element_t, std::tuple_size, std::tuple_size_v
 #include <type_traits> // std::false_type, std::true_type, std::is_enum_v, std::underlying_type_t, std::is_same_v, std::is_base_of_v, std::remove_cvref_t
-#include <utility> // std::pair, std:::make_index_sequence, std::index_sequence
+#include <utility> // std::pair, std::make_index_sequence, std::index_sequence, std::in_range
 #include <variant> // std::variant, std::variant_size_v, std::variant_alternative_t, std::visit
 
 namespace sourcemeta::core {
@@ -173,7 +173,9 @@ auto from_json(const JSON &value) -> std::optional<T> {
 template <typename T>
   requires(std::is_integral_v<T> && !std::is_same_v<T, bool>)
 auto from_json(const JSON &value) -> std::optional<T> {
-  if (value.is_integer()) {
+  // A value outside the target type's range yields no result rather than a
+  // silently narrowed one
+  if (value.is_integer() && std::in_range<T>(value.to_integer())) {
     return static_cast<T>(value.to_integer());
   } else {
     return std::nullopt;

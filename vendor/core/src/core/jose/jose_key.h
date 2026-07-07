@@ -7,6 +7,7 @@
 #include <sourcemeta/core/crypto.h>
 #include <sourcemeta/core/jose_algorithm.h>
 
+#include <bit>         // std::countl_zero
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint8_t
 #include <optional>    // std::optional, std::nullopt
@@ -18,6 +19,28 @@ namespace sourcemeta::core {
 // The kind of key, shared by the public and private parsing paths so that the
 // algorithm matching does not need to be written twice
 enum class JWKKind : std::uint8_t { RSA, EllipticCurve, OctetKeyPair };
+
+// RFC 7518 Section 3.3: "A key of size 2048 bits or larger MUST be used with"
+// the RSASSA algorithms, so a smaller modulus is refused before a key is built
+inline constexpr std::size_t MINIMUM_RSA_MODULUS_BITS{2048};
+
+inline auto jwk_rsa_modulus_is_allowed(const std::string_view modulus) noexcept
+    -> bool {
+  std::size_t offset{0};
+  while (offset < modulus.size() &&
+         static_cast<std::uint8_t>(modulus[offset]) == 0) {
+    offset += 1;
+  }
+
+  if (offset >= modulus.size()) {
+    return false;
+  }
+
+  const auto leading{static_cast<std::uint8_t>(modulus[offset])};
+  const auto bits{(modulus.size() - offset - 1) * 8 +
+                  (8 - static_cast<std::size_t>(std::countl_zero(leading)))};
+  return bits >= MINIMUM_RSA_MODULUS_BITS;
+}
 
 // The coordinate octet length is fixed per curve (RFC 7518 Section 6.2.1.2)
 inline auto jwk_ec_coordinate_bytes(const std::string_view curve)
