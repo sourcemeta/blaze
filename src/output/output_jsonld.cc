@@ -204,18 +204,20 @@ auto container_placement_error(
             "A JSON-LD language container requires BCP 47 language tag keys");
       }
 
+      // A null member, or a null item in an array member, is treated as absent
       const auto &member{entry.second};
-      const bool usable{member.is_string() ||
-                        (member.is_array() &&
-                         std::ranges::all_of(
-                             member.as_array(),
-                             [](const sourcemeta::core::JSON &element) -> bool {
-                               return element.is_string();
-                             }))};
+      const bool usable{
+          member.is_null() || member.is_string() ||
+          (member.is_array() &&
+           std::ranges::all_of(
+               member.as_array(),
+               [](const sourcemeta::core::JSON &element) -> bool {
+                 return element.is_string() || element.is_null();
+               }))};
       if (!usable) {
         return facet_error(
             pointer, sourcemeta::blaze::JSONLDFacet::Container,
-            "A JSON-LD language container requires string members");
+            "A JSON-LD language container requires string or null members");
       }
     }
   }

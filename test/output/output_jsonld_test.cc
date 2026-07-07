@@ -4366,7 +4366,7 @@ TEST(JSONLD_container_language_non_string_member_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container requires string members");
+      "A JSON-LD language container requires string or null members");
 }
 
 TEST(JSONLD_container_and_type_is_a_resolution_error) {
@@ -4847,6 +4847,54 @@ TEST(JSONLD_container_language_empty_array_member_is_dropped) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_container_language_null_member_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@language"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "en": null } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_container_language_null_in_array_member_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "label": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/name",
+        "x-jsonld-container": "@language"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "label": { "en": [ "Hi", null ] } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/name": [
+        { "@value": "Hi", "@language": "en" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
 TEST(JSONLD_container_at_root_is_dropped) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -5171,7 +5219,7 @@ TEST(JSONLD_container_language_array_with_nonstring_member_is_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container requires string members");
+      "A JSON-LD language container requires string or null members");
 }
 
 TEST(JSONLD_container_language_nested_array_member_is_error) {
@@ -5192,7 +5240,7 @@ TEST(JSONLD_container_language_nested_array_member_is_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container requires string members");
+      "A JSON-LD language container requires string or null members");
 }
 
 TEST(JSONLD_container_uppercase_value_is_a_resolution_error) {
@@ -5424,7 +5472,7 @@ TEST(JSONLD_container_language_object_member_is_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container requires string members");
+      "A JSON-LD language container requires string or null members");
 }
 
 TEST(JSONLD_container_set_single_nested_array_flattens) {
