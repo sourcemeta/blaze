@@ -13,10 +13,9 @@
 #include <unordered_set> // std::unordered_set
 #include <variant>       // std::get, std::holds_alternative
 
-#define JSON_LD_EVALUATE_WITH(schema, instance, ...)                           \
+#define JSON_LD_EVALUATE_SET(schema, instance, annotation_set)                 \
   sourcemeta::blaze::Tweaks tweaks;                                            \
-  tweaks.annotations =                                                         \
-      std::unordered_set<sourcemeta::core::JSON::StringView>{__VA_ARGS__};     \
+  tweaks.annotations = (annotation_set);                                       \
   const auto schema_template{sourcemeta::blaze::compile(                       \
       (schema), sourcemeta::blaze::schema_walker,                              \
       sourcemeta::blaze::schema_resolver,                                      \
@@ -27,7 +26,16 @@
       sourcemeta::blaze::jsonld(evaluator, schema_template, (instance))};
 
 #define JSON_LD_EVALUATE(schema, instance)                                     \
-  JSON_LD_EVALUATE_WITH(schema, instance, "x-jsonld-id", "x-jsonld-type")
+  JSON_LD_EVALUATE_SET(                                                        \
+      schema, instance,                                                        \
+      (std::unordered_set<sourcemeta::core::JSON::StringView>(                 \
+          sourcemeta::blaze::JSONLD_KEYWORDS.begin(),                          \
+          sourcemeta::blaze::JSONLD_KEYWORDS.end())))
+
+#define JSON_LD_EVALUATE_WITH(schema, instance, ...)                           \
+  JSON_LD_EVALUATE_SET(                                                        \
+      schema, instance,                                                        \
+      (std::unordered_set<sourcemeta::core::JSON::StringView>{__VA_ARGS__}))
 
 #define EXPECT_JSON_LD_VALUE_WITH(schema, instance, expected, ...)             \
   {                                                                            \
@@ -39,8 +47,13 @@
   }
 
 #define EXPECT_JSON_LD_VALUE(schema, instance, expected)                       \
-  EXPECT_JSON_LD_VALUE_WITH(schema, instance, expected, "x-jsonld-id",         \
-                            "x-jsonld-type")
+  {                                                                            \
+    JSON_LD_EVALUATE(schema, instance)                                         \
+    EXPECT_TRUE(std::holds_alternative<sourcemeta::core::JSON>(outcome));      \
+    const auto &document{std::get<sourcemeta::core::JSON>(outcome)};           \
+    EXPECT_EQ(document, (expected));                                           \
+    EXPECT_TRUE(sourcemeta::core::jsonld_is_expanded(document));               \
+  }
 
 #define EXPECT_JSON_LD_INVALID(schema, instance, destination)                  \
   JSON_LD_EVALUATE(schema, instance)                                           \
@@ -1572,7 +1585,7 @@ TEST(JSONLD_unwhitelisted_keyword_is_ignored) {
     "properties": {
       "d": {
         "x-jsonld-id": "https://schema.org/d",
-        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+        "x-jsonld-context": "https://schema.org/"
       }
     }
   })JSON")};
@@ -1847,4 +1860,2225 @@ TEST(JSONLD_collected_but_unhandled_keyword_creates_no_descriptor) {
 
   EXPECT_JSON_LD_VALUE_WITH(schema, instance, expected, "x-jsonld-id",
                             "x-jsonld-type", "x-jsonld-container");
+}
+
+TEST(JSONLD_datatype_explicit) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "dob": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/birthDate",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "dob": "1990-05-15" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/birthDate": [
+        {
+          "@value": "1990-05-15",
+          "@type": "http://www.w3.org/2001/XMLSchema#date"
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_non_iri_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-datatype": 42 } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "The value of x-jsonld-datatype must be an absolute IRI");
+}
+
+TEST(JSONLD_datatype_on_object_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "obj": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/o",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "obj": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value");
+}
+
+TEST(JSONLD_datatype_conflict_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "allOf": [
+          { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" },
+          { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#string" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value");
+}
+
+TEST(JSONLD_language_tagged_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "greeting": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/name",
+        "x-jsonld-language": "en"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "greeting": "hello" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/name": [ { "@value": "hello", "@language": "en" } ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_invalid_tag_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-language": "en-" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "The value of x-jsonld-language must be a BCP 47 language tag");
+}
+
+TEST(JSONLD_direction_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "text": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/text",
+        "x-jsonld-direction": "rtl"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "text": "abc" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/text": [ { "@value": "abc", "@direction": "rtl" } ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_direction_invalid_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-direction": "up" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      R"(The value of x-jsonld-direction must be "ltr" or "rtl")");
+}
+
+TEST(JSONLD_json_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "blob": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/data",
+        "x-jsonld-json": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "blob": "raw" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/data": [ { "@value": "raw", "@type": "@json" } ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_json_wraps_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/data",
+        "x-jsonld-json": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "data": { "a": 1, "b": [ 2, 3 ] } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/data": [
+        { "@value": { "a": 1, "b": [ 2, 3 ] }, "@type": "@json" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_reverse_edge) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "parent": {
+        "type": "object",
+        "x-jsonld-reverse": "https://schema.org/children",
+        "x-jsonld-type": "https://schema.org/Person"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "parent": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/children": [
+          { "@type": [ "https://schema.org/Person" ] }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_reverse_non_iri_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-reverse": 42 } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "The value of x-jsonld-reverse must be an absolute IRI");
+}
+
+TEST(JSONLD_reverse_on_root_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-reverse": "https://schema.org/x"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD predicate cannot be assigned to the document root");
+}
+
+TEST(JSONLD_graph_node) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-graph": true,
+    "properties": {
+      "member": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/member",
+        "x-jsonld-type": "https://schema.org/Person"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "member": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@graph": [
+        {
+          "https://schema.org/member": [
+            { "@type": [ "https://schema.org/Person" ] }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_on_scalar_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-graph": true } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Graph,
+      "A JSON-LD graph flag can only be assigned to an object value");
+}
+
+TEST(JSONLD_datatype_without_edge_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": "2024-01-01" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_absent_property_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_on_number_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "n": {
+        "type": "integer",
+        "x-jsonld-id": "https://schema.org/n",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#int"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "n": 5 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/n": [
+        { "@value": 5, "@type": "http://www.w3.org/2001/XMLSchema#int" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_idempotent_via_allof) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" },
+          { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": "2024-01-01" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@value": "2024-01-01",
+          "@type": "http://www.w3.org/2001/XMLSchema#date"
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_on_array_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value");
+}
+
+TEST(JSONLD_datatype_whitespace_iri_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-datatype": " http://example.com/d" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "The value of x-jsonld-datatype must be an absolute IRI");
+}
+
+TEST(JSONLD_language_complex_tag) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "zh-Hant-HK"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": "text" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [ { "@value": "text", "@language": "zh-Hant-HK" } ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_empty_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-language": "" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "The value of x-jsonld-language must be a BCP 47 language tag");
+}
+
+TEST(JSONLD_language_non_string_keyword_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-language": 5 } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "The value of x-jsonld-language must be a BCP 47 language tag");
+}
+
+TEST(JSONLD_language_on_number_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-id": "https://schema.org/x", "x-jsonld-language": "en" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 5 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "A JSON-LD language can only be assigned to a string value");
+}
+
+TEST(JSONLD_language_on_array_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "en"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "A JSON-LD language can only be assigned to a scalar value");
+}
+
+TEST(JSONLD_direction_uppercase_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-direction": "LTR" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      R"(The value of x-jsonld-direction must be "ltr" or "rtl")");
+}
+
+TEST(JSONLD_direction_on_boolean_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-id": "https://schema.org/x", "x-jsonld-direction": "rtl" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": true })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      "A JSON-LD direction can only be assigned to a string value");
+}
+
+TEST(JSONLD_language_and_direction_i18n_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "ar",
+        "x-jsonld-direction": "rtl"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": "hello" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        { "@value": "hello", "@language": "ar", "@direction": "rtl" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_and_language_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "x-jsonld-language": "en"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot carry a language or direction");
+}
+
+TEST(JSONLD_datatype_and_direction_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "x-jsonld-direction": "ltr"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot carry a language or direction");
+}
+
+TEST(JSONLD_json_and_datatype_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-json": true,
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
+      "annotation");
+}
+
+TEST(JSONLD_json_and_language_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-json": true,
+        "x-jsonld-language": "en"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
+      "annotation");
+}
+
+TEST(JSONLD_json_false_is_a_plain_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-json": false
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": "v" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_json_on_number_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "integer",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-json": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 5 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": 5, "@type": "@json" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_json_non_boolean_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-json": "yes" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "The value of x-jsonld-json must be a boolean");
+}
+
+TEST(JSONLD_json_wraps_array) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "raw": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/raw",
+        "x-jsonld-json": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "raw": [ 1, "two", { "k": true } ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/raw": [
+        { "@value": [ 1, "two", { "k": true } ], "@type": "@json" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_false_is_a_plain_node) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-graph": false,
+    "properties": {
+      "member": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/member",
+        "x-jsonld-type": "https://schema.org/Person"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "member": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/member": [
+        { "@type": [ "https://schema.org/Person" ] }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_with_type) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-type": "https://schema.org/Dataset",
+    "x-jsonld-graph": true,
+    "properties": {
+      "member": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/member",
+        "x-jsonld-type": "https://schema.org/Person"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "member": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Dataset" ],
+      "@graph": [
+        {
+          "https://schema.org/member": [
+            { "@type": [ "https://schema.org/Person" ] }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_on_array_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-graph": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Graph,
+      "A JSON-LD graph flag can only be assigned to an object value");
+}
+
+TEST(JSONLD_graph_non_boolean_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-graph": "true"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Graph,
+      "The value of x-jsonld-graph must be a boolean");
+}
+
+TEST(JSONLD_reverse_and_forward_same_predicate) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "rel": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/knows",
+        "x-jsonld-reverse": "https://schema.org/knows",
+        "x-jsonld-type": "https://schema.org/Person"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "rel": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/knows": [
+        { "@type": [ "https://schema.org/Person" ] }
+      ],
+      "@reverse": {
+        "https://schema.org/knows": [
+          { "@type": [ "https://schema.org/Person" ] }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_reverse_dedup_via_allof) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "rel": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Person",
+        "allOf": [
+          { "x-jsonld-reverse": "https://schema.org/knows" },
+          { "x-jsonld-reverse": "https://schema.org/knows" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "rel": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/knows": [
+          { "@type": [ "https://schema.org/Person" ] }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_reverse_on_array_element_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "pair": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/pair",
+        "prefixItems": [ { "x-jsonld-reverse": "https://schema.org/first" } ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "pair": [ {} ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/pair/0", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD predicate cannot be assigned to an array element");
+}
+
+TEST(JSONLD_reverse_to_scalar_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "type": "string", "x-jsonld-reverse": "https://schema.org/name" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD reverse predicate can only point to a node or an array of "
+      "nodes");
+}
+
+TEST(JSONLD_reverse_to_array_of_nodes) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "authors": {
+        "type": "array",
+        "x-jsonld-reverse": "https://schema.org/author",
+        "items": {
+          "type": "object",
+          "x-jsonld-type": "https://schema.org/Person"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "authors": [ {}, {} ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/author": [
+          { "@type": [ "https://schema.org/Person" ] },
+          { "@type": [ "https://schema.org/Person" ] }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_reverse_to_array_with_scalar_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "type": "array", "x-jsonld-reverse": "https://schema.org/name" }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ {}, "a" ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD reverse predicate can only point to a node or an array of "
+      "nodes");
+}
+
+TEST(JSONLD_reverse_to_array_with_nested_array_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "type": "array", "x-jsonld-reverse": "https://schema.org/name" }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ [ {} ] ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD reverse predicate can only point to a node or an array of "
+      "nodes");
+}
+
+TEST(JSONLD_type_and_datatype_on_object_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-type": "https://schema.org/Thing",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value");
+}
+
+TEST(JSONLD_type_and_datatype_on_scalar_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-type": "https://schema.org/Thing",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
+      "A JSON-LD type can only be assigned to an object value");
+}
+
+TEST(JSONLD_datatype_under_not_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "v": {
+        "not": {
+          "type": "integer",
+          "x-jsonld-id": "https://schema.org/bad",
+          "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#int"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "v": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_in_oneof_only_matching_branch) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "v": {
+        "oneOf": [
+          {
+            "type": "integer",
+            "x-jsonld-id": "https://schema.org/count",
+            "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#int"
+          },
+          { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "v": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/name": [ { "@value": "hi" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_in_then_branch) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "v": {
+        "if": { "type": "string" },
+        "then": {
+          "x-jsonld-id": "https://schema.org/name",
+          "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "v": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/name": [
+        {
+          "@value": "hi",
+          "@type": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_and_language_across_allof_branches_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" },
+          { "x-jsonld-language": "en" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot carry a language or direction");
+}
+
+TEST(JSONLD_type_and_datatype_on_array_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-type": "https://schema.org/Thing",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
+      "A JSON-LD type can only be assigned to an object value");
+}
+
+TEST(JSONLD_id_and_reverse_different_predicates) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "rel": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/a",
+        "x-jsonld-reverse": "https://schema.org/b",
+        "x-jsonld-type": "https://schema.org/Person"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "rel": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/a": [
+        { "@type": [ "https://schema.org/Person" ] }
+      ],
+      "@reverse": {
+        "https://schema.org/b": [
+          { "@type": [ "https://schema.org/Person" ] }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_reverse_to_empty_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "type": "object", "x-jsonld-reverse": "https://schema.org/name" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "@reverse": { "https://schema.org/name": [ {} ] } }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_nested_under_edge) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "dataset": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/dataset",
+        "x-jsonld-graph": true,
+        "properties": {
+          "member": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/member",
+            "x-jsonld-type": "https://schema.org/Person"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "dataset": { "member": {} } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/dataset": [
+        {
+          "@graph": [
+            {
+              "https://schema.org/member": [
+                { "@type": [ "https://schema.org/Person" ] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_on_null_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-id": "https://schema.org/x", "x-jsonld-language": "en" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "A JSON-LD language can only be assigned to a string value");
+}
+
+TEST(JSONLD_datatype_relative_iri_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-datatype": "date" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "The value of x-jsonld-datatype must be an absolute IRI");
+}
+
+TEST(JSONLD_datatype_on_collection_elements) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "tags": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/keywords",
+        "items": {
+          "type": "string",
+          "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#token"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "tags": [ "a", "b" ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/keywords": [
+        { "@value": "a", "@type": "http://www.w3.org/2001/XMLSchema#token" },
+        { "@value": "b", "@type": "http://www.w3.org/2001/XMLSchema#token" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_on_collection_elements) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "names": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/name",
+        "items": { "type": "string", "x-jsonld-language": "fr" }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "names": [ "Jean", "Marie" ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/name": [
+        { "@value": "Jean", "@language": "fr" },
+        { "@value": "Marie", "@language": "fr" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_on_mixed_collection_element_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "items": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/items",
+        "items": {
+          "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "items": [ "a", {} ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/items/1", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value");
+}
+
+TEST(JSONLD_reverse_to_empty_array_yields_empty_document) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "type": "array", "x-jsonld-reverse": "https://schema.org/name" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": [] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_conflict_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-language": "en" },
+          { "x-jsonld-language": "fr" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "A JSON-LD language cannot be assigned more than one value");
+}
+
+TEST(JSONLD_direction_conflict_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-direction": "ltr" },
+          { "x-jsonld-direction": "rtl" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      "A JSON-LD direction cannot be assigned more than one value");
+}
+
+TEST(JSONLD_language_idempotent_via_allof) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-language": "en" },
+          { "x-jsonld-language": "en" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": "hi", "@language": "en" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_array_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-datatype": [ "http://www.w3.org/2001/XMLSchema#date" ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "The value of x-jsonld-datatype must be an absolute IRI");
+}
+
+TEST(JSONLD_datatype_keyword_iri_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-datatype": "@json" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "The value of x-jsonld-datatype must be an absolute IRI");
+}
+
+TEST(JSONLD_datatype_urn_scheme_accepted) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "urn:example:kind"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": "v", "@type": "urn:example:kind" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_private_use_tag_accepted) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "x-private"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": "v", "@language": "x-private" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_on_root_scalar_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON("v")JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_type_on_root_scalar_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "x-jsonld-type": "https://schema.org/Thing"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON("v")JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
+      "A JSON-LD type can only be assigned to an object value");
+}
+
+TEST(JSONLD_datatype_on_root_object_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value");
+}
+
+TEST(JSONLD_json_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-id": "https://schema.org/x", "x-jsonld-json": true }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_on_falsy_zero) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#int"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 0 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        { "@value": 0, "@type": "http://www.w3.org/2001/XMLSchema#int" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_anyof_datatype_conflict_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "anyOf": [
+          { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" },
+          { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#string" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value");
+}
+
+TEST(JSONLD_two_reverse_predicates) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "rel": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Person",
+        "allOf": [
+          { "x-jsonld-reverse": "https://schema.org/a" },
+          { "x-jsonld-reverse": "https://schema.org/b" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "rel": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/a": [
+          { "@type": [ "https://schema.org/Person" ] }
+        ],
+        "https://schema.org/b": [
+          { "@type": [ "https://schema.org/Person" ] }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_on_nested_array_element_flattens) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "m": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/m",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#token"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "m": [ [ "a" ], [ "b" ] ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/m": [
+        { "@value": "a", "@type": "http://www.w3.org/2001/XMLSchema#token" },
+        { "@value": "b", "@type": "http://www.w3.org/2001/XMLSchema#token" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_null_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-graph": null
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Graph,
+      "The value of x-jsonld-graph must be a boolean");
+}
+
+TEST(JSONLD_json_object_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-json": {} } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "The value of x-jsonld-json must be a boolean");
+}
+
+TEST(JSONLD_language_case_differing_tags_do_not_conflict) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-language": "en" },
+          { "x-jsonld-language": "EN" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": "hi", "@language": "en" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_type_object_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-type": {}
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
+      "The value of x-jsonld-type must be an absolute IRI");
+}
+
+TEST(JSONLD_type_array_with_number_element_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-type": [ "https://schema.org/A", 42 ]
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
+      "The value of x-jsonld-type must be an absolute IRI");
+}
+
+TEST(JSONLD_id_empty_string_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-id": "" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "The value of x-jsonld-id must be an absolute IRI");
+}
+
+TEST(JSONLD_id_array_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-id": [ "https://schema.org/x" ] } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "The value of x-jsonld-id must be an absolute IRI");
+}
+
+TEST(JSONLD_id_boolean_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-id": true } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "The value of x-jsonld-id must be an absolute IRI");
+}
+
+TEST(JSONLD_datatype_empty_string_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-datatype": "" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "The value of x-jsonld-datatype must be an absolute IRI");
+}
+
+TEST(JSONLD_reverse_empty_string_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "type": "object", "x-jsonld-reverse": "" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "The value of x-jsonld-reverse must be an absolute IRI");
+}
+
+TEST(JSONLD_direction_number_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-direction": 5 } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      R"(The value of x-jsonld-direction must be "ltr" or "rtl")");
+}
+
+TEST(JSONLD_json_and_graph_on_object_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "obj": {
+        "type": "object",
+        "x-jsonld-json": true,
+        "x-jsonld-graph": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "obj": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
+      "annotation");
+}
+
+TEST(JSONLD_datatype_dedup_via_ref_diamond) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "dated": { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" }
+    },
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "$ref": "#/$defs/dated" },
+          { "$ref": "#/$defs/dated" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": "2024-01-01" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@value": "2024-01-01",
+          "@type": "http://www.w3.org/2001/XMLSchema#date"
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_variant_subtag_accepted) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "de-DE-1996"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": "hallo" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [ { "@value": "hallo", "@language": "de-DE-1996" } ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_empty) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-graph": true
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  const auto expected{
+      sourcemeta::core::parse_json(R"JSON([ { "@graph": [] } ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_leading_whitespace_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "x-jsonld-language": " en" } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "The value of x-jsonld-language must be a BCP 47 language tag");
+}
+
+TEST(JSONLD_property_name_is_replaced_by_the_predicate) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "c": { "type": "string", "x-jsonld-id": "https://schema.org/color" }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "c": "red" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/color": [ { "@value": "red" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_two_people_keep_their_own_birth_dates) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "people": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/member",
+        "items": {
+          "type": "object",
+          "x-jsonld-type": "https://schema.org/Person",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-jsonld-id": "https://schema.org/name"
+            },
+            "dob": {
+              "type": "string",
+              "x-jsonld-id": "https://schema.org/birthDate",
+              "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+            }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "people": [
+      { "name": "Ada", "dob": "1815-12-10" },
+      { "name": "Bob", "dob": "1990-05-15" }
+    ]
+  })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/member": [
+        {
+          "@type": [ "https://schema.org/Person" ],
+          "https://schema.org/name": [ { "@value": "Ada" } ],
+          "https://schema.org/birthDate": [
+            {
+              "@value": "1815-12-10",
+              "@type": "http://www.w3.org/2001/XMLSchema#date"
+            }
+          ]
+        },
+        {
+          "@type": [ "https://schema.org/Person" ],
+          "https://schema.org/name": [ { "@value": "Bob" } ],
+          "https://schema.org/birthDate": [
+            {
+              "@value": "1990-05-15",
+              "@type": "http://www.w3.org/2001/XMLSchema#date"
+            }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_false_alone_is_a_noop) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "type": "object", "x-jsonld-graph": false } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_json_false_alone_is_a_noop) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "type": "object", "x-jsonld-json": false } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_region_case_insensitive_no_conflict) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-language": "en-US" },
+          { "x-jsonld-language": "en-us" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": "hi", "@language": "en-US" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_json_and_type_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-json": true,
+        "x-jsonld-type": "https://schema.org/Thing"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
+      "annotation");
+}
+
+TEST(JSONLD_reverse_to_json_literal_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-reverse": "https://schema.org/x",
+        "x-jsonld-json": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD reverse predicate can only point to a node or an array of "
+      "nodes");
+}
+
+TEST(JSONLD_json_object_without_edge_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "type": "object", "x-jsonld-json": true } }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "a": 1 } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }

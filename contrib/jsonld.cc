@@ -39,7 +39,8 @@ static auto run(const char *schema_path, const char *instance_path) -> int {
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
-      "x-jsonld-id", "x-jsonld-type"};
+      sourcemeta::blaze::JSONLD_KEYWORDS.begin(),
+      sourcemeta::blaze::JSONLD_KEYWORDS.end()};
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
