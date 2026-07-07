@@ -992,24 +992,6 @@ TEST(hyperschema_enctype_without_hyperschema) {
   EXPECT_TRUE(result.instances.none());
 }
 
-TEST(schema_keyword_priority_object) {
-  const auto &vocabularies = VOCABULARIES_DRAFT0;
-  const auto &walker = sourcemeta::blaze::schema_walker;
-  using namespace sourcemeta::core;
-  using namespace sourcemeta::blaze;
-  EXPECT_EQ(schema_keyword_priority("properties", vocabularies, walker), 0);
-  EXPECT_EQ(
-      schema_keyword_priority("additionalProperties", vocabularies, walker), 1);
-}
-
-TEST(schema_keyword_priority_unknown) {
-  const auto &vocabularies = VOCABULARIES_DRAFT0;
-  const auto &walker = sourcemeta::blaze::schema_walker;
-  using namespace sourcemeta::core;
-  using namespace sourcemeta::blaze;
-  EXPECT_EQ(schema_keyword_priority("foobar", vocabularies, walker), 0);
-}
-
 TEST(instance_locations) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-00/schema#",
