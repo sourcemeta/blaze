@@ -377,6 +377,29 @@ auto expand_self(const sourcemeta::core::WeakPointer &pointer,
   return sourcemeta::core::JSON::String{std::move(expanded)};
 }
 
+// Whether every element of an array materializes as a node, so the array can be
+// the subject of a reverse predicate. An element is a node when it is a raw
+// object or a scalar promoted to a reference by its own self identity
+auto array_of_nodes(const Accumulator &accumulator,
+                    const sourcemeta::core::WeakPointer &pointer,
+                    const sourcemeta::core::JSON &value) -> bool {
+  for (std::size_t index = 0; index < value.size(); index += 1) {
+    if (value.at(index).is_object()) {
+      continue;
+    }
+
+    auto element_pointer{pointer};
+    element_pointer.push_back(index);
+    const auto element_facts{accumulator.find(element_pointer)};
+    if (element_facts == accumulator.cend() ||
+        !element_facts->second.self.has_value()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 // Turn the JSON-LD annotations into a resolved map, or the first error found.
 // The first pass groups the facts by location, the second derives each kind
 // from the value shape and validates the facts against it
@@ -670,10 +693,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
       const bool points_to_node{
           !facts.json && !facts.container.has_value() &&
           (value.is_object() || facts.self.has_value() ||
-           (value.is_array() &&
-            std::ranges::all_of(value.as_array(),
-                                [](const sourcemeta::core::JSON &element)
-                                    -> bool { return element.is_object(); })))};
+           (value.is_array() && array_of_nodes(accumulator, pointer, value)))};
       if (!points_to_node) {
         return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Predicate,
                            "A JSON-LD reverse predicate can only point to a "

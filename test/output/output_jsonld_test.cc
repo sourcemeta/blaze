@@ -5928,6 +5928,98 @@ TEST(JSONLD_self_reverse_edge_to_reference) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_self_reverse_edge_to_array_of_references) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "parts": {
+        "type": "array",
+        "x-jsonld-reverse": "https://schema.org/hasPart",
+        "items": { "type": "string", "x-jsonld-self": "{+this}" }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "parts": [ "https://example.com/1", "https://example.com/2" ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/hasPart": [
+          { "@id": "https://example.com/1" },
+          { "@id": "https://example.com/2" }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_reverse_edge_to_mixed_array_of_nodes) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "parts": {
+        "type": "array",
+        "x-jsonld-reverse": "https://schema.org/hasPart",
+        "items": {
+          "anyOf": [
+            { "type": "object", "x-jsonld-type": "https://schema.org/Person" },
+            { "type": "string", "x-jsonld-self": "{+this}" }
+          ]
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "parts": [ {}, "https://example.com/1" ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/hasPart": [
+          { "@type": [ "https://schema.org/Person" ] },
+          { "@id": "https://example.com/1" }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_reverse_to_array_with_literal_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "parts": {
+        "type": "array",
+        "x-jsonld-reverse": "https://schema.org/hasPart",
+        "items": {
+          "anyOf": [
+            { "type": "object", "x-jsonld-type": "https://schema.org/Person" },
+            { "type": "string" }
+          ]
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "parts": [ {}, "plain" ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/parts", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD reverse predicate can only point to a node or an array of "
+      "nodes");
+}
+
 TEST(JSONLD_self_idempotent_via_allof) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
