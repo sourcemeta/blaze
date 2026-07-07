@@ -13,10 +13,9 @@
 #include <unordered_set> // std::unordered_set
 #include <variant>       // std::get, std::holds_alternative
 
-#define JSON_LD_EVALUATE_WITH(schema, instance, ...)                           \
+#define JSON_LD_EVALUATE_SET(schema, instance, annotation_set)                 \
   sourcemeta::blaze::Tweaks tweaks;                                            \
-  tweaks.annotations =                                                         \
-      std::unordered_set<sourcemeta::core::JSON::StringView>{__VA_ARGS__};     \
+  tweaks.annotations = (annotation_set);                                       \
   const auto schema_template{sourcemeta::blaze::compile(                       \
       (schema), sourcemeta::blaze::schema_walker,                              \
       sourcemeta::blaze::schema_resolver,                                      \
@@ -27,10 +26,16 @@
       sourcemeta::blaze::jsonld(evaluator, schema_template, (instance))};
 
 #define JSON_LD_EVALUATE(schema, instance)                                     \
-  JSON_LD_EVALUATE_WITH(schema, instance, "x-jsonld-id", "x-jsonld-type",      \
-                        "x-jsonld-reverse", "x-jsonld-datatype",               \
-                        "x-jsonld-language", "x-jsonld-direction",             \
-                        "x-jsonld-json", "x-jsonld-graph")
+  JSON_LD_EVALUATE_SET(                                                        \
+      schema, instance,                                                        \
+      (std::unordered_set<sourcemeta::core::JSON::StringView>(                 \
+          sourcemeta::blaze::JSONLD_KEYWORDS.begin(),                          \
+          sourcemeta::blaze::JSONLD_KEYWORDS.end())))
+
+#define JSON_LD_EVALUATE_WITH(schema, instance, ...)                           \
+  JSON_LD_EVALUATE_SET(                                                        \
+      schema, instance,                                                        \
+      (std::unordered_set<sourcemeta::core::JSON::StringView>{__VA_ARGS__}))
 
 #define EXPECT_JSON_LD_VALUE_WITH(schema, instance, expected, ...)             \
   {                                                                            \
@@ -42,10 +47,13 @@
   }
 
 #define EXPECT_JSON_LD_VALUE(schema, instance, expected)                       \
-  EXPECT_JSON_LD_VALUE_WITH(                                                   \
-      schema, instance, expected, "x-jsonld-id", "x-jsonld-type",              \
-      "x-jsonld-reverse", "x-jsonld-datatype", "x-jsonld-language",            \
-      "x-jsonld-direction", "x-jsonld-json", "x-jsonld-graph")
+  {                                                                            \
+    JSON_LD_EVALUATE(schema, instance)                                         \
+    EXPECT_TRUE(std::holds_alternative<sourcemeta::core::JSON>(outcome));      \
+    const auto &document{std::get<sourcemeta::core::JSON>(outcome)};           \
+    EXPECT_EQ(document, (expected));                                           \
+    EXPECT_TRUE(sourcemeta::core::jsonld_is_expanded(document));               \
+  }
 
 #define EXPECT_JSON_LD_INVALID(schema, instance, destination)                  \
   JSON_LD_EVALUATE(schema, instance)                                           \
