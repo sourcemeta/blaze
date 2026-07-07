@@ -161,7 +161,9 @@ static auto Micro_JSONLD_Catalog(benchmark::State &state) -> void {
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
-      "x-jsonld-id", "x-jsonld-type"};
+      "x-jsonld-id",       "x-jsonld-type",     "x-jsonld-reverse",
+      "x-jsonld-datatype", "x-jsonld-language", "x-jsonld-direction",
+      "x-jsonld-json",     "x-jsonld-graph"};
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,

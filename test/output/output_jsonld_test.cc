@@ -2042,20 +2042,31 @@ TEST(JSONLD_json_literal) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_json_on_object_is_a_resolution_error) {
+TEST(JSONLD_json_wraps_object) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
-      "obj": { "type": "object", "x-jsonld-json": true }
+      "data": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/data",
+        "x-jsonld-json": true
+      }
     }
   })JSON")};
 
-  const auto instance{sourcemeta::core::parse_json(R"JSON({ "obj": {} })JSON")};
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "data": { "a": 1, "b": [ 2, 3 ] } })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
-      schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal can only be assigned to a scalar value");
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/data": [
+        { "@value": { "a": 1, "b": [ 2, 3 ] }, "@type": "@json" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
 TEST(JSONLD_reverse_edge) {
@@ -2499,7 +2510,8 @@ TEST(JSONLD_json_and_datatype_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal cannot carry a datatype, language, or direction");
+      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
+      "annotation");
 }
 
 TEST(JSONLD_json_and_language_is_a_resolution_error) {
@@ -2519,7 +2531,8 @@ TEST(JSONLD_json_and_language_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal cannot carry a datatype, language, or direction");
+      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
+      "annotation");
 }
 
 TEST(JSONLD_json_false_is_a_plain_literal) {
@@ -2580,25 +2593,31 @@ TEST(JSONLD_json_non_boolean_is_a_resolution_error) {
       "The value of x-jsonld-json must be a boolean");
 }
 
-TEST(JSONLD_json_on_array_is_a_resolution_error) {
+TEST(JSONLD_json_wraps_array) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
-      "x": {
+      "raw": {
         "type": "array",
-        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-id": "https://schema.org/raw",
         "x-jsonld-json": true
       }
     }
   })JSON")};
 
-  const auto instance{
-      sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "raw": [ 1, "two", { "k": true } ] })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
-      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal can only be assigned to a scalar value");
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/raw": [
+        { "@value": [ 1, "two", { "k": true } ], "@type": "@json" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
 TEST(JSONLD_graph_false_is_a_plain_node) {
@@ -3616,7 +3635,7 @@ TEST(JSONLD_json_object_value_is_a_resolution_error) {
       "The value of x-jsonld-json must be a boolean");
 }
 
-TEST(JSONLD_language_case_differing_tags_conflict) {
+TEST(JSONLD_language_case_differing_tags_do_not_conflict) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3634,9 +3653,11 @@ TEST(JSONLD_language_case_differing_tags_conflict) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
-      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "A JSON-LD language cannot be assigned more than one value");
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": "hi", "@language": "en" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
 TEST(JSONLD_type_object_value_is_a_resolution_error) {
@@ -3768,7 +3789,8 @@ TEST(JSONLD_json_and_graph_on_object_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal can only be assigned to a scalar value");
+      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
+      "annotation");
 }
 
 TEST(JSONLD_datatype_dedup_via_ref_diamond) {
@@ -3939,6 +3961,116 @@ TEST(JSONLD_two_people_keep_their_own_birth_dates) {
       ]
     }
   ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_false_alone_is_a_noop) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "type": "object", "x-jsonld-graph": false } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_json_false_alone_is_a_noop) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "type": "object", "x-jsonld-json": false } }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_region_case_insensitive_no_conflict) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-language": "en-US" },
+          { "x-jsonld-language": "en-us" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/x": [ { "@value": "hi", "@language": "en-US" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_json_and_type_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-json": true,
+        "x-jsonld-type": "https://schema.org/Thing"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
+      "annotation");
+}
+
+TEST(JSONLD_reverse_to_json_literal_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-reverse": "https://schema.org/x",
+        "x-jsonld-json": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD reverse predicate can only point to a node or an array of "
+      "nodes");
+}
+
+TEST(JSONLD_json_object_without_edge_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "type": "object", "x-jsonld-json": true } }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "a": 1 } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
 
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
