@@ -33,62 +33,10 @@ struct Facts {
   std::optional<sourcemeta::core::JSON::String> self;
   bool json{false};
   bool graph{false};
-  // Filled once the kind is derived, then moved into the result map along with
-  // this location's key, so the key is transferred rather than copied
-  sourcemeta::core::JSONLDDescriptor descriptor;
-  bool needs_fill{false};
 };
 
 using Accumulator = std::unordered_map<sourcemeta::core::WeakPointer, Facts,
                                        sourcemeta::core::WeakPointer::Hasher>;
-
-auto fill_collection(sourcemeta::core::JSONLDWeakAnnotationMap &map,
-                     const sourcemeta::core::WeakPointer &pointer,
-                     const sourcemeta::core::JSON &value) -> void;
-
-// Give an undescribed collection member a default kind so it still
-// materializes, a scalar as a literal and a nested array as an inner
-// collection. A described member is already in the map, so its emplace no-ops
-auto fill_element(sourcemeta::core::JSONLDWeakAnnotationMap &map,
-                  sourcemeta::core::WeakPointer element_pointer,
-                  const sourcemeta::core::JSON &element) -> void {
-  if (element.is_array()) {
-    const auto emplaced{map.emplace(
-        std::move(element_pointer),
-        sourcemeta::core::JSONLDDescriptor{
-            .edges = {}, .value = sourcemeta::core::JSONLDCollection{}})};
-    // A described array is already in the map and is filled by its own
-    // pending-fills entry, so only recurse into a freshly defaulted collection
-    // to avoid re-walking the same subtree
-    if (emplaced.second) {
-      fill_collection(map, emplaced.first->first, element);
-    }
-  } else if (!element.is_object()) {
-    map.emplace(std::move(element_pointer),
-                sourcemeta::core::JSONLDDescriptor{
-                    .edges = {}, .value = sourcemeta::core::JSONLDLiteral{}});
-  }
-}
-
-// Default the undescribed members of a collection, whether it ranges over an
-// array or over an object
-auto fill_collection(sourcemeta::core::JSONLDWeakAnnotationMap &map,
-                     const sourcemeta::core::WeakPointer &pointer,
-                     const sourcemeta::core::JSON &value) -> void {
-  if (value.is_array()) {
-    for (std::size_t index = 0; index < value.size(); index += 1) {
-      auto element_pointer{pointer};
-      element_pointer.push_back(index);
-      fill_element(map, std::move(element_pointer), value.at(index));
-    }
-  } else {
-    for (const auto &entry : value.as_object()) {
-      auto element_pointer{pointer};
-      element_pointer.push_back(std::cref(entry.first));
-      fill_element(map, std::move(element_pointer), entry.second);
-    }
-  }
-}
 
 auto add_edge(std::vector<sourcemeta::core::JSONLDEdge> &edges,
               const sourcemeta::core::JSON::String &predicate,
@@ -420,12 +368,12 @@ const auto HASH_CONTAINER{
     sourcemeta::core::JSON::Object::hash("x-jsonld-container"sv)};
 const auto HASH_SELF{sourcemeta::core::JSON::Object::hash("x-jsonld-self"sv)};
 
-// Turn the JSON-LD annotations into a resolved map, or the first error found.
+// Turn the JSON-LD annotations into a resolved list, or the first error found.
 // The first pass groups the facts by location, the second derives each kind
 // from the value shape and validates the facts against it
 auto resolve(const sourcemeta::core::JSON &instance,
              const sourcemeta::blaze::SimpleOutput &output)
-    -> std::variant<sourcemeta::core::JSONLDWeakAnnotationMap,
+    -> std::variant<sourcemeta::core::JSONLDWeakAnnotationList,
                     sourcemeta::blaze::JSONLDResolutionError> {
   Accumulator accumulator;
   std::vector<std::reference_wrapper<const sourcemeta::core::WeakPointer>>
@@ -606,6 +554,8 @@ auto resolve(const sourcemeta::core::JSON &instance,
     }
   }
 
+  sourcemeta::core::JSONLDWeakAnnotationList annotations;
+  annotations.reserve(accumulator.size());
   for (auto &[pointer, facts] : accumulator) {
     std::ranges::sort(facts.edges,
                       [](const sourcemeta::core::JSONLDEdge &left,
@@ -754,42 +704,11 @@ auto resolve(const sourcemeta::core::JSON &instance,
                                           .direction = facts.direction};
     }
 
-    // A language container reads its object members directly, but every other
-    // collection needs its undescribed members defaulted so they materialize.
-    // Deferred until the map is complete, so a described member is already
-    // present and its default emplace no-ops
-    if (facts.container.has_value()) {
-      facts.needs_fill = facts.container.value() !=
-                         sourcemeta::core::JSONLDContainer::Language;
-    } else {
-      facts.needs_fill = value.is_array() && !facts.json;
-    }
-
-    facts.descriptor = std::move(descriptor);
+    annotations.push_back(
+        {.pointer = pointer, .descriptor = std::move(descriptor)});
   }
 
-  // Transfer each location into the result map by moving its key out of the
-  // accumulator instead of copying it, since both maps share the same keys
-  sourcemeta::core::JSONLDWeakAnnotationMap map;
-  map.reserve(accumulator.size());
-  std::vector<std::reference_wrapper<const sourcemeta::core::WeakPointer>>
-      pending_fills;
-  while (!accumulator.empty()) {
-    auto node{accumulator.extract(accumulator.begin())};
-    const auto needs_fill{node.mapped().needs_fill};
-    const auto emplaced{map.emplace(std::move(node.key()),
-                                    std::move(node.mapped().descriptor))};
-    if (needs_fill) {
-      pending_fills.push_back(std::cref(emplaced.first->first));
-    }
-  }
-
-  for (const auto collection : pending_fills) {
-    fill_collection(map, collection.get(),
-                    sourcemeta::core::get(instance, collection.get()));
-  }
-
-  return map;
+  return annotations;
 }
 
 } // namespace
@@ -809,9 +728,9 @@ auto jsonld(Evaluator &evaluator, const Template &schema,
     return std::get<JSONLDResolutionError>(std::move(resolved));
   }
 
-  const auto &map{
-      std::get<sourcemeta::core::JSONLDWeakAnnotationMap>(resolved)};
-  return sourcemeta::core::jsonld_materialize(instance, map);
+  const auto &annotations{
+      std::get<sourcemeta::core::JSONLDWeakAnnotationList>(resolved)};
+  return sourcemeta::core::jsonld_materialize(instance, annotations);
 }
 
 } // namespace sourcemeta::blaze
