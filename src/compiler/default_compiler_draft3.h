@@ -2380,12 +2380,11 @@ auto compiler_draft3_applicator_extends(const Context &context,
                                         const SchemaContext &schema_context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
-  assert(!context.uses_dynamic_scopes);
-
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
 
   if (value.is_object()) {
-    if (context.mode == Mode::FastValidation) {
+    // TODO: Make this work with `$dynamicRef`
+    if (context.mode == Mode::FastValidation && !context.uses_dynamic_scopes) {
       return compile(context, schema_context, dynamic_context,
                      sourcemeta::core::empty_weak_pointer,
                      sourcemeta::core::empty_weak_pointer);
@@ -2413,7 +2412,8 @@ auto compiler_draft3_applicator_extends(const Context &context,
 
   Instructions children;
 
-  if (context.mode == Mode::FastValidation) {
+  // TODO: Make this work with `$dynamicRef`
+  if (context.mode == Mode::FastValidation && !context.uses_dynamic_scopes) {
     for (std::uint64_t index = 0; index < value.size(); index++) {
       for (auto &&step : compile(
                context, schema_context, dynamic_context,
