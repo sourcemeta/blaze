@@ -19,12 +19,12 @@ endif()
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
   list(APPEND BENCHMARK_SOURCES
     e2e/runner.cc
+    jsonld.cc
     micro/draft4.cc
     micro/draft6.cc
     micro/draft7.cc
     micro/2019_09.cc
-    micro/2020_12.cc
-    micro/jsonld.cc)
+    micro/2020_12.cc)
 endif()
 
 if(BLAZE_ALTERSCHEMA)
