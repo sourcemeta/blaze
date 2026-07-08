@@ -57,7 +57,12 @@ auto fill_element(sourcemeta::core::JSONLDWeakAnnotationMap &map,
         std::move(element_pointer),
         sourcemeta::core::JSONLDDescriptor{
             .edges = {}, .value = sourcemeta::core::JSONLDCollection{}})};
-    fill_collection(map, emplaced.first->first, element);
+    // A described array is already in the map and is filled by its own
+    // pending-fills entry, so only recurse into a freshly defaulted collection
+    // to avoid re-walking the same subtree
+    if (emplaced.second) {
+      fill_collection(map, emplaced.first->first, element);
+    }
   } else if (!element.is_object()) {
     map.emplace(std::move(element_pointer),
                 sourcemeta::core::JSONLDDescriptor{
