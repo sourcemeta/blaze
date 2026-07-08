@@ -430,6 +430,24 @@ auto group_annotations(const sourcemeta::blaze::SimpleOutput &output)
   return result;
 }
 
+// The x-jsonld-* keyword names, pre-hashed for the first-pass dispatch
+using namespace std::string_view_literals;
+const auto HASH_ID{sourcemeta::core::JSON::Object::hash("x-jsonld-id"sv)};
+const auto HASH_REVERSE{
+    sourcemeta::core::JSON::Object::hash("x-jsonld-reverse"sv)};
+const auto HASH_TYPE{sourcemeta::core::JSON::Object::hash("x-jsonld-type"sv)};
+const auto HASH_DATATYPE{
+    sourcemeta::core::JSON::Object::hash("x-jsonld-datatype"sv)};
+const auto HASH_LANGUAGE{
+    sourcemeta::core::JSON::Object::hash("x-jsonld-language"sv)};
+const auto HASH_DIRECTION{
+    sourcemeta::core::JSON::Object::hash("x-jsonld-direction"sv)};
+const auto HASH_JSON{sourcemeta::core::JSON::Object::hash("x-jsonld-json"sv)};
+const auto HASH_GRAPH{sourcemeta::core::JSON::Object::hash("x-jsonld-graph"sv)};
+const auto HASH_CONTAINER{
+    sourcemeta::core::JSON::Object::hash("x-jsonld-container"sv)};
+const auto HASH_SELF{sourcemeta::core::JSON::Object::hash("x-jsonld-self"sv)};
+
 // Turn the JSON-LD annotations into a resolved map, or the first error found.
 // The first pass groups the facts by location, the second derives each kind
 // from the value shape and validates the facts against it
@@ -444,11 +462,13 @@ auto resolve(const sourcemeta::core::JSON &instance,
       continue;
     }
 
-    const auto &keyword{location.evaluate_path.back().to_property()};
+    const auto &keyword{location.evaluate_path.back()};
     const auto &instance_location{location.instance_location};
 
-    if (keyword == "x-jsonld-id" || keyword == "x-jsonld-reverse") {
-      const bool reverse{keyword == "x-jsonld-reverse"};
+    if (keyword.property_equals("x-jsonld-id", HASH_ID) ||
+        keyword.property_equals("x-jsonld-reverse", HASH_REVERSE)) {
+      const bool reverse{
+          keyword.property_equals("x-jsonld-reverse", HASH_REVERSE)};
       for (const auto &value : values) {
         if (!is_iri_value(value)) {
           return facet_error(
@@ -460,7 +480,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
         add_edge(accumulator[instance_location].edges, value.to_string(),
                  reverse);
       }
-    } else if (keyword == "x-jsonld-type") {
+    } else if (keyword.property_equals("x-jsonld-type", HASH_TYPE)) {
       auto &types{accumulator[instance_location].types};
       for (const auto &value : values) {
         if (value.is_array()) {
@@ -479,7 +499,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
           add_type(types, value.to_string());
         }
       }
-    } else if (keyword == "x-jsonld-datatype") {
+    } else if (keyword.property_equals("x-jsonld-datatype", HASH_DATATYPE)) {
       for (const auto &value : values) {
         if (!is_iri_value(value)) {
           return facet_error(
@@ -496,7 +516,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
 
         datatype = value.to_string();
       }
-    } else if (keyword == "x-jsonld-language") {
+    } else if (keyword.property_equals("x-jsonld-language", HASH_LANGUAGE)) {
       for (const auto &value : values) {
         if (!value.is_string() ||
             !sourcemeta::core::is_langtag(value.to_string())) {
@@ -519,7 +539,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
           language = value.to_string();
         }
       }
-    } else if (keyword == "x-jsonld-direction") {
+    } else if (keyword.property_equals("x-jsonld-direction", HASH_DIRECTION)) {
       for (const auto &value : values) {
         const auto parsed{parse_direction(value)};
         if (!parsed.has_value()) {
@@ -537,7 +557,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
 
         direction = parsed;
       }
-    } else if (keyword == "x-jsonld-json") {
+    } else if (keyword.property_equals("x-jsonld-json", HASH_JSON)) {
       for (const auto &value : values) {
         if (!value.is_boolean()) {
           return facet_error(instance_location,
@@ -551,7 +571,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
           accumulator[instance_location].json = true;
         }
       }
-    } else if (keyword == "x-jsonld-graph") {
+    } else if (keyword.property_equals("x-jsonld-graph", HASH_GRAPH)) {
       for (const auto &value : values) {
         if (!value.is_boolean()) {
           return facet_error(instance_location,
@@ -563,7 +583,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
           accumulator[instance_location].graph = true;
         }
       }
-    } else if (keyword == "x-jsonld-container") {
+    } else if (keyword.property_equals("x-jsonld-container", HASH_CONTAINER)) {
       for (const auto &value : values) {
         const auto parsed{parse_container(value)};
         if (!parsed.has_value()) {
@@ -581,7 +601,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
 
         container = parsed;
       }
-    } else if (keyword == "x-jsonld-self") {
+    } else if (keyword.property_equals("x-jsonld-self", HASH_SELF)) {
       for (const auto &value : values) {
         if (!value.is_string() ||
             !sourcemeta::core::URITemplate::is_uritemplate(value.to_string())) {
