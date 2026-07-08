@@ -5,9 +5,12 @@
 #include <sourcemeta/blaze/output.h>
 
 #include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <unordered_set>
+#include <string>        // std::string
+#include <unordered_set> // std::unordered_set
+#include <vector>        // std::vector
 
 #define EXPECT_OUTPUT(traces, index, expected_instance_location,               \
                       expected_evaluate_path, expected_schema_location,        \
@@ -24,37 +27,18 @@
 #define EXPECT_ANNOTATION_COUNT(output, expected_count)                        \
   EXPECT_EQ(output.annotations().size(), (expected_count));
 
-#define EXPECT_ANNOTATION_ENTRY(                                               \
-    output, expected_instance_location, expected_evaluate_path,                \
-    expected_schema_location, expected_entry_count)                            \
+#define EXPECT_ANNOTATION(output, index, expected_instance_location,           \
+                          expected_evaluate_path, expected_schema_location,    \
+                          expected_value)                                      \
   {                                                                            \
-    const auto instance_location{                                              \
-        sourcemeta::core::to_pointer(expected_instance_location)};             \
-    const auto evaluate_path{                                                  \
-        sourcemeta::core::to_pointer(expected_evaluate_path)};                 \
-    const std::string schema_location{expected_schema_location};               \
-    const sourcemeta::blaze::SimpleOutput::Location location{                  \
-        sourcemeta::core::to_weak_pointer(instance_location),                  \
-        sourcemeta::core::to_weak_pointer(evaluate_path), schema_location};    \
-    EXPECT_TRUE(output.annotations().contains(location));                      \
-    EXPECT_EQ(output.annotations().at(location).size(),                        \
-              (expected_entry_count));                                         \
-  }
-
-#define EXPECT_ANNOTATION_VALUE(                                               \
-    output, expected_instance_location, expected_evaluate_path,                \
-    expected_schema_location, expected_entry_index, expected_value)            \
-  {                                                                            \
-    const auto instance_location{                                              \
-        sourcemeta::core::to_pointer(expected_instance_location)};             \
-    const auto evaluate_path{                                                  \
-        sourcemeta::core::to_pointer(expected_evaluate_path)};                 \
-    const std::string schema_location{expected_schema_location};               \
-    const sourcemeta::blaze::SimpleOutput::Location location{                  \
-        sourcemeta::core::to_weak_pointer(instance_location),                  \
-        sourcemeta::core::to_weak_pointer(evaluate_path), schema_location};    \
-    EXPECT_EQ(output.annotations().at(location).at(expected_entry_index),      \
-              (expected_value));                                               \
+    EXPECT_TRUE(output.annotations().size() > (index));                        \
+    const auto &annotation{output.annotations().at(index)};                    \
+    EXPECT_EQ(sourcemeta::core::to_string(annotation.instance_location),       \
+              (expected_instance_location));                                   \
+    EXPECT_EQ(sourcemeta::core::to_string(annotation.evaluate_path),           \
+              (expected_evaluate_path));                                       \
+    EXPECT_EQ(annotation.schema_location.get(), (expected_schema_location));   \
+    EXPECT_EQ(annotation.value, (expected_value));                             \
   }
 
 TEST(success_string_1) {
@@ -1043,11 +1027,8 @@ TEST(annotations_failure_2) {
 
   EXPECT_ANNOTATION_COUNT(output, 1);
 
-  EXPECT_ANNOTATION_ENTRY(output, "/bar", "/properties/bar/title",
-                          "#/properties/bar/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "/bar", "/properties/bar/title",
-                          "#/properties/bar/title", 0,
-                          sourcemeta::core::JSON{"Bar"});
+  EXPECT_ANNOTATION(output, 0, "/bar", "/properties/bar/title",
+                    "#/properties/bar/title", sourcemeta::core::JSON{"Bar"});
 }
 
 TEST(annotations_success_oneof_1) {
@@ -1078,9 +1059,8 @@ TEST(annotations_success_oneof_1) {
 
   EXPECT_ANNOTATION_COUNT(output, 1);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/oneOf/1/title", "#/oneOf/1/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/oneOf/1/title", "#/oneOf/1/title", 0,
-                          sourcemeta::core::JSON{"Second"});
+  EXPECT_ANNOTATION(output, 0, "", "/oneOf/1/title", "#/oneOf/1/title",
+                    sourcemeta::core::JSON{"Second"});
 }
 
 TEST(annotations_success_whitelist_oneof_within_object_property) {
@@ -1120,13 +1100,9 @@ TEST(annotations_success_whitelist_oneof_within_object_property) {
 
   EXPECT_ANNOTATION_COUNT(output, 1);
 
-  EXPECT_ANNOTATION_ENTRY(output, "/value",
-                          "/properties/value/oneOf/0/x-custom",
-                          "#/properties/value/oneOf/0/x-custom", 1);
-  EXPECT_ANNOTATION_VALUE(output, "/value",
-                          "/properties/value/oneOf/0/x-custom",
-                          "#/properties/value/oneOf/0/x-custom", 0,
-                          sourcemeta::core::JSON{"First"});
+  EXPECT_ANNOTATION(output, 0, "/value", "/properties/value/oneOf/0/x-custom",
+                    "#/properties/value/oneOf/0/x-custom",
+                    sourcemeta::core::JSON{"First"});
 }
 
 TEST(annotations_success_if_then_1) {
@@ -1155,9 +1131,8 @@ TEST(annotations_success_if_then_1) {
 
   EXPECT_ANNOTATION_COUNT(output, 1);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/then/title", "#/then/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/then/title", "#/then/title", 0,
-                          sourcemeta::core::JSON{"Then Title"});
+  EXPECT_ANNOTATION(output, 0, "", "/then/title", "#/then/title",
+                    sourcemeta::core::JSON{"Then Title"});
 }
 
 TEST(annotations_success_if_else_1) {
@@ -1186,9 +1161,8 @@ TEST(annotations_success_if_else_1) {
 
   EXPECT_ANNOTATION_COUNT(output, 1);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/else/title", "#/else/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/else/title", "#/else/title", 0,
-                          sourcemeta::core::JSON{"Else Title"});
+  EXPECT_ANNOTATION(output, 0, "", "/else/title", "#/else/title",
+                    sourcemeta::core::JSON{"Else Title"});
 }
 
 TEST(annotations_failure_oneof_1) {
@@ -1336,35 +1310,21 @@ TEST(annotations_success_1) {
                                                              output.cend()};
   EXPECT_TRUE(traces.empty());
 
-  EXPECT_ANNOTATION_COUNT(output, 5);
+  EXPECT_ANNOTATION_COUNT(output, 6);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/properties", "#/properties", 2);
-  EXPECT_ANNOTATION_VALUE(output, "", "/properties", "#/properties", 0,
-                          sourcemeta::core::JSON{"bar"});
-  EXPECT_ANNOTATION_VALUE(output, "", "/properties", "#/properties", 1,
-                          sourcemeta::core::JSON{"foo"});
-
-  EXPECT_ANNOTATION_ENTRY(output, "", "/title", "#/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/title", "#/title", 0,
-                          sourcemeta::core::JSON{"My Schema"});
-
-  EXPECT_ANNOTATION_ENTRY(output, "/foo", "/properties/foo/$ref/title",
-                          "#/$defs/test/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "/foo", "/properties/foo/$ref/title",
-                          "#/$defs/test/title", 0,
-                          sourcemeta::core::JSON{"Test"});
-
-  EXPECT_ANNOTATION_ENTRY(output, "/foo", "/properties/foo/title",
-                          "#/properties/foo/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "/foo", "/properties/foo/title",
-                          "#/properties/foo/title", 0,
-                          sourcemeta::core::JSON{"Foo"});
-
-  EXPECT_ANNOTATION_ENTRY(output, "/foo", "/properties/foo/deprecated",
-                          "#/properties/foo/deprecated", 1);
-  EXPECT_ANNOTATION_VALUE(output, "/foo", "/properties/foo/deprecated",
-                          "#/properties/foo/deprecated", 0,
-                          sourcemeta::core::JSON{true});
+  EXPECT_ANNOTATION(output, 0, "", "/title", "#/title",
+                    sourcemeta::core::JSON{"My Schema"});
+  EXPECT_ANNOTATION(output, 1, "", "/properties", "#/properties",
+                    sourcemeta::core::JSON{"bar"});
+  EXPECT_ANNOTATION(output, 2, "/foo", "/properties/foo/$ref/title",
+                    "#/$defs/test/title", sourcemeta::core::JSON{"Test"});
+  EXPECT_ANNOTATION(output, 3, "/foo", "/properties/foo/deprecated",
+                    "#/properties/foo/deprecated",
+                    sourcemeta::core::JSON{true});
+  EXPECT_ANNOTATION(output, 4, "/foo", "/properties/foo/title",
+                    "#/properties/foo/title", sourcemeta::core::JSON{"Foo"});
+  EXPECT_ANNOTATION(output, 5, "", "/properties", "#/properties",
+                    sourcemeta::core::JSON{"foo"});
 }
 
 TEST(annotations_success_2) {
@@ -1396,13 +1356,10 @@ TEST(annotations_success_2) {
 
   EXPECT_ANNOTATION_COUNT(output, 2);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/anyOf/0/title", "#/anyOf/0/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/anyOf/0/title", "#/anyOf/0/title", 0,
-                          sourcemeta::core::JSON{"First branch"});
-
-  EXPECT_ANNOTATION_ENTRY(output, "", "/anyOf/2/title", "#/anyOf/2/title", 1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/anyOf/2/title", "#/anyOf/2/title", 0,
-                          sourcemeta::core::JSON{"Third branch"});
+  EXPECT_ANNOTATION(output, 0, "", "/anyOf/0/title", "#/anyOf/0/title",
+                    sourcemeta::core::JSON{"First branch"});
+  EXPECT_ANNOTATION(output, 1, "", "/anyOf/2/title", "#/anyOf/2/title",
+                    sourcemeta::core::JSON{"Third branch"});
 }
 
 TEST(annotations_success_3) {
@@ -1458,13 +1415,12 @@ TEST(annotations_success_4) {
                                                              output.cend()};
   EXPECT_TRUE(traces.empty());
 
-  EXPECT_ANNOTATION_COUNT(output, 1);
+  EXPECT_ANNOTATION_COUNT(output, 2);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/contains", "#/contains", 2);
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 0,
-                          sourcemeta::core::JSON{0});
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 1,
-                          sourcemeta::core::JSON{2});
+  EXPECT_ANNOTATION(output, 0, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{0});
+  EXPECT_ANNOTATION(output, 1, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{2});
 }
 
 TEST(annotations_success_5) {
@@ -1491,13 +1447,12 @@ TEST(annotations_success_5) {
                                                              output.cend()};
   EXPECT_TRUE(traces.empty());
 
-  EXPECT_ANNOTATION_COUNT(output, 1);
+  EXPECT_ANNOTATION_COUNT(output, 2);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/contains", "#/contains", 2);
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 0,
-                          sourcemeta::core::JSON{0});
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 1,
-                          sourcemeta::core::JSON{2});
+  EXPECT_ANNOTATION(output, 0, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{0});
+  EXPECT_ANNOTATION(output, 1, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{2});
 }
 
 TEST(annotations_success_6) {
@@ -1524,13 +1479,12 @@ TEST(annotations_success_6) {
                                                              output.cend()};
   EXPECT_TRUE(traces.empty());
 
-  EXPECT_ANNOTATION_COUNT(output, 1);
+  EXPECT_ANNOTATION_COUNT(output, 2);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/contains", "#/contains", 2);
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 0,
-                          sourcemeta::core::JSON{0});
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 1,
-                          sourcemeta::core::JSON{1});
+  EXPECT_ANNOTATION(output, 0, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{0});
+  EXPECT_ANNOTATION(output, 1, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{1});
 }
 
 TEST(annotations_success_7) {
@@ -1559,9 +1513,8 @@ TEST(annotations_success_7) {
 
   EXPECT_ANNOTATION_COUNT(output, 1);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/contains", "#/contains", 1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 0,
-                          sourcemeta::core::JSON{0});
+  EXPECT_ANNOTATION(output, 0, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{0});
 }
 
 TEST(annotations_success_8) {
@@ -1588,12 +1541,16 @@ TEST(annotations_success_8) {
                                                              output.cend()};
   EXPECT_TRUE(traces.empty());
 
-  EXPECT_ANNOTATION_COUNT(output, 1);
+  EXPECT_ANNOTATION_COUNT(output, 4);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/unevaluatedItems", "#/unevaluatedItems",
-                          1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/unevaluatedItems", "#/unevaluatedItems",
-                          0, sourcemeta::core::JSON{true});
+  EXPECT_ANNOTATION(output, 0, "", "/unevaluatedItems", "#/unevaluatedItems",
+                    sourcemeta::core::JSON{true});
+  EXPECT_ANNOTATION(output, 1, "", "/unevaluatedItems", "#/unevaluatedItems",
+                    sourcemeta::core::JSON{true});
+  EXPECT_ANNOTATION(output, 2, "", "/unevaluatedItems", "#/unevaluatedItems",
+                    sourcemeta::core::JSON{true});
+  EXPECT_ANNOTATION(output, 3, "", "/unevaluatedItems", "#/unevaluatedItems",
+                    sourcemeta::core::JSON{true});
 }
 
 TEST(annotations_success_9) {
@@ -1621,18 +1578,16 @@ TEST(annotations_success_9) {
                                                              output.cend()};
   EXPECT_TRUE(traces.empty());
 
-  EXPECT_ANNOTATION_COUNT(output, 2);
+  EXPECT_ANNOTATION_COUNT(output, 4);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/contains", "#/contains", 2);
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 0,
-                          sourcemeta::core::JSON{0});
-  EXPECT_ANNOTATION_VALUE(output, "", "/contains", "#/contains", 1,
-                          sourcemeta::core::JSON{2});
-
-  EXPECT_ANNOTATION_ENTRY(output, "", "/unevaluatedItems", "#/unevaluatedItems",
-                          1);
-  EXPECT_ANNOTATION_VALUE(output, "", "/unevaluatedItems", "#/unevaluatedItems",
-                          0, sourcemeta::core::JSON{true});
+  EXPECT_ANNOTATION(output, 0, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{0});
+  EXPECT_ANNOTATION(output, 1, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{2});
+  EXPECT_ANNOTATION(output, 2, "", "/unevaluatedItems", "#/unevaluatedItems",
+                    sourcemeta::core::JSON{true});
+  EXPECT_ANNOTATION(output, 3, "", "/unevaluatedItems", "#/unevaluatedItems",
+                    sourcemeta::core::JSON{true});
 }
 
 TEST(annotations_success_10) {
@@ -1661,11 +1616,10 @@ TEST(annotations_success_10) {
 
   EXPECT_ANNOTATION_COUNT(output, 2);
 
-  EXPECT_ANNOTATION_ENTRY(output, "", "/contains", "#/contains", 1);
-  EXPECT_ANNOTATION_ENTRY(output, "/1", "/contains/title", "#/contains/title",
-                          1);
-  EXPECT_ANNOTATION_VALUE(output, "/1", "/contains/title", "#/contains/title",
-                          0, sourcemeta::core::JSON{"Test"});
+  EXPECT_ANNOTATION(output, 0, "/1", "/contains/title", "#/contains/title",
+                    sourcemeta::core::JSON{"Test"});
+  EXPECT_ANNOTATION(output, 1, "", "/contains", "#/contains",
+                    sourcemeta::core::JSON{1});
 }
 
 TEST(annotations_failure_1) {
