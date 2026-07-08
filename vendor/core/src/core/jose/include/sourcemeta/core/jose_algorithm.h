@@ -12,10 +12,11 @@
 namespace sourcemeta::core {
 
 /// @ingroup jose
-/// The asymmetric JSON Web Signature algorithms from RFC 7518 Section 3.1 and
-/// the Edwards-curve algorithm from RFC 8037 Section 3.1. The symmetric HMAC
-/// family and the null algorithm are intentionally absent, which makes
-/// algorithm confusion attacks unrepresentable in the type system.
+/// The JSON Web Signature algorithms from RFC 7518 Section 3.1 and the
+/// Edwards-curve algorithm from RFC 8037 Section 3.1. The null algorithm is
+/// intentionally absent. Each algorithm demands a key of exactly one family,
+/// the symmetric algorithms an octet sequence and the asymmetric ones their own
+/// key type, which is what keeps algorithm confusion attacks unexploitable.
 enum class JWSAlgorithm : std::uint8_t {
   /// RSASSA-PKCS1-v1_5 using SHA-256.
   RS256,
@@ -36,7 +37,13 @@ enum class JWSAlgorithm : std::uint8_t {
   /// ECDSA using the NIST P-521 curve and SHA-512.
   ES512,
   /// Edwards-curve Digital Signature Algorithm.
-  EdDSA
+  EdDSA,
+  /// HMAC using SHA-256.
+  HS256,
+  /// HMAC using SHA-384.
+  HS384,
+  /// HMAC using SHA-512.
+  HS512
 };
 
 /// @ingroup jose

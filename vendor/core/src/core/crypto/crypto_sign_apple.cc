@@ -10,6 +10,7 @@
 #include <Security/Security.h>             // Sec*, kSec*
 
 #include <array>       // std::array
+#include <cassert>     // assert
 #include <cstddef>     // std::size_t
 #include <optional>    // std::optional, std::nullopt
 #include <string>      // std::string
@@ -278,7 +279,11 @@ auto PrivateKey::operator=(PrivateKey &&other) noexcept -> PrivateKey & {
   return *this;
 }
 
-auto PrivateKey::type() const noexcept -> Type { return internal_->kind; }
+auto PrivateKey::type() const noexcept -> Type {
+  // A moved-from key holds no state, so reading its kind is a use-after-move
+  assert(internal_ != nullptr);
+  return internal_->kind;
+}
 
 auto make_private_key(const std::string_view pem) -> std::optional<PrivateKey> {
   auto der{pem_to_der(pem)};
@@ -347,6 +352,10 @@ auto make_ec_private_key(const EllipticCurve curve,
                          const std::string_view coordinate_x,
                          const std::string_view coordinate_y)
     -> std::optional<PrivateKey> {
+  if (!ec_private_scalar_in_range(scalar, curve)) {
+    return std::nullopt;
+  }
+
   const auto field_bytes{curve_field_bytes(curve)};
   auto *key{native_ec_private_key_components(field_bytes, scalar, coordinate_x,
                                              coordinate_y)};

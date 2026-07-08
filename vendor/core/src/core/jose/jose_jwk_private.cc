@@ -22,6 +22,7 @@ const auto HASH_DP{sourcemeta::core::JSON::Object::hash("dp"sv)};
 const auto HASH_DQ{sourcemeta::core::JSON::Object::hash("dq"sv)};
 const auto HASH_QI{sourcemeta::core::JSON::Object::hash("qi"sv)};
 const auto HASH_OTH{sourcemeta::core::JSON::Object::hash("oth"sv)};
+const auto HASH_K{sourcemeta::core::JSON::Object::hash("k"sv)};
 const auto HASH_CRV{sourcemeta::core::JSON::Object::hash("crv"sv)};
 const auto HASH_X{sourcemeta::core::JSON::Object::hash("x"sv)};
 const auto HASH_Y{sourcemeta::core::JSON::Object::hash("y"sv)};
@@ -56,6 +57,8 @@ auto to_jwk_kind(const sourcemeta::core::JWKPrivate::Type type) noexcept
       return sourcemeta::core::JWKKind::EllipticCurve;
     case sourcemeta::core::JWKPrivate::Type::OctetKeyPair:
       return sourcemeta::core::JWKKind::OctetKeyPair;
+    case sourcemeta::core::JWKPrivate::Type::Octet:
+      return sourcemeta::core::JWKKind::Octet;
   }
 
   std::unreachable();
@@ -165,6 +168,19 @@ auto JWKPrivate::parse(const JSON &value, JWKPrivate &result) -> bool {
     result.curve_ = curve->to_string();
     parsed_key = make_edwards_private_key(jwk_to_edwards_curve(result.curve_),
                                           seed.value());
+  } else if (key_type_value == "oct") {
+    const auto *key_value{value.try_at("k", HASH_K)};
+    if (key_value == nullptr || !key_value->is_string()) {
+      return false;
+    }
+
+    auto decoded_key{base64url_decode(key_value->to_string())};
+    if (!decoded_key.has_value() || decoded_key.value().empty()) {
+      return false;
+    }
+
+    result.type_ = Type::Octet;
+    result.secret_ = std::move(decoded_key).value();
   } else {
     return false;
   }

@@ -122,6 +122,10 @@ struct uint128_t {
     auto remainder_high = dividend.high % divisor;
     std::uint64_t quotient_low;
     std::uint64_t remainder;
+    // The high half of the partial dividend must stay below the divisor, or the
+    // hardware 128-by-64 division would overflow its 64-bit quotient. The
+    // remainder of the earlier division guarantees this
+    assert(remainder_high < divisor);
 #if defined(_MSC_VER)
     quotient_low = _udiv128(remainder_high, dividend.low, divisor, &remainder);
 #else
@@ -154,6 +158,10 @@ struct uint128_t {
 
     auto remainder_high = dividend.high % divisor;
     std::uint64_t remainder;
+    // The high half of the partial dividend must stay below the divisor, or the
+    // hardware 128-by-64 division would overflow its 64-bit quotient. The
+    // remainder of the earlier division guarantees this
+    assert(remainder_high < divisor);
 #if defined(_MSC_VER)
     _udiv128(remainder_high, dividend.low, divisor, &remainder);
 #else

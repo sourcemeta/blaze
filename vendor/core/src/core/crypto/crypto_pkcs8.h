@@ -65,7 +65,9 @@ struct PKCS8Key {
 // identifier and returning the raw privateKey octets
 inline auto parse_pkcs8(const std::string_view der) -> std::optional<PKCS8Key> {
   const auto outer{der_read(der)};
-  if (!outer.has_value() || outer->tag != 0x30) {
+  // A canonical PrivateKeyInfo is exactly one SEQUENCE, so bytes trailing the
+  // outer structure mark a malformed encoding (X.690 Section 10.1)
+  if (!outer.has_value() || outer->tag != 0x30 || !outer->rest.empty()) {
     return std::nullopt;
   }
 

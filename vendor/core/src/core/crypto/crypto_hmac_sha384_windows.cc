@@ -1,5 +1,5 @@
-#include <sourcemeta/core/crypto_hmac_sha256.h>
-#include <sourcemeta/core/crypto_sha256.h>
+#include <sourcemeta/core/crypto_hmac_sha384.h>
+#include <sourcemeta/core/crypto_sha384.h>
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -15,37 +15,37 @@
 
 namespace sourcemeta::core {
 
-auto hmac_sha256_digest(const std::string_view key,
+auto hmac_sha384_digest(const std::string_view key,
                         const std::string_view message)
-    -> std::array<std::uint8_t, 32> {
+    -> std::array<std::uint8_t, 48> {
   // A key longer than the block size is hashed first (RFC 2104 Section 2),
   // which also keeps the key length within the CNG length parameter. The
   // prehash runs before the provider is opened so that a throwing digest cannot
   // leak the handle. The secret interface is not const-qualified but never
   // writes through the pointer
-  constexpr std::size_t block_size{64};
-  std::array<std::uint8_t, 32> key_digest{};
+  constexpr std::size_t block_size{128};
+  std::array<std::uint8_t, 48> key_digest{};
   auto *secret{
       reinterpret_cast<unsigned char *>(const_cast<char *>(key.data()))};
   auto secret_size{key.size()};
   if (secret_size > block_size) {
-    key_digest = sha256_digest(key);
+    key_digest = sha384_digest(key);
     secret = key_digest.data();
     secret_size = key_digest.size();
   }
 
   BCRYPT_ALG_HANDLE algorithm{nullptr};
   if (!BCRYPT_SUCCESS(
-          BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA256_ALGORITHM,
+          BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA384_ALGORITHM,
                                       nullptr, BCRYPT_ALG_HANDLE_HMAC_FLAG))) {
-    throw std::runtime_error("Could not open the CNG HMAC-SHA256 provider");
+    throw std::runtime_error("Could not open the CNG HMAC-SHA384 provider");
   }
 
   BCRYPT_HASH_HANDLE hash{nullptr};
   if (!BCRYPT_SUCCESS(BCryptCreateHash(algorithm, &hash, nullptr, 0, secret,
                                        static_cast<ULONG>(secret_size), 0))) {
     BCryptCloseAlgorithmProvider(algorithm, 0);
-    throw std::runtime_error("Could not create the CNG HMAC-SHA256 hash");
+    throw std::runtime_error("Could not create the CNG HMAC-SHA384 hash");
   }
 
   // The data interface is not const-qualified but never writes through
@@ -65,7 +65,7 @@ auto hmac_sha256_digest(const std::string_view key,
     remaining_size -= chunk_size;
   }
 
-  std::array<std::uint8_t, 32> digest{};
+  std::array<std::uint8_t, 48> digest{};
   if (success) {
     success = BCRYPT_SUCCESS(BCryptFinishHash(
         hash, digest.data(), static_cast<ULONG>(digest.size()), 0));
@@ -74,7 +74,7 @@ auto hmac_sha256_digest(const std::string_view key,
   BCryptDestroyHash(hash);
   BCryptCloseAlgorithmProvider(algorithm, 0);
   if (!success) {
-    throw std::runtime_error("Could not compute the CNG HMAC-SHA256 digest");
+    throw std::runtime_error("Could not compute the CNG HMAC-SHA384 digest");
   }
 
   return digest;

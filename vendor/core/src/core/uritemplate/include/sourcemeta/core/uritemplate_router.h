@@ -288,6 +288,9 @@ private:
   const std::uint8_t *data_{nullptr};
   std::size_t size_{0};
   std::unique_ptr<FileView> owner_;
+  // Holds an eight-byte-aligned copy of an unaligned external buffer, so the
+  // over-aligned serialized nodes are always read from aligned storage
+  std::vector<std::uint64_t> owned_;
 };
 
 #if defined(_MSC_VER)

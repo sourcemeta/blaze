@@ -81,6 +81,12 @@ extern "C" auto sourcemeta_core_aes_256_gcm_open_cryptokit(
       return false;
     }
 
+    // The plaintext length always equals the ciphertext length for GCM, so a
+    // differing result length would overflow the caller's output buffer
+    if (result.length != ciphertext_size) {
+      return false;
+    }
+
     if (result.length > 0) {
       if (output == nullptr) {
         return false;
