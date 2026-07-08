@@ -9,7 +9,8 @@
 
 #include <algorithm>     // std::ranges::sort, std::ranges::any_of
 #include <deque>         // std::deque
-#include <functional>    // std::ref
+#include <functional>    // std::ref, std::reference_wrapper
+#include <map>           // std::map
 #include <optional>      // std::optional
 #include <sstream>       // std::ostringstream
 #include <string>        // std::string
@@ -400,6 +401,35 @@ auto array_of_nodes(const Accumulator &accumulator,
   return true;
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
+struct AnnotationLocation {
+  auto operator<(const AnnotationLocation &other) const noexcept -> bool {
+    return std::tie(this->instance_location, this->evaluate_path,
+                    this->schema_location.get()) <
+           std::tie(other.instance_location, other.evaluate_path,
+                    other.schema_location.get());
+  }
+
+  sourcemeta::core::WeakPointer instance_location;
+  sourcemeta::core::WeakPointer evaluate_path;
+  std::reference_wrapper<const std::string> schema_location;
+};
+
+auto group_annotations(const sourcemeta::blaze::SimpleOutput &output)
+    -> std::map<AnnotationLocation, std::vector<sourcemeta::core::JSON>> {
+  std::map<AnnotationLocation, std::vector<sourcemeta::core::JSON>> result;
+  for (const auto &entry : output.annotations()) {
+    auto &values{result[{.instance_location = entry.instance_location,
+                         .evaluate_path = entry.evaluate_path,
+                         .schema_location = entry.schema_location}]};
+    if (values.empty() || values.back() != entry.value) {
+      values.push_back(entry.value);
+    }
+  }
+
+  return result;
+}
+
 // Turn the JSON-LD annotations into a resolved map, or the first error found.
 // The first pass groups the facts by location, the second derives each kind
 // from the value shape and validates the facts against it
@@ -409,7 +439,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
                     sourcemeta::blaze::JSONLDResolutionError> {
   Accumulator accumulator;
 
-  for (const auto &[location, values] : output.annotations()) {
+  for (const auto &[location, values] : group_annotations(output)) {
     if (location.evaluate_path.empty()) {
       continue;
     }

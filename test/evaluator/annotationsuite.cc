@@ -9,7 +9,6 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <algorithm>
 #include <cassert>
 #include <filesystem>
 #include <functional>
@@ -61,16 +60,15 @@ has_annotation(const sourcemeta::blaze::SimpleOutput &output,
 
   for (const auto &annotation : output.annotations()) {
     std::cerr << "Checking against annotations for instance location \""
-              << sourcemeta::core::to_string(annotation.first.instance_location)
-              << "\" and schema location \""
-              << annotation.first.schema_location.get() << "\"" << "\n";
+              << sourcemeta::core::to_string(annotation.instance_location)
+              << "\" and schema location \"" << annotation.schema_location.get()
+              << "\"" << "\n";
 
-    if (annotation.first.instance_location != instance_location ||
-        !schema_location_matches(annotation.first.schema_location.get(),
+    if (annotation.instance_location != instance_location ||
+        !schema_location_matches(annotation.schema_location.get(),
                                  schema_location, frame)) {
       continue;
-    } else if (std::find(annotation.second.cbegin(), annotation.second.cend(),
-                         value) != annotation.second.cend()) {
+    } else if (annotation.value == value) {
       return true;
     }
   }
@@ -88,15 +86,15 @@ has_matching_annotations(const sourcemeta::blaze::SimpleOutput &output,
 
   for (const auto &annotation : output.annotations()) {
     std::cerr << "Checking against annotations for instance location \""
-              << sourcemeta::core::to_string(annotation.first.instance_location)
+              << sourcemeta::core::to_string(annotation.instance_location)
               << "\" and evaluate path \""
-              << sourcemeta::core::to_string(annotation.first.evaluate_path)
-              << "\"" << "\n";
+              << sourcemeta::core::to_string(annotation.evaluate_path) << "\""
+              << "\n";
 
-    if (annotation.first.instance_location == instance_location &&
-        !annotation.first.evaluate_path.empty() &&
-        annotation.first.evaluate_path.back().is_property() &&
-        annotation.first.evaluate_path.back().to_property() == keyword) {
+    if (annotation.instance_location == instance_location &&
+        !annotation.evaluate_path.empty() &&
+        annotation.evaluate_path.back().is_property() &&
+        annotation.evaluate_path.back().to_property() == keyword) {
       return true;
     }
   }
