@@ -116,8 +116,10 @@ public:
   }
 
   /// Access the annotations collected during evaluation, as a flat log in
-  /// evaluation order. Consumers that need them grouped by location index this
-  /// log themselves
+  /// evaluation order. The log records every emission as-is, so a location may
+  /// repeat and hold the same value more than once. Consumers that need them
+  /// grouped by location, or collapsed to distinct values, index this log
+  /// themselves
   [[nodiscard]] auto annotations() const -> const auto & {
     return this->annotations_;
   }
