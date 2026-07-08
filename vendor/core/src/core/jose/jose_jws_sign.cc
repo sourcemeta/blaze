@@ -20,18 +20,16 @@ auto jws_sign(const JWSAlgorithm algorithm,
     return std::nullopt;
   }
 
-  // The key material is parsed into a reusable platform key when the key is
-  // constructed, so an absent one is material that never formed a valid key
   const auto *private_key{key.private_key()};
-  if (private_key == nullptr) {
-    return std::nullopt;
-  }
 
   switch (algorithm) {
+    // The asymmetric key material is parsed into a reusable platform key when
+    // the key is constructed, so an absent one is material that never formed a
+    // valid key
     case JWSAlgorithm::RS256:
     case JWSAlgorithm::RS384:
     case JWSAlgorithm::RS512:
-      if (key.type() != JWKPrivate::Type::RSA) {
+      if (private_key == nullptr || key.type() != JWKPrivate::Type::RSA) {
         return std::nullopt;
       }
 
@@ -40,7 +38,7 @@ auto jws_sign(const JWSAlgorithm algorithm,
     case JWSAlgorithm::PS256:
     case JWSAlgorithm::PS384:
     case JWSAlgorithm::PS512:
-      if (key.type() != JWKPrivate::Type::RSA) {
+      if (private_key == nullptr || key.type() != JWKPrivate::Type::RSA) {
         return std::nullopt;
       }
 
@@ -53,7 +51,8 @@ auto jws_sign(const JWSAlgorithm algorithm,
     case JWSAlgorithm::ES256:
     case JWSAlgorithm::ES384:
     case JWSAlgorithm::ES512: {
-      if (key.type() != JWKPrivate::Type::EllipticCurve) {
+      if (private_key == nullptr ||
+          key.type() != JWKPrivate::Type::EllipticCurve) {
         return std::nullopt;
       }
 
@@ -70,11 +69,45 @@ auto jws_sign(const JWSAlgorithm algorithm,
     // rather than the algorithm (RFC 8037 Section 3.1), and the key fixes the
     // curve when it is parsed
     case JWSAlgorithm::EdDSA:
-      if (key.type() != JWKPrivate::Type::OctetKeyPair) {
+      if (private_key == nullptr ||
+          key.type() != JWKPrivate::Type::OctetKeyPair) {
         return std::nullopt;
       }
 
       return eddsa_sign(*private_key, signing_input);
+    // The symmetric algorithms authenticate with the raw secret rather than a
+    // parsed platform key, and the secret must be at least as large as the hash
+    // output (RFC 7518 Section 3.2)
+    case JWSAlgorithm::HS256: {
+      if (key.type() != JWKPrivate::Type::Octet ||
+          key.secret().size() < jws_hmac_minimum_secret_bytes(algorithm)) {
+        return std::nullopt;
+      }
+
+      const auto digest{hmac_sha256_digest(key.secret(), signing_input)};
+      return std::string{reinterpret_cast<const char *>(digest.data()),
+                         digest.size()};
+    }
+    case JWSAlgorithm::HS384: {
+      if (key.type() != JWKPrivate::Type::Octet ||
+          key.secret().size() < jws_hmac_minimum_secret_bytes(algorithm)) {
+        return std::nullopt;
+      }
+
+      const auto digest{hmac_sha384_digest(key.secret(), signing_input)};
+      return std::string{reinterpret_cast<const char *>(digest.data()),
+                         digest.size()};
+    }
+    case JWSAlgorithm::HS512: {
+      if (key.type() != JWKPrivate::Type::Octet ||
+          key.secret().size() < jws_hmac_minimum_secret_bytes(algorithm)) {
+        return std::nullopt;
+      }
+
+      const auto digest{hmac_sha512_digest(key.secret(), signing_input)};
+      return std::string{reinterpret_cast<const char *>(digest.data()),
+                         digest.size()};
+    }
   }
 
   std::unreachable();

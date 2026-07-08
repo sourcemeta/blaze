@@ -8,6 +8,7 @@
 #include "crypto_pkcs8.h"
 
 #include <array>       // std::array
+#include <cassert>     // assert
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint8_t, std::uint32_t
 #include <optional>    // std::optional, std::nullopt
@@ -211,9 +212,14 @@ auto bits2octets(const std::string_view bits, const Bignum &order,
 auto sign_rsa(const std::string_view modulus,
               const std::string_view private_exponent,
               const std::string_view encoded_message) -> std::string {
-  const auto representative{bignum_mod_exp(bignum_from_bytes(encoded_message),
-                                           bignum_from_bytes(private_exponent),
-                                           bignum_from_bytes(modulus))};
+  // The exponent is the secret private key, so the exponentiation runs in
+  // constant time; the exponent copy it consumes is wiped before returning
+  const auto context{barrett_context(bignum_from_bytes(modulus))};
+  auto exponent{bignum_from_bytes(private_exponent)};
+  const SecureBignumScope exponent_scope{exponent};
+  auto representative{
+      bignum_mod_exp_ct(bignum_from_bytes(encoded_message), exponent, context)};
+  bignum_normalize(representative);
   return bignum_to_bytes(representative, modulus.size());
 }
 
@@ -230,25 +236,36 @@ auto ecdsa_signature_for_nonce(const Bignum &nonce,
     return std::nullopt;
   }
 
-  const auto point{point_double_scalar_multiply(
-      nonce, generator, bignum_from_u64(0), generator, parameters)};
-  if (point_is_infinity(point)) {
-    return std::nullopt;
-  }
+  const auto point{
+      point_scalar_multiply_constant_time(nonce, generator, parameters)};
 
-  auto r{point_affine_x(point, parameters)};
+  // The ladder leaves its projective output fixed-width rather than normalized,
+  // so it does not leak the secret nonce through a value-dependent loop. The
+  // nonce lies in [1, n), so the result is never the point at infinity, and the
+  // r == 0 rejection below is the FIPS 186-4 restart condition regardless
+  auto r{point_affine_x_constant_time(point, parameters)};
   bignum_reduce(r, parameters.order);
   if (bignum_is_zero(r)) {
     return std::nullopt;
   }
 
-  // s = k^-1 (z + r * d) mod n
-  const auto s{bignum_mod_multiply(
-      bignum_mod_inverse(nonce, parameters.order),
-      bignum_mod_add(digest_integer,
-                     bignum_mod_multiply(r, private_scalar, parameters.order),
-                     parameters.order),
-      parameters.order)};
+  // s = k^-1 (z + r * d) mod n, evaluated over the constant-time field
+  // arithmetic modulo the order. The nonce inverse and every partial sum that
+  // mixes in the private scalar d carry secret material, so each is wiped
+  // before returning; the resulting r and s are the public signature
+  const auto order_field{barrett_context(parameters.order)};
+  auto nonce_inverse{field_inverse_ct(nonce, order_field)};
+  const SecureBignumScope nonce_inverse_scope{nonce_inverse};
+  auto private_reduced{barrett_reduce(private_scalar, order_field)};
+  const SecureBignumScope private_reduced_scope{private_reduced};
+  auto private_product{field_mod_multiply_ct(r, private_reduced, order_field)};
+  const SecureBignumScope private_product_scope{private_product};
+  const auto digest_reduced{barrett_reduce(digest_integer, order_field)};
+  auto shifted_digest{
+      field_add_ct(digest_reduced, private_product, order_field)};
+  const SecureBignumScope shifted_digest_scope{shifted_digest};
+  auto s{field_mod_multiply_ct(nonce_inverse, shifted_digest, order_field)};
+  bignum_normalize(s);
   if (bignum_is_zero(s)) {
     return std::nullopt;
   }
@@ -271,7 +288,8 @@ auto sign_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
   const auto order_bytes{(order_bits + 7) / 8};
   const auto digest{digest_message(hash, message)};
   const auto digest_integer{bits2int(digest, order_bits)};
-  const auto private_scalar{bignum_from_bytes(scalar)};
+  auto private_scalar{bignum_from_bytes(scalar)};
+  const SecureBignumScope private_scalar_scope{private_scalar};
   const JacobianPoint generator{.x = parameters.generator_x,
                                 .y = parameters.generator_y,
                                 .z = bignum_from_u64(1)};
@@ -313,9 +331,11 @@ auto sign_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
       candidate.append(hmac_value);
     }
 
-    const auto signature{ecdsa_signature_for_nonce(
-        bits2int(candidate, order_bits), digest_integer, private_scalar,
-        generator, parameters, field_bytes)};
+    auto nonce{bits2int(candidate, order_bits)};
+    const SecureBignumScope nonce_scope{nonce};
+    const auto signature{ecdsa_signature_for_nonce(nonce, digest_integer,
+                                                   private_scalar, generator,
+                                                   parameters, field_bytes)};
     if (signature.has_value()) {
       return signature;
     }
@@ -379,7 +399,11 @@ auto PrivateKey::operator=(PrivateKey &&other) noexcept -> PrivateKey & {
   return *this;
 }
 
-auto PrivateKey::type() const noexcept -> Type { return internal_->kind; }
+auto PrivateKey::type() const noexcept -> Type {
+  // A moved-from key holds no state, so reading its kind is a use-after-move
+  assert(internal_ != nullptr);
+  return internal_->kind;
+}
 
 auto make_private_key(const std::string_view pem) -> std::optional<PrivateKey> {
   auto der{pem_to_der(pem)};
@@ -514,7 +538,8 @@ auto make_ec_private_key(const EllipticCurve curve,
   // range-checked so that malformed input is rejected as on the other backends
   if (stripped.empty() || stripped.size() > width ||
       strip_left(coordinate_x, '\x00').size() > width ||
-      strip_left(coordinate_y, '\x00').size() > width) {
+      strip_left(coordinate_y, '\x00').size() > width ||
+      !ec_private_scalar_in_range(scalar, curve)) {
     return std::nullopt;
   }
 

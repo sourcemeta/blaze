@@ -10,6 +10,7 @@
 #include <Security/Security.h>             // Sec*, kSec*
 
 #include <array>       // std::array
+#include <cassert>     // assert
 #include <cstddef>     // std::size_t
 #include <optional>    // std::optional, std::nullopt
 #include <string>      // std::string
@@ -240,7 +241,11 @@ auto PublicKey::operator=(PublicKey &&other) noexcept -> PublicKey & {
   return *this;
 }
 
-auto PublicKey::type() const noexcept -> Type { return internal_->kind; }
+auto PublicKey::type() const noexcept -> Type {
+  // A moved-from key holds no state, so reading its kind is a use-after-move
+  assert(internal_ != nullptr);
+  return internal_->kind;
+}
 
 auto make_rsa_public_key(const std::string_view modulus,
                          const std::string_view exponent)
@@ -249,7 +254,8 @@ auto make_rsa_public_key(const std::string_view modulus,
   const auto stripped_exponent{strip_left(exponent, '\x00')};
   if (stripped_modulus.empty() || stripped_exponent.empty() ||
       stripped_modulus.size() > MAXIMUM_KEY_BYTES ||
-      stripped_exponent.size() > MAXIMUM_KEY_BYTES) {
+      stripped_exponent.size() > MAXIMUM_KEY_BYTES ||
+      !rsa_public_exponent_acceptable(exponent, modulus)) {
     return std::nullopt;
   }
 

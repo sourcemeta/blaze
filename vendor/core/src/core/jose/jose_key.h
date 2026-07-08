@@ -18,7 +18,7 @@ namespace sourcemeta::core {
 
 // The kind of key, shared by the public and private parsing paths so that the
 // algorithm matching does not need to be written twice
-enum class JWKKind : std::uint8_t { RSA, EllipticCurve, OctetKeyPair };
+enum class JWKKind : std::uint8_t { RSA, EllipticCurve, OctetKeyPair, Octet };
 
 // RFC 7518 Section 3.3: "A key of size 2048 bits or larger MUST be used with"
 // the RSASSA algorithms, so a smaller modulus is refused before a key is built
@@ -112,6 +112,10 @@ inline auto jwk_algorithm_matches_key(const JWSAlgorithm algorithm,
       return kind == JWKKind::EllipticCurve && curve == "P-521";
     case JWSAlgorithm::EdDSA:
       return kind == JWKKind::OctetKeyPair;
+    case JWSAlgorithm::HS256:
+    case JWSAlgorithm::HS384:
+    case JWSAlgorithm::HS512:
+      return kind == JWKKind::Octet;
   }
 
   std::unreachable();
@@ -135,6 +139,36 @@ inline auto jws_hash_for(const JWSAlgorithm algorithm)
     case JWSAlgorithm::PS512:
     case JWSAlgorithm::ES512:
       return SignatureHashFunction::SHA512;
+    case JWSAlgorithm::EdDSA:
+    case JWSAlgorithm::HS256:
+    case JWSAlgorithm::HS384:
+    case JWSAlgorithm::HS512:
+      break;
+  }
+
+  std::unreachable();
+}
+
+// RFC 7518 Section 3.2: "A key of the same size as the hash output (for
+// instance, 256 bits for HS256) or larger MUST be used with this algorithm"
+inline auto jws_hmac_minimum_secret_bytes(const JWSAlgorithm algorithm)
+    -> std::size_t {
+  switch (algorithm) {
+    case JWSAlgorithm::HS256:
+      return 32;
+    case JWSAlgorithm::HS384:
+      return 48;
+    case JWSAlgorithm::HS512:
+      return 64;
+    case JWSAlgorithm::RS256:
+    case JWSAlgorithm::RS384:
+    case JWSAlgorithm::RS512:
+    case JWSAlgorithm::PS256:
+    case JWSAlgorithm::PS384:
+    case JWSAlgorithm::PS512:
+    case JWSAlgorithm::ES256:
+    case JWSAlgorithm::ES384:
+    case JWSAlgorithm::ES512:
     case JWSAlgorithm::EdDSA:
       break;
   }
@@ -162,6 +196,9 @@ inline auto jws_ecdsa_signature_bytes(const JWSAlgorithm algorithm)
     case JWSAlgorithm::PS384:
     case JWSAlgorithm::PS512:
     case JWSAlgorithm::EdDSA:
+    case JWSAlgorithm::HS256:
+    case JWSAlgorithm::HS384:
+    case JWSAlgorithm::HS512:
       break;
   }
 

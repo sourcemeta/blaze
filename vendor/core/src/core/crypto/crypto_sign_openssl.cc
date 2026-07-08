@@ -2,6 +2,7 @@
 #include <sourcemeta/core/text.h>
 
 #include "crypto_helpers.h"
+#include "crypto_pkcs8.h"
 
 #include <openssl/bn.h>          // BN_bn2binpad, BN_bin2bn
 #include <openssl/core_names.h>  // OSSL_PKEY_PARAM_*
@@ -12,6 +13,7 @@
 #include <openssl/rsa.h> // RSA_PKCS1_PSS_PADDING, RSA_PSS_SALTLEN_DIGEST
 
 #include <array>       // std::array
+#include <cassert>     // assert
 #include <cstddef>     // std::size_t
 #include <optional>    // std::optional, std::nullopt
 #include <string>      // std::string
@@ -269,9 +271,27 @@ auto PrivateKey::operator=(PrivateKey &&other) noexcept -> PrivateKey & {
   return *this;
 }
 
-auto PrivateKey::type() const noexcept -> Type { return internal_->kind; }
+auto PrivateKey::type() const noexcept -> Type {
+  // A moved-from key holds no state, so reading its kind is a use-after-move
+  assert(internal_ != nullptr);
+  return internal_->kind;
+}
 
 auto make_private_key(const std::string_view pem) -> std::optional<PrivateKey> {
+  // The OpenSSL PEM reader accepts non-canonical PKCS#8 such as trailing bytes
+  // past the outer SEQUENCE, so the structure is validated up front to match
+  // the other backends (X.690 Section 10.1)
+  auto der{pem_to_der(pem)};
+  if (!der.has_value()) {
+    return std::nullopt;
+  }
+
+  // The decoded PKCS#8 holds the whole private key, so it is wiped on return
+  const SecureScope der_scope{der.value()};
+  if (!parse_pkcs8(der.value()).has_value()) {
+    return std::nullopt;
+  }
+
   auto *bio{BIO_new_mem_buf(pem.data(), static_cast<int>(pem.size()))};
   if (bio == nullptr) {
     return std::nullopt;
@@ -323,6 +343,10 @@ auto make_ec_private_key(const EllipticCurve curve,
                          const std::string_view coordinate_x,
                          const std::string_view coordinate_y)
     -> std::optional<PrivateKey> {
+  if (!ec_private_scalar_in_range(scalar, curve)) {
+    return std::nullopt;
+  }
+
   auto *key{native_ec_private_key(curve, scalar, coordinate_x, coordinate_y)};
   if (key == nullptr) {
     return std::nullopt;

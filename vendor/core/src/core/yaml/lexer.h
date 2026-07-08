@@ -452,9 +452,11 @@ private:
         preceded_by_whitespace = true;
         at_line_start = true;
         blank_line = true;
+        space_in_indent = false;
         block_indicator_separation = false;
         this->tab_at_line_start_ = false;
         this->tab_in_line_indent_ = false;
+        this->separation_tab_after_indicator_ = false;
         this->crossed_newline_ = true;
         this->line_leading_spaces_ = 0;
         leading_space_run = true;

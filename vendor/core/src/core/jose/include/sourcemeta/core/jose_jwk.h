@@ -22,8 +22,9 @@ namespace sourcemeta::core {
 
 /// @ingroup jose
 /// A parsed public JSON Web Key (RFC 7517), restricted to RSA, elliptic curve,
-/// and octet key pair (RFC 8037) keys. The key owns its decoded material, so
-/// the source JSON document does not need to outlive it. For example:
+/// octet key pair (RFC 8037), and symmetric octet (RFC 7518 Section 6.4) keys.
+/// The key owns its decoded material, so the source JSON document does not need
+/// to outlive it. For example:
 ///
 /// ```cpp
 /// #include <sourcemeta/core/jose.h>
@@ -45,7 +46,9 @@ public:
     /// The elliptic-curve key type.
     EllipticCurve,
     /// The Edwards-curve octet key pair type.
-    OctetKeyPair
+    OctetKeyPair,
+    /// The symmetric octet sequence key type.
+    Octet
   };
 
   /// Parse a JSON Web Key from a JSON value, throwing on invalid input.
@@ -103,6 +106,14 @@ public:
     return this->public_key_.has_value() ? &*this->public_key_ : nullptr;
   }
 
+  // Symmetric keys carry their raw secret rather than a parsed platform key
+  // (RFC 7518 Section 6.4), and knowing the secret is required for both
+  // producing and checking an HMAC, so the public key class carries it
+  /// The raw symmetric secret, empty for asymmetric keys.
+  [[nodiscard]] auto secret() const noexcept -> std::string_view {
+    return this->secret_;
+  }
+
 private:
   JWK() = default;
   static auto parse(const JSON &value, JWK &result) -> bool;
@@ -115,6 +126,7 @@ private:
   std::optional<JWSAlgorithm> algorithm_;
   std::string curve_;
   std::optional<PublicKey> public_key_;
+  std::string secret_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif
