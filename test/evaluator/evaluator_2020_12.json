@@ -4645,5 +4645,575 @@
         "The value was expected to be of type object"
       ]
     }
+  },
+  {
+    "description": "if_empty_then_hoisting_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "value" ],
+      "properties": {
+        "value": { "if": { "$comment": "always true" }, "then": { "type": "null" } }
+      }
+    },
+    "instance": { "value": null },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "value" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"value\"",
+        "The value was expected to be of type null",
+        "The object property \"value\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "if_empty_then_hoisting_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "value" ],
+      "properties": {
+        "value": {
+          "if": { "$comment": "always true" },
+          "then": { "type": "string", "pattern": "^f" }
+        }
+      }
+    },
+    "instance": { "value": "foo" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "AssertionRegex", "/properties/value/then/pattern", "#/properties/value/then/pattern", "/value" ],
+        [ "AssertionPropertyTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionRegex", "/properties/value/then/pattern", "#/properties/value/then/pattern", "/value" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"value\"",
+        "The string value \"foo\" was expected to match the regular expression \"^f\"",
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionRegex", "/properties/value/then/pattern", "#/properties/value/then/pattern", "/value" ],
+        [ "AssertionTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionRegex", "/properties/value/then/pattern", "#/properties/value/then/pattern", "/value" ],
+        [ true, "AssertionTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "value" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"value\"",
+        "The string value \"foo\" was expected to match the regular expression \"^f\"",
+        "The value was expected to be of type string",
+        "The object property \"value\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "if_empty_then_hoisting_dynamic_scope_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "value" ],
+      "properties": {
+        "value": {
+          "$id": "https://example.com/dynamic-wrapper",
+          "if": {
+            "$id": "first_scope",
+            "$defs": { "thingy": { "$dynamicAnchor": "thingy", "type": "number" } }
+          },
+          "then": {
+            "$id": "second_scope",
+            "$ref": "start",
+            "$defs": { "thingy": { "$dynamicAnchor": "thingy", "type": "null" } }
+          },
+          "$defs": {
+            "start": { "$id": "start", "$dynamicRef": "inner_scope#thingy" },
+            "thingy": {
+              "$id": "inner_scope",
+              "$dynamicAnchor": "thingy",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "instance": { "value": null },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LogicalAnd", "/properties/value/then", "https://example.com/dynamic-wrapper#/then", "/value" ],
+        [ "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+        [ "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/second_scope#/$defs/thingy/type", "/value" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/second_scope#/$defs/thingy/type", "/value" ],
+        [ true, "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+        [ true, "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ true, "LogicalAnd", "/properties/value/then", "https://example.com/dynamic-wrapper#/then", "/value" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "value" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"value\"",
+        "The value was expected to be of type null",
+        "The null value was expected to validate against the first subschema in scope that declared the dynamic anchor \"thingy\"",
+        "The null value was expected to validate against the referenced schema",
+        "The null value was expected to validate against the given conditional",
+        "The object property \"value\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "if_empty_then_hoisting_dynamic_scope_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "value" ],
+      "properties": {
+        "value": {
+          "$id": "https://example.com/dynamic-wrapper",
+          "if": { "$comment": "always true" },
+          "then": { "$id": "second_scope", "$ref": "start" },
+          "$defs": {
+            "outer_thingy": { "$dynamicAnchor": "thingy", "type": "null" },
+            "start": { "$id": "start", "$dynamicRef": "inner_scope#thingy" },
+            "thingy": {
+              "$id": "inner_scope",
+              "$dynamicAnchor": "thingy",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "instance": { "value": null },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LogicalAnd", "/properties/value/then", "https://example.com/dynamic-wrapper#/then", "/value" ],
+        [ "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+        [ "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/dynamic-wrapper#/$defs/outer_thingy/type", "/value" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/dynamic-wrapper#/$defs/outer_thingy/type", "/value" ],
+        [ true, "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+        [ true, "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ true, "LogicalAnd", "/properties/value/then", "https://example.com/dynamic-wrapper#/then", "/value" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "value" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"value\"",
+        "The value was expected to be of type null",
+        "The null value was expected to validate against the first subschema in scope that declared the dynamic anchor \"thingy\"",
+        "The null value was expected to validate against the referenced schema",
+        "The null value was expected to validate against the given conditional",
+        "The object property \"value\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "if_empty_then_hoisting_static_scope_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "value" ],
+      "properties": {
+        "value": {
+          "$id": "https://example.com/static-wrapper",
+          "if": { "$comment": "always true" },
+          "then": { "$id": "second_scope", "$ref": "start" },
+          "$defs": { "start": { "$id": "start", "type": "null" } }
+        }
+      }
+    },
+    "instance": { "value": null },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/value/then/$ref/type", "https://example.com/start#/type", "/value" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/value/then/$ref/type", "https://example.com/start#/type", "/value" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"value\"",
+        "The value was expected to be of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ "AssertionTypeStrict", "/properties/value/then/$ref/type", "https://example.com/start#/type", "/value" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/value/then/$ref/type", "https://example.com/start#/type", "/value" ],
+        [ true, "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "value" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"value\"",
+        "The value was expected to be of type null",
+        "The null value was expected to validate against the referenced schema",
+        "The object property \"value\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "if_empty_else_only_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "$comment": "always true" },
+      "else": { "properties": { "x": true } },
+      "unevaluatedProperties": false
+    },
+    "instance": { "x": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/x" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/x" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was not expected to define the property \"x\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/x" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/x" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was not expected to define the property \"x\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "if_empty_else_only_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "$comment": "always true" },
+      "else": { "type": "string" }
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "extends_dynamic_scope_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "value", "legacy" ],
+      "properties": {
+        "value": {
+          "$id": "https://example.com/dynamic-wrapper",
+          "if": {
+            "$id": "first_scope",
+            "$defs": { "thingy": { "$dynamicAnchor": "thingy", "type": "number" } }
+          },
+          "then": {
+            "$id": "second_scope",
+            "$ref": "start",
+            "$defs": { "thingy": { "$dynamicAnchor": "thingy", "type": "null" } }
+          },
+          "$defs": {
+            "start": { "$id": "start", "$dynamicRef": "inner_scope#thingy" },
+            "thingy": {
+              "$id": "inner_scope",
+              "$dynamicAnchor": "thingy",
+              "type": "string"
+            }
+          }
+        },
+        "legacy": { "$ref": "https://example.com/legacy" }
+      },
+      "$defs": {
+        "legacy": {
+          "$schema": "http://json-schema.org/draft-03/schema#",
+          "id": "https://example.com/legacy",
+          "extends": [ { "type": "string" }, { "minLength": 2 } ]
+        }
+      }
+    },
+    "instance": { "value": null, "legacy": "ab" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+        [ "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+        [ "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+        [ "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ],
+        [ "LogicalAnd", "/properties/value/then", "https://example.com/dynamic-wrapper#/then", "/value" ],
+        [ "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+        [ "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/second_scope#/$defs/thingy/type", "/value" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+        [ true, "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ],
+        [ true, "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+        [ true, "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+        [ true, "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/second_scope#/$defs/thingy/type", "/value" ],
+        [ true, "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+        [ true, "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ true, "LogicalAnd", "/properties/value/then", "https://example.com/dynamic-wrapper#/then", "/value" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"legacy\", and \"value\"",
+        "The value was expected to be of type string",
+        "The string value \"ab\" was expected to consist of at least 2 characters and it consisted of 2 characters",
+        "The string value was expected to validate against the 2 given subschemas",
+        "The string value was expected to validate against the referenced schema",
+        "The value was expected to be of type null",
+        "The null value was expected to validate against the first subschema in scope that declared the dynamic anchor \"thingy\"",
+        "The null value was expected to validate against the referenced schema",
+        "The null value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+        [ "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+        [ "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+        [ "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LogicalAnd", "/properties/value/then", "https://example.com/dynamic-wrapper#/then", "/value" ],
+        [ "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+        [ "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/second_scope#/$defs/thingy/type", "/value" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+        [ true, "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ],
+        [ true, "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+        [ true, "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "legacy" ],
+        [ true, "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/second_scope#/$defs/thingy/type", "/value" ],
+        [ true, "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+        [ true, "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+        [ true, "LogicalAnd", "/properties/value/then", "https://example.com/dynamic-wrapper#/then", "/value" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "value" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"legacy\", and \"value\"",
+        "The value was expected to be of type string",
+        "The string value \"ab\" was expected to consist of at least 2 characters and it consisted of 2 characters",
+        "The string value was expected to validate against the 2 given subschemas",
+        "The string value was expected to validate against the referenced schema",
+        "The object property \"legacy\" successfully validated against its property subschema",
+        "The value was expected to be of type null",
+        "The null value was expected to validate against the first subschema in scope that declared the dynamic anchor \"thingy\"",
+        "The null value was expected to validate against the referenced schema",
+        "The null value was expected to validate against the given conditional",
+        "The object property \"value\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "extends_dynamic_scope_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "value", "legacy" ],
+      "properties": {
+        "value": {
+          "$id": "https://example.com/dynamic-wrapper",
+          "if": {
+            "$id": "first_scope",
+            "$defs": { "thingy": { "$dynamicAnchor": "thingy", "type": "number" } }
+          },
+          "then": {
+            "$id": "second_scope",
+            "$ref": "start",
+            "$defs": { "thingy": { "$dynamicAnchor": "thingy", "type": "null" } }
+          },
+          "$defs": {
+            "start": { "$id": "start", "$dynamicRef": "inner_scope#thingy" },
+            "thingy": {
+              "$id": "inner_scope",
+              "$dynamicAnchor": "thingy",
+              "type": "string"
+            }
+          }
+        },
+        "legacy": { "$ref": "https://example.com/legacy" }
+      },
+      "$defs": {
+        "legacy": {
+          "$schema": "http://json-schema.org/draft-03/schema#",
+          "id": "https://example.com/legacy",
+          "extends": [ { "type": "string" }, { "minLength": 2 } ]
+        }
+      }
+    },
+    "instance": { "value": null, "legacy": "a" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+        [ "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+        [ "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+        [ "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+        [ false, "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ],
+        [ false, "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+        [ false, "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"legacy\", and \"value\"",
+        "The value was expected to be of type string",
+        "The string value \"a\" was expected to consist of at least 2 characters but it consisted of 1 character",
+        "The string value was expected to validate against the 2 given subschemas",
+        "The string value was expected to validate against the referenced schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+        [ "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+        [ "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+        [ "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+        [ false, "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ],
+        [ false, "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+        [ false, "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"legacy\", and \"value\"",
+        "The value was expected to be of type string",
+        "The string value \"a\" was expected to consist of at least 2 characters but it consisted of 1 character",
+        "The string value was expected to validate against the 2 given subschemas",
+        "The string value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
   }
 ]
