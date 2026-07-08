@@ -1,6 +1,8 @@
 #include <benchmark/benchmark.h>
 
 #include <cassert>    // assert
+#include <cstddef>    // std::size_t
+#include <cstdint>    // std::int64_t
 #include <filesystem> // std::filesystem::path
 
 #include <sourcemeta/blaze/foundation.h>
@@ -215,6 +217,84 @@ static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
 }
 
 static void
+Micro_2020_12_Simple_Output_Annotation_Dropping(benchmark::State &state) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": {
+      "oneOf": [
+        {
+          "type": "string",
+          "title": "String branch",
+          "description": "This branch matches string values"
+        },
+        {
+          "type": "integer",
+          "title": "Integer branch",
+          "description": "This branch matches integer values"
+        },
+        {
+          "type": "boolean",
+          "title": "Boolean branch",
+          "description": "This branch matches boolean values"
+        },
+        {
+          "type": "object",
+          "title": "Object branch",
+          "description": "This branch matches object values"
+        },
+        {
+          "type": "array",
+          "title": "Array branch",
+          "description": "This branch matches array values"
+        }
+      ]
+    }
+  })JSON")};
+
+  // Every element matches exactly one branch, so the array validates, but the
+  // four losing branches each collect a title and a description annotation that
+  // are then dropped. Exhaustive mode forces every branch to run, so this
+  // stresses the annotation collection and retraction path heavily
+  auto instance{sourcemeta::core::JSON::make_array()};
+  for (std::size_t index = 0; index < 512; index += 1) {
+    switch (index % 5) {
+      case 0:
+        instance.push_back(
+            sourcemeta::core::JSON{sourcemeta::core::JSON::String{"text"}});
+        break;
+      case 1:
+        instance.push_back(
+            sourcemeta::core::JSON{static_cast<std::int64_t>(index)});
+        break;
+      case 2:
+        instance.push_back(sourcemeta::core::JSON{index % 2 == 0});
+        break;
+      case 3:
+        instance.push_back(sourcemeta::core::JSON::make_object());
+        break;
+      default:
+        instance.push_back(sourcemeta::core::JSON::make_array());
+        break;
+    }
+  }
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto _ : state) {
+    sourcemeta::blaze::SimpleOutput output{instance};
+    auto result{
+        evaluator.validate(schema_template, instance, std::ref(output))};
+    assert(result);
+    benchmark::DoNotOptimize(result);
+  }
+}
+
+static void
 Micro_2020_12_Compile_NonCircular_Shared_Refs(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -397,6 +477,7 @@ BENCHMARK(Micro_2020_12_Dynamic_Ref);
 BENCHMARK(Micro_2020_12_Dynamic_Ref_Single);
 BENCHMARK(Micro_2020_12_Simple_Output_Mask);
 BENCHMARK(Micro_2020_12_Simple_Output_Annotations);
+BENCHMARK(Micro_2020_12_Simple_Output_Annotation_Dropping);
 BENCHMARK(Micro_2020_12_Compile_NonCircular_Shared_Refs);
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric);
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput);
