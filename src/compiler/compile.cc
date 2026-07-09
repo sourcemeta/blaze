@@ -82,6 +82,15 @@ auto defines_any_whitelisted_keyword(
     const sourcemeta::blaze::SchemaFrame::Location &entrypoint_location,
     const std::unordered_set<sourcemeta::core::JSON::StringView> &keywords)
     -> bool {
+  std::vector<std::pair<sourcemeta::core::JSON::StringView,
+                        sourcemeta::core::JSON::Object::hash_type>>
+      hashed_keywords;
+  hashed_keywords.reserve(keywords.size());
+  for (const auto &keyword : keywords) {
+    hashed_keywords.emplace_back(keyword,
+                                 sourcemeta::core::JSON::Object::hash(keyword));
+  }
+
   for (const auto &entry : frame.locations()) {
     if (entry.second.type ==
             sourcemeta::blaze::SchemaFrame::LocationType::Pointer ||
@@ -96,9 +105,8 @@ auto defines_any_whitelisted_keyword(
     }
 
     bool defines_keyword{false};
-    for (const auto &property : subschema.as_object()) {
-      if (keywords.contains(
-              sourcemeta::core::JSON::StringView{property.first})) {
+    for (const auto &[keyword, keyword_hash] : hashed_keywords) {
+      if (subschema.defines(keyword, keyword_hash)) {
         defines_keyword = true;
         break;
       }
