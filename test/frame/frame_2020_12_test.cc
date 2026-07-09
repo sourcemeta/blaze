@@ -4401,6 +4401,52 @@ TEST(relative_id_with_absolute_default_id) {
                                   frame.root());
 }
 
+TEST(boolean_true_with_default_id) {
+  const sourcemeta::core::JSON document =
+      sourcemeta::core::parse_json(R"JSON(true)JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver,
+                "https://json-schema.org/draft/2020-12/schema",
+                "https://www.example.com/schema");
+
+  EXPECT_EQ(frame.locations().size(), 1);
+
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://www.example.com/schema", "https://www.example.com/schema",
+      "", "https://www.example.com/schema", "", std::nullopt, false, false);
+
+  EXPECT_EQ(frame.references().size(), 0);
+
+  EXPECT_FRAME_LOCATION_REACHABLE(
+      frame, Static, "https://www.example.com/schema", frame.root());
+}
+
+TEST(boolean_false_with_default_id) {
+  const sourcemeta::core::JSON document =
+      sourcemeta::core::parse_json(R"JSON(false)JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver,
+                "https://json-schema.org/draft/2020-12/schema",
+                "https://www.example.com/schema");
+
+  EXPECT_EQ(frame.locations().size(), 1);
+
+  EXPECT_FRAME_STATIC_2020_12_RESOURCE(
+      frame, "https://www.example.com/schema", "https://www.example.com/schema",
+      "", "https://www.example.com/schema", "", std::nullopt, false, false);
+
+  EXPECT_EQ(frame.references().size(), 0);
+
+  EXPECT_FRAME_LOCATION_REACHABLE(
+      frame, Static, "https://www.example.com/schema", frame.root());
+}
+
 TEST(zero_paths) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",

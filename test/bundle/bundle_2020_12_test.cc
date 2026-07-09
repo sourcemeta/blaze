@@ -1415,6 +1415,38 @@ TEST(default_id_with_different_ref_target_id_with_fragment) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(boolean_true_with_default_id) {
+  sourcemeta::core::JSON document =
+      sourcemeta::core::parse_json(R"JSON(true)JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
+      "https://json-schema.org/draft/2020-12/schema",
+      "https://www.example.com/entry");
+
+  const sourcemeta::core::JSON expected =
+      sourcemeta::core::parse_json(R"JSON(true)JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(boolean_false_with_default_id) {
+  sourcemeta::core::JSON document =
+      sourcemeta::core::parse_json(R"JSON(false)JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
+      "https://json-schema.org/draft/2020-12/schema",
+      "https://www.example.com/entry");
+
+  const sourcemeta::core::JSON expected =
+      sourcemeta::core::parse_json(R"JSON(false)JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(deduplicate_embedded_from_prebundled) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
