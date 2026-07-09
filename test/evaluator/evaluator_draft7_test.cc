@@ -1,5 +1,7 @@
 #include <sourcemeta/core/test.h>
 
+#include <unordered_set>
+
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
@@ -288,6 +290,79 @@ TEST(format_iri_invalid_with_tweak_exhaustive) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"://bad\" was expected to represent a valid IRI");
+}
+
+TEST(annotation_fast_whitelist_unused_anyof_short_circuits) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
+TEST(annotation_fast_whitelist_keyword_present_exhaustive_without_annotations) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "anyOf": [
+      { "type": "string", "x-test-custom": "First" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 3, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/anyOf/1/type", "#/anyOf/1/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionType, "/anyOf/1/type",
+                              "#/anyOf/1/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to be of type integer but "
+      "it was of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
 }
 
 TEST(format_iri_no_tweak_fast) {

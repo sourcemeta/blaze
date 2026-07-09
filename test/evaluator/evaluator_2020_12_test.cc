@@ -653,6 +653,448 @@ TEST(annotation_fast_whitelist_anyof_within_object_property) {
                                "The value was expected to be of type object");
 }
 
+TEST(annotation_fast_whitelist_unused_anyof_short_circuits) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
+TEST(annotation_fast_whitelist_unused_contains_short_circuits) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "string" }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ "a", "b" ])JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/contains/type",
+                     "#/contains/type", "/0");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, LoopContains, "/contains", "#/contains", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The array value was expected to contain at "
+                               "least 1 item that validates against the given "
+                               "subschema");
+}
+
+TEST(annotation_fast_whitelist_unused_properties_fusion) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" },
+      "age": { "type": "integer" }
+    },
+    "required": [ "name", "age" ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "name": "Ada", "age": 30 })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionObjectPropertiesSimple, "/properties",
+                     "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple, "/properties",
+                              "#/properties", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+}
+
+TEST(annotation_fast_whitelist_orphan_definitions_short_circuits) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ],
+    "$defs": {
+      "unused": { "type": "string", "x-test-custom": "Ignored" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
+TEST(annotation_fast_whitelist_empty_set_short_circuits) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations.emplace();
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
+TEST(annotation_fast_whitelist_boolean_disjunct_short_circuits) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "type": "string" },
+      true
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
+TEST(annotation_fast_whitelist_property_name_collision_short_circuits) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      {
+        "type": "object",
+        "properties": {
+          "x-test-custom": { "type": "string" }
+        }
+      },
+      { "type": "string" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionObjectPropertiesSimple, "/anyOf/0/properties",
+                     "#/anyOf/0/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionObjectPropertiesSimple,
+                              "/anyOf/0/properties", "#/anyOf/0/properties",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The object value was expected to validate "
+                               "against the defined property subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The object value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
+TEST(annotation_fast_whitelist_at_root_not_short_circuited) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-test-custom": "Root",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/anyOf/1/type", "#/anyOf/1/type", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/x-test-custom", "#/x-test-custom", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionType, "/anyOf/1/type",
+                              "#/anyOf/1/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_ANNOTATION(3, "/x-test-custom", "#/x-test-custom", "",
+                                 "Root");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to be of type integer but "
+      "it was of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The unrecognized keyword \"x-test-custom\" was "
+                               "collected as the annotation \"Root\"");
+}
+
+TEST(annotation_fast_whitelist_in_referenced_definitions_not_short_circuited) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "$ref": "#/$defs/name" },
+      { "type": "integer" }
+    ],
+    "$defs": {
+      "name": { "type": "string", "x-test-custom": "First" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/anyOf/0/$ref/x-test-custom",
+                                "#/$defs/name/x-test-custom", "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/$ref/type",
+                     "#/$defs/name/type", "");
+  EVALUATE_TRACE_PRE(3, AssertionType, "/anyOf/1/type", "#/anyOf/1/type", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/anyOf/0/$ref/x-test-custom",
+                                 "#/$defs/name/x-test-custom", "", "First");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/anyOf/0/$ref/type",
+                              "#/$defs/name/type", "");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionType, "/anyOf/1/type",
+                              "#/anyOf/1/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The unrecognized keyword \"x-test-custom\" was "
+                               "collected as the annotation \"First\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The value was expected to be of type integer but "
+      "it was of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
+TEST(annotation_fast_whitelist_in_dynamic_ref_target_not_short_circuited) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/dyn",
+    "anyOf": [
+      { "$dynamicRef": "#name" },
+      { "type": "integer" }
+    ],
+    "$defs": {
+      "name": {
+        "$dynamicAnchor": "name",
+        "type": "string",
+        "x-test-custom": "First"
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "https://example.com/dyn#/anyOf",
+                     "");
+  EVALUATE_TRACE_PRE_ANNOTATION(
+      1, "/anyOf/0/$dynamicRef/x-test-custom",
+      "https://example.com/dyn#/$defs/name/x-test-custom", "");
+  EVALUATE_TRACE_PRE(2, AssertionTypeStrict, "/anyOf/0/$dynamicRef/type",
+                     "https://example.com/dyn#/$defs/name/type", "");
+  EVALUATE_TRACE_PRE(3, AssertionType, "/anyOf/1/type",
+                     "https://example.com/dyn#/anyOf/1/type", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(
+      0, "/anyOf/0/$dynamicRef/x-test-custom",
+      "https://example.com/dyn#/$defs/name/x-test-custom", "", "First");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict,
+                              "/anyOf/0/$dynamicRef/type",
+                              "https://example.com/dyn#/$defs/name/type", "");
+  EVALUATE_TRACE_POST_FAILURE(2, AssertionType, "/anyOf/1/type",
+                              "https://example.com/dyn#/anyOf/1/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf",
+                              "https://example.com/dyn#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The unrecognized keyword \"x-test-custom\" was "
+                               "collected as the annotation \"First\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The value was expected to be of type integer but "
+      "it was of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 3,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
+TEST(annotation_fast_whitelist_entrypoint_scope_short_circuits) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/top",
+    "x-test-custom": "Root",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ],
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner",
+        "anyOf": [
+          { "type": "string" },
+          { "type": "integer" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2,
+                                           "https://example.com/inner", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "https://example.com/inner#/anyOf",
+                     "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type",
+                     "https://example.com/inner#/anyOf/0/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "https://example.com/inner#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalOr, "/anyOf",
+                              "https://example.com/inner#/anyOf", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The string value was expected to validate "
+      "against at least one of the 2 given subschemas");
+}
+
 TEST(annotation_fast_whitelist_if_then_within_object_property) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

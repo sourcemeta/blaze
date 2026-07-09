@@ -2,6 +2,8 @@
 
 #include <sourcemeta/blaze/compiler.h>
 
+#include <unordered_set> // std::unordered_set
+
 #define EXPECT_BIDIRECTIONAL_JSON(schema_template, expected_json)              \
   {                                                                            \
     const auto result{sourcemeta::blaze::to_json(schema_template)};            \
@@ -466,4 +468,46 @@ TEST(unreachable_refs_are_pruned) {
   EXPECT_EQ(targets.size(), 1);
 
   EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
+}
+
+TEST(annotations_whitelist_unused_matches_untweaked) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" },
+      "age": { "type": "integer" },
+      "value": {
+        "anyOf": [ { "type": "string" }, { "type": "integer" } ],
+        "oneOf": [ { "minimum": 0 }, { "maximum": 10 } ]
+      },
+      "tags": {
+        "type": "array",
+        "contains": { "type": "string" }
+      }
+    },
+    "required": [ "name", "age" ]
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
+      "x-jsonld-id",       "x-jsonld-type",     "x-jsonld-reverse",
+      "x-jsonld-datatype", "x-jsonld-language", "x-jsonld-direction",
+      "x-jsonld-json",     "x-jsonld-graph",    "x-jsonld-container",
+      "x-jsonld-self"};
+
+  const auto with_whitelist{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const auto without_tweaks{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  EXPECT_EQ(sourcemeta::blaze::to_json(with_whitelist),
+            sourcemeta::blaze::to_json(without_tweaks));
 }
