@@ -293,7 +293,35 @@ public:
   [[nodiscard]] static auto normalize(const WeakPointer &location)
       -> JSON::String;
 
+  /// Serialize the query into its expression string as JSON. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/jsonpath.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::core::JSONPath path{"$.foo[0]"};
+  /// const sourcemeta::core::JSON result{path.to_json()};
+  /// assert(result.is_string());
+  /// assert(result.to_string() == "$.foo[0]");
+  /// ```
+  [[nodiscard]] auto to_json() const -> JSON;
+
+  /// Deserialize a query from its expression string as JSON, returning no
+  /// result on invalid input. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/jsonpath.h>
+  /// #include <cassert>
+  ///
+  /// const sourcemeta::core::JSON input{"$.foo[0]"};
+  /// const auto path{sourcemeta::core::JSONPath::from_json(input)};
+  /// assert(path.has_value());
+  /// ```
+  [[nodiscard]] static auto from_json(const JSON &value)
+      -> std::optional<JSONPath>;
+
 private:
+  JSON::String expression_;
   Query query_;
 };
 

@@ -1363,7 +1363,7 @@ inline auto evaluate_segments(const std::vector<JSONPath::Segment> &segments,
 } // namespace
 
 JSONPath::JSONPath(const JSON::StringView expression)
-    : query_{parse_jsonpath(expression)} {}
+    : expression_{expression}, query_{parse_jsonpath(expression)} {}
 
 auto JSONPath::evaluate(const JSON &document, const Callback &callback) const
     -> void {
@@ -1427,6 +1427,20 @@ auto JSONPath::normalize(const WeakPointer &location) -> JSON::String {
   }
 
   return result;
+}
+
+auto JSONPath::to_json() const -> JSON { return JSON{this->expression_}; }
+
+auto JSONPath::from_json(const JSON &value) -> std::optional<JSONPath> {
+  if (!value.is_string()) {
+    return std::nullopt;
+  }
+
+  try {
+    return JSONPath{value.to_string()};
+  } catch (const JSONPathParseError &) {
+    return std::nullopt;
+  }
 }
 
 } // namespace sourcemeta::core
