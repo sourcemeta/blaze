@@ -3,10 +3,12 @@
 
 #include <pcre2.h>
 
-#include "preprocess.h"
+#include "iregexp.h"
+#include "permissive.h"
 
 #include <charconv>     // std::from_chars
 #include <cstddef>      // std::size_t
+#include <cstdint>      // std::uint32_t
 #include <regex>        // std::regex, std::smatch, std::regex_match
 #include <string>       // std::string
 #include <string_view>  // std::string_view
@@ -15,7 +17,42 @@
 
 namespace sourcemeta::core {
 
-auto to_regex(const std::string_view pattern) -> std::optional<Regex> {
+namespace {
+
+auto compile_pcre2(const std::string &pattern, const std::uint32_t options)
+    -> std::optional<Regex> {
+  int pcre2_error_code{0};
+  PCRE2_SIZE pcre2_error_offset{0};
+  pcre2_code *pcre2_regex_raw{pcre2_compile(
+      reinterpret_cast<PCRE2_SPTR>(pattern.c_str()), pattern.size(), options,
+      &pcre2_error_code, &pcre2_error_offset, nullptr)};
+  if (pcre2_regex_raw == nullptr) {
+    return std::nullopt;
+  }
+
+  std::shared_ptr<pcre2_code> pcre2_regex{pcre2_regex_raw, pcre2_code_free};
+  pcre2_jit_compile(pcre2_regex.get(), PCRE2_JIT_COMPLETE);
+  return RegexTypePCRE2{std::shared_ptr<void>(pcre2_regex)};
+}
+
+} // namespace
+
+auto to_regex(const std::string_view pattern, const RegexDialect dialect)
+    -> std::optional<Regex> {
+  if (dialect != RegexDialect::Permissive) {
+    const auto translated{
+        translate_iregexp(pattern, dialect == RegexDialect::IRegexp)};
+    if (!translated.has_value()) {
+      return std::nullopt;
+    }
+
+    // Grouping in RFC 9485 carries no capturing semantics, as matching is
+    // strictly Boolean, so capturing is disabled altogether
+    return compile_pcre2(translated.value(), PCRE2_UTF | PCRE2_UCP |
+                                                 PCRE2_NO_AUTO_CAPTURE |
+                                                 PCRE2_MATCH_INVALID_UTF);
+  }
+
   if (pattern == ".*" || pattern == "^.*$" || pattern == "^(.*)$" ||
       pattern == "(.*)" || pattern == "[\\s\\S]*" || pattern == "^[\\s\\S]*$") {
     return RegexTypeNoop{};
@@ -64,30 +101,17 @@ auto to_regex(const std::string_view pattern) -> std::optional<Regex> {
     return RegexTypeRange{minimum, maximum};
   }
 
-  const auto preprocessed{preprocess_regex(std::string{pattern})};
-  if (!preprocessed.transformed.has_value()) {
+  const auto translated{translate_permissive(std::string{pattern})};
+  if (!translated.transformed.has_value()) {
     return std::nullopt;
   }
 
-  int pcre2_error_code{0};
-  PCRE2_SIZE pcre2_error_offset{0};
-  pcre2_code *pcre2_regex_raw{pcre2_compile(
-      reinterpret_cast<PCRE2_SPTR>(preprocessed.transformed.value().c_str()),
-      preprocessed.transformed.value().size(),
-      // Capturing groups are kept enabled so that ECMA-262 numbered
-      // backreferences like (a)\1 compile and match, at a small tracking cost
-      PCRE2_UTF | PCRE2_UCP | PCRE2_DOTALL | PCRE2_DOLLAR_ENDONLY |
-          PCRE2_NEVER_BACKSLASH_C | PCRE2_MATCH_INVALID_UTF |
-          PCRE2_ALLOW_EMPTY_CLASS,
-      &pcre2_error_code, &pcre2_error_offset, nullptr)};
-
-  if (pcre2_regex_raw != nullptr) {
-    std::shared_ptr<pcre2_code> pcre2_regex{pcre2_regex_raw, pcre2_code_free};
-    pcre2_jit_compile(pcre2_regex.get(), PCRE2_JIT_COMPLETE);
-    return RegexTypePCRE2{std::shared_ptr<void>(pcre2_regex)};
-  }
-
-  return std::nullopt;
+  // Capturing groups are kept enabled so that ECMA-262 numbered
+  // backreferences like (a)\1 compile and match, at a small tracking cost
+  return compile_pcre2(translated.transformed.value(),
+                       PCRE2_UTF | PCRE2_UCP | PCRE2_DOTALL |
+                           PCRE2_DOLLAR_ENDONLY | PCRE2_NEVER_BACKSLASH_C |
+                           PCRE2_MATCH_INVALID_UTF | PCRE2_ALLOW_EMPTY_CLASS);
 }
 
 auto matches(const Regex &regex, const std::string_view value) -> bool {
@@ -128,22 +152,23 @@ auto matches(const Regex &regex, const std::string_view value) -> bool {
 }
 
 auto matches_if_valid(const std::string_view pattern,
-                      const std::string_view value) -> bool {
-  const auto regex{to_regex(pattern)};
+                      const std::string_view value, const RegexDialect dialect)
+    -> bool {
+  const auto regex{to_regex(pattern, dialect)};
   return regex.has_value() && matches(regex.value(), value);
 }
 
 auto is_regex_ecma(const std::string_view pattern) -> bool {
-  const auto preprocessed{preprocess_regex(std::string{pattern})};
-  if (!preprocessed.ecma_valid || !preprocessed.transformed.has_value()) {
+  const auto translated{translate_permissive(std::string{pattern})};
+  if (!translated.ecma_valid || !translated.transformed.has_value()) {
     return false;
   }
 
   int pcre2_error_code{0};
   PCRE2_SIZE pcre2_error_offset{0};
   pcre2_code *pcre2_regex_raw{pcre2_compile(
-      reinterpret_cast<PCRE2_SPTR>(preprocessed.transformed.value().c_str()),
-      preprocessed.transformed.value().size(),
+      reinterpret_cast<PCRE2_SPTR>(translated.transformed.value().c_str()),
+      translated.transformed.value().size(),
       // Capturing groups are kept enabled so that ECMA-262 numbered
       // backreferences like (a)\1 compile and match, at a small tracking cost
       PCRE2_UTF | PCRE2_UCP | PCRE2_DOTALL | PCRE2_DOLLAR_ENDONLY |

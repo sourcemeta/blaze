@@ -1,5 +1,5 @@
-#ifndef SOURCEMETA_CORE_REGEX_PREPROCESS_H_
-#define SOURCEMETA_CORE_REGEX_PREPROCESS_H_
+#ifndef SOURCEMETA_CORE_REGEX_PERMISSIVE_H_
+#define SOURCEMETA_CORE_REGEX_PERMISSIVE_H_
 
 #include <sourcemeta/core/text.h>
 
@@ -632,8 +632,9 @@ inline auto find_shorthand(char escape) -> const ShorthandExpansion * {
 
 } // namespace
 
-// The result of preprocessing a regex pattern into PCRE2-compatible form.
-struct PreprocessResult {
+// The result of translating a permissive dialect pattern into
+// PCRE2-compatible form
+struct PermissiveResult {
   // True if the input pattern is strict ECMA-262.
   bool ecma_valid;
   // The PCRE2-compatible transformed pattern, if any.
@@ -667,7 +668,8 @@ inline auto exceeds_class_depth(const std::string &pattern) -> bool {
   return false;
 }
 
-inline auto preprocess_regex(const std::string &pattern) -> PreprocessResult {
+inline auto translate_permissive(const std::string &pattern)
+    -> PermissiveResult {
   if (exceeds_class_depth(pattern)) {
     return {.ecma_valid = false, .transformed = std::nullopt};
   }
