@@ -6,7 +6,11 @@ SCHEMAS = \
 	canonical-draft6.json \
 	canonical-draft7.json \
 	canonical-2019-09.json \
-	canonical-2020-12.json
+	canonical-2020-12.json \
+	vocabularies/sourcemeta/2026-07-10/2019-09-vocab.json \
+	vocabularies/sourcemeta/2026-07-10/2019-09.json \
+	vocabularies/sourcemeta/2026-07-10/2020-12-vocab.json \
+	vocabularies/sourcemeta/2026-07-10/2020-12.json
 TESTS = \
 	canonical-draft1.test.json \
 	canonical-draft2.test.json \
@@ -15,7 +19,9 @@ TESTS = \
 	canonical-draft6.test.json \
 	canonical-draft7.test.json \
 	canonical-2019-09.test.json \
-	canonical-2020-12.test.json
+	canonical-2020-12.test.json \
+	vocabularies/sourcemeta/2026-07-10/vocab.test.json \
+	vocabularies/sourcemeta/2026-07-10/dialect.test.json
 JSONSCHEMA ?= jsonschema
 
 .PHONY: all

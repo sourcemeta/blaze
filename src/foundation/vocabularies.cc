@@ -68,7 +68,10 @@
     "http://json-schema.org/draft-00/hyper-schema#")                           \
   /* OpenAPI vocabularies */                                                   \
   X(OpenAPI_3_1_Base, "https://spec.openapis.org/oas/3.1/vocab/base")          \
-  X(OpenAPI_3_2_Base, "https://spec.openapis.org/oas/3.2/vocab/base")
+  X(OpenAPI_3_2_Base, "https://spec.openapis.org/oas/3.2/vocab/base")          \
+  /* Sourcemeta vocabularies */                                                \
+  X(Sourcemeta_Extension_2026_07_10, "tag:sourcemeta.com,2026-07-10:"          \
+                                     "extension")
 
 namespace {
 auto uri_to_known_vocabulary(const std::string_view uri)
