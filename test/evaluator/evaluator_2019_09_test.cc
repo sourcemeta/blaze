@@ -3688,8 +3688,8 @@ TEST(format_uri_x_assertion_true_valid_no_tweak_exhaustive) {
       instance, 1,
       "The logical type of the instance was expected to be \"uri\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The unrecognized keyword \"x-format-assertion\""
-                               " was collected as the annotation true");
+                               "A sibling `format` keyword was expected to "
+                               "be enforced as an assertion");
 }
 
 TEST(format_uri_x_assertion_true_invalid_no_tweak_exhaustive) {
@@ -3734,8 +3734,8 @@ TEST(format_uri_x_assertion_false_no_tweak_exhaustive) {
       instance, 0,
       "The logical type of the instance was expected to be \"uri\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The unrecognized keyword \"x-format-assertion\""
-                               " was collected as the annotation false");
+                               "A sibling `format` keyword was expected to "
+                               "be collected as an annotation");
 }
 
 TEST(x_assertion_true_without_format_no_tweak_exhaustive) {
@@ -3753,8 +3753,8 @@ TEST(x_assertion_true_without_format_no_tweak_exhaustive) {
   EVALUATE_TRACE_POST_ANNOTATION(0, "/x-format-assertion",
                                  "#/x-format-assertion", "", true);
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The unrecognized keyword \"x-format-assertion\""
-                               " was collected as the annotation true");
+                               "A sibling `format` keyword was expected to "
+                               "be enforced as an assertion");
 }
 
 TEST(annotation_fast_metadata_title) {

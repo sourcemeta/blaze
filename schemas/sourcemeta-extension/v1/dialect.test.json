@@ -1,0 +1,415 @@
+{
+  "target": [ "./2019-09/dialect.json", "./2020-12/dialect.json" ],
+  "tests": [
+    {
+      "description": "Boolean true is a valid schema",
+      "valid": true,
+      "data": true
+    },
+    {
+      "description": "Boolean false is a valid schema",
+      "valid": true,
+      "data": false
+    },
+    {
+      "description": "Empty object is a valid schema",
+      "valid": true,
+      "data": {}
+    },
+    {
+      "description": "String value is rejected",
+      "valid": false,
+      "data": "not a schema"
+    },
+    {
+      "description": "Number value is rejected",
+      "valid": false,
+      "data": 42
+    },
+    {
+      "description": "Null value is rejected",
+      "valid": false,
+      "data": null
+    },
+    {
+      "description": "Array value is rejected",
+      "valid": false,
+      "data": [ true ]
+    },
+    {
+      "description": "Plain 2020-12 schema is valid",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    {
+      "description": "Official simple type constraint still applies",
+      "valid": false,
+      "data": {
+        "type": "not-a-type"
+      }
+    },
+    {
+      "description": "Official identifier fragment constraint still applies",
+      "valid": false,
+      "data": {
+        "$id": "https://example.com/schema#fragment"
+      }
+    },
+    {
+      "description": "Official properties shape constraint still applies",
+      "valid": false,
+      "data": {
+        "properties": []
+      }
+    },
+    {
+      "description": "Legacy definitions keyword is still accepted",
+      "valid": true,
+      "data": {
+        "definitions": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "description": "Legacy dependencies keyword is still accepted",
+      "valid": true,
+      "data": {
+        "dependencies": {
+          "name": [ "surname" ]
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-id at the root is valid",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/name"
+      }
+    },
+    {
+      "description": "x-jsonld-id at the root with relative reference is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "x-jsonld-id": "name"
+      }
+    },
+    {
+      "description": "x-jsonld-id at the root with number is rejected",
+      "valid": false,
+      "data": {
+        "type": "string",
+        "x-jsonld-id": 123
+      }
+    },
+    {
+      "description": "x-jsonld-id nested in properties is valid",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/name"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-id nested in properties with number is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "x-jsonld-id": 123
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-id nested in properties with relative reference is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "x-jsonld-id": "name"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-type nested in $defs with wrong type is rejected",
+      "valid": false,
+      "data": {
+        "$defs": {
+          "product": {
+            "x-jsonld-type": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-type nested in $defs is valid",
+      "valid": true,
+      "data": {
+        "$defs": {
+          "product": {
+            "x-jsonld-type": "https://schema.org/Product"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-datatype nested in items is valid",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-datatype nested in items with relative reference is rejected",
+      "valid": false,
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "x-jsonld-datatype": "date"
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-direction nested in allOf branch is valid",
+      "valid": true,
+      "data": {
+        "allOf": [
+          {
+            "type": "string",
+            "x-jsonld-direction": "rtl"
+          }
+        ]
+      }
+    },
+    {
+      "description": "x-jsonld-direction nested in allOf branch with wrong value is rejected",
+      "valid": false,
+      "data": {
+        "allOf": [
+          {
+            "type": "string",
+            "x-jsonld-direction": "up"
+          }
+        ]
+      }
+    },
+    {
+      "description": "x-jsonld-container nested in oneOf branch with wrong value is rejected",
+      "valid": false,
+      "data": {
+        "oneOf": [
+          {
+            "type": "array",
+            "x-jsonld-container": "@lists"
+          }
+        ]
+      }
+    },
+    {
+      "description": "x-jsonld-language nested in additionalProperties with number is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string",
+          "x-jsonld-language": 1
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-self nested in patternProperties with unclosed expression is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "patternProperties": {
+          "^currency": {
+            "type": "string",
+            "x-jsonld-self": "https://example.com/{this"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-graph deeply nested through properties and items is valid",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "x-jsonld-graph": true,
+              "properties": {
+                "total": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-graph deeply nested through properties and items with string is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "x-jsonld-graph": "yes"
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-id nested in legacy definitions with number is rejected",
+      "valid": false,
+      "data": {
+        "definitions": {
+          "name": {
+            "x-jsonld-id": 123
+          }
+        }
+      }
+    },
+    {
+      "description": "x-format-assertion alongside format is valid",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "format": "uri",
+        "x-format-assertion": true
+      }
+    },
+    {
+      "description": "x-format-assertion nested with string is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "properties": {
+          "homepage": {
+            "type": "string",
+            "format": "uri",
+            "x-format-assertion": "always"
+          }
+        }
+      }
+    },
+    {
+      "description": "Boolean subschemas remain valid",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "anything": true
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "description": "Keyword combinations left to runtime resolution are accepted",
+      "valid": true,
+      "data": {
+        "type": "array",
+        "x-jsonld-container": "@list",
+        "x-jsonld-graph": true
+      }
+    },
+    {
+      "description": "Product catalog example is valid",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Product",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/sku"
+          },
+          "name": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/name"
+          },
+          "releaseDate": {
+            "type": "string",
+            "format": "date",
+            "x-jsonld-id": "https://schema.org/releaseDate",
+            "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+          },
+          "keywords": {
+            "type": "array",
+            "x-jsonld-id": "https://schema.org/keywords",
+            "x-jsonld-container": "@list",
+            "items": {
+              "type": "string"
+            }
+          },
+          "manufacturer": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/manufacturer",
+            "x-jsonld-type": "https://schema.org/Organization",
+            "properties": {
+              "name": {
+                "type": "string",
+                "x-jsonld-id": "https://schema.org/name"
+              },
+              "url": {
+                "type": "string",
+                "x-jsonld-id": "https://schema.org/sameAs",
+                "x-jsonld-self": "{+this}"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "Product catalog example with one wrong nested value is rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Product",
+        "properties": {
+          "manufacturer": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/manufacturer",
+            "properties": {
+              "url": {
+                "type": "string",
+                "x-jsonld-self": 123
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

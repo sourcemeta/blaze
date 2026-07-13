@@ -1,0 +1,878 @@
+{
+  "target": [ "./2019-09/vocabulary.json", "./2020-12/vocabulary.json" ],
+  "tests": [
+    {
+      "description": "Boolean true is a valid schema",
+      "valid": true,
+      "data": true
+    },
+    {
+      "description": "Boolean false is a valid schema",
+      "valid": true,
+      "data": false
+    },
+    {
+      "description": "Empty object is a valid schema",
+      "valid": true,
+      "data": {}
+    },
+    {
+      "description": "String value is rejected",
+      "valid": false,
+      "data": "not a schema"
+    },
+    {
+      "description": "Number value is rejected",
+      "valid": false,
+      "data": 42
+    },
+    {
+      "description": "Null value is rejected",
+      "valid": false,
+      "data": null
+    },
+    {
+      "description": "Array value is rejected",
+      "valid": false,
+      "data": [ 1, 2, 3 ]
+    },
+    {
+      "description": "Unrelated standard keywords are unconstrained",
+      "valid": true,
+      "data": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    {
+      "description": "Unknown extension keywords are unconstrained",
+      "valid": true,
+      "data": {
+        "x-custom": 123
+      }
+    },
+    {
+      "description": "x-jsonld-id with HTTPS IRI is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-id": "https://schema.org/name"
+      }
+    },
+    {
+      "description": "x-jsonld-id with URN is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-id": "urn:example:name"
+      }
+    },
+    {
+      "description": "x-jsonld-id with tag URI is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-id": "tag:example.com,2026:name"
+      }
+    },
+    {
+      "description": "x-jsonld-id with internationalized IRI is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-id": "https://example.com/propriété"
+      }
+    },
+    {
+      "description": "x-jsonld-id with relative reference is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-id": "/name"
+      }
+    },
+    {
+      "description": "x-jsonld-id with empty string is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-id": ""
+      }
+    },
+    {
+      "description": "x-jsonld-id with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-id": 123
+      }
+    },
+    {
+      "description": "x-jsonld-id with boolean is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-id": true
+      }
+    },
+    {
+      "description": "x-jsonld-id with null is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-id": null
+      }
+    },
+    {
+      "description": "x-jsonld-id with array is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-id": [ "https://schema.org/name" ]
+      }
+    },
+    {
+      "description": "x-jsonld-id with object is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-id": {
+          "@id": "https://schema.org/name"
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-reverse with HTTPS IRI is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-reverse": "https://schema.org/subjectOf"
+      }
+    },
+    {
+      "description": "x-jsonld-reverse with relative reference is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-reverse": "subjectOf"
+      }
+    },
+    {
+      "description": "x-jsonld-reverse with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-reverse": 1
+      }
+    },
+    {
+      "description": "x-jsonld-type with single IRI is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-type": "https://schema.org/Product"
+      }
+    },
+    {
+      "description": "x-jsonld-type with array of IRIs is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-type": [
+          "https://schema.org/Product",
+          "https://schema.org/Thing"
+        ]
+      }
+    },
+    {
+      "description": "x-jsonld-type with empty array is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-type": []
+      }
+    },
+    {
+      "description": "x-jsonld-type with duplicate IRIs is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-type": [
+          "https://schema.org/Product",
+          "https://schema.org/Product"
+        ]
+      }
+    },
+    {
+      "description": "x-jsonld-type with relative reference is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-type": "Product"
+      }
+    },
+    {
+      "description": "x-jsonld-type with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-type": 1
+      }
+    },
+    {
+      "description": "x-jsonld-type with array holding a number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-type": [ "https://schema.org/Product", 1 ]
+      }
+    },
+    {
+      "description": "x-jsonld-type with array holding a relative reference is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-type": [ "https://schema.org/Product", "Thing" ]
+      }
+    },
+    {
+      "description": "x-jsonld-type with nested array is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-type": [
+          [ "https://schema.org/Product" ]
+        ]
+      }
+    },
+    {
+      "description": "x-jsonld-type with object is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-type": {
+          "@type": "https://schema.org/Product"
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-datatype with XSD IRI is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+      }
+    },
+    {
+      "description": "x-jsonld-datatype with scheme prefix is syntactically an IRI and accepted",
+      "valid": true,
+      "data": {
+        "x-jsonld-datatype": "xsd:date"
+      }
+    },
+    {
+      "description": "x-jsonld-datatype with relative reference is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-datatype": "date"
+      }
+    },
+    {
+      "description": "x-jsonld-datatype with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-datatype": 1
+      }
+    },
+    {
+      "description": "x-jsonld-language with primary subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "en"
+      }
+    },
+    {
+      "description": "x-jsonld-language with region subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "en-US"
+      }
+    },
+    {
+      "description": "x-jsonld-language with script subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "zh-Hant"
+      }
+    },
+    {
+      "description": "x-jsonld-language with script and region subtags is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "zh-Hans-CN"
+      }
+    },
+    {
+      "description": "x-jsonld-language with numeric region subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "es-419"
+      }
+    },
+    {
+      "description": "x-jsonld-language with variant subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "de-CH-1901"
+      }
+    },
+    {
+      "description": "x-jsonld-language with multiple variant subtags is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "sl-rozaj-biske"
+      }
+    },
+    {
+      "description": "x-jsonld-language with digit-led variant subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "de-DE-1996"
+      }
+    },
+    {
+      "description": "x-jsonld-language with script, region, and variant subtags is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "hy-Latn-IT-arevela"
+      }
+    },
+    {
+      "description": "x-jsonld-language with extension subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "en-t-jp"
+      }
+    },
+    {
+      "description": "x-jsonld-language with extension and private use subtags is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "en-a-bbb-x-a-z"
+      }
+    },
+    {
+      "description": "x-jsonld-language with private use tag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "x-whatever"
+      }
+    },
+    {
+      "description": "x-jsonld-language with extended language subtags is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "zh-min-nan"
+      }
+    },
+    {
+      "description": "x-jsonld-language with irregular grandfathered tag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "i-klingon"
+      }
+    },
+    {
+      "description": "x-jsonld-language with irregular grandfathered sign language tag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "sgn-BE-FR"
+      }
+    },
+    {
+      "description": "x-jsonld-language with irregular grandfathered English tag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "en-GB-oed"
+      }
+    },
+    {
+      "description": "x-jsonld-language with lowercase region subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "en-us"
+      }
+    },
+    {
+      "description": "x-jsonld-language with uppercase irregular grandfathered tag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "I-AMI"
+      }
+    },
+    {
+      "description": "x-jsonld-language with mixed case irregular grandfathered tag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "EN-gb-OED"
+      }
+    },
+    {
+      "description": "x-jsonld-language with three extended language subtags is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "zh-aaa-bbb-ccc"
+      }
+    },
+    {
+      "description": "x-jsonld-language with uppercase private use singleton is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "en-X-foo"
+      }
+    },
+    {
+      "description": "x-jsonld-language with single character private use subtag is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "x-a"
+      }
+    },
+    {
+      "description": "x-jsonld-language with every component at once is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "zh-yue-Hant-CN-1994-a-bbb-x-foo"
+      }
+    },
+    {
+      "description": "x-jsonld-language with four extended language subtags is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "zh-aaa-bbb-ccc-ddd"
+      }
+    },
+    {
+      "description": "x-jsonld-language with extended language after long primary subtag is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "aaaa-bbb"
+      }
+    },
+    {
+      "description": "x-jsonld-language with two script subtags is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "zh-Hant-Latn"
+      }
+    },
+    {
+      "description": "x-jsonld-language with two region subtags is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en-US-GB"
+      }
+    },
+    {
+      "description": "x-jsonld-language with two digit region subtag is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en-12"
+      }
+    },
+    {
+      "description": "x-jsonld-language with letter-led four character subtag is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "de-ab12"
+      }
+    },
+    {
+      "description": "x-jsonld-language with adjacent extension singletons is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en-a-b"
+      }
+    },
+    {
+      "description": "x-jsonld-language repeated variants are left to runtime checks",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "de-1996-1996"
+      }
+    },
+    {
+      "description": "x-jsonld-language repeated extension singletons are left to runtime checks",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": "en-a-bbb-a-ccc"
+      }
+    },
+    {
+      "description": "x-jsonld-language with non-language text is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "not a real tag"
+      }
+    },
+    {
+      "description": "x-jsonld-language with empty string is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": ""
+      }
+    },
+    {
+      "description": "x-jsonld-language with single letter primary subtag is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "a"
+      }
+    },
+    {
+      "description": "x-jsonld-language with nine letter primary subtag is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "abcdefghi"
+      }
+    },
+    {
+      "description": "x-jsonld-language with trailing separator is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en-"
+      }
+    },
+    {
+      "description": "x-jsonld-language with leading separator is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "-en"
+      }
+    },
+    {
+      "description": "x-jsonld-language with empty subtag is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en--US"
+      }
+    },
+    {
+      "description": "x-jsonld-language with underscore separator is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en_US"
+      }
+    },
+    {
+      "description": "x-jsonld-language with numeric primary subtag is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "123"
+      }
+    },
+    {
+      "description": "x-jsonld-language with overlong subtag is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en-123456789"
+      }
+    },
+    {
+      "description": "x-jsonld-language with extension singleton without subtags is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en-a"
+      }
+    },
+    {
+      "description": "x-jsonld-language with bare private use singleton is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "x"
+      }
+    },
+    {
+      "description": "x-jsonld-language with private use singleton without subtags is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "en-x"
+      }
+    },
+    {
+      "description": "x-jsonld-language with region after numeric region is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": "de-419-DE"
+      }
+    },
+    {
+      "description": "x-jsonld-language with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": 1
+      }
+    },
+    {
+      "description": "x-jsonld-language with boolean is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": true
+      }
+    },
+    {
+      "description": "x-jsonld-language with array is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-language": [ "en" ]
+      }
+    },
+    {
+      "description": "x-jsonld-direction ltr is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-direction": "ltr"
+      }
+    },
+    {
+      "description": "x-jsonld-direction rtl is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-direction": "rtl"
+      }
+    },
+    {
+      "description": "x-jsonld-direction uppercase is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-direction": "LTR"
+      }
+    },
+    {
+      "description": "x-jsonld-direction with other string is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-direction": "auto"
+      }
+    },
+    {
+      "description": "x-jsonld-direction with boolean is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-direction": true
+      }
+    },
+    {
+      "description": "x-jsonld-direction with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-direction": 1
+      }
+    },
+    {
+      "description": "x-jsonld-json true is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-json": true
+      }
+    },
+    {
+      "description": "x-jsonld-json false is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-json": false
+      }
+    },
+    {
+      "description": "x-jsonld-json with string is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-json": "true"
+      }
+    },
+    {
+      "description": "x-jsonld-json with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-json": 1
+      }
+    },
+    {
+      "description": "x-jsonld-graph true is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-graph": true
+      }
+    },
+    {
+      "description": "x-jsonld-graph false is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-graph": false
+      }
+    },
+    {
+      "description": "x-jsonld-graph with string is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-graph": "true"
+      }
+    },
+    {
+      "description": "x-jsonld-graph with null is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-graph": null
+      }
+    },
+    {
+      "description": "x-jsonld-container list is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-container": "@list"
+      }
+    },
+    {
+      "description": "x-jsonld-container set is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-container": "@set"
+      }
+    },
+    {
+      "description": "x-jsonld-container language map is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-container": "@language"
+      }
+    },
+    {
+      "description": "x-jsonld-container index map is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-container": "@index"
+      }
+    },
+    {
+      "description": "x-jsonld-container without at sign is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-container": "list"
+      }
+    },
+    {
+      "description": "x-jsonld-container with wrong casing is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-container": "@List"
+      }
+    },
+    {
+      "description": "x-jsonld-container graph is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-container": "@graph"
+      }
+    },
+    {
+      "description": "x-jsonld-container with array is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-container": [ "@list" ]
+      }
+    },
+    {
+      "description": "x-jsonld-container with boolean is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-container": true
+      }
+    },
+    {
+      "description": "x-jsonld-self with reserved expansion is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-self": "{+this}"
+      }
+    },
+    {
+      "description": "x-jsonld-self with template over a base is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-self": "https://www.iso.org/iso-4217/{this}"
+      }
+    },
+    {
+      "description": "x-jsonld-self without expressions is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-self": "https://example.com/singleton"
+      }
+    },
+    {
+      "description": "x-jsonld-self with multiple variables is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-self": "https://example.com/{category}/{identifier}"
+      }
+    },
+    {
+      "description": "x-jsonld-self with unclosed expression is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-self": "https://example.com/{this"
+      }
+    },
+    {
+      "description": "x-jsonld-self with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-self": 1
+      }
+    },
+    {
+      "description": "x-jsonld-self with null is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-self": null
+      }
+    },
+    {
+      "description": "x-format-assertion true is valid",
+      "valid": true,
+      "data": {
+        "x-format-assertion": true
+      }
+    },
+    {
+      "description": "x-format-assertion false is valid",
+      "valid": true,
+      "data": {
+        "x-format-assertion": false
+      }
+    },
+    {
+      "description": "x-format-assertion with string is rejected",
+      "valid": false,
+      "data": {
+        "x-format-assertion": "true"
+      }
+    },
+    {
+      "description": "x-format-assertion with number is rejected",
+      "valid": false,
+      "data": {
+        "x-format-assertion": 1
+      }
+    },
+    {
+      "description": "Many keywords together are valid",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Product",
+        "x-jsonld-graph": true,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "description": "Many keywords together with one wrong value are rejected",
+      "valid": false,
+      "data": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Product",
+        "x-jsonld-graph": "yes"
+      }
+    },
+    {
+      "description": "Nested subschemas are not constrained standalone",
+      "valid": true,
+      "data": {
+        "properties": {
+          "name": {
+            "x-jsonld-id": 123
+          }
+        }
+      }
+    }
+  ]
+}
