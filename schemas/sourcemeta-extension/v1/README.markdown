@@ -50,7 +50,10 @@ This keyword has no effect on any other keyword.
 
 The keywords in this section map the instance locations that their subschemas
 successfully evaluate to nodes, literals, and edges of a JSON-LD document. A
-keyword takes effect at every instance location its subschema evaluates.
+keyword takes effect at every instance location its subschema evaluates. When
+several subschemas annotate the same instance location, their annotations are
+merged, and a keyword that takes a single value MUST NOT be assigned two
+different values for the same location.
 
 #### 3.2.1. `x-jsonld-id`
 
@@ -119,8 +122,9 @@ The value of this keyword MUST be a boolean.
 
 When the value is `true`, the annotated instance location is preserved
 verbatim as an opaque JSON literal through the JSON-LD `@json` datatype, and
-the keyword MUST NOT be combined with any other keyword of this vocabulary at
-the same location. When the value is `false`, the keyword has no effect.
+the keyword MUST NOT be combined with any keyword of this vocabulary other
+than `x-jsonld-id` at the same location. When the value is `false`, the
+keyword has no effect.
 
 #### 3.2.8. `x-jsonld-graph`
 
@@ -139,11 +143,13 @@ The value of this keyword MUST be the string `@list`, `@set`, `@language`, or
 This keyword declares the container semantics of the annotated instance
 location. The `@list` and `@set` containers range over an array value,
 asserting an ordered RDF list and an unordered set respectively. The
-`@language` container ranges over an object value whose keys are well-formed
-language tags [RFC5646] and whose members are strings, asserting
-language-tagged literals. The `@index` container ranges over an object value
-whose keys carry no RDF meaning. This keyword MUST NOT be combined with any
-other keyword of this vocabulary at the same location, and the members of a
+`@language` container ranges over an object value, asserting language-tagged
+literals. Its keys MUST be well-formed language tags [RFC5646], except for the
+reserved key `@none` which asserts a literal with no language, and its members
+MUST be strings, arrays of strings, or `null`, where `null` entries are
+ignored. The `@index` container ranges over an object value whose keys carry
+no RDF meaning. This keyword MUST NOT be combined with any keyword of this
+vocabulary other than `x-jsonld-id` at the same location, and the members of a
 `@language` container MUST NOT carry annotations of this vocabulary.
 
 #### 3.2.10. `x-jsonld-self`
