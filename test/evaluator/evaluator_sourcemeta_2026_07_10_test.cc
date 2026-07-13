@@ -490,8 +490,8 @@ TEST(format_uri_x_format_assertion_true_valid_exhaustive_2020_12) {
       instance, 1,
       "The logical type of the instance was expected to be \"uri\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The logical type was expected to be enforced "
-                               "as an assertion");
+                               "A sibling `format` keyword was expected to "
+                               "be enforced as an assertion");
 }
 
 TEST(format_uri_x_format_assertion_true_invalid_exhaustive_2020_12) {
@@ -551,8 +551,8 @@ TEST(format_uri_x_format_assertion_false_invalid_exhaustive_2020_12) {
       instance, 0,
       "The logical type of the instance was expected to be \"uri\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The logical type was expected to be collected "
-                               "as an annotation");
+                               "A sibling `format` keyword was expected to "
+                               "be collected as an annotation");
 }
 
 TEST(x_jsonld_id_annotation_exhaustive_2019_09) {
@@ -657,8 +657,8 @@ TEST(format_uri_x_format_assertion_true_valid_exhaustive_2019_09) {
       instance, 1,
       "The logical type of the instance was expected to be \"uri\"");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The logical type was expected to be enforced "
-                               "as an assertion");
+                               "A sibling `format` keyword was expected to "
+                               "be enforced as an assertion");
 }
 
 TEST(format_uri_x_format_assertion_true_invalid_exhaustive_2019_09) {

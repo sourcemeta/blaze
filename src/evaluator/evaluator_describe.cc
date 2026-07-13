@@ -705,10 +705,12 @@ auto describe(const bool valid, const Instruction &step,
 
     if (keyword == "x-format-assertion" && annotation.is_boolean()) {
       if (annotation.to_boolean()) {
-        return "The logical type was expected to be enforced as an assertion";
+        return "A sibling `format` keyword was expected to be enforced as "
+               "an assertion";
       }
 
-      return "The logical type was expected to be collected as an annotation";
+      return "A sibling `format` keyword was expected to be collected as "
+             "an annotation";
     }
 
     if (keyword == "x-jsonld-id" && annotation.is_string()) {
