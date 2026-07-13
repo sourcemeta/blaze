@@ -67,7 +67,7 @@ struct SOURCEMETA_BLAZE_FOUNDATION_EXPORT Vocabularies {
     // https://spec.openapis.org/oas/v3.2.0.html#base-vocabulary
     OpenAPI_3_2_Base = 30,
     // Sourcemeta
-    Sourcemeta_Extension_2026_07_10 = 31
+    Sourcemeta_Extension_V1 = 31
   };
 
   // NOTE: Must be kept in sync with the Known enum above

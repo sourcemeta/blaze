@@ -2,12 +2,12 @@ Sourcemeta Extension Vocabulary
 ===============================
 
 The Sourcemeta Extension vocabulary, identified by the URI
-`tag:sourcemeta.com,2026-07-10:extension`, defines the extension keywords listed
+`tag:sourcemeta.com,2026:extension/v1`, defines the extension keywords listed
 below.
 
 In terms of compatibility, this vocabulary may receive backwards compatible
 changes over time, such as new keywords. A breaking change results in a new
-vocabulary published under a new date.
+vocabulary published under a new major version.
 
 Format assertion
 ----------------

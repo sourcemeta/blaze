@@ -14,9 +14,9 @@
 
 static auto test_resolver(std::string_view identifier)
     -> std::optional<sourcemeta::core::JSON> {
-  if (identifier == "tag:sourcemeta.com,2026-07-10:2019-09") {
+  if (identifier == "tag:sourcemeta.com,2026:extension/v1/2019-09") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$id": "tag:sourcemeta.com,2026-07-10:2019-09",
+      "$id": "tag:sourcemeta.com,2026:extension/v1/2019-09",
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$vocabulary": {
         "https://json-schema.org/draft/2019-09/vocab/core": true,
@@ -25,14 +25,14 @@ static auto test_resolver(std::string_view identifier)
         "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
         "https://json-schema.org/draft/2019-09/vocab/format": false,
         "https://json-schema.org/draft/2019-09/vocab/content": true,
-        "tag:sourcemeta.com,2026-07-10:extension": true
+        "tag:sourcemeta.com,2026:extension/v1": true
       }
     })JSON");
   }
 
-  if (identifier == "tag:sourcemeta.com,2026-07-10:2020-12") {
+  if (identifier == "tag:sourcemeta.com,2026:extension/v1/2020-12") {
     return sourcemeta::core::parse_json(R"JSON({
-      "$id": "tag:sourcemeta.com,2026-07-10:2020-12",
+      "$id": "tag:sourcemeta.com,2026:extension/v1/2020-12",
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$vocabulary": {
         "https://json-schema.org/draft/2020-12/vocab/core": true,
@@ -42,7 +42,7 @@ static auto test_resolver(std::string_view identifier)
         "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
         "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
         "https://json-schema.org/draft/2020-12/vocab/content": true,
-        "tag:sourcemeta.com,2026-07-10:extension": true
+        "tag:sourcemeta.com,2026:extension/v1": true
       }
     })JSON");
   }
@@ -52,7 +52,7 @@ static auto test_resolver(std::string_view identifier)
 
 TEST(x_jsonld_id_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-id": "https://schema.org/name"
   })JSON")};
 
@@ -70,7 +70,7 @@ TEST(x_jsonld_id_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_id_no_annotation_fast_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-id": "https://schema.org/name"
   })JSON")};
 
@@ -82,7 +82,7 @@ TEST(x_jsonld_id_no_annotation_fast_2020_12) {
 
 TEST(x_jsonld_multiple_keywords_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-id": "https://schema.org/releaseDate",
     "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
   })JSON")};
@@ -111,7 +111,7 @@ TEST(x_jsonld_multiple_keywords_exhaustive_2020_12) {
 
 TEST(x_jsonld_type_array_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-type": [ "https://schema.org/Product", "https://schema.org/Thing" ]
   })JSON")};
 
@@ -133,7 +133,7 @@ TEST(x_jsonld_type_array_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_reverse_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-reverse": "https://schema.org/subjectOf"
   })JSON")};
 
@@ -153,7 +153,7 @@ TEST(x_jsonld_reverse_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_type_string_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-type": "https://schema.org/Product"
   })JSON")};
 
@@ -171,7 +171,7 @@ TEST(x_jsonld_type_string_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_type_empty_array_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-type": []
   })JSON")};
 
@@ -188,7 +188,7 @@ TEST(x_jsonld_type_empty_array_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_language_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-language": "en-US"
   })JSON")};
 
@@ -207,7 +207,7 @@ TEST(x_jsonld_language_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_direction_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-direction": "rtl"
   })JSON")};
 
@@ -225,7 +225,7 @@ TEST(x_jsonld_direction_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_json_true_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-json": true
   })JSON")};
 
@@ -244,7 +244,7 @@ TEST(x_jsonld_json_true_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_json_false_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-json": false
   })JSON")};
 
@@ -263,7 +263,7 @@ TEST(x_jsonld_json_false_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_graph_true_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-graph": true
   })JSON")};
 
@@ -282,7 +282,7 @@ TEST(x_jsonld_graph_true_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_graph_false_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-graph": false
   })JSON")};
 
@@ -301,7 +301,7 @@ TEST(x_jsonld_graph_false_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_container_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-container": "@list"
   })JSON")};
 
@@ -320,7 +320,7 @@ TEST(x_jsonld_container_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_self_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-self": "https://www.iso.org/iso-4217/{this}"
   })JSON")};
 
@@ -339,7 +339,7 @@ TEST(x_jsonld_self_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_id_nested_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "properties": {
       "name": {
         "x-jsonld-id": "https://schema.org/name"
@@ -378,7 +378,7 @@ TEST(x_jsonld_id_nested_annotation_exhaustive_2020_12) {
 
 TEST(x_jsonld_id_nested_no_annotation_fast_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "properties": {
       "name": {
         "x-jsonld-id": "https://schema.org/name"
@@ -396,7 +396,7 @@ TEST(x_jsonld_id_nested_no_annotation_fast_2020_12) {
 
 TEST(x_jsonld_id_annotation_whitelist_tweak_fast_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-id": "https://schema.org/releaseDate",
     "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
   })JSON")};
@@ -420,7 +420,7 @@ TEST(x_jsonld_id_annotation_whitelist_tweak_fast_2020_12) {
 
 TEST(format_uri_x_format_assertion_true_valid_fast_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "format": "uri",
     "x-format-assertion": true
   })JSON")};
@@ -441,7 +441,7 @@ TEST(format_uri_x_format_assertion_true_valid_fast_2020_12) {
 
 TEST(format_uri_x_format_assertion_true_invalid_fast_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "format": "uri",
     "x-format-assertion": true
   })JSON")};
@@ -461,7 +461,7 @@ TEST(format_uri_x_format_assertion_true_invalid_fast_2020_12) {
 
 TEST(format_uri_x_format_assertion_true_valid_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "format": "uri",
     "x-format-assertion": true
   })JSON")};
@@ -496,7 +496,7 @@ TEST(format_uri_x_format_assertion_true_valid_exhaustive_2020_12) {
 
 TEST(format_uri_x_format_assertion_true_invalid_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "format": "uri",
     "x-format-assertion": true
   })JSON")};
@@ -516,7 +516,7 @@ TEST(format_uri_x_format_assertion_true_invalid_exhaustive_2020_12) {
 
 TEST(format_uri_x_format_assertion_false_invalid_fast_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "format": "uri",
     "x-format-assertion": false
   })JSON")};
@@ -529,7 +529,7 @@ TEST(format_uri_x_format_assertion_false_invalid_fast_2020_12) {
 
 TEST(format_uri_x_format_assertion_false_invalid_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2020-12",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "format": "uri",
     "x-format-assertion": false
   })JSON")};
@@ -557,7 +557,7 @@ TEST(format_uri_x_format_assertion_false_invalid_exhaustive_2020_12) {
 
 TEST(x_jsonld_id_annotation_exhaustive_2019_09) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2019-09",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
     "x-jsonld-id": "https://schema.org/name"
   })JSON")};
 
@@ -575,7 +575,7 @@ TEST(x_jsonld_id_annotation_exhaustive_2019_09) {
 
 TEST(x_jsonld_id_no_annotation_fast_2019_09) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2019-09",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
     "x-jsonld-id": "https://schema.org/name"
   })JSON")};
 
@@ -587,7 +587,7 @@ TEST(x_jsonld_id_no_annotation_fast_2019_09) {
 
 TEST(format_uri_x_format_assertion_true_valid_fast_2019_09) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2019-09",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
     "format": "uri",
     "x-format-assertion": true
   })JSON")};
@@ -608,7 +608,7 @@ TEST(format_uri_x_format_assertion_true_valid_fast_2019_09) {
 
 TEST(format_uri_x_format_assertion_true_invalid_fast_2019_09) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2019-09",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
     "format": "uri",
     "x-format-assertion": true
   })JSON")};
@@ -628,7 +628,7 @@ TEST(format_uri_x_format_assertion_true_invalid_fast_2019_09) {
 
 TEST(format_uri_x_format_assertion_true_valid_exhaustive_2019_09) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2019-09",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
     "format": "uri",
     "x-format-assertion": true
   })JSON")};
@@ -663,7 +663,7 @@ TEST(format_uri_x_format_assertion_true_valid_exhaustive_2019_09) {
 
 TEST(format_uri_x_format_assertion_true_invalid_exhaustive_2019_09) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "tag:sourcemeta.com,2026-07-10:2019-09",
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
     "format": "uri",
     "x-format-assertion": true
   })JSON")};

@@ -7,7 +7,7 @@
     "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
     "https://json-schema.org/draft/2019-09/vocab/format": false,
     "https://json-schema.org/draft/2019-09/vocab/content": true,
-    "tag:sourcemeta.com,2026-07-10:extension": true
+    "tag:sourcemeta.com,2026:extension/v1": true
   },
   "$recursiveAnchor": true,
   "title": "Sourcemeta dialect",

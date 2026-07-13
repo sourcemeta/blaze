@@ -9,7 +9,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
     evaluator_draft7_test.cc
     evaluator_openapi_3_1_test.cc
     evaluator_openapi_3_2_test.cc
-    evaluator_sourcemeta_2026_07_10_test.cc
+    evaluator_sourcemeta_v1_test.cc
     evaluator_test.cc)
 
 target_link_libraries(sourcemeta_blaze_evaluator_unit
