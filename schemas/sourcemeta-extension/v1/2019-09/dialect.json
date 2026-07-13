@@ -34,7 +34,7 @@
       "$ref": "https://json-schema.org/draft/2019-09/schema"
     },
     {
-      "$ref": "2019-09-vocab.json"
+      "$ref": "vocabulary.json"
     }
   ]
 }

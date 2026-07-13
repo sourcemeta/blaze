@@ -1,5 +1,5 @@
 {
-  "target": [ "./2019-09-vocab.json", "./2020-12-vocab.json" ],
+  "target": [ "./2019-09/vocabulary.json", "./2020-12/vocabulary.json" ],
   "tests": [
     {
       "description": "Boolean true is a valid schema",
