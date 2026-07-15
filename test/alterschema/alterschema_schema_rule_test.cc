@@ -1083,6 +1083,309 @@ TEST(schema_rule_property_names_pattern_fail) {
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
 
+TEST(schema_rule_top_level_root_violates) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "test/require_type",
+    "description": "The document root must define a type",
+    "type": "object",
+    "required": [ "type" ]
+  })JSON")};
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
+      sourcemeta::blaze::SchemaRule::Scope::TopLevel);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": {
+        "type": "string"
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(entries.size(), 1);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "test/require_type");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "The document root must define a type");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
+  EXPECT_FALSE(std::get<4>(entries.at(0)));
+}
+
+TEST(schema_rule_top_level_subschemas_skipped) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "test/require_type",
+    "description": "The document root must define a type",
+    "type": "object",
+    "required": [ "type" ]
+  })JSON")};
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
+      sourcemeta::blaze::SchemaRule::Scope::TopLevel);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "type": "string"
+      },
+      "bar": {
+        "minLength": 1
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(entries.size(), 0);
+}
+
+TEST(schema_rule_top_level_root_and_subschema_violate) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "test/require_type",
+    "description": "The document root must define a type",
+    "type": "object",
+    "required": [ "type" ]
+  })JSON")};
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
+      sourcemeta::blaze::SchemaRule::Scope::TopLevel);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": {
+        "type": "string"
+      },
+      "bar": {
+        "minLength": 1
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(entries.size(), 1);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "test/require_type");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "The document root must define a type");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
+  EXPECT_FALSE(std::get<4>(entries.at(0)));
+}
+
+TEST(schema_rule_explicit_all_scope_root_and_nested_subschema) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "test/require_type",
+    "description": "Every subschema must define a type",
+    "type": "object",
+    "required": [ "type" ]
+  })JSON")};
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
+      sourcemeta::blaze::SchemaRule::Scope::All);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": {
+        "type": "string"
+      },
+      "bar": {
+        "minLength": 1
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(entries.size(), 2);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "test/require_type");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "Every subschema must define a type");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
+  EXPECT_FALSE(std::get<4>(entries.at(0)));
+
+  EXPECT_EQ(std::get<0>(entries.at(1)),
+            sourcemeta::core::Pointer({"properties", "bar"}));
+  EXPECT_EQ(std::get<1>(entries.at(1)), "test/require_type");
+  EXPECT_EQ(std::get<2>(entries.at(1)), "Every subschema must define a type");
+  EXPECT_TRUE(std::get<3>(entries.at(1)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(1)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
+  EXPECT_EQ(std::get<3>(entries.at(1)).locations.size(), 0);
+  EXPECT_FALSE(std::get<4>(entries.at(1)));
+}
+
+TEST(schema_rule_top_level_embedded_resource_skipped) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "test/require_type",
+    "description": "The document root must define a type",
+    "type": "object",
+    "required": [ "type" ]
+  })JSON")};
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
+      sourcemeta::blaze::SchemaRule::Scope::TopLevel);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "embedded": {
+        "$id": "https://www.example.com/embedded",
+        "minLength": 1
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      });
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(entries.size(), 0);
+}
+
+TEST(schema_rule_top_level_with_default_dialect) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "title": "test/require_type",
+    "description": "The document root must define a type",
+    "type": "object",
+    "required": [ "type" ]
+  })JSON")};
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      sourcemeta::blaze::SchemaRule::Scope::TopLevel);
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "properties": {
+      "foo": {
+        "minLength": 1
+      }
+    }
+  })JSON")};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutable_) {
+        entries.emplace_back(pointer, name, message, outcome, mutable_);
+      },
+      "https://json-schema.org/draft/2020-12/schema");
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(entries.size(), 1);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "test/require_type");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "The document root must define a type");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
+  EXPECT_FALSE(std::get<4>(entries.at(0)));
+}
+
 TEST(schema_rule_non_empty_instance_location) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
