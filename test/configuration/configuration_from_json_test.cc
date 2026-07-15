@@ -578,10 +578,12 @@ TEST(lint_rules_single) {
       sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
 
   EXPECT_EQ(manifest.lint.rules.size(), 1);
-  EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
-  EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
-                                        std::filesystem::path{TEST_DIRECTORY} /
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
                                         "rules" / "my-rule.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
 }
 
 TEST(lint_rules_multiple) {
@@ -593,14 +595,16 @@ TEST(lint_rules_multiple) {
       sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
 
   EXPECT_EQ(manifest.lint.rules.size(), 2);
-  EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
-  EXPECT_TRUE(manifest.lint.rules[1].is_absolute());
-  EXPECT_EQ(manifest.lint.rules[0],
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_TRUE(manifest.lint.rules[1].path.is_absolute());
+  EXPECT_EQ(manifest.lint.rules[0].path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "rules" / "a.json"));
-  EXPECT_EQ(manifest.lint.rules[1],
+  EXPECT_EQ(manifest.lint.rules[1].path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "rules" / "b.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
+  EXPECT_FALSE(manifest.lint.rules[1].top_level);
 }
 
 TEST(lint_rules_absolute_path) {
@@ -612,10 +616,12 @@ TEST(lint_rules_absolute_path) {
       sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
 
   EXPECT_EQ(manifest.lint.rules.size(), 1);
-  EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
-  EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
-                                        std::filesystem::path{TEST_DIRECTORY} /
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
                                         "/absolute/path/rule.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
 }
 
 TEST(lint_rules_with_other_fields) {
@@ -634,9 +640,11 @@ TEST(lint_rules_with_other_fields) {
   EXPECT_EQ(manifest.title.value(), "Test");
   EXPECT_EQ(manifest.dependencies.size(), 1);
   EXPECT_EQ(manifest.lint.rules.size(), 1);
-  EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
-                                        std::filesystem::path{TEST_DIRECTORY} /
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
                                         "rules" / "my-rule.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
 }
 
 TEST(lint_rules_resolved_from_config_location) {
@@ -653,10 +661,12 @@ TEST(lint_rules_resolved_from_config_location) {
                 std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
   EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.lint.rules.size(), 1);
-  EXPECT_TRUE(manifest.lint.rules[0].is_absolute());
-  EXPECT_EQ(manifest.lint.rules[0], std::filesystem::weakly_canonical(
-                                        std::filesystem::path{TEST_DIRECTORY} /
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
                                         "rules" / "my-rule.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
 }
 
 TEST(lint_rules_multiple_resolved_from_config_location) {
@@ -673,12 +683,14 @@ TEST(lint_rules_multiple_resolved_from_config_location) {
                 std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
   EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.lint.rules.size(), 2);
-  EXPECT_EQ(manifest.lint.rules[0],
+  EXPECT_EQ(manifest.lint.rules[0].path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "rules" / "a.json"));
-  EXPECT_EQ(manifest.lint.rules[1],
+  EXPECT_EQ(manifest.lint.rules[1].path,
             std::filesystem::weakly_canonical(
                 std::filesystem::path{TEST_DIRECTORY} / "rules" / "b.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
+  EXPECT_FALSE(manifest.lint.rules[1].top_level);
 }
 
 TEST(lint_not_object) {
@@ -707,7 +719,8 @@ TEST(lint_rules_element_not_string) {
 
   EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
       input, TEST_DIRECTORY,
-      "The values in the lint rules array must be strings", "/lint/rules/0");
+      "The values in the lint rules array must be strings or objects",
+      "/lint/rules/0");
 }
 
 TEST(lint_rules_mixed_types) {
@@ -717,7 +730,220 @@ TEST(lint_rules_mixed_types) {
 
   EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
       input, TEST_DIRECTORY,
-      "The values in the lint rules array must be strings", "/lint/rules/1");
+      "The values in the lint rules array must be strings or objects",
+      "/lint/rules/1");
+}
+
+TEST(lint_rules_object_with_path_only) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ { "path": "./rules/my-rule.json" } ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
+}
+
+TEST(lint_rules_object_with_top_level_true) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [ { "path": "./rules/my-rule.json", "topLevel": true } ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+  EXPECT_TRUE(manifest.lint.rules[0].top_level);
+}
+
+TEST(lint_rules_object_with_top_level_false) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [ { "path": "./rules/my-rule.json", "topLevel": false } ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
+}
+
+TEST(lint_rules_object_absolute_path) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [ { "path": "/absolute/path/rule.json", "topLevel": true } ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "/absolute/path/rule.json"));
+  EXPECT_TRUE(manifest.lint.rules[0].top_level);
+}
+
+TEST(lint_rules_mixed_string_and_object) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [
+        "./rules/a.json",
+        { "path": "./rules/b.json", "topLevel": true },
+        { "path": "./rules/c.json" }
+      ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 3);
+  EXPECT_EQ(manifest.lint.rules[0].path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "rules" / "a.json"));
+  EXPECT_EQ(manifest.lint.rules[1].path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "rules" / "b.json"));
+  EXPECT_EQ(manifest.lint.rules[2].path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "rules" / "c.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
+  EXPECT_TRUE(manifest.lint.rules[1].top_level);
+  EXPECT_FALSE(manifest.lint.rules[2].top_level);
+}
+
+TEST(lint_rules_object_unknown_properties_ignored) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [
+        { "path": "./rules/my-rule.json", "topLevel": true, "foo": "bar" }
+      ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+  EXPECT_TRUE(manifest.lint.rules[0].top_level);
+}
+
+TEST(lint_rules_object_resolved_from_config_location) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "path": "./foo/bar",
+    "lint": {
+      "rules": [ { "path": "./rules/my-rule.json", "topLevel": true } ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.absolute_path,
+            std::filesystem::weakly_canonical(
+                std::filesystem::path{TEST_DIRECTORY} / "foo" / "bar"));
+  EXPECT_TRUE(manifest.absolute_path_explicit);
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+  EXPECT_TRUE(manifest.lint.rules[0].top_level);
+}
+
+TEST(lint_rules_element_null) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ null ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint rules array must be strings or objects",
+      "/lint/rules/0");
+}
+
+TEST(lint_rules_element_array) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ [ "./rules/my-rule.json" ] ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint rules array must be strings or objects",
+      "/lint/rules/0");
+}
+
+TEST(lint_rules_object_missing_path) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ { "topLevel": true } ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY, "The lint rule path property must be a string",
+      "/lint/rules/0/path");
+}
+
+TEST(lint_rules_object_path_not_string) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ { "path": 1 } ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY, "The lint rule path property must be a string",
+      "/lint/rules/0/path");
+}
+
+TEST(lint_rules_object_top_level_not_boolean) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [ { "path": "./rules/my-rule.json", "topLevel": 1 } ]
+    }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The lint rule topLevel property must be a boolean",
+      "/lint/rules/0/topLevel");
+}
+
+TEST(lint_rules_object_missing_path_second_entry) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "rules": [ "./rules/a.json", { "topLevel": true } ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY, "The lint rule path property must be a string",
+      "/lint/rules/1/path");
 }
 
 TEST(ignore_empty) {
