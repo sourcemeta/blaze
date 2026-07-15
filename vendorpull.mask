@@ -40,3 +40,5 @@ vendor/jsonschema-draft7.mask
 vendor/jsonschema-test-suite.mask
 vendor/openapi.mask
 vendor/referencing-suite.mask
+schemas/sourcemeta-extension/v1/dialect.test.json
+schemas/sourcemeta-extension/v1/vocabulary.test.json
