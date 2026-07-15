@@ -88,14 +88,14 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void;
 
 /// @ingroup alterschema
 ///
-/// A linter rule driven by a JSON Schema. Every subschema in the document
-/// under inspection is validated as a JSON instance against the provided
-/// rule schema. When a subschema does not conform, the rule fires and
-/// reports the validation errors. The rule name is extracted from the
-/// `title` keyword of the rule schema, and the rule description from the
-/// `description` keyword. The title must consist only of lowercase ASCII
-/// letters, digits, underscores, or slashes. A rule may be scoped to only
-/// run against the document root.
+/// A linter rule driven by a JSON Schema. By default, every subschema in
+/// the document under inspection is validated as a JSON instance against
+/// the provided rule schema, though a rule may be scoped to only run
+/// against the document root. When a subschema does not conform, the rule
+/// fires and reports the validation errors. The rule name is extracted
+/// from the `title` keyword of the rule schema, and the rule description
+/// from the `description` keyword. The title must consist only of
+/// lowercase ASCII letters, digits, underscores, or slashes.
 class SOURCEMETA_BLAZE_ALTERSCHEMA_EXPORT SchemaRule final
     : public SchemaTransformRule {
 public:
