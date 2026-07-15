@@ -373,6 +373,97 @@ TEST(to_json_roundtrip_with_lint_rules) {
   EXPECT_EQ(output, input);
 }
 
+TEST(to_json_with_top_level_lint_rule) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
+  config.base_path = "/test";
+  config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
+  config.lint.rules.push_back(
+      {.path = "/test/rules/my-rule.json", .top_level = true});
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "lint": {
+      "rules": [ { "path": "./rules/my-rule.json", "topLevel": true } ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(to_json_with_mixed_lint_rules) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
+  config.base_path = "/test";
+  config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
+  config.lint.rules.push_back(
+      {.path = "/test/rules/my-rule.json", .top_level = false});
+  config.lint.rules.push_back(
+      {.path = "/test/rules/other-rule.json", .top_level = true});
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "lint": {
+      "rules": [
+        "./rules/my-rule.json",
+        { "path": "./rules/other-rule.json", "topLevel": true }
+      ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(to_json_roundtrip_with_top_level_lint_rule) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "lint": {
+      "rules": [ { "path": "./rules/my-rule.json", "topLevel": true } ]
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(to_json_object_lint_rule_without_top_level_as_string) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "lint": {
+      "rules": [ { "path": "./rules/my-rule.json" } ]
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(output, expected);
+}
+
 TEST(to_json_roundtrip_with_lint_and_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
