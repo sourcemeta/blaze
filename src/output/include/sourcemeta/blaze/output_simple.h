@@ -11,12 +11,11 @@
 
 #include <sourcemeta/blaze/evaluator.h>
 
+#include <cstddef>    // std::size_t
 #include <functional> // std::reference_wrapper
 // TODO(C++23): Consider std::flat_map/std::flat_set when available in libc++
-#include <map>     // std::map
-#include <ostream> // std::ostream
 #include <string>  // std::string
-#include <utility> // std::pair
+#include <utility> // std::move
 #include <vector>  // std::vector
 
 namespace sourcemeta::blaze {
@@ -131,16 +130,19 @@ private:
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
+  /// An in-flight branching keyword, along with the number of annotations
+  /// collected before it started and the error traces it buffers
+  struct MaskEntry {
+    sourcemeta::core::WeakPointer evaluate_path;
+    sourcemeta::core::WeakPointer instance_location;
+    std::size_t annotations_mark;
+    std::vector<Entry> buffered_traces;
+  };
+
   const sourcemeta::core::JSON &instance_;
   const sourcemeta::core::WeakPointer base_;
   container_type output;
-  std::vector<
-      std::pair<sourcemeta::core::WeakPointer, sourcemeta::core::WeakPointer>>
-      mask;
-  std::map<
-      std::pair<sourcemeta::core::WeakPointer, sourcemeta::core::WeakPointer>,
-      std::vector<Entry>>
-      masked_traces;
+  std::vector<MaskEntry> mask;
   std::vector<AnnotationEntry> annotations_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
