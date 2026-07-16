@@ -1025,10 +1025,7 @@ TEST(annotations_failure_2) {
                 "properties "
                 "subschemas");
 
-  EXPECT_ANNOTATION_COUNT(output, 1);
-
-  EXPECT_ANNOTATION(output, 0, "/bar", "/properties/bar/title",
-                    "#/properties/bar/title", sourcemeta::core::JSON{"Bar"});
+  EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
 TEST(annotations_success_oneof_1) {
@@ -1931,4 +1928,121 @@ TEST(annotations_success_if_else_failed_branch_nested_property_1) {
                     sourcemeta::core::JSON{"Right"});
   EXPECT_ANNOTATION(output, 1, "", "/else/properties", "#/else/properties",
                     sourcemeta::core::JSON{"amount"});
+}
+
+TEST(annotations_failure_multiple_locations_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "title": "Foo" },
+      "zzz": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": 1, "zzz": 2 })JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_FALSE(result);
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(annotations_success_whitelist_disallow_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "x-custom": "Kept",
+    "disallow": [ { "type": "integer" } ]
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const sourcemeta::core::JSON instance{"hello"};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(annotations_success_whitelist_disallow_cross_dialect_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-custom": "Kept",
+    "$ref": "#/$defs/legacy",
+    "$defs": {
+      "legacy": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "disallow": [ { "type": "integer" } ]
+      }
+    }
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const sourcemeta::core::JSON instance{"hello"};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+
+  EXPECT_ANNOTATION_COUNT(output, 1);
+
+  EXPECT_ANNOTATION(output, 0, "", "/x-custom", "#/x-custom",
+                    sourcemeta::core::JSON{"Kept"});
+}
+
+TEST(annotations_failure_whitelist_disallow_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "x-custom": "Gone",
+    "disallow": [ { "type": "integer" } ]
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const sourcemeta::core::JSON instance{5};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_FALSE(result);
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
 }

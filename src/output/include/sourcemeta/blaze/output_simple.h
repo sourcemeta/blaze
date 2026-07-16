@@ -12,6 +12,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 
 #include <cstddef>    // std::size_t
+#include <cstdint>    // std::uint8_t
 #include <functional> // std::reference_wrapper
 // TODO(C++23): Consider std::flat_map/std::flat_set when available in libc++
 #include <string>  // std::string
@@ -130,11 +131,19 @@ private:
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
+  /// How much of a branching instruction fails as a unit when one of its
+  /// subinstructions fails
+  enum class MaskKind : std::uint8_t { None, Disjunction, Element, Subschema };
+
+  /// Classify an instruction according to how it absorbs failures
+  static auto mask_kind(const Instruction &step) noexcept -> MaskKind;
+
   /// An in-flight branching keyword, along with the number of annotations
   /// collected before it started and the error traces it buffers
   struct MaskEntry {
     sourcemeta::core::WeakPointer evaluate_path;
     sourcemeta::core::WeakPointer instance_location;
+    MaskKind kind;
     std::size_t annotations_mark;
     std::vector<Entry> buffered_traces;
   };

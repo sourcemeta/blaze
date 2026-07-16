@@ -2,7 +2,7 @@
 
 #include <sourcemeta/blaze/foundation.h>
 
-#include <algorithm> // std::any_of, std::equal, std::sort
+#include <algorithm> // std::equal, std::min, std::remove_if
 #include <cassert>   // assert
 #include <iterator>  // std::back_inserter, std::make_move_iterator, std::next
 #include <ranges>    // std::views::reverse
@@ -20,12 +20,6 @@ auto shares_prefix(const sourcemeta::core::WeakPointer &pointer,
                     other.cbegin());
 }
 
-auto starts_with_strict(const sourcemeta::core::WeakPointer &pointer,
-                        const sourcemeta::core::WeakPointer &other) -> bool {
-  return pointer.size() > other.size() &&
-         shares_prefix(pointer, other, other.size());
-}
-
 } // namespace
 
 namespace sourcemeta::blaze {
@@ -33,6 +27,22 @@ namespace sourcemeta::blaze {
 SimpleOutput::SimpleOutput(const sourcemeta::core::JSON &instance,
                            sourcemeta::core::WeakPointer base)
     : instance_{instance}, base_{std::move(base)} {}
+
+auto SimpleOutput::mask_kind(const Instruction &step) noexcept -> MaskKind {
+  switch (step.type) {
+    case InstructionIndex::LogicalOr:
+    case InstructionIndex::LogicalXor:
+      return MaskKind::Disjunction;
+    case InstructionIndex::LoopContains:
+      return MaskKind::Element;
+    case InstructionIndex::LogicalCondition:
+    case InstructionIndex::LogicalNot:
+    case InstructionIndex::LogicalNotEvaluate:
+      return MaskKind::Subschema;
+    default:
+      return MaskKind::None;
+  }
+}
 
 auto SimpleOutput::begin() const -> const_iterator {
   return this->output.begin();
@@ -58,17 +68,15 @@ auto SimpleOutput::operator()(
     return;
   }
 
-  assert(evaluate_path.back().is_property());
-
   // Fast path: passing non-annotation instructions that are not
   // closing a mask entry can be skipped entirely
   if (result && !is_annotation(step.type)) {
     if (type == EvaluationType::Pre) {
-      const auto &keyword{evaluate_path.back().to_property()};
-      if (keyword == "anyOf" || keyword == "oneOf" || keyword == "not" ||
-          keyword == "if" || keyword == "contains") {
+      const auto kind{mask_kind(step)};
+      if (kind != MaskKind::None) {
         this->mask.push_back({.evaluate_path = evaluate_path,
                               .instance_location = instance_location,
+                              .kind = kind,
                               .annotations_mark = this->annotations_.size(),
                               .buffered_traces = {}});
       }
@@ -98,15 +106,14 @@ auto SimpleOutput::operator()(
     return;
   }
 
-  const auto &keyword{evaluate_path.back().to_property()};
-
   if (type == EvaluationType::Pre) {
     assert(result);
     // To ease the output
-    if (keyword == "anyOf" || keyword == "oneOf" || keyword == "not" ||
-        keyword == "if" || keyword == "contains") {
+    const auto kind{mask_kind(step)};
+    if (kind != MaskKind::None) {
       this->mask.push_back({.evaluate_path = evaluate_path,
                             .instance_location = instance_location,
+                            .kind = kind,
                             .annotations_mark = this->annotations_.size(),
                             .buffered_traces = {}});
     }
@@ -118,7 +125,7 @@ auto SimpleOutput::operator()(
         })};
     if (mask_it != this->mask.end()) {
       // Present unexpected traces only when needed
-      if (!result && keyword != "not" && keyword != "if") {
+      if (!result && mask_it->kind != MaskKind::Subschema) {
 #ifdef __cpp_lib_containers_ranges
         this->output.append_range(std::move(mask_it->buffered_traces));
 #else
@@ -143,13 +150,12 @@ auto SimpleOutput::operator()(
     // below the unit's own instance location. The unit is the disjunction
     // branch for `anyOf` and `oneOf`, the application of the subschema to
     // the array element for `contains`, and the entire subschema for `if`
-    // and `not`. Outside of branching keywords, annotations from successful
-    // sibling subschemas are reported on a best-effort basis, so only
-    // annotations at the exact instance location of the failure are
-    // discarded
+    // and negations. A failure outside of every branching keyword cannot
+    // be absorbed, so the overall result is bound to be false, in which
+    // case no annotations may be reported at all
     const MaskEntry *unit{nullptr};
     for (const auto &mask_entry : std::views::reverse(this->mask)) {
-      if (starts_with_strict(evaluate_path, mask_entry.evaluate_path) &&
+      if (evaluate_path.starts_with(mask_entry.evaluate_path) &&
           instance_location.starts_with(mask_entry.instance_location)) {
         unit = &mask_entry;
         break;
@@ -157,12 +163,21 @@ auto SimpleOutput::operator()(
     }
 
     if (unit) {
-      const auto &mask_keyword{unit->evaluate_path.back().to_property()};
-      const auto evaluate_prefix_size{
-          unit->evaluate_path.size() +
-          ((mask_keyword == "anyOf" || mask_keyword == "oneOf") ? 1 : 0)};
-      const auto instance_prefix_size{unit->instance_location.size() +
-                                      (mask_keyword == "contains" ? 1 : 0)};
+      auto evaluate_prefix_size{unit->evaluate_path.size()};
+      auto instance_prefix_size{unit->instance_location.size()};
+      switch (unit->kind) {
+        case MaskKind::Disjunction:
+          evaluate_prefix_size =
+              std::min(evaluate_prefix_size + 1, evaluate_path.size());
+          break;
+        case MaskKind::Element:
+          instance_prefix_size =
+              std::min(instance_prefix_size + 1, instance_location.size());
+          break;
+        default:
+          break;
+      }
+
       // Every annotation the failing unit collected, including the ones
       // that the equality check below would match, sits at or beyond the
       // mark the unit's branching keyword recorded, so older entries do
@@ -184,15 +199,11 @@ auto SimpleOutput::operator()(
               }),
           this->annotations_.end());
     } else {
-      std::erase_if(
-          this->annotations_, [&](const AnnotationEntry &entry) -> bool {
-            return entry.evaluate_path.starts_with_initial(evaluate_path) &&
-                   entry.instance_location == instance_location;
-          });
+      this->annotations_.clear();
     }
   }
 
-  if (keyword == "if") {
+  if (step.type == InstructionIndex::LogicalCondition) {
     return;
   } else {
     for (auto &mask_entry : this->mask) {
