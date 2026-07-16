@@ -1025,10 +1025,7 @@ TEST(annotations_failure_2) {
                 "properties "
                 "subschemas");
 
-  EXPECT_ANNOTATION_COUNT(output, 1);
-
-  EXPECT_ANNOTATION(output, 0, "/bar", "/properties/bar/title",
-                    "#/properties/bar/title", sourcemeta::core::JSON{"Bar"});
+  EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
 TEST(annotations_success_oneof_1) {
@@ -1649,5 +1646,403 @@ TEST(annotations_failure_1) {
   EXPECT_OUTPUT(
       traces, 0, "", "/type", "#/type",
       "The value was expected to be of type string but it was of type integer");
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(annotations_success_anyof_failed_branch_nested_property_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "payment": {
+        "anyOf": [
+          {
+            "properties": {
+              "amount": { "title": "Wrong" },
+              "kind": {
+                "type": "number",
+                "minimum": 5,
+                "maximum": 10,
+                "multipleOf": 2
+              }
+            }
+          },
+          {
+            "properties": {
+              "amount": { "title": "Right" }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 3);
+
+  EXPECT_ANNOTATION(output, 0, "/payment/amount",
+                    "/properties/payment/anyOf/1/properties/amount/title",
+                    "#/properties/payment/anyOf/1/properties/amount/title",
+                    sourcemeta::core::JSON{"Right"});
+  EXPECT_ANNOTATION(output, 1, "/payment",
+                    "/properties/payment/anyOf/1/properties",
+                    "#/properties/payment/anyOf/1/properties",
+                    sourcemeta::core::JSON{"amount"});
+  EXPECT_ANNOTATION(output, 2, "", "/properties", "#/properties",
+                    sourcemeta::core::JSON{"payment"});
+}
+
+TEST(annotations_success_anyof_failed_branch_nested_property_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "payment": {
+        "anyOf": [
+          {
+            "properties": {
+              "amount": { "title": "Wrong" },
+              "kind": { "const": 4 }
+            }
+          },
+          {
+            "properties": {
+              "amount": { "title": "Right" }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 3);
+
+  EXPECT_ANNOTATION(output, 0, "/payment/amount",
+                    "/properties/payment/anyOf/1/properties/amount/title",
+                    "#/properties/payment/anyOf/1/properties/amount/title",
+                    sourcemeta::core::JSON{"Right"});
+  EXPECT_ANNOTATION(output, 1, "/payment",
+                    "/properties/payment/anyOf/1/properties",
+                    "#/properties/payment/anyOf/1/properties",
+                    sourcemeta::core::JSON{"amount"});
+  EXPECT_ANNOTATION(output, 2, "", "/properties", "#/properties",
+                    sourcemeta::core::JSON{"payment"});
+}
+
+TEST(annotations_success_whitelist_anyof_failed_branch_nested_property) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "payment": {
+        "anyOf": [
+          {
+            "properties": {
+              "amount": { "x-custom": "Wrong" },
+              "kind": {
+                "type": "number",
+                "minimum": 5,
+                "maximum": 10,
+                "multipleOf": 2
+              }
+            }
+          },
+          {
+            "properties": {
+              "amount": { "x-custom": "Right" }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 1);
+
+  EXPECT_ANNOTATION(output, 0, "/payment/amount",
+                    "/properties/payment/anyOf/1/properties/amount/x-custom",
+                    "#/properties/payment/anyOf/1/properties/amount/x-custom",
+                    sourcemeta::core::JSON{"Right"});
+}
+
+TEST(annotations_success_oneof_failed_branch_nested_property_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "payment": {
+        "oneOf": [
+          {
+            "properties": {
+              "amount": { "title": "Wrong" },
+              "kind": {
+                "type": "number",
+                "minimum": 5,
+                "maximum": 10,
+                "multipleOf": 2
+              }
+            }
+          },
+          {
+            "properties": {
+              "amount": { "title": "Right" },
+              "kind": { "const": 999 }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 4);
+
+  EXPECT_ANNOTATION(output, 0, "/payment",
+                    "/properties/payment/oneOf/1/properties",
+                    "#/properties/payment/oneOf/1/properties",
+                    sourcemeta::core::JSON{"kind"});
+  EXPECT_ANNOTATION(output, 1, "/payment/amount",
+                    "/properties/payment/oneOf/1/properties/amount/title",
+                    "#/properties/payment/oneOf/1/properties/amount/title",
+                    sourcemeta::core::JSON{"Right"});
+  EXPECT_ANNOTATION(output, 2, "/payment",
+                    "/properties/payment/oneOf/1/properties",
+                    "#/properties/payment/oneOf/1/properties",
+                    sourcemeta::core::JSON{"amount"});
+  EXPECT_ANNOTATION(output, 3, "", "/properties", "#/properties",
+                    sourcemeta::core::JSON{"payment"});
+}
+
+TEST(annotations_success_if_else_failed_branch_nested_property_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": {
+      "properties": {
+        "amount": { "title": "Wrong" },
+        "kind": {
+          "type": "number",
+          "minimum": 5,
+          "maximum": 10,
+          "multipleOf": 2
+        }
+      }
+    },
+    "else": {
+      "properties": {
+        "amount": { "title": "Right" }
+      }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "amount": "hi", "kind": 999 })JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 2);
+
+  EXPECT_ANNOTATION(output, 0, "/amount", "/else/properties/amount/title",
+                    "#/else/properties/amount/title",
+                    sourcemeta::core::JSON{"Right"});
+  EXPECT_ANNOTATION(output, 1, "", "/else/properties", "#/else/properties",
+                    sourcemeta::core::JSON{"amount"});
+}
+
+TEST(annotations_failure_multiple_locations_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "title": "Foo" },
+      "zzz": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": 1, "zzz": 2 })JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_FALSE(result);
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(annotations_success_whitelist_disallow_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "x-custom": "Kept",
+    "disallow": [ { "type": "integer" } ]
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const sourcemeta::core::JSON instance{"hello"};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(annotations_success_whitelist_disallow_cross_dialect_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-custom": "Kept",
+    "$ref": "#/$defs/legacy",
+    "$defs": {
+      "legacy": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "disallow": [ { "type": "integer" } ]
+      }
+    }
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const sourcemeta::core::JSON instance{"hello"};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+
+  EXPECT_ANNOTATION_COUNT(output, 1);
+
+  EXPECT_ANNOTATION(output, 0, "", "/x-custom", "#/x-custom",
+                    sourcemeta::core::JSON{"Kept"});
+}
+
+TEST(annotations_failure_whitelist_disallow_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "x-custom": "Gone",
+    "disallow": [ { "type": "integer" } ]
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  const sourcemeta::core::JSON instance{5};
+
+  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_FALSE(result);
+
   EXPECT_ANNOTATION_COUNT(output, 0);
 }

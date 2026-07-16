@@ -391,6 +391,97 @@ TEST(JSONLD_oneof_only_matching_branch_survives) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_anyof_failed_branch_nested_annotations_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "payment": {
+        "x-jsonld-id": "https://schema.org/payment",
+        "anyOf": [
+          {
+            "properties": {
+              "amount": {
+                "x-jsonld-id": "https://schema.org/wrongPredicate",
+                "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+              },
+              "kind": {
+                "type": "number",
+                "minimum": 5,
+                "maximum": 10,
+                "multipleOf": 2
+              }
+            }
+          },
+          {
+            "properties": {
+              "amount": { "x-jsonld-id": "https://schema.org/rightPredicate" }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/payment": [
+        {
+          "https://schema.org/rightPredicate": [ { "@value": "hi" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_anyof_failed_branch_nested_annotations_dropped_cheap_sibling) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "payment": {
+        "x-jsonld-id": "https://schema.org/payment",
+        "anyOf": [
+          {
+            "properties": {
+              "amount": {
+                "x-jsonld-id": "https://schema.org/wrongPredicate",
+                "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+              },
+              "kind": { "const": 4 }
+            }
+          },
+          {
+            "properties": {
+              "amount": { "x-jsonld-id": "https://schema.org/rightPredicate" }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/payment": [
+        {
+          "https://schema.org/rightPredicate": [ { "@value": "hi" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
 TEST(JSONLD_standalone_node_without_edge) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
