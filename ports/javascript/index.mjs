@@ -647,6 +647,14 @@ class Blaze {
       if (match) entry.skip = true;
     }
   }
+
+  checkpoint() {
+    return this.evaluated.length;
+  }
+
+  rewind(checkpoint) {
+    this.evaluated.length = checkpoint;
+  }
 }
 
 function evaluateInstructionFast(instruction, instance, depth, template, evaluator) {
@@ -1646,16 +1654,21 @@ function LogicalOr(instruction, instance, depth, template, evaluator) {
   let result = false;
   if (exhaustive) {
     for (let index = 0; index < children.length; index++) {
+      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
         result = true;
+      } else if (evaluator.trackMode) {
+        evaluator.rewind(checkpoint);
       }
     }
   } else {
     for (let index = 0; index < children.length; index++) {
+      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
         result = true;
         break;
       }
+      if (evaluator.trackMode) evaluator.rewind(checkpoint);
     }
   }
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, result);
@@ -1687,6 +1700,7 @@ function LogicalXor(instruction, instance, depth, template, evaluator) {
   let hasMatched = false;
   if (children) {
     for (let index = 0; index < children.length; index++) {
+      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
         if (hasMatched) {
           result = false;
@@ -1694,6 +1708,8 @@ function LogicalXor(instruction, instance, depth, template, evaluator) {
         } else {
           hasMatched = true;
         }
+      } else if (evaluator.trackMode) {
+        evaluator.rewind(checkpoint);
       }
     }
   }
@@ -1712,6 +1728,7 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
 
   const target = resolveInstance(instance, instruction[2]);
 
+  const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
   let conditionResult = true;
   for (let cursor = 0; cursor < thenStart; cursor++) {
     if (!evaluateInstruction(children[cursor], target, depth + 1, template, evaluator)) {
@@ -1719,6 +1736,7 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
       break;
     }
   }
+  if (!conditionResult && evaluator.trackMode) evaluator.rewind(checkpoint);
 
   let consequenceStart;
   let consequenceEnd;
@@ -2818,11 +2836,15 @@ function LogicalOr_fast(instruction, instance, depth, template, evaluator) {
   let result = false;
   if (exhaustive) {
     for (let index = 0; index < children.length; index++) {
+      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) result = true;
+      else if (evaluator.trackMode) evaluator.rewind(checkpoint);
     }
   } else {
     for (let index = 0; index < children.length; index++) {
+      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) return true;
+      if (evaluator.trackMode) evaluator.rewind(checkpoint);
     }
   }
   return result;
@@ -2867,6 +2889,7 @@ function LogicalXor_fast(instruction, instance, depth, template, evaluator) {
   let hasMatched = false;
   if (children) {
     for (let index = 0; index < children.length; index++) {
+      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
         if (hasMatched) {
           result = false;
@@ -2874,6 +2897,8 @@ function LogicalXor_fast(instruction, instance, depth, template, evaluator) {
         } else {
           hasMatched = true;
         }
+      } else if (evaluator.trackMode) {
+        evaluator.rewind(checkpoint);
       }
     }
   }
@@ -2972,6 +2997,7 @@ function LogicalCondition_fast(instruction, instance, depth, template, evaluator
   const childrenSize = children ? children.length : 0;
   const relInstance = instruction[2];
   const target = relInstance.length === 0 ? instance : resolveInstance(instance, relInstance);
+  const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
   let conditionResult = true;
   for (let cursor = 0; cursor < thenStart; cursor++) {
     if (!evaluateInstruction(children[cursor], target, depth + 1, template, evaluator)) {
@@ -2979,6 +3005,7 @@ function LogicalCondition_fast(instruction, instance, depth, template, evaluator
       break;
     }
   }
+  if (!conditionResult && evaluator.trackMode) evaluator.rewind(checkpoint);
   let consequenceStart;
   let consequenceEnd;
   if (conditionResult) {

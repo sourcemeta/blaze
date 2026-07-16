@@ -1214,15 +1214,36 @@ INSTRUCTION_HANDLER(LogicalOr) {
   // This boolean value controls whether we should be exhaustive
   if (value) {
     for (const auto &child : instruction.children) {
+      // A branch that does not hold contributes nothing, including any
+      // evaluation it marked before failing. Only a schema that tracks
+      // evaluation can ever observe those marks
+      [[maybe_unused]] std::size_t checkpoint{0};
+      if constexpr (Track) {
+        checkpoint = context.evaluator->checkpoint();
+      }
+
       if (EVALUATE_RECURSE(child, target)) {
         result = true;
+      } else {
+        if constexpr (Track) {
+          context.evaluator->rewind(checkpoint);
+        }
       }
     }
   } else {
     for (const auto &child : instruction.children) {
+      [[maybe_unused]] std::size_t checkpoint{0};
+      if constexpr (Track) {
+        checkpoint = context.evaluator->checkpoint();
+      }
+
       if (EVALUATE_RECURSE(child, target)) {
         result = true;
         break;
+      }
+
+      if constexpr (Track) {
+        context.evaluator->rewind(checkpoint);
       }
     }
   }
@@ -1308,6 +1329,13 @@ INSTRUCTION_HANDLER(LogicalXor) {
       resolve_instance(instance, instruction.relative_instance_location)};
   const auto value{assume_value_copy<ValueBoolean>(instruction.value)};
   for (const auto &child : instruction.children) {
+    // A branch that does not hold contributes nothing, including any
+    // evaluation it marked before failing
+    [[maybe_unused]] std::size_t checkpoint{0};
+    if constexpr (Track) {
+      checkpoint = context.evaluator->checkpoint();
+    }
+
     if (EVALUATE_RECURSE(child, target)) {
       if (has_matched) [[unlikely]] {
         result = false;
@@ -1317,6 +1345,10 @@ INSTRUCTION_HANDLER(LogicalXor) {
         }
       } else {
         has_matched = true;
+      }
+    } else {
+      if constexpr (Track) {
+        context.evaluator->rewind(checkpoint);
       }
     }
   }
@@ -1341,10 +1373,23 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   const auto &target{
       resolve_instance(instance, instruction.relative_instance_location)};
 
+  // A condition that holds does contribute the evaluation it marked, but one
+  // that does not hold contributes nothing at all
+  [[maybe_unused]] std::size_t checkpoint{0};
+  if constexpr (Track) {
+    checkpoint = context.evaluator->checkpoint();
+  }
+
   for (std::size_t cursor = 0; cursor < value.first; cursor++) {
     if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
       result = false;
       break;
+    }
+  }
+
+  if (!result) {
+    if constexpr (Track) {
+      context.evaluator->rewind(checkpoint);
     }
   }
 
