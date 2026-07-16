@@ -2,25 +2,11 @@
 
 #include <sourcemeta/blaze/foundation.h>
 
-#include <algorithm> // std::equal, std::min, std::remove_if
+#include <algorithm> // std::min, std::remove_if
 #include <cassert>   // assert
-#include <iterator>  // std::back_inserter, std::make_move_iterator, std::next
+#include <iterator>  // std::make_move_iterator
 #include <ranges>    // std::views::reverse
 #include <utility>   // std::move
-
-namespace {
-
-auto shares_prefix(const sourcemeta::core::WeakPointer &pointer,
-                   const sourcemeta::core::WeakPointer &other,
-                   const std::size_t prefix_size) -> bool {
-  return pointer.size() >= prefix_size && other.size() >= prefix_size &&
-         std::equal(pointer.cbegin(),
-                    std::next(pointer.cbegin(),
-                              static_cast<std::ptrdiff_t>(prefix_size)),
-                    other.cbegin());
-}
-
-} // namespace
 
 namespace sourcemeta::blaze {
 
@@ -192,10 +178,10 @@ auto SimpleOutput::operator()(
                 return (entry.evaluate_path.starts_with_initial(
                             evaluate_path) &&
                         entry.instance_location == instance_location) ||
-                       (shares_prefix(entry.evaluate_path, evaluate_path,
-                                      evaluate_prefix_size) &&
-                        shares_prefix(entry.instance_location,
-                                      instance_location, instance_prefix_size));
+                       (entry.evaluate_path.shares_prefix(
+                            evaluate_path, evaluate_prefix_size) &&
+                        entry.instance_location.shares_prefix(
+                            instance_location, instance_prefix_size));
               }),
           this->annotations_.end());
     } else {
