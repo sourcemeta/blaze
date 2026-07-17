@@ -159,12 +159,15 @@ inline auto rephrase(const Context &context, const InstructionIndex type,
           .extra_index = extra_index};
 }
 
+// Note that the size keywords that let the type level fuse their bound accept
+// any integral number, including reals with no fractional part like `2.0`, so
+// this must recognise those too or the fused bound would be silently dropped
 inline auto
 unsigned_integer_property(const sourcemeta::core::JSON &document,
                           const sourcemeta::core::JSON::String &property)
     -> std::optional<std::size_t> {
-  if (document.defines(property) && document.at(property).is_integer()) {
-    const auto value{document.at(property).to_integer()};
+  if (document.defines(property) && document.at(property).is_integral()) {
+    const auto value{document.at(property).as_integer()};
     assert(value >= 0);
     return static_cast<std::size_t>(value);
   }

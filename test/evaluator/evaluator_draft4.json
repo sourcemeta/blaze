@@ -12059,5 +12059,525 @@
         "The value was expected to be of type object"
       ]
     }
+  },
+  {
+    "description": "string_inverted_bounds",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 1
+    },
+    "instance": "abcd",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"abcd\" was expected to consist of at most 1 character but it consisted of 4 characters"
+      ]
+    }
+  },
+  {
+    "description": "array_inverted_bounds",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 1
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 1 item but it contained 2 items"
+      ]
+    }
+  },
+  {
+    "description": "object_inverted_bounds",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "minProperties": 3,
+      "maxProperties": 1
+    },
+    "instance": { "a": 1, "b": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+      ]
+    }
+  },
+  {
+    "description": "type_object_real_max_properties",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "maxProperties": 2.0
+    },
+    "instance": { "a": 1, "b": 2, "c": 3 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an object of at most 2 properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 2 properties but it contained 3 properties: \"a\", \"b\", and \"c\""
+      ]
+    }
+  },
+  {
+    "description": "type_object_real_max_properties_within",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "maxProperties": 2.0
+    },
+    "instance": { "a": 1, "b": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an object of at most 2 properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 2 properties and it contained 2 properties: \"a\", and \"b\"",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "type_object_real_min_properties",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "minProperties": 2.0
+    },
+    "instance": { "a": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an object of at least 2 properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 2 properties but it contained 1 property: \"a\""
+      ]
+    }
+  },
+  {
+    "description": "type_object_real_min_properties_within",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "minProperties": 2.0
+    },
+    "instance": { "a": 1, "b": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an object of at least 2 properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 2 properties and it contained 2 properties: \"a\", and \"b\"",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "type_array_real_max_items",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "maxItems": 2.0
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeArrayUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at most 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items but it contained 3 items"
+      ]
+    }
+  },
+  {
+    "description": "type_array_real_max_items_within",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "maxItems": 2.0
+    },
+    "instance": [ 1, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeArrayUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at most 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items and it contained 2 items",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "type_array_real_min_items",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "minItems": 2.0
+    },
+    "instance": [ 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at least 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items but it contained 1 item"
+      ]
+    }
+  },
+  {
+    "description": "type_array_real_min_items_within",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "minItems": 2.0
+    },
+    "instance": [ 1, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at least 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items and it contained 2 items",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "type_string_real_max_length",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "string",
+      "maxLength": 2.0
+    },
+    "instance": "abcd",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStringUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStringUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at most 2 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"abcd\" was expected to consist of at most 2 characters but it consisted of 4 characters"
+      ]
+    }
+  },
+  {
+    "description": "type_string_real_max_length_within",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "string",
+      "maxLength": 2.0
+    },
+    "instance": "ab",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStringUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStringUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at most 2 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"ab\" was expected to consist of at most 2 characters and it consisted of 2 characters",
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "type_string_real_min_length",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "string",
+      "minLength": 2.0
+    },
+    "instance": "a",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at least 2 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to consist of at least 2 characters but it consisted of 1 character"
+      ]
+    }
+  },
+  {
+    "description": "type_string_real_min_length_within",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "string",
+      "minLength": 2.0
+    },
+    "instance": "ab",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at least 2 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"ab\" was expected to consist of at least 2 characters and it consisted of 2 characters",
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "type_array_unknown_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": [ "foo", "bar" ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    }
   }
 ]
