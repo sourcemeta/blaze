@@ -5618,3 +5618,19 @@ TEST(type_array_partially_unknown_names_invalid) {
                                "The value was expected to be of type string "
                                "but it was of type integer");
 }
+
+TEST(type_object_oversized_max_properties_ignored) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "maxProperties": 1e308
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+}

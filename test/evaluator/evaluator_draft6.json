@@ -6328,5 +6328,27 @@
       "post": [],
       "descriptions": []
     }
+  },
+  {
+    "description": "property_names_type_unknown_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "propertyNames": { "type": [ "foo" ] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "property_names_type_unknown_name_scalar",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "propertyNames": { "type": "foo" }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]

@@ -6292,5 +6292,27 @@
       "post": [],
       "descriptions": []
     }
+  },
+  {
+    "description": "property_names_type_unknown_names",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "propertyNames": { "type": [ "foo" ] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "property_names_type_unknown_name_scalar",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "propertyNames": { "type": "foo" }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]

@@ -30,8 +30,24 @@ auto compiler_draft6_validation_type(const Context &context,
       return {};
     }
 
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
+    // A set that names known types, none of them a string, can never match a
+    // property name, so every name fails
+    if (types.any()) {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                   schema_context, dynamic_context, ValueNone{})};
+    }
+
+    // No known type was named. An empty array names nothing at all, so no name
+    // can match it, whereas an unrecognised name is an invalid but legitimate
+    // use that constrains nothing and is ignored, matching how the forms below
+    // treat both outside `propertyNames`
+    if (schema_context.schema.at(dynamic_context.keyword).is_array() &&
+        schema_context.schema.at(dynamic_context.keyword).empty()) {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                   schema_context, dynamic_context, ValueNone{})};
+    }
+
+    return {};
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {

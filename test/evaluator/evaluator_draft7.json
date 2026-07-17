@@ -1861,5 +1861,27 @@
         "Every item in the array value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "property_names_type_unknown_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "propertyNames": { "type": [ "foo" ] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "property_names_type_unknown_name_scalar",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "propertyNames": { "type": "foo" }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]
