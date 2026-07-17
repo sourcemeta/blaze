@@ -6314,5 +6314,401 @@
     "valid": true,
     "fast": {},
     "exhaustive": {}
+  },
+  {
+    "description": "type_object_empty_required_null",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "required": []
+    },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "type_object_empty_required_object",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "required": []
+    },
+    "instance": { "k": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "pattern_properties_nonboolean_additional",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": { "^a.$": { "type": "string" } },
+      "additionalProperties": { "enum": [] }
+    },
+    "instance": { "zzz": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ false, "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema",
+        "The integer value was not expected to validate against the empty enumeration",
+        "The object value was not expected to define additional properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ false, "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema",
+        "The integer value was not expected to validate against the empty enumeration",
+        "The object value was not expected to define additional properties"
+      ]
+    }
+  },
+  {
+    "description": "pattern_properties_nonboolean_additional_matching",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": { "^a.$": { "type": "string" } },
+      "additionalProperties": { "enum": [] }
+    },
+    "instance": { "ab": "x" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema",
+        "The object value was not expected to define additional properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+        [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+        [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "ab" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"ab\" successfully validated against its pattern property subschema",
+        "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema",
+        "The object value was not expected to define additional properties"
+      ]
+    }
+  },
+  {
+    "description": "pattern_properties_nonboolean_additional_bad_type",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "patternProperties": { "^a.$": { "type": "string" } },
+      "additionalProperties": { "enum": [] }
+    },
+    "instance": { "ab": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+        [ false, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+        [ false, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_nonboolean_additional",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": { "a": {}, "b": {}, "c": {}, "d": {}, "e": {}, "f": {} },
+      "additionalProperties": { "enum": [] }
+    },
+    "instance": { "zzz": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ false, "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the 6 defined properties subschemas",
+        "The integer value was not expected to validate against the empty enumeration",
+        "The object value was not expected to define additional properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ false, "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the 6 defined properties subschemas",
+        "The integer value was not expected to validate against the empty enumeration",
+        "The object value was not expected to define additional properties"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_nonboolean_additional_known",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": { "a": {}, "b": {}, "c": {}, "d": {}, "e": {}, "f": {} },
+      "additionalProperties": { "enum": [] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the 6 defined properties subschemas",
+        "The object value was not expected to define additional properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the 6 defined properties subschemas",
+        "The object value was not expected to define additional properties"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_empty_pattern_properties",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "properties": {
+        "a": { "type": "string" },
+        "b": { "type": "integer" },
+        "c": { "type": "boolean" }
+      },
+      "patternProperties": {},
+      "additionalProperties": false
+    },
+    "instance": { "a": "x", "zzz": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/zzz" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/zzz" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the 3 defined properties subschemas",
+        "The object value was not expected to define the property \"zzz\"",
+        "The object value was not expected to define additional properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/zzz" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/zzz" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the 3 defined properties subschemas",
+        "The object value was not expected to define the property \"zzz\"",
+        "The object value was not expected to define additional properties"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_empty_pattern_properties_known",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "properties": {
+        "a": { "type": "string" },
+        "b": { "type": "integer" },
+        "c": { "type": "boolean" }
+      },
+      "patternProperties": {},
+      "additionalProperties": false
+    },
+    "instance": { "a": "x" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the 3 defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the 3 defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
   }
 ]

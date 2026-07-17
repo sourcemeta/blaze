@@ -131,8 +131,13 @@ auto compiler_draft6_validation_type(const Context &context,
         return {};
       }
 
+      // A non-empty `required` rejects a non-object on its own, so the type
+      // assertion is redundant. An empty `required` asserts nothing, so the
+      // type check must stay
       if (context.mode == Mode::FastValidation &&
-          schema_context.schema.defines("required")) {
+          schema_context.schema.defines("required") &&
+          schema_context.schema.at("required").is_array() &&
+          !schema_context.schema.at("required").empty()) {
         return {};
       }
 
