@@ -1195,14 +1195,28 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
     return {};
   }
 
-  // When `additionalProperties: false` with only `properties` (no
-  // patternProperties), and `properties` is compiled as a loop
-  // (LoopPropertiesMatchClosed), that loop already handles rejecting unknown
-  // properties, so we don't need to emit anything for `additionalProperties`
-  if (context.mode == Mode::FastValidation && children.size() == 1 &&
+  // The closed forms that the elisions below rely on are only emitted when
+  // `additionalProperties` is the boolean `false`. Testing the compiled shape
+  // alone is not enough, as other subschemas that reject everything, like an
+  // empty `enum`, also reduce to an unconditional failure without closing
+  // anything
+  const auto rejects_with_boolean_false{
+      schema_context.schema.at(dynamic_context.keyword).is_boolean() &&
+      !schema_context.schema.at(dynamic_context.keyword).to_boolean()};
+
+  // When `additionalProperties: false` sits with `properties` alone and
+  // `properties` compiles to its closed form, that form already rejects
+  // unknown properties, so `additionalProperties` need emit nothing. Both
+  // evaluation tracking and a defined `patternProperties` hold `properties`
+  // back to its non-closed form, in which case the closure must still be
+  // emitted here. An empty `patternProperties` contributes no property filters
+  // yet still counts as defined, so its mere presence, not the filters it
+  // yields, is what matters
+  if (context.mode == Mode::FastValidation && !track_evaluation &&
+      rejects_with_boolean_false && children.size() == 1 &&
       children.front().type == InstructionIndex::AssertionFail &&
-      !filter_strings.empty() && filter_prefixes.empty() &&
-      filter_regexes.empty() &&
+      !filter_strings.empty() &&
+      !schema_context.schema.defines("patternProperties") &&
       properties_as_loop(context, schema_context,
                          schema_context.schema.at("properties"))) {
     return {};
@@ -1229,9 +1243,12 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
     }
   }
 
+  // Similarly, `patternProperties` only compiles to its closed form, which
+  // rejects unmatched properties on its own, when `additionalProperties` is
+  // the boolean `false`
   if (context.mode == Mode::FastValidation && filter_strings.empty() &&
       filter_prefixes.empty() && filter_regexes.size() == 1 &&
-      !track_evaluation && !children.empty() &&
+      !track_evaluation && rejects_with_boolean_false && !children.empty() &&
       children.front().type == InstructionIndex::AssertionFail) {
     return {};
   }
@@ -2128,8 +2145,13 @@ auto compiler_draft3_validation_type(const Context &context,
         return {};
       }
 
+      // A non-empty `required` rejects a non-object on its own, so the type
+      // assertion is redundant. An empty `required` asserts nothing, so the
+      // type check must stay
       if (!is_draft3 && context.mode == Mode::FastValidation &&
-          schema_context.schema.defines("required")) {
+          schema_context.schema.defines("required") &&
+          schema_context.schema.at("required").is_array() &&
+          !schema_context.schema.at("required").empty()) {
         return {};
       }
 
