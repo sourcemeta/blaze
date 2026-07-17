@@ -856,15 +856,56 @@ auto compiler_draft3_applicator_properties_with_options(
         }
       }
 
-      if (fusion_possible && substeps.size() >= 2 &&
-          std::ranges::any_of(substeps, [](const auto &step) -> auto {
-            return step.type ==
-                   InstructionIndex::AssertionObjectPropertiesSimple;
-          })) {
-        std::erase_if(substeps, [](const auto &step) -> auto {
+      // A fused check rejects a non-object and enforces the presence of the
+      // properties it marks as required, but only those, and only at its own
+      // instance location. This list is flattened and may also hold checks
+      // merged in from elsewhere, as every `allOf` branch contributes to it,
+      // so we may only drop what the fusion provably covers
+      std::vector<
+          std::pair<sourcemeta::core::Pointer, std::unordered_set<std::string>>>
+          fusions;
+      if (fusion_possible && substeps.size() >= 2) {
+        for (const auto &step : substeps) {
+          if (step.type != InstructionIndex::AssertionObjectPropertiesSimple) {
+            continue;
+          }
+
+          auto match{
+              std::ranges::find_if(fusions, [&step](const auto &entry) -> bool {
+                return entry.first == step.relative_instance_location;
+              })};
+          if (match == fusions.end()) {
+            fusions.emplace_back(step.relative_instance_location,
+                                 std::unordered_set<std::string>{});
+            match = std::prev(fusions.end());
+          }
+
+          for (const auto &entry :
+               std::get<ValueObjectProperties>(step.value)) {
+            if (std::get<2>(entry)) {
+              match->second.insert(std::get<0>(entry));
+            }
+          }
+        }
+      }
+
+      if (!fusions.empty()) {
+        std::erase_if(substeps, [&fusions](const auto &step) -> auto {
+          const auto fusion{
+              std::ranges::find_if(fusions, [&step](const auto &entry) -> bool {
+                return entry.first == step.relative_instance_location;
+              })};
+          if (fusion == fusions.cend()) {
+            return false;
+          }
+
           if (step.type == InstructionIndex::AssertionDefinesAllStrict ||
               step.type == InstructionIndex::AssertionDefinesAll) {
-            return true;
+            const auto &value{std::get<ValueStringSet>(step.value)};
+            return std::ranges::all_of(
+                value, [&fusion](const auto &property) -> auto {
+                  return fusion->second.contains(property.first);
+                });
           }
 
           if ((step.type == InstructionIndex::AssertionTypeStrict ||
@@ -878,9 +919,23 @@ auto compiler_draft3_applicator_properties_with_options(
         });
       }
 
-      if (fusion_possible && substeps.size() == 1 &&
+      // Fusion re-applies the single check to every property of the enclosing
+      // loop with its instance location cleared, so a check whose meaning
+      // depends on its own instance location cannot be relocated this way. A
+      // jump into a separate target, or a check that navigates into or gates
+      // on a nested location such as the one a `properties` conditional
+      // produces, therefore falls back to unfused emission
+      const bool fusable_single{
+          substeps.size() == 1 &&
           substeps.front().type != InstructionIndex::ControlJump &&
-          substeps.front().type != InstructionIndex::ControlDynamicAnchorJump) {
+          substeps.front().type != InstructionIndex::ControlDynamicAnchorJump &&
+          substeps.front().type != InstructionIndex::ControlGroup &&
+          substeps.front().type != InstructionIndex::ControlGroupWhenDefines &&
+          substeps.front().type !=
+              InstructionIndex::ControlGroupWhenDefinesDirect &&
+          substeps.front().type != InstructionIndex::ControlGroupWhenType &&
+          substeps.front().type != InstructionIndex::ControlEvaluate};
+      if (fusion_possible && fusable_single) {
         const auto is_required{assume_object && required.contains(name)};
         auto prop{make_property(name)};
         auto fusion_child{substeps.front()};
