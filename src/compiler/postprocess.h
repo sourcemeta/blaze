@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <string> // std::string
+#include <tuple>  // std::tuple
 #include <unordered_map>
 #include <unordered_set> // std::unordered_set
 #include <vector>
@@ -156,8 +157,12 @@ transform_instruction(Instruction &instruction, Instructions &output,
                       const std::vector<Instructions> &targets,
                       const std::vector<TargetStatistics> &statistics,
                       TargetStatistics &current_stats, const Tweaks &tweaks,
-                      const bool uses_dynamic_scopes) -> bool {
-  if (instruction.type == InstructionIndex::ControlJump) {
+                      const bool uses_dynamic_scopes, const bool positional)
+    -> bool {
+  // A positional owner pairs each child with an entry of its own data by
+  // index, and inlining a jump expands one child into many, which would
+  // re-pair the rest
+  if (!positional && instruction.type == InstructionIndex::ControlJump) {
     const auto jump_target_index{
         std::get<ValueUnsignedInteger>(instruction.value)};
     const auto &jump_target_stats{statistics[jump_target_index]};
@@ -380,13 +385,12 @@ inline auto postprocess(std::vector<Instructions> &targets,
       auto &target{targets[current_target_index]};
       auto &current_stats{statistics[current_target_index]};
 
-      std::vector<Instructions *> worklist;
-      std::vector<std::pair<Instructions *, std::size_t>> stack;
-      stack.emplace_back(&target, 0);
+      std::vector<std::pair<Instructions *, Instruction *>> worklist;
+      std::vector<std::tuple<Instructions *, std::size_t, Instruction *>> stack;
+      stack.emplace_back(&target, 0, nullptr);
 
       while (!stack.empty()) {
-        auto current{stack.back().first};
-        auto index{stack.back().second};
+        auto [current, index, owner] = stack.back();
         stack.pop_back();
 
         while (index < current->size() && (*current)[index].children.empty()) {
@@ -394,38 +398,100 @@ inline auto postprocess(std::vector<Instructions> &targets,
         }
 
         if (index < current->size()) {
-          stack.emplace_back(current, index + 1);
-          stack.emplace_back(&(*current)[index].children, 0);
+          stack.emplace_back(current, index + 1, owner);
+          stack.emplace_back(&(*current)[index].children, 0,
+                             &(*current)[index]);
         } else {
-          worklist.push_back(current);
+          worklist.emplace_back(current, owner);
         }
       }
 
-      for (auto *current : worklist) {
+      for (const auto &[current, owner] : worklist) {
         Instructions result;
         result.reserve(current->size());
 
-        std::unordered_set<std::string> fusion_covered_properties;
-        for (const auto &instruction : *current) {
-          if (instruction.type ==
-              InstructionIndex::AssertionObjectPropertiesSimple) {
-            const auto &entries{
-                std::get<ValueObjectProperties>(instruction.value)};
-            for (const auto &entry : entries) {
-              fusion_covered_properties.insert(std::get<0>(entry));
+        // The children of a conditional span its mutually exclusive
+        // condition, consequence, and alternative segments, and the children
+        // of a disjunction are alternative branches, so an instruction in one
+        // of them cannot subsume an instruction in another. Every other
+        // children list is a conjunction evaluated as a whole, where
+        // subsumption holds
+        // A fused simple-properties instruction pairs its entries with its
+        // children by index, so its children may neither be dropped, expanded,
+        // nor subsumed by each other, as each one applies to a different
+        // property despite them all sharing an empty instance location
+        const bool positional{
+            owner != nullptr &&
+            owner->type == InstructionIndex::AssertionObjectPropertiesSimple};
+
+        const bool disjoint{
+            positional || (owner != nullptr &&
+                           (owner->type == InstructionIndex::LogicalCondition ||
+                            owner->type == InstructionIndex::LogicalOr ||
+                            owner->type == InstructionIndex::LogicalXor))};
+
+        // A fused simple-properties instruction only enforces that a property
+        // is present for the entries it marks as required, so only those may
+        // subsume a sibling presence assertion. Every fused instruction, on
+        // the other hand, rejects a non-object outright, so any of them can
+        // subsume a sibling object type assertion. None of that says anything
+        // about the rest of the instance, so a fused instruction may only
+        // subsume siblings that apply to the very same instance location
+        std::vector<std::pair<sourcemeta::core::Pointer,
+                              std::unordered_set<std::string>>>
+            fusions;
+        if (!disjoint) {
+          for (const auto &instruction : *current) {
+            if (instruction.type !=
+                InstructionIndex::AssertionObjectPropertiesSimple) {
+              continue;
+            }
+
+            auto match{std::ranges::find_if(
+                fusions, [&instruction](const auto &entry) -> bool {
+                  return entry.first == instruction.relative_instance_location;
+                })};
+            if (match == fusions.end()) {
+              fusions.emplace_back(instruction.relative_instance_location,
+                                   std::unordered_set<std::string>{});
+              match = std::prev(fusions.end());
+            }
+
+            for (const auto &entry :
+                 std::get<ValueObjectProperties>(instruction.value)) {
+              if (std::get<2>(entry)) {
+                match->second.insert(std::get<0>(entry));
+              }
             }
           }
         }
 
+        // A positional owner pairs child N with entry N of its own data, and
+        // every entry past the last child only carries a presence requirement.
+        // Dropping a child therefore means moving its entry onto that tail, so
+        // the entries left in front stay paired with the children that survived
+        std::vector<std::size_t> surviving;
+        std::vector<std::size_t> dropped;
+        std::size_t child_index{0};
+
         for (auto &instruction : *current) {
-          if (!fusion_covered_properties.empty()) {
+          const auto result_size{result.size()};
+          const auto positional_index{child_index};
+          child_index += 1;
+
+          const auto fusion{std::ranges::find_if(
+              fusions, [&instruction](const auto &entry) -> bool {
+                return entry.first == instruction.relative_instance_location;
+              })};
+
+          if (fusion != fusions.cend()) {
             switch (instruction.type) {
               case InstructionIndex::AssertionDefinesAllStrict:
               case InstructionIndex::AssertionDefinesAll: {
                 const auto &value{std::get<ValueStringSet>(instruction.value)};
                 bool all_covered{true};
                 for (const auto &property : value) {
-                  if (!fusion_covered_properties.contains(property.first)) {
+                  if (!fusion->second.contains(property.first)) {
                     all_covered = false;
                     break;
                   }
@@ -439,7 +505,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
               case InstructionIndex::AssertionDefinesStrict:
               case InstructionIndex::AssertionDefines: {
                 const auto &value{std::get<ValueProperty>(instruction.value)};
-                if (fusion_covered_properties.contains(value.first)) {
+                if (fusion->second.contains(value.first)) {
                   changed = true;
                   continue;
                 }
@@ -460,8 +526,34 @@ inline auto postprocess(std::vector<Instructions> &targets,
 
           if (transform_instruction(instruction, result, extra, targets,
                                     statistics, current_stats, tweaks,
-                                    uses_dynamic_scopes))
+                                    uses_dynamic_scopes, positional))
             changed = true;
+
+          if (positional) {
+            if (result.size() == result_size) {
+              dropped.push_back(positional_index);
+            } else {
+              surviving.push_back(positional_index);
+            }
+          }
+        }
+
+        if (positional && !dropped.empty()) {
+          auto &entries{std::get<ValueObjectProperties>(owner->value)};
+          ValueObjectProperties reordered;
+          for (const auto index : surviving) {
+            reordered.push_back(entries[index]);
+          }
+
+          for (const auto index : dropped) {
+            reordered.push_back(entries[index]);
+          }
+
+          for (auto index = child_index; index < entries.size(); index++) {
+            reordered.push_back(entries[index]);
+          }
+
+          entries = std::move(reordered);
         }
 
         *current = std::move(result);

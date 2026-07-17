@@ -12579,5 +12579,251 @@
       "post": [],
       "descriptions": []
     }
+  },
+  {
+    "description": "fusion_subsumption_distinct_instance_location",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": {
+        "a": { "type": "object" },
+        "b": {
+          "type": "object",
+          "properties": { "x": { "type": "string" } },
+          "required": [ "x" ]
+        }
+      }
+    },
+    "instance": { "a": 5, "b": { "x": "s" } },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ false, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type object but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ false, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type object but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "fusion_subsumption_distinct_instance_location_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": {
+        "a": { "type": "object" },
+        "b": {
+          "type": "object",
+          "properties": { "x": { "type": "string" } },
+          "required": [ "x" ]
+        }
+      }
+    },
+    "instance": { "a": {}, "b": { "x": "s" } },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionObjectPropertiesSimple", "/properties/b/properties", "#/properties/b/properties", "/b" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "AssertionObjectPropertiesSimple", "/properties/b/properties", "#/properties/b/properties", "/b" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionDefinesStrict", "/properties/b/required", "#/properties/b/required", "/b" ],
+        [ "LogicalWhenType", "/properties/b/properties", "#/properties/b/properties", "/b" ],
+        [ "AssertionTypeStrict", "/properties/b/properties/x/type", "#/properties/b/properties/x/type", "/b/x" ],
+        [ "AssertionTypeStrict", "/properties/b/type", "#/properties/b/type", "/b" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "AssertionDefinesStrict", "/properties/b/required", "#/properties/b/required", "/b" ],
+        [ true, "AssertionTypeStrict", "/properties/b/properties/x/type", "#/properties/b/properties/x/type", "/b/x" ],
+        [ true, "LogicalWhenType", "/properties/b/properties", "#/properties/b/properties", "/b" ],
+        [ true, "AssertionTypeStrict", "/properties/b/type", "#/properties/b/type", "/b" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type object",
+        "The value was expected to be an object that defines the property \"x\"",
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "fusion_subsumption_distinct_instance_location_nested",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": {
+        "a": { "type": "object" },
+        "b": {
+          "type": "object",
+          "properties": { "x": { "type": "string" } },
+          "required": [ "x" ]
+        }
+      }
+    },
+    "instance": { "a": {}, "b": {} },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionObjectPropertiesSimple", "/properties/b/properties", "#/properties/b/properties", "/b" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ false, "AssertionObjectPropertiesSimple", "/properties/b/properties", "#/properties/b/properties", "/b" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionDefinesStrict", "/properties/b/required", "#/properties/b/required", "/b" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ false, "AssertionDefinesStrict", "/properties/b/required", "#/properties/b/required", "/b" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type object",
+        "The value was expected to be an object that defines the property \"x\"",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "fusion_subsumption_same_instance_location",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "a" ],
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": { "a": "x" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"a\"",
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "fusion_subsumption_same_instance_location_missing",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "a" ],
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": {},
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesStrict", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"a\""
+      ]
+    }
   }
 ]
