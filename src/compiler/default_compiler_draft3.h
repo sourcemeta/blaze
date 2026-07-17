@@ -1758,8 +1758,11 @@ auto compiler_draft3_validation_maxlength(const Context &context,
     return {};
   }
 
-  // We'll handle it at the type level as an optimization
+  // We'll handle it at the type level as an optimization. Note that the type
+  // compiler bails out before it reads these bounds when it is compiling a
+  // property name, so there we must still emit them ourselves
   if (context.mode == Mode::FastValidation &&
+      !schema_context.is_property_name &&
       schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() == "string") {
@@ -1792,8 +1795,11 @@ auto compiler_draft3_validation_minlength(const Context &context,
     return {};
   }
 
-  // We'll handle it at the type level as an optimization
+  // We'll handle it at the type level as an optimization. Note that the type
+  // compiler bails out before it reads these bounds when it is compiling a
+  // property name, so there we must still emit them ourselves
   if (context.mode == Mode::FastValidation &&
+      !schema_context.is_property_name &&
       schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() == "string") {
@@ -2092,6 +2098,12 @@ auto compiler_draft3_validation_type(const Context &context,
             unsigned_integer_property(schema_context.schema, "maxProperties")};
 
         if (context.mode == Mode::FastValidation) {
+          if (maximum.has_value() && minimum > maximum.value()) {
+            return {make(sourcemeta::blaze::InstructionIndex::AssertionFail,
+                         context, schema_context, dynamic_context,
+                         ValueNone{})};
+          }
+
           if (maximum.has_value() && minimum == 0) {
             return {make(
                 sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper,
@@ -2131,6 +2143,11 @@ auto compiler_draft3_validation_type(const Context &context,
           unsigned_integer_property(schema_context.schema, "maxItems")};
 
       if (context.mode == Mode::FastValidation) {
+        if (maximum.has_value() && minimum > maximum.value()) {
+          return {make(sourcemeta::blaze::InstructionIndex::AssertionFail,
+                       context, schema_context, dynamic_context, ValueNone{})};
+        }
+
         if (maximum.has_value() && minimum == 0) {
           return {
               make(sourcemeta::blaze::InstructionIndex::AssertionTypeArrayUpper,
@@ -2195,6 +2212,11 @@ auto compiler_draft3_validation_type(const Context &context,
           unsigned_integer_property(schema_context.schema, "maxLength")};
 
       if (context.mode == Mode::FastValidation) {
+        if (maximum.has_value() && minimum > maximum.value()) {
+          return {make(sourcemeta::blaze::InstructionIndex::AssertionFail,
+                       context, schema_context, dynamic_context, ValueNone{})};
+        }
+
         if (maximum.has_value() && minimum == 0) {
           return {make(
               sourcemeta::blaze::InstructionIndex::AssertionTypeStringUpper,
@@ -2286,8 +2308,16 @@ auto compiler_draft3_validation_type(const Context &context,
     }
 
     if (!types.any()) {
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                   schema_context, dynamic_context, ValueNone{})};
+      // An empty array names no type at all, so no value can match it. A
+      // non-empty one that named only unrecognised types is an invalid but
+      // legitimate use of the keyword that we ignore, constraining nothing,
+      // exactly as the scalar form does for a single unrecognised name
+      if (value.empty()) {
+        return {make(sourcemeta::blaze::InstructionIndex::AssertionFail,
+                     context, schema_context, dynamic_context, ValueNone{})};
+      }
+
+      return {};
     }
 
     return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,

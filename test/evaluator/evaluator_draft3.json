@@ -12787,5 +12787,71 @@
         "The object value was expected to validate against the defined properties subschemas"
       ]
     }
+  },
+  {
+    "description": "string_inverted_bounds",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 1
+    },
+    "instance": "abcd",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"abcd\" was expected to consist of at most 1 character but it consisted of 4 characters"
+      ]
+    }
+  },
+  {
+    "description": "array_inverted_bounds",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 1
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 1 item but it contained 2 items"
+      ]
+    }
   }
 ]
