@@ -3288,5 +3288,53 @@
         "The value was expected to be of type object"
       ]
     }
+  },
+  {
+    "description": "hash_length_additionalproperties_escape",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": { "aa": { "type": "string" } },
+      "additionalProperties": { "type": "integer" }
+    },
+    "instance": { "aa": "x", "aa\u0000": "not-int" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/aa/type", "#/properties/aa/type", "/aa" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/aa\u0000" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/aa/type", "#/properties/aa/type", "/aa" ],
+        [ false, "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/aa\u0000" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type integer but it was of type string",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/aa/type", "#/properties/aa/type", "/aa" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/aa\u0000" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/aa/type", "#/properties/aa/type", "/aa" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ false, "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/aa\u0000" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type integer but it was of type string",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
   }
 ]
