@@ -242,9 +242,11 @@ TEST(unevaluatedProperties_7) {
   EXPECT_UNEVALUATED_STATIC_DEPENDENCY(result, "#/unevaluatedProperties",
                                        "/$defs/foo/properties");
 
-  EXPECT_UNEVALUATED_DYNAMIC(result, "#/unevaluatedProperties", 1);
+  EXPECT_UNEVALUATED_DYNAMIC(result, "#/unevaluatedProperties", 2);
   EXPECT_UNEVALUATED_DYNAMIC_DEPENDENCY(result, "#/unevaluatedProperties",
                                         "/$defs/bar/additionalProperties");
+  EXPECT_UNEVALUATED_DYNAMIC_DEPENDENCY(result, "#/unevaluatedProperties",
+                                        "/anyOf/0/$ref");
 
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
