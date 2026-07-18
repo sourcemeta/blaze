@@ -8786,5 +8786,555 @@
         "The object value was expected to validate against the defined properties subschemas"
       ]
     }
+  },
+  {
+    "description": "if_then_else_inlined_shared_ref_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "number" },
+      "then": { "$ref": "#/$defs/shared", "const": 7 },
+      "else": { "$ref": "#/$defs/shared" },
+      "$defs": { "shared": { "minimum": 5, "multipleOf": 1 } }
+    },
+    "instance": 999,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+        [ "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+        [ "AssertionEqual", "/then/const", "#/then/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+        [ true, "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+        [ false, "AssertionEqual", "/then/const", "#/then/const", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The integer value 999 was expected to be divisible by the integer 1",
+        "The integer value 999 was expected to be greater than or equal to the integer 5",
+        "The integer value 999 was expected to equal the integer constant 7",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+        [ "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+        [ "AssertionEqual", "/then/const", "#/then/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+        [ true, "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+        [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ false, "AssertionEqual", "/then/const", "#/then/const", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The integer value 999 was expected to be divisible by the integer 1",
+        "The integer value 999 was expected to be greater than or equal to the integer 5",
+        "The integer value was expected to validate against the referenced schema",
+        "The integer value 999 was expected to equal the integer constant 7",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_then_else_inlined_shared_ref_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "number" },
+      "then": { "$ref": "#/$defs/shared", "const": 7 },
+      "else": { "$ref": "#/$defs/shared" },
+      "$defs": { "shared": { "minimum": 5, "multipleOf": 1 } }
+    },
+    "instance": 7,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+        [ "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+        [ "AssertionEqual", "/then/const", "#/then/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+        [ true, "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+        [ true, "AssertionEqual", "/then/const", "#/then/const", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The integer value 7 was expected to be divisible by the integer 1",
+        "The integer value 7 was expected to be greater than or equal to the integer 5",
+        "The integer value 7 was expected to equal the integer constant 7",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+        [ "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+        [ "AssertionEqual", "/then/const", "#/then/const", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+        [ true, "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+        [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ true, "AssertionEqual", "/then/const", "#/then/const", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The integer value 7 was expected to be divisible by the integer 1",
+        "The integer value 7 was expected to be greater than or equal to the integer 5",
+        "The integer value was expected to validate against the referenced schema",
+        "The integer value 7 was expected to equal the integer constant 7",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_then_else_inlined_shared_ref_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": { "type": "number" },
+      "then": { "$ref": "#/$defs/shared", "const": 7 },
+      "else": { "$ref": "#/$defs/shared" },
+      "$defs": { "shared": { "minimum": 5, "multipleOf": 1 } }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number but it was of type string",
+        "The string value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ "ControlJump", "/else/$ref", "#/else/$ref", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+        [ true, "ControlJump", "/else/$ref", "#/else/$ref", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number but it was of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_then_else_inlined_shared_ref_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "left": { "$ref": "#/$defs/shared" },
+        "right": { "$ref": "#/$defs/shared" }
+      },
+      "$defs": {
+        "shared": {
+          "if": { "type": "array" },
+          "then": { "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    },
+    "instance": { "left": [ "x" ] },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+        [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+        [ "LoopItemsFrom", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+        [ "AssertionTypeStringBounded", "/properties/left/$ref/then/items/type", "#/$defs/shared/then/items/type", "/left/0" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+        [ true, "AssertionTypeStringBounded", "/properties/left/$ref/then/items/type", "#/$defs/shared/then/items/type", "/left/0" ],
+        [ true, "LoopItemsFrom", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+        [ true, "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array",
+        "The value was expected to consist of a string of at least 1 character",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+        [ "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+        [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+        [ "LoopItemsFrom", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+        [ "AssertionStringSizeGreater", "/properties/left/$ref/then/items/minLength", "#/$defs/shared/then/items/minLength", "/left/0" ],
+        [ "AssertionTypeStrict", "/properties/left/$ref/then/items/type", "#/$defs/shared/then/items/type", "/left/0" ],
+        [ "LogicalWhenArraySizeGreater", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+        [ "Annotation", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+        [ "Annotation", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+        [ true, "AssertionStringSizeGreater", "/properties/left/$ref/then/items/minLength", "#/$defs/shared/then/items/minLength", "/left/0" ],
+        [ true, "AssertionTypeStrict", "/properties/left/$ref/then/items/type", "#/$defs/shared/then/items/type", "/left/0" ],
+        [ true, "LoopItemsFrom", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+        [ true, "Annotation", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left", true ],
+        [ true, "LogicalWhenArraySizeGreater", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+        [ true, "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+        [ true, "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "left" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array",
+        "The string value \"x\" was expected to consist of at least 1 character and it consisted of 1 character",
+        "The value was expected to be of type string",
+        "Every item in the array value was expected to validate against the given subschema",
+        "Every item in the array value was successfully validated",
+        "The array value contains 1 additional item not described by related keywords",
+        "The array value was expected to validate against the given conditional",
+        "The array value was expected to validate against the referenced schema",
+        "The object property \"left\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "if_then_else_inlined_shared_ref_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "left": { "$ref": "#/$defs/shared" },
+        "right": { "$ref": "#/$defs/shared" }
+      },
+      "$defs": {
+        "shared": {
+          "if": { "type": "array" },
+          "then": { "if": { "minItems": 1 }, "then": { "maxItems": 3 } }
+        }
+      }
+    },
+    "instance": { "left": [ "x" ] },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+        [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+        [ "LogicalCondition", "/properties/left/$ref/then/if", "#/$defs/shared/then/if", "/left" ],
+        [ "AssertionArraySizeGreater", "/properties/left/$ref/then/if/minItems", "#/$defs/shared/then/if/minItems", "/left" ],
+        [ "AssertionArraySizeLess", "/properties/left/$ref/then/then/maxItems", "#/$defs/shared/then/then/maxItems", "/left" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+        [ true, "AssertionArraySizeGreater", "/properties/left/$ref/then/if/minItems", "#/$defs/shared/then/if/minItems", "/left" ],
+        [ true, "AssertionArraySizeLess", "/properties/left/$ref/then/then/maxItems", "#/$defs/shared/then/then/maxItems", "/left" ],
+        [ true, "LogicalCondition", "/properties/left/$ref/then/if", "#/$defs/shared/then/if", "/left" ],
+        [ true, "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array",
+        "The array value was expected to contain at least 1 item and it contained 1 item",
+        "The array value was expected to contain at most 3 items and it contained 1 item",
+        "The array value was expected to validate against the given conditional",
+        "The array value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+        [ "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+        [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+        [ "LogicalCondition", "/properties/left/$ref/then/if", "#/$defs/shared/then/if", "/left" ],
+        [ "AssertionArraySizeGreater", "/properties/left/$ref/then/if/minItems", "#/$defs/shared/then/if/minItems", "/left" ],
+        [ "AssertionArraySizeLess", "/properties/left/$ref/then/then/maxItems", "#/$defs/shared/then/then/maxItems", "/left" ],
+        [ "Annotation", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+        [ true, "AssertionArraySizeGreater", "/properties/left/$ref/then/if/minItems", "#/$defs/shared/then/if/minItems", "/left" ],
+        [ true, "AssertionArraySizeLess", "/properties/left/$ref/then/then/maxItems", "#/$defs/shared/then/then/maxItems", "/left" ],
+        [ true, "LogicalCondition", "/properties/left/$ref/then/if", "#/$defs/shared/then/if", "/left" ],
+        [ true, "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+        [ true, "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "left" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array",
+        "The array value was expected to contain at least 1 item and it contained 1 item",
+        "The array value was expected to contain at most 3 items and it contained 1 item",
+        "The array value was expected to validate against the given conditional",
+        "The array value was expected to validate against the given conditional",
+        "The array value was expected to validate against the referenced schema",
+        "The object property \"left\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "if_ref_empty_condition_then_fails",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/ifref",
+      "if": { "$ref": "#/$defs/always" },
+      "then": { "minLength": 3 },
+      "$defs": { "always": {} }
+    },
+    "instance": "",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifref#/if", "" ],
+        [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifref#/then/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifref#/then/minLength", "" ],
+        [ false, "LogicalCondition", "/if", "https://example.com/ifref#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value \"\" was expected to consist of at least 3 characters but it consisted of 0 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifref#/if", "" ],
+        [ "ControlJump", "/if/$ref", "https://example.com/ifref#/if/$ref", "" ],
+        [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifref#/then/minLength", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/if/$ref", "https://example.com/ifref#/if/$ref", "" ],
+        [ false, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifref#/then/minLength", "" ],
+        [ false, "LogicalCondition", "/if", "https://example.com/ifref#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The string value \"\" was expected to consist of at least 3 characters but it consisted of 0 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_ref_empty_condition_then_passes",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/ifref",
+      "if": { "$ref": "#/$defs/always" },
+      "then": { "minLength": 3 },
+      "$defs": { "always": {} }
+    },
+    "instance": "abcd",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifref#/if", "" ],
+        [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifref#/then/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifref#/then/minLength", "" ],
+        [ true, "LogicalCondition", "/if", "https://example.com/ifref#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value \"abcd\" was expected to consist of at least 3 characters and it consisted of 4 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifref#/if", "" ],
+        [ "ControlJump", "/if/$ref", "https://example.com/ifref#/if/$ref", "" ],
+        [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifref#/then/minLength", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/if/$ref", "https://example.com/ifref#/if/$ref", "" ],
+        [ true, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifref#/then/minLength", "" ],
+        [ true, "LogicalCondition", "/if", "https://example.com/ifref#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The string value \"abcd\" was expected to consist of at least 3 characters and it consisted of 4 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_ref_empty_condition_else_skipped_fails",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/ifrefelse",
+      "if": { "$ref": "#/$defs/always" },
+      "then": { "minLength": 3 },
+      "else": { "const": "never" },
+      "$defs": { "always": {} }
+    },
+    "instance": "",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ],
+        [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ],
+        [ false, "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value \"\" was expected to consist of at least 3 characters but it consisted of 0 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ],
+        [ "ControlJump", "/if/$ref", "https://example.com/ifrefelse#/if/$ref", "" ],
+        [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/if/$ref", "https://example.com/ifrefelse#/if/$ref", "" ],
+        [ false, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ],
+        [ false, "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The string value \"\" was expected to consist of at least 3 characters but it consisted of 0 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_ref_empty_condition_else_skipped_passes",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/ifrefelse",
+      "if": { "$ref": "#/$defs/always" },
+      "then": { "minLength": 3 },
+      "else": { "const": "never" },
+      "$defs": { "always": {} }
+    },
+    "instance": "abcd",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ],
+        [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ],
+        [ true, "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value \"abcd\" was expected to consist of at least 3 characters and it consisted of 4 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ],
+        [ "ControlJump", "/if/$ref", "https://example.com/ifrefelse#/if/$ref", "" ],
+        [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/if/$ref", "https://example.com/ifrefelse#/if/$ref", "" ],
+        [ true, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ],
+        [ true, "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The string value \"abcd\" was expected to consist of at least 3 characters and it consisted of 4 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_ref_empty_condition_no_then_else_dead_nonstring",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/ifelse",
+      "if": { "$ref": "#/$defs/always" },
+      "else": { "type": "string" },
+      "$defs": { "always": {} }
+    },
+    "instance": 0,
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifelse#/if", "" ],
+        [ "ControlJump", "/if/$ref", "https://example.com/ifelse#/if/$ref", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/if/$ref", "https://example.com/ifelse#/if/$ref", "" ],
+        [ true, "LogicalCondition", "/if", "https://example.com/ifelse#/if", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_ref_empty_condition_no_then_else_dead_string",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/ifelse",
+      "if": { "$ref": "#/$defs/always" },
+      "else": { "type": "string" },
+      "$defs": { "always": {} }
+    },
+    "instance": "hi",
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "https://example.com/ifelse#/if", "" ],
+        [ "ControlJump", "/if/$ref", "https://example.com/ifelse#/if/$ref", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/if/$ref", "https://example.com/ifelse#/if/$ref", "" ],
+        [ true, "LogicalCondition", "/if", "https://example.com/ifelse#/if", "" ]
+      ],
+      "descriptions": [
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given conditional"
+      ]
+    }
   }
 ]

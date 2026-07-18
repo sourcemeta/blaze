@@ -1335,27 +1335,33 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   assert(children_size >= value.second);
   SOURCEMETA_ASSUME(children_size >= value.second);
 
-  auto condition_end{children_size};
-  if (value.first > 0) {
-    condition_end = value.first;
-  } else if (value.second > 0) {
-    condition_end = value.second;
-  }
-
+  // The condition is the leading segment [0, then start). It may be empty,
+  // for example when a `$ref` condition inlines and its jump is dropped, in
+  // which case it trivially passes and the then branch applies
   const auto &target{
       resolve_instance(instance, instruction.relative_instance_location)};
-  for (std::size_t cursor = 0; cursor < condition_end; cursor++) {
+
+  for (std::size_t cursor = 0; cursor < value.first; cursor++) {
     if (!EVALUATE_RECURSE(instruction.children[cursor], target)) {
       result = false;
       break;
     }
   }
 
-  const auto consequence_start{result ? value.first : value.second};
-  const auto consequence_end{(result && value.second > 0) ? value.second
-                                                          : children_size};
+  // On a passing condition the then branch runs, otherwise the else branch,
+  // which is absent when it starts at zero
+  std::size_t consequence_start;
+  std::size_t consequence_end;
+  if (result) {
+    consequence_start = value.first;
+    consequence_end = value.second > 0 ? value.second : children_size;
+  } else {
+    consequence_start = value.second;
+    consequence_end = value.second > 0 ? children_size : value.second;
+  }
+
   result = true;
-  if (consequence_start > 0) {
+  if (consequence_start < consequence_end) {
     if constexpr (Track || HasCallback) {
       if (track) {
         context.evaluator->evaluate_path.pop_back(

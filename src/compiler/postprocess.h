@@ -104,32 +104,57 @@ inline auto duplicate_metadata(Instruction &instruction,
   }
 }
 
+// Whether an instruction relays its children without pushing its own schema
+// location onto the evaluation path, leaving them anchored on its own parent
+inline auto is_pass_through_instruction(const InstructionIndex type) noexcept
+    -> bool {
+  switch (type) {
+    case InstructionIndex::ControlGroup:
+    case InstructionIndex::ControlGroupWhenDefines:
+    case InstructionIndex::ControlGroupWhenDefinesDirect:
+    case InstructionIndex::ControlGroupWhenType:
+    case InstructionIndex::ControlEvaluate:
+      return true;
+    default:
+      return false;
+  }
+}
+
+// Prefix every instruction that anchors its schema location on the point an
+// inlined target is spliced into. That is the top instruction itself, plus
+// the instructions that evaluation reaches without a location of their own in
+// between: the consequence children of a conditional, which re-anchor on the
+// conditional's parent, and the children of pass-through instructions.
+// Condition children and ordinary nested children stay relative to their
+// parent instruction and must be left alone
+inline auto rebase_anchored(Instruction &instruction,
+                            std::vector<InstructionExtra> &extra,
+                            const sourcemeta::core::Pointer &schema_prefix)
+    -> void {
+  extra[instruction.extra_index].relative_schema_location =
+      schema_prefix.concat(
+          extra[instruction.extra_index].relative_schema_location);
+
+  if (instruction.type == InstructionIndex::LogicalCondition) {
+    const auto &value{std::get<ValueIndexPair>(instruction.value)};
+    for (std::size_t index = value.first; index < instruction.children.size();
+         ++index) {
+      rebase_anchored(instruction.children[index], extra, schema_prefix);
+    }
+  } else if (is_pass_through_instruction(instruction.type)) {
+    for (auto &child : instruction.children) {
+      rebase_anchored(child, extra, schema_prefix);
+    }
+  }
+}
+
 inline auto rebase(Instruction &instruction,
                    std::vector<InstructionExtra> &extra,
                    const sourcemeta::core::Pointer &schema_prefix,
                    const sourcemeta::core::Pointer &instance_prefix) -> void {
-  extra[instruction.extra_index].relative_schema_location =
-      schema_prefix.concat(
-          extra[instruction.extra_index].relative_schema_location);
   instruction.relative_instance_location =
       instance_prefix.concat(instruction.relative_instance_location);
-
-  if (instruction.type == InstructionIndex::LogicalCondition) {
-    const auto &value{std::get<ValueIndexPair>(instruction.value)};
-    const auto then_cursor{value.first};
-    // TODO(C++23): Use std::views::enumerate when available in libc++
-    for (std::size_t index = then_cursor; index < instruction.children.size();
-         ++index) {
-      auto &child{instruction.children[index]};
-      extra[child.extra_index].relative_schema_location = schema_prefix.concat(
-          extra[child.extra_index].relative_schema_location);
-      for (auto &grandchild : child.children) {
-        extra[grandchild.extra_index].relative_schema_location =
-            schema_prefix.concat(
-                extra[grandchild.extra_index].relative_schema_location);
-      }
-    }
-  }
+  rebase_anchored(instruction, extra, schema_prefix);
 }
 
 inline auto collect_statistics(const Instructions &instructions,
@@ -410,6 +435,16 @@ inline auto postprocess(std::vector<Instructions> &targets,
         Instructions result;
         result.reserve(current->size());
 
+        // A conditional stores the indices where its branches begin, so when
+        // this pass drops or expands any child, those indices must be remapped
+        // onto the rewritten list
+        const bool remap{owner != nullptr &&
+                         owner->type == InstructionIndex::LogicalCondition};
+        std::vector<std::size_t> boundaries;
+        if (remap) {
+          boundaries.reserve(current->size() + 1);
+        }
+
         // The children of a conditional span its mutually exclusive
         // condition, consequence, and alternative segments, and the children
         // of a disjunction are alternative branches, so an instruction in one
@@ -475,6 +510,10 @@ inline auto postprocess(std::vector<Instructions> &targets,
         std::size_t child_index{0};
 
         for (auto &instruction : *current) {
+          if (remap) {
+            boundaries.push_back(result.size());
+          }
+
           const auto result_size{result.size()};
           const auto positional_index{child_index};
           child_index += 1;
@@ -554,6 +593,31 @@ inline auto postprocess(std::vector<Instructions> &targets,
           }
 
           entries = std::move(reordered);
+        }
+
+        if (remap) {
+          boundaries.push_back(result.size());
+          auto &cursors{std::get<ValueIndexPair>(owner->value)};
+          const auto then_start{boundaries[cursors.first]};
+          if (then_start == 0) {
+            // The condition dropped to nothing, so it is always true: the then
+            // branch applies unconditionally and the else branch is dead. Keep
+            // only the then instructions and record an empty condition with no
+            // else, which the evaluator runs as the consequence
+            const auto else_start{cursors.second > 0
+                                      ? boundaries[cursors.second]
+                                      : result.size()};
+            result.erase(result.begin() +
+                             static_cast<std::ptrdiff_t>(else_start),
+                         result.end());
+            cursors.first = 0;
+            cursors.second = 0;
+          } else {
+            cursors.first = then_start;
+            if (cursors.second > 0) {
+              cursors.second = boundaries[cursors.second];
+            }
+          }
         }
 
         *current = std::move(result);

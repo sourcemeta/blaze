@@ -5634,3 +5634,93 @@ TEST(type_object_oversized_max_properties_ignored) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type object");
 }
+
+TEST(annotation_fast_whitelist_if_then_else_inlined_shared_ref) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "then": {
+      "$ref": "#/$defs/shared",
+      "x-test-custom": "Then"
+    },
+    "else": { "$ref": "#/$defs/shared" },
+    "$defs": {
+      "shared": { "minProperties": 0, "minLength": 1 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("foo")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 4, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/if/type", "#/if/type", "");
+  EVALUATE_TRACE_PRE(2, AssertionStringSizeGreater, "/then/$ref/minLength",
+                     "#/$defs/shared/minLength", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(3, "/then/x-test-custom",
+                                "#/then/x-test-custom", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/if/type", "#/if/type",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionStringSizeGreater,
+                              "/then/$ref/minLength",
+                              "#/$defs/shared/minLength", "");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/then/x-test-custom",
+                                 "#/then/x-test-custom", "", "Then");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalCondition, "/if", "#/if", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The string value \"foo\" was expected to "
+                               "consist of at least 1 character and it "
+                               "consisted of 3 characters");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The unrecognized keyword \"x-test-custom\" was "
+                               "collected as the annotation \"Then\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The string value was expected to validate "
+                               "against the given conditional");
+}
+
+TEST(annotation_fast_whitelist_if_then_else_inlined_shared_ref_else_branch) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "then": {
+      "$ref": "#/$defs/shared",
+      "x-test-custom": "Then"
+    },
+    "else": { "$ref": "#/$defs/shared" },
+    "$defs": {
+      "shared": { "minProperties": 0, "minLength": 1 }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("42")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, LogicalCondition, "/if", "#/if", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/if/type", "#/if/type", "");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/if/type", "#/if/type",
+                              "");
+  EVALUATE_TRACE_POST_SUCCESS(1, LogicalCondition, "/if", "#/if", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string "
+                               "but it was of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The integer value was expected to validate "
+                               "against the given conditional");
+}
