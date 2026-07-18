@@ -2029,7 +2029,11 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrict) {
     assert(!value.second.empty());
     result = true;
     for (const auto &entry : object) {
-      if (effective_type_strict_real(entry.second) != value.first)
+      // The property count already matches the required set, so confirming
+      // that every property is one of the required names is what makes the
+      // object exactly the required set, and the value must be of the type
+      if (!value.second.contains(entry.first, entry.hash) ||
+          effective_type_strict_real(entry.second) != value.first)
           [[unlikely]] {
         result = false;
         break;
@@ -2067,7 +2071,10 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
         EVALUATE_END(LoopPropertiesExactlyTypeStrictHash);
       }
 
-      if (entry.hash != value.second.first[index].first) {
+      // A hash match alone does not prove the property is required, as two
+      // distinct names can share a hash, so the name itself is confirmed
+      if (entry.hash != value.second.first[index].first ||
+          entry.first != value.second.first[index].second) {
         break;
       }
 
@@ -2080,10 +2087,16 @@ INSTRUCTION_HANDLER(LoopPropertiesExactlyTypeStrictHash) {
       // Continue where we left
       std::advance(iterator, index);
       for (; iterator != object.cend(); ++iterator) {
+        if (effective_type_strict_real(iterator->second) != value.first) {
+          result = false;
+          break;
+        }
+
         // NOLINTNEXTLINE(modernize-use-ranges)
         if (std::ranges::none_of(value.second.first,
                                  [&iterator](const auto &entry) -> bool {
-                                   return entry.first == iterator->hash;
+                                   return entry.first == iterator->hash &&
+                                          entry.second == iterator->first;
                                  })) {
           result = false;
           break;
@@ -2398,7 +2411,9 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
     }
 
-    // Unroll, for performance reasons, for small collections
+    // Unroll, for performance reasons, for small collections. A perfect hash
+    // captures the key bytes but not its length, so every match confirms the
+    // size alongside the hash
     if (hashes_size == 3) {
       for (const auto &entry : object) {
         if (effective_type_strict_real(entry.second) != value.first)
@@ -2406,9 +2421,15 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
             [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (entry.hash != value.second.first[0].first &&
-                   entry.hash != value.second.first[1].first &&
-                   entry.hash != value.second.first[2].first) {
+        } else if (!((entry.hash == value.second.first[0].first &&
+                      entry.first.size() ==
+                          value.second.first[0].second.size()) ||
+                     (entry.hash == value.second.first[1].first &&
+                      entry.first.size() ==
+                          value.second.first[1].second.size()) ||
+                     (entry.hash == value.second.first[2].first &&
+                      entry.first.size() ==
+                          value.second.first[2].second.size()))) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         }
@@ -2420,8 +2441,12 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
             [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (entry.hash != value.second.first[0].first &&
-                   entry.hash != value.second.first[1].first) {
+        } else if (!((entry.hash == value.second.first[0].first &&
+                      entry.first.size() ==
+                          value.second.first[0].second.size()) ||
+                     (entry.hash == value.second.first[1].first &&
+                      entry.first.size() ==
+                          value.second.first[1].second.size()))) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         }
@@ -2429,7 +2454,9 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
     } else if (hashes_size == 1) {
       const auto &entry{*object.cbegin()};
       if (effective_type_strict_real(entry.second) != value.first ||
-          entry.hash != value.second.first[0].first) [[unlikely]] {
+          entry.hash != value.second.first[0].first ||
+          entry.first.size() != value.second.first[0].second.size())
+          [[unlikely]] {
         result = false;
         EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
       }
@@ -2441,13 +2468,16 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
             [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (entry.hash == value.second.first[index].first) {
+        } else if (entry.hash == value.second.first[index].first &&
+                   entry.first.size() ==
+                       value.second.first[index].second.size()) {
           index += 1;
           continue;
         } else if (!std::ranges::any_of(
                        value.second.first,
                        [&entry](const auto &hash_entry) -> bool {
-                         return hash_entry.first == entry.hash;
+                         return hash_entry.first == entry.hash &&
+                                hash_entry.second.size() == entry.first.size();
                        })) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
@@ -2496,24 +2526,45 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
     }
 
+    // A perfect hash captures the key bytes but not its length, so each
+    // pairing confirms the size alongside the hash while keeping the unrolled
+    // permutation check over the three keys
     if ((value_1.hash == value.second.first[0].first &&
+         value_1.first.size() == value.second.first[0].second.size() &&
          value_2.hash == value.second.first[1].first &&
-         value_3.hash == value.second.first[2].first) ||
+         value_2.first.size() == value.second.first[1].second.size() &&
+         value_3.hash == value.second.first[2].first &&
+         value_3.first.size() == value.second.first[2].second.size()) ||
         (value_1.hash == value.second.first[0].first &&
+         value_1.first.size() == value.second.first[0].second.size() &&
          value_2.hash == value.second.first[2].first &&
-         value_3.hash == value.second.first[1].first) ||
+         value_2.first.size() == value.second.first[2].second.size() &&
+         value_3.hash == value.second.first[1].first &&
+         value_3.first.size() == value.second.first[1].second.size()) ||
         (value_1.hash == value.second.first[1].first &&
+         value_1.first.size() == value.second.first[1].second.size() &&
          value_2.hash == value.second.first[0].first &&
-         value_3.hash == value.second.first[2].first) ||
+         value_2.first.size() == value.second.first[0].second.size() &&
+         value_3.hash == value.second.first[2].first &&
+         value_3.first.size() == value.second.first[2].second.size()) ||
         (value_1.hash == value.second.first[1].first &&
+         value_1.first.size() == value.second.first[1].second.size() &&
          value_2.hash == value.second.first[2].first &&
-         value_3.hash == value.second.first[0].first) ||
+         value_2.first.size() == value.second.first[2].second.size() &&
+         value_3.hash == value.second.first[0].first &&
+         value_3.first.size() == value.second.first[0].second.size()) ||
         (value_1.hash == value.second.first[2].first &&
+         value_1.first.size() == value.second.first[2].second.size() &&
          value_2.hash == value.second.first[0].first &&
-         value_3.hash == value.second.first[1].first) ||
+         value_2.first.size() == value.second.first[0].second.size() &&
+         value_3.hash == value.second.first[1].first &&
+         value_3.first.size() == value.second.first[1].second.size()) ||
         (value_1.hash == value.second.first[2].first &&
+         value_1.first.size() == value.second.first[2].second.size() &&
          value_2.hash == value.second.first[1].first &&
-         value_3.hash == value.second.first[0].first)) {
+         value_2.first.size() == value.second.first[1].second.size() &&
+         value_3.hash == value.second.first[0].first &&
+         value_3.first.size() == value.second.first[0].second.size())) {
       continue;
     } else {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
