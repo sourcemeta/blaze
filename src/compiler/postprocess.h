@@ -33,15 +33,18 @@ inline auto is_noop_without_children(const InstructionIndex type) noexcept
     case InstructionIndex::LogicalWhenArraySizeGreater:
     case InstructionIndex::LoopPropertiesMatch:
     case InstructionIndex::LoopProperties:
-    case InstructionIndex::LoopPropertiesEvaluate:
     case InstructionIndex::LoopPropertiesRegex:
     case InstructionIndex::LoopPropertiesStartsWith:
     case InstructionIndex::LoopPropertiesExcept:
     case InstructionIndex::LoopKeys:
     case InstructionIndex::LoopItems:
     case InstructionIndex::LoopItemsFrom:
-    case InstructionIndex::LoopItemsUnevaluated:
-    case InstructionIndex::LoopContains:
+    // Deliberately absent are the loops that still do something with no
+    // children: the one carrying a match count still asserts that the array
+    // size falls within that range, and the ones that mark their instance
+    // location as evaluated still carry that side effect for a later
+    // `unevaluatedProperties` or `unevaluatedItems` to consult. Dropping any of
+    // them would discard those semantics
     case InstructionIndex::ControlGroupWhenDefines:
     case InstructionIndex::ControlGroupWhenDefinesDirect:
     case InstructionIndex::ControlGroupWhenType:

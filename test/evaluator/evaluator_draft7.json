@@ -4602,5 +4602,74 @@
         "The string value was expected to validate against the given conditional"
       ]
     }
+  },
+  {
+    "description": "contains_empty_target_dropped_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "contains": { "$ref": "#/definitions/maybe" },
+      "properties": { "x": { "$ref": "#/definitions/maybe" } },
+      "definitions": { "maybe": {} }
+    },
+    "instance": [],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_empty_target_dropped_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "contains": { "$ref": "#/definitions/maybe" },
+      "properties": { "x": { "$ref": "#/definitions/maybe" } },
+      "definitions": { "maybe": {} }
+    },
+    "instance": [ 1 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
   }
 ]

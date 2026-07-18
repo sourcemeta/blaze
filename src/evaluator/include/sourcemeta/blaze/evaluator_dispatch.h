@@ -1766,7 +1766,8 @@ INSTRUCTION_HANDLER(LoopProperties) {
 
 INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesEvaluate, target.is_object());
-  assert(!instruction.children.empty());
+  // The subschema may compile to no children, in which case every property
+  // trivially matches and only the evaluation marking below takes effect
   result = true;
   for (const auto &entry : target.as_object()) {
     if constexpr (HasCallback) {
@@ -2305,7 +2306,8 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
 
 INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
   EVALUATE_BEGIN_NON_STRING(LoopItemsUnevaluated, target.is_array());
-  assert(!instruction.children.empty());
+  // The subschema may compile to no children, in which case every item
+  // trivially matches and only the evaluation marking below takes effect
   result = true;
 
   if (!context.evaluator->is_evaluated(&target)) {
@@ -2669,11 +2671,13 @@ INSTRUCTION_HANDLER(LoopItemsIntegerBoundedSized) {
 
 INSTRUCTION_HANDLER(LoopContains) {
   EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
-  assert(!instruction.children.empty());
+  // The subschema may compile to no children, in which case every array
+  // element trivially matches and the range check alone decides the result
   const auto &value{assume_value<ValueRange>(instruction.value)};
   const auto &[minimum, maximum, is_exhaustive] = value;
-  assert(!maximum.has_value() || maximum.value() >= minimum);
-  result = minimum == 0 && target.empty();
+  // Note that the range may be unsatisfiable, as `minContains` and
+  // `maxContains` are free to invert it, in which case no array matches
+  result = minimum == 0;
   auto match_count{
       std::numeric_limits<std::remove_cvref_t<decltype(minimum)>>::min()};
 

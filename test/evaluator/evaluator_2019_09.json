@@ -1158,24 +1158,51 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionFail", "/contains", "#/contains", "" ]
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
       ],
       "post": [
-        [ false, "AssertionFail", "/contains", "#/contains", "" ]
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
-        "The constraints declared for this keyword were not satisfiable"
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The array value was expected to contain 3 to 2 items that validate against the given subschema"
       ]
     },
     "exhaustive": {
       "pre": [
-        [ "AssertionFail", "/contains", "#/contains", "" ]
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
       ],
       "post": [
-        [ false, "AssertionFail", "/contains", "#/contains", "" ]
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
-        "The constraints declared for this keyword were not satisfiable"
+        "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain 3 to 2 items that validate against the given subschema"
       ]
     }
   },
@@ -8593,6 +8620,790 @@
       "descriptions": [
         "The string value was expected to validate against the referenced schema",
         "The string value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "contains_empty_target_dropped_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "$ref": "#/$defs/maybe" },
+      "minContains": 2,
+      "maxContains": 3,
+      "properties": { "x": { "$ref": "#/$defs/maybe" } },
+      "$defs": { "maybe": {} }
+    },
+    "instance": [ 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain 2 to 3 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain 2 to 3 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_empty_target_dropped_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "$ref": "#/$defs/maybe" },
+      "minContains": 2,
+      "maxContains": 3,
+      "properties": { "x": { "$ref": "#/$defs/maybe" } },
+      "$defs": { "maybe": {} }
+    },
+    "instance": [ 1, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain 2 to 3 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The integer value was expected to validate against the referenced schema",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain 2 to 3 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_empty_target_dropped_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "$ref": "#/$defs/maybe" },
+      "minContains": 2,
+      "maxContains": 3,
+      "properties": { "x": { "$ref": "#/$defs/maybe" } },
+      "$defs": { "maybe": {} }
+    },
+    "instance": [ 1, 2, 3, 4 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain 2 to 3 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/3" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/3" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 3 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The integer value was expected to validate against the referenced schema",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The integer value was expected to validate against the referenced schema",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The integer value was expected to validate against the referenced schema",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The integer value was expected to validate against the referenced schema",
+        "The item at index 3 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain 2 to 3 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "evaluate_marking_additionalproperties",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "type": "object" },
+      "then": { "additionalProperties": { "$ref": "#/$defs/e" } },
+      "unevaluatedProperties": false,
+      "$defs": { "e": {} }
+    },
+    "instance": { "foo": 1, "bar": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+        [ "ControlJump", "/then/additionalProperties/$ref", "#/then/additionalProperties/$ref", "/foo" ],
+        [ "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+        [ "ControlJump", "/then/additionalProperties/$ref", "#/then/additionalProperties/$ref", "/bar" ],
+        [ "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "ControlJump", "/then/additionalProperties/$ref", "#/then/additionalProperties/$ref", "/foo" ],
+        [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "foo" ],
+        [ true, "ControlJump", "/then/additionalProperties/$ref", "#/then/additionalProperties/$ref", "/bar" ],
+        [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "bar" ],
+        [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The integer value was expected to validate against the referenced schema",
+        "The object property \"foo\" successfully validated against the additional properties subschema",
+        "The integer value was expected to validate against the referenced schema",
+        "The object property \"bar\" successfully validated against the additional properties subschema",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "evaluate_marking_unevaluateditems",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "type": "array" },
+      "then": { "unevaluatedItems": { "$ref": "#/$defs/e" } },
+      "unevaluatedItems": false,
+      "$defs": { "e": {} }
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+        "The array value was expected to validate against the given conditional",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+        [ "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/0" ],
+        [ "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+        [ "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/1" ],
+        [ "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+        [ "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/2" ],
+        [ "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/0" ],
+        [ true, "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "", true ],
+        [ true, "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/1" ],
+        [ true, "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "", true ],
+        [ true, "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/2" ],
+        [ true, "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "", true ],
+        [ true, "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array",
+        "The integer value was expected to validate against the referenced schema",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The integer value was expected to validate against the referenced schema",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The integer value was expected to validate against the referenced schema",
+        "At least one item of the array value successfully validated against the subschema for unevaluated items",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+        "The array value was expected to validate against the given conditional",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_trivial_mincontains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "array",
+      "contains": {},
+      "minContains": 2
+    },
+    "instance": [ 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 2 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_trivial_mincontains_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "array",
+      "contains": {},
+      "minContains": 2
+    },
+    "instance": [ 1, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items that validate against the given subschema",
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 2 items that validate against the given subschema",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "contains_trivial_maxcontains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "array",
+      "contains": {},
+      "minContains": 0,
+      "maxContains": 1
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain up to 1 item that validates against the given subschema",
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopContains", "/contains", "#/contains", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain up to 1 item that validates against the given subschema",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "contains_trivial_maxcontains_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "array",
+      "contains": {},
+      "minContains": 0,
+      "maxContains": 1
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain up to 1 item that validates against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain up to 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "conditional_additional_array_unevaluated_invalid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "additionalProperties": true },
+      "unevaluatedProperties": false,
+      "unevaluatedItems": { "type": "integer" }
+    },
+    "instance": [ { "a": 1 } ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ]
+      ],
+      "post": [
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ false, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to validate against the given conditional",
+        "The value was expected to be of type integer but it was of type object",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+        [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ]
+      ],
+      "post": [
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ false, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+        [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to validate against the given conditional",
+        "The value was expected to be of type integer but it was of type object",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_min_zero_max_zero_matches_valid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "const": 1 },
+      "minContains": 0,
+      "maxContains": 1
+    },
+    "instance": [ 2, 3 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ "AssertionEqual", "/contains/const", "#/contains/const", "/1" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/1" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1",
+        "The integer value 3 was expected to equal the integer constant 1",
+        "The array value was expected to contain up to 1 item that validates against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ "AssertionEqual", "/contains/const", "#/contains/const", "/1" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/1" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1",
+        "The integer value 3 was expected to equal the integer constant 1",
+        "The array value was expected to contain up to 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_unsatisfiable_object",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "const": "admin" },
+      "maxContains": 0
+    },
+    "instance": { "role": "user" },
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    }
+  },
+  {
+    "description": "contains_unsatisfiable_string",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "const": "admin" },
+      "maxContains": 0
+    },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    }
+  },
+  {
+    "description": "contains_unsatisfiable_null",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "const": "admin" },
+      "maxContains": 0
+    },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    }
+  },
+  {
+    "description": "contains_unsatisfiable_matching_array",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "const": "admin" },
+      "maxContains": 0
+    },
+    "instance": [ "admin" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The string value \"admin\" was expected to equal the string constant \"admin\"",
+        "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The string value \"admin\" was expected to equal the string constant \"admin\"",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_unsatisfiable_other_array",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "const": "admin" },
+      "maxContains": 0
+    },
+    "instance": [ "user" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The string value \"user\" was expected to equal the string constant \"admin\"",
+        "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The string value \"user\" was expected to equal the string constant \"admin\"",
+        "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_unsatisfiable_empty_array",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "const": "admin" },
+      "maxContains": 0
+    },
+    "instance": [],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "contains_inverted_range_object",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minContains": 3,
+      "maxContains": 2,
+      "contains": { "type": "string" }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    }
+  },
+  {
+    "description": "contains_inverted_range_array",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minContains": 3,
+      "maxContains": 2,
+      "contains": { "type": "string" }
+    },
+    "instance": [ "foo", "bar", "baz" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The array value was expected to contain 3 to 2 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type string",
+        "The item at index 2 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain 3 to 2 items that validate against the given subschema"
       ]
     }
   }
