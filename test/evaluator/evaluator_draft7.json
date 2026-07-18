@@ -3590,5 +3590,43 @@
         "Every item in the array value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "hash_length_object_properties_simple_false_reject",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": { "aa": { "type": "string" }, "bb": { "type": "string" } }
+    },
+    "instance": { "aa\u0000": 123, "bb": "ok" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/bb/type", "#/properties/bb/type", "/bb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/bb/type", "#/properties/bb/type", "/bb" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
   }
 ]

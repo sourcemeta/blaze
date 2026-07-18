@@ -1042,9 +1042,13 @@ INSTRUCTION_HANDLER(AssertionObjectPropertiesSimple) {
     for (std::size_t schema_index = 0; schema_index < schema_size;
          schema_index++) {
       const auto &schema_hash{std::get<1>(value[schema_index])};
+      // A perfect hash captures the key bytes but not its length, so its size
+      // is confirmed rather than trusting the hash match alone
       if (schema_hash == instance_hash &&
-          (property_hasher.is_perfect(instance_hash) ||
-           instance_entry.first == std::get<0>(value[schema_index]))) {
+          (property_hasher.is_perfect(instance_hash)
+               ? instance_entry.first.size() ==
+                     std::get<0>(value[schema_index]).size()
+               : instance_entry.first == std::get<0>(value[schema_index]))) {
         seen |= (static_cast<std::uint32_t>(1) << schema_index);
         if (schema_index < instruction.children.size()) {
           const auto &child{instruction.children[schema_index]};
