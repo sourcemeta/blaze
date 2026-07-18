@@ -2147,16 +2147,16 @@ function LoopPropertiesExactlyTypeStrict(instruction, instance, depth, template,
     return false;
   }
   const value = instruction[5];
-  const names = value[1];
+  const names = new Set(value[1]);
   let count = 0;
   for (const key in target) {
     count++;
-    if (effectiveTypeStrictReal(target[key]) !== value[0] || !names.includes(key)) {
+    if (effectiveTypeStrictReal(target[key]) !== value[0] || !names.has(key)) {
       if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
       return false;
     }
   }
-  const __result = count === names.length;
+  const __result = count === names.size;
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
   return __result;
 };
@@ -3703,13 +3703,13 @@ function LoopPropertiesExactlyTypeStrict_fast(instruction, instance, depth, temp
   const target = resolveInstance(instance, instruction[2]);
   if (!isObject(target)) return false;
   const value = instruction[5];
-  const names = value[1];
+  const names = new Set(value[1]);
   let count = 0;
   for (const key in target) {
     count++;
-    if (effectiveTypeStrictReal(target[key]) !== value[0] || !names.includes(key)) return false;
+    if (effectiveTypeStrictReal(target[key]) !== value[0] || !names.has(key)) return false;
   }
-  return count === names.length;
+  return count === names.size;
 }
 
 function LoopPropertiesExactlyTypeStrictHash_fast(instruction, instance, depth, template, evaluator) {
