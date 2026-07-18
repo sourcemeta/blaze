@@ -5724,3 +5724,49 @@ TEST(annotation_fast_whitelist_if_then_else_inlined_shared_ref_else_branch) {
                                "The integer value was expected to validate "
                                "against the given conditional");
 }
+
+TEST(dynamic_unevaluated_properties_does_not_mark_array) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "allOf": [ { "$ref": "https://example.com/inner" } ],
+    "unevaluatedItems": false,
+    "$defs": {
+      "a": { "$id": "https://example.com/a", "$dynamicAnchor": "T", "title": "x" },
+      "b": { "$id": "https://example.com/b", "$dynamicAnchor": "T", "title": "y" },
+      "inner": {
+        "$id": "https://example.com/inner",
+        "$dynamicRef": "https://example.com/a#T",
+        "unevaluatedProperties": true
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "https://example.com/root#/allOf",
+                     "");
+  EVALUATE_TRACE_PRE(1, ControlJump, "/allOf/0/$ref",
+                     "https://example.com/root#/allOf/0/$ref", "");
+  EVALUATE_TRACE_PRE(2, ControlDynamicAnchorJump, "/allOf/0/$ref/$dynamicRef",
+                     "https://example.com/inner#/$dynamicRef", "");
+  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
+                     "https://example.com/root#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(4, AssertionFail, "/unevaluatedItems",
+                     "https://example.com/root#/unevaluatedItems", "/0");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, ControlDynamicAnchorJump,
+                              "/allOf/0/$ref/$dynamicRef",
+                              "https://example.com/inner#/$dynamicRef", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/allOf/0/$ref",
+                              "https://example.com/root#/allOf/0/$ref", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/allOf",
+                              "https://example.com/root#/allOf", "");
+  EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
+                              "https://example.com/root#/unevaluatedItems",
+                              "/0");
+  EVALUATE_TRACE_POST_FAILURE(4, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "https://example.com/root#/unevaluatedItems", "");
+}

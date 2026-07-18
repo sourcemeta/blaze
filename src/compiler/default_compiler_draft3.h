@@ -1323,11 +1323,11 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
                                      std::move(filter_regexes)},
                  std::move(children))};
   } else if (track_evaluation) {
-    if (children.empty()) {
-      return {make(sourcemeta::blaze::InstructionIndex::Evaluate, context,
-                   schema_context, dynamic_context, ValueNone{})};
-    }
-
+    // An unconditional marker records this instance as evaluated whatever its
+    // type, so when this schema is applied to a non-object, such as a
+    // conditional branch evaluated against an array, it would wrongly mark that
+    // array evaluated and suppress a sibling `unevaluatedItems`. An
+    // object-guarded marker only records objects, and needs no children
     return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesEvaluate,
                  context, schema_context, dynamic_context, ValueNone{},
                  std::move(children))};

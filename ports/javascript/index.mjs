@@ -2500,11 +2500,10 @@ function LoopContains(instruction, instance, depth, template, evaluator) {
   const minimum = range[0];
   const maximum = range[1];
   const isExhaustive = range[2];
-  if (minimum === 0 && target.length === 0) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
 
   const children = instruction[6];
-  let result = false;
+  let result = minimum === 0;
   let matchCount = 0;
   for (let index = 0; index < target.length; index++) {
     if (evaluator.callbackMode) evaluator.pushInstanceToken(index);
