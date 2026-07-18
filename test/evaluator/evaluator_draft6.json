@@ -6922,5 +6922,222 @@
         "The value was expected to be an object that defines the property \"a\""
       ]
     }
+  },
+  {
+    "description": "array_items_bounds_toomany",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsIntegerBounded", "/items", "#/items", "" ],
+        [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsIntegerBounded", "/items", "#/items", "" ],
+        [ false, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be a number within the given range",
+        "The value was expected to consist of an array of 1 to 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+        [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ],
+        [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/1" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/1" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/2" ],
+        [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/2" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/2" ],
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+        [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ],
+        [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/1" ],
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/1" ],
+        [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/2" ],
+        [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/2" ],
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/2" ],
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be less than or equal to the integer 100",
+        "The integer value 1 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "The integer value 2 was expected to be less than or equal to the integer 100",
+        "The integer value 2 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "The integer value 3 was expected to be less than or equal to the integer 100",
+        "The integer value 3 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to contain at most 2 items but it contained 3 items"
+      ]
+    }
+  },
+  {
+    "description": "array_items_bounds_toofew",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
+    },
+    "instance": [],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of 1 to 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to contain at most 2 items and it contained 0 items",
+        "The array value was expected to contain at least 1 item but it contained 0 items"
+      ]
+    }
+  },
+  {
+    "description": "array_items_bounds_inrange",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
+    },
+    "instance": [ 1, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsIntegerBounded", "/items", "#/items", "" ],
+        [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsIntegerBounded", "/items", "#/items", "" ],
+        [ true, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be a number within the given range",
+        "The value was expected to consist of an array of 1 to 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+        [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ],
+        [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/1" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/1" ],
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+        [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ],
+        [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/1" ],
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/1" ],
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ true, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be less than or equal to the integer 100",
+        "The integer value 1 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "The integer value 2 was expected to be less than or equal to the integer 100",
+        "The integer value 2 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to contain at most 2 items and it contained 2 items",
+        "The array value was expected to contain at least 1 item and it contained 2 items",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "array_items_bounds_elem_out_of_range",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": { "type": "number", "minimum": 0, "maximum": 100 }
+    },
+    "instance": [ 1, 999 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsIntegerBounded", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ false, "LoopItemsIntegerBounded", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be a number within the given range"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+        [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+        [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ false, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ],
+        [ false, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be less than or equal to the integer 100",
+        "The integer value 1 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "The integer value 999 was expected to be less than or equal to the integer 100",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
   }
 ]
