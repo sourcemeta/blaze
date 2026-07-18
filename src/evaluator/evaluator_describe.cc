@@ -329,20 +329,23 @@ auto describe(const bool valid, const Instruction &step,
       return "The constraints declared for this keyword were not satisfiable";
     }
 
-    if (keyword == "additionalProperties" ||
-        keyword == "unevaluatedProperties") {
+    // A `false` subschema declares no keyword of its own, so its evaluation
+    // path ends at whatever declared it, which under `properties` and its
+    // relatives is a name the author chose. A name that happens to read like
+    // one of the keywords below must not be taken for the keyword itself, so
+    // each of these only applies when the instance location agrees with it
+    if ((keyword == "additionalProperties" ||
+         keyword == "unevaluatedProperties") &&
+        !instance_location.empty() && instance_location.back().is_property()) {
       std::ostringstream message;
-      assert(!instance_location.empty());
-      assert(instance_location.back().is_property());
       message << "The object value was not expected to define the property "
               << escape_string(instance_location.back().to_property());
       return message.str();
     }
 
-    if (keyword == "unevaluatedItems") {
+    if (keyword == "unevaluatedItems" && !instance_location.empty() &&
+        instance_location.back().is_index()) {
       std::ostringstream message;
-      assert(!instance_location.empty());
-      assert(instance_location.back().is_index());
       message << "The array value was not expected to define the item at index "
               << instance_location.back().to_index();
       return message.str();
@@ -524,8 +527,10 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
-    if (keyword == "title" || keyword == "description") {
-      assert(annotation.is_string());
+    // Note that these annotation values come from the schema as they are
+    // written, and nothing forces them to have the type their keyword expects
+    if ((keyword == "title" || keyword == "description") &&
+        annotation.is_string()) {
       std::ostringstream message;
       message << "The " << keyword << " of the";
       if (instance_location.empty()) {
@@ -613,8 +618,7 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
-    if (keyword == "examples") {
-      assert(annotation.is_array());
+    if (keyword == "examples" && annotation.is_array()) {
       std::ostringstream message;
       if (instance_location.empty()) {
         message << "Examples of the instance";
@@ -639,8 +643,7 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
-    if (keyword == "contentEncoding") {
-      assert(annotation.is_string());
+    if (keyword == "contentEncoding" && annotation.is_string()) {
       std::ostringstream message;
       message << "The content encoding of the";
       if (instance_location.empty()) {
@@ -655,8 +658,7 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
-    if (keyword == "contentMediaType") {
-      assert(annotation.is_string());
+    if (keyword == "contentMediaType" && annotation.is_string()) {
       std::ostringstream message;
       message << "The content media type of the";
       if (instance_location.empty()) {
