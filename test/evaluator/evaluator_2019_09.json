@@ -7619,5 +7619,91 @@
         "The value was expected to be of type object"
       ]
     }
+  },
+  {
+    "description": "hash_length_defines_exactly_collision",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "required": [ "aa", "bb", "cc" ],
+      "additionalProperties": false,
+      "properties": { "aa": {}, "bb": {}, "cc": {} }
+    },
+    "instance": { "aa\u0000": 1, "bb\u0000": 2, "cc\u0000": 3 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that only defines the 3 given properties, but it also defines properties \"aa\u0000\", \"bb\u0000\", and \"cc\u0000\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"aa\", \"bb\", and \"cc\", but it also defines properties \"aa\u0000\", \"bb\u0000\", and \"cc\u0000\""
+      ]
+    }
+  },
+  {
+    "description": "hash_length_defines_exactly_valid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "required": [ "aa", "bb", "cc" ],
+      "additionalProperties": false,
+      "properties": { "aa": {}, "bb": {}, "cc": {} }
+    },
+    "instance": { "aa": 1, "bb": 2, "cc": 3 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that only defines the 3 given properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "aa" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "bb" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "cc" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"aa\", \"bb\", and \"cc\"",
+        "The object property \"aa\" successfully validated against its property subschema",
+        "The object property \"bb\" successfully validated against its property subschema",
+        "The object property \"cc\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
   }
 ]
