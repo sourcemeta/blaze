@@ -1710,24 +1710,27 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
   const children = instruction[6];
   const childrenSize = children ? children.length : 0;
 
-  let conditionEnd = childrenSize;
-  if (thenStart > 0) conditionEnd = thenStart;
-  else if (elseStart > 0) conditionEnd = elseStart;
-
   const target = resolveInstance(instance, instruction[2]);
 
   let conditionResult = true;
-  for (let cursor = 0; cursor < conditionEnd; cursor++) {
+  for (let cursor = 0; cursor < thenStart; cursor++) {
     if (!evaluateInstruction(children[cursor], target, depth + 1, template, evaluator)) {
       conditionResult = false;
       break;
     }
   }
 
-  const consequenceStart = conditionResult ? thenStart : elseStart;
-  const consequenceEnd = (conditionResult && elseStart > 0) ? elseStart : childrenSize;
+  let consequenceStart;
+  let consequenceEnd;
+  if (conditionResult) {
+    consequenceStart = thenStart;
+    consequenceEnd = elseStart > 0 ? elseStart : childrenSize;
+  } else {
+    consequenceStart = elseStart;
+    consequenceEnd = elseStart > 0 ? childrenSize : elseStart;
+  }
 
-  if (consequenceStart > 0) {
+  if (consequenceStart < consequenceEnd) {
     if (evaluator.trackMode || evaluator.callbackMode) {
       evaluator.popPath(instruction[1].length);
     }
@@ -2968,21 +2971,25 @@ function LogicalCondition_fast(instruction, instance, depth, template, evaluator
   const elseStart = value[1];
   const children = instruction[6];
   const childrenSize = children ? children.length : 0;
-  let conditionEnd = childrenSize;
-  if (thenStart > 0) conditionEnd = thenStart;
-  else if (elseStart > 0) conditionEnd = elseStart;
   const relInstance = instruction[2];
   const target = relInstance.length === 0 ? instance : resolveInstance(instance, relInstance);
   let conditionResult = true;
-  for (let cursor = 0; cursor < conditionEnd; cursor++) {
+  for (let cursor = 0; cursor < thenStart; cursor++) {
     if (!evaluateInstruction(children[cursor], target, depth + 1, template, evaluator)) {
       conditionResult = false;
       break;
     }
   }
-  const consequenceStart = conditionResult ? thenStart : elseStart;
-  const consequenceEnd = (conditionResult && elseStart > 0) ? elseStart : childrenSize;
-  if (consequenceStart > 0) {
+  let consequenceStart;
+  let consequenceEnd;
+  if (conditionResult) {
+    consequenceStart = thenStart;
+    consequenceEnd = elseStart > 0 ? elseStart : childrenSize;
+  } else {
+    consequenceStart = elseStart;
+    consequenceEnd = elseStart > 0 ? childrenSize : elseStart;
+  }
+  if (consequenceStart < consequenceEnd) {
     if (evaluator.trackMode) {
       evaluator.popPath(instruction[1].length);
     }
