@@ -418,25 +418,46 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrictHash3) {
     assert(value.first.size() == 3);
     const auto &object{target.as_object()};
 
-    result =
-        object.size() == 3 && ((value.first.at(0).first == object.at(0).hash &&
-                                value.first.at(1).first == object.at(1).hash &&
-                                value.first.at(2).first == object.at(2).hash) ||
-                               (value.first.at(0).first == object.at(0).hash &&
-                                value.first.at(1).first == object.at(2).hash &&
-                                value.first.at(2).first == object.at(1).hash) ||
-                               (value.first.at(0).first == object.at(1).hash &&
-                                value.first.at(1).first == object.at(0).hash &&
-                                value.first.at(2).first == object.at(2).hash) ||
-                               (value.first.at(0).first == object.at(1).hash &&
-                                value.first.at(1).first == object.at(2).hash &&
-                                value.first.at(2).first == object.at(0).hash) ||
-                               (value.first.at(0).first == object.at(2).hash &&
-                                value.first.at(1).first == object.at(0).hash &&
-                                value.first.at(2).first == object.at(1).hash) ||
-                               (value.first.at(0).first == object.at(2).hash &&
-                                value.first.at(1).first == object.at(1).hash &&
-                                value.first.at(2).first == object.at(0).hash));
+    // A perfect hash captures the key bytes but not its length, so each
+    // pairing confirms the size alongside the hash while keeping the unrolled
+    // permutation check over the three keys
+    result = object.size() == 3 &&
+             ((value.first.at(0).first == object.at(0).hash &&
+               value.first.at(0).second.size() == object.at(0).first.size() &&
+               value.first.at(1).first == object.at(1).hash &&
+               value.first.at(1).second.size() == object.at(1).first.size() &&
+               value.first.at(2).first == object.at(2).hash &&
+               value.first.at(2).second.size() == object.at(2).first.size()) ||
+              (value.first.at(0).first == object.at(0).hash &&
+               value.first.at(0).second.size() == object.at(0).first.size() &&
+               value.first.at(1).first == object.at(2).hash &&
+               value.first.at(1).second.size() == object.at(2).first.size() &&
+               value.first.at(2).first == object.at(1).hash &&
+               value.first.at(2).second.size() == object.at(1).first.size()) ||
+              (value.first.at(0).first == object.at(1).hash &&
+               value.first.at(0).second.size() == object.at(1).first.size() &&
+               value.first.at(1).first == object.at(0).hash &&
+               value.first.at(1).second.size() == object.at(0).first.size() &&
+               value.first.at(2).first == object.at(2).hash &&
+               value.first.at(2).second.size() == object.at(2).first.size()) ||
+              (value.first.at(0).first == object.at(1).hash &&
+               value.first.at(0).second.size() == object.at(1).first.size() &&
+               value.first.at(1).first == object.at(2).hash &&
+               value.first.at(1).second.size() == object.at(2).first.size() &&
+               value.first.at(2).first == object.at(0).hash &&
+               value.first.at(2).second.size() == object.at(0).first.size()) ||
+              (value.first.at(0).first == object.at(2).hash &&
+               value.first.at(0).second.size() == object.at(2).first.size() &&
+               value.first.at(1).first == object.at(0).hash &&
+               value.first.at(1).second.size() == object.at(0).first.size() &&
+               value.first.at(2).first == object.at(1).hash &&
+               value.first.at(2).second.size() == object.at(1).first.size()) ||
+              (value.first.at(0).first == object.at(2).hash &&
+               value.first.at(0).second.size() == object.at(2).first.size() &&
+               value.first.at(1).first == object.at(1).hash &&
+               value.first.at(1).second.size() == object.at(1).first.size() &&
+               value.first.at(2).first == object.at(0).hash &&
+               value.first.at(2).second.size() == object.at(0).first.size()));
   }
 
   EVALUATE_END(AssertionDefinesExactlyStrictHash3);
