@@ -2543,8 +2543,11 @@ INSTRUCTION_HANDLER(LoopItemsIntegerBoundedSized) {
       assume_value<ValueIntegerBoundsWithSize>(instruction.value)};
   const auto &integer_bounds{value.first};
   const auto minimum_size{std::get<0>(value.second)};
+  const auto &maximum_size{std::get<1>(value.second)};
   EVALUATE_BEGIN_NON_STRING(LoopItemsIntegerBoundedSized, true);
-  if (!target.is_array() || target.array_size() < minimum_size) {
+  if (!target.is_array() || target.array_size() < minimum_size ||
+      (maximum_size.has_value() &&
+       target.array_size() > maximum_size.value())) {
     EVALUATE_END(LoopItemsIntegerBoundedSized);
   }
 

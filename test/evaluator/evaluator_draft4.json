@@ -12825,5 +12825,144 @@
         "The value was expected to be an object that defines the property \"a\""
       ]
     }
+  },
+  {
+    "description": "array_items_bounds_sized_toomany",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "scores": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0, "maximum": 100 },
+          "minItems": 1,
+          "maxItems": 2
+        }
+      }
+    },
+    "instance": { "scores": [ 1, 2, 3 ] },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsIntegerBoundedSized", "/properties", "#/properties", "/scores" ]
+      ],
+      "post": [
+        [ false, "LoopItemsIntegerBoundedSized", "/properties", "#/properties", "/scores" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be a number within the given range"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LoopItems", "/properties/scores/items", "#/properties/scores/items", "/scores" ],
+        [ "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/0" ],
+        [ "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/0" ],
+        [ "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/0" ],
+        [ "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/1" ],
+        [ "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/1" ],
+        [ "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/1" ],
+        [ "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/2" ],
+        [ "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/2" ],
+        [ "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/2" ],
+        [ "AssertionArraySizeLess", "/properties/scores/maxItems", "#/properties/scores/maxItems", "/scores" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/0" ],
+        [ true, "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/0" ],
+        [ true, "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/0" ],
+        [ true, "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/1" ],
+        [ true, "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/1" ],
+        [ true, "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/1" ],
+        [ true, "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/2" ],
+        [ true, "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/2" ],
+        [ true, "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/2" ],
+        [ true, "LoopItems", "/properties/scores/items", "#/properties/scores/items", "/scores" ],
+        [ false, "AssertionArraySizeLess", "/properties/scores/maxItems", "#/properties/scores/maxItems", "/scores" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be less than or equal to the integer 100",
+        "The integer value 1 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "The integer value 2 was expected to be less than or equal to the integer 100",
+        "The integer value 2 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "The integer value 3 was expected to be less than or equal to the integer 100",
+        "The integer value 3 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to contain at most 2 items but it contained 3 items",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "array_items_bounds_sized_inrange",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "scores": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0, "maximum": 100 },
+          "minItems": 1,
+          "maxItems": 2
+        }
+      }
+    },
+    "instance": { "scores": [ 1, 2 ] },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsIntegerBoundedSized", "/properties", "#/properties", "/scores" ]
+      ],
+      "post": [
+        [ true, "LoopItemsIntegerBoundedSized", "/properties", "#/properties", "/scores" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be a number within the given range"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LoopItems", "/properties/scores/items", "#/properties/scores/items", "/scores" ],
+        [ "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/0" ],
+        [ "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/0" ],
+        [ "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/0" ],
+        [ "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/1" ],
+        [ "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/1" ],
+        [ "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/1" ],
+        [ "AssertionArraySizeLess", "/properties/scores/maxItems", "#/properties/scores/maxItems", "/scores" ],
+        [ "AssertionArraySizeGreater", "/properties/scores/minItems", "#/properties/scores/minItems", "/scores" ],
+        [ "AssertionTypeStrict", "/properties/scores/type", "#/properties/scores/type", "/scores" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/0" ],
+        [ true, "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/0" ],
+        [ true, "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/0" ],
+        [ true, "AssertionLessEqual", "/properties/scores/items/maximum", "#/properties/scores/items/maximum", "/scores/1" ],
+        [ true, "AssertionGreaterEqual", "/properties/scores/items/minimum", "#/properties/scores/items/minimum", "/scores/1" ],
+        [ true, "AssertionTypeStrictAny", "/properties/scores/items/type", "#/properties/scores/items/type", "/scores/1" ],
+        [ true, "LoopItems", "/properties/scores/items", "#/properties/scores/items", "/scores" ],
+        [ true, "AssertionArraySizeLess", "/properties/scores/maxItems", "#/properties/scores/maxItems", "/scores" ],
+        [ true, "AssertionArraySizeGreater", "/properties/scores/minItems", "#/properties/scores/minItems", "/scores" ],
+        [ true, "AssertionTypeStrict", "/properties/scores/type", "#/properties/scores/type", "/scores" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to be less than or equal to the integer 100",
+        "The integer value 1 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "The integer value 2 was expected to be less than or equal to the integer 100",
+        "The integer value 2 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to contain at most 2 items and it contained 2 items",
+        "The array value was expected to contain at least 1 item and it contained 2 items",
+        "The value was expected to be of type array",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
   }
 ]
