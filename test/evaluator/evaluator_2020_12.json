@@ -7834,5 +7834,242 @@
         "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
       ]
     }
+  },
+  {
+    "description": "false_subschema_named_after_keyword",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "unevaluatedItems": false }
+    },
+    "instance": { "unevaluatedItems": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/properties/unevaluatedItems", "#/properties/unevaluatedItems", "/unevaluatedItems" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/unevaluatedItems", "#/properties/unevaluatedItems", "/unevaluatedItems" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionFail", "/properties/unevaluatedItems", "#/properties/unevaluatedItems", "/unevaluatedItems" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/unevaluatedItems", "#/properties/unevaluatedItems", "/unevaluatedItems" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "false_subschema_named_after_keyword_pattern",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "patternProperties": { "unevaluatedItems": false }
+    },
+    "instance": { "unevaluatedItems": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionFail", "/patternProperties/unevaluatedItems", "#/patternProperties/unevaluatedItems", "/unevaluatedItems" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/patternProperties/unevaluatedItems", "#/patternProperties/unevaluatedItems", "/unevaluatedItems" ],
+        [ false, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object properties that match the regular expression \"unevaluatedItems\" were expected to validate against the defined pattern property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+        [ "AssertionFail", "/patternProperties/unevaluatedItems", "#/patternProperties/unevaluatedItems", "/unevaluatedItems" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/patternProperties/unevaluatedItems", "#/patternProperties/unevaluatedItems", "/unevaluatedItems" ],
+        [ false, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object properties that match the regular expression \"unevaluatedItems\" were expected to validate against the defined pattern property subschema"
+      ]
+    }
+  },
+  {
+    "description": "false_subschema_named_after_keyword_dependent",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentSchemas": { "additionalProperties": false }
+    },
+    "instance": { "additionalProperties": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "AssertionFail", "/dependentSchemas/additionalProperties", "#/dependentSchemas/additionalProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/dependentSchemas/additionalProperties", "#/dependentSchemas/additionalProperties", "" ],
+        [ false, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ false, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object value defined the property \"additionalProperties\"",
+        "Because the object value defined the property \"additionalProperties\", it was also expected to validate against the corresponding subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "AssertionFail", "/dependentSchemas/additionalProperties", "#/dependentSchemas/additionalProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/dependentSchemas/additionalProperties", "#/dependentSchemas/additionalProperties", "" ],
+        [ false, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ false, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object value defined the property \"additionalProperties\"",
+        "Because the object value defined the property \"additionalProperties\", it was also expected to validate against the corresponding subschema"
+      ]
+    }
+  },
+  {
+    "description": "false_subschema_named_after_keyword_valid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "unevaluatedItems": false }
+    },
+    "instance": { "other": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "annotation_title_not_a_string",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "title": 42 },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/title", "#/title", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/title", "#/title", "", 42 ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"title\" was collected as the annotation 42"
+      ]
+    }
+  },
+  {
+    "description": "annotation_examples_not_an_array",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "examples": "x"
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/examples", "#/examples", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/examples", "#/examples", "", "x" ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"examples\" was collected as the annotation \"x\""
+      ]
+    }
+  },
+  {
+    "description": "annotation_content_encoding_not_a_string",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contentEncoding": 42,
+      "contentMediaType": "text/plain"
+    },
+    "instance": "x",
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/contentEncoding", "#/contentEncoding", "" ],
+        [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/contentEncoding", "#/contentEncoding", "", 42 ],
+        [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "text/plain" ]
+      ],
+      "descriptions": [
+        "The unrecognized keyword \"contentEncoding\" was collected as the annotation 42",
+        "The content media type of the instance was \"text/plain\""
+      ]
+    }
+  },
+  {
+    "description": "annotation_title_a_string",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "x" },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/title", "#/title", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/title", "#/title", "", "x" ]
+      ],
+      "descriptions": [
+        "The title of the instance was \"x\""
+      ]
+    }
   }
 ]

@@ -3336,5 +3336,42 @@
         "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
       ]
     }
+  },
+  {
+    "description": "false_subschema_named_after_keyword_dependencies",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "dependencies": { "unevaluatedProperties": false }
+    },
+    "instance": { "unevaluatedProperties": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ "AssertionFail", "/dependencies/unevaluatedProperties", "#/dependencies/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/dependencies/unevaluatedProperties", "#/dependencies/unevaluatedProperties", "" ],
+        [ false, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object value defined the property \"unevaluatedProperties\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+        [ "AssertionFail", "/dependencies/unevaluatedProperties", "#/dependencies/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/dependencies/unevaluatedProperties", "#/dependencies/unevaluatedProperties", "" ],
+        [ false, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object value defined the property \"unevaluatedProperties\""
+      ]
+    }
   }
 ]
