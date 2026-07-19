@@ -251,6 +251,49 @@ TEST(unevaluatedProperties_7) {
   EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
 }
 
+TEST(unevaluatedProperties_7_repeated_reference) {
+  const auto schema = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/foo",
+    "unevaluatedProperties": false,
+    "anyOf": [ { "$ref": "#/$defs/bar" }, { "$ref": "#/$defs/bar" } ],
+    "$defs": {
+      "foo": {
+        "properties": {
+          "foo": true
+        }
+      },
+      "bar": {
+        "additionalProperties": false
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto result{sourcemeta::blaze::unevaluated(
+      schema, frame, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver)};
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_UNEVALUATED_STATIC(result, "#/unevaluatedProperties", 1);
+  EXPECT_UNEVALUATED_STATIC_DEPENDENCY(result, "#/unevaluatedProperties",
+                                       "/$defs/foo/properties");
+
+  EXPECT_UNEVALUATED_DYNAMIC(result, "#/unevaluatedProperties", 3);
+  EXPECT_UNEVALUATED_DYNAMIC_DEPENDENCY(result, "#/unevaluatedProperties",
+                                        "/$defs/bar/additionalProperties");
+  EXPECT_UNEVALUATED_DYNAMIC_DEPENDENCY(result, "#/unevaluatedProperties",
+                                        "/anyOf/0/$ref");
+  EXPECT_UNEVALUATED_DYNAMIC_DEPENDENCY(result, "#/unevaluatedProperties",
+                                        "/anyOf/1/$ref");
+
+  EXPECT_UNEVALUATED_RESOLVED(result, "#/unevaluatedProperties");
+}
+
 TEST(unevaluatedProperties_8) {
   const auto schema = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
