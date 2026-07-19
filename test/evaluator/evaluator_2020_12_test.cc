@@ -5770,3 +5770,90 @@ TEST(dynamic_unevaluated_properties_does_not_mark_array) {
   EVALUATE_TRACE_POST_FAILURE(4, LoopItemsUnevaluated, "/unevaluatedItems",
                               "https://example.com/root#/unevaluatedItems", "");
 }
+
+TEST(properties_closed_required_annotation_whitelist_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "a", "b" ],
+    "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "a": "x", "b": "y", "zzz": 1 })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"properties"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrict, "/required",
+                     "#/required", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesExactlyStrict, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an object that only defines properties "
+      "\"a\", and \"b\", but it also defines the property \"zzz\"");
+}
+
+TEST(any_of_reference_branch_items_extra) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "D": { "prefixItems": [ { "type": "integer" } ] } },
+    "anyOf": [ { "type": "array" }, { "$ref": "#/$defs/D" } ],
+    "unevaluatedItems": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1, 2 ])JSON")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6, "");
+
+  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
+                     "");
+  EVALUATE_TRACE_PRE(2, AssertionArrayPrefixEvaluate,
+                     "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "");
+  EVALUATE_TRACE_PRE(3, AssertionType, "/anyOf/1/$ref/prefixItems/0/type",
+                     "#/$defs/D/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_PRE(4, LoopItemsUnevaluated, "/unevaluatedItems",
+                     "#/unevaluatedItems", "");
+  EVALUATE_TRACE_PRE(5, AssertionFail, "/unevaluatedItems",
+                     "#/unevaluatedItems", "/1");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
+                              "#/anyOf/0/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType,
+                              "/anyOf/1/$ref/prefixItems/0/type",
+                              "#/$defs/D/prefixItems/0/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefixEvaluate,
+                              "/anyOf/1/$ref/prefixItems",
+                              "#/$defs/D/prefixItems", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
+                              "#/unevaluatedItems", "/1");
+  EVALUATE_TRACE_POST_FAILURE(5, LoopItemsUnevaluated, "/unevaluatedItems",
+                              "#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type array");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The first item of the array value was expected "
+                               "to validate against the corresponding "
+                               "subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The array value was expected to validate "
+                               "against at least one of the 2 given "
+                               "subschemas");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The array value was not expected to define the "
+                               "item at index 1");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
+                               "The array items not covered by other array "
+                               "keywords, if any, were expected to validate "
+                               "against this subschema");
+}

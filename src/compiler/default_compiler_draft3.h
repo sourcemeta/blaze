@@ -232,7 +232,15 @@ auto compile_required_assertions(const Context &context,
             types.insert(std::get<ValueType>(property.second.front().value));
           }
 
-          if (types.size() == 1) {
+          // `properties` only collapses into the fused form that also
+          // enforces these requirements when it is neither emitting
+          // annotations nor tracking evaluation, so this must mirror both of
+          // its gates. Note that we must ask that of `properties` rather than
+          // of this keyword, as evaluation tracking follows the keywords an
+          // `unevaluatedProperties` depends on, which `required` is not one of
+          if (types.size() == 1 &&
+              !annotations_enabled(context, KEYWORD_PROPERTIES) &&
+              !requires_evaluation(context, new_schema_context)) {
             // Handled in `properties`
             return {};
           }
@@ -614,8 +622,11 @@ auto compiler_draft3_applicator_properties_with_options(
   auto properties{compile_properties(context, schema_context,
                                      effective_dynamic_context, current)};
 
+  // These fused forms collapse every property into a single instruction that
+  // does not mark the properties it matches as evaluated, so under evaluation
+  // tracking we must fall through to the form that emits the markers
   if (!emit_annotation && context.mode == Mode::FastValidation &&
-      !required.empty() &&
+      !track_evaluation && !required.empty() &&
       schema_context.schema.defines("additionalProperties") &&
       schema_context.schema.at("additionalProperties").is_boolean() &&
       !schema_context.schema.at("additionalProperties").to_boolean() &&
