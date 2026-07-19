@@ -9956,5 +9956,1006 @@
         "The object value was not expected to define unevaluated properties"
       ]
     }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "required": [ "flag" ] },
+      "then": {
+        "type": "object",
+        "required": [ "a", "b" ],
+        "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+      },
+      "else": { "required": [ "a" ] }
+    },
+    "instance": { "bar": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "required": [ "flag" ] },
+      "then": {
+        "type": "object",
+        "required": [ "a", "b" ],
+        "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+      },
+      "else": { "required": [ "a" ] }
+    },
+    "instance": { "flag": true, "a": "x", "b": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefinesAllStrict", "/then/required", "#/then/required", "" ],
+        [ "AssertionObjectPropertiesSimple", "/then/properties", "#/then/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ true, "AssertionDefinesAllStrict", "/then/required", "#/then/required", "" ],
+        [ true, "AssertionObjectPropertiesSimple", "/then/properties", "#/then/properties", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The object value was expected to validate against the defined property subschemas",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefinesAllStrict", "/then/required", "#/then/required", "" ],
+        [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+        [ "AssertionTypeStrict", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+        [ "Annotation", "/then/properties", "#/then/properties", "" ],
+        [ "AssertionType", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+        [ "Annotation", "/then/properties", "#/then/properties", "" ],
+        [ "AssertionTypeStrict", "/then/type", "#/then/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ true, "AssertionDefinesAllStrict", "/then/required", "#/then/required", "" ],
+        [ true, "AssertionTypeStrict", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+        [ true, "Annotation", "/then/properties", "#/then/properties", "", "a" ],
+        [ true, "AssertionType", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+        [ true, "Annotation", "/then/properties", "#/then/properties", "", "b" ],
+        [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+        [ true, "AssertionTypeStrict", "/then/type", "#/then/type", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type string",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The value was expected to be of type integer",
+        "The object property \"b\" successfully validated against its property subschema",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "required": [ "flag" ] },
+      "then": {
+        "type": "object",
+        "required": [ "a", "b" ],
+        "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+      },
+      "else": { "required": [ "a" ] }
+    },
+    "instance": { "bar": 1, "a": "x" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ true, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ true, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "required": [ "flag" ] },
+      "then": { "$ref": "#/$defs/shared" },
+      "else": { "required": [ "a" ] },
+      "properties": { "other": { "$ref": "#/$defs/shared" } },
+      "$defs": {
+        "shared": {
+          "type": "object",
+          "required": [ "a", "b" ],
+          "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+        }
+      }
+    },
+    "instance": { "bar": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "type": "object" },
+      "then": { "$ref": "#/$defs/shared" },
+      "else": true,
+      "properties": { "other": { "$ref": "#/$defs/shared" } },
+      "$defs": {
+        "shared": {
+          "type": "object",
+          "required": [ "a", "b" ],
+          "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+        }
+      }
+    },
+    "instance": { "a": 1, "b": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "AssertionDefinesAllStrict", "/then/$ref/required", "#/$defs/shared/required", "" ],
+        [ "AssertionObjectPropertiesSimple", "/then/$ref/properties", "#/$defs/shared/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionDefinesAllStrict", "/then/$ref/required", "#/$defs/shared/required", "" ],
+        [ false, "AssertionObjectPropertiesSimple", "/then/$ref/properties", "#/$defs/shared/properties", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The object value was expected to validate against the defined property subschemas",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ "AssertionDefinesAllStrict", "/then/$ref/required", "#/$defs/shared/required", "" ],
+        [ "LogicalWhenType", "/then/$ref/properties", "#/$defs/shared/properties", "" ],
+        [ "AssertionTypeStrict", "/then/$ref/properties/a/type", "#/$defs/shared/properties/a/type", "/a" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionDefinesAllStrict", "/then/$ref/required", "#/$defs/shared/required", "" ],
+        [ false, "AssertionTypeStrict", "/then/$ref/properties/a/type", "#/$defs/shared/properties/a/type", "/a" ],
+        [ false, "LogicalWhenType", "/then/$ref/properties", "#/$defs/shared/properties", "" ],
+        [ false, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "tracked_dependent_closed_additional_invalid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": {
+        "foo": {
+          "properties": { "foo": { "type": "number" } },
+          "additionalProperties": false
+        }
+      },
+      "unevaluatedProperties": { "type": "integer" }
+    },
+    "instance": { "foo": 1, "az": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ "AssertionPropertyTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+        [ "AssertionFail", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "/az" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ false, "AssertionFail", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "/az" ],
+        [ false, "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+        [ false, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ false, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define the property \"az\"",
+        "The object value was not expected to define additional properties",
+        "The object value defined the property \"foo\"",
+        "Because the object value defined the property \"foo\", it was also expected to validate against the corresponding subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ "AssertionTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+        [ "Annotation", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+        [ "AssertionFail", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "/az" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "", "foo" ],
+        [ true, "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ false, "AssertionFail", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "/az" ],
+        [ false, "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+        [ false, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ false, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define the property \"az\"",
+        "The object value was not expected to define additional properties",
+        "The object value defined the property \"foo\"",
+        "Because the object value defined the property \"foo\", it was also expected to validate against the corresponding subschema"
+      ]
+    }
+  },
+  {
+    "description": "tracked_dependent_closed_valid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": {
+        "foo": {
+          "properties": { "foo": { "type": "number" } },
+          "additionalProperties": false
+        }
+      },
+      "unevaluatedProperties": { "type": "integer" }
+    },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ "AssertionPropertyTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+        [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The object value defined the property \"foo\"",
+        "Because the object value defined the property \"foo\", it was also expected to validate against the corresponding subschema",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ "AssertionTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+        [ "Annotation", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+        [ true, "Annotation", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "", "foo" ],
+        [ true, "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+        [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number",
+        "The object property \"foo\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The object value defined the property \"foo\"",
+        "Because the object value defined the property \"foo\", it was also expected to validate against the corresponding subschema",
+        "The object properties not covered by other object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "any_of_failed_branch_does_not_evaluate",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "anyOf": [
+        { "properties": { "aaa": true, "bbb": { "type": "string" } } },
+        { "properties": { "bbb": true } }
+      ],
+      "unevaluatedProperties": false
+    },
+    "instance": { "aaa": 1, "bbb": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
+        [ "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ]
+      ],
+      "post": [
+        [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
+        [ false, "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type string but it was of type integer",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The value was expected to be of type object",
+        "The object value was not expected to define the property \"aaa\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
+        [ "AssertionTypeStrict", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "", "aaa" ],
+        [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
+        [ false, "AssertionTypeStrict", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ false, "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ true, "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "", "bbb" ],
+        [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"aaa\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object property \"bbb\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The value was expected to be of type object",
+        "The object value was not expected to define the property \"aaa\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "any_of_failed_branch_valid",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "anyOf": [
+        { "properties": { "aaa": true, "bbb": { "type": "string" } } },
+        { "properties": { "bbb": true } }
+      ],
+      "unevaluatedProperties": false
+    },
+    "instance": { "bbb": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ false, "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ true, "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "", "bbb" ],
+        [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object property \"bbb\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "any_of_passing_branch_evaluates",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "anyOf": [
+        { "properties": { "aaa": true, "bbb": { "type": "string" } } },
+        { "properties": { "bbb": true } }
+      ],
+      "unevaluatedProperties": false
+    },
+    "instance": { "aaa": 1, "bbb": "x" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
+        [ "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
+        [ true, "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type string",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
+        [ "AssertionTypeStrict", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/bbb" ],
+        [ "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "", "aaa" ],
+        [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
+        [ true, "AssertionTypeStrict", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
+        [ true, "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "", "bbb" ],
+        [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/bbb" ],
+        [ true, "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ true, "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "", "bbb" ],
+        [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
+        [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"aaa\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type string",
+        "The object property \"bbb\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object property \"bbb\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "one_of_failed_branch_does_not_evaluate",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "oneOf": [
+        {
+          "properties": { "aaa": true, "bbb": { "type": "string" } },
+          "required": [ "zzz" ]
+        },
+        { "properties": { "bbb": true } }
+      ],
+      "unevaluatedProperties": false
+    },
+    "instance": { "aaa": 1, "bbb": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionDefines", "/oneOf/0/required", "#/oneOf/0/required", "" ],
+        [ "Evaluate", "/oneOf/1/properties", "#/oneOf/1/properties", "/bbb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/oneOf/0/required", "#/oneOf/0/required", "" ],
+        [ true, "Evaluate", "/oneOf/1/properties", "#/oneOf/1/properties", "/bbb" ],
+        [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"zzz\"",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against one and only one of the 2 given subschemas",
+        "The value was expected to be of type object",
+        "The object value was not expected to define the property \"aaa\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionDefines", "/oneOf/0/required", "#/oneOf/0/required", "" ],
+        [ "LogicalWhenType", "/oneOf/1/properties", "#/oneOf/1/properties", "" ],
+        [ "Annotation", "/oneOf/1/properties", "#/oneOf/1/properties", "" ],
+        [ "Evaluate", "/oneOf/1/properties", "#/oneOf/1/properties", "/bbb" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/oneOf/0/required", "#/oneOf/0/required", "" ],
+        [ true, "Annotation", "/oneOf/1/properties", "#/oneOf/1/properties", "", "bbb" ],
+        [ true, "Evaluate", "/oneOf/1/properties", "#/oneOf/1/properties", "/bbb" ],
+        [ true, "LogicalWhenType", "/oneOf/1/properties", "#/oneOf/1/properties", "" ],
+        [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"zzz\"",
+        "The object property \"bbb\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against one and only one of the 2 given subschemas",
+        "The value was expected to be of type object",
+        "The object value was not expected to define the property \"aaa\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "failed_condition_does_not_evaluate",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "properties": { "aaa": true, "bbb": { "type": "string" } } },
+      "else": { "properties": { "bbb": true } },
+      "unevaluatedProperties": false
+    },
+    "instance": { "aaa": 1, "bbb": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+        [ "AssertionPropertyTypeStrictEvaluate", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
+        [ "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ]
+      ],
+      "post": [
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+        [ false, "AssertionPropertyTypeStrictEvaluate", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
+        [ true, "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type string but it was of type integer",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define the property \"aaa\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+        [ "Annotation", "/if/properties", "#/if/properties", "" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+        [ "AssertionTypeStrict", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
+        [ "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
+        [ "Annotation", "/else/properties", "#/else/properties", "" ],
+        [ "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/if/properties", "#/if/properties", "", "aaa" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+        [ false, "AssertionTypeStrict", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
+        [ false, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+        [ true, "Annotation", "/else/properties", "#/else/properties", "", "bbb" ],
+        [ true, "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
+        [ true, "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"aaa\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object property \"bbb\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define the property \"aaa\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "passing_condition_evaluates",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "properties": { "aaa": { "type": "integer" } } },
+      "then": { "properties": { "bbb": true } },
+      "unevaluatedProperties": false
+    },
+    "instance": { "aaa": 1, "bbb": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+        [ "Evaluate", "/then/properties", "#/then/properties", "/bbb" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+        [ true, "Evaluate", "/then/properties", "#/then/properties", "/bbb" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+        [ "AssertionType", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+        [ "Annotation", "/if/properties", "#/if/properties", "" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+        [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+        [ "Annotation", "/then/properties", "#/then/properties", "" ],
+        [ "Evaluate", "/then/properties", "#/then/properties", "/bbb" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+        [ true, "Annotation", "/if/properties", "#/if/properties", "", "aaa" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+        [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+        [ true, "Annotation", "/then/properties", "#/then/properties", "", "bbb" ],
+        [ true, "Evaluate", "/then/properties", "#/then/properties", "/bbb" ],
+        [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object property \"aaa\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object property \"bbb\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "passing_condition_evaluates_unknown",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "if": { "properties": { "aaa": { "type": "integer" } } },
+      "then": { "properties": { "bbb": true } },
+      "unevaluatedProperties": false
+    },
+    "instance": { "aaa": 1, "ccc": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define the property \"ccc\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+        [ "AssertionType", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+        [ "Annotation", "/if/properties", "#/if/properties", "" ],
+        [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+        [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+        [ true, "Annotation", "/if/properties", "#/if/properties", "", "aaa" ],
+        [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+        [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+        [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ],
+        [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The object property \"aaa\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against the given conditional",
+        "The object value was not expected to define the property \"ccc\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "any_of_inlined_branch_evaluates",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "anyOf": [ { "type": "object" }, { "properties": { "a": { "type": "integer" } } } ],
+      "unevaluatedProperties": false
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+        [ "AssertionPropertyTypeEvaluate", "/anyOf/1/properties/a/type", "#/anyOf/1/properties/a/type", "/a" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+        [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/properties/a/type", "#/anyOf/1/properties/a/type", "/a" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+        [ "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "AssertionType", "/anyOf/1/properties/a/type", "#/anyOf/1/properties/a/type", "/a" ],
+        [ "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/a" ],
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+        [ true, "AssertionType", "/anyOf/1/properties/a/type", "#/anyOf/1/properties/a/type", "/a" ],
+        [ true, "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "", "a" ],
+        [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/a" ],
+        [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be of type integer",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The instance location was marked as evaluated",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
   }
 ]

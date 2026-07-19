@@ -4671,5 +4671,285 @@
         "The array value was expected to contain at least 1 item that validates against the given subschema"
       ]
     }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "required": [ "flag" ] },
+      "then": {
+        "type": "object",
+        "required": [ "a", "b" ],
+        "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+      },
+      "else": { "required": [ "a" ] }
+    },
+    "instance": { "bar": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "required": [ "flag" ] },
+      "then": {
+        "type": "object",
+        "required": [ "a", "b" ],
+        "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+      },
+      "else": { "required": [ "a" ] }
+    },
+    "instance": { "flag": true, "a": "x", "b": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefinesAllStrict", "/then/required", "#/then/required", "" ],
+        [ "AssertionObjectPropertiesSimple", "/then/properties", "#/then/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ true, "AssertionDefinesAllStrict", "/then/required", "#/then/required", "" ],
+        [ true, "AssertionObjectPropertiesSimple", "/then/properties", "#/then/properties", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The object value was expected to validate against the defined property subschemas",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefinesAllStrict", "/then/required", "#/then/required", "" ],
+        [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+        [ "AssertionTypeStrict", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+        [ "AssertionType", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+        [ "AssertionTypeStrict", "/then/type", "#/then/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ true, "AssertionDefinesAllStrict", "/then/required", "#/then/required", "" ],
+        [ true, "AssertionTypeStrict", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+        [ true, "AssertionType", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+        [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+        [ true, "AssertionTypeStrict", "/then/type", "#/then/type", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type string",
+        "The value was expected to be of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_3",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "required": [ "flag" ] },
+      "then": {
+        "type": "object",
+        "required": [ "a", "b" ],
+        "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+      },
+      "else": { "required": [ "a" ] }
+    },
+    "instance": { "bar": 1, "a": "x" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ true, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ true, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_4",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "required": [ "flag" ] },
+      "then": { "$ref": "#/definitions/shared" },
+      "else": { "required": [ "a" ] },
+      "properties": { "other": { "$ref": "#/definitions/shared" } },
+      "definitions": {
+        "shared": {
+          "type": "object",
+          "required": [ "a", "b" ],
+          "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+        }
+      }
+    },
+    "instance": { "bar": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+        [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"flag\"",
+        "The object value was expected to define the property \"a\"",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_no_fusion_conditional_5",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "type": "object" },
+      "then": { "$ref": "#/definitions/shared" },
+      "else": true,
+      "properties": { "other": { "$ref": "#/definitions/shared" } },
+      "definitions": {
+        "shared": {
+          "type": "object",
+          "required": [ "a", "b" ],
+          "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+        }
+      }
+    },
+    "instance": { "a": 1, "b": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "AssertionDefinesAllStrict", "/then/$ref/required", "#/definitions/shared/required", "" ],
+        [ "AssertionObjectPropertiesSimple", "/then/$ref/properties", "#/definitions/shared/properties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionDefinesAllStrict", "/then/$ref/required", "#/definitions/shared/required", "" ],
+        [ false, "AssertionObjectPropertiesSimple", "/then/$ref/properties", "#/definitions/shared/properties", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The object value was expected to validate against the defined property subschemas",
+        "The object value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ "AssertionDefinesAllStrict", "/then/$ref/required", "#/definitions/shared/required", "" ],
+        [ "LogicalWhenType", "/then/$ref/properties", "#/definitions/shared/properties", "" ],
+        [ "AssertionTypeStrict", "/then/$ref/properties/a/type", "#/definitions/shared/properties/a/type", "/a" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionDefinesAllStrict", "/then/$ref/required", "#/definitions/shared/required", "" ],
+        [ false, "AssertionTypeStrict", "/then/$ref/properties/a/type", "#/definitions/shared/properties/a/type", "/a" ],
+        [ false, "LogicalWhenType", "/then/$ref/properties", "#/definitions/shared/properties", "" ],
+        [ false, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be an object that defines properties \"a\", and \"b\"",
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the given conditional"
+      ]
+    }
   }
 ]
