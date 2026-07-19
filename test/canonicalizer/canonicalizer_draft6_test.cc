@@ -4466,3 +4466,18 @@ TEST(draft4_id_becomes_unknown_keyword) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
+
+TEST(type_array_drops_unknown_name) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "string", "foo" ]
+  })JSON");
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "minLength": 0
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
