@@ -337,6 +337,345 @@ TEST(x_jsonld_self_annotation_exhaustive_2020_12) {
                                "\"https://www.iso.org/iso-4217/{this}\"");
 }
 
+TEST(x_jsonld_override_true_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 1, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+}
+
+TEST(x_jsonld_override_false_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-override": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 1, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", false);
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The sibling JSON-LD annotations were not "
+                               "expected to override any other annotations");
+}
+
+TEST(x_jsonld_id_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-id": null,
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-id", "#/x-jsonld-id", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-id", "#/x-jsonld-id", "",
+                                 nullptr);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The nested JSON-LD predicates were expected to be removed");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+}
+
+TEST(x_jsonld_reverse_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-override": true,
+    "x-jsonld-reverse": null
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-reverse", "#/x-jsonld-reverse",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-reverse", "#/x-jsonld-reverse",
+                                 "", nullptr);
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The nested reverse JSON-LD predicates were "
+                               "expected to be removed");
+}
+
+TEST(x_jsonld_type_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-override": true,
+    "x-jsonld-type": null
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-type", "#/x-jsonld-type", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-type", "#/x-jsonld-type", "",
+                                 nullptr);
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The nested JSON-LD types were expected to be removed");
+}
+
+TEST(x_jsonld_datatype_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-datatype": null,
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-datatype", "#/x-jsonld-datatype",
+                                "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-datatype", "#/x-jsonld-datatype",
+                                 "", nullptr);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The JSON-LD datatype was expected to be removed");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+}
+
+TEST(x_jsonld_language_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-language": null,
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-language", "#/x-jsonld-language",
+                                "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-language", "#/x-jsonld-language",
+                                 "", nullptr);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The natural language was expected to be removed");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+}
+
+TEST(x_jsonld_direction_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-direction": null,
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-direction",
+                                "#/x-jsonld-direction", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-direction",
+                                 "#/x-jsonld-direction", "", nullptr);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The base direction was expected to be removed");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+}
+
+TEST(x_jsonld_json_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-json": null,
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-json", "#/x-jsonld-json", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-json", "#/x-jsonld-json", "",
+                                 nullptr);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was not expected to be treated as "
+                               "an opaque JSON literal");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+}
+
+TEST(x_jsonld_graph_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-graph": null,
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-graph", "#/x-jsonld-graph", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-graph", "#/x-jsonld-graph", "",
+                                 nullptr);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was not expected to be wrapped in a "
+                               "JSON-LD named graph");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+}
+
+TEST(x_jsonld_container_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-container": null,
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("[]")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-container",
+                                "#/x-jsonld-container", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-container",
+                                 "#/x-jsonld-container", "", nullptr);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The JSON-LD container was expected to be removed");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+}
+
+TEST(x_jsonld_self_null_annotation_exhaustive_2020_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-override": true,
+    "x-jsonld-self": null
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-self", "#/x-jsonld-self", "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-self", "#/x-jsonld-self", "",
+                                 nullptr);
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1, "The JSON-LD identifier was expected to be removed");
+}
+
 TEST(x_jsonld_id_nested_annotation_exhaustive_2020_12) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
@@ -583,6 +922,36 @@ TEST(x_jsonld_id_no_annotation_fast_2019_09) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(schema, instance, 0, "",
                                             test_resolver);
+}
+
+TEST(x_jsonld_datatype_null_annotation_exhaustive_2019_09) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
+    "x-jsonld-datatype": null,
+    "x-jsonld-override": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(schema, instance, 2, "",
+                                                  test_resolver);
+
+  EVALUATE_TRACE_PRE_ANNOTATION(0, "/x-jsonld-datatype", "#/x-jsonld-datatype",
+                                "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                "");
+
+  EVALUATE_TRACE_POST_ANNOTATION(0, "/x-jsonld-datatype", "#/x-jsonld-datatype",
+                                 "", nullptr);
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/x-jsonld-override", "#/x-jsonld-override",
+                                 "", true);
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0, "The JSON-LD datatype was expected to be removed");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The sibling JSON-LD annotations were expected "
+                               "to override the nested annotations they "
+                               "shadow");
 }
 
 TEST(format_uri_x_format_assertion_true_valid_fast_2019_09) {
