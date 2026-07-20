@@ -722,6 +722,10 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
+    if (keyword == "x-jsonld-id" && annotation.is_null()) {
+      return "The nested JSON-LD predicates were expected to be removed";
+    }
+
     if (keyword == "x-jsonld-reverse" && annotation.is_string()) {
       std::ostringstream message;
       message << "The reverse JSON-LD predicate was "
@@ -729,11 +733,20 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
+    if (keyword == "x-jsonld-reverse" && annotation.is_null()) {
+      return "The nested reverse JSON-LD predicates were expected to be "
+             "removed";
+    }
+
     if (keyword == "x-jsonld-type" && annotation.is_string()) {
       std::ostringstream message;
       message << "The JSON-LD type was "
               << escape_string(annotation.to_string());
       return message.str();
+    }
+
+    if (keyword == "x-jsonld-type" && annotation.is_null()) {
+      return "The nested JSON-LD types were expected to be removed";
     }
 
     if (keyword == "x-jsonld-type" && annotation.is_array()) {
@@ -763,11 +776,19 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
+    if (keyword == "x-jsonld-datatype" && annotation.is_null()) {
+      return "The JSON-LD datatype was expected to be removed";
+    }
+
     if (keyword == "x-jsonld-language" && annotation.is_string()) {
       std::ostringstream message;
       message << "The natural language was "
               << escape_string(annotation.to_string());
       return message.str();
+    }
+
+    if (keyword == "x-jsonld-language" && annotation.is_null()) {
+      return "The natural language was expected to be removed";
     }
 
     if (keyword == "x-jsonld-direction" && annotation.is_string()) {
@@ -777,8 +798,13 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
-    if (keyword == "x-jsonld-json" && annotation.is_boolean()) {
-      if (annotation.to_boolean()) {
+    if (keyword == "x-jsonld-direction" && annotation.is_null()) {
+      return "The base direction was expected to be removed";
+    }
+
+    if (keyword == "x-jsonld-json" &&
+        (annotation.is_boolean() || annotation.is_null())) {
+      if (annotation.is_boolean() && annotation.to_boolean()) {
         return "The value was expected to be treated as an opaque JSON "
                "literal";
       }
@@ -787,8 +813,9 @@ auto describe(const bool valid, const Instruction &step,
              "literal";
     }
 
-    if (keyword == "x-jsonld-graph" && annotation.is_boolean()) {
-      if (annotation.to_boolean()) {
+    if (keyword == "x-jsonld-graph" &&
+        (annotation.is_boolean() || annotation.is_null())) {
+      if (annotation.is_boolean() && annotation.to_boolean()) {
         return "The value was expected to be wrapped in a JSON-LD named graph";
       }
 
@@ -803,11 +830,29 @@ auto describe(const bool valid, const Instruction &step,
       return message.str();
     }
 
+    if (keyword == "x-jsonld-container" && annotation.is_null()) {
+      return "The JSON-LD container was expected to be removed";
+    }
+
     if (keyword == "x-jsonld-self" && annotation.is_string()) {
       std::ostringstream message;
       message << "The JSON-LD identifier template was "
               << escape_string(annotation.to_string());
       return message.str();
+    }
+
+    if (keyword == "x-jsonld-self" && annotation.is_null()) {
+      return "The JSON-LD identifier was expected to be removed";
+    }
+
+    if (keyword == "x-jsonld-override" && annotation.is_boolean()) {
+      if (annotation.to_boolean()) {
+        return "The sibling JSON-LD annotations were expected to override "
+               "the nested annotations they shadow";
+      }
+
+      return "The sibling JSON-LD annotations were not expected to override "
+             "any other annotations";
     }
 
     std::ostringstream message;
