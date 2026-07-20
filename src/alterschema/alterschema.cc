@@ -201,6 +201,7 @@ auto WALK_UP_IN_PLACE_APPLICATORS(const JSON &root, const SchemaFrame &frame,
 #include "linter/properties_default.h"
 #include "linter/property_names_default.h"
 #include "linter/property_names_type_default.h"
+#include "linter/require_schema_declaration.h"
 #include "linter/simple_properties_identifiers.h"
 #include "linter/title_description_equal.h"
 #include "linter/title_trailing_period.h"
@@ -363,6 +364,7 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     bundle.add<UnsatisfiableMinProperties>();
     bundle.add<EnumToConst>();
     bundle.add<ForbidEmptyEnum>();
+    bundle.add<RequireSchemaDeclaration>();
     bundle.add<TopLevelTitle>();
     bundle.add<TopLevelDescription>();
     bundle.add<TopLevelExamples>();

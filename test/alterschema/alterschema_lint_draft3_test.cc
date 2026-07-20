@@ -3415,3 +3415,45 @@ TEST(pattern_properties_non_ecma_regex_multiple_bad_keys) {
   EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(1)),
             "/patternProperties/[[:digit:]]");
 }
+
+TEST(AlterSchema_lint_draft3, require_schema_declaration_1) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "title": "My Schema",
+    "description": "A schema",
+    "type": "string"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_draft3, require_schema_declaration_2) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "My Schema",
+    "description": "A schema",
+    "type": "string"
+  })JSON");
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      traces;
+  sourcemeta::blaze::SchemaTransformer bundle;
+  sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
+  const auto result = bundle.check(
+      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+      [&traces](const auto &pointer, const auto &name, const auto &message,
+                const auto &outcome, const auto &fixable) {
+        traces.emplace_back(pointer, name, message, outcome, fixable);
+      },
+      "http://json-schema.org/draft-03/schema#");
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "require_schema_declaration",
+                    "A schema should declare its dialect using the `$schema` "
+                    "keyword",
+                    false);
+}
