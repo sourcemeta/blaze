@@ -2329,7 +2329,7 @@ TEST(JSONLD_datatype_on_number_literal) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/n": [
-        { "@value": 5, "@type": "http://www.w3.org/2001/XMLSchema#int" }
+        { "@value": "5", "@type": "http://www.w3.org/2001/XMLSchema#int" }
       ]
     }
   ])JSON")};
@@ -3608,7 +3608,7 @@ TEST(JSONLD_datatype_on_falsy_zero) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/x": [
-        { "@value": 0, "@type": "http://www.w3.org/2001/XMLSchema#int" }
+        { "@value": "0", "@type": "http://www.w3.org/2001/XMLSchema#int" }
       ]
     }
   ])JSON")};

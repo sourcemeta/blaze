@@ -600,6 +600,30 @@ inline auto is_escaped(const std::string &pattern, std::size_t index) -> bool {
   return (count % 2) == 1;
 }
 
+// Whether the closing brace at the given position terminates a bounded
+// quantifier, as opposed to standing for a literal brace character
+inline auto closes_brace_quantifier(const std::string &pattern,
+                                    std::size_t brace_position) -> bool {
+  auto cursor{brace_position};
+  bool has_digits{false};
+  while (cursor > 0 && is_digit(pattern[cursor - 1])) {
+    has_digits = true;
+    --cursor;
+  }
+
+  if (cursor > 0 && pattern[cursor - 1] == ',') {
+    --cursor;
+    has_digits = false;
+    while (cursor > 0 && is_digit(pattern[cursor - 1])) {
+      has_digits = true;
+      --cursor;
+    }
+  }
+
+  return has_digits && cursor > 0 && pattern[cursor - 1] == '{' &&
+         !is_escaped(pattern, cursor - 1);
+}
+
 struct ShorthandExpansion {
   char escape;
   std::string_view inside_class;
@@ -706,11 +730,12 @@ inline auto translate_permissive(const std::string &pattern)
       }
     }
 
-    // PCRE-only possessive quantifiers: *+ ++ ?+
+    // PCRE-only possessive quantifiers: *+ ++ ?+ {n,m}+
     if (current == '+' && position > 0 && !in_class) {
       const char prev = pattern[position - 1];
-      if ((prev == '*' || prev == '+' || prev == '?') &&
-          !is_escaped(pattern, position - 1)) {
+      if (!is_escaped(pattern, position - 1) &&
+          (prev == '*' || prev == '+' || prev == '?' ||
+           (prev == '}' && closes_brace_quantifier(pattern, position - 1)))) {
         ecma_valid = false;
       }
     }
