@@ -4951,5 +4951,207 @@
         "The object value was expected to validate against the given conditional"
       ]
     }
+  },
+  {
+    "description": "if_then_else_inlined_ref_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "type": "string" },
+      "then": { "$ref": "#/definitions/library" },
+      "else": { "type": "integer" },
+      "definitions": { "library": { "minLength": 2, "maxLength": 10 } }
+    },
+    "instance": "abcde",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+        [ "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+        [ true, "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value \"abcde\" was expected to consist of at most 10 characters and it consisted of 5 characters",
+        "The string value \"abcde\" was expected to consist of at least 2 characters and it consisted of 5 characters",
+        "The string value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+        [ "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+        [ true, "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ],
+        [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value \"abcde\" was expected to consist of at most 10 characters and it consisted of 5 characters",
+        "The string value \"abcde\" was expected to consist of at least 2 characters and it consisted of 5 characters",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_then_else_inlined_ref_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "type": "string" },
+      "then": { "$ref": "#/definitions/library" },
+      "else": { "type": "integer" },
+      "definitions": { "library": { "minLength": 2, "maxLength": 10 } }
+    },
+    "instance": "a",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+        [ "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+        [ false, "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value \"a\" was expected to consist of at most 10 characters and it consisted of 1 character",
+        "The string value \"a\" was expected to consist of at least 2 characters but it consisted of 1 character",
+        "The string value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+        [ "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+        [ false, "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ],
+        [ false, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value \"a\" was expected to consist of at most 10 characters and it consisted of 1 character",
+        "The string value \"a\" was expected to consist of at least 2 characters but it consisted of 1 character",
+        "The string value was expected to validate against the referenced schema",
+        "The string value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_then_else_inlined_ref_3",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "type": "string" },
+      "then": { "$ref": "#/definitions/library" },
+      "else": { "type": "integer" },
+      "definitions": { "library": { "minLength": 2, "maxLength": 10 } }
+    },
+    "instance": 7,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "AssertionType", "/else/type", "#/else/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionType", "/else/type", "#/else/type", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type integer",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "AssertionType", "/else/type", "#/else/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ true, "AssertionType", "/else/type", "#/else/type", "" ],
+        [ true, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type integer",
+        "The integer value was expected to validate against the given conditional"
+      ]
+    }
+  },
+  {
+    "description": "if_then_else_inlined_ref_4",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "if": { "type": "string" },
+      "then": { "$ref": "#/definitions/library" },
+      "else": { "type": "integer" },
+      "definitions": { "library": { "minLength": 2, "maxLength": 10 } }
+    },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "AssertionType", "/else/type", "#/else/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ false, "AssertionType", "/else/type", "#/else/type", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type boolean",
+        "The value was expected to be of type integer but it was of type boolean",
+        "The boolean value was expected to validate against the given conditional"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ "AssertionType", "/else/type", "#/else/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+        [ false, "AssertionType", "/else/type", "#/else/type", "" ],
+        [ false, "LogicalCondition", "/if", "#/if", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type boolean",
+        "The value was expected to be of type integer but it was of type boolean",
+        "The boolean value was expected to validate against the given conditional"
+      ]
+    }
   }
 ]
