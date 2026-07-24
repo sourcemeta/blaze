@@ -133,8 +133,32 @@ static auto make_catalog(const std::size_t count) -> sourcemeta::core::JSON {
   return catalog;
 }
 
-static auto JSONLD_Catalog(benchmark::State &state) -> void {
-  const auto schema{sourcemeta::core::parse_json(R"JSON({
+static auto run_catalog(benchmark::State &state,
+                        const sourcemeta::core::JSON &schema) -> void {
+  const auto instance{make_catalog(catalog_member_count)};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
+      sourcemeta::blaze::JSONLD_KEYWORDS.begin(),
+      sourcemeta::blaze::JSONLD_KEYWORDS.end()};
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto _ : state) {
+    auto outcome{
+        sourcemeta::blaze::jsonld(evaluator, schema_template, instance)};
+    assert(std::holds_alternative<sourcemeta::core::JSON>(outcome));
+    benchmark::DoNotOptimize(outcome);
+  }
+}
+
+// The library alone, with no overrides anywhere
+static auto JSONLD_Catalog_Simple(benchmark::State &state) -> void {
+  run_catalog(state, sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/catalog",
     "$defs": {
@@ -266,27 +290,301 @@ static auto JSONLD_Catalog(benchmark::State &state) -> void {
         "items": { "$ref": "#/$defs/book" }
       }
     }
-  })JSON")};
-
-  const auto instance{make_catalog(catalog_member_count)};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
-      sourcemeta::blaze::JSONLD_KEYWORDS.begin(),
-      sourcemeta::blaze::JSONLD_KEYWORDS.end()};
-  const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
-
-  sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
-    auto outcome{
-        sourcemeta::blaze::jsonld(evaluator, schema_template, instance)};
-    assert(std::holds_alternative<sourcemeta::core::JSON>(outcome));
-    benchmark::DoNotOptimize(outcome);
-  }
+  })JSON"));
 }
 
-BENCHMARK(JSONLD_Catalog);
+// The dedupe idiom: the consumer wraps the book reference with an override
+// mark and values that agree with what the library declares, marking every
+// book location without ever diverging
+static auto JSONLD_Catalog_Override_Agreeing(benchmark::State &state) -> void {
+  run_catalog(state, sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/catalog",
+    "$defs": {
+      "person": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Person",
+        "x-jsonld-self": "https://example.com/people/{id}",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+        }
+      },
+      "organization": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Organization",
+        "x-jsonld-self": "https://example.com/orgs/{id}",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" },
+          "url": { "type": "string", "x-jsonld-id": "https://schema.org/url" }
+        }
+      },
+      "price": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/MonetaryAmount",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/currency",
+            "x-jsonld-type": "https://schema.org/Currency",
+            "x-jsonld-self": "https://www.iso.org/iso-4217/{this}"
+          },
+          "value": {
+            "type": "number",
+            "x-jsonld-id": "https://schema.org/value",
+            "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#decimal"
+          }
+        }
+      },
+      "series": {
+        "type": "object",
+        "x-jsonld-self": "https://example.com/series/{id}",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+        }
+      },
+      "provenance": {
+        "type": "object",
+        "x-jsonld-self": "https://example.com/prov/{id}",
+        "x-jsonld-graph": true,
+        "properties": {
+          "id": { "type": "string" },
+          "generatedBy": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/creator"
+          }
+        }
+      },
+      "book": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Book",
+        "x-jsonld-self": "urn:isbn:{isbn}",
+        "properties": {
+          "isbn": { "type": "string", "x-jsonld-id": "https://schema.org/isbn" },
+          "title": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/name",
+            "x-jsonld-container": "@language"
+          },
+          "abstract": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/abstract",
+            "x-jsonld-language": "ar",
+            "x-jsonld-direction": "rtl"
+          },
+          "datePublished": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/datePublished",
+            "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+          },
+          "authors": {
+            "type": "array",
+            "x-jsonld-id": "https://schema.org/author",
+            "x-jsonld-container": "@list",
+            "items": { "$ref": "#/$defs/person" }
+          },
+          "keywords": {
+            "type": "array",
+            "x-jsonld-id": "https://schema.org/keywords",
+            "items": { "type": "string" }
+          },
+          "identifiers": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/identifier",
+            "x-jsonld-container": "@index",
+            "additionalProperties": { "type": "string" }
+          },
+          "price": {
+            "$ref": "#/$defs/price",
+            "x-jsonld-id": "https://schema.org/offers"
+          },
+          "publisher": {
+            "$ref": "#/$defs/organization",
+            "x-jsonld-id": "https://schema.org/publisher"
+          },
+          "series": {
+            "$ref": "#/$defs/series",
+            "x-jsonld-reverse": "https://schema.org/hasPart"
+          },
+          "metadata": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/additionalProperty",
+            "x-jsonld-json": true
+          },
+          "provenance": {
+            "$ref": "#/$defs/provenance",
+            "x-jsonld-id": "https://schema.org/isBasedOn"
+          }
+        }
+      }
+    },
+    "type": "object",
+    "x-jsonld-type": "https://schema.org/ItemList",
+    "properties": {
+      "members": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/itemListElement",
+        "items": {
+          "x-jsonld-type": "https://schema.org/Book",
+          "x-jsonld-self": "urn:isbn:{isbn}",
+          "x-jsonld-override": true,
+          "$ref": "#/$defs/book"
+        }
+      }
+    }
+  })JSON"));
+}
+
+// The specialize idiom at scale: the consumer wrappers around every book and
+// every person diverge from what the library declares, so every one of those
+// locations resolves through override shadowing
+static auto JSONLD_Catalog_Override_Shadowing(benchmark::State &state) -> void {
+  run_catalog(state, sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/catalog",
+    "$defs": {
+      "person": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Person",
+        "x-jsonld-self": "https://example.com/people/{id}",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+        }
+      },
+      "organization": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Organization",
+        "x-jsonld-self": "https://example.com/orgs/{id}",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" },
+          "url": { "type": "string", "x-jsonld-id": "https://schema.org/url" }
+        }
+      },
+      "price": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/MonetaryAmount",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/currency",
+            "x-jsonld-type": "https://schema.org/Currency",
+            "x-jsonld-self": "https://www.iso.org/iso-4217/{this}"
+          },
+          "value": {
+            "type": "number",
+            "x-jsonld-id": "https://schema.org/value",
+            "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#decimal"
+          }
+        }
+      },
+      "series": {
+        "type": "object",
+        "x-jsonld-self": "https://example.com/series/{id}",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+        }
+      },
+      "provenance": {
+        "type": "object",
+        "x-jsonld-self": "https://example.com/prov/{id}",
+        "x-jsonld-graph": true,
+        "properties": {
+          "id": { "type": "string" },
+          "generatedBy": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/creator"
+          }
+        }
+      },
+      "book": {
+        "type": "object",
+        "x-jsonld-type": "https://schema.org/Book",
+        "x-jsonld-self": "urn:isbn:{isbn}",
+        "properties": {
+          "isbn": { "type": "string", "x-jsonld-id": "https://schema.org/isbn" },
+          "title": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/name",
+            "x-jsonld-container": "@language"
+          },
+          "abstract": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/abstract",
+            "x-jsonld-language": "ar",
+            "x-jsonld-direction": "rtl"
+          },
+          "datePublished": {
+            "type": "string",
+            "x-jsonld-id": "https://schema.org/datePublished",
+            "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date"
+          },
+          "authors": {
+            "type": "array",
+            "x-jsonld-id": "https://schema.org/author",
+            "x-jsonld-container": "@list",
+            "items": {
+              "x-jsonld-self": "https://example.com/authors/{id}",
+              "x-jsonld-override": true,
+              "$ref": "#/$defs/person"
+            }
+          },
+          "keywords": {
+            "type": "array",
+            "x-jsonld-id": "https://schema.org/keywords",
+            "items": { "type": "string" }
+          },
+          "identifiers": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/identifier",
+            "x-jsonld-container": "@index",
+            "additionalProperties": { "type": "string" }
+          },
+          "price": {
+            "$ref": "#/$defs/price",
+            "x-jsonld-id": "https://schema.org/offers"
+          },
+          "publisher": {
+            "$ref": "#/$defs/organization",
+            "x-jsonld-id": "https://schema.org/publisher"
+          },
+          "series": {
+            "$ref": "#/$defs/series",
+            "x-jsonld-reverse": "https://schema.org/hasPart"
+          },
+          "metadata": {
+            "type": "object",
+            "x-jsonld-id": "https://schema.org/additionalProperty",
+            "x-jsonld-json": true
+          },
+          "provenance": {
+            "$ref": "#/$defs/provenance",
+            "x-jsonld-id": "https://schema.org/isBasedOn"
+          }
+        }
+      }
+    },
+    "type": "object",
+    "x-jsonld-type": "https://schema.org/ItemList",
+    "properties": {
+      "members": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/itemListElement",
+        "items": {
+          "x-jsonld-type": "https://schema.org/CreativeWork",
+          "x-jsonld-self": "urn:book:{isbn}",
+          "x-jsonld-override": true,
+          "$ref": "#/$defs/book"
+        }
+      }
+    }
+  })JSON"));
+}
+
+BENCHMARK(JSONLD_Catalog_Simple);
+BENCHMARK(JSONLD_Catalog_Override_Agreeing);
+BENCHMARK(JSONLD_Catalog_Override_Shadowing);
