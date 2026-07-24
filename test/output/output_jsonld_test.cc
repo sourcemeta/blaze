@@ -9025,6 +9025,86 @@ TEST(JSONLD_override_outer_flag_beats_dynamic_extension_owner) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_override_sibling_flag_cannot_beat_dynamic_extension_owner) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "$ref": "#/$defs/library" },
+          {
+            "x-jsonld-datatype": "https://example.com/consumer",
+            "x-jsonld-override": true
+          }
+        ]
+      }
+    },
+    "$defs": {
+      "extension": {
+        "$dynamicAnchor": "extension"
+      },
+      "library": {
+        "$id": "https://example.com/library",
+        "type": "string",
+        "x-jsonld-datatype": "https://example.com/library",
+        "x-jsonld-override": true,
+        "$dynamicRef": "#extension",
+        "$defs": {
+          "default": { "$dynamicAnchor": "extension" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value");
+}
+
+TEST(JSONLD_dynamic_extension_point_agreeing_values_dedupe) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "$ref": "#/$defs/library"
+      }
+    },
+    "$defs": {
+      "extension": {
+        "$dynamicAnchor": "extension",
+        "x-jsonld-datatype": "https://example.com/shared"
+      },
+      "library": {
+        "$id": "https://example.com/library",
+        "type": "string",
+        "x-jsonld-datatype": "https://example.com/shared",
+        "$dynamicRef": "#extension",
+        "$defs": {
+          "default": { "$dynamicAnchor": "extension" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        { "@value": "hi", "@type": "https://example.com/shared" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
 TEST(JSONLD_override_language_container_tombstone_reactivates_members) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
