@@ -656,11 +656,10 @@ auto resolve(const sourcemeta::core::JSON &instance,
                            "The value of x-jsonld-override must be a boolean");
       }
 
-      // An override mark sends its location to the slow path outright, so
-      // shadowing and spelling preference always see the full candidate set
-      if (value.to_boolean()) {
-        demote(accumulator, dirty, instance_location);
-      }
+      // A mark only matters when it shadows a diverging value or licenses a
+      // null or a false, and each of those demotes the location on its own,
+      // so the slow path recollects the mark whenever it can act. A future
+      // keyword whose mark changes agreeing resolutions must demote here
     } else if (keyword.property_equals("x-jsonld-id", HASH_ID) ||
                keyword.property_equals("x-jsonld-reverse", HASH_REVERSE)) {
       const bool reverse{
