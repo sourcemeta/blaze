@@ -439,14 +439,14 @@ auto key_exact(const sourcemeta::core::JSON &value) -> NormalizedKey {
   return value.to_string();
 }
 
-// A boolean tombstone is a synonym for the facet's absent state, which is
-// false, so it resolves as a value rather than as a removal
+// Only true booleans survive collection, so a tombstone normalizes to the
+// absent state exactly like every other facet
 auto key_boolean(const sourcemeta::core::JSON &value) -> NormalizedKey {
-  if (!value.is_null() && value.to_boolean()) {
-    return sourcemeta::core::JSON::String{"true"};
+  if (value.is_null()) {
+    return std::nullopt;
   }
 
-  return sourcemeta::core::JSON::String{"false"};
+  return sourcemeta::core::JSON::String{"true"};
 }
 
 // The resolution of a single-valued facet at one instance location. An
@@ -518,12 +518,10 @@ auto elect(const std::vector<Candidate> &candidates,
   return {.winner = &candidates[survivors.front()], .conflict = false};
 }
 
-// A plain false boolean never enters resolution, staying the no-op it is
-// today, whereas an override-marked false participates, as it may shadow a
-// nested true
-auto plain_false(const Candidate &candidate) -> bool {
-  return candidate.value->is_boolean() && !candidate.value->to_boolean() &&
-         !candidate.marked;
+// A false boolean never enters resolution, as the absent state it restates
+// already is false, so removal only ever spells null
+auto false_boolean(const Candidate &candidate) -> bool {
+  return candidate.value->is_boolean() && !candidate.value->to_boolean();
 }
 
 // Whether an additive candidate is removed by a sibling tombstone, which
@@ -769,11 +767,11 @@ auto resolve(const sourcemeta::core::JSON &instance,
                   : "The value of x-jsonld-json must be a boolean");
       }
 
-      // A false only matters when an override mark makes it participate, so
-      // it takes the slow path along with the nulls
-      if (value.is_null() || !value.to_boolean()) {
+      // A false declares nothing anywhere, as the absent state it restates
+      // already is false, so removal only ever spells null
+      if (value.is_null()) {
         demote(accumulator, dirty, instance_location);
-      } else if (!dirty.contains(instance_location)) {
+      } else if (value.to_boolean() && !dirty.contains(instance_location)) {
         auto &facts{accumulator[instance_location]};
         if (graph) {
           facts.graph = true;
@@ -847,8 +845,8 @@ auto resolve(const sourcemeta::core::JSON &instance,
     prepare(entry.containers, entry.marks);
     prepare(entry.selves, entry.marks);
 
-    std::erase_if(entry.jsons, plain_false);
-    std::erase_if(entry.graphs, plain_false);
+    std::erase_if(entry.jsons, false_boolean);
+    std::erase_if(entry.graphs, false_boolean);
 
     if (!entry.annotated()) {
       continue;
@@ -892,8 +890,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
           location, sourcemeta::blaze::JSONLDFacet::JSON,
           "A JSON-LD JSON literal flag cannot be assigned more than one "
           "value");
-    } else if (json.winner != nullptr && json.winner->value->is_boolean() &&
-               json.winner->value->to_boolean()) {
+    } else if (json.winner != nullptr) {
       facts.json = true;
     }
 
@@ -902,8 +899,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
       return facet_error(
           location, sourcemeta::blaze::JSONLDFacet::Graph,
           "A JSON-LD graph flag cannot be assigned more than one value");
-    } else if (graph.winner != nullptr && graph.winner->value->is_boolean() &&
-               graph.winner->value->to_boolean()) {
+    } else if (graph.winner != nullptr) {
       facts.graph = true;
     }
 

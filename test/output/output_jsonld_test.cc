@@ -8547,7 +8547,7 @@ TEST(JSONLD_override_reverse_tombstone_removes_referenced_reverse) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_override_json_false_unwraps_referenced_json_literal) {
+TEST(JSONLD_override_json_false_is_inert_against_referenced_json_literal) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -8578,7 +8578,10 @@ TEST(JSONLD_override_json_false_unwraps_referenced_json_literal) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/x": [
-        { "https://schema.org/a": [ { "@value": 1 } ] }
+        {
+          "@value": { "a": 1 },
+          "@type": "@json"
+        }
       ]
     }
   ])JSON")};
@@ -8649,7 +8652,7 @@ TEST(JSONLD_json_plain_false_with_referenced_true_stays_opaque) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_override_json_conflicting_sibling_flags_is_a_resolution_error) {
+TEST(JSONLD_override_json_false_sibling_true_stays_opaque) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -8672,12 +8675,21 @@ TEST(JSONLD_override_json_conflicting_sibling_flags_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
-      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal flag cannot be assigned more than one value");
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@value": {},
+          "@type": "@json"
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_override_graph_false_unwraps_referenced_graph) {
+TEST(JSONLD_override_graph_false_is_inert_against_referenced_graph) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -8703,8 +8715,14 @@ TEST(JSONLD_override_graph_false_unwraps_referenced_graph) {
 
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
-      "https://schema.org/member": [
-        { "@type": [ "https://schema.org/Person" ] }
+      "@graph": [
+        {
+          "https://schema.org/member": [
+            {
+              "@type": [ "https://schema.org/Person" ]
+            }
+          ]
+        }
       ]
     }
   ])JSON")};

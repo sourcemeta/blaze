@@ -134,8 +134,7 @@ When the value is `true`, the annotated instance location is preserved
 verbatim as an opaque JSON literal through the JSON-LD `@json` datatype, and
 the keyword MUST NOT be combined with any keyword of this vocabulary other
 than `x-jsonld-id` at the same location. When the value is `false`, the
-keyword has no effect, except inside an override-marked schema object
-([`x-jsonld-override`](#3211-x-jsonld-override)).
+keyword has no effect.
 
 #### 3.2.8. `x-jsonld-graph`
 
@@ -144,8 +143,7 @@ The value of this keyword MUST be a boolean.
 When the value is `true`, the edges of the node that the annotated instance
 location materializes as are asserted inside a named `@graph` that the node
 identifier denotes. The location value MUST be an object. When the value is
-`false`, the keyword has no effect, except inside an override-marked schema
-object ([`x-jsonld-override`](#3211-x-jsonld-override)).
+`false`, the keyword has no effect.
 
 #### 3.2.9. `x-jsonld-container`
 
@@ -198,15 +196,13 @@ Within an override-marked schema object, every keyword of this vocabulary
 also accepts `null`, which removes instead of declaring:
 
 - A `null` for `x-jsonld-datatype`, `x-jsonld-language`, `x-jsonld-direction`,
-  `x-jsonld-container`, or `x-jsonld-self` overrides like any other value and
-  restores the behavior the location has when the keyword is absent.
+  `x-jsonld-container`, `x-jsonld-self`, `x-jsonld-json`, or `x-jsonld-graph`
+  overrides like any other value and restores the behavior the location has
+  when the keyword is absent.
 - A `null` for `x-jsonld-id`, `x-jsonld-reverse`, or `x-jsonld-type` removes
   every value of that keyword reaching the location from beneath the object,
   while values from anywhere else are kept. These keywords otherwise
   accumulate, and their non-null values are unaffected by overriding.
-- A `null` for `x-jsonld-json` or `x-jsonld-graph` is equivalent to `false`,
-  which inside an override-marked object participates in resolution and may
-  override an inherited `true`.
 
 Outside an override-marked schema object, a `null` value for any keyword of
 this vocabulary declares nothing, and resolves as if the keyword were absent.
