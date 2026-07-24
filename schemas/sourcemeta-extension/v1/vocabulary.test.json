@@ -108,8 +108,8 @@
       }
     },
     {
-      "description": "x-jsonld-id with null is rejected",
-      "valid": false,
+      "description": "x-jsonld-id with null is valid",
+      "valid": true,
       "data": {
         "x-jsonld-id": null
       }
@@ -176,8 +176,8 @@
       }
     },
     {
-      "description": "x-jsonld-type with duplicate IRIs is valid",
-      "valid": true,
+      "description": "x-jsonld-type with duplicate IRIs is rejected",
+      "valid": false,
       "data": {
         "x-jsonld-type": [
           "https://schema.org/Product",
@@ -351,43 +351,43 @@
       }
     },
     {
-      "description": "x-jsonld-language with irregular grandfathered tag is valid",
-      "valid": true,
+      "description": "x-jsonld-language with irregular grandfathered tag is rejected",
+      "valid": false,
       "data": {
         "x-jsonld-language": "i-klingon"
       }
     },
     {
-      "description": "x-jsonld-language with irregular grandfathered sign language tag is valid",
-      "valid": true,
+      "description": "x-jsonld-language with irregular grandfathered sign language tag is rejected",
+      "valid": false,
       "data": {
         "x-jsonld-language": "sgn-BE-FR"
       }
     },
     {
-      "description": "x-jsonld-language with irregular grandfathered English tag is valid",
-      "valid": true,
+      "description": "x-jsonld-language with irregular grandfathered English tag is rejected",
+      "valid": false,
       "data": {
         "x-jsonld-language": "en-GB-oed"
       }
     },
     {
-      "description": "x-jsonld-language with lowercase region subtag is valid",
-      "valid": true,
+      "description": "x-jsonld-language with lowercase region subtag is rejected",
+      "valid": false,
       "data": {
         "x-jsonld-language": "en-us"
       }
     },
     {
-      "description": "x-jsonld-language with uppercase irregular grandfathered tag is valid",
-      "valid": true,
+      "description": "x-jsonld-language with uppercase irregular grandfathered tag is rejected",
+      "valid": false,
       "data": {
         "x-jsonld-language": "I-AMI"
       }
     },
     {
-      "description": "x-jsonld-language with mixed case irregular grandfathered tag is valid",
-      "valid": true,
+      "description": "x-jsonld-language with mixed case irregular grandfathered tag is rejected",
+      "valid": false,
       "data": {
         "x-jsonld-language": "EN-gb-OED"
       }
@@ -400,8 +400,8 @@
       }
     },
     {
-      "description": "x-jsonld-language with uppercase private use singleton is valid",
-      "valid": true,
+      "description": "x-jsonld-language with uppercase private use singleton is rejected",
+      "valid": false,
       "data": {
         "x-jsonld-language": "en-X-foo"
       }
@@ -694,8 +694,8 @@
       }
     },
     {
-      "description": "x-jsonld-graph with null is rejected",
-      "valid": false,
+      "description": "x-jsonld-graph with null is valid",
+      "valid": true,
       "data": {
         "x-jsonld-graph": null
       }
@@ -806,8 +806,8 @@
       }
     },
     {
-      "description": "x-jsonld-self with null is rejected",
-      "valid": false,
+      "description": "x-jsonld-self with null is valid",
+      "valid": true,
       "data": {
         "x-jsonld-self": null
       }
@@ -872,6 +872,116 @@
             "x-jsonld-id": 123
           }
         }
+      }
+    },
+    {
+      "description": "x-jsonld-override true is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-override": true
+      }
+    },
+    {
+      "description": "x-jsonld-override false is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-override": false
+      }
+    },
+    {
+      "description": "x-jsonld-override with string is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-override": "yes"
+      }
+    },
+    {
+      "description": "x-jsonld-override with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-override": 1
+      }
+    },
+    {
+      "description": "x-jsonld-override with null is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-override": null
+      }
+    },
+    {
+      "description": "x-jsonld-type with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-type": null
+      }
+    },
+    {
+      "description": "x-jsonld-reverse with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-reverse": null
+      }
+    },
+    {
+      "description": "x-jsonld-datatype with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-datatype": null
+      }
+    },
+    {
+      "description": "x-jsonld-language with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-language": null
+      }
+    },
+    {
+      "description": "x-jsonld-direction with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-direction": null
+      }
+    },
+    {
+      "description": "x-jsonld-container with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-container": null
+      }
+    },
+    {
+      "description": "x-jsonld-json with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-json": null
+      }
+    },
+    {
+      "description": "Tombstones next to the override keyword are valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-id": "https://schema.org/priceCurrency",
+        "x-jsonld-self": null,
+        "x-jsonld-type": null,
+        "x-jsonld-override": true
+      }
+    },
+    {
+      "description": "Override keyword next to a specialized value is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#dateTimeStamp",
+        "x-jsonld-override": true
+      }
+    },
+    {
+      "description": "Override keyword does not relax other value constraints",
+      "valid": false,
+      "data": {
+        "x-jsonld-datatype": 123,
+        "x-jsonld-override": true
       }
     }
   ]
