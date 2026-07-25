@@ -94,8 +94,8 @@ enum class OAuthRevocationOutcome : std::uint8_t {
   /// The server is temporarily unable to respond and the request may be
   /// retried, honoring any `Retry-After` (RFC 7009 Section 2.2.1).
   Retry,
-  /// The request failed, and the body carries an `OAuthTokenError` (RFC 7009
-  /// Section 2.2.1).
+  /// The request failed, and the body carries a token endpoint error code
+  /// (RFC 7009 Section 2.2.1).
   Error
 };
 

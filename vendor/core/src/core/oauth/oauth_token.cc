@@ -5,7 +5,6 @@
 #include <sourcemeta/core/uri.h>
 
 #include "oauth_decode.h"
-#include "oauth_encode.h"
 
 #include <chrono>      // std::chrono::seconds
 #include <cstddef>     // std::size_t
@@ -13,7 +12,6 @@
 #include <functional>  // std::function
 #include <optional>    // std::optional, std::nullopt
 #include <span>        // std::span
-#include <string>      // std::string
 #include <string_view> // std::string_view
 
 namespace sourcemeta::core {
@@ -22,14 +20,15 @@ namespace {
 
 using namespace std::literals::string_view_literals;
 
-const auto HASH_ACCESS_TOKEN{JSON::Object::hash("access_token"sv)};
-const auto HASH_TOKEN_TYPE{JSON::Object::hash("token_type"sv)};
-const auto HASH_EXPIRES_IN{JSON::Object::hash("expires_in"sv)};
-const auto HASH_REFRESH_TOKEN{JSON::Object::hash("refresh_token"sv)};
-const auto HASH_SCOPE{JSON::Object::hash("scope"sv)};
-const auto HASH_ERROR{JSON::Object::hash("error"sv)};
-const auto HASH_ERROR_DESCRIPTION{JSON::Object::hash("error_description"sv)};
-const auto HASH_ERROR_URI{JSON::Object::hash("error_uri"sv)};
+constexpr auto HASH_ACCESS_TOKEN{JSON::Object::hash("access_token"sv)};
+constexpr auto HASH_TOKEN_TYPE{JSON::Object::hash("token_type"sv)};
+constexpr auto HASH_EXPIRES_IN{JSON::Object::hash("expires_in"sv)};
+constexpr auto HASH_REFRESH_TOKEN{JSON::Object::hash("refresh_token"sv)};
+constexpr auto HASH_SCOPE{JSON::Object::hash("scope"sv)};
+constexpr auto HASH_ERROR{JSON::Object::hash("error"sv)};
+constexpr auto HASH_ERROR_DESCRIPTION{
+    JSON::Object::hash("error_description"sv)};
+constexpr auto HASH_ERROR_URI{JSON::Object::hash("error_uri"sv)};
 
 auto string_member(const JSON &data, const JSON::StringView name,
                    const JSON::Object::hash_type hash)
@@ -50,11 +49,11 @@ auto oauth_append_resources(SecureString &sink,
                             const std::span<const OAuthParameter> resources)
     -> void {
   for (const auto &resource : resources) {
-    oauth_append_form_parameter(sink, resource.name, resource.value);
+    URI::append_query_parameter(sink, resource.name, resource.value);
   }
 }
 
-auto assign_token_scalar(const std::string_view value, std::string &storage,
+auto assign_token_scalar(const std::string_view value, SecureString &storage,
                          bool &seen, std::string_view &field) -> bool {
   // RFC 6749 Section 3.2: "Parameters sent without a value MUST be treated as
   // if they were omitted", so an empty occurrence neither counts as a duplicate
@@ -70,7 +69,7 @@ auto assign_token_scalar(const std::string_view value, std::string &storage,
   }
 
   seen = true;
-  return oauth_form_decode_into(value, storage, field);
+  return oauth_form_decode_into_secure(value, storage, field);
 }
 
 } // namespace
@@ -80,14 +79,14 @@ auto oauth_build_token_request_code(
     const std::string_view code_verifier,
     const std::span<const OAuthParameter> resources, SecureString &sink)
     -> void {
-  oauth_append_form_parameter(sink, "grant_type", "authorization_code");
-  oauth_append_form_parameter(sink, "code", code);
+  URI::append_query_parameter(sink, "grant_type", "authorization_code");
+  URI::append_query_parameter(sink, "code", code);
   if (!redirect_uri.empty()) {
-    oauth_append_form_parameter(sink, "redirect_uri", redirect_uri);
+    URI::append_query_parameter(sink, "redirect_uri", redirect_uri);
   }
 
   if (!code_verifier.empty()) {
-    oauth_append_form_parameter(sink, "code_verifier", code_verifier);
+    URI::append_query_parameter(sink, "code_verifier", code_verifier);
   }
 
   oauth_append_resources(sink, resources);
@@ -97,10 +96,10 @@ auto oauth_build_token_request_refresh(
     const std::string_view refresh_token, const std::string_view scope,
     const std::span<const OAuthParameter> resources, SecureString &sink)
     -> void {
-  oauth_append_form_parameter(sink, "grant_type", "refresh_token");
-  oauth_append_form_parameter(sink, "refresh_token", refresh_token);
+  URI::append_query_parameter(sink, "grant_type", "refresh_token");
+  URI::append_query_parameter(sink, "refresh_token", refresh_token);
   if (!scope.empty()) {
-    oauth_append_form_parameter(sink, "scope", scope);
+    URI::append_query_parameter(sink, "scope", scope);
   }
 
   oauth_append_resources(sink, resources);
@@ -110,9 +109,9 @@ auto oauth_build_token_request_client_credentials(
     const std::string_view scope,
     const std::span<const OAuthParameter> resources, SecureString &sink)
     -> void {
-  oauth_append_form_parameter(sink, "grant_type", "client_credentials");
+  URI::append_query_parameter(sink, "grant_type", "client_credentials");
   if (!scope.empty()) {
-    oauth_append_form_parameter(sink, "scope", scope);
+    URI::append_query_parameter(sink, "scope", scope);
   }
 
   oauth_append_resources(sink, resources);
@@ -195,13 +194,16 @@ auto OAuthTokenResponse::has_scope(const std::string_view value) const -> bool {
 auto OAuthTokenResponse::data() const -> const JSON & { return *this->data_; }
 
 auto oauth_parse_token_request(
-    const std::string_view body, std::string &storage,
+    const std::string_view body, SecureString &storage,
     OAuthTokenRequest &result,
     const std::function<void(std::string_view, std::string_view)> &on_other)
     -> bool {
   result = {};
   // A single up-front reserve keeps every later decode from reallocating the
-  // arena and dangling an earlier borrowed view (design convention 1)
+  // arena and dangling an earlier borrowed view (design convention 1). The
+  // token endpoint body carries the request's secrets, the authorization code,
+  // the PKCE verifier, the refresh token, and the client authentication
+  // parameters, so the arena is a wiping string (engineering invariant 1)
   storage.reserve(storage.size() + body.size());
   const URI::Query parsed{body};
   bool has_grant_type{false};
@@ -215,7 +217,7 @@ auto oauth_parse_token_request(
     // names too, so a name is decoded before it is recognized, and a malformed
     // escape fails the parse
     std::string_view name;
-    if (!oauth_form_decode_into(parameter.first, storage, name)) {
+    if (!oauth_form_decode_into_secure(parameter.first, storage, name)) {
       return false;
     }
 
@@ -242,7 +244,7 @@ auto oauth_parse_token_request(
       // including the client authentication ones, are surfaced with their
       // decoded value rather than stored on the result
       std::string_view decoded;
-      valid = oauth_form_decode_into(value, storage, decoded);
+      valid = oauth_form_decode_into_secure(value, storage, decoded);
       if (valid) {
         on_other(name, decoded);
       }

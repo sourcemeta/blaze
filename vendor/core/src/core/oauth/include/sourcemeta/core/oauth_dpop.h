@@ -238,8 +238,12 @@ struct OAuthDPoPVerifyOptions {
 /// Section 11.1). A store instance is safe to share across threads, it holds a
 /// hash of each identifier rather than the identifier itself, and it is bounded
 /// to a fixed capacity so an attacker minting distinct proofs cannot exhaust
-/// memory. When full, the entry closest to expiry is evicted, which the
-/// acceptance window backstops (RFC 9449 Section 4.3 check 11). For example:
+/// memory. When full it fails closed, rejecting a new identifier rather than
+/// evicting a live entry whose replay guard is still needed, so a flood costs
+/// availability rather than replay protection. Give each entry a window that
+/// covers the whole acceptance window a proof enjoys, the sum of the past and
+/// future tolerances, so an entry never expires while its proof is still
+/// accepted. For example:
 ///
 /// ```cpp
 /// #include <sourcemeta/core/oauth.h>
@@ -260,7 +264,7 @@ public:
   static constexpr std::size_t DEFAULT_CAPACITY{131072};
 
   /// Construct an empty store with the given maximum number of live entries,
-  /// beyond which the entry closest to expiry is evicted to make room.
+  /// beyond which a new identifier is rejected until a slot frees on expiry.
   explicit OAuthDPoPReplayStore(
       const std::size_t capacity = DEFAULT_CAPACITY) noexcept
       : capacity_{capacity == 0 ? DEFAULT_CAPACITY : capacity} {}
@@ -276,12 +280,18 @@ public:
   /// Record a proof identifier at a target and report whether it is new,
   /// returning false for one already seen within its window, which is a replay
   /// (RFC 9449 Section 11.1). Entries whose window has elapsed by the given
-  /// time are pruned, and at capacity the entry closest to expiry is evicted.
+  /// time are pruned, and a new identifier is refused once the store is full of
+  /// live entries, so the return also stands for a store that cannot admit it.
+  /// The target is canonicalized as an HTTP target URI when `normalize_target`
+  /// is set, so an equivalent but differently spelled DPoP target still
+  /// collides (RFC 9449 Section 4.3 check 9), and keyed verbatim otherwise, for
+  /// a target compared without normalization such as an assertion audience.
   [[nodiscard]] auto
   check_and_insert(const std::string_view identifier,
                    const std::string_view target,
                    const std::chrono::system_clock::time_point now,
-                   const std::chrono::seconds window) -> bool;
+                   const std::chrono::seconds window,
+                   const bool normalize_target = true) -> bool;
 
   /// The number of entries whose window has not elapsed by the given time,
   /// counted without modifying the store, since expired entries are pruned when
