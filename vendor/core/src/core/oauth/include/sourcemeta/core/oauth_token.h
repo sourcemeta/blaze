@@ -13,7 +13,6 @@
 #include <functional>  // std::function
 #include <optional>    // std::optional
 #include <span>        // std::span
-#include <string>      // std::string
 #include <string_view> // std::string_view
 
 namespace sourcemeta::core {
@@ -116,20 +115,21 @@ struct OAuthTokenRequest {
 /// @ingroup oauth
 /// Parse the body of a token request at the authorization server (RFC 6749
 /// Section 4.1.3) into the result, returning whether it is well formed. Each
-/// recognized value is form-decoded, borrowing from the input when it carries
-/// no escape and otherwise from the storage arena, which the caller owns and
-/// reuses across parses. A duplicated recognized parameter is a failure
-/// (RFC 6749 Section 3.2). Every repeatable `resource` and `audience` and every
-/// unrecognized parameter, including the client authentication parameters, is
-/// passed to the callback with its decoded value rather than stored on the
-/// result. For example:
+/// recognized value is form-decoded into the storage arena and viewed there.
+/// The body carries the request's secrets, the authorization code, the code
+/// verifier, the refresh token, and the client authentication parameters, so
+/// the arena is a wiping string, which the caller owns, should clear between
+/// independent parses, and must outlive the result. A duplicated recognized
+/// parameter is a failure (RFC 6749 Section 3.2). Every repeatable `resource`
+/// and `audience` and every unrecognized parameter, including the client
+/// authentication parameters, is passed to the callback with its decoded value
+/// rather than stored on the result. For example:
 ///
 /// ```cpp
 /// #include <sourcemeta/core/oauth.h>
 /// #include <cassert>
-/// #include <string>
 ///
-/// std::string storage;
+/// sourcemeta::core::SecureString storage;
 /// sourcemeta::core::OAuthTokenRequest request;
 /// assert(sourcemeta::core::oauth_parse_token_request(
 ///     "grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA", storage,
@@ -139,7 +139,7 @@ struct OAuthTokenRequest {
 /// ```
 SOURCEMETA_CORE_OAUTH_EXPORT
 auto oauth_parse_token_request(
-    const std::string_view body, std::string &storage,
+    const std::string_view body, SecureString &storage,
     OAuthTokenRequest &result,
     const std::function<void(std::string_view, std::string_view)> &on_other)
     -> bool;

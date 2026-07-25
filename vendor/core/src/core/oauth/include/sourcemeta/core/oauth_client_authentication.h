@@ -122,8 +122,8 @@ struct OAuthClientCredentials {
 /// wiping string, which the caller owns, should clear between independent
 /// parses, and must not alias the header or body inputs. This detects the
 /// mechanism and extracts the credentials, but does
-/// not verify the secret, which the caller does against its stored value with
-/// `secure_equals`, nor that an `Assertion` `client_id` identifies the same
+/// not verify the secret, which the caller does against its stored value in
+/// constant time, nor that an `Assertion` `client_id` identifies the same
 /// client as the assertion (RFC 7521 Section 4.2), which the caller checks when
 /// it verifies the assertion. For example:
 ///

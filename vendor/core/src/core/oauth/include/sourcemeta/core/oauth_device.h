@@ -123,11 +123,16 @@ private:
 enum class OAuthDevicePollDecision : std::uint8_t {
   /// Keep polling at the current interval.
   Continue,
+  /// The request needs a fresh DPoP nonce, so the client re-issues the proof
+  /// with the server-supplied nonce and polls again without growing the
+  /// interval (RFC 9449 Section 8).
+  RetryWithNonce,
   /// The end user denied the request.
   Denied,
   /// The codes expired before approval.
   Expired,
-  /// A terminal error other than pending, slow down, denial, or expiry.
+  /// A terminal error other than pending, slow down, denial, expiry, or a
+  /// nonce requirement.
   Error
 };
 
@@ -168,8 +173,9 @@ public:
 
   /// Interpret a token endpoint error, permanently adding five seconds to the
   /// interval on `slow_down` and continuing, continuing on
-  /// `authorization_pending`, and reporting a terminal decision otherwise
-  /// (RFC 8628 Section 3.5).
+  /// `authorization_pending`, retrying with a nonce on a DPoP nonce requirement
+  /// (RFC 9449 Section 8), and reporting a terminal decision otherwise (RFC
+  /// 8628 Section 3.5).
   auto observe(const OAuthTokenError error) noexcept -> OAuthDevicePollDecision;
 
 private:
