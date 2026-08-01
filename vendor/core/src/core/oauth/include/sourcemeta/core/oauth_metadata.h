@@ -60,6 +60,25 @@ auto oauth_well_known_url(const std::string_view identifier,
                           const OAuthWellKnownKind kind, std::string &sink)
     -> bool;
 
+/// @ingroup oauth
+/// Whether a URL is usable as an endpoint a client sends requests to: the https
+/// scheme, compared case-insensitively per RFC 3986 Section 3.1, a non-empty
+/// host, and no fragment, which RFC 6749 Section 3.1 forbids on an endpoint. A
+/// query is permitted. This is the rule the metadata parsers apply, named for
+/// the endpoint case rather than as a general https test, since the fragment
+/// prohibition comes from the endpoint specifications and does not hold of
+/// https URLs at large. For example:
+///
+/// ```cpp
+/// #include <sourcemeta/core/oauth.h>
+/// #include <cassert>
+///
+/// assert(sourcemeta::core::oauth_is_endpoint_url("https://example.com/token"));
+/// assert(!sourcemeta::core::oauth_is_endpoint_url("http://example.com/token"));
+/// ```
+SOURCEMETA_CORE_OAUTH_EXPORT
+auto oauth_is_endpoint_url(const std::string_view value) -> bool;
+
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
@@ -115,6 +134,10 @@ public:
 
   /// The dynamic client registration endpoint (RFC 8414 Section 2).
   [[nodiscard]] auto registration_endpoint() const
+      -> std::optional<std::string_view>;
+
+  /// The device authorization endpoint (RFC 8628 Section 4).
+  [[nodiscard]] auto device_authorization_endpoint() const
       -> std::optional<std::string_view>;
 
   /// The token revocation endpoint (RFC 8414 Section 2).
