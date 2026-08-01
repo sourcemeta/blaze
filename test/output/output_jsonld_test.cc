@@ -6939,7 +6939,7 @@ TEST(JSONLD_self_query_expansion_produces_iri) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_self_unicode_value_percent_encoded) {
+TEST(JSONLD_self_unicode_value_stays_raw) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -6958,7 +6958,88 @@ TEST(JSONLD_self_unicode_value_percent_encoded) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/x": [
+        { "@id": "https://example.com/café" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_reserved_expansion_unicode_iri_stays_raw) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "{+this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "x": "https://example.com/café" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        { "@id": "https://example.com/café" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_reserved_expansion_keeps_percent_triplets) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "{+this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "x": "https://example.com/caf%C3%A9" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
         { "@id": "https://example.com/caf%C3%A9" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_simple_expansion_encodes_percent_sign) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": "caf%C3%A9" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        { "@id": "https://example.com/caf%25C3%25A9" }
       ]
     }
   ])JSON")};

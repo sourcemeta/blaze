@@ -172,9 +172,16 @@ This keyword mints the identifier of the node that the annotated instance
 location materializes as, giving an object its `@id` or promoting a scalar to
 an identified node. An object binds each template variable to the member of
 that name, and a scalar binds the reserved variable `this` to its own value.
-Every binding MUST be a non-empty string, and the expanded template MUST be
-an absolute IRI [RFC3987]. The location value MUST
-NOT be an array, and the keyword MUST NOT be combined with
+Every binding MUST be a non-empty string, and the expanded template MUST be an
+absolute IRI [RFC3987]. Template expansion encodes against the IRI alphabet:
+internationalized characters in bound values pass through unencoded instead of
+being percent encoded, so an identifier minted from instance data is spelled
+identically to the same IRI written as a constant. Expansion never decodes
+anything. A percent-encoded triplet already present in a binding is copied
+through by a reserved expansion such as `{+this}`, whereas a simple expansion
+such as `{this}` percent encodes its percent sign like any other reserved
+character, as [RFC6570] prescribes. The location value
+MUST NOT be an array, and the keyword MUST NOT be combined with
 `x-jsonld-datatype`, `x-jsonld-language`, or `x-jsonld-direction` at the same
 location.
 
