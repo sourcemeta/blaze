@@ -898,6 +898,20 @@ TEST(JSONLD_empty_type_array_is_untyped_node) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_empty_type_array_on_empty_object_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-type": []
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
 TEST(JSONLD_typed_root_with_empty_instance) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2673,8 +2687,8 @@ TEST(JSONLD_json_and_datatype_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations");
 }
 
 TEST(JSONLD_json_and_language_is_a_resolution_error) {
@@ -2694,8 +2708,8 @@ TEST(JSONLD_json_and_language_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations");
 }
 
 TEST(JSONLD_json_false_is_a_plain_literal) {
@@ -3689,6 +3703,62 @@ TEST(JSONLD_datatype_on_falsy_zero) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_datatype_double_positive_zero) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#double"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 0.0 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@value": "0.0E0",
+          "@type": "http://www.w3.org/2001/XMLSchema#double"
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_datatype_double_negative_zero) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#double"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": -0.0 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@value": "-0.0E0",
+          "@type": "http://www.w3.org/2001/XMLSchema#double"
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
 TEST(JSONLD_anyof_datatype_conflict_is_a_resolution_error) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -3960,8 +4030,8 @@ TEST(JSONLD_json_and_graph_on_object_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations");
 }
 
 TEST(JSONLD_datatype_dedup_via_ref_diamond) {
@@ -4188,6 +4258,48 @@ TEST(JSONLD_language_non_canonical_region_case_is_a_resolution_error) {
       "tag");
 }
 
+TEST(JSONLD_language_non_canonical_script_case_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "zh-hant-tw"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "The value of x-jsonld-language must be a canonical BCP 47 language "
+      "tag");
+}
+
+TEST(JSONLD_language_non_canonical_extension_case_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "en-a-BBB"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "The value of x-jsonld-language must be a canonical BCP 47 language "
+      "tag");
+}
+
 TEST(JSONLD_json_and_type_is_a_resolution_error) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4205,8 +4317,8 @@ TEST(JSONLD_json_and_type_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations");
 }
 
 TEST(JSONLD_reverse_to_json_literal_is_a_resolution_error) {
@@ -4581,8 +4693,7 @@ TEST(JSONLD_container_and_type_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD container can only be combined with predicate annotations");
 }
 
 TEST(JSONLD_container_and_datatype_is_a_resolution_error) {
@@ -4604,8 +4715,7 @@ TEST(JSONLD_container_and_datatype_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD container can only be combined with predicate annotations");
 }
 
 TEST(JSONLD_container_with_reverse_is_a_resolution_error) {
@@ -4972,8 +5082,7 @@ TEST(JSONLD_container_and_graph_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD container can only be combined with predicate annotations");
 }
 
 TEST(JSONLD_container_and_json_is_a_resolution_error) {
@@ -4995,8 +5104,7 @@ TEST(JSONLD_container_and_json_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD container can only be combined with predicate annotations");
 }
 
 TEST(JSONLD_container_index_empty_object_is_dropped) {
@@ -6511,7 +6619,7 @@ TEST(JSONLD_self_unbound_member_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/obj",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "must bind to a string");
+                                  "must bind to an instance value");
 }
 
 TEST(JSONLD_self_empty_member_is_a_resolution_error) {
@@ -6555,7 +6663,7 @@ TEST(JSONLD_self_unbound_scalar_variable_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "must bind to a string");
+                                  "must bind to an instance value");
 }
 
 TEST(JSONLD_self_object_member_is_a_resolution_error) {
@@ -6577,7 +6685,7 @@ TEST(JSONLD_self_object_member_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/obj",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "must bind to a string");
+                                  "can only bind to a string value");
 }
 
 TEST(JSONLD_self_array_member_is_a_resolution_error) {
@@ -6599,7 +6707,7 @@ TEST(JSONLD_self_array_member_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/obj",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "must bind to a string");
+                                  "can only bind to a string value");
 }
 
 TEST(JSONLD_self_non_iri_expansion_is_a_resolution_error) {
@@ -6640,7 +6748,29 @@ TEST(JSONLD_self_null_value_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "must bind to a string");
+                                  "cannot bind to a null value");
+}
+
+TEST(JSONLD_self_null_member_binding_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "obj": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/o",
+        "x-jsonld-self": "https://example.com/{id}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "obj": { "id": null } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/obj",
+                                  sourcemeta::blaze::JSONLDFacet::Self,
+                                  "A JSON-LD self identity template variable "
+                                  "cannot bind to a null value");
 }
 
 TEST(JSONLD_self_conflict_is_a_resolution_error) {
@@ -6753,8 +6883,7 @@ TEST(JSONLD_self_and_container_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD container can only be combined with predicate annotations");
 }
 
 TEST(JSONLD_self_and_json_is_a_resolution_error) {
@@ -6776,8 +6905,8 @@ TEST(JSONLD_self_and_json_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "A JSON-LD JSON literal cannot be combined with any other JSON-LD "
-      "annotation");
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations");
 }
 
 TEST(JSONLD_self_on_array_is_a_resolution_error) {
@@ -7227,7 +7356,8 @@ TEST(JSONLD_self_numeric_scalar_binding_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "A JSON-LD self identity template variable must bind to a string");
+      "A JSON-LD self identity template variable can only bind to a string "
+      "value");
 }
 
 TEST(JSONLD_self_numeric_member_binding_is_a_resolution_error) {
@@ -7249,7 +7379,8 @@ TEST(JSONLD_self_numeric_member_binding_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::Self,
-      "A JSON-LD self identity template variable must bind to a string");
+      "A JSON-LD self identity template variable can only bind to a string "
+      "value");
 }
 
 TEST(JSONLD_self_boolean_scalar_binding_is_a_resolution_error) {
@@ -7268,7 +7399,8 @@ TEST(JSONLD_self_boolean_scalar_binding_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "A JSON-LD self identity template variable must bind to a string");
+      "A JSON-LD self identity template variable can only bind to a string "
+      "value");
 }
 
 TEST(JSONLD_self_empty_template_is_a_resolution_error) {
