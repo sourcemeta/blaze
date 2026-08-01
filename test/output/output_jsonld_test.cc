@@ -3620,7 +3620,7 @@ TEST(JSONLD_datatype_on_root_object_is_a_resolution_error) {
       "A JSON-LD datatype can only be assigned to a scalar value");
 }
 
-TEST(JSONLD_json_on_null_is_dropped) {
+TEST(JSONLD_json_on_null_is_a_json_literal) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3631,7 +3631,16 @@ TEST(JSONLD_json_on_null_is_dropped) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
 
-  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@value": null,
+          "@type": "@json"
+        }
+      ]
+    }
+  ])JSON")};
 
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
@@ -4364,7 +4373,38 @@ TEST(JSONLD_container_index_plain_values) {
 
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
-      "https://schema.org/data": [ { "@value": "foo" }, { "@value": "bar" } ]
+      "https://schema.org/data": [
+        { "@value": "foo", "@index": "a" },
+        { "@value": "bar", "@index": "b" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_container_index_none_key) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/data",
+        "x-jsonld-container": "@index"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "data": { "@none": "plain", "a": "foo" } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/data": [
+        { "@value": "plain" },
+        { "@value": "foo", "@index": "a" }
+      ]
     }
   ])JSON")};
 
@@ -4394,8 +4434,8 @@ TEST(JSONLD_container_index_annotated_members) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/items": [
-        { "@type": [ "https://schema.org/Item" ] },
-        { "@type": [ "https://schema.org/Item" ] }
+        { "@type": [ "https://schema.org/Item" ], "@index": "x" },
+        { "@type": [ "https://schema.org/Item" ], "@index": "y" }
       ]
     }
   ])JSON")};
@@ -4805,7 +4845,7 @@ TEST(JSONLD_container_index_null_member_dropped) {
       R"JSON({ "x": { "a": null, "b": "keep" } })JSON")};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON([
-    { "https://schema.org/x": [ { "@value": "keep" } ] }
+    { "https://schema.org/x": [ { "@value": "keep", "@index": "b" } ] }
   ])JSON")};
 
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
@@ -5062,7 +5102,7 @@ TEST(JSONLD_container_at_root_is_dropped) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_container_list_nested_arrays_flatten) {
+TEST(JSONLD_container_list_nested_arrays_nest) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -5081,7 +5121,12 @@ TEST(JSONLD_container_list_nested_arrays_flatten) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/x": [
-        { "@list": [ { "@value": "a" }, { "@value": "b" } ] }
+        {
+          "@list": [
+            { "@list": [ { "@value": "a" } ] },
+            { "@value": "b" }
+          ]
+        }
       ]
     }
   ])JSON")};
@@ -5159,7 +5204,9 @@ TEST(JSONLD_container_index_array_member_flattens) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/x": [
-        { "@value": 1 }, { "@value": 2 }, { "@value": "c" }
+        { "@value": 1, "@index": "a" },
+        { "@value": 2, "@index": "a" },
+        { "@value": "c", "@index": "b" }
       ]
     }
   ])JSON")};
@@ -5294,7 +5341,7 @@ TEST(JSONLD_container_index_key_not_validated) {
       R"JSON({ "x": { "!weird key!": "v" } })JSON")};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON([
-    { "https://schema.org/x": [ { "@value": "v" } ] }
+    { "https://schema.org/x": [ { "@value": "v", "@index": "!weird key!" } ] }
   ])JSON")};
 
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
@@ -5321,7 +5368,7 @@ TEST(JSONLD_container_index_of_index_nested) {
       R"JSON({ "x": { "a": { "b": "v" } } })JSON")};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON([
-    { "https://schema.org/x": [ { "@value": "v" } ] }
+    { "https://schema.org/x": [ { "@value": "v", "@index": "b" } ] }
   ])JSON")};
 
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
@@ -5537,7 +5584,7 @@ TEST(JSONLD_container_empty_string_value_is_a_resolution_error) {
       R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")");
 }
 
-TEST(JSONLD_container_list_of_nested_arrays_flatten) {
+TEST(JSONLD_container_list_of_nested_arrays_nest) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -5556,7 +5603,12 @@ TEST(JSONLD_container_list_of_nested_arrays_flatten) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/x": [
-        { "@list": [ { "@value": 1 }, { "@value": 2 } ] }
+        {
+          "@list": [
+            { "@list": [ { "@value": 1 } ] },
+            { "@list": [ { "@value": 2 } ] }
+          ]
+        }
       ]
     }
   ])JSON")};
@@ -5679,8 +5731,8 @@ TEST(JSONLD_container_index_recursive_ref_nodes) {
     {
       "@type": [ "https://schema.org/Node" ],
       "https://schema.org/child": [
-        { "@type": [ "https://schema.org/Node" ] },
-        { "@type": [ "https://schema.org/Node" ] }
+        { "@type": [ "https://schema.org/Node" ], "@index": "a" },
+        { "@type": [ "https://schema.org/Node" ], "@index": "b" }
       ]
     }
   ])JSON")};
@@ -6938,8 +6990,8 @@ TEST(JSONLD_self_index_container_object_members) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/x": [
-        { "@id": "https://example.com/a" },
-        { "@id": "https://example.com/b" }
+        { "@id": "https://example.com/a", "@index": "k1" },
+        { "@id": "https://example.com/b", "@index": "k2" }
       ]
     }
   ])JSON")};
@@ -6970,8 +7022,8 @@ TEST(JSONLD_self_index_container_scalar_members) {
   const auto expected{sourcemeta::core::parse_json(R"JSON([
     {
       "https://schema.org/x": [
-        { "@id": "https://example.com/a" },
-        { "@id": "https://example.com/b" }
+        { "@id": "https://example.com/a", "@index": "k1" },
+        { "@id": "https://example.com/b", "@index": "k2" }
       ]
     }
   ])JSON")};
