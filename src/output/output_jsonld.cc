@@ -290,12 +290,34 @@ auto expand_self(const sourcemeta::core::WeakPointer &pointer,
           bound = &value;
         }
 
-        if (bound == nullptr || !bound->is_string()) {
+        if (bound == nullptr) {
           if (!failure.has_value()) {
             failure = facet_error(
                 pointer, sourcemeta::blaze::JSONLDFacet::Self,
-                "A JSON-LD self identity template variable must bind to a "
-                "string");
+                "A JSON-LD self identity template variable must bind to an "
+                "instance value");
+          }
+
+          return std::nullopt;
+        }
+
+        if (bound->is_null()) {
+          if (!failure.has_value()) {
+            failure = facet_error(
+                pointer, sourcemeta::blaze::JSONLDFacet::Self,
+                "A JSON-LD self identity template variable cannot bind to a "
+                "null value");
+          }
+
+          return std::nullopt;
+        }
+
+        if (!bound->is_string()) {
+          if (!failure.has_value()) {
+            failure = facet_error(
+                pointer, sourcemeta::blaze::JSONLDFacet::Self,
+                "A JSON-LD self identity template variable can only bind to a "
+                "string value");
           }
 
           return std::nullopt;
@@ -973,8 +995,8 @@ auto resolve(const sourcemeta::core::JSON &instance,
           facts.language.has_value() || facts.direction.has_value() ||
           facts.json || facts.self.has_value()) {
         return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Container,
-                           "A JSON-LD container cannot be combined with any "
-                           "other JSON-LD annotation");
+                           "A JSON-LD container can only be combined with "
+                           "predicate annotations");
       }
 
       if (const auto error{container_placement_error(
@@ -991,8 +1013,8 @@ auto resolve(const sourcemeta::core::JSON &instance,
          facts.language.has_value() || facts.direction.has_value() ||
          facts.self.has_value())) {
       return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::JSON,
-                         "A JSON-LD JSON literal cannot be combined with any "
-                         "other JSON-LD annotation");
+                         "A JSON-LD JSON literal can only be combined with "
+                         "predicate annotations");
     }
 
     // A self identity mints an @id, promoting a scalar to a reference and
