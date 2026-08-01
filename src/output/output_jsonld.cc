@@ -269,7 +269,10 @@ auto literal_error(const sourcemeta::core::WeakPointer &pointer,
 // binds each variable to the member of that name, and a scalar binds the
 // reserved variable this to its own value. Only a non-empty string can bind,
 // and a binding that is not usable, or a result that is not an absolute IRI,
-// is a fail-loud resolution error
+// is a fail-loud resolution error. Expansion runs in IRI mode so that
+// internationalized characters flowing through a template mint the same raw
+// term that constant identities emit, as RDF compares IRIs by simple string
+// comparison (RDF 1.1 Concepts Section 3.2)
 auto expand_self(const sourcemeta::core::WeakPointer &pointer,
                  const sourcemeta::core::JSON::String &pattern,
                  const sourcemeta::core::JSON &value)
@@ -311,7 +314,8 @@ auto expand_self(const sourcemeta::core::WeakPointer &pointer,
         }
 
         return std::make_tuple(std::string_view{text}, std::nullopt, false);
-      })};
+      },
+      sourcemeta::core::URITemplateExpansionMode::IRI)};
 
   if (failure.has_value()) {
     return failure.value();
