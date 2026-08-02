@@ -99,7 +99,10 @@ apply to this keyword.
 #### 3.2.4. `x-jsonld-datatype`
 
 The value of this keyword MUST be a string representing an absolute IRI
-[RFC3987].
+[RFC3987], and MUST NOT be the IRI
+`http://www.w3.org/1999/02/22-rdf-syntax-ns#langString`, as a literal has
+that datatype exactly when it carries a language tag, which only
+`x-jsonld-language` declares.
 
 This keyword declares the datatype IRI of the typed literal that the annotated
 instance location materializes as, such as

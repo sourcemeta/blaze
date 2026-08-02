@@ -260,6 +260,27 @@
       }
     },
     {
+      "description": "x-jsonld-datatype with the langString IRI is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+      }
+    },
+    {
+      "description": "x-jsonld-datatype with a case variant of the langString IRI is a different IRI and accepted",
+      "valid": true,
+      "data": {
+        "x-jsonld-datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#LangString"
+      }
+    },
+    {
+      "description": "x-jsonld-datatype with another IRI in the rdf-syntax-ns namespace is accepted",
+      "valid": true,
+      "data": {
+        "x-jsonld-datatype": "http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON"
+      }
+    },
+    {
       "description": "x-jsonld-language with primary subtag is valid",
       "valid": true,
       "data": {
