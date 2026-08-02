@@ -9,6 +9,9 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/output.h>
 
+#include <array>         // std::array
+#include <optional>      // std::optional
+#include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
 #include <variant>       // std::get, std::holds_alternative
 
@@ -60,9 +63,9 @@
     EXPECT_TRUE(sourcemeta::core::jsonld_is_expanded(exhaustive_document));    \
   }
 
-#define EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance,                      \
-                                        expected_instance_location,            \
-                                        expected_facet, expected_message)      \
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER(                         \
+    resolver, schema, instance, expected_instance_location, expected_facet,    \
+    expected_message, expected_schema_location)                                \
   {                                                                            \
     sourcemeta::blaze::Tweaks tweaks;                                          \
     tweaks.annotations =                                                       \
@@ -73,56 +76,165 @@
     jump_tweaks.annotations = tweaks.annotations;                              \
     jump_tweaks.target_inline_threshold = 0;                                   \
     const auto schema_template{sourcemeta::blaze::compile(                     \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
     const auto jump_template{sourcemeta::blaze::compile(                       \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
     const auto exhaustive_template{sourcemeta::blaze::compile(                 \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
-    const auto outcome{                                                        \
-        sourcemeta::blaze::jsonld(evaluator, schema_template, (instance))};    \
-    const auto jump_outcome{                                                   \
-        sourcemeta::blaze::jsonld(evaluator, jump_template, (instance))};      \
-    const auto exhaustive_outcome{sourcemeta::blaze::jsonld(                   \
-        evaluator, exhaustive_template, (instance))};                          \
-    EXPECT_TRUE(                                                               \
-        std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(      \
-            outcome));                                                         \
-    const auto &error{                                                         \
-        std::get<sourcemeta::blaze::JSONLDResolutionError>(outcome)};          \
-    EXPECT_EQ(sourcemeta::core::to_string(error.instance_location),            \
-              (expected_instance_location));                                   \
-    EXPECT_EQ(error.facet, (expected_facet));                                  \
-    EXPECT_EQ(error.message, (expected_message));                              \
-    EXPECT_TRUE(                                                               \
-        std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(      \
-            jump_outcome));                                                    \
-    const auto &jump_error{                                                    \
-        std::get<sourcemeta::blaze::JSONLDResolutionError>(jump_outcome)};     \
-    EXPECT_EQ(sourcemeta::core::to_string(jump_error.instance_location),       \
-              (expected_instance_location));                                   \
-    EXPECT_EQ(jump_error.facet, (expected_facet));                             \
-    EXPECT_EQ(jump_error.message, (expected_message));                         \
-    EXPECT_TRUE(                                                               \
-        std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(      \
-            exhaustive_outcome));                                              \
-    const auto &exhaustive_error{                                              \
-        std::get<sourcemeta::blaze::JSONLDResolutionError>(                    \
-            exhaustive_outcome)};                                              \
-    EXPECT_EQ(sourcemeta::core::to_string(exhaustive_error.instance_location), \
-              (expected_instance_location));                                   \
-    EXPECT_EQ(exhaustive_error.facet, (expected_facet));                       \
-    EXPECT_EQ(exhaustive_error.message, (expected_message));                   \
+    const std::array<sourcemeta::blaze::JSONLDOutcome, 3> outcomes{            \
+        sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),     \
+        sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),       \
+        sourcemeta::blaze::jsonld(evaluator, exhaustive_template,              \
+                                  (instance))};                                \
+    for (const auto &outcome : outcomes) {                                     \
+      EXPECT_TRUE(                                                             \
+          std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(    \
+              outcome));                                                       \
+      const auto &error{                                                       \
+          std::get<sourcemeta::blaze::JSONLDResolutionError>(outcome)};        \
+      EXPECT_EQ(sourcemeta::core::to_string(error.instance_location),          \
+                (expected_instance_location));                                 \
+      EXPECT_EQ(error.facet, (expected_facet));                                \
+      EXPECT_EQ(error.message, (expected_message));                            \
+      EXPECT_EQ(error.schema_location, (expected_schema_location));            \
+      EXPECT_FALSE(error.conflicting_schema_location.has_value());             \
+      EXPECT_FALSE(error.inert_override_location.has_value());                 \
+    }                                                                          \
   }
+
+#define EXPECT_JSON_LD_RESOLUTION_ERROR(                                       \
+    schema, instance, expected_instance_location, expected_facet,              \
+    expected_message, expected_schema_location)                                \
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER(                               \
+      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      expected_instance_location, expected_facet, expected_message,            \
+      expected_schema_location)
+
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_CONFLICT(            \
+    resolver, schema, instance, expected_instance_location, expected_facet,    \
+    expected_message, expected_schema_location,                                \
+    expected_conflicting_schema_location)                                      \
+  {                                                                            \
+    sourcemeta::blaze::Tweaks tweaks;                                          \
+    tweaks.annotations =                                                       \
+        std::unordered_set<sourcemeta::core::JSON::StringView>(                \
+            sourcemeta::blaze::JSONLD_KEYWORDS.begin(),                        \
+            sourcemeta::blaze::JSONLD_KEYWORDS.end());                         \
+    sourcemeta::blaze::Tweaks jump_tweaks;                                     \
+    jump_tweaks.annotations = tweaks.annotations;                              \
+    jump_tweaks.target_inline_threshold = 0;                                   \
+    const auto schema_template{sourcemeta::blaze::compile(                     \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        sourcemeta::blaze::default_schema_compiler,                            \
+        sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
+    const auto jump_template{sourcemeta::blaze::compile(                       \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        sourcemeta::blaze::default_schema_compiler,                            \
+        sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
+    const auto exhaustive_template{sourcemeta::blaze::compile(                 \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        sourcemeta::blaze::default_schema_compiler,                            \
+        sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
+    sourcemeta::blaze::Evaluator evaluator;                                    \
+    const std::array<sourcemeta::blaze::JSONLDOutcome, 3> outcomes{            \
+        sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),     \
+        sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),       \
+        sourcemeta::blaze::jsonld(evaluator, exhaustive_template,              \
+                                  (instance))};                                \
+    for (const auto &outcome : outcomes) {                                     \
+      EXPECT_TRUE(                                                             \
+          std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(    \
+              outcome));                                                       \
+      const auto &error{                                                       \
+          std::get<sourcemeta::blaze::JSONLDResolutionError>(outcome)};        \
+      EXPECT_EQ(sourcemeta::core::to_string(error.instance_location),          \
+                (expected_instance_location));                                 \
+      EXPECT_EQ(error.facet, (expected_facet));                                \
+      EXPECT_EQ(error.message, (expected_message));                            \
+      EXPECT_EQ(error.schema_location, (expected_schema_location));            \
+      EXPECT_TRUE(error.conflicting_schema_location.has_value());              \
+      EXPECT_EQ(error.conflicting_schema_location.value(),                     \
+                (expected_conflicting_schema_location));                       \
+      EXPECT_FALSE(error.inert_override_location.has_value());                 \
+    }                                                                          \
+  }
+
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(                         \
+    schema, instance, expected_instance_location, expected_facet,              \
+    expected_message, expected_schema_location,                                \
+    expected_conflicting_schema_location)                                      \
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_CONFLICT(                  \
+      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      expected_instance_location, expected_facet, expected_message,            \
+      expected_schema_location, expected_conflicting_schema_location)
+
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_INERT_OVERRIDE(      \
+    resolver, schema, instance, expected_instance_location, expected_facet,    \
+    expected_message, expected_schema_location,                                \
+    expected_conflicting_schema_location, expected_inert_override_location)    \
+  {                                                                            \
+    sourcemeta::blaze::Tweaks tweaks;                                          \
+    tweaks.annotations =                                                       \
+        std::unordered_set<sourcemeta::core::JSON::StringView>(                \
+            sourcemeta::blaze::JSONLD_KEYWORDS.begin(),                        \
+            sourcemeta::blaze::JSONLD_KEYWORDS.end());                         \
+    sourcemeta::blaze::Tweaks jump_tweaks;                                     \
+    jump_tweaks.annotations = tweaks.annotations;                              \
+    jump_tweaks.target_inline_threshold = 0;                                   \
+    const auto schema_template{sourcemeta::blaze::compile(                     \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        sourcemeta::blaze::default_schema_compiler,                            \
+        sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
+    const auto jump_template{sourcemeta::blaze::compile(                       \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        sourcemeta::blaze::default_schema_compiler,                            \
+        sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
+    const auto exhaustive_template{sourcemeta::blaze::compile(                 \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        sourcemeta::blaze::default_schema_compiler,                            \
+        sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
+    sourcemeta::blaze::Evaluator evaluator;                                    \
+    const std::array<sourcemeta::blaze::JSONLDOutcome, 3> outcomes{            \
+        sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),     \
+        sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),       \
+        sourcemeta::blaze::jsonld(evaluator, exhaustive_template,              \
+                                  (instance))};                                \
+    for (const auto &outcome : outcomes) {                                     \
+      EXPECT_TRUE(                                                             \
+          std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(    \
+              outcome));                                                       \
+      const auto &error{                                                       \
+          std::get<sourcemeta::blaze::JSONLDResolutionError>(outcome)};        \
+      EXPECT_EQ(sourcemeta::core::to_string(error.instance_location),          \
+                (expected_instance_location));                                 \
+      EXPECT_EQ(error.facet, (expected_facet));                                \
+      EXPECT_EQ(error.message, (expected_message));                            \
+      EXPECT_EQ(error.schema_location, (expected_schema_location));            \
+      EXPECT_TRUE(error.conflicting_schema_location.has_value());              \
+      EXPECT_EQ(error.conflicting_schema_location.value(),                     \
+                (expected_conflicting_schema_location));                       \
+      EXPECT_TRUE(error.inert_override_location.has_value());                  \
+      EXPECT_EQ(error.inert_override_location.value(),                         \
+                (expected_inert_override_location));                           \
+    }                                                                          \
+  }
+
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(                   \
+    schema, instance, expected_instance_location, expected_facet,              \
+    expected_message, expected_schema_location,                                \
+    expected_conflicting_schema_location, expected_inert_override_location)    \
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_INERT_OVERRIDE(            \
+      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      expected_instance_location, expected_facet, expected_message,            \
+      expected_schema_location, expected_conflicting_schema_location,          \
+      expected_inert_override_location)
 
 #define EXPECT_JSON_LD_INVALID(schema, instance, destination)                  \
   sourcemeta::blaze::Tweaks tweaks;                                            \
@@ -173,6 +285,19 @@
             (expected_evaluate_path));                                         \
   EXPECT_EQ((errors).at(index).schema_location.get(),                          \
             (expected_schema_location));
+
+static auto test_resolver(std::string_view identifier)
+    -> std::optional<sourcemeta::core::JSON> {
+  if (identifier == "https://example.com/remote") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/remote",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "x-jsonld-datatype": "https://example.com/A"
+    })JSON");
+  }
+
+  return sourcemeta::blaze::schema_resolver(identifier);
+}
 
 TEST(JSONLD_node_type_and_property_ids) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -633,7 +758,8 @@ TEST(JSONLD_type_on_literal_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/code", sourcemeta::blaze::JSONLDFacet::Type,
-      "A JSON-LD type can only be assigned to an object value");
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/code/x-jsonld-type");
 }
 
 TEST(JSONLD_non_string_id_is_a_resolution_error) {
@@ -648,7 +774,8 @@ TEST(JSONLD_non_string_id_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/name", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-id must be an absolute IRI");
+      "The value of x-jsonld-id must be an absolute IRI",
+      "#/properties/name/x-jsonld-id");
 }
 
 TEST(JSONLD_relative_id_is_a_resolution_error) {
@@ -663,7 +790,8 @@ TEST(JSONLD_relative_id_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/name", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-id must be an absolute IRI");
+      "The value of x-jsonld-id must be an absolute IRI",
+      "#/properties/name/x-jsonld-id");
 }
 
 TEST(JSONLD_empty_type_is_a_resolution_error) {
@@ -677,7 +805,7 @@ TEST(JSONLD_empty_type_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
-      "The value of x-jsonld-type must be an absolute IRI");
+      "The value of x-jsonld-type must be an absolute IRI", "#/x-jsonld-type");
 }
 
 TEST(JSONLD_type_on_array_is_a_resolution_error) {
@@ -697,7 +825,8 @@ TEST(JSONLD_type_on_array_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/tags", sourcemeta::blaze::JSONLDFacet::Type,
-      "A JSON-LD type can only be assigned to an object value");
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/tags/x-jsonld-type");
 }
 
 TEST(JSONLD_no_annotations_yields_empty_document) {
@@ -1078,7 +1207,7 @@ TEST(JSONLD_type_array_with_empty_element_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
-      "The value of x-jsonld-type must be an absolute IRI");
+      "The value of x-jsonld-type must be an absolute IRI", "#/x-jsonld-type");
 }
 
 TEST(JSONLD_object_edge_without_described_children_is_empty_node) {
@@ -1188,7 +1317,8 @@ TEST(JSONLD_resolution_error_location_is_pointer_escaped) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/a~0b", sourcemeta::blaze::JSONLDFacet::Type,
-      "A JSON-LD type can only be assigned to an object value");
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/a~0b/x-jsonld-type");
 }
 
 TEST(JSONLD_id_keyword_is_a_resolution_error) {
@@ -1203,7 +1333,8 @@ TEST(JSONLD_id_keyword_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/name", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-id must be an absolute IRI");
+      "The value of x-jsonld-id must be an absolute IRI",
+      "#/properties/name/x-jsonld-id");
 }
 
 TEST(JSONLD_number_precision_preserved) {
@@ -1529,7 +1660,8 @@ TEST(JSONLD_edge_on_object_root_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "A JSON-LD predicate cannot be assigned to the document root");
+      "A JSON-LD predicate cannot be assigned to the document root",
+      "#/x-jsonld-id");
 }
 
 TEST(JSONLD_edge_on_array_root_is_a_resolution_error) {
@@ -1543,7 +1675,8 @@ TEST(JSONLD_edge_on_array_root_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "A JSON-LD predicate cannot be assigned to the document root");
+      "A JSON-LD predicate cannot be assigned to the document root",
+      "#/x-jsonld-id");
 }
 
 TEST(JSONLD_instance_value_object_keys_are_not_special) {
@@ -1576,7 +1709,8 @@ TEST(JSONLD_edge_on_scalar_root_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "A JSON-LD predicate cannot be assigned to the document root");
+      "A JSON-LD predicate cannot be assigned to the document root",
+      "#/x-jsonld-id");
 }
 
 TEST(JSONLD_polymorphic_oneof_selects_object_branch) {
@@ -1661,7 +1795,8 @@ TEST(JSONLD_type_on_number_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/n", sourcemeta::blaze::JSONLDFacet::Type,
-      "A JSON-LD type can only be assigned to an object value");
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/n/x-jsonld-type");
 }
 
 TEST(JSONLD_non_string_type_is_a_resolution_error) {
@@ -1675,7 +1810,7 @@ TEST(JSONLD_non_string_type_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
-      "The value of x-jsonld-type must be an absolute IRI");
+      "The value of x-jsonld-type must be an absolute IRI", "#/x-jsonld-type");
 }
 
 TEST(JSONLD_whitespace_iri_is_a_resolution_error) {
@@ -1689,7 +1824,8 @@ TEST(JSONLD_whitespace_iri_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-id must be an absolute IRI");
+      "The value of x-jsonld-id must be an absolute IRI",
+      "#/properties/x/x-jsonld-id");
 }
 
 TEST(JSONLD_complex_iri_accepted) {
@@ -1992,7 +2128,8 @@ TEST(JSONLD_edge_on_collection_element_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/pair/0", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "A JSON-LD predicate cannot be assigned to an array element");
+      "A JSON-LD predicate cannot be assigned to an array element",
+      "#/properties/pair/prefixItems/0/x-jsonld-id");
 }
 
 TEST(JSONLD_array_of_undescribed_objects_with_described_children) {
@@ -2072,7 +2209,8 @@ TEST(JSONLD_datatype_non_iri_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "The value of x-jsonld-datatype must be an absolute IRI");
+      "The value of x-jsonld-datatype must be an absolute IRI",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_datatype_on_object_is_a_resolution_error) {
@@ -2092,7 +2230,8 @@ TEST(JSONLD_datatype_on_object_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype can only be assigned to a scalar value");
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "#/properties/obj/x-jsonld-datatype");
 }
 
 TEST(JSONLD_datatype_conflict_is_a_resolution_error) {
@@ -2111,9 +2250,11 @@ TEST(JSONLD_datatype_conflict_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-datatype");
 }
 
 TEST(JSONLD_language_tagged_literal) {
@@ -2152,7 +2293,8 @@ TEST(JSONLD_language_invalid_tag_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "The value of x-jsonld-language must be a canonical BCP 47 language tag");
+      "The value of x-jsonld-language must be a canonical BCP 47 language tag",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_direction_literal) {
@@ -2191,7 +2333,8 @@ TEST(JSONLD_direction_invalid_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
-      R"(The value of x-jsonld-direction must be "ltr" or "rtl")");
+      R"(The value of x-jsonld-direction must be "ltr" or "rtl")",
+      "#/properties/x/x-jsonld-direction");
 }
 
 TEST(JSONLD_json_literal) {
@@ -2286,7 +2429,8 @@ TEST(JSONLD_reverse_non_iri_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-reverse must be an absolute IRI");
+      "The value of x-jsonld-reverse must be an absolute IRI",
+      "#/properties/x/x-jsonld-reverse");
 }
 
 TEST(JSONLD_reverse_on_root_is_a_resolution_error) {
@@ -2300,7 +2444,8 @@ TEST(JSONLD_reverse_on_root_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "A JSON-LD predicate cannot be assigned to the document root");
+      "A JSON-LD predicate cannot be assigned to the document root",
+      "#/x-jsonld-reverse");
 }
 
 TEST(JSONLD_graph_node) {
@@ -2346,7 +2491,8 @@ TEST(JSONLD_graph_on_scalar_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Graph,
-      "A JSON-LD graph flag can only be assigned to an object value");
+      "A JSON-LD graph flag can only be assigned to an object value",
+      "#/properties/x/x-jsonld-graph");
 }
 
 TEST(JSONLD_datatype_without_edge_is_dropped) {
@@ -2465,7 +2611,8 @@ TEST(JSONLD_datatype_on_array_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype can only be assigned to a scalar value");
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_datatype_whitespace_iri_is_a_resolution_error) {
@@ -2479,7 +2626,8 @@ TEST(JSONLD_datatype_whitespace_iri_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "The value of x-jsonld-datatype must be an absolute IRI");
+      "The value of x-jsonld-datatype must be an absolute IRI",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_language_complex_tag) {
@@ -2518,7 +2666,8 @@ TEST(JSONLD_language_empty_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "The value of x-jsonld-language must be a canonical BCP 47 language tag");
+      "The value of x-jsonld-language must be a canonical BCP 47 language tag",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_language_non_string_keyword_value_is_a_resolution_error) {
@@ -2532,7 +2681,8 @@ TEST(JSONLD_language_non_string_keyword_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "The value of x-jsonld-language must be a canonical BCP 47 language tag");
+      "The value of x-jsonld-language must be a canonical BCP 47 language tag",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_language_on_number_value_is_a_resolution_error) {
@@ -2548,7 +2698,8 @@ TEST(JSONLD_language_on_number_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "A JSON-LD language can only be assigned to a string value");
+      "A JSON-LD language can only be assigned to a string value",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_language_on_array_is_a_resolution_error) {
@@ -2569,7 +2720,8 @@ TEST(JSONLD_language_on_array_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "A JSON-LD language can only be assigned to a scalar value");
+      "A JSON-LD language can only be assigned to a scalar value",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_direction_uppercase_is_a_resolution_error) {
@@ -2583,7 +2735,8 @@ TEST(JSONLD_direction_uppercase_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
-      R"(The value of x-jsonld-direction must be "ltr" or "rtl")");
+      R"(The value of x-jsonld-direction must be "ltr" or "rtl")",
+      "#/properties/x/x-jsonld-direction");
 }
 
 TEST(JSONLD_direction_on_boolean_value_is_a_resolution_error) {
@@ -2599,7 +2752,8 @@ TEST(JSONLD_direction_on_boolean_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
-      "A JSON-LD direction can only be assigned to a string value");
+      "A JSON-LD direction can only be assigned to a string value",
+      "#/properties/x/x-jsonld-direction");
 }
 
 TEST(JSONLD_language_and_direction_i18n_literal) {
@@ -2645,9 +2799,10 @@ TEST(JSONLD_datatype_and_language_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot carry a language or direction");
+      "A JSON-LD datatype cannot carry a language or direction",
+      "#/properties/x/x-jsonld-datatype", "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_datatype_and_direction_is_a_resolution_error) {
@@ -2665,9 +2820,10 @@ TEST(JSONLD_datatype_and_direction_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot carry a language or direction");
+      "A JSON-LD datatype cannot carry a language or direction",
+      "#/properties/x/x-jsonld-datatype", "#/properties/x/x-jsonld-direction");
 }
 
 TEST(JSONLD_json_and_datatype_is_a_resolution_error) {
@@ -2685,10 +2841,11 @@ TEST(JSONLD_json_and_datatype_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
       "A JSON-LD JSON literal can only be combined with predicate "
-      "annotations");
+      "annotations",
+      "#/properties/x/x-jsonld-json", "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_json_and_language_is_a_resolution_error) {
@@ -2706,10 +2863,11 @@ TEST(JSONLD_json_and_language_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
       "A JSON-LD JSON literal can only be combined with predicate "
-      "annotations");
+      "annotations",
+      "#/properties/x/x-jsonld-json", "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_json_false_is_a_plain_literal) {
@@ -2767,7 +2925,8 @@ TEST(JSONLD_json_non_boolean_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "The value of x-jsonld-json must be a boolean");
+      "The value of x-jsonld-json must be a boolean",
+      "#/properties/x/x-jsonld-json");
 }
 
 TEST(JSONLD_json_wraps_array) {
@@ -2877,7 +3036,8 @@ TEST(JSONLD_graph_on_array_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Graph,
-      "A JSON-LD graph flag can only be assigned to an object value");
+      "A JSON-LD graph flag can only be assigned to an object value",
+      "#/properties/x/x-jsonld-graph");
 }
 
 TEST(JSONLD_graph_non_boolean_is_a_resolution_error) {
@@ -2891,7 +3051,7 @@ TEST(JSONLD_graph_non_boolean_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Graph,
-      "The value of x-jsonld-graph must be a boolean");
+      "The value of x-jsonld-graph must be a boolean", "#/x-jsonld-graph");
 }
 
 TEST(JSONLD_reverse_and_forward_same_predicate) {
@@ -2975,7 +3135,8 @@ TEST(JSONLD_reverse_on_array_element_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/pair/0", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "A JSON-LD predicate cannot be assigned to an array element");
+      "A JSON-LD predicate cannot be assigned to an array element",
+      "#/properties/pair/prefixItems/0/x-jsonld-reverse");
 }
 
 TEST(JSONLD_reverse_to_scalar_is_a_resolution_error) {
@@ -2992,7 +3153,8 @@ TEST(JSONLD_reverse_to_scalar_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
       "A JSON-LD reverse predicate can only point to a node or an array of "
-      "nodes");
+      "nodes",
+      "#/properties/x/x-jsonld-reverse");
 }
 
 TEST(JSONLD_reverse_to_array_of_nodes) {
@@ -3043,7 +3205,8 @@ TEST(JSONLD_reverse_to_array_with_scalar_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
       "A JSON-LD reverse predicate can only point to a node or an array of "
-      "nodes");
+      "nodes",
+      "#/properties/x/x-jsonld-reverse");
 }
 
 TEST(JSONLD_reverse_to_array_with_nested_array_is_a_resolution_error) {
@@ -3061,7 +3224,8 @@ TEST(JSONLD_reverse_to_array_with_nested_array_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
       "A JSON-LD reverse predicate can only point to a node or an array of "
-      "nodes");
+      "nodes",
+      "#/properties/x/x-jsonld-reverse");
 }
 
 TEST(JSONLD_type_and_datatype_on_object_is_a_resolution_error) {
@@ -3082,7 +3246,8 @@ TEST(JSONLD_type_and_datatype_on_object_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype can only be assigned to a scalar value");
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_type_and_datatype_on_scalar_is_a_resolution_error) {
@@ -3102,7 +3267,8 @@ TEST(JSONLD_type_and_datatype_on_scalar_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
-      "A JSON-LD type can only be assigned to an object value");
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/x/x-jsonld-type");
 }
 
 TEST(JSONLD_datatype_under_not_is_dropped) {
@@ -3202,9 +3368,11 @@ TEST(JSONLD_datatype_and_language_across_allof_branches_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot carry a language or direction");
+      "A JSON-LD datatype cannot carry a language or direction",
+      "#/properties/x/allOf/0/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-language");
 }
 
 TEST(JSONLD_type_and_datatype_on_array_is_a_resolution_error) {
@@ -3226,7 +3394,8 @@ TEST(JSONLD_type_and_datatype_on_array_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
-      "A JSON-LD type can only be assigned to an object value");
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/x/x-jsonld-type");
 }
 
 TEST(JSONLD_id_and_reverse_different_predicates) {
@@ -3334,7 +3503,8 @@ TEST(JSONLD_language_on_null_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "A JSON-LD language can only be assigned to a string value");
+      "A JSON-LD language can only be assigned to a string value",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_datatype_relative_iri_is_a_resolution_error) {
@@ -3348,7 +3518,8 @@ TEST(JSONLD_datatype_relative_iri_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "The value of x-jsonld-datatype must be an absolute IRI");
+      "The value of x-jsonld-datatype must be an absolute IRI",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_datatype_on_collection_elements) {
@@ -3430,7 +3601,8 @@ TEST(JSONLD_datatype_on_mixed_collection_element_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/items/1", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype can only be assigned to a scalar value");
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "#/properties/items/items/x-jsonld-datatype");
 }
 
 TEST(JSONLD_reverse_to_empty_array_yields_empty_document) {
@@ -3466,9 +3638,11 @@ TEST(JSONLD_language_conflict_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "A JSON-LD language cannot be assigned more than one value");
+      "A JSON-LD language cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-language",
+      "#/properties/x/allOf/1/x-jsonld-language");
 }
 
 TEST(JSONLD_direction_conflict_is_a_resolution_error) {
@@ -3488,9 +3662,11 @@ TEST(JSONLD_direction_conflict_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
-      "A JSON-LD direction cannot be assigned more than one value");
+      "A JSON-LD direction cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-direction",
+      "#/properties/x/allOf/1/x-jsonld-direction");
 }
 
 TEST(JSONLD_language_idempotent_via_allof) {
@@ -3532,7 +3708,8 @@ TEST(JSONLD_datatype_array_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "The value of x-jsonld-datatype must be an absolute IRI");
+      "The value of x-jsonld-datatype must be an absolute IRI",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_datatype_keyword_iri_value_is_a_resolution_error) {
@@ -3546,7 +3723,8 @@ TEST(JSONLD_datatype_keyword_iri_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "The value of x-jsonld-datatype must be an absolute IRI");
+      "The value of x-jsonld-datatype must be an absolute IRI",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_datatype_urn_scheme_accepted) {
@@ -3617,7 +3795,8 @@ TEST(JSONLD_type_on_root_scalar_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
-      "A JSON-LD type can only be assigned to an object value");
+      "A JSON-LD type can only be assigned to an object value",
+      "#/x-jsonld-type");
 }
 
 TEST(JSONLD_datatype_on_root_object_is_a_resolution_error) {
@@ -3631,7 +3810,8 @@ TEST(JSONLD_datatype_on_root_object_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype can only be assigned to a scalar value");
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "#/x-jsonld-datatype");
 }
 
 TEST(JSONLD_json_on_null_is_a_json_literal) {
@@ -3776,9 +3956,11 @@ TEST(JSONLD_anyof_datatype_conflict_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/properties/x/anyOf/0/x-jsonld-datatype",
+      "#/properties/x/anyOf/1/x-jsonld-datatype");
 }
 
 TEST(JSONLD_two_reverse_predicates) {
@@ -3874,7 +4056,8 @@ TEST(JSONLD_json_object_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
-      "The value of x-jsonld-json must be a boolean");
+      "The value of x-jsonld-json must be a boolean",
+      "#/properties/x/x-jsonld-json");
 }
 
 TEST(JSONLD_language_non_canonical_case_is_a_resolution_error) {
@@ -3898,7 +4081,8 @@ TEST(JSONLD_language_non_canonical_case_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
       "The value of x-jsonld-language must be a canonical BCP 47 language "
-      "tag");
+      "tag",
+      "#/properties/x/allOf/1/x-jsonld-language");
 }
 
 TEST(JSONLD_type_object_value_is_a_resolution_error) {
@@ -3912,7 +4096,7 @@ TEST(JSONLD_type_object_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
-      "The value of x-jsonld-type must be an absolute IRI");
+      "The value of x-jsonld-type must be an absolute IRI", "#/x-jsonld-type");
 }
 
 TEST(JSONLD_type_array_with_number_element_is_a_resolution_error) {
@@ -3926,7 +4110,7 @@ TEST(JSONLD_type_array_with_number_element_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
-      "The value of x-jsonld-type must be an absolute IRI");
+      "The value of x-jsonld-type must be an absolute IRI", "#/x-jsonld-type");
 }
 
 TEST(JSONLD_id_empty_string_is_a_resolution_error) {
@@ -3940,7 +4124,8 @@ TEST(JSONLD_id_empty_string_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-id must be an absolute IRI");
+      "The value of x-jsonld-id must be an absolute IRI",
+      "#/properties/x/x-jsonld-id");
 }
 
 TEST(JSONLD_id_array_value_is_a_resolution_error) {
@@ -3954,7 +4139,8 @@ TEST(JSONLD_id_array_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-id must be an absolute IRI");
+      "The value of x-jsonld-id must be an absolute IRI",
+      "#/properties/x/x-jsonld-id");
 }
 
 TEST(JSONLD_id_boolean_value_is_a_resolution_error) {
@@ -3968,7 +4154,8 @@ TEST(JSONLD_id_boolean_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-id must be an absolute IRI");
+      "The value of x-jsonld-id must be an absolute IRI",
+      "#/properties/x/x-jsonld-id");
 }
 
 TEST(JSONLD_datatype_empty_string_is_a_resolution_error) {
@@ -3982,7 +4169,8 @@ TEST(JSONLD_datatype_empty_string_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "The value of x-jsonld-datatype must be an absolute IRI");
+      "The value of x-jsonld-datatype must be an absolute IRI",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_reverse_empty_string_is_a_resolution_error) {
@@ -3996,7 +4184,8 @@ TEST(JSONLD_reverse_empty_string_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "The value of x-jsonld-reverse must be an absolute IRI");
+      "The value of x-jsonld-reverse must be an absolute IRI",
+      "#/properties/x/x-jsonld-reverse");
 }
 
 TEST(JSONLD_direction_number_value_is_a_resolution_error) {
@@ -4010,7 +4199,8 @@ TEST(JSONLD_direction_number_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
-      R"(The value of x-jsonld-direction must be "ltr" or "rtl")");
+      R"(The value of x-jsonld-direction must be "ltr" or "rtl")",
+      "#/properties/x/x-jsonld-direction");
 }
 
 TEST(JSONLD_json_and_graph_on_object_is_a_resolution_error) {
@@ -4028,10 +4218,11 @@ TEST(JSONLD_json_and_graph_on_object_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "obj": {} })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::JSON,
       "A JSON-LD JSON literal can only be combined with predicate "
-      "annotations");
+      "annotations",
+      "#/properties/obj/x-jsonld-json", "#/properties/obj/x-jsonld-graph");
 }
 
 TEST(JSONLD_datatype_dedup_via_ref_diamond) {
@@ -4120,7 +4311,8 @@ TEST(JSONLD_language_leading_whitespace_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "The value of x-jsonld-language must be a canonical BCP 47 language tag");
+      "The value of x-jsonld-language must be a canonical BCP 47 language tag",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_property_name_is_replaced_by_the_predicate) {
@@ -4255,7 +4447,8 @@ TEST(JSONLD_language_non_canonical_region_case_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
       "The value of x-jsonld-language must be a canonical BCP 47 language "
-      "tag");
+      "tag",
+      "#/properties/x/allOf/1/x-jsonld-language");
 }
 
 TEST(JSONLD_language_non_canonical_script_case_is_a_resolution_error) {
@@ -4276,7 +4469,8 @@ TEST(JSONLD_language_non_canonical_script_case_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
       "The value of x-jsonld-language must be a canonical BCP 47 language "
-      "tag");
+      "tag",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_language_non_canonical_extension_case_is_a_resolution_error) {
@@ -4297,7 +4491,8 @@ TEST(JSONLD_language_non_canonical_extension_case_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
       "The value of x-jsonld-language must be a canonical BCP 47 language "
-      "tag");
+      "tag",
+      "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_json_and_type_is_a_resolution_error) {
@@ -4315,10 +4510,11 @@ TEST(JSONLD_json_and_type_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
       "A JSON-LD JSON literal can only be combined with predicate "
-      "annotations");
+      "annotations",
+      "#/properties/x/x-jsonld-json", "#/properties/x/x-jsonld-type");
 }
 
 TEST(JSONLD_reverse_to_json_literal_is_a_resolution_error) {
@@ -4339,7 +4535,8 @@ TEST(JSONLD_reverse_to_json_literal_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
       "A JSON-LD reverse predicate can only point to a node or an array of "
-      "nodes");
+      "nodes",
+      "#/properties/x/x-jsonld-reverse");
 }
 
 TEST(JSONLD_json_object_without_edge_is_dropped) {
@@ -4569,7 +4766,8 @@ TEST(JSONLD_container_unknown_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")");
+      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_non_string_value_is_a_resolution_error) {
@@ -4584,7 +4782,8 @@ TEST(JSONLD_container_non_string_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")");
+      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_conflict_is_a_resolution_error) {
@@ -4606,9 +4805,11 @@ TEST(JSONLD_container_conflict_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container cannot be assigned more than one value");
+      "A JSON-LD container cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-container",
+      "#/properties/x/allOf/1/x-jsonld-container");
 }
 
 TEST(JSONLD_container_list_on_object_is_a_resolution_error) {
@@ -4628,7 +4829,8 @@ TEST(JSONLD_container_list_on_object_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD list or set container can only be assigned to an array value");
+      "A JSON-LD list or set container can only be assigned to an array value",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_language_on_array_is_a_resolution_error) {
@@ -4650,7 +4852,8 @@ TEST(JSONLD_container_language_on_array_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
       "A JSON-LD language or index container can only be assigned to an object "
-      "value");
+      "value",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_language_non_string_member_is_a_resolution_error) {
@@ -4671,7 +4874,8 @@ TEST(JSONLD_container_language_non_string_member_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container requires string or null members");
+      "A JSON-LD language container requires string or null members",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_and_type_is_a_resolution_error) {
@@ -4691,9 +4895,10 @@ TEST(JSONLD_container_and_type_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container can only be combined with predicate annotations");
+      "A JSON-LD container can only be combined with predicate annotations",
+      "#/properties/x/x-jsonld-container", "#/properties/x/x-jsonld-type");
 }
 
 TEST(JSONLD_container_and_datatype_is_a_resolution_error) {
@@ -4713,9 +4918,10 @@ TEST(JSONLD_container_and_datatype_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container can only be combined with predicate annotations");
+      "A JSON-LD container can only be combined with predicate annotations",
+      "#/properties/x/x-jsonld-container", "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_container_with_reverse_is_a_resolution_error) {
@@ -4737,7 +4943,8 @@ TEST(JSONLD_container_with_reverse_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
       "A JSON-LD reverse predicate can only point to a node or an array of "
-      "nodes");
+      "nodes",
+      "#/properties/x/x-jsonld-reverse");
 }
 
 TEST(JSONLD_container_without_edge_is_dropped) {
@@ -4977,7 +5184,8 @@ TEST(JSONLD_container_list_on_scalar_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD list or set container can only be assigned to an array value");
+      "A JSON-LD list or set container can only be assigned to an array value",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_index_on_scalar_is_a_resolution_error) {
@@ -4997,7 +5205,8 @@ TEST(JSONLD_container_index_on_scalar_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
       "A JSON-LD language or index container can only be assigned to an object "
-      "value");
+      "value",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_idempotent_via_allof) {
@@ -5080,9 +5289,10 @@ TEST(JSONLD_container_and_graph_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": { "a": 1 } })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container can only be combined with predicate annotations");
+      "A JSON-LD container can only be combined with predicate annotations",
+      "#/properties/x/x-jsonld-container", "#/properties/x/x-jsonld-graph");
 }
 
 TEST(JSONLD_container_and_json_is_a_resolution_error) {
@@ -5102,9 +5312,10 @@ TEST(JSONLD_container_and_json_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": [ "a" ] })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container can only be combined with predicate annotations");
+      "A JSON-LD container can only be combined with predicate annotations",
+      "#/properties/x/x-jsonld-container", "#/properties/x/x-jsonld-json");
 }
 
 TEST(JSONLD_container_index_empty_object_is_dropped) {
@@ -5261,7 +5472,8 @@ TEST(JSONLD_container_language_invalid_key_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
                                   sourcemeta::blaze::JSONLDFacet::Container,
                                   "A JSON-LD language container requires "
-                                  "canonical BCP 47 language tag keys");
+                                  "canonical BCP 47 language tag keys",
+                                  "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_set_of_lists) {
@@ -5360,9 +5572,11 @@ TEST(JSONLD_edge_on_index_member_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": { "a": "v" } })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x/a", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "A JSON-LD predicate cannot be assigned to a container member");
+      "A JSON-LD predicate cannot be assigned to a container member",
+      "#/properties/x/additionalProperties/x-jsonld-id",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_edge_on_language_member_is_a_resolution_error) {
@@ -5382,9 +5596,11 @@ TEST(JSONLD_edge_on_language_member_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": { "en": "v" } })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x/en", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container member cannot carry a JSON-LD annotation");
+      "A JSON-LD language container member cannot carry a JSON-LD annotation",
+      "#/properties/x/x-jsonld-container",
+      "#/properties/x/additionalProperties/x-jsonld-id");
 }
 
 TEST(JSONLD_container_language_non_canonical_key_is_a_resolution_error) {
@@ -5406,7 +5622,8 @@ TEST(JSONLD_container_language_non_canonical_key_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
       "A JSON-LD language container requires canonical BCP 47 language tag "
-      "keys");
+      "keys",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_language_empty_string_member) {
@@ -5527,7 +5744,8 @@ TEST(JSONLD_container_language_array_with_nonstring_member_is_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container requires string or null members");
+      "A JSON-LD language container requires string or null members",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_language_nested_array_member_is_error) {
@@ -5548,7 +5766,8 @@ TEST(JSONLD_container_language_nested_array_member_is_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container requires string or null members");
+      "A JSON-LD language container requires string or null members",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_uppercase_value_is_a_resolution_error) {
@@ -5565,7 +5784,8 @@ TEST(JSONLD_container_uppercase_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")");
+      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_language_with_reverse_is_a_resolution_error) {
@@ -5587,7 +5807,8 @@ TEST(JSONLD_container_language_with_reverse_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
       "A JSON-LD reverse predicate can only point to a node or an array of "
-      "nodes");
+      "nodes",
+      "#/properties/x/x-jsonld-reverse");
 }
 
 TEST(JSONLD_container_language_complex_tag_key) {
@@ -5634,9 +5855,11 @@ TEST(JSONLD_container_conflict_via_anyof_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": [ 1 ] })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container cannot be assigned more than one value");
+      "A JSON-LD container cannot be assigned more than one value",
+      "#/properties/x/anyOf/0/x-jsonld-container",
+      "#/properties/x/anyOf/1/x-jsonld-container");
 }
 
 TEST(JSONLD_container_set_with_null_element) {
@@ -5674,7 +5897,8 @@ TEST(JSONLD_container_boolean_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")");
+      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_empty_string_value_is_a_resolution_error) {
@@ -5689,7 +5913,8 @@ TEST(JSONLD_container_empty_string_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")");
+      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_list_of_nested_arrays_nest) {
@@ -5743,7 +5968,8 @@ TEST(JSONLD_container_index_scalar_member_with_type_is_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x/a", sourcemeta::blaze::JSONLDFacet::Type,
-      "A JSON-LD type can only be assigned to an object value");
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/x/additionalProperties/x-jsonld-type");
 }
 
 TEST(JSONLD_container_language_numeric_key_is_error) {
@@ -5765,7 +5991,8 @@ TEST(JSONLD_container_language_numeric_key_is_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
                                   sourcemeta::blaze::JSONLDFacet::Container,
                                   "A JSON-LD language container requires "
-                                  "canonical BCP 47 language tag keys");
+                                  "canonical BCP 47 language tag keys",
+                                  "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_language_object_member_is_error) {
@@ -5786,7 +6013,8 @@ TEST(JSONLD_container_language_object_member_is_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container requires string or null members");
+      "A JSON-LD language container requires string or null members",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_set_single_nested_array_flattens) {
@@ -5864,7 +6092,8 @@ TEST(JSONLD_container_list_on_null_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD list or set container can only be assigned to an array value");
+      "A JSON-LD list or set container can only be assigned to an array value",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_language_on_null_is_a_resolution_error) {
@@ -5884,7 +6113,8 @@ TEST(JSONLD_container_language_on_null_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
       "A JSON-LD language or index container can only be assigned to an object "
-      "value");
+      "value",
+      "#/properties/x/x-jsonld-container");
 }
 
 TEST(JSONLD_container_set_over_array_of_nodes) {
@@ -6331,7 +6561,8 @@ TEST(JSONLD_self_reverse_to_array_with_literal_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/parts", sourcemeta::blaze::JSONLDFacet::Predicate,
       "A JSON-LD reverse predicate can only point to a node or an array of "
-      "nodes");
+      "nodes",
+      "#/properties/parts/x-jsonld-reverse");
 }
 
 TEST(JSONLD_self_idempotent_via_allof) {
@@ -6583,7 +6814,8 @@ TEST(JSONLD_self_non_string_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "The value of x-jsonld-self must be a URI Template");
+      "The value of x-jsonld-self must be a URI Template",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_invalid_template_is_a_resolution_error) {
@@ -6597,7 +6829,8 @@ TEST(JSONLD_self_invalid_template_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "The value of x-jsonld-self must be a URI Template");
+      "The value of x-jsonld-self must be a URI Template",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_unbound_member_is_a_resolution_error) {
@@ -6619,7 +6852,8 @@ TEST(JSONLD_self_unbound_member_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/obj",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "must bind to an instance value");
+                                  "must bind to an instance value",
+                                  "#/properties/obj/x-jsonld-self");
 }
 
 TEST(JSONLD_self_empty_member_is_a_resolution_error) {
@@ -6641,7 +6875,8 @@ TEST(JSONLD_self_empty_member_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity template variable cannot bind to an empty "
-      "string");
+      "string",
+      "#/properties/obj/x-jsonld-self");
 }
 
 TEST(JSONLD_self_unbound_scalar_variable_is_a_resolution_error) {
@@ -6663,7 +6898,8 @@ TEST(JSONLD_self_unbound_scalar_variable_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "must bind to an instance value");
+                                  "must bind to an instance value",
+                                  "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_object_member_is_a_resolution_error) {
@@ -6685,7 +6921,8 @@ TEST(JSONLD_self_object_member_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/obj",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "can only bind to a string value");
+                                  "can only bind to a string value",
+                                  "#/properties/obj/x-jsonld-self");
 }
 
 TEST(JSONLD_self_array_member_is_a_resolution_error) {
@@ -6707,7 +6944,8 @@ TEST(JSONLD_self_array_member_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/obj",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "can only bind to a string value");
+                                  "can only bind to a string value",
+                                  "#/properties/obj/x-jsonld-self");
 }
 
 TEST(JSONLD_self_non_iri_expansion_is_a_resolution_error) {
@@ -6728,7 +6966,8 @@ TEST(JSONLD_self_non_iri_expansion_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "A JSON-LD self identity must expand to an absolute IRI");
+      "A JSON-LD self identity must expand to an absolute IRI",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_null_value_is_a_resolution_error) {
@@ -6748,7 +6987,8 @@ TEST(JSONLD_self_null_value_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "cannot bind to a null value");
+                                  "cannot bind to a null value",
+                                  "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_null_member_binding_is_a_resolution_error) {
@@ -6770,7 +7010,8 @@ TEST(JSONLD_self_null_member_binding_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/obj",
                                   sourcemeta::blaze::JSONLDFacet::Self,
                                   "A JSON-LD self identity template variable "
-                                  "cannot bind to a null value");
+                                  "cannot bind to a null value",
+                                  "#/properties/obj/x-jsonld-self");
 }
 
 TEST(JSONLD_self_conflict_is_a_resolution_error) {
@@ -6791,9 +7032,11 @@ TEST(JSONLD_self_conflict_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "A JSON-LD self identity cannot be assigned more than one value");
+      "A JSON-LD self identity cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-self",
+      "#/properties/x/allOf/1/x-jsonld-self");
 }
 
 TEST(JSONLD_self_and_datatype_is_a_resolution_error) {
@@ -6813,10 +7056,11 @@ TEST(JSONLD_self_and_datatype_is_a_resolution_error) {
   const auto instance{sourcemeta::core::parse_json(
       R"JSON({ "x": "https://example.com/y" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity cannot carry a datatype, language, or "
-      "direction");
+      "direction",
+      "#/properties/x/x-jsonld-self", "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_self_and_language_is_a_resolution_error) {
@@ -6836,10 +7080,11 @@ TEST(JSONLD_self_and_language_is_a_resolution_error) {
   const auto instance{sourcemeta::core::parse_json(
       R"JSON({ "x": "https://example.com/y" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity cannot carry a datatype, language, or "
-      "direction");
+      "direction",
+      "#/properties/x/x-jsonld-self", "#/properties/x/x-jsonld-language");
 }
 
 TEST(JSONLD_self_and_direction_is_a_resolution_error) {
@@ -6859,10 +7104,11 @@ TEST(JSONLD_self_and_direction_is_a_resolution_error) {
   const auto instance{sourcemeta::core::parse_json(
       R"JSON({ "x": "https://example.com/y" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity cannot carry a datatype, language, or "
-      "direction");
+      "direction",
+      "#/properties/x/x-jsonld-self", "#/properties/x/x-jsonld-direction");
 }
 
 TEST(JSONLD_self_and_container_is_a_resolution_error) {
@@ -6881,9 +7127,10 @@ TEST(JSONLD_self_and_container_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": [] })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD container can only be combined with predicate annotations");
+      "A JSON-LD container can only be combined with predicate annotations",
+      "#/properties/x/x-jsonld-container", "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_and_json_is_a_resolution_error) {
@@ -6903,10 +7150,11 @@ TEST(JSONLD_self_and_json_is_a_resolution_error) {
   const auto instance{sourcemeta::core::parse_json(
       R"JSON({ "x": "https://example.com/y" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
       "A JSON-LD JSON literal can only be combined with predicate "
-      "annotations");
+      "annotations",
+      "#/properties/x/x-jsonld-json", "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_on_array_is_a_resolution_error) {
@@ -6928,7 +7176,8 @@ TEST(JSONLD_self_on_array_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity can only be assigned to an object or scalar "
-      "value");
+      "value",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_in_oneof_only_matching_branch) {
@@ -7357,7 +7606,8 @@ TEST(JSONLD_self_numeric_scalar_binding_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity template variable can only bind to a string "
-      "value");
+      "value",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_numeric_member_binding_is_a_resolution_error) {
@@ -7380,7 +7630,8 @@ TEST(JSONLD_self_numeric_member_binding_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/obj", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity template variable can only bind to a string "
-      "value");
+      "value",
+      "#/properties/obj/x-jsonld-self");
 }
 
 TEST(JSONLD_self_boolean_scalar_binding_is_a_resolution_error) {
@@ -7400,7 +7651,8 @@ TEST(JSONLD_self_boolean_scalar_binding_is_a_resolution_error) {
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity template variable can only bind to a string "
-      "value");
+      "value",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_empty_template_is_a_resolution_error) {
@@ -7420,7 +7672,8 @@ TEST(JSONLD_self_empty_template_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "A JSON-LD self identity must expand to an absolute IRI");
+      "A JSON-LD self identity must expand to an absolute IRI",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_blank_node_expansion_is_a_resolution_error) {
@@ -7440,7 +7693,8 @@ TEST(JSONLD_self_blank_node_expansion_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "A JSON-LD self identity must expand to an absolute IRI");
+      "A JSON-LD self identity must expand to an absolute IRI",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_array_value_is_a_resolution_error) {
@@ -7454,7 +7708,8 @@ TEST(JSONLD_self_array_value_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
-      "The value of x-jsonld-self must be a URI Template");
+      "The value of x-jsonld-self must be a URI Template",
+      "#/properties/x/x-jsonld-self");
 }
 
 TEST(JSONLD_self_on_language_member_is_a_resolution_error) {
@@ -7477,9 +7732,11 @@ TEST(JSONLD_self_on_language_member_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": { "en": "hello" } })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x/en", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container member cannot carry a JSON-LD annotation");
+      "A JSON-LD language container member cannot carry a JSON-LD annotation",
+      "#/properties/x/x-jsonld-container",
+      "#/properties/x/additionalProperties/x-jsonld-self");
 }
 
 TEST(JSONLD_datatype_on_language_member_is_a_resolution_error) {
@@ -7502,9 +7759,11 @@ TEST(JSONLD_datatype_on_language_member_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": { "en": "hello" } })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x/en", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container member cannot carry a JSON-LD annotation");
+      "A JSON-LD language container member cannot carry a JSON-LD annotation",
+      "#/properties/x/x-jsonld-container",
+      "#/properties/x/additionalProperties/x-jsonld-datatype");
 }
 
 TEST(JSONLD_direction_on_language_member_is_a_resolution_error) {
@@ -7527,9 +7786,11 @@ TEST(JSONLD_direction_on_language_member_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": { "ar": "hello" } })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x/ar", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language container member cannot carry a JSON-LD annotation");
+      "A JSON-LD language container member cannot carry a JSON-LD annotation",
+      "#/properties/x/x-jsonld-container",
+      "#/properties/x/additionalProperties/x-jsonld-direction");
 }
 
 TEST(JSONLD_self_scalar_multi_predicate_reference) {
@@ -7574,7 +7835,8 @@ TEST(JSONLD_self_edge_on_root_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "", sourcemeta::blaze::JSONLDFacet::Predicate,
-      "A JSON-LD predicate cannot be assigned to the document root");
+      "A JSON-LD predicate cannot be assigned to the document root",
+      "#/x-jsonld-id");
 }
 
 TEST(JSONLD_override_specializes_referenced_datatype) {
@@ -7676,9 +7938,12 @@ TEST(JSONLD_override_flag_on_referenced_schema_cannot_shadow_upward) {
   const auto instance{sourcemeta::core::parse_json(
       R"JSON({ "recordedAt": "2026-01-15T10:00:00Z" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
       schema, instance, "/recordedAt", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/$defs/library/x-jsonld-datatype",
+      "#/properties/recordedAt/x-jsonld-datatype",
+      "#/$defs/library/x-jsonld-override");
 }
 
 TEST(JSONLD_override_flag_beats_flagged_referenced_schema) {
@@ -7826,9 +8091,11 @@ TEST(
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/$defs/middle/x-jsonld-datatype", "#/properties/x/x-jsonld-datatype",
+      "#/$defs/middle/x-jsonld-override");
 }
 
 TEST(JSONLD_override_heals_conflicting_references) {
@@ -7940,9 +8207,12 @@ TEST(JSONLD_override_sibling_branch_conflict_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-datatype",
+      "#/properties/x/allOf/0/x-jsonld-override");
 }
 
 TEST(JSONLD_override_identical_values_dedupe) {
@@ -8038,9 +8308,10 @@ TEST(JSONLD_override_false_does_not_shadow) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/$defs/library/x-jsonld-datatype", "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_override_false_does_not_license_tombstones) {
@@ -8166,7 +8437,8 @@ TEST(JSONLD_override_non_boolean_is_a_resolution_error) {
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Override,
-      "The value of x-jsonld-override must be a boolean");
+      "The value of x-jsonld-override must be a boolean",
+      "#/properties/x/x-jsonld-override");
 }
 
 TEST(JSONLD_override_datatype_tombstone_yields_plain_literal) {
@@ -8553,10 +8825,11 @@ TEST(JSONLD_override_datatype_with_inherited_self_is_a_resolution_error) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "x": "USD" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
       "A JSON-LD self identity cannot carry a datatype, language, or "
-      "direction");
+      "direction",
+      "#/$defs/library/x-jsonld-self", "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_override_datatype_with_self_tombstone_yields_typed_literal) {
@@ -9145,9 +9418,12 @@ TEST(JSONLD_override_conditional_sibling_reference_is_a_resolution_error) {
   const auto instance{sourcemeta::core::parse_json(
       R"JSON({ "x": "2026-01-15T10:00:00Z" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/$defs/library/x-jsonld-datatype",
+      "#/properties/x/then/x-jsonld-datatype",
+      "#/properties/x/then/x-jsonld-override");
 }
 
 TEST(JSONLD_override_conditional_sibling_reference_else_branch) {
@@ -9260,9 +9536,11 @@ TEST(JSONLD_dynamic_extension_point_conflict_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/$defs/extension/x-jsonld-datatype",
+      "https://example.com/library#/x-jsonld-datatype");
 }
 
 TEST(JSONLD_override_outer_flag_beats_dynamic_extension_owner) {
@@ -9343,9 +9621,12 @@ TEST(JSONLD_override_sibling_flag_cannot_beat_dynamic_extension_owner) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "https://example.com/library#/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-datatype",
+      "https://example.com/library#/x-jsonld-override");
 }
 
 TEST(JSONLD_dynamic_extension_point_agreeing_values_dedupe) {
@@ -10385,9 +10666,11 @@ TEST(JSONLD_override_flagged_shared_reference_cannot_shadow_upward) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "a": "x", "b": "y" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
       schema, instance, "/a", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/$defs/library/x-jsonld-datatype", "#/properties/a/x-jsonld-datatype",
+      "#/$defs/library/x-jsonld-override");
 }
 
 TEST(JSONLD_override_enumeration_matched_branch_only) {
@@ -10778,9 +11061,12 @@ TEST(JSONLD_override_shadowing_is_edge_wise_not_value_wise) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-datatype",
+      "#/$defs/second/x-jsonld-datatype",
+      "#/properties/x/allOf/0/x-jsonld-override");
 }
 
 TEST(JSONLD_override_shadowing_reaches_nested_reference_copies) {
@@ -11004,9 +11290,12 @@ TEST(JSONLD_override_flagged_siblings_never_reconcile) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "hi" })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
-      "A JSON-LD datatype cannot be assigned more than one value");
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-datatype",
+      "#/properties/x/allOf/0/x-jsonld-override");
 }
 
 TEST(JSONLD_override_evaluator_and_template_reuse) {
@@ -11489,4 +11778,1157 @@ TEST(JSONLD_language_null_without_override_is_ignored) {
   ])JSON")};
 
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_origins_override_boolean_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-override": 1 }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Override,
+      "The value of x-jsonld-override must be a boolean",
+      "#/properties/x/x-jsonld-override");
+}
+
+TEST(JSONLD_origins_id_iri_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-id": "not an iri" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "The value of x-jsonld-id must be an absolute IRI",
+      "#/properties/x/x-jsonld-id");
+}
+
+TEST(JSONLD_origins_reverse_iri_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-reverse": "not an iri" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "The value of x-jsonld-reverse must be an absolute IRI",
+      "#/properties/x/x-jsonld-reverse");
+}
+
+TEST(JSONLD_origins_type_iri_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-type": "not an iri"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
+      "The value of x-jsonld-type must be an absolute IRI", "#/x-jsonld-type");
+}
+
+TEST(JSONLD_origins_type_iri_array_element) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-type": [ "https://schema.org/Thing", "not an iri" ]
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Type,
+      "The value of x-jsonld-type must be an absolute IRI", "#/x-jsonld-type");
+}
+
+TEST(JSONLD_origins_datatype_iri_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-datatype": "not an iri" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "The value of x-jsonld-datatype must be an absolute IRI",
+      "#/properties/x/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_language_canonical_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-language": "en-us" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "The value of x-jsonld-language must be a canonical BCP 47 language tag",
+      "#/properties/x/x-jsonld-language");
+}
+
+TEST(JSONLD_origins_direction_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-direction": "up" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      R"(The value of x-jsonld-direction must be "ltr" or "rtl")",
+      "#/properties/x/x-jsonld-direction");
+}
+
+TEST(JSONLD_origins_json_boolean_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-json": "yes" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "The value of x-jsonld-json must be a boolean",
+      "#/properties/x/x-jsonld-json");
+}
+
+TEST(JSONLD_origins_graph_boolean_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-graph": "yes" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Graph,
+      "The value of x-jsonld-graph must be a boolean",
+      "#/properties/x/x-jsonld-graph");
+}
+
+TEST(JSONLD_origins_container_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-container": "@graph" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": [] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      R"(The value of x-jsonld-container must be "@list", "@set", "@language", or "@index")",
+      "#/properties/x/x-jsonld-container");
+}
+
+TEST(JSONLD_origins_self_template_value) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-self": "{unclosed" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "The value of x-jsonld-self must be a URI Template",
+      "#/properties/x/x-jsonld-self");
+}
+
+TEST(JSONLD_origins_datatype_conflict) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-datatype": "https://example.com/A" },
+          { "x-jsonld-datatype": "https://example.com/B" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_language_conflict) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-language": "en" },
+          { "x-jsonld-language": "fr" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "A JSON-LD language cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-language",
+      "#/properties/x/allOf/1/x-jsonld-language");
+}
+
+TEST(JSONLD_origins_direction_conflict) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-direction": "ltr" },
+          { "x-jsonld-direction": "rtl" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      "A JSON-LD direction cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-direction",
+      "#/properties/x/allOf/1/x-jsonld-direction");
+}
+
+TEST(JSONLD_origins_container_conflict) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-container": "@list" },
+          { "x-jsonld-container": "@set" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": [] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD container cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-container",
+      "#/properties/x/allOf/1/x-jsonld-container");
+}
+
+TEST(JSONLD_origins_self_conflict) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-self": "https://example.com/a/{this}" },
+          { "x-jsonld-self": "https://example.com/b/{this}" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-self",
+      "#/properties/x/allOf/1/x-jsonld-self");
+}
+
+TEST(JSONLD_origins_json_tombstone_conflict_reports_inert_override) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-json": true },
+          { "x-jsonld-override": true, "x-jsonld-json": null }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal flag cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-json",
+      "#/properties/x/allOf/1/x-jsonld-json",
+      "#/properties/x/allOf/1/x-jsonld-override");
+}
+
+TEST(JSONLD_origins_graph_tombstone_conflict_reports_inert_override) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-graph": true },
+          { "x-jsonld-override": true, "x-jsonld-graph": null }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Graph,
+      "A JSON-LD graph flag cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-graph",
+      "#/properties/x/allOf/1/x-jsonld-graph",
+      "#/properties/x/allOf/1/x-jsonld-override");
+}
+
+TEST(JSONLD_origins_datatype_conflict_reports_inert_override) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-datatype": "https://example.com/A" },
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-datatype": "https://example.com/B"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-override");
+}
+
+TEST(
+    JSONLD_origins_datatype_conflict_both_marked_reports_first_inert_override) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-datatype": "https://example.com/A"
+          },
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-datatype": "https://example.com/B"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-datatype",
+      "#/properties/x/allOf/0/x-jsonld-override");
+}
+
+TEST(JSONLD_origins_datatype_conflict_through_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "referenced": { "x-jsonld-datatype": "https://example.com/A" }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "$ref": "#/$defs/referenced" },
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-datatype": "https://example.com/B"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/$defs/referenced/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-datatype",
+      "#/properties/x/allOf/1/x-jsonld-override");
+}
+
+TEST(JSONLD_origins_datatype_conflict_dedupes_shared_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "referenced": { "x-jsonld-datatype": "https://example.com/A" }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "$ref": "#/$defs/referenced" },
+          { "$ref": "#/$defs/referenced" },
+          { "x-jsonld-datatype": "https://example.com/B" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "#/$defs/referenced/x-jsonld-datatype",
+      "#/properties/x/allOf/2/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_container_exclusivity) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@list",
+        "x-jsonld-datatype": "https://example.com/A"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": [] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD container can only be combined with predicate annotations",
+      "#/properties/x/x-jsonld-container", "#/properties/x/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_json_exclusivity) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-json": true,
+        "x-jsonld-type": "https://schema.org/Thing"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations",
+      "#/properties/x/x-jsonld-json", "#/properties/x/x-jsonld-type");
+}
+
+TEST(JSONLD_origins_self_carries_literal_facet) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{this}",
+        "x-jsonld-datatype": "https://example.com/A"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity cannot carry a datatype, language, or "
+      "direction",
+      "#/properties/x/x-jsonld-self", "#/properties/x/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_self_on_array) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": [] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity can only be assigned to an object or scalar "
+      "value",
+      "#/properties/x/x-jsonld-self");
+}
+
+TEST(JSONLD_origins_type_on_scalar) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-type": "https://schema.org/Thing"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/x/x-jsonld-type");
+}
+
+TEST(JSONLD_origins_graph_on_scalar) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-graph": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Graph,
+      "A JSON-LD graph flag can only be assigned to an object value",
+      "#/properties/x/x-jsonld-graph");
+}
+
+TEST(JSONLD_origins_datatype_on_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "https://example.com/A"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "#/properties/x/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_duplicate_datatype_cites_first_declaration) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-datatype": "https://example.com/A" },
+          { "x-jsonld-datatype": "https://example.com/A" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "#/properties/x/allOf/0/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_duplicate_type_cites_first_declaration) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-type": "https://schema.org/Thing" },
+          { "x-jsonld-type": "https://schema.org/Thing" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/x/allOf/0/x-jsonld-type");
+}
+
+TEST(JSONLD_origins_conflict_across_embedded_resource) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "embedded": {
+        "$id": "https://example.com/embedded",
+        "type": "string",
+        "x-jsonld-datatype": "https://example.com/A"
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "https://example.com/B",
+        "$ref": "https://example.com/embedded"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "https://example.com/embedded#/x-jsonld-datatype",
+      "#/properties/x/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_resolved_schema_annotation_cites_remote_location) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "$ref": "https://example.com/remote"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER(
+      test_resolver, schema, instance, "/x",
+      sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "https://example.com/remote#/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_conflict_across_resolved_schema) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "https://example.com/B",
+        "$ref": "https://example.com/remote"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_CONFLICT(
+      test_resolver, schema, instance, "/x",
+      sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "https://example.com/remote#/x-jsonld-datatype",
+      "#/properties/x/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_language_on_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "en"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "A JSON-LD language can only be assigned to a scalar value",
+      "#/properties/x/x-jsonld-language");
+}
+
+TEST(JSONLD_origins_direction_on_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-direction": "ltr"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      "A JSON-LD direction can only be assigned to a scalar value",
+      "#/properties/x/x-jsonld-direction");
+}
+
+TEST(JSONLD_origins_datatype_carries_language) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "https://example.com/A",
+        "x-jsonld-language": "en"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot carry a language or direction",
+      "#/properties/x/x-jsonld-datatype", "#/properties/x/x-jsonld-language");
+}
+
+TEST(JSONLD_origins_language_on_number) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-language": "en"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
+      "A JSON-LD language can only be assigned to a string value",
+      "#/properties/x/x-jsonld-language");
+}
+
+TEST(JSONLD_origins_direction_on_number) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-direction": "ltr"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Direction,
+      "A JSON-LD direction can only be assigned to a string value",
+      "#/properties/x/x-jsonld-direction");
+}
+
+TEST(JSONLD_origins_predicate_on_document_root) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-jsonld-id": "https://schema.org/x"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD predicate cannot be assigned to the document root",
+      "#/x-jsonld-id");
+}
+
+TEST(JSONLD_origins_predicate_on_array_element) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "items": { "x-jsonld-id": "https://schema.org/x" }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ "v" ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x/0", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD predicate cannot be assigned to an array element",
+      "#/properties/x/items/x-jsonld-id");
+}
+
+TEST(JSONLD_origins_predicate_on_container_member) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@index",
+        "additionalProperties": {
+          "x-jsonld-id": "https://schema.org/member"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "a": "v" } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x/a", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD predicate cannot be assigned to a container member",
+      "#/properties/x/additionalProperties/x-jsonld-id",
+      "#/properties/x/x-jsonld-container");
+}
+
+TEST(JSONLD_origins_reverse_on_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-reverse": "https://schema.org/hasPart" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Predicate,
+      "A JSON-LD reverse predicate can only point to a node or an array of "
+      "nodes",
+      "#/properties/x/x-jsonld-reverse");
+}
+
+TEST(JSONLD_origins_self_unbound_variable) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{foo}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity template variable must bind to an instance "
+      "value",
+      "#/properties/x/x-jsonld-self");
+}
+
+TEST(JSONLD_origins_self_null_member_binding) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{id}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "id": null } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity template variable cannot bind to a null value",
+      "#/properties/x/x-jsonld-self");
+}
+
+TEST(JSONLD_origins_self_non_string_binding) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{id}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "id": 42 } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity template variable can only bind to a string "
+      "value",
+      "#/properties/x/x-jsonld-self");
+}
+
+TEST(JSONLD_origins_self_empty_string_binding) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity template variable cannot bind to an empty "
+      "string",
+      "#/properties/x/x-jsonld-self");
+}
+
+TEST(JSONLD_origins_self_non_iri_expansion) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "{this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity must expand to an absolute IRI",
+      "#/properties/x/x-jsonld-self");
+}
+
+TEST(JSONLD_origins_container_on_scalar) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@list"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD list or set container can only be assigned to an array "
+      "value",
+      "#/properties/x/x-jsonld-container");
+}
+
+TEST(JSONLD_origins_language_container_on_scalar) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@language"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD language or index container can only be assigned to an "
+      "object value",
+      "#/properties/x/x-jsonld-container");
+}
+
+TEST(JSONLD_origins_language_container_invalid_key) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@language"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "not a tag": "v" } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD language container requires canonical BCP 47 language tag "
+      "keys",
+      "#/properties/x/x-jsonld-container");
+}
+
+TEST(JSONLD_origins_language_container_object_member) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@language"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "en": {} } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD language container requires string or null members",
+      "#/properties/x/x-jsonld-container");
+}
+
+TEST(JSONLD_origins_language_container_member_annotation) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@language",
+        "properties": {
+          "en": { "x-jsonld-datatype": "https://example.com/A" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "en": "v" } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x/en", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD language container member cannot carry a JSON-LD annotation",
+      "#/properties/x/x-jsonld-container",
+      "#/properties/x/properties/en/x-jsonld-datatype");
 }
