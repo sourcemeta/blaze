@@ -10,6 +10,8 @@
 #include <sourcemeta/blaze/output.h>
 
 #include <array>         // std::array
+#include <optional>      // std::optional
+#include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
 #include <variant>       // std::get, std::holds_alternative
 
@@ -61,8 +63,8 @@
     EXPECT_TRUE(sourcemeta::core::jsonld_is_expanded(exhaustive_document));    \
   }
 
-#define EXPECT_JSON_LD_RESOLUTION_ERROR(                                       \
-    schema, instance, expected_instance_location, expected_facet,              \
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER(                         \
+    resolver, schema, instance, expected_instance_location, expected_facet,    \
     expected_message, expected_schema_location)                                \
   {                                                                            \
     sourcemeta::blaze::Tweaks tweaks;                                          \
@@ -74,18 +76,15 @@
     jump_tweaks.annotations = tweaks.annotations;                              \
     jump_tweaks.target_inline_threshold = 0;                                   \
     const auto schema_template{sourcemeta::blaze::compile(                     \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
     const auto jump_template{sourcemeta::blaze::compile(                       \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
     const auto exhaustive_template{sourcemeta::blaze::compile(                 \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
@@ -110,8 +109,16 @@
     }                                                                          \
   }
 
-#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(                         \
+#define EXPECT_JSON_LD_RESOLUTION_ERROR(                                       \
     schema, instance, expected_instance_location, expected_facet,              \
+    expected_message, expected_schema_location)                                \
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER(                               \
+      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      expected_instance_location, expected_facet, expected_message,            \
+      expected_schema_location)
+
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_CONFLICT(            \
+    resolver, schema, instance, expected_instance_location, expected_facet,    \
     expected_message, expected_schema_location,                                \
     expected_conflicting_schema_location)                                      \
   {                                                                            \
@@ -124,18 +131,15 @@
     jump_tweaks.annotations = tweaks.annotations;                              \
     jump_tweaks.target_inline_threshold = 0;                                   \
     const auto schema_template{sourcemeta::blaze::compile(                     \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
     const auto jump_template{sourcemeta::blaze::compile(                       \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
     const auto exhaustive_template{sourcemeta::blaze::compile(                 \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
@@ -162,8 +166,17 @@
     }                                                                          \
   }
 
-#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(                   \
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(                         \
     schema, instance, expected_instance_location, expected_facet,              \
+    expected_message, expected_schema_location,                                \
+    expected_conflicting_schema_location)                                      \
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_CONFLICT(                  \
+      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      expected_instance_location, expected_facet, expected_message,            \
+      expected_schema_location, expected_conflicting_schema_location)
+
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_INERT_OVERRIDE(      \
+    resolver, schema, instance, expected_instance_location, expected_facet,    \
     expected_message, expected_schema_location,                                \
     expected_conflicting_schema_location, expected_inert_override_location)    \
   {                                                                            \
@@ -176,18 +189,15 @@
     jump_tweaks.annotations = tweaks.annotations;                              \
     jump_tweaks.target_inline_threshold = 0;                                   \
     const auto schema_template{sourcemeta::blaze::compile(                     \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
     const auto jump_template{sourcemeta::blaze::compile(                       \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
     const auto exhaustive_template{sourcemeta::blaze::compile(                 \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
@@ -215,6 +225,16 @@
                 (expected_inert_override_location));                           \
     }                                                                          \
   }
+
+#define EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_INERT_OVERRIDE(                   \
+    schema, instance, expected_instance_location, expected_facet,              \
+    expected_message, expected_schema_location,                                \
+    expected_conflicting_schema_location, expected_inert_override_location)    \
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_INERT_OVERRIDE(            \
+      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      expected_instance_location, expected_facet, expected_message,            \
+      expected_schema_location, expected_conflicting_schema_location,          \
+      expected_inert_override_location)
 
 #define EXPECT_JSON_LD_INVALID(schema, instance, destination)                  \
   sourcemeta::blaze::Tweaks tweaks;                                            \
@@ -265,6 +285,19 @@
             (expected_evaluate_path));                                         \
   EXPECT_EQ((errors).at(index).schema_location.get(),                          \
             (expected_schema_location));
+
+static auto test_resolver(std::string_view identifier)
+    -> std::optional<sourcemeta::core::JSON> {
+  if (identifier == "https://example.com/remote") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/remote",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "x-jsonld-datatype": "https://example.com/A"
+    })JSON");
+  }
+
+  return sourcemeta::blaze::schema_resolver(identifier);
+}
 
 TEST(JSONLD_node_type_and_property_ids) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -12424,6 +12457,79 @@ TEST(JSONLD_origins_duplicate_type_cites_first_declaration) {
       schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
       "A JSON-LD type can only be assigned to an object value",
       "#/properties/x/allOf/0/x-jsonld-type");
+}
+
+TEST(JSONLD_origins_conflict_across_embedded_resource) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "embedded": {
+        "$id": "https://example.com/embedded",
+        "type": "string",
+        "x-jsonld-datatype": "https://example.com/A"
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "https://example.com/B",
+        "$ref": "https://example.com/embedded"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "https://example.com/embedded#/x-jsonld-datatype",
+      "#/properties/x/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_resolved_schema_annotation_cites_remote_location) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "$ref": "https://example.com/remote"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER(
+      test_resolver, schema, instance, "/x",
+      sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "https://example.com/remote#/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_conflict_across_resolved_schema) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-datatype": "https://example.com/B",
+        "$ref": "https://example.com/remote"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_CONFLICT(
+      test_resolver, schema, instance, "/x",
+      sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype cannot be assigned more than one value",
+      "https://example.com/remote#/x-jsonld-datatype",
+      "#/properties/x/x-jsonld-datatype");
 }
 
 TEST(JSONLD_origins_language_on_object) {
