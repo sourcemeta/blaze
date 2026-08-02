@@ -3490,7 +3490,7 @@ TEST(JSONLD_graph_nested_under_edge) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_language_on_null_is_a_resolution_error) {
+TEST(JSONLD_language_on_null_is_dropped) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -3501,10 +3501,243 @@ TEST(JSONLD_language_on_null_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
-      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Language,
-      "A JSON-LD language can only be assigned to a string value",
-      "#/properties/x/x-jsonld-language");
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_type_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-type": "https://schema.org/Thing"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_type_on_null_root_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-jsonld-type": "https://schema.org/Thing"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON(null)JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_reverse_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-reverse": "https://schema.org/hasPart" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_direction_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-direction": "rtl"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_graph_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-id": "https://schema.org/x", "x-jsonld-graph": true }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_container_set_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@set"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_container_index_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@index"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_type_on_null_keeps_sibling_property) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "a": {
+        "x-jsonld-id": "https://schema.org/a",
+        "x-jsonld-type": "https://schema.org/Thing"
+      },
+      "b": { "x-jsonld-id": "https://schema.org/b" }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": null, "b": "hi" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/b": [ { "@value": "hi" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_multiple_facets_on_null_are_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-type": "https://schema.org/Thing",
+        "x-jsonld-graph": true,
+        "x-jsonld-self": "https://example.com/{this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_type_on_null_through_reference_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "thing": { "x-jsonld-type": "https://schema.org/Thing" }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "$ref": "#/$defs/thing"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_language_on_null_array_element_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/x",
+        "items": { "x-jsonld-language": "en" }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ "hi", null ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [ { "@value": "hi", "@language": "en" } ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_json_with_type_on_null_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-json": true,
+        "x-jsonld-type": "https://schema.org/Thing"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations",
+      "#/properties/x/x-jsonld-json", "#/properties/x/x-jsonld-type");
 }
 
 TEST(JSONLD_datatype_relative_iri_is_a_resolution_error) {
@@ -5380,6 +5613,56 @@ TEST(JSONLD_container_language_null_member_is_dropped) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_container_language_annotated_null_member_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@language",
+        "properties": {
+          "en": { "x-jsonld-datatype": "https://example.com/A" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "en": null } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_container_language_json_null_member_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@language",
+        "properties": {
+          "en": { "x-jsonld-json": true }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "en": null } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x/en", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD language container member cannot carry a JSON-LD annotation",
+      "#/properties/x/x-jsonld-container",
+      "#/properties/x/properties/en/x-jsonld-json");
+}
+
 TEST(JSONLD_container_language_null_in_array_member_is_dropped) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -6076,7 +6359,7 @@ TEST(JSONLD_container_index_recursive_ref_nodes) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_container_list_on_null_is_a_resolution_error) {
+TEST(JSONLD_container_list_on_null_is_dropped) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -6090,13 +6373,12 @@ TEST(JSONLD_container_list_on_null_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
-      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD list or set container can only be assigned to an array value",
-      "#/properties/x/x-jsonld-container");
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
-TEST(JSONLD_container_language_on_null_is_a_resolution_error) {
+TEST(JSONLD_container_language_on_null_is_dropped) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -6110,11 +6392,9 @@ TEST(JSONLD_container_language_on_null_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(
-      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
-      "A JSON-LD language or index container can only be assigned to an object "
-      "value",
-      "#/properties/x/x-jsonld-container");
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
 TEST(JSONLD_container_set_over_array_of_nodes) {
@@ -6970,7 +7250,7 @@ TEST(JSONLD_self_non_iri_expansion_is_a_resolution_error) {
       "#/properties/x/x-jsonld-self");
 }
 
-TEST(JSONLD_self_null_value_is_a_resolution_error) {
+TEST(JSONLD_self_template_on_null_is_dropped) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -6984,11 +7264,9 @@ TEST(JSONLD_self_null_value_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
 
-  EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
-                                  sourcemeta::blaze::JSONLDFacet::Self,
-                                  "A JSON-LD self identity template variable "
-                                  "cannot bind to a null value",
-                                  "#/properties/x/x-jsonld-self");
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
 TEST(JSONLD_self_null_member_binding_is_a_resolution_error) {

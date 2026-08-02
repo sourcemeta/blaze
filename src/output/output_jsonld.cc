@@ -1115,6 +1115,13 @@ auto resolve(const sourcemeta::core::JSON &instance,
       const auto member_facts{accumulator.find(member)};
       if (member_facts != accumulator.cend()) {
         const auto &offender{member_facts->second};
+        // The null gate applies to members too: a null member is treated as
+        // absent, so its annotations declare nothing, except a JSON literal,
+        // where the null is the data itself
+        if (entry.second.is_null() && !offender.json) {
+          continue;
+        }
+
         return facet_error(
             member, sourcemeta::blaze::JSONLDFacet::Container,
             "A JSON-LD language container member cannot carry a "
@@ -1132,6 +1139,16 @@ auto resolve(const sourcemeta::core::JSON &instance,
   sourcemeta::core::JSONLDWeakAnnotationList annotations;
   annotations.reserve(accumulator.size());
   for (auto &[pointer, facts] : accumulator) {
+    const auto &value{sourcemeta::core::get(instance, pointer)};
+
+    // A null value is treated as if its entry were absent, and an absent
+    // entry has no node and no annotations, so every fact at the location
+    // drops before any placement check, except a JSON literal, where the
+    // null is the data itself
+    if (value.is_null() && !facts.json) {
+      continue;
+    }
+
     std::ranges::sort(facts.edges,
                       [](const sourcemeta::core::JSONLDEdge &left,
                          const sourcemeta::core::JSONLDEdge &right) -> bool {
@@ -1139,8 +1156,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
                                std::tie(right.predicate, right.reverse);
                       });
     std::ranges::sort(facts.types);
-
-    const auto &value{sourcemeta::core::get(instance, pointer)};
 
     // A container sets the collection shape and stands alone, excluding every
     // other fact and choosing the value shape it ranges over
