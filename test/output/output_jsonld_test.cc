@@ -13210,3 +13210,2276 @@ TEST(JSONLD_origins_language_container_member_annotation) {
       "#/properties/x/x-jsonld-container",
       "#/properties/x/properties/en/x-jsonld-datatype");
 }
+
+TEST(JSONLD_value_promotes_number_to_quantity_node) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "height": {
+        "type": "number",
+        "x-jsonld-id": "https://schema.org/height",
+        "x-jsonld-type": "http://qudt.org/schema/qudt/Quantity",
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+        "x-jsonld-constants": {
+          "http://qudt.org/schema/qudt/hasUnit": {
+            "@id": "http://qudt.org/vocab/unit/M"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "height": 1.85 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/height": [
+        {
+          "@type": [ "http://qudt.org/schema/qudt/Quantity" ],
+          "http://qudt.org/schema/qudt/value": [ { "@value": 1.85 } ],
+          "http://qudt.org/schema/qudt/hasUnit": [
+            { "@id": "http://qudt.org/vocab/unit/M" }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_promotion_through_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "metre": {
+        "type": "number",
+        "x-jsonld-type": "http://qudt.org/schema/qudt/Quantity",
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+        "x-jsonld-constants": {
+          "http://qudt.org/schema/qudt/hasUnit": {
+            "@id": "http://qudt.org/vocab/unit/M"
+          }
+        }
+      }
+    },
+    "properties": {
+      "height": {
+        "x-jsonld-id": "https://schema.org/height",
+        "$ref": "#/$defs/metre"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "height": 1.85 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/height": [
+        {
+          "@type": [ "http://qudt.org/schema/qudt/Quantity" ],
+          "http://qudt.org/schema/qudt/value": [ { "@value": 1.85 } ],
+          "http://qudt.org/schema/qudt/hasUnit": [
+            { "@id": "http://qudt.org/vocab/unit/M" }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_alone_is_a_blank_node_with_one_edge) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": "v" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_boolean_scalar) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": true })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": true } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_with_self_is_a_named_node) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{this}",
+        "x-jsonld-value": "https://example.com/carries"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@id": "https://example.com/v",
+          "https://example.com/carries": [ { "@value": "v" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_with_datatype_in_same_schema_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#decimal"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1.85 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "http://qudt.org/schema/qudt/value": [
+            {
+              "@value": "1.85",
+              "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+            }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_with_language_in_same_schema_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-language": "fr"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": "salut" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [
+            { "@value": "salut", "@language": "fr" }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_with_direction_in_same_schema_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-direction": "rtl"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [
+            { "@value": "v", "@direction": "rtl" }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_with_datatype_consented_by_overriding_enclosure) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "typed": {
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#decimal"
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+            "$ref": "#/$defs/typed"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1.85 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "http://qudt.org/schema/qudt/value": [
+            {
+              "@value": "1.85",
+              "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+            }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-type": "http://qudt.org/schema/qudt/Quantity",
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+        "x-jsonld-constants": {
+          "http://qudt.org/schema/qudt/hasUnit": {
+            "@id": "http://qudt.org/vocab/unit/M"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_anonymous_root_scalar_is_omitted) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "number",
+    "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON(1.85)JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_named_root_scalar_is_kept) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "x-jsonld-self": "https://example.com/quantity/{this}",
+    "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON("m1")JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@id": "https://example.com/quantity/m1",
+      "http://qudt.org/schema/qudt/value": [ { "@value": "m1" } ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_array_elements_promote_individually) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/x",
+        "items": {
+          "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ 1, 2 ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        { "http://qudt.org/schema/qudt/value": [ { "@value": 1 } ] },
+        { "http://qudt.org/schema/qudt/value": [ { "@value": 2 } ] }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_array_elements_promote_inside_list_container) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@list",
+        "items": {
+          "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ 1, 2 ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@list": [
+            { "http://qudt.org/schema/qudt/value": [ { "@value": 1 } ] },
+            { "http://qudt.org/schema/qudt/value": [ { "@value": 2 } ] }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_reverse_edge_to_promoted_node) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-reverse": "https://schema.org/hasPart",
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 5 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/hasPart": [
+          {
+            "http://qudt.org/schema/qudt/value": [ { "@value": 5 } ]
+          }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_reverse_edge_to_array_of_promoted_nodes) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "array",
+        "x-jsonld-reverse": "https://schema.org/hasPart",
+        "items": {
+          "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ 5 ] })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/hasPart": [
+          {
+            "http://qudt.org/schema/qudt/value": [ { "@value": 5 } ]
+          }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_types_merge_from_multiple_branches) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+        "allOf": [
+          { "x-jsonld-type": "http://qudt.org/schema/qudt/Quantity" },
+          { "x-jsonld-type": "https://example.com/Measurement" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 5 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@type": [
+            "http://qudt.org/schema/qudt/Quantity",
+            "https://example.com/Measurement"
+          ],
+          "http://qudt.org/schema/qudt/value": [ { "@value": 5 } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_without_edge_or_identity_is_omitted) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 5 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_on_object_node) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-constants": {
+          "https://example.com/status": "REC"
+        },
+        "properties": {
+          "name": { "x-jsonld-id": "https://schema.org/name" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "name": "Ada" } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://schema.org/name": [ { "@value": "Ada" } ],
+          "https://example.com/status": [ { "@value": "REC" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_on_named_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-self": "https://example.com/{this}",
+        "x-jsonld-constants": {
+          "https://example.com/status": "REC"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@id": "https://example.com/v",
+          "https://example.com/status": [ { "@value": "REC" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_literal_forms) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/text": "plain",
+          "https://example.com/count": 2,
+          "https://example.com/flag": true,
+          "https://example.com/factor": {
+            "@value": 0.5,
+            "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+          },
+          "https://example.com/label": {
+            "@value": "metre",
+            "@language": "en"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ],
+          "https://example.com/count": [ { "@value": 2 } ],
+          "https://example.com/factor": [
+            {
+              "@value": "0.5",
+              "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+            }
+          ],
+          "https://example.com/flag": [ { "@value": true } ],
+          "https://example.com/label": [
+            { "@value": "metre", "@language": "en" }
+          ],
+          "https://example.com/text": [ { "@value": "plain" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_array_entry_multiple_terms) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": [
+            { "@id": "https://example.com/a" },
+            { "@id": "https://example.com/b" }
+          ]
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ],
+          "https://example.com/seeAlso": [
+            { "@id": "https://example.com/a" },
+            { "@id": "https://example.com/b" }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_maps_union_by_key_across_branches) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "allOf": [
+          {
+            "x-jsonld-constants": {
+              "https://example.com/base": { "@id": "https://example.com/a" }
+            }
+          },
+          {
+            "x-jsonld-constants": {
+              "https://example.com/derived": { "@id": "https://example.com/b" }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ],
+          "https://example.com/base": [ { "@id": "https://example.com/a" } ],
+          "https://example.com/derived": [ { "@id": "https://example.com/b" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_same_key_terms_fan_out) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "allOf": [
+          {
+            "x-jsonld-constants": {
+              "https://example.com/unit": { "@id": "https://example.com/a" }
+            }
+          },
+          {
+            "x-jsonld-constants": {
+              "https://example.com/unit": { "@id": "https://example.com/b" }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ],
+          "https://example.com/unit": [
+            { "@id": "https://example.com/a" },
+            { "@id": "https://example.com/b" }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_identical_terms_dedupe_across_branches) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "allOf": [
+          {
+            "x-jsonld-constants": {
+              "https://example.com/unit": { "@id": "https://example.com/a" }
+            }
+          },
+          {
+            "x-jsonld-constants": {
+              "https://example.com/unit": [ { "@id": "https://example.com/a" } ]
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ],
+          "https://example.com/unit": [ { "@id": "https://example.com/a" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_scalar_sugar_dedupes_with_value_object) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "allOf": [
+          {
+            "x-jsonld-constants": {
+              "https://example.com/status": "REC"
+            }
+          },
+          {
+            "x-jsonld-constants": {
+              "https://example.com/status": { "@value": "REC" }
+            }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ],
+          "https://example.com/status": [ { "@value": "REC" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_diamond_reference_dedupes) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "library": {
+        "x-jsonld-constants": {
+          "https://example.com/unit": { "@id": "https://example.com/a" }
+        }
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "allOf": [
+          { "$ref": "#/$defs/library" },
+          { "$ref": "#/$defs/library" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ],
+          "https://example.com/unit": [ { "@id": "https://example.com/a" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_cross_numeric_terms_dedupe) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "allOf": [
+          {
+            "x-jsonld-constants": { "https://example.com/count": 1 }
+          },
+          {
+            "x-jsonld-constants": { "https://example.com/count": 1.0 }
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 2 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 2 } ],
+          "https://example.com/count": [ { "@value": 1 } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_empty_map_is_a_noop) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {}
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_empty_array_entry_is_a_noop) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": []
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_key_collides_with_value_predicate) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/carries": 99
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 }, { "@value": 99 } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_whole_keyword_null_without_override_is_ignored) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": null
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_whole_keyword_tombstone_clears_referenced_constants) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "library": {
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/unit": { "@id": "https://example.com/a" }
+        }
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-constants": null,
+            "$ref": "#/$defs/library"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_unit_swap_split_spelling) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "metre": {
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+        "x-jsonld-constants": {
+          "http://qudt.org/schema/qudt/hasUnit": {
+            "@id": "http://qudt.org/vocab/unit/M"
+          }
+        }
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-constants": {
+          "http://qudt.org/schema/qudt/hasUnit": {
+            "@id": "http://qudt.org/vocab/unit/FT"
+          }
+        },
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-constants": {
+              "http://qudt.org/schema/qudt/hasUnit": null
+            },
+            "$ref": "#/$defs/metre"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "http://qudt.org/schema/qudt/value": [ { "@value": 1 } ],
+          "http://qudt.org/schema/qudt/hasUnit": [
+            { "@id": "http://qudt.org/vocab/unit/FT" }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_per_key_tombstone_keeps_other_keys) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "library": {
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/unit": { "@id": "https://example.com/a" },
+          "https://example.com/status": "REC"
+        }
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-constants": {
+              "https://example.com/unit": null
+            },
+            "$ref": "#/$defs/library"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ],
+          "https://example.com/status": [ { "@value": "REC" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_triple_tombstone_restores_plain_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "metre": {
+        "x-jsonld-type": "http://qudt.org/schema/qudt/Quantity",
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+        "x-jsonld-constants": {
+          "http://qudt.org/schema/qudt/hasUnit": {
+            "@id": "http://qudt.org/vocab/unit/M"
+          }
+        }
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-value": null,
+            "x-jsonld-type": null,
+            "x-jsonld-constants": null,
+            "$ref": "#/$defs/metre"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1.85 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [ { "@value": 1.85 } ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_constants_on_graph_object_land_on_inner_subject) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-graph": true,
+        "x-jsonld-constants": {
+          "https://example.com/status": "REC"
+        },
+        "properties": {
+          "name": { "x-jsonld-id": "https://schema.org/name" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "name": "Ada" } })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "@graph": [
+            {
+              "https://schema.org/name": [ { "@value": "Ada" } ],
+              "https://example.com/status": [ { "@value": "REC" } ]
+            }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_non_string_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-value": 1 }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "The value of x-jsonld-value must be an absolute IRI",
+      "#/properties/x/x-jsonld-value");
+}
+
+TEST(JSONLD_value_relative_iri_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-value": "carries" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "The value of x-jsonld-value must be an absolute IRI",
+      "#/properties/x/x-jsonld-value");
+}
+
+TEST(JSONLD_value_empty_string_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": { "x-jsonld-value": "" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "The value of x-jsonld-value must be an absolute IRI",
+      "#/properties/x/x-jsonld-value");
+}
+
+TEST(JSONLD_value_rdf_type_predicate_is_emitted_as_written) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+            { "@value": "v" }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_conflict_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-value": "https://example.com/a" },
+          { "x-jsonld-value": "https://example.com/b" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "A JSON-LD value predicate cannot be assigned more than one value",
+      "#/properties/x/allOf/0/x-jsonld-value",
+      "#/properties/x/allOf/1/x-jsonld-value");
+}
+
+TEST(JSONLD_value_identical_declarations_dedupe) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-value": "https://example.com/carries" },
+          { "x-jsonld-value": "https://example.com/carries" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "https://example.com/carries": [ { "@value": 1 } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_value_on_object_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "A JSON-LD value predicate can only be assigned to a scalar value",
+      "#/properties/x/x-jsonld-value");
+}
+
+TEST(JSONLD_value_on_array_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ 1 ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "A JSON-LD value predicate can only be assigned to a scalar value",
+      "#/properties/x/x-jsonld-value");
+}
+
+TEST(JSONLD_value_with_graph_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-graph": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "A JSON-LD value predicate cannot be combined with a graph flag",
+      "#/properties/x/x-jsonld-value", "#/properties/x/x-jsonld-graph");
+}
+
+TEST(JSONLD_value_with_json_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-json": true
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations",
+      "#/properties/x/x-jsonld-json", "#/properties/x/x-jsonld-value");
+}
+
+TEST(JSONLD_constants_with_json_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-json": true,
+        "x-jsonld-constants": {
+          "https://example.com/status": "REC"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::JSON,
+      "A JSON-LD JSON literal can only be combined with predicate "
+      "annotations",
+      "#/properties/x/x-jsonld-json", "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_value_with_container_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@list",
+        "x-jsonld-value": "https://example.com/carries"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ 1 ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD container can only be combined with predicate annotations",
+      "#/properties/x/x-jsonld-container", "#/properties/x/x-jsonld-value");
+}
+
+TEST(JSONLD_constants_with_container_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@list",
+        "x-jsonld-constants": {
+          "https://example.com/status": "REC"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ 1 ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD container can only be combined with predicate annotations",
+      "#/properties/x/x-jsonld-container", "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_alone_on_scalar_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-constants": {
+          "https://example.com/status": "REC"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A JSON-LD constants fragment requires an object value, a value "
+      "predicate, or a self identity",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_alone_on_array_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-constants": {
+          "https://example.com/status": "REC"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": [ 1 ] })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A JSON-LD constants fragment requires an object value, a value "
+      "predicate, or a self identity",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_value_lone_tombstone_strands_constants) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "metre": {
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+        "x-jsonld-constants": {
+          "http://qudt.org/schema/qudt/hasUnit": {
+            "@id": "http://qudt.org/vocab/unit/M"
+          }
+        }
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-value": null,
+            "$ref": "#/$defs/metre"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A JSON-LD constants fragment requires an object value, a value "
+      "predicate, or a self identity",
+      "#/$defs/metre/x-jsonld-constants");
+}
+
+TEST(JSONLD_value_lone_tombstone_strands_type) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "metre": {
+        "x-jsonld-type": "http://qudt.org/schema/qudt/Quantity",
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-value": null,
+            "$ref": "#/$defs/metre"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
+      "A JSON-LD type can only be assigned to an object value",
+      "#/$defs/metre/x-jsonld-type");
+}
+
+TEST(JSONLD_constants_unmarked_null_entry_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/unit": null
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A JSON-LD constants entry can only be null inside an overriding "
+      "schema object",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_value_cross_path_datatype_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-value": "http://qudt.org/schema/qudt/value" },
+          { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#decimal" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "A JSON-LD value predicate cannot adopt a datatype from an unrelated "
+      "schema object",
+      "#/properties/x/allOf/0/x-jsonld-value",
+      "#/properties/x/allOf/1/x-jsonld-datatype");
+}
+
+TEST(JSONLD_value_cross_path_language_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-value": "https://example.com/carries" },
+          { "x-jsonld-language": "en" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "A JSON-LD value predicate cannot adopt a language from an unrelated "
+      "schema object",
+      "#/properties/x/allOf/0/x-jsonld-value",
+      "#/properties/x/allOf/1/x-jsonld-language");
+}
+
+TEST(JSONLD_value_cross_path_direction_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-value": "https://example.com/carries" },
+          { "x-jsonld-direction": "rtl" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "A JSON-LD value predicate cannot adopt a direction from an unrelated "
+      "schema object",
+      "#/properties/x/allOf/0/x-jsonld-value",
+      "#/properties/x/allOf/1/x-jsonld-direction");
+}
+
+TEST(JSONLD_value_cross_path_self_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-value": "https://example.com/carries" },
+          { "x-jsonld-self": "https://example.com/{this}" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+      "A JSON-LD value predicate cannot fuse with a self identity from an "
+      "unrelated schema object",
+      "#/properties/x/allOf/0/x-jsonld-value",
+      "#/properties/x/allOf/1/x-jsonld-self");
+}
+
+TEST(JSONLD_value_language_container_member_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-container": "@language",
+        "properties": {
+          "en": { "x-jsonld-value": "https://example.com/carries" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "x": { "en": "v" } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/x/en", sourcemeta::blaze::JSONLDFacet::Container,
+      "A JSON-LD language container member cannot carry a JSON-LD annotation",
+      "#/properties/x/x-jsonld-container",
+      "#/properties/x/properties/en/x-jsonld-value");
+}
+
+TEST(JSONLD_constants_non_object_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": "not a fragment"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
+                                  sourcemeta::blaze::JSONLDFacet::Constants,
+                                  "A constants fragment must be an object",
+                                  "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_array_value_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": []
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(schema, instance, "/x",
+                                  sourcemeta::blaze::JSONLDFacet::Constants,
+                                  "A constants fragment must be an object",
+                                  "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_type_keyword_key_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "@type": "http://qudt.org/schema/qudt/Quantity"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A constants fragment cannot declare node types",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_rdf_type_predicate_key_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": {
+            "@id": "http://qudt.org/schema/qudt/Quantity"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A constants fragment cannot declare node types",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_id_keyword_key_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "@id": "https://example.com/a"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A constants fragment cannot declare a node identifier",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_keyword_key_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "@context": {}
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A constants fragment key cannot be a keyword",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_relative_key_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "unit": { "@id": "https://example.com/a" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A constants fragment key must be an absolute IRI",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_node_reference_with_properties_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": {
+            "@id": "https://example.com/a",
+            "https://example.com/comment": "x"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A node reference can only carry an identifier",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_blank_node_reference_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": { "@id": "_:b0" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A node reference identifier must be an absolute IRI",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_list_term_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/list": { "@list": [ 1, 2 ] }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A constants fragment term must be a scalar, a node reference, or a "
+      "value object",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_null_array_element_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": [ null ]
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A constants fragment term must be a scalar, a node reference, or a "
+      "value object",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_null_value_object_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/status": { "@value": null }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A value object value must be a non-null scalar",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_type_and_language_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/label": {
+            "@value": "metre",
+            "@type": "http://www.w3.org/2001/XMLSchema#string",
+            "@language": "en"
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A value object cannot combine a type and a language",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_language_on_number_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/label": { "@value": 1, "@language": "en" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A value object language requires a string value",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_non_canonical_language_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/label": { "@value": "metre", "@language": "en-us" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A value object language must be a canonical BCP 47 language tag",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_json_literal_type_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/data": { "@value": "x", "@type": "@json" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A value object type cannot be the JSON literal type",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_constants_value_object_index_member_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "x-jsonld-value": "https://example.com/carries",
+        "x-jsonld-constants": {
+          "https://example.com/status": { "@value": "x", "@index": "a" }
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Constants,
+      "A value object can only carry a value, a type, and a language",
+      "#/properties/x/x-jsonld-constants");
+}
+
+TEST(JSONLD_value_retargeting_consent_survives_demotion) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "$defs": {
+      "typed": {
+        "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#decimal"
+      }
+    },
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          {
+            "x-jsonld-override": true,
+            "x-jsonld-value": "http://qudt.org/schema/qudt/value",
+            "x-jsonld-graph": null,
+            "$ref": "#/$defs/typed"
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": 1.85 })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/x": [
+        {
+          "http://qudt.org/schema/qudt/value": [
+            {
+              "@value": "1.85",
+              "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+            }
+          ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
