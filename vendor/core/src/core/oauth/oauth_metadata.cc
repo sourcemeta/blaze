@@ -6,7 +6,7 @@
 
 #include "oauth_syntax.h"
 
-#include <algorithm>   // std::ranges::find
+#include <algorithm> // std::ranges::find, std::ranges::any_of, std::ranges::all_of
 #include <optional>    // std::optional, std::nullopt
 #include <span>        // std::span
 #include <string>      // std::string
@@ -57,6 +57,20 @@ constexpr auto HASH_DPOP_BOUND_REQUIRED{
     JSON::Object::hash("dpop_bound_access_tokens_required"sv)};
 constexpr auto HASH_RESOURCE_SIGNING_ALGS{
     JSON::Object::hash("resource_signing_alg_values_supported"sv)};
+constexpr auto HASH_RESOURCE_NAME{JSON::Object::hash("resource_name"sv)};
+constexpr auto HASH_RESOURCE_DOCUMENTATION{
+    JSON::Object::hash("resource_documentation"sv)};
+constexpr auto HASH_RESOURCE_POLICY_URI{
+    JSON::Object::hash("resource_policy_uri"sv)};
+constexpr auto HASH_RESOURCE_TOS_URI{JSON::Object::hash("resource_tos_uri"sv)};
+constexpr auto HASH_TLS_CLIENT_CERTIFICATE_BOUND{
+    JSON::Object::hash("tls_client_certificate_bound_access_tokens"sv)};
+constexpr auto HASH_AUTHORIZATION_DETAILS_TYPES{
+    JSON::Object::hash("authorization_details_types_supported"sv)};
+constexpr auto HASH_DPOP_SIGNING_ALGS{
+    JSON::Object::hash("dpop_signing_alg_values_supported"sv)};
+constexpr auto HASH_PROTECTED_RESOURCES{
+    JSON::Object::hash("protected_resources"sv)};
 
 auto string_member(const JSON &data, const JSON::StringView name,
                    const JSON::Object::hash_type hash)
@@ -86,6 +100,48 @@ auto validate_endpoint(const JSON &data, const JSON::StringView name,
   }
 
   if (!member->is_string() || !oauth_is_endpoint_url(member->to_string())) {
+    throw OAuthMetadataParseError{};
+  }
+}
+
+// The shape checks run on exact name lookup only, since RFC 9728 Section 3.2
+// demands that "any metadata parameters that are not understood MUST be
+// ignored", which covers the language-tagged variants of the human-readable
+// members (RFC 9728 Section 2.1) whose names are distinct from the untagged
+// ones. A member that is present with the wrong shape fails the parse rather
+// than being ignored, since an accessor would otherwise report a malformed
+// member as an absent one
+auto validate_string_array(const JSON &data, const JSON::StringView name,
+                           const JSON::Object::hash_type hash,
+                           const bool allow_empty) -> void {
+  const auto *member{data.try_at(name, hash)};
+  if (member == nullptr) {
+    return;
+  }
+
+  if (!member->is_array() || (!allow_empty && member->empty())) {
+    throw OAuthMetadataParseError{};
+  }
+
+  for (const auto &element : member->as_array()) {
+    if (!element.is_string()) {
+      throw OAuthMetadataParseError{};
+    }
+  }
+}
+
+auto validate_boolean(const JSON &data, const JSON::StringView name,
+                      const JSON::Object::hash_type hash) -> void {
+  const auto *member{data.try_at(name, hash)};
+  if (member != nullptr && !member->is_boolean()) {
+    throw OAuthMetadataParseError{};
+  }
+}
+
+auto validate_string(const JSON &data, const JSON::StringView name,
+                     const JSON::Object::hash_type hash) -> void {
+  const auto *member{data.try_at(name, hash)};
+  if (member != nullptr && !member->is_string()) {
     throw OAuthMetadataParseError{};
   }
 }
@@ -171,6 +227,24 @@ auto validated_server_metadata(JSON &&data, const std::string_view issuer)
     }
   }
 
+  // RFC 9728 Section 4: the protected resources are "resource identifiers for
+  // OAuth protected resources that can be used with this authorization
+  // server", the Section 1.2 form, so an entry that is not one is rejected
+  // like an invalid advertised issuer, with the scheme case-insensitive for a
+  // received value per RFC 3986 Section 3.1. RFC 8414 Section 3.2 forbids a
+  // zero-element array
+  validate_string_array(data, "protected_resources"sv, HASH_PROTECTED_RESOURCES,
+                        false);
+  const auto *protected_resources{
+      data.try_at("protected_resources"sv, HASH_PROTECTED_RESOURCES)};
+  if (protected_resources != nullptr) {
+    for (const auto &element : protected_resources->as_array()) {
+      if (!oauth_is_advertised_resource(element.to_string())) {
+        throw OAuthMetadataParseError{};
+      }
+    }
+  }
+
   return std::move(data);
 }
 
@@ -205,9 +279,10 @@ auto validated_resource_metadata(JSON &&data, const std::string_view resource)
   // the client starts its next discovery request, so an entry that is not a
   // valid issuer identifier is rejected rather than handed onwards. RFC 8414
   // Section 2 requires the https scheme, a host, and no query or fragment,
-  // while leaving the scheme case-insensitive for an advertised value. Section
-  // 3.2: "Parameters with zero values MUST be omitted from the response", so a
-  // present but empty array is a malformed document
+  // and the scheme of a received value stays case-insensitive per RFC 3986
+  // Section 3.1 since an advertised issuer is matched against nothing at parse
+  // time. Section 3.2: "Parameters with zero values MUST be omitted from the
+  // response", so a present but empty array is a malformed document
   const auto *authorization_servers{
       data.try_at("authorization_servers"sv, HASH_AUTHORIZATION_SERVERS)};
   if (authorization_servers != nullptr) {
@@ -227,11 +302,43 @@ auto validated_resource_metadata(JSON &&data, const std::string_view resource)
   // algorithms, and Section 3.2 forbids a zero-element array
   const auto *algorithms{data.try_at("resource_signing_alg_values_supported"sv,
                                      HASH_RESOURCE_SIGNING_ALGS)};
-  if (algorithms != nullptr &&
-      (!algorithms->is_array() || algorithms->empty() ||
-       algorithms->contains("none"))) {
-    throw OAuthMetadataParseError{};
+  if (algorithms != nullptr) {
+    if (!algorithms->is_array() || algorithms->empty() ||
+        algorithms->contains("none")) {
+      throw OAuthMetadataParseError{};
+    }
+
+    for (const auto &element : algorithms->as_array()) {
+      if (!element.is_string()) {
+        throw OAuthMetadataParseError{};
+      }
+    }
   }
+
+  // RFC 9728 Section 3.2: "Parameters with zero values MUST be omitted from
+  // the response" is a rule on the emitting side, and no text orders a reader
+  // to reject a violating document, so treating one as malformed is this
+  // module's strictness stance, the same one the authorization server list
+  // already receives. The bearer method list is the lone member whose empty
+  // array is meaningful, since RFC 9728 Section 2 says "The empty array []
+  // can be used to indicate that no bearer methods are supported"
+  validate_string_array(data, "scopes_supported"sv, HASH_SCOPES_SUPPORTED,
+                        false);
+  validate_string_array(data, "bearer_methods_supported"sv, HASH_BEARER_METHODS,
+                        true);
+  validate_string_array(data, "authorization_details_types_supported"sv,
+                        HASH_AUTHORIZATION_DETAILS_TYPES, false);
+  validate_string_array(data, "dpop_signing_alg_values_supported"sv,
+                        HASH_DPOP_SIGNING_ALGS, false);
+  validate_boolean(data, "tls_client_certificate_bound_access_tokens"sv,
+                   HASH_TLS_CLIENT_CERTIFICATE_BOUND);
+  validate_boolean(data, "dpop_bound_access_tokens_required"sv,
+                   HASH_DPOP_BOUND_REQUIRED);
+  validate_string(data, "resource_name"sv, HASH_RESOURCE_NAME);
+  validate_string(data, "resource_documentation"sv,
+                  HASH_RESOURCE_DOCUMENTATION);
+  validate_string(data, "resource_policy_uri"sv, HASH_RESOURCE_POLICY_URI);
+  validate_string(data, "resource_tos_uri"sv, HASH_RESOURCE_TOS_URI);
 
   return std::move(data);
 }
@@ -251,6 +358,26 @@ auto oauth_is_endpoint_url(const std::string_view value) -> bool {
   const auto uri{oauth_try_parse_uri(value)};
   return uri.has_value() && uri->is_https() && uri->host().has_value() &&
          !uri->host().value().empty() && !uri->fragment().has_value();
+}
+
+// RFC 9728 Section 1.2 and RFC 8707 Section 2: a resource is an https URL with
+// a non-empty host and no fragment, a query tolerated unlike an issuer
+auto oauth_is_resource_identifier(const std::string_view value) -> bool {
+  const auto uri{oauth_try_parse_uri(value)};
+  return uri.has_value() && uri->scheme().has_value() &&
+         uri->scheme().value() == "https" && uri->host().has_value() &&
+         !uri->host().value().empty() && !uri->fragment().has_value();
+}
+
+// RFC 8414 Section 2: an issuer is an https URL with a non-empty host (RFC 3986
+// Section 3.2) and no query or fragment, its scheme matched by code points to
+// reject a non-canonical case
+auto oauth_is_issuer_identifier(const std::string_view value) -> bool {
+  const auto uri{oauth_try_parse_uri(value)};
+  return uri.has_value() && uri->scheme().has_value() &&
+         uri->scheme().value() == "https" && uri->host().has_value() &&
+         !uri->host().value().empty() && !uri->query().has_value() &&
+         !uri->fragment().has_value();
 }
 
 auto oauth_well_known_url(const std::string_view identifier,
@@ -467,6 +594,12 @@ auto OAuthServerMetadata::supports_token_endpoint_auth_method(
   return member->contains(value);
 }
 
+auto OAuthServerMetadata::supports_protected_resource(
+    const std::string_view value) const -> bool {
+  return this->data_.array_member_contains("protected_resources"sv,
+                                           HASH_PROTECTED_RESOURCES, value);
+}
+
 auto OAuthServerMetadata::data() const -> const JSON & { return this->data_; }
 
 OAuthResourceMetadata::OAuthResourceMetadata(JSON &&data,
@@ -537,6 +670,61 @@ auto OAuthResourceMetadata::dpop_bound_access_tokens_required() const -> bool {
   return member != nullptr && member->is_boolean() && member->to_boolean();
 }
 
+auto OAuthResourceMetadata::resource_name() const
+    -> std::optional<std::string_view> {
+  return string_member(this->data_, "resource_name"sv, HASH_RESOURCE_NAME);
+}
+
+auto OAuthResourceMetadata::resource_documentation() const
+    -> std::optional<std::string_view> {
+  return string_member(this->data_, "resource_documentation"sv,
+                       HASH_RESOURCE_DOCUMENTATION);
+}
+
+auto OAuthResourceMetadata::resource_policy_uri() const
+    -> std::optional<std::string_view> {
+  return string_member(this->data_, "resource_policy_uri"sv,
+                       HASH_RESOURCE_POLICY_URI);
+}
+
+auto OAuthResourceMetadata::resource_tos_uri() const
+    -> std::optional<std::string_view> {
+  return string_member(this->data_, "resource_tos_uri"sv,
+                       HASH_RESOURCE_TOS_URI);
+}
+
+auto OAuthResourceMetadata::tls_client_certificate_bound_access_tokens() const
+    -> bool {
+  if (!this->data_.is_object()) {
+    return false;
+  }
+
+  const auto *member{
+      this->data_.try_at("tls_client_certificate_bound_access_tokens"sv,
+                         HASH_TLS_CLIENT_CERTIFICATE_BOUND)};
+  return member != nullptr && member->is_boolean() && member->to_boolean();
+}
+
+auto OAuthResourceMetadata::supports_resource_signing_alg(
+    const std::string_view value) const -> bool {
+  return this->data_.array_member_contains(
+      "resource_signing_alg_values_supported"sv, HASH_RESOURCE_SIGNING_ALGS,
+      value);
+}
+
+auto OAuthResourceMetadata::supports_dpop_signing_alg(
+    const std::string_view value) const -> bool {
+  return this->data_.array_member_contains(
+      "dpop_signing_alg_values_supported"sv, HASH_DPOP_SIGNING_ALGS, value);
+}
+
+auto OAuthResourceMetadata::supports_authorization_details_type(
+    const std::string_view value) const -> bool {
+  return this->data_.array_member_contains(
+      "authorization_details_types_supported"sv,
+      HASH_AUTHORIZATION_DETAILS_TYPES, value);
+}
+
 auto OAuthResourceMetadata::data() const -> const JSON & { return this->data_; }
 
 namespace {
@@ -544,6 +732,15 @@ namespace {
 auto span_contains(const std::span<const std::string_view> values,
                    const std::string_view target) -> bool {
   return std::ranges::find(values, target) != values.end();
+}
+
+// RFC 9728 Section 2 calls each human-readable page location a URL without
+// mandating a scheme, so the check is for an absolute URI rather than an https
+// one, and a fragment stays legitimate on a page location, unlike under the
+// stricter RFC 3986 Section 4.3 absolute-URI rule
+auto oauth_is_page_url(const std::string_view value) -> bool {
+  const auto uri{oauth_try_parse_uri(value)};
+  return uri.has_value() && uri->is_absolute();
 }
 
 } // namespace
@@ -629,6 +826,14 @@ auto oauth_make_server_metadata(const OAuthServerMetadataConfig &config)
     return std::nullopt;
   }
 
+  // RFC 9728 Section 4: the advertised protected resources are "resource
+  // identifiers for OAuth protected resources", so an entry that is not one
+  // would yield an unusable document
+  if (!std::ranges::all_of(config.protected_resources,
+                           oauth_is_resource_identifier)) {
+    return std::nullopt;
+  }
+
   auto document{JSON::make_object()};
   document.assign_assume_new("issuer", JSON{config.issuer}, HASH_ISSUER);
   document.assign_if_nonempty("authorization_endpoint",
@@ -658,11 +863,120 @@ auto oauth_make_server_metadata(const OAuthServerMetadataConfig &config)
       config.token_endpoint_auth_signing_alg_values_supported);
   document.assign_if_nonempty("scopes_supported", HASH_SCOPES_SUPPORTED,
                               config.scopes_supported);
+  document.assign_if_nonempty("protected_resources", HASH_PROTECTED_RESOURCES,
+                              config.protected_resources);
   // RFC 9126 Section 5: the default is false, so the flag is emitted only when
   // the server requires pushed authorization requests
   if (config.require_pushed_authorization_requests) {
     document.assign_assume_new("require_pushed_authorization_requests",
                                JSON{true}, HASH_REQUIRE_PAR);
+  }
+
+  return document;
+}
+
+auto oauth_make_resource_metadata(const OAuthResourceMetadataConfig &config)
+    -> std::optional<JSON> {
+  // RFC 9728 Section 2: the resource is REQUIRED and must be a valid resource
+  // identifier per Section 1.2
+  if (!oauth_is_resource_identifier(config.resource)) {
+    return std::nullopt;
+  }
+
+  // RFC 9728 Section 2: the authorization servers are "OAuth authorization
+  // server issuer identifiers, as defined in [RFC8414]". A client resolves an
+  // entry by inserting the well-known string into it (RFC 8414 Section 3) and
+  // then requires the metadata issuer to be "identical" to it by code points
+  // (RFC 8414 Sections 3.3 and 4), so only an entry in the exact issuer
+  // identifier form can ever complete discovery, and emitting any other form
+  // would advertise a dead end
+  if (!std::ranges::all_of(config.authorization_servers,
+                           oauth_is_issuer_identifier)) {
+    return std::nullopt;
+  }
+
+  // RFC 9728 Section 2 on jwks_uri: "This URL MUST use the https scheme"
+  if (!config.jwks_uri.empty() && !oauth_is_endpoint_url(config.jwks_uri)) {
+    return std::nullopt;
+  }
+
+  // RFC 9728 Section 2: "The value none MUST NOT be used" in the resource
+  // signing algorithms
+  if (span_contains(config.resource_signing_alg_values_supported, "none")) {
+    return std::nullopt;
+  }
+
+  // RFC 9449 Section 4.2: a DPoP proof algorithm "MUST NOT be none or an
+  // identifier for a symmetric algorithm (Message Authentication Code (MAC))",
+  // so advertising one describes a proof that cannot exist. The MAC exclusion
+  // covers the registered JWS MAC identifiers, and a later registration would
+  // pass, since the registry is extensible and not modelled here
+  if (span_contains(config.dpop_signing_alg_values_supported, "none") ||
+      span_contains(config.dpop_signing_alg_values_supported, "HS256") ||
+      span_contains(config.dpop_signing_alg_values_supported, "HS384") ||
+      span_contains(config.dpop_signing_alg_values_supported, "HS512")) {
+    return std::nullopt;
+  }
+
+  if ((!config.resource_documentation.empty() &&
+       !oauth_is_page_url(config.resource_documentation)) ||
+      (!config.resource_policy_uri.empty() &&
+       !oauth_is_page_url(config.resource_policy_uri)) ||
+      (!config.resource_tos_uri.empty() &&
+       !oauth_is_page_url(config.resource_tos_uri))) {
+    return std::nullopt;
+  }
+
+  auto document{JSON::make_object()};
+  document.assign_assume_new("resource", JSON{config.resource}, HASH_RESOURCE);
+  document.assign_if_nonempty("authorization_servers",
+                              HASH_AUTHORIZATION_SERVERS,
+                              config.authorization_servers);
+  document.assign_if_nonempty("jwks_uri", HASH_JWKS_URI, config.jwks_uri);
+  document.assign_if_nonempty("scopes_supported", HASH_SCOPES_SUPPORTED,
+                              config.scopes_supported);
+  // RFC 9728 Section 2: "The empty array [] can be used to indicate that no
+  // bearer methods are supported", the one member whose engaged empty state is
+  // emitted despite the Section 3.2 zero-value omission rule, whose general
+  // form the specific text governs over
+  if (config.bearer_methods_supported.has_value()) {
+    auto methods{JSON::make_array()};
+    for (const auto &method : config.bearer_methods_supported.value()) {
+      methods.push_back(JSON{method});
+    }
+
+    document.assign_assume_new("bearer_methods_supported", std::move(methods),
+                               HASH_BEARER_METHODS);
+  }
+
+  document.assign_if_nonempty("resource_signing_alg_values_supported",
+                              HASH_RESOURCE_SIGNING_ALGS,
+                              config.resource_signing_alg_values_supported);
+  document.assign_if_nonempty("resource_name", HASH_RESOURCE_NAME,
+                              config.resource_name);
+  document.assign_if_nonempty("resource_documentation",
+                              HASH_RESOURCE_DOCUMENTATION,
+                              config.resource_documentation);
+  document.assign_if_nonempty("resource_policy_uri", HASH_RESOURCE_POLICY_URI,
+                              config.resource_policy_uri);
+  document.assign_if_nonempty("resource_tos_uri", HASH_RESOURCE_TOS_URI,
+                              config.resource_tos_uri);
+  // RFC 9728 Section 2: both boolean defaults are false when absent, so each
+  // flag is emitted only when true
+  if (config.tls_client_certificate_bound_access_tokens) {
+    document.assign_assume_new("tls_client_certificate_bound_access_tokens",
+                               JSON{true}, HASH_TLS_CLIENT_CERTIFICATE_BOUND);
+  }
+
+  document.assign_if_nonempty("authorization_details_types_supported",
+                              HASH_AUTHORIZATION_DETAILS_TYPES,
+                              config.authorization_details_types_supported);
+  document.assign_if_nonempty("dpop_signing_alg_values_supported",
+                              HASH_DPOP_SIGNING_ALGS,
+                              config.dpop_signing_alg_values_supported);
+  if (config.dpop_bound_access_tokens_required) {
+    document.assign_assume_new("dpop_bound_access_tokens_required", JSON{true},
+                               HASH_DPOP_BOUND_REQUIRED);
   }
 
   return document;
