@@ -12380,6 +12380,52 @@ TEST(JSONLD_origins_datatype_on_object) {
       "#/properties/x/x-jsonld-datatype");
 }
 
+TEST(JSONLD_origins_duplicate_datatype_cites_first_declaration) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-datatype": "https://example.com/A" },
+          { "x-jsonld-datatype": "https://example.com/A" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": {} })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Datatype,
+      "A JSON-LD datatype can only be assigned to a scalar value",
+      "#/properties/x/allOf/0/x-jsonld-datatype");
+}
+
+TEST(JSONLD_origins_duplicate_type_cites_first_declaration) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "x": {
+        "x-jsonld-id": "https://schema.org/x",
+        "allOf": [
+          { "x-jsonld-type": "https://schema.org/Thing" },
+          { "x-jsonld-type": "https://schema.org/Thing" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "x": "v" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/x", sourcemeta::blaze::JSONLDFacet::Type,
+      "A JSON-LD type can only be assigned to an object value",
+      "#/properties/x/allOf/0/x-jsonld-type");
+}
+
 TEST(JSONLD_origins_language_on_object) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

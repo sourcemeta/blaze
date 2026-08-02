@@ -23,10 +23,10 @@
 namespace {
 
 // The facts gathered at one instance location before its kind is known. Each
-// facet remembers the schema location of an annotation that set it, so a
-// later error about the facet can cite its origin. The origins are plain
-// pointers into the collected annotation entries, so carrying them costs no
-// allocation
+// facet remembers the schema location of the annotation that last changed it,
+// never of a redundant duplicate, so a later error about the facet can cite
+// its origin. The origins are plain pointers into the collected annotation
+// entries, so carrying them costs no allocation
 struct Facts {
   std::vector<sourcemeta::core::JSONLDEdge> edges;
   std::vector<sourcemeta::core::JSON::String> types;
@@ -54,7 +54,7 @@ using Accumulator = std::unordered_map<sourcemeta::core::WeakPointer, Facts,
 
 auto add_edge(std::vector<sourcemeta::core::JSONLDEdge> &edges,
               const sourcemeta::core::JSON::String &predicate,
-              const bool reverse) -> void {
+              const bool reverse) -> bool {
   const auto exists{std::ranges::any_of(
       edges,
       [&predicate, reverse](const sourcemeta::core::JSONLDEdge &edge) -> bool {
@@ -63,10 +63,12 @@ auto add_edge(std::vector<sourcemeta::core::JSONLDEdge> &edges,
   if (!exists) {
     edges.push_back({.predicate = predicate, .reverse = reverse});
   }
+
+  return !exists;
 }
 
 auto add_type(std::vector<sourcemeta::core::JSON::String> &types,
-              const sourcemeta::core::JSON::String &type) -> void {
+              const sourcemeta::core::JSON::String &type) -> bool {
   const auto exists{std::ranges::any_of(
       types, [&type](const sourcemeta::core::JSON::String &existing) -> bool {
         return existing == type;
@@ -74,6 +76,8 @@ auto add_type(std::vector<sourcemeta::core::JSON::String> &types,
   if (!exists) {
     types.push_back(type);
   }
+
+  return !exists;
 }
 
 // Whether an annotation value is usable as an absolute IRI
@@ -662,10 +666,11 @@ auto resolve_edges(const std::vector<Candidate> &candidates, const bool reverse,
       continue;
     }
 
-    add_edge(facts.edges, candidate.value->to_string(), reverse);
-    facts.edges_origin = candidate.origin;
-    if (reverse) {
-      facts.reverse_origin = candidate.origin;
+    if (add_edge(facts.edges, candidate.value->to_string(), reverse)) {
+      facts.edges_origin = candidate.origin;
+      if (reverse) {
+        facts.reverse_origin = candidate.origin;
+      }
     }
   }
 }
@@ -679,15 +684,15 @@ auto resolve_types(const std::vector<Candidate> &candidates, Facts &facts)
     }
 
     if (candidate.value->is_array()) {
+      bool contributed{false};
       for (const auto &element : candidate.value->as_array()) {
-        add_type(facts.types, element.to_string());
+        contributed = add_type(facts.types, element.to_string()) || contributed;
       }
 
-      if (!candidate.value->empty()) {
+      if (contributed) {
         facts.types_origin = candidate.origin;
       }
-    } else {
-      add_type(facts.types, candidate.value->to_string());
+    } else if (add_type(facts.types, candidate.value->to_string())) {
       facts.types_origin = candidate.origin;
     }
   }
@@ -802,10 +807,11 @@ auto resolve(const sourcemeta::core::JSON &instance,
         demote(accumulator, dirty, instance_location);
       } else if (!dirty.contains(instance_location)) {
         auto &facts{accumulator[instance_location]};
-        add_edge(facts.edges, value.to_string(), reverse);
-        facts.edges_origin = origin;
-        if (reverse) {
-          facts.reverse_origin = origin;
+        if (add_edge(facts.edges, value.to_string(), reverse)) {
+          facts.edges_origin = origin;
+          if (reverse) {
+            facts.reverse_origin = origin;
+          }
         }
       }
     } else if (keyword.property_equals("x-jsonld-type", HASH_TYPE)) {
@@ -824,15 +830,16 @@ auto resolve(const sourcemeta::core::JSON &instance,
       } else if (!dirty.contains(instance_location)) {
         auto &facts{accumulator[instance_location]};
         if (value.is_array()) {
+          bool contributed{false};
           for (const auto &element : value.as_array()) {
-            add_type(facts.types, element.to_string());
+            contributed =
+                add_type(facts.types, element.to_string()) || contributed;
           }
 
-          if (!value.empty()) {
+          if (contributed) {
             facts.types_origin = origin;
           }
-        } else {
-          add_type(facts.types, value.to_string());
+        } else if (add_type(facts.types, value.to_string())) {
           facts.types_origin = origin;
         }
       }
@@ -850,7 +857,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
         const auto &text{value.to_string()};
         if (facts.datatype.has_value() && facts.datatype.value() != text) {
           demote(accumulator, dirty, instance_location);
-        } else {
+        } else if (!facts.datatype.has_value()) {
           facts.datatype = text;
           facts.datatype_origin = origin;
         }
@@ -873,7 +880,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
         const auto &text{value.to_string()};
         if (facts.language.has_value() && facts.language.value() != text) {
           demote(accumulator, dirty, instance_location);
-        } else {
+        } else if (!facts.language.has_value()) {
           facts.language = text;
           facts.language_origin = origin;
         }
@@ -893,7 +900,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
         auto &facts{accumulator[instance_location]};
         if (facts.direction.has_value() && facts.direction != direction) {
           demote(accumulator, dirty, instance_location);
-        } else {
+        } else if (!facts.direction.has_value()) {
           facts.direction = direction;
           facts.direction_origin = origin;
         }
@@ -918,9 +925,11 @@ auto resolve(const sourcemeta::core::JSON &instance,
       } else if (value.to_boolean() && !dirty.contains(instance_location)) {
         auto &facts{accumulator[instance_location]};
         if (graph) {
-          facts.graph = true;
-          facts.graph_origin = origin;
-        } else {
+          if (!facts.graph) {
+            facts.graph = true;
+            facts.graph_origin = origin;
+          }
+        } else if (!facts.json) {
           facts.json = true;
           facts.json_origin = origin;
         }
@@ -940,7 +949,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
         auto &facts{accumulator[instance_location]};
         if (facts.container.has_value() && facts.container != container) {
           demote(accumulator, dirty, instance_location);
-        } else {
+        } else if (!facts.container.has_value()) {
           facts.container = container;
           facts.container_origin = origin;
         }
@@ -961,7 +970,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
         const auto &text{value.to_string()};
         if (facts.self.has_value() && facts.self.value() != text) {
           demote(accumulator, dirty, instance_location);
-        } else {
+        } else if (!facts.self.has_value()) {
           facts.self = text;
           facts.self_origin = origin;
         }
