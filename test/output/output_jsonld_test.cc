@@ -89,10 +89,10 @@
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
     const std::array<sourcemeta::blaze::JSONLDOutcome, 3> outcomes{            \
-        sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),     \
-        sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),       \
-        sourcemeta::blaze::jsonld(evaluator, exhaustive_template,              \
-                                  (instance))};                                \
+        {sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),    \
+         sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),      \
+         sourcemeta::blaze::jsonld(evaluator, exhaustive_template,             \
+                                   (instance))}};                              \
     for (const auto &outcome : outcomes) {                                     \
       EXPECT_TRUE(                                                             \
           std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(    \
@@ -144,10 +144,10 @@
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
     const std::array<sourcemeta::blaze::JSONLDOutcome, 3> outcomes{            \
-        sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),     \
-        sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),       \
-        sourcemeta::blaze::jsonld(evaluator, exhaustive_template,              \
-                                  (instance))};                                \
+        {sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),    \
+         sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),      \
+         sourcemeta::blaze::jsonld(evaluator, exhaustive_template,             \
+                                   (instance))}};                              \
     for (const auto &outcome : outcomes) {                                     \
       EXPECT_TRUE(                                                             \
           std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(    \
@@ -202,10 +202,10 @@
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
     const std::array<sourcemeta::blaze::JSONLDOutcome, 3> outcomes{            \
-        sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),     \
-        sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),       \
-        sourcemeta::blaze::jsonld(evaluator, exhaustive_template,              \
-                                  (instance))};                                \
+        {sourcemeta::blaze::jsonld(evaluator, schema_template, (instance)),    \
+         sourcemeta::blaze::jsonld(evaluator, jump_template, (instance)),      \
+         sourcemeta::blaze::jsonld(evaluator, exhaustive_template,             \
+                                   (instance))}};                              \
     for (const auto &outcome : outcomes) {                                     \
       EXPECT_TRUE(                                                             \
           std::holds_alternative<sourcemeta::blaze::JSONLDResolutionError>(    \
