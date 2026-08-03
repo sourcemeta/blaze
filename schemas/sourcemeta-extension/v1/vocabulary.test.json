@@ -1004,6 +1004,293 @@
         "x-jsonld-datatype": 123,
         "x-jsonld-override": true
       }
+    },
+    {
+      "description": "x-jsonld-value with IRI is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-value": "http://qudt.org/schema/qudt/value"
+      }
+    },
+    {
+      "description": "x-jsonld-value with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-value": null
+      }
+    },
+    {
+      "description": "x-jsonld-value with relative reference is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-value": "value"
+      }
+    },
+    {
+      "description": "x-jsonld-value with number is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-value": 1
+      }
+    },
+    {
+      "description": "x-jsonld-value with the rdf:type predicate is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      }
+    },
+    {
+      "description": "x-jsonld-constants with null is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": null
+      }
+    },
+    {
+      "description": "x-jsonld-constants with empty object is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": {}
+      }
+    },
+    {
+      "description": "x-jsonld-constants with node reference entry is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": {
+          "http://qudt.org/schema/qudt/hasUnit": {
+            "@id": "http://qudt.org/vocab/unit/M"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with scalar literal entries is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/text": "plain",
+          "https://example.com/count": 2,
+          "https://example.com/flag": true
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with typed literal entry is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/factor": {
+            "@value": "0.1",
+            "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with language tagged entry is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/label": {
+            "@value": "metre",
+            "@language": "en"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with array entry is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": [
+            {
+              "@id": "https://example.com/a"
+            },
+            "note"
+          ]
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with empty array entry is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": []
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with null entry is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/unit": null
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with array value is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": []
+      }
+    },
+    {
+      "description": "x-jsonld-constants with string value is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": "not a fragment"
+      }
+    },
+    {
+      "description": "x-jsonld-constants with type keyword key is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "@type": "http://qudt.org/schema/qudt/Quantity"
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with rdf:type predicate key is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": {
+            "@id": "http://qudt.org/schema/qudt/Quantity"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with identifier keyword key is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "@id": "https://example.com/a"
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants with relative key is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "unit": {
+            "@id": "https://example.com/a"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants node reference with extra member is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": {
+            "@id": "https://example.com/a",
+            "https://example.com/comment": "x"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants blank node reference is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/seeAlso": {
+            "@id": "_:b0"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants value object with type and language is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/label": {
+            "@value": "metre",
+            "@type": "http://www.w3.org/2001/XMLSchema#string",
+            "@language": "en"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants language on non-string value is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/label": {
+            "@value": 1,
+            "@language": "en"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants non-canonical language is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/label": {
+            "@value": "metre",
+            "@language": "en-us"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants JSON literal type is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/data": {
+            "@value": "x",
+            "@type": "@json"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants value object with unknown member is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/status": {
+            "@value": "x",
+            "@index": "a"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants null value object is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/status": {
+            "@value": null
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-constants list term is rejected",
+      "valid": false,
+      "data": {
+        "x-jsonld-constants": {
+          "https://example.com/list": {
+            "@list": [ 1, 2 ]
+          }
+        }
+      }
     }
   ]
 }
