@@ -16,6 +16,175 @@
 #include <tuple>      // std::tuple, std::get
 #include <vector>     // std::vector
 
+static auto rdf_test_resolver(std::string_view identifier)
+    -> std::optional<sourcemeta::core::JSON> {
+  if (identifier == "https://example.com/person") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "properties": {
+        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-2019") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-2019",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "properties": {
+        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-same") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-same",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "properties": {
+        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-alt") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-alt",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-jsonld-id": "https://example.org/fullName"
+        }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-anyof") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-anyof",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "anyOf": [
+        { "type": "object" },
+        {
+          "properties": {
+            "name": { "x-jsonld-id": "https://schema.org/name" }
+          }
+        }
+      ]
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-oneof") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-oneof",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "x-jsonld-type": "https://schema.org/Person",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-jsonld-id": "https://schema.org/name"
+            }
+          }
+        }
+      ]
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-defs") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-defs",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "person": {
+          "type": "object",
+          "x-jsonld-type": "https://schema.org/Person",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-jsonld-id": "https://schema.org/name"
+            }
+          }
+        }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/conflict") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/conflict",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "x": {
+          "allOf": [
+            { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" },
+            { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#string" }
+          ]
+        }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/number") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/number",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "x-jsonld-id": "https://example.com/value"
+        }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/plain") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/plain",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object"
+    })JSON");
+  }
+
+  return sourcemeta::blaze::schema_resolver(identifier);
+}
+
+using RDFTrace =
+    std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
+               bool, std::optional<sourcemeta::core::JSON>,
+               std::optional<sourcemeta::blaze::JSONLDResolutionError>>;
+
+static auto rdf_trace_callback(std::vector<RDFTrace> &traces)
+    -> sourcemeta::blaze::TestSuite::Callback {
+  return
+      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
+                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
+                sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, outcome.passed, outcome.valid,
+                            outcome.rdf, outcome.rdf_error);
+      };
+}
+
 TEST(empty_tests) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
@@ -36,10 +205,11 @@ TEST(empty_tests) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 0);
@@ -81,10 +251,11 @@ TEST(all_passing) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 2);
@@ -148,10 +319,11 @@ TEST(all_failing) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 2);
@@ -220,10 +392,11 @@ TEST(mixed_results) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 3);
@@ -317,10 +490,11 @@ TEST(file_path_target) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 3);
@@ -412,10 +586,11 @@ TEST(default_dialect) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 3);
@@ -492,7 +667,8 @@ TEST(timestamps_ordering) {
       traces;
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t,
-                std::size_t, const sourcemeta::blaze::TestCase &, bool,
+                std::size_t, const sourcemeta::blaze::TestCase &,
+                const sourcemeta::blaze::TestOutcome &,
                 sourcemeta::blaze::TestTimestamp start,
                 sourcemeta::blaze::TestTimestamp end) {
         traces.emplace_back(target, start, end);
@@ -570,10 +746,11 @@ TEST(multiple_targets_all_passing) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 4);
@@ -647,10 +824,11 @@ TEST(multiple_targets_all_failing) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 4);
@@ -724,10 +902,11 @@ TEST(multiple_targets_mixed_results) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 4);
@@ -790,10 +969,11 @@ TEST(multiple_targets_with_no_tests) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 0);
@@ -827,10 +1007,11 @@ TEST(multiple_targets_single_element_matches_string_form) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 1);
@@ -887,10 +1068,11 @@ TEST(multiple_targets_with_file_path_targets) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 2);
@@ -963,10 +1145,11 @@ TEST(multiple_targets_with_default_dialect) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 4);
@@ -1031,10 +1214,11 @@ TEST(multiple_targets_with_data_path) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 2);
@@ -1091,7 +1275,8 @@ TEST(multiple_targets_timestamps_ordering) {
       traces;
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t,
-                std::size_t, const sourcemeta::blaze::TestCase &, bool,
+                std::size_t, const sourcemeta::blaze::TestCase &,
+                const sourcemeta::blaze::TestOutcome &,
                 sourcemeta::blaze::TestTimestamp start,
                 sourcemeta::blaze::TestTimestamp end) {
         traces.emplace_back(target, start, end);
@@ -1150,10 +1335,11 @@ TEST(multiple_targets_three_targets) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 3);
@@ -1229,10 +1415,11 @@ TEST(multiple_targets_per_target_validation_differs) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 2);
@@ -1314,10 +1501,11 @@ TEST(embedded_custom_metaschema) {
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
                 std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                bool actual, sourcemeta::blaze::TestTimestamp,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
                 sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, actual);
+                            test_case.valid, outcome.valid);
       })};
 
   EXPECT_EQ(result.total, 2);
@@ -1329,4 +1517,925 @@ TEST(embedded_custom_metaschema) {
   EXPECT_EQ(std::get<3>(traces.at(1)), "a number is invalid");
   EXPECT_FALSE(std::get<4>(traces.at(1)));
   EXPECT_FALSE(std::get<5>(traces.at(1)));
+}
+
+TEST(rdf_passing_inline) {
+  const auto input{R"JSON({
+    "target": "https://example.com/person",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "description": "promotes to schema.org",
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Ada" } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_EQ(std::get<3>(traces[0]), "promotes to schema.org");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_failing_expansion_mismatch) {
+  const auto input{R"JSON({
+    "target": "https://example.com/person",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "description": "wrong expectation",
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Grace" } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 0);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_EQ(std::get<3>(traces[0]), "wrong expectation");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_FALSE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_validity_mismatch_skips_comparison) {
+  const auto input{R"JSON({
+    "target": "https://example.com/person",
+    "tests": [
+      {
+        "data": { "name": 1 },
+        "valid": true,
+        "description": "invalid instance",
+        "rdf": []
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 0);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_EQ(std::get<3>(traces[0]), "invalid instance");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_FALSE(std::get<5>(traces[0]));
+  EXPECT_FALSE(std::get<6>(traces[0]));
+  EXPECT_FALSE(std::get<7>(traces[0]).has_value());
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_resolution_error_fails_case_and_later_cases_run) {
+  const auto input{R"JSON({
+    "target": "https://example.com/conflict",
+    "tests": [
+      {
+        "data": { "x": "v" },
+        "valid": true,
+        "description": "conflicting datatypes",
+        "rdf": []
+      },
+      {
+        "data": {},
+        "valid": true,
+        "description": "no conflicting member",
+        "rdf": []
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/conflict");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
+  EXPECT_EQ(std::get<3>(traces[0]), "conflicting datatypes");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_FALSE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_FALSE(std::get<7>(traces[0]).has_value());
+  EXPECT_TRUE(std::get<8>(traces[0]).has_value());
+  EXPECT_EQ(sourcemeta::core::to_string(
+                std::get<8>(traces[0]).value().instance_location),
+            "/x");
+  EXPECT_EQ(std::get<8>(traces[0]).value().facet,
+            sourcemeta::blaze::JSONLDFacet::Datatype);
+  EXPECT_EQ(std::get<8>(traces[0]).value().message,
+            "A JSON-LD datatype cannot be assigned more than one value");
+  EXPECT_EQ(
+      std::get<8>(traces[0]).value().schema_location,
+      "https://example.com/conflict#/properties/x/allOf/0/x-jsonld-datatype");
+  EXPECT_TRUE(
+      std::get<8>(traces[0]).value().conflicting_schema_location.has_value());
+  EXPECT_EQ(
+      std::get<8>(traces[0]).value().conflicting_schema_location.value(),
+      "https://example.com/conflict#/properties/x/allOf/1/x-jsonld-datatype");
+  EXPECT_FALSE(
+      std::get<8>(traces[0]).value().inert_override_location.has_value());
+
+  EXPECT_EQ(std::get<0>(traces[1]), "https://example.com/conflict");
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
+  EXPECT_EQ(std::get<3>(traces[1]), "no conflicting member");
+  EXPECT_TRUE(std::get<4>(traces[1]));
+  EXPECT_TRUE(std::get<5>(traces[1]));
+  EXPECT_TRUE(std::get<6>(traces[1]));
+  EXPECT_TRUE(std::get<7>(traces[1]).has_value());
+  EXPECT_EQ(std::get<7>(traces[1]).value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[1]).has_value());
+}
+
+TEST(rdf_with_rdfPath_json) {
+  const auto input{R"JSON({
+    "target": "schema_jsonld.json",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "rdfPath": "rdf.json"
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto test_resolver{
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+        const sourcemeta::core::URI uri{identifier};
+        if (uri.is_file()) {
+          return sourcemeta::core::read_yaml_or_json(uri.to_path());
+        }
+
+        return sourcemeta::blaze::schema_resolver(identifier);
+      }};
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+  const auto expected_target{sourcemeta::core::URI::from_path(
+      std::filesystem::path{STUBS_PATH} / "schema_jsonld.json")};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), expected_target.recompose());
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_with_rdfPath_yaml) {
+  const auto input{R"JSON({
+    "target": "schema_jsonld.json",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "rdfPath": "rdf.yaml"
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto test_resolver{
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+        const sourcemeta::core::URI uri{identifier};
+        if (uri.is_file()) {
+          return sourcemeta::core::read_yaml_or_json(uri.to_path());
+        }
+
+        return sourcemeta::blaze::schema_resolver(identifier);
+      }};
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+  const auto expected_target{sourcemeta::core::URI::from_path(
+      std::filesystem::path{STUBS_PATH} / "schema_jsonld.json")};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), expected_target.recompose());
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_anyof_annotations_collected) {
+  const auto input{R"JSON({
+    "target": "https://example.com/person-anyof",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Ada" } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person-anyof");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_oneof_annotations_collected) {
+  const auto input{R"JSON({
+    "target": "https://example.com/person-oneof",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Ada" } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person-oneof");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_numeric_expectation_cross_representation) {
+  const auto input{R"JSON({
+    "target": "https://example.com/number",
+    "tests": [
+      {
+        "data": { "value": 2.0 },
+        "valid": true,
+        "rdf": [
+          {
+            "https://example.com/value": [ { "@value": 2 } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/number");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://example.com/value": [ { "@value": 2 } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_empty_expectation_without_jsonld_keywords) {
+  const auto input{R"JSON({
+    "target": "https://example.com/plain",
+    "tests": [
+      {
+        "data": { "anything": "goes" },
+        "valid": true,
+        "rdf": []
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/plain");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_2019_09_schema) {
+  const auto input{R"JSON({
+    "target": "https://example.com/person-2019",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Ada" } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person-2019");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_multi_target_same_expectation) {
+  const auto input{R"JSON({
+    "target": [
+      "https://example.com/person",
+      "https://example.com/person-same"
+    ],
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Ada" } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 2);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+
+  EXPECT_EQ(std::get<0>(traces[1]), "https://example.com/person-same");
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
+  EXPECT_TRUE(std::get<3>(traces[1]).empty());
+  EXPECT_TRUE(std::get<4>(traces[1]));
+  EXPECT_TRUE(std::get<5>(traces[1]));
+  EXPECT_TRUE(std::get<6>(traces[1]));
+  EXPECT_TRUE(std::get<7>(traces[1]).has_value());
+  EXPECT_EQ(std::get<7>(traces[1]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[1]).has_value());
+}
+
+TEST(rdf_multi_target_divergent_expectation) {
+  const auto input{R"JSON({
+    "target": [
+      "https://example.com/person",
+      "https://example.com/person-alt"
+    ],
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Ada" } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+
+  EXPECT_EQ(std::get<0>(traces[1]), "https://example.com/person-alt");
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
+  EXPECT_TRUE(std::get<3>(traces[1]).empty());
+  EXPECT_TRUE(std::get<4>(traces[1]));
+  EXPECT_FALSE(std::get<5>(traces[1]));
+  EXPECT_TRUE(std::get<6>(traces[1]));
+  EXPECT_TRUE(std::get<7>(traces[1]).has_value());
+  EXPECT_EQ(std::get<7>(traces[1]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://example.org/fullName": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[1]).has_value());
+}
+
+TEST(rdf_fragment_target_subschema) {
+  const auto input{R"JSON({
+    "target": "https://example.com/person-defs#/$defs/person",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Ada" } ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]),
+            "https://example.com/person-defs#/$defs/person");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_mixed_with_plain_cases) {
+  const auto input{R"JSON({
+    "target": "https://example.com/person",
+    "tests": [
+      {
+        "data": { "name": "Ada" },
+        "valid": true,
+        "description": "with expectation",
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ],
+            "https://schema.org/name": [ { "@value": "Ada" } ]
+          }
+        ]
+      },
+      {
+        "data": { "name": 1 },
+        "valid": false,
+        "description": "plain invalid"
+      },
+      {
+        "data": { "name": "Grace" },
+        "valid": true,
+        "description": "plain valid"
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 3);
+  EXPECT_EQ(result.passed, 3);
+  EXPECT_EQ(traces.size(), 3);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "https://example.com/person");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 3);
+  EXPECT_EQ(std::get<3>(traces[0]), "with expectation");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+
+  EXPECT_EQ(std::get<0>(traces[1]), "https://example.com/person");
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 3);
+  EXPECT_EQ(std::get<3>(traces[1]), "plain invalid");
+  EXPECT_FALSE(std::get<4>(traces[1]));
+  EXPECT_TRUE(std::get<5>(traces[1]));
+  EXPECT_FALSE(std::get<6>(traces[1]));
+  EXPECT_FALSE(std::get<7>(traces[1]).has_value());
+  EXPECT_FALSE(std::get<8>(traces[1]).has_value());
+
+  EXPECT_EQ(std::get<0>(traces[2]), "https://example.com/person");
+  EXPECT_EQ(std::get<1>(traces[2]), 3);
+  EXPECT_EQ(std::get<2>(traces[2]), 3);
+  EXPECT_EQ(std::get<3>(traces[2]), "plain valid");
+  EXPECT_TRUE(std::get<4>(traces[2]));
+  EXPECT_TRUE(std::get<5>(traces[2]));
+  EXPECT_TRUE(std::get<6>(traces[2]));
+  EXPECT_FALSE(std::get<7>(traces[2]).has_value());
+  EXPECT_FALSE(std::get<8>(traces[2]).has_value());
+}
+
+TEST(rdf_draft7_target_empty_expansion) {
+  const auto input{R"JSON({
+    "target": "http://json-schema.org/draft-07/schema",
+    "tests": [
+      {
+        "data": { "type": "string" },
+        "valid": true,
+        "rdf": []
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "http://json-schema.org/draft-07/schema");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_draft7_target_expectation_never_matches) {
+  const auto input{R"JSON({
+    "target": "http://json-schema.org/draft-07/schema",
+    "tests": [
+      {
+        "data": { "type": "string" },
+        "valid": true,
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 0);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "http://json-schema.org/draft-07/schema");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_FALSE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
 }

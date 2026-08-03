@@ -273,3 +273,367 @@ TEST(valid_with_dataPath_and_description) {
             sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON"));
   EXPECT_EQ(result.position, STUB_POSITION);
 }
+
+TEST(error_both_rdf_and_rdfPath) {
+  const auto input{R"JSON({
+    "data": {},
+    "valid": true,
+    "rdf": [],
+    "rdfPath": "rdf.json"
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "Test case documents may contain either an "
+                               "`rdf` or `rdfPath` property, but not both");
+    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.line(), 1);
+    EXPECT_EQ(error.column(), 1);
+  }
+}
+
+TEST(error_rdfPath_not_string) {
+  const auto input{R"JSON({
+    "data": {},
+    "valid": true,
+    "rdfPath": 123
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(
+        error.what(),
+        "Test case documents must set the `rdfPath` property to a string");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer{"rdfPath"});
+    EXPECT_EQ(error.line(), 4);
+    EXPECT_EQ(error.column(), 5);
+  }
+}
+
+TEST(error_rdf_with_valid_false) {
+  const auto input{R"JSON({
+    "data": {},
+    "valid": false,
+    "rdf": []
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Test case documents may only set the `rdf` or `rdfPath` "
+                 "property when the `valid` property is set to true");
+    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.line(), 1);
+    EXPECT_EQ(error.column(), 1);
+  }
+}
+
+TEST(error_rdfPath_with_valid_false) {
+  const auto input{R"JSON({
+    "data": {},
+    "valid": false,
+    "rdfPath": "rdf.json"
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Test case documents may only set the `rdf` or `rdfPath` "
+                 "property when the `valid` property is set to true");
+    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.line(), 1);
+    EXPECT_EQ(error.column(), 1);
+  }
+}
+
+TEST(error_rdf_not_array) {
+  const auto input{R"JSON({
+    "data": {},
+    "valid": true,
+    "rdf": {}
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Test case documents must set the `rdf` property to an array");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer{"rdf"});
+    EXPECT_EQ(error.line(), 4);
+    EXPECT_EQ(error.column(), 5);
+  }
+}
+
+TEST(error_rdfPath_document_not_array) {
+  const auto input{R"JSON({
+    "data": {},
+    "valid": true,
+    "rdfPath": "data.json"
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The document referenced by the test case `rdfPath` "
+                 "property must be an array");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer{"rdfPath"});
+    EXPECT_EQ(error.line(), 4);
+    EXPECT_EQ(error.column(), 5);
+  }
+}
+
+TEST(error_rdf_with_valid_false_takes_precedence_over_not_array) {
+  const auto input{R"JSON({
+    "data": {},
+    "valid": false,
+    "rdf": {}
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Test case documents may only set the `rdf` or `rdfPath` "
+                 "property when the `valid` property is set to true");
+    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.line(), 1);
+    EXPECT_EQ(error.column(), 1);
+  }
+}
+
+TEST(error_both_rdf_and_rdfPath_takes_precedence_over_valid_false) {
+  const auto input{R"JSON({
+    "data": {},
+    "valid": false,
+    "rdf": [],
+    "rdfPath": "rdf.json"
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(), "Test case documents may contain either an "
+                               "`rdf` or `rdfPath` property, but not both");
+    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.line(), 1);
+    EXPECT_EQ(error.column(), 1);
+  }
+}
+
+TEST(error_rdf_without_valid) {
+  const auto input{R"JSON({
+    "data": {},
+    "rdf": []
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::empty_pointer, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Test case documents must contain a `valid` property");
+    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.line(), 1);
+    EXPECT_EQ(error.column(), 1);
+  }
+}
+
+TEST(valid_without_rdf_exposes_no_expectation) {
+  const auto input{R"JSON({
+    "data": { "name": "Ada" },
+    "valid": true
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto result{sourcemeta::blaze::TestCase::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::core::empty_pointer, STUB_POSITION)};
+
+  EXPECT_TRUE(result.description.empty());
+  EXPECT_TRUE(result.valid);
+  EXPECT_EQ(result.data,
+            sourcemeta::core::parse_json(R"JSON({ "name": "Ada" })JSON"));
+  EXPECT_FALSE(result.rdf.has_value());
+  EXPECT_EQ(result.position, STUB_POSITION);
+}
+
+TEST(valid_with_inline_rdf) {
+  const auto input{R"JSON({
+    "data": { "name": "Ada" },
+    "valid": true,
+    "rdf": [
+      {
+        "@type": [ "https://schema.org/Person" ],
+        "https://schema.org/name": [ { "@value": "Ada" } ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto result{sourcemeta::blaze::TestCase::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::core::empty_pointer, STUB_POSITION)};
+
+  EXPECT_TRUE(result.description.empty());
+  EXPECT_TRUE(result.valid);
+  EXPECT_EQ(result.data,
+            sourcemeta::core::parse_json(R"JSON({ "name": "Ada" })JSON"));
+  EXPECT_TRUE(result.rdf.has_value());
+  EXPECT_EQ(result.rdf.value(), sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_EQ(result.position, STUB_POSITION);
+}
+
+TEST(valid_with_rdfPath_json) {
+  const auto input{R"JSON({
+    "data": { "name": "Ada" },
+    "valid": true,
+    "rdfPath": "rdf.json"
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto result{sourcemeta::blaze::TestCase::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::core::empty_pointer, STUB_POSITION)};
+
+  EXPECT_TRUE(result.description.empty());
+  EXPECT_TRUE(result.valid);
+  EXPECT_EQ(result.data,
+            sourcemeta::core::parse_json(R"JSON({ "name": "Ada" })JSON"));
+  EXPECT_TRUE(result.rdf.has_value());
+  EXPECT_EQ(result.rdf.value(), sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_EQ(result.position, STUB_POSITION);
+}
+
+TEST(valid_with_rdfPath_yaml) {
+  const auto input{R"JSON({
+    "data": { "name": "Ada" },
+    "valid": true,
+    "rdfPath": "rdf.yaml"
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto result{sourcemeta::blaze::TestCase::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::core::empty_pointer, STUB_POSITION)};
+
+  EXPECT_TRUE(result.description.empty());
+  EXPECT_TRUE(result.valid);
+  EXPECT_EQ(result.data,
+            sourcemeta::core::parse_json(R"JSON({ "name": "Ada" })JSON"));
+  EXPECT_TRUE(result.rdf.has_value());
+  EXPECT_EQ(result.rdf.value(), sourcemeta::core::parse_json(R"JSON([
+    {
+      "@type": [ "https://schema.org/Person" ],
+      "https://schema.org/name": [ { "@value": "Ada" } ]
+    }
+  ])JSON"));
+  EXPECT_EQ(result.position, STUB_POSITION);
+}
+
+TEST(valid_with_dataPath_and_inline_rdf) {
+  const auto input{R"JSON({
+    "dataPath": "data.json",
+    "valid": true,
+    "rdf": []
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto result{sourcemeta::blaze::TestCase::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::core::empty_pointer, STUB_POSITION)};
+
+  EXPECT_TRUE(result.description.empty());
+  EXPECT_TRUE(result.valid);
+  EXPECT_EQ(result.data,
+            sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON"));
+  EXPECT_TRUE(result.rdf.has_value());
+  EXPECT_EQ(result.rdf.value(), sourcemeta::core::parse_json(R"JSON([])JSON"));
+  EXPECT_EQ(result.position, STUB_POSITION);
+}
