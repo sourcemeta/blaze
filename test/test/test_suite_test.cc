@@ -827,6 +827,8 @@ TEST(valid_rdf_2019_09_target) {
   EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
+  EXPECT_EQ(result.tests[0].rdf.value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
 }
 
 TEST(valid_rdf_draft7_target) {
@@ -913,6 +915,8 @@ TEST(valid_rdf_embedded_legacy_root_target) {
   EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
+  EXPECT_EQ(result.tests[0].rdf.value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
 }
 
 TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
@@ -950,4 +954,6 @@ TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
   EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
+  EXPECT_EQ(result.tests[0].rdf.value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
 }

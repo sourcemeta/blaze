@@ -166,6 +166,25 @@ static auto rdf_test_resolver(std::string_view identifier)
   return sourcemeta::blaze::schema_resolver(identifier);
 }
 
+using RDFTrace =
+    std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
+               bool, std::optional<sourcemeta::core::JSON>,
+               std::optional<sourcemeta::blaze::JSONLDResolutionError>>;
+
+static auto rdf_trace_callback(std::vector<RDFTrace> &traces)
+    -> sourcemeta::blaze::TestSuite::Callback {
+  return
+      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
+                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
+                sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, outcome.passed, outcome.valid,
+                            outcome.rdf, outcome.rdf_error);
+      };
+}
+
 TEST(empty_tests) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
@@ -1526,21 +1545,8 @@ TEST(rdf_passing_inline) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -1590,21 +1596,8 @@ TEST(rdf_failing_expansion_mismatch) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 0);
@@ -1649,21 +1642,8 @@ TEST(rdf_validity_mismatch_skips_comparison) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 0);
@@ -1707,21 +1687,8 @@ TEST(rdf_resolution_error_fails_case_and_later_cases_run) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 2);
   EXPECT_EQ(result.passed, 1);
@@ -1798,21 +1765,8 @@ TEST(rdf_with_rdfPath_json) {
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_jsonld.json")};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -1867,21 +1821,8 @@ TEST(rdf_with_rdfPath_yaml) {
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_jsonld.json")};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -1930,21 +1871,8 @@ TEST(rdf_anyof_annotations_collected) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -1993,21 +1921,8 @@ TEST(rdf_oneof_annotations_collected) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -2055,21 +1970,8 @@ TEST(rdf_numeric_expectation_cross_representation) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -2112,21 +2014,8 @@ TEST(rdf_empty_expectation_without_jsonld_keywords) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -2170,21 +2059,8 @@ TEST(rdf_2019_09_schema) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -2236,21 +2112,8 @@ TEST(rdf_multi_target_same_expectation) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 2);
   EXPECT_EQ(result.passed, 2);
@@ -2319,21 +2182,8 @@ TEST(rdf_multi_target_divergent_expectation) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 2);
   EXPECT_EQ(result.passed, 1);
@@ -2399,21 +2249,8 @@ TEST(rdf_fragment_target_subschema) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -2474,21 +2311,8 @@ TEST(rdf_mixed_with_plain_cases) {
       sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 3);
   EXPECT_EQ(result.passed, 3);
@@ -2552,21 +2376,8 @@ TEST(rdf_draft7_target_empty_expansion) {
       sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 1);
@@ -2609,21 +2420,8 @@ TEST(rdf_draft7_target_expectation_never_matches) {
       sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
-  std::vector<
-      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
-                 bool, std::optional<sourcemeta::core::JSON>,
-                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
-      traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      })};
+  std::vector<RDFTrace> traces;
+  const auto result{suite.run(rdf_trace_callback(traces))};
 
   EXPECT_EQ(result.total, 1);
   EXPECT_EQ(result.passed, 0);
