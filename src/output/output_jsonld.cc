@@ -10,6 +10,7 @@
 #include <cassert>   // assert
 #include <functional>       // std::ref, std::reference_wrapper
 #include <initializer_list> // std::initializer_list
+#include <memory>           // std::unique_ptr, std::make_unique
 #include <optional>         // std::optional
 #include <string>           // std::string
 #include <string_view>      // std::string_view
@@ -29,6 +30,15 @@ namespace {
 // entries, so carrying them costs no allocation. The value predicate and the
 // literal facets additionally remember their evaluate paths, as retargeting
 // consent compares schema object placement
+// The promotion facts, boxed behind one pointer on Facts so that schemas
+// without promotion keywords never pay for their size in the accumulator
+struct PromotionFacts {
+  std::optional<sourcemeta::core::JSON::String> value;
+  std::optional<sourcemeta::core::JSON> constants;
+  const std::string *value_origin{nullptr};
+  const std::string *constants_origin{nullptr};
+};
+
 struct Facts {
   std::vector<sourcemeta::core::JSONLDEdge> edges;
   std::vector<sourcemeta::core::JSON::String> types;
@@ -37,11 +47,9 @@ struct Facts {
   std::optional<sourcemeta::core::JSONLDDirection> direction;
   std::optional<sourcemeta::core::JSONLDContainer> container;
   std::optional<sourcemeta::core::JSON::String> self;
-  std::optional<sourcemeta::core::JSON::String> value;
-  std::optional<sourcemeta::core::JSON> constants;
+  std::unique_ptr<PromotionFacts> promotion;
   bool json{false};
   bool graph{false};
-  bool value_marked{false};
   const std::string *edges_origin{nullptr};
   const std::string *reverse_origin{nullptr};
   const std::string *types_origin{nullptr};
@@ -52,14 +60,35 @@ struct Facts {
   const std::string *self_origin{nullptr};
   const std::string *json_origin{nullptr};
   const std::string *graph_origin{nullptr};
-  const std::string *value_origin{nullptr};
-  const std::string *constants_origin{nullptr};
-  const sourcemeta::core::WeakPointer *value_path{nullptr};
-  const sourcemeta::core::WeakPointer *self_path{nullptr};
-  const sourcemeta::core::WeakPointer *datatype_path{nullptr};
-  const sourcemeta::core::WeakPointer *language_path{nullptr};
-  const sourcemeta::core::WeakPointer *direction_path{nullptr};
 };
+
+// The promotion facts of a location, materialized on first use
+auto promotion_facts(Facts &facts) -> PromotionFacts & {
+  if (facts.promotion == nullptr) {
+    facts.promotion = std::make_unique<PromotionFacts>();
+  }
+
+  return *facts.promotion;
+}
+
+// Whether the location is promoted by a value predicate
+auto promoted(const Facts &facts) -> bool {
+  return facts.promotion != nullptr && facts.promotion->value.has_value();
+}
+
+// Whether the location carries a constants fragment
+auto with_constants(const Facts &facts) -> bool {
+  return facts.promotion != nullptr && facts.promotion->constants.has_value();
+}
+
+auto promotion_value_origin(const Facts &facts) -> const std::string * {
+  return facts.promotion == nullptr ? nullptr : facts.promotion->value_origin;
+}
+
+auto promotion_constants_origin(const Facts &facts) -> const std::string * {
+  return facts.promotion == nullptr ? nullptr
+                                    : facts.promotion->constants_origin;
+}
 
 using Accumulator = std::unordered_map<sourcemeta::core::WeakPointer, Facts,
                                        sourcemeta::core::WeakPointer::Hasher>;
@@ -157,8 +186,8 @@ auto merge_constants_fragment(
 // The constants map a node-producing descriptor takes: the accumulated
 // canonical fragment, or the empty map the descriptor kinds default to
 auto take_constants(Facts &facts) -> sourcemeta::core::JSON {
-  if (facts.constants.has_value()) {
-    return std::move(facts.constants).value();
+  if (with_constants(facts)) {
+    return std::move(facts.promotion->constants).value();
   }
 
   return sourcemeta::core::JSON::make_object();
@@ -249,6 +278,11 @@ auto parse_direction(const sourcemeta::core::JSON &value)
   }
 
   return std::nullopt;
+}
+
+auto direction_text(const sourcemeta::core::JSONLDDirection direction)
+    -> sourcemeta::core::JSON::String {
+  return direction == sourcemeta::core::JSONLDDirection::LTR ? "ltr" : "rtl";
 }
 
 auto parse_container(const sourcemeta::core::JSON &value)
@@ -342,8 +376,7 @@ auto placement_error(const sourcemeta::core::WeakPointer &pointer,
   if (!value.is_object()) {
     // A self identity promotes a scalar to a reference, which carries its own
     // types, so a type is only misplaced on a scalar that has no self identity
-    if (!facts.types.empty() && !facts.self.has_value() &&
-        !facts.value.has_value()) {
+    if (!facts.types.empty() && !facts.self.has_value() && !promoted(facts)) {
       return facet_error(
           pointer, sourcemeta::blaze::JSONLDFacet::Type,
           "A JSON-LD type can only be assigned to an object value",
@@ -525,7 +558,7 @@ auto array_of_nodes(const Accumulator &accumulator,
     const auto element_facts{accumulator.find(element_pointer)};
     if (element_facts == accumulator.cend() ||
         (!element_facts->second.self.has_value() &&
-         !element_facts->second.value.has_value())) {
+         !promoted(element_facts->second))) {
       return false;
     }
   }
@@ -550,15 +583,37 @@ auto same_schema_object(const sourcemeta::core::WeakPointer &left,
   return left.size() == right.size() && right.starts_with_initial(left);
 }
 
-// Whether the value predicate may reshape another facet of its location:
-// either both were declared in one schema object, one author's intentional
-// spelling, or the value predicate is override-marked and its schema object
-// encloses the other facet's, a composer restructuring what it composes
-auto retargeting_consented(const Facts &facts,
+// The declaration paths that can consent to retargeting at one location:
+// the paths declaring the resolved value predicate and the paths of the
+// override marks. Only promotion locations with a cross-facet fusion ever
+// collect them, so the scans never cost the common paths anything
+struct ConsentPaths {
+  std::vector<const sourcemeta::core::WeakPointer *> values;
+  std::vector<const sourcemeta::core::WeakPointer *> marks;
+};
+
+// Whether a facet declaration is consented to follow the value predicate
+// into the promoted node: either it shares a schema object with a value
+// predicate declaration, one author's intentional spelling, or a value
+// predicate declaration is override-marked and its schema object encloses
+// the facet's, a composer restructuring what it composes
+auto declaration_consented(const ConsentPaths &consent,
                            const sourcemeta::core::WeakPointer &facet_path)
     -> bool {
-  return same_schema_object(*facts.value_path, facet_path) ||
-         (facts.value_marked && encloses(*facts.value_path, facet_path));
+  for (const auto *value_path : consent.values) {
+    if (same_schema_object(*value_path, facet_path)) {
+      return true;
+    }
+
+    for (const auto *mark : consent.marks) {
+      if (same_schema_object(*mark, *value_path) &&
+          encloses(*value_path, facet_path)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 // An x-jsonld-override annotation that evaluated to true at a location,
@@ -894,13 +949,13 @@ auto resolve_constants(const sourcemeta::core::WeakPointer &location,
         continue;
       }
 
-      contributed =
-          merge_constants_entry(facts.constants, entry.first, entry.second) ||
-          contributed;
+      contributed = merge_constants_entry(promotion_facts(facts).constants,
+                                          entry.first, entry.second) ||
+                    contributed;
     }
 
     if (contributed) {
-      facts.constants_origin = candidate.origin;
+      promotion_facts(facts).constants_origin = candidate.origin;
     }
   }
 
@@ -930,23 +985,48 @@ const auto HASH_VALUE{sourcemeta::core::JSON::Object::hash("x-jsonld-value"sv)};
 const auto HASH_CONSTANTS{
     sourcemeta::core::JSON::Object::hash("x-jsonld-constants"sv)};
 
-// Whether an x-jsonld-override mark shares its schema object with the value
-// predicate at the given location. Only runs when a value predicate needs
-// cross-object retargeting consent, so the linear scan never costs the
-// common paths anything
-auto value_mark_present(const sourcemeta::blaze::SimpleOutput &output,
-                        const sourcemeta::core::WeakPointer &location,
-                        const sourcemeta::core::WeakPointer &value_path)
-    -> bool {
+// Collect the consent paths of a promoted location from the collected
+// annotations
+auto collect_consent_paths(
+    const sourcemeta::blaze::SimpleOutput &output,
+    const sourcemeta::core::WeakPointer &location,
+    const sourcemeta::core::JSON::String &value_predicate) -> ConsentPaths {
+  ConsentPaths result;
   for (const auto &entry : output.annotations()) {
     if (entry.evaluate_path.empty() || entry.instance_location != location) {
       continue;
     }
 
     const auto &keyword{entry.evaluate_path.back()};
-    if (keyword.property_equals("x-jsonld-override", HASH_OVERRIDE) &&
-        entry.value.is_boolean() && entry.value.to_boolean() &&
-        same_schema_object(entry.evaluate_path, value_path)) {
+    if (keyword.property_equals("x-jsonld-value", HASH_VALUE) &&
+        entry.value.is_string() && entry.value.to_string() == value_predicate) {
+      result.values.push_back(&entry.evaluate_path);
+    } else if (keyword.property_equals("x-jsonld-override", HASH_OVERRIDE) &&
+               entry.value.is_boolean() && entry.value.to_boolean()) {
+      result.marks.push_back(&entry.evaluate_path);
+    }
+  }
+
+  return result;
+}
+
+// Whether any declaration of the given facet value at the location is
+// consented to follow the value predicate into the promoted node
+auto facet_retargeting_consented(
+    const sourcemeta::blaze::SimpleOutput &output,
+    const sourcemeta::core::WeakPointer &location, const ConsentPaths &consent,
+    const sourcemeta::core::JSON::StringView keyword_name,
+    const sourcemeta::core::JSON::Object::hash_type keyword_hash,
+    const sourcemeta::core::JSON &expected) -> bool {
+  for (const auto &entry : output.annotations()) {
+    if (entry.evaluate_path.empty() || entry.instance_location != location) {
+      continue;
+    }
+
+    const auto &keyword{entry.evaluate_path.back()};
+    if (keyword.property_equals(keyword_name, keyword_hash) &&
+        entry.value == expected &&
+        declaration_consented(consent, entry.evaluate_path)) {
       return true;
     }
   }
@@ -1102,7 +1182,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
         } else if (!facts.datatype.has_value()) {
           facts.datatype = text;
           facts.datatype_origin = origin;
-          facts.datatype_path = &entry.evaluate_path;
         }
       }
     } else if (keyword.property_equals("x-jsonld-language", HASH_LANGUAGE)) {
@@ -1126,7 +1205,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
         } else if (!facts.language.has_value()) {
           facts.language = text;
           facts.language_origin = origin;
-          facts.language_path = &entry.evaluate_path;
         }
       }
     } else if (keyword.property_equals("x-jsonld-direction", HASH_DIRECTION)) {
@@ -1147,7 +1225,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
         } else if (!facts.direction.has_value()) {
           facts.direction = direction;
           facts.direction_origin = origin;
-          facts.direction_path = &entry.evaluate_path;
         }
       }
     } else if (keyword.property_equals("x-jsonld-json", HASH_JSON) ||
@@ -1218,7 +1295,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
         } else if (!facts.self.has_value()) {
           facts.self = text;
           facts.self_origin = origin;
-          facts.self_path = &entry.evaluate_path;
         }
       }
     } else if (keyword.property_equals("x-jsonld-value", HASH_VALUE)) {
@@ -1233,12 +1309,12 @@ auto resolve(const sourcemeta::core::JSON &instance,
       } else if (!dirty.contains(instance_location)) {
         auto &facts{accumulator[instance_location]};
         const auto &text{value.to_string()};
-        if (facts.value.has_value() && facts.value.value() != text) {
+        auto &promotion{promotion_facts(facts)};
+        if (promotion.value.has_value() && promotion.value.value() != text) {
           demote(accumulator, dirty, instance_location);
-        } else if (!facts.value.has_value()) {
-          facts.value = text;
-          facts.value_origin = origin;
-          facts.value_path = &entry.evaluate_path;
+        } else if (!promotion.value.has_value()) {
+          promotion.value = text;
+          promotion.value_origin = origin;
         }
       }
     } else if (keyword.property_equals("x-jsonld-constants", HASH_CONSTANTS)) {
@@ -1260,9 +1336,9 @@ auto resolve(const sourcemeta::core::JSON &instance,
         if (fragment_has_null_entry(fragment)) {
           demote(accumulator, dirty, instance_location);
         } else if (!dirty.contains(instance_location)) {
-          auto &facts{accumulator[instance_location]};
-          if (merge_constants_fragment(facts.constants, fragment)) {
-            facts.constants_origin = origin;
+          auto &promotion{promotion_facts(accumulator[instance_location])};
+          if (merge_constants_fragment(promotion.constants, fragment)) {
+            promotion.constants_origin = origin;
           }
         }
       }
@@ -1317,7 +1393,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
     } else if (datatype.winner != nullptr) {
       facts.datatype = datatype.winner->value->to_string();
       facts.datatype_origin = datatype.winner->origin;
-      facts.datatype_path = datatype.winner->path;
     }
 
     const auto language{elect(entry.languages, key_exact)};
@@ -1329,7 +1404,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
     } else if (language.winner != nullptr) {
       facts.language = language.winner->value->to_string();
       facts.language_origin = language.winner->origin;
-      facts.language_path = language.winner->path;
     }
 
     const auto direction{elect(entry.directions, key_exact)};
@@ -1341,7 +1415,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
     } else if (direction.winner != nullptr) {
       facts.direction = parse_direction(*direction.winner->value);
       facts.direction_origin = direction.winner->origin;
-      facts.direction_path = direction.winner->path;
     }
 
     const auto json{elect(entry.jsons, key_boolean)};
@@ -1386,7 +1459,6 @@ auto resolve(const sourcemeta::core::JSON &instance,
     } else if (self.winner != nullptr) {
       facts.self = self.winner->value->to_string();
       facts.self_origin = self.winner->origin;
-      facts.self_path = self.winner->path;
     }
 
     const auto value_predicate{elect(entry.values, key_exact)};
@@ -1396,10 +1468,9 @@ auto resolve(const sourcemeta::core::JSON &instance,
           "A JSON-LD value predicate cannot be assigned more than one value",
           value_predicate);
     } else if (value_predicate.winner != nullptr) {
-      facts.value = value_predicate.winner->value->to_string();
-      facts.value_origin = value_predicate.winner->origin;
-      facts.value_path = value_predicate.winner->path;
-      facts.value_marked = value_predicate.winner->mark != nullptr;
+      auto &promotion{promotion_facts(facts)};
+      promotion.value = value_predicate.winner->value->to_string();
+      promotion.value_origin = value_predicate.winner->origin;
     }
 
     if (auto error{resolve_constants(location, entry.constants, facts)};
@@ -1446,8 +1517,9 @@ auto resolve(const sourcemeta::core::JSON &instance,
                           offender.datatype_origin, offender.language_origin,
                           offender.direction_origin, offender.container_origin,
                           offender.self_origin, offender.json_origin,
-                          offender.graph_origin, offender.value_origin,
-                          offender.constants_origin}));
+                          offender.graph_origin,
+                          promotion_value_origin(offender),
+                          promotion_constants_origin(offender)}));
       }
     }
   }
@@ -1478,8 +1550,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
     if (facts.container.has_value()) {
       if (!facts.types.empty() || facts.graph || facts.datatype.has_value() ||
           facts.language.has_value() || facts.direction.has_value() ||
-          facts.json || facts.self.has_value() || facts.value.has_value() ||
-          facts.constants.has_value()) {
+          facts.json || facts.self.has_value() || facts.promotion != nullptr) {
         return facet_error(
             pointer, sourcemeta::blaze::JSONLDFacet::Container,
             "A JSON-LD container can only be combined with "
@@ -1488,8 +1559,8 @@ auto resolve(const sourcemeta::core::JSON &instance,
             first_origin({facts.types_origin, facts.graph_origin,
                           facts.datatype_origin, facts.language_origin,
                           facts.direction_origin, facts.json_origin,
-                          facts.self_origin, facts.value_origin,
-                          facts.constants_origin}));
+                          facts.self_origin, promotion_value_origin(facts),
+                          promotion_constants_origin(facts)}));
       }
 
       if (const auto error{
@@ -1505,8 +1576,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
     if (facts.json &&
         (!facts.types.empty() || facts.graph || facts.datatype.has_value() ||
          facts.language.has_value() || facts.direction.has_value() ||
-         facts.self.has_value() || facts.value.has_value() ||
-         facts.constants.has_value())) {
+         facts.self.has_value() || facts.promotion != nullptr)) {
       return facet_error(
           pointer, sourcemeta::blaze::JSONLDFacet::JSON,
           "A JSON-LD JSON literal can only be combined with "
@@ -1515,33 +1585,22 @@ auto resolve(const sourcemeta::core::JSON &instance,
           first_origin({facts.types_origin, facts.graph_origin,
                         facts.datatype_origin, facts.language_origin,
                         facts.direction_origin, facts.self_origin,
-                        facts.value_origin, facts.constants_origin}));
+                        promotion_value_origin(facts),
+                        promotion_constants_origin(facts)}));
     }
 
     // A value predicate promotes its scalar into a node that carries the
     // scalar under that predicate, so it needs a scalar to carry, its graph
     // pairing is reserved, and reshaping another facet of the location
     // requires the consent of shared authorship or an overriding enclosure
-    if (facts.value.has_value()) {
-      if (!facts.value_marked &&
-          ((facts.self.has_value() &&
-            !same_schema_object(*facts.value_path, *facts.self_path)) ||
-           (facts.datatype.has_value() &&
-            !same_schema_object(*facts.value_path, *facts.datatype_path)) ||
-           (facts.language.has_value() &&
-            !same_schema_object(*facts.value_path, *facts.language_path)) ||
-           (facts.direction.has_value() &&
-            !same_schema_object(*facts.value_path, *facts.direction_path)))) {
-        facts.value_marked =
-            value_mark_present(output, pointer, *facts.value_path);
-      }
-
+    if (promoted(facts)) {
+      const auto &promotion{*facts.promotion};
       if (facts.graph) {
         return facet_error(pointer,
                            sourcemeta::blaze::JSONLDFacet::ValuePredicate,
                            "A JSON-LD value predicate cannot be combined with "
                            "a graph flag",
-                           *facts.value_origin, *facts.graph_origin);
+                           *promotion.value_origin, *facts.graph_origin);
       }
 
       if (value.is_object() || value.is_array()) {
@@ -1549,61 +1608,76 @@ auto resolve(const sourcemeta::core::JSON &instance,
                            sourcemeta::blaze::JSONLDFacet::ValuePredicate,
                            "A JSON-LD value predicate can only be assigned to "
                            "a scalar value",
-                           *facts.value_origin);
+                           *promotion.value_origin);
       }
 
-      if (facts.self.has_value() &&
-          !retargeting_consented(facts, *facts.self_path)) {
-        return facet_error(pointer,
-                           sourcemeta::blaze::JSONLDFacet::ValuePredicate,
-                           "A JSON-LD value predicate cannot fuse with a self "
-                           "identity from an unrelated schema object",
-                           *facts.value_origin, *facts.self_origin);
-      }
+      if (facts.self.has_value() || facts.datatype.has_value() ||
+          facts.language.has_value() || facts.direction.has_value()) {
+        const auto consent{
+            collect_consent_paths(output, pointer, promotion.value.value())};
 
-      if (facts.datatype.has_value() &&
-          !retargeting_consented(facts, *facts.datatype_path)) {
-        return facet_error(pointer,
-                           sourcemeta::blaze::JSONLDFacet::ValuePredicate,
-                           "A JSON-LD value predicate cannot adopt a datatype "
-                           "from an unrelated schema object",
-                           *facts.value_origin, *facts.datatype_origin);
-      }
+        if (facts.self.has_value() &&
+            !facet_retargeting_consented(
+                output, pointer, consent, "x-jsonld-self", HASH_SELF,
+                sourcemeta::core::JSON{facts.self.value()})) {
+          return facet_error(pointer,
+                             sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+                             "A JSON-LD value predicate cannot fuse with a "
+                             "self identity from an unrelated schema object",
+                             *promotion.value_origin, *facts.self_origin);
+        }
 
-      if (facts.language.has_value() &&
-          !retargeting_consented(facts, *facts.language_path)) {
-        return facet_error(pointer,
-                           sourcemeta::blaze::JSONLDFacet::ValuePredicate,
-                           "A JSON-LD value predicate cannot adopt a language "
-                           "from an unrelated schema object",
-                           *facts.value_origin, *facts.language_origin);
-      }
+        if (facts.datatype.has_value() &&
+            !facet_retargeting_consented(
+                output, pointer, consent, "x-jsonld-datatype", HASH_DATATYPE,
+                sourcemeta::core::JSON{facts.datatype.value()})) {
+          return facet_error(pointer,
+                             sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+                             "A JSON-LD value predicate cannot adopt a "
+                             "datatype from an unrelated schema object",
+                             *promotion.value_origin, *facts.datatype_origin);
+        }
 
-      if (facts.direction.has_value() &&
-          !retargeting_consented(facts, *facts.direction_path)) {
-        return facet_error(pointer,
-                           sourcemeta::blaze::JSONLDFacet::ValuePredicate,
-                           "A JSON-LD value predicate cannot adopt a direction "
-                           "from an unrelated schema object",
-                           *facts.value_origin, *facts.direction_origin);
+        if (facts.language.has_value() &&
+            !facet_retargeting_consented(
+                output, pointer, consent, "x-jsonld-language", HASH_LANGUAGE,
+                sourcemeta::core::JSON{facts.language.value()})) {
+          return facet_error(pointer,
+                             sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+                             "A JSON-LD value predicate cannot adopt a "
+                             "language from an unrelated schema object",
+                             *promotion.value_origin, *facts.language_origin);
+        }
+
+        if (facts.direction.has_value() &&
+            !facet_retargeting_consented(output, pointer, consent,
+                                         "x-jsonld-direction", HASH_DIRECTION,
+                                         sourcemeta::core::JSON{direction_text(
+                                             facts.direction.value())})) {
+          return facet_error(pointer,
+                             sourcemeta::blaze::JSONLDFacet::ValuePredicate,
+                             "A JSON-LD value predicate cannot adopt a "
+                             "direction from an unrelated schema object",
+                             *promotion.value_origin, *facts.direction_origin);
+        }
       }
     }
 
     // A constants fragment merges into a node, so its location must
     // materialize as one
-    if (facts.constants.has_value() && !value.is_object() &&
-        !facts.value.has_value() && !facts.self.has_value()) {
+    if (with_constants(facts) && !value.is_object() && !promoted(facts) &&
+        !facts.self.has_value()) {
       return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Constants,
                          "A JSON-LD constants fragment requires an object "
                          "value, a value predicate, or a self identity",
-                         *facts.constants_origin);
+                         *facts.promotion->constants_origin);
     }
 
     // A self identity mints an @id, promoting a scalar to a reference and
     // giving an object its identifier. It describes a node, so it excludes the
     // literal facets and cannot apply to an array collection
     if (facts.self.has_value()) {
-      if (!facts.value.has_value() &&
+      if (!promoted(facts) &&
           (facts.datatype.has_value() || facts.language.has_value() ||
            facts.direction.has_value())) {
         return facet_error(
@@ -1669,8 +1743,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
             })) {
       const bool points_to_node{
           !facts.json && !facts.container.has_value() &&
-          (value.is_object() || facts.self.has_value() ||
-           facts.value.has_value() ||
+          (value.is_object() || facts.self.has_value() || promoted(facts) ||
            (value.is_array() && array_of_nodes(accumulator, pointer, value)))};
       if (!points_to_node) {
         return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Predicate,
@@ -1701,11 +1774,11 @@ auto resolve(const sourcemeta::core::JSON &instance,
     } else if (facts.container.has_value()) {
       descriptor.value = sourcemeta::core::JSONLDCollection{
           .container = facts.container.value()};
-    } else if (facts.value.has_value()) {
+    } else if (promoted(facts)) {
       descriptor.value = sourcemeta::core::JSONLDPromotion{
           .id = std::move(identifier),
           .types = std::move(facts.types),
-          .value = std::move(facts.value).value(),
+          .value = std::move(facts.promotion->value).value(),
           .literal =
               sourcemeta::core::JSONLDLiteral{
                   .datatype = std::move(facts.datatype),
