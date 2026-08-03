@@ -985,25 +985,80 @@ const auto HASH_VALUE{sourcemeta::core::JSON::Object::hash("x-jsonld-value"sv)};
 const auto HASH_CONSTANTS{
     sourcemeta::core::JSON::Object::hash("x-jsonld-constants"sv)};
 
-// Collect the consent paths of a promoted location from the collected
-// annotations
-auto collect_consent_paths(
-    const sourcemeta::blaze::SimpleOutput &output,
-    const sourcemeta::core::WeakPointer &location,
-    const sourcemeta::core::JSON::String &value_predicate) -> ConsentPaths {
-  ConsentPaths result;
+// The retargeting-relevant annotation kinds of the consent index
+enum class ConsentKind : std::uint8_t {
+  ValuePredicate,
+  OverrideMark,
+  Datatype,
+  Language,
+  Direction,
+  Self
+};
+
+// One retargeting-relevant annotation at a location
+struct ConsentAnnotation {
+  ConsentKind kind;
+  const sourcemeta::core::WeakPointer *path;
+  const sourcemeta::core::JSON *value;
+};
+
+// The retargeting-relevant annotations of every location, built in one pass
+// the first time any promoted location needs consent, so that consent stays
+// linear in the collected annotations no matter how many locations promote
+using ConsentIndex = std::unordered_map<sourcemeta::core::WeakPointer,
+                                        std::vector<ConsentAnnotation>,
+                                        sourcemeta::core::WeakPointer::Hasher>;
+
+auto build_consent_index(const sourcemeta::blaze::SimpleOutput &output)
+    -> ConsentIndex {
+  ConsentIndex index;
   for (const auto &entry : output.annotations()) {
-    if (entry.evaluate_path.empty() || entry.instance_location != location) {
+    if (entry.evaluate_path.empty()) {
       continue;
     }
 
     const auto &keyword{entry.evaluate_path.back()};
-    if (keyword.property_equals("x-jsonld-value", HASH_VALUE) &&
-        entry.value.is_string() && entry.value.to_string() == value_predicate) {
-      result.values.push_back(&entry.evaluate_path);
-    } else if (keyword.property_equals("x-jsonld-override", HASH_OVERRIDE) &&
-               entry.value.is_boolean() && entry.value.to_boolean()) {
-      result.marks.push_back(&entry.evaluate_path);
+    std::optional<ConsentKind> kind;
+    if (keyword.property_equals("x-jsonld-value", HASH_VALUE)) {
+      if (entry.value.is_string()) {
+        kind = ConsentKind::ValuePredicate;
+      }
+    } else if (keyword.property_equals("x-jsonld-override", HASH_OVERRIDE)) {
+      if (entry.value.is_boolean() && entry.value.to_boolean()) {
+        kind = ConsentKind::OverrideMark;
+      }
+    } else if (keyword.property_equals("x-jsonld-datatype", HASH_DATATYPE)) {
+      kind = ConsentKind::Datatype;
+    } else if (keyword.property_equals("x-jsonld-language", HASH_LANGUAGE)) {
+      kind = ConsentKind::Language;
+    } else if (keyword.property_equals("x-jsonld-direction", HASH_DIRECTION)) {
+      kind = ConsentKind::Direction;
+    } else if (keyword.property_equals("x-jsonld-self", HASH_SELF)) {
+      kind = ConsentKind::Self;
+    }
+
+    if (kind.has_value()) {
+      index[entry.instance_location].push_back({.kind = kind.value(),
+                                                .path = &entry.evaluate_path,
+                                                .value = &entry.value});
+    }
+  }
+
+  return index;
+}
+
+// The consent paths of a promoted location: the declarations of its
+// resolved value predicate and the override marks beside them
+auto consent_paths_at(const std::vector<ConsentAnnotation> &annotations,
+                      const sourcemeta::core::JSON::String &value_predicate)
+    -> ConsentPaths {
+  ConsentPaths result;
+  for (const auto &annotation : annotations) {
+    if (annotation.kind == ConsentKind::ValuePredicate &&
+        annotation.value->to_string() == value_predicate) {
+      result.values.push_back(annotation.path);
+    } else if (annotation.kind == ConsentKind::OverrideMark) {
+      result.marks.push_back(annotation.path);
     }
   }
 
@@ -1013,20 +1068,12 @@ auto collect_consent_paths(
 // Whether any declaration of the given facet value at the location is
 // consented to follow the value predicate into the promoted node
 auto facet_retargeting_consented(
-    const sourcemeta::blaze::SimpleOutput &output,
-    const sourcemeta::core::WeakPointer &location, const ConsentPaths &consent,
-    const sourcemeta::core::JSON::StringView keyword_name,
-    const sourcemeta::core::JSON::Object::hash_type keyword_hash,
+    const std::vector<ConsentAnnotation> &annotations,
+    const ConsentPaths &consent, const ConsentKind kind,
     const sourcemeta::core::JSON &expected) -> bool {
-  for (const auto &entry : output.annotations()) {
-    if (entry.evaluate_path.empty() || entry.instance_location != location) {
-      continue;
-    }
-
-    const auto &keyword{entry.evaluate_path.back()};
-    if (keyword.property_equals(keyword_name, keyword_hash) &&
-        entry.value == expected &&
-        declaration_consented(consent, entry.evaluate_path)) {
+  for (const auto &annotation : annotations) {
+    if (annotation.kind == kind && *annotation.value == expected &&
+        declaration_consented(consent, *annotation.path)) {
       return true;
     }
   }
@@ -1332,10 +1379,11 @@ auto resolve(const sourcemeta::core::JSON &instance,
         const auto &fragment{std::get<sourcemeta::core::JSON>(canonical)};
 
         // Whether a null entry is a licensed tombstone depends on override
-        // marks that only the slow path can consult
+        // marks that only the slow path can consult, and an empty fragment
+        // asserts nothing, so it must not materialize the promotion facts
         if (fragment_has_null_entry(fragment)) {
           demote(accumulator, dirty, instance_location);
-        } else if (!dirty.contains(instance_location)) {
+        } else if (!fragment.empty() && !dirty.contains(instance_location)) {
           auto &promotion{promotion_facts(accumulator[instance_location])};
           if (merge_constants_fragment(promotion.constants, fragment)) {
             promotion.constants_origin = origin;
@@ -1524,6 +1572,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
     }
   }
 
+  std::optional<ConsentIndex> consent_index;
   sourcemeta::core::JSONLDWeakAnnotationList annotations;
   annotations.reserve(accumulator.size());
   for (auto &[pointer, facts] : accumulator) {
@@ -1550,7 +1599,8 @@ auto resolve(const sourcemeta::core::JSON &instance,
     if (facts.container.has_value()) {
       if (!facts.types.empty() || facts.graph || facts.datatype.has_value() ||
           facts.language.has_value() || facts.direction.has_value() ||
-          facts.json || facts.self.has_value() || facts.promotion != nullptr) {
+          facts.json || facts.self.has_value() || promoted(facts) ||
+          with_constants(facts)) {
         return facet_error(
             pointer, sourcemeta::blaze::JSONLDFacet::Container,
             "A JSON-LD container can only be combined with "
@@ -1576,7 +1626,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
     if (facts.json &&
         (!facts.types.empty() || facts.graph || facts.datatype.has_value() ||
          facts.language.has_value() || facts.direction.has_value() ||
-         facts.self.has_value() || facts.promotion != nullptr)) {
+         facts.self.has_value() || promoted(facts) || with_constants(facts))) {
       return facet_error(
           pointer, sourcemeta::blaze::JSONLDFacet::JSON,
           "A JSON-LD JSON literal can only be combined with "
@@ -1613,12 +1663,18 @@ auto resolve(const sourcemeta::core::JSON &instance,
 
       if (facts.self.has_value() || facts.datatype.has_value() ||
           facts.language.has_value() || facts.direction.has_value()) {
-        const auto consent{
-            collect_consent_paths(output, pointer, promotion.value.value())};
+        if (!consent_index.has_value()) {
+          consent_index = build_consent_index(output);
+        }
+
+        const auto location_annotations{consent_index->find(pointer)};
+        assert(location_annotations != consent_index->cend());
+        const auto &nearby{location_annotations->second};
+        const auto consent{consent_paths_at(nearby, promotion.value.value())};
 
         if (facts.self.has_value() &&
             !facet_retargeting_consented(
-                output, pointer, consent, "x-jsonld-self", HASH_SELF,
+                nearby, consent, ConsentKind::Self,
                 sourcemeta::core::JSON{facts.self.value()})) {
           return facet_error(pointer,
                              sourcemeta::blaze::JSONLDFacet::ValuePredicate,
@@ -1629,7 +1685,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
 
         if (facts.datatype.has_value() &&
             !facet_retargeting_consented(
-                output, pointer, consent, "x-jsonld-datatype", HASH_DATATYPE,
+                nearby, consent, ConsentKind::Datatype,
                 sourcemeta::core::JSON{facts.datatype.value()})) {
           return facet_error(pointer,
                              sourcemeta::blaze::JSONLDFacet::ValuePredicate,
@@ -1640,7 +1696,7 @@ auto resolve(const sourcemeta::core::JSON &instance,
 
         if (facts.language.has_value() &&
             !facet_retargeting_consented(
-                output, pointer, consent, "x-jsonld-language", HASH_LANGUAGE,
+                nearby, consent, ConsentKind::Language,
                 sourcemeta::core::JSON{facts.language.value()})) {
           return facet_error(pointer,
                              sourcemeta::blaze::JSONLDFacet::ValuePredicate,
@@ -1650,8 +1706,8 @@ auto resolve(const sourcemeta::core::JSON &instance,
         }
 
         if (facts.direction.has_value() &&
-            !facet_retargeting_consented(output, pointer, consent,
-                                         "x-jsonld-direction", HASH_DIRECTION,
+            !facet_retargeting_consented(nearby, consent,
+                                         ConsentKind::Direction,
                                          sourcemeta::core::JSON{direction_text(
                                              facts.direction.value())})) {
           return facet_error(pointer,
