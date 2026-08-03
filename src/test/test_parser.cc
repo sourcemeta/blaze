@@ -4,6 +4,7 @@
 #include <sourcemeta/core/uri.h>
 #include <sourcemeta/core/yaml.h>
 
+#include <algorithm>   // std::ranges::any_of
 #include <cassert>     // assert
 #include <string_view> // std::string_view
 #include <tuple>       // std::get
@@ -31,6 +32,45 @@ inline auto TEST_ERROR_IF(
     throw sourcemeta::blaze::TestParseError{message, pointer,
                                             std::get<0>(position.value()),
                                             std::get<1>(position.value())};
+  }
+}
+
+inline auto supports_rdf_expectations(
+    const sourcemeta::core::JSON::String &target,
+    const sourcemeta::blaze::SchemaResolver &schema_resolver,
+    const sourcemeta::blaze::SchemaWalker &walker,
+    const std::string_view default_dialect) -> bool {
+  const sourcemeta::core::URI target_uri{target};
+  const auto identifier{
+      target_uri.recompose_without_fragment().value_or(target)};
+  const auto resolved{schema_resolver(identifier)};
+  if (!resolved.has_value()) {
+    throw sourcemeta::blaze::SchemaResolutionError{
+        target, "Could not resolve schema under test"};
+  }
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Locations};
+  frame.analyse(resolved.value(), walker, schema_resolver, default_dialect,
+                identifier);
+  auto location{frame.traverse(target)};
+  if (!location.has_value()) {
+    location = frame.traverse(identifier);
+  }
+
+  if (!location.has_value()) {
+    throw sourcemeta::blaze::SchemaResolutionError{
+        target, "Could not resolve schema under test"};
+  }
+
+  switch (location.value().get().base_dialect) {
+    case sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12:
+    case sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12_Hyper:
+    case sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09:
+    case sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09_Hyper:
+      return true;
+    default:
+      return false;
   }
 }
 } // namespace
@@ -70,10 +110,43 @@ auto TestCase::parse(
   TEST_ERROR_IF(!test_case_json.at("valid").is_boolean(), tracker,
                 location.concat("valid"),
                 "The test case document `valid` property must be a boolean");
+  TEST_ERROR_IF(test_case_json.defines("rdf") &&
+                    test_case_json.defines("rdfPath"),
+                tracker, location,
+                "Test case documents may contain either an `rdf` or "
+                "`rdfPath` property, but not both");
+  TEST_ERROR_IF(test_case_json.defines("rdfPath") &&
+                    !test_case_json.at("rdfPath").is_string(),
+                tracker, location.concat("rdfPath"),
+                "Test case documents must set the `rdfPath` property to a "
+                "string");
+  TEST_ERROR_IF(
+      (test_case_json.defines("rdf") || test_case_json.defines("rdfPath")) &&
+          !test_case_json.at("valid").to_boolean(),
+      tracker, location,
+      "Test case documents may only set the `rdf` or `rdfPath` "
+      "property when the `valid` property is set to true");
+  TEST_ERROR_IF(test_case_json.defines("rdf") &&
+                    !test_case_json.at("rdf").is_array(),
+                tracker, location.concat("rdf"),
+                "Test case documents must set the `rdf` property to an "
+                "array");
 
   sourcemeta::core::JSON::String description;
   if (test_case_json.defines("description")) {
     description = test_case_json.at("description").to_string();
+  }
+
+  std::optional<sourcemeta::core::JSON> rdf;
+  if (test_case_json.defines("rdf")) {
+    rdf = test_case_json.at("rdf");
+  } else if (test_case_json.defines("rdfPath")) {
+    const std::filesystem::path rdf_path{sourcemeta::core::weakly_canonical(
+        base_path / test_case_json.at("rdfPath").to_string())};
+    rdf = sourcemeta::core::read_yaml_or_json(rdf_path);
+    TEST_ERROR_IF(!rdf.value().is_array(), tracker, location.concat("rdfPath"),
+                  "The document referenced by the test case `rdfPath` "
+                  "property must be an array");
   }
 
   sourcemeta::core::PointerPositionTracker data_tracker;
@@ -82,6 +155,7 @@ auto TestCase::parse(
     return TestCase{.description = std::move(description),
                     .valid = test_case_json.at("valid").to_boolean(),
                     .data = test_case_json.at("data"),
+                    .rdf = std::move(rdf),
                     .tracker = std::move(data_tracker),
                     .position = position};
   } else {
@@ -93,6 +167,7 @@ auto TestCase::parse(
     return TestCase{.description = std::move(description),
                     .valid = test_case_json.at("valid").to_boolean(),
                     .data = std::move(data),
+                    .rdf = std::move(rdf),
                     .tracker = std::move(data_tracker),
                     .position = position};
   }
@@ -166,6 +241,25 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
     index += 1;
   }
 
+  const auto with_rdf{std::ranges::any_of(
+      test_suite.tests, [](const TestCase &test_case) -> bool {
+        return test_case.rdf.has_value();
+      })};
+
+  auto tweaks_fast{tweaks};
+  if (with_rdf) {
+    if (!tweaks_fast.has_value()) {
+      tweaks_fast.emplace();
+    }
+
+    if (!tweaks_fast.value().annotations.has_value()) {
+      tweaks_fast.value().annotations.emplace();
+    }
+
+    tweaks_fast.value().annotations.value().insert(JSONLD_KEYWORDS.cbegin(),
+                                                   JSONLD_KEYWORDS.cend());
+  }
+
   test_suite.schemas_fast.reserve(test_suite.targets.size());
   test_suite.schemas_exhaustive.reserve(test_suite.targets.size());
 
@@ -175,7 +269,7 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
     try {
       test_suite.schemas_fast.push_back(compile(
           target_schema, walker, schema_resolver, compiler,
-          Mode::FastValidation, default_dialect, default_id, "", tweaks));
+          Mode::FastValidation, default_dialect, default_id, "", tweaks_fast));
       test_suite.schemas_exhaustive.push_back(
           compile(target_schema, walker, schema_resolver, compiler,
                   Mode::Exhaustive, default_dialect, default_id, "", tweaks));
@@ -187,6 +281,15 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
       }
 
       throw;
+    }
+  }
+
+  if (with_rdf) {
+    for (const auto &target : test_suite.targets) {
+      if (!supports_rdf_expectations(target, schema_resolver, walker,
+                                     default_dialect)) {
+        throw sourcemeta::blaze::TestUnsupportedDialectError{target};
+      }
     }
   }
 

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "$defs": {
+    "legacy": {
+      "$id": "https://example.com/legacy",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object"
+    }
+  }
+}
