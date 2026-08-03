@@ -61,28 +61,6 @@ private:
   std::uint64_t column_;
 };
 
-/// @ingroup test
-/// An error that occurs when a test suite carries RDF expectations against a
-/// target whose base dialect predates JSON Schema 2019-09
-class SOURCEMETA_BLAZE_TEST_EXPORT TestUnsupportedDialectError
-    : public std::exception {
-public:
-  TestUnsupportedDialectError(const std::string_view identifier)
-      : identifier_{identifier} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "RDF expectations require a schema based on JSON Schema 2019-09 "
-           "or newer";
-  }
-
-  [[nodiscard]] auto identifier() const noexcept -> std::string_view {
-    return this->identifier_;
-  }
-
-private:
-  std::string identifier_;
-};
-
 #if defined(_MSC_VER)
 #pragma warning(default : 4251 4275)
 #endif

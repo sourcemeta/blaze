@@ -829,7 +829,7 @@ TEST(valid_rdf_2019_09_target) {
   EXPECT_TRUE(result.tests[0].rdf.has_value());
 }
 
-TEST(error_rdf_draft7_target) {
+TEST(valid_rdf_draft7_target) {
   const auto input{R"JSON({
     "target": "http://json-schema.org/draft-07/schema",
     "tests": [
@@ -840,19 +840,19 @@ TEST(error_rdf_draft7_target) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
-  try {
-    sourcemeta::blaze::TestSuite::parse(
-        document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::blaze::TestUnsupportedDialectError &error) {
-    EXPECT_STREQ(error.what(),
-                 "RDF expectations require a schema based on JSON Schema "
-                 "2019-09 or newer");
-    EXPECT_EQ(error.identifier(), "http://json-schema.org/draft-07/schema");
-  }
+  EXPECT_EQ(result.targets.size(), 1);
+  EXPECT_EQ(result.targets.front(), "http://json-schema.org/draft-07/schema");
+  EXPECT_EQ(result.schemas_fast.size(), 1);
+  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
+  EXPECT_EQ(result.tests.size(), 1);
+  EXPECT_TRUE(result.tests[0].rdf.has_value());
+  EXPECT_EQ(result.tests[0].rdf.value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
 }
 
 TEST(valid_draft7_target_without_rdf) {
@@ -877,119 +877,6 @@ TEST(valid_draft7_target_without_rdf) {
   EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_FALSE(result.tests[0].rdf.has_value());
-}
-
-TEST(error_rdf_draft7_file_target) {
-  const auto input{R"JSON({
-    "target": "schema_draft7.json",
-    "tests": [
-      { "data": {}, "valid": true, "rdf": [] }
-    ]
-  })JSON"};
-
-  sourcemeta::core::PointerPositionTracker tracker;
-  sourcemeta::core::JSON document{nullptr};
-  sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
-
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
-  const auto expected_target{sourcemeta::core::URI::from_path(
-      std::filesystem::path{STUBS_PATH} / "schema_draft7.json")};
-
-  try {
-    sourcemeta::blaze::TestSuite::parse(
-        document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-        sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::blaze::TestUnsupportedDialectError &error) {
-    EXPECT_STREQ(error.what(),
-                 "RDF expectations require a schema based on JSON Schema "
-                 "2019-09 or newer");
-    EXPECT_EQ(error.identifier(), expected_target.recompose());
-  }
-}
-
-TEST(error_rdf_draft7_fragment_target) {
-  const auto input{R"JSON({
-    "target": "schema_draft7.json#/properties/foo",
-    "tests": [
-      { "data": "bar", "valid": true, "rdf": [] }
-    ]
-  })JSON"};
-
-  sourcemeta::core::PointerPositionTracker tracker;
-  sourcemeta::core::JSON document{nullptr};
-  sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
-
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
-  auto expected_target{sourcemeta::core::URI::from_path(
-      std::filesystem::path{STUBS_PATH} / "schema_draft7.json")};
-  expected_target.fragment("/properties/foo");
-
-  try {
-    sourcemeta::blaze::TestSuite::parse(
-        document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-        sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::blaze::TestUnsupportedDialectError &error) {
-    EXPECT_STREQ(error.what(),
-                 "RDF expectations require a schema based on JSON Schema "
-                 "2019-09 or newer");
-    EXPECT_EQ(error.identifier(), expected_target.recompose());
-  }
-}
-
-TEST(error_rdf_embedded_legacy_fragment_target) {
-  const auto input{R"JSON({
-    "target": "schema_embedded_legacy.json#/$defs/legacy",
-    "tests": [
-      { "data": {}, "valid": true, "rdf": [] }
-    ]
-  })JSON"};
-
-  sourcemeta::core::PointerPositionTracker tracker;
-  sourcemeta::core::JSON document{nullptr};
-  sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
-
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
-  auto expected_target{sourcemeta::core::URI::from_path(
-      std::filesystem::path{STUBS_PATH} / "schema_embedded_legacy.json")};
-  expected_target.fragment("/$defs/legacy");
-
-  try {
-    sourcemeta::blaze::TestSuite::parse(
-        document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-        sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::blaze::TestUnsupportedDialectError &error) {
-    EXPECT_STREQ(error.what(),
-                 "RDF expectations require a schema based on JSON Schema "
-                 "2019-09 or newer");
-    EXPECT_EQ(error.identifier(), expected_target.recompose());
-  }
 }
 
 TEST(valid_rdf_embedded_legacy_root_target) {
@@ -1028,44 +915,6 @@ TEST(valid_rdf_embedded_legacy_root_target) {
   EXPECT_TRUE(result.tests[0].rdf.has_value());
 }
 
-TEST(error_rdf_no_dialect_target_with_draft7_default) {
-  const auto input{R"JSON({
-    "target": "schema_no_dialect.json",
-    "tests": [
-      { "data": {}, "valid": true, "rdf": [] }
-    ]
-  })JSON"};
-
-  sourcemeta::core::PointerPositionTracker tracker;
-  sourcemeta::core::JSON document{nullptr};
-  sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
-
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
-  const auto expected_target{sourcemeta::core::URI::from_path(
-      std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
-
-  try {
-    sourcemeta::blaze::TestSuite::parse(
-        document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-        sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::default_schema_compiler,
-        "http://json-schema.org/draft-07/schema#");
-    FAIL();
-  } catch (const sourcemeta::blaze::TestUnsupportedDialectError &error) {
-    EXPECT_STREQ(error.what(),
-                 "RDF expectations require a schema based on JSON Schema "
-                 "2019-09 or newer");
-    EXPECT_EQ(error.identifier(), expected_target.recompose());
-  }
-}
-
 TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
   const auto input{R"JSON({
     "target": "schema_no_dialect.json",
@@ -1101,33 +950,4 @@ TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
   EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
-}
-
-TEST(error_rdf_multi_target_one_draft7) {
-  const auto input{R"JSON({
-    "target": [
-      "https://json-schema.org/draft/2020-12/schema",
-      "http://json-schema.org/draft-07/schema"
-    ],
-    "tests": [
-      { "data": true, "valid": true, "rdf": [] }
-    ]
-  })JSON"};
-
-  sourcemeta::core::PointerPositionTracker tracker;
-  sourcemeta::core::JSON document{nullptr};
-  sourcemeta::core::parse_json(input, document, std::ref(tracker));
-
-  try {
-    sourcemeta::blaze::TestSuite::parse(
-        document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::blaze::TestUnsupportedDialectError &error) {
-    EXPECT_STREQ(error.what(),
-                 "RDF expectations require a schema based on JSON Schema "
-                 "2019-09 or newer");
-    EXPECT_EQ(error.identifier(), "http://json-schema.org/draft-07/schema");
-  }
 }

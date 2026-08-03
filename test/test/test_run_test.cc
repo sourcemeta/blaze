@@ -16,6 +16,156 @@
 #include <tuple>      // std::tuple, std::get
 #include <vector>     // std::vector
 
+static auto rdf_test_resolver(std::string_view identifier)
+    -> std::optional<sourcemeta::core::JSON> {
+  if (identifier == "https://example.com/person") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "properties": {
+        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-2019") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-2019",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "properties": {
+        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-same") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-same",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "properties": {
+        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-alt") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-alt",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-jsonld-id": "https://example.org/fullName"
+        }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-anyof") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-anyof",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-jsonld-type": "https://schema.org/Person",
+      "anyOf": [
+        { "type": "object" },
+        {
+          "properties": {
+            "name": { "x-jsonld-id": "https://schema.org/name" }
+          }
+        }
+      ]
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-oneof") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-oneof",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "x-jsonld-type": "https://schema.org/Person",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-jsonld-id": "https://schema.org/name"
+            }
+          }
+        }
+      ]
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/person-defs") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/person-defs",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "person": {
+          "type": "object",
+          "x-jsonld-type": "https://schema.org/Person",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-jsonld-id": "https://schema.org/name"
+            }
+          }
+        }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/conflict") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/conflict",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "x": {
+          "allOf": [
+            { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" },
+            { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#string" }
+          ]
+        }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/number") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/number",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "x-jsonld-id": "https://example.com/value"
+        }
+      }
+    })JSON");
+  }
+
+  if (identifier == "https://example.com/plain") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/plain",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object"
+    })JSON");
+  }
+
+  return sourcemeta::blaze::schema_resolver(identifier);
+}
+
 TEST(empty_tests) {
   const auto input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
@@ -1350,156 +1500,6 @@ TEST(embedded_custom_metaschema) {
   EXPECT_FALSE(std::get<5>(traces.at(1)));
 }
 
-static auto rdf_test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
-  if (identifier == "https://example.com/person") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/person",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "x-jsonld-type": "https://schema.org/Person",
-      "properties": {
-        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
-      }
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/person-2019") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/person-2019",
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "type": "object",
-      "x-jsonld-type": "https://schema.org/Person",
-      "properties": {
-        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
-      }
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/person-same") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/person-same",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "x-jsonld-type": "https://schema.org/Person",
-      "properties": {
-        "name": { "type": "string", "x-jsonld-id": "https://schema.org/name" }
-      }
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/person-alt") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/person-alt",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "x-jsonld-type": "https://schema.org/Person",
-      "properties": {
-        "name": {
-          "type": "string",
-          "x-jsonld-id": "https://example.org/fullName"
-        }
-      }
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/person-anyof") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/person-anyof",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "x-jsonld-type": "https://schema.org/Person",
-      "anyOf": [
-        { "type": "object" },
-        {
-          "properties": {
-            "name": { "x-jsonld-id": "https://schema.org/name" }
-          }
-        }
-      ]
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/person-oneof") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/person-oneof",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "oneOf": [
-        { "type": "string" },
-        {
-          "type": "object",
-          "x-jsonld-type": "https://schema.org/Person",
-          "properties": {
-            "name": {
-              "type": "string",
-              "x-jsonld-id": "https://schema.org/name"
-            }
-          }
-        }
-      ]
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/person-defs") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/person-defs",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$defs": {
-        "person": {
-          "type": "object",
-          "x-jsonld-type": "https://schema.org/Person",
-          "properties": {
-            "name": {
-              "type": "string",
-              "x-jsonld-id": "https://schema.org/name"
-            }
-          }
-        }
-      }
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/conflict") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/conflict",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "x": {
-          "allOf": [
-            { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#date" },
-            { "x-jsonld-datatype": "http://www.w3.org/2001/XMLSchema#string" }
-          ]
-        }
-      }
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/number") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/number",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "properties": {
-        "value": {
-          "type": "number",
-          "x-jsonld-id": "https://example.com/value"
-        }
-      }
-    })JSON");
-  }
-
-  if (identifier == "https://example.com/plain") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/plain",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object"
-    })JSON");
-  }
-
-  return sourcemeta::blaze::schema_resolver(identifier);
-}
-
 TEST(rdf_passing_inline) {
   const auto input{R"JSON({
     "target": "https://example.com/person",
@@ -2530,4 +2530,114 @@ TEST(rdf_mixed_with_plain_cases) {
   EXPECT_TRUE(std::get<6>(traces[2]));
   EXPECT_FALSE(std::get<7>(traces[2]).has_value());
   EXPECT_FALSE(std::get<8>(traces[2]).has_value());
+}
+
+TEST(rdf_draft7_target_empty_expansion) {
+  const auto input{R"JSON({
+    "target": "http://json-schema.org/draft-07/schema",
+    "tests": [
+      {
+        "data": { "type": "string" },
+        "valid": true,
+        "rdf": []
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<
+      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
+                 bool, std::optional<sourcemeta::core::JSON>,
+                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
+      traces;
+  const auto result{suite.run(
+      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
+                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
+                sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, outcome.passed, outcome.valid,
+                            outcome.rdf, outcome.rdf_error);
+      })};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 1);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "http://json-schema.org/draft-07/schema");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(rdf_draft7_target_expectation_never_matches) {
+  const auto input{R"JSON({
+    "target": "http://json-schema.org/draft-07/schema",
+    "tests": [
+      {
+        "data": { "type": "string" },
+        "valid": true,
+        "rdf": [
+          {
+            "@type": [ "https://schema.org/Person" ]
+          }
+        ]
+      }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<
+      std::tuple<std::string, std::size_t, std::size_t, std::string, bool, bool,
+                 bool, std::optional<sourcemeta::core::JSON>,
+                 std::optional<sourcemeta::blaze::JSONLDResolutionError>>>
+      traces;
+  const auto result{suite.run(
+      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
+                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
+                const sourcemeta::blaze::TestOutcome &outcome,
+                sourcemeta::blaze::TestTimestamp,
+                sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, outcome.passed, outcome.valid,
+                            outcome.rdf, outcome.rdf_error);
+      })};
+
+  EXPECT_EQ(result.total, 1);
+  EXPECT_EQ(result.passed, 0);
+  EXPECT_EQ(traces.size(), 1);
+
+  EXPECT_EQ(std::get<0>(traces[0]), "http://json-schema.org/draft-07/schema");
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 1);
+  EXPECT_TRUE(std::get<3>(traces[0]).empty());
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_FALSE(std::get<5>(traces[0]));
+  EXPECT_TRUE(std::get<6>(traces[0]));
+  EXPECT_TRUE(std::get<7>(traces[0]).has_value());
+  EXPECT_EQ(std::get<7>(traces[0]).value(),
+            sourcemeta::core::parse_json(R"JSON([])JSON"));
+  EXPECT_FALSE(std::get<8>(traces[0]).has_value());
 }

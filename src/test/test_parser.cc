@@ -35,44 +35,6 @@ inline auto TEST_ERROR_IF(
   }
 }
 
-inline auto supports_rdf_expectations(
-    const sourcemeta::core::JSON::String &target,
-    const sourcemeta::blaze::SchemaResolver &schema_resolver,
-    const sourcemeta::blaze::SchemaWalker &walker,
-    const std::string_view default_dialect) -> bool {
-  const sourcemeta::core::URI target_uri{target};
-  const auto identifier{
-      target_uri.recompose_without_fragment().value_or(target)};
-  const auto resolved{schema_resolver(identifier)};
-  if (!resolved.has_value()) {
-    throw sourcemeta::blaze::SchemaResolutionError{
-        target, "Could not resolve schema under test"};
-  }
-
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Locations};
-  frame.analyse(resolved.value(), walker, schema_resolver, default_dialect,
-                identifier);
-  auto location{frame.traverse(target)};
-  if (!location.has_value()) {
-    location = frame.traverse(identifier);
-  }
-
-  if (!location.has_value()) {
-    throw sourcemeta::blaze::SchemaResolutionError{
-        target, "Could not resolve schema under test"};
-  }
-
-  switch (location.value().get().base_dialect) {
-    case sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12:
-    case sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12_Hyper:
-    case sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09:
-    case sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09_Hyper:
-      return true;
-    default:
-      return false;
-  }
-}
 } // namespace
 
 namespace sourcemeta::blaze {
@@ -281,15 +243,6 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
       }
 
       throw;
-    }
-  }
-
-  if (with_rdf) {
-    for (const auto &target : test_suite.targets) {
-      if (!supports_rdf_expectations(target, schema_resolver, walker,
-                                     default_dialect)) {
-        throw sourcemeta::blaze::TestUnsupportedDialectError{target};
-      }
     }
   }
 
