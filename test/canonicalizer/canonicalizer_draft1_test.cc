@@ -396,3 +396,20 @@ TEST(additionalProperties_false) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
+
+TEST(type_union_schema_variant) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-01/schema#",
+    "type": [ "array", { "type": "object" } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-01/schema#",
+    "type": [
+      { "type": "array", "minItems": 0, "items": {} },
+      { "type": "object", "properties": {}, "additionalProperties": {} }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}

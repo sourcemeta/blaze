@@ -1341,6 +1341,31 @@ TEST(unsatisfiable_logic_branch_type_anyof_1) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(unsatisfiable_logic_branch_type_anyof_invalid_draft3_type_union) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": [ "string", { "type": "object" } ],
+    "anyOf": [
+      { "type": "number" },
+      { "minLength": 1 }
+    ]
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": [ "string", { "type": "object" } ],
+    "anyOf": [
+      { "minLength": 1 }
+    ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(unsatisfiable_logic_branch_type_anyof_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
