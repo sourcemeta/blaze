@@ -479,6 +479,7 @@ TEST(anonymous_no_dialect) {
     "allOf": [ { "$ref": "https://www.sourcemeta.com/anonymous" } ],
     "definitions": {
       "https://www.sourcemeta.com/anonymous": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "id": "https://www.sourcemeta.com/anonymous",
         "type": "integer"
       }

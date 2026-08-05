@@ -454,6 +454,7 @@ TEST(anonymous_no_dialect) {
     "$ref": "https://www.sourcemeta.com/anonymous",
     "$defs": {
       "https://www.sourcemeta.com/anonymous": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
         "$id": "https://www.sourcemeta.com/anonymous",
         "type": "integer"
       }
