@@ -483,6 +483,155 @@ TEST(to_json_roundtrip_with_lint_and_dependencies) {
   EXPECT_EQ(output, input);
 }
 
+TEST(to_json_with_lint_exclude) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
+  config.base_path = "/test";
+  config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
+  config.lint.exclude.emplace("enum_to_const");
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "lint": {
+      "exclude": [ "enum_to_const" ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(to_json_with_lint_exclude_sorted) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
+  config.base_path = "/test";
+  config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
+  config.lint.exclude.emplace("top_level_title");
+  config.lint.exclude.emplace("const_not_in_enum");
+  config.lint.exclude.emplace("enum_to_const");
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "lint": {
+      "exclude": [ "const_not_in_enum", "enum_to_const", "top_level_title" ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(to_json_with_lint_rules_and_exclude) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
+  config.base_path = "/test";
+  config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
+  config.lint.rules.emplace_back("/test/rules/my-rule.json");
+  config.lint.exclude.emplace("enum_to_const");
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ],
+      "exclude": [ "enum_to_const" ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
+TEST(to_json_lint_exclude_duplicates_in_document_emitted_once) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "lint": {
+      "exclude": [ "enum_to_const", "enum_to_const", "enum_to_const" ]
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "lint": {
+      "exclude": [ "enum_to_const" ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(output, expected);
+}
+
+TEST(to_json_roundtrip_with_lint_exclude) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "lint": {
+      "exclude": [ "enum_to_const", "top_level_title" ]
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(to_json_roundtrip_with_lint_rules_and_exclude) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "baseUri": "https://schemas.sourcemeta.com",
+    "path": "/test",
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ],
+      "exclude": [ "enum_to_const" ]
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+  const auto output{config.to_json()};
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(to_json_empty_lint_exclude_omitted) {
+  sourcemeta::blaze::Configuration config;
+  config.absolute_path = "/test";
+  config.absolute_path_explicit = true;
+  config.base_path = "/test";
+  config.base = "https://example.com";
+  config.base_uri = sourcemeta::core::URI{config.base};
+  config.lint.rules.emplace_back("/test/rules/my-rule.json");
+
+  const auto result{config.to_json()};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "path": "/test",
+    "baseUri": "https://example.com",
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ]
+    }
+  })JSON")};
+
+  EXPECT_EQ(result, expected);
+}
+
 TEST(to_json_with_ignore) {
   sourcemeta::blaze::Configuration config;
   config.absolute_path = "/test";

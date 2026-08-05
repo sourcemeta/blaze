@@ -556,6 +556,7 @@ TEST(lint_empty_object) {
       sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
 
   EXPECT_TRUE(manifest.lint.rules.empty());
+  EXPECT_TRUE(manifest.lint.exclude.empty());
 }
 
 TEST(lint_rules_empty) {
@@ -944,6 +945,257 @@ TEST(lint_rules_object_missing_path_second_entry) {
   EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
       input, TEST_DIRECTORY, "The lint rule path property must be a string",
       "/lint/rules/1/path");
+}
+
+TEST(lint_exclude_empty) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.lint.rules.empty());
+  EXPECT_TRUE(manifest.lint.exclude.empty());
+}
+
+TEST(lint_exclude_single) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [ "enum_to_const" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.lint.rules.empty());
+  EXPECT_EQ(manifest.lint.exclude.size(), 1);
+  EXPECT_TRUE(manifest.lint.exclude.contains("enum_to_const"));
+}
+
+TEST(lint_exclude_multiple) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "exclude": [ "enum_to_const", "top_level_title", "const_not_in_enum" ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.lint.rules.empty());
+  EXPECT_EQ(manifest.lint.exclude.size(), 3);
+  EXPECT_TRUE(manifest.lint.exclude.contains("enum_to_const"));
+  EXPECT_TRUE(manifest.lint.exclude.contains("top_level_title"));
+  EXPECT_TRUE(manifest.lint.exclude.contains("const_not_in_enum"));
+}
+
+TEST(lint_exclude_duplicates_collapse) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "exclude": [
+        "enum_to_const",
+        "top_level_title",
+        "enum_to_const",
+        "enum_to_const"
+      ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.lint.rules.empty());
+  EXPECT_EQ(manifest.lint.exclude.size(), 2);
+  EXPECT_TRUE(manifest.lint.exclude.contains("enum_to_const"));
+  EXPECT_TRUE(manifest.lint.exclude.contains("top_level_title"));
+}
+
+TEST(lint_exclude_unknown_rule_name) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [ "this_rule_does_not_exist" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.lint.rules.empty());
+  EXPECT_EQ(manifest.lint.exclude.size(), 1);
+  EXPECT_TRUE(manifest.lint.exclude.contains("this_rule_does_not_exist"));
+}
+
+TEST(lint_exclude_case_sensitive) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [ "enum_to_const", "Enum_To_Const" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.lint.rules.empty());
+  EXPECT_EQ(manifest.lint.exclude.size(), 2);
+  EXPECT_TRUE(manifest.lint.exclude.contains("enum_to_const"));
+  EXPECT_TRUE(manifest.lint.exclude.contains("Enum_To_Const"));
+}
+
+TEST(lint_exclude_with_rules) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ],
+      "exclude": [ "enum_to_const" ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
+  EXPECT_EQ(manifest.lint.exclude.size(), 1);
+  EXPECT_TRUE(manifest.lint.exclude.contains("enum_to_const"));
+}
+
+TEST(lint_exclude_name_matching_custom_rule) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [ "./rules/enum_to_const.json" ],
+      "exclude": [ "enum_to_const" ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "enum_to_const.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
+  EXPECT_EQ(manifest.lint.exclude.size(), 1);
+  EXPECT_TRUE(manifest.lint.exclude.contains("enum_to_const"));
+}
+
+TEST(lint_exclude_name_matching_custom_rule_path) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": {
+      "rules": [ "./rules/my-rule.json" ],
+      "exclude": [ "./rules/my-rule.json" ]
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.lint.rules.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules[0].path.is_absolute());
+  EXPECT_EQ(
+      manifest.lint.rules[0].path,
+      std::filesystem::weakly_canonical(std::filesystem::path{TEST_DIRECTORY} /
+                                        "rules" / "my-rule.json"));
+  EXPECT_FALSE(manifest.lint.rules[0].top_level);
+  EXPECT_EQ(manifest.lint.exclude.size(), 1);
+  EXPECT_TRUE(manifest.lint.exclude.contains("./rules/my-rule.json"));
+}
+
+TEST(lint_exclude_with_other_fields) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "dependencies": {
+      "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
+    },
+    "lint": { "exclude": [ "enum_to_const" ] }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_TRUE(manifest.title.has_value());
+  EXPECT_EQ(manifest.title.value(), "Test");
+  EXPECT_EQ(manifest.dependencies.size(), 1);
+  EXPECT_TRUE(manifest.lint.rules.empty());
+  EXPECT_EQ(manifest.lint.exclude.size(), 1);
+  EXPECT_TRUE(manifest.lint.exclude.contains("enum_to_const"));
+}
+
+TEST(lint_exclude_not_array) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": 1 }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY, "The lint exclude property must be an array",
+      "/lint/exclude");
+}
+
+TEST(lint_exclude_string) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": "enum_to_const" }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY, "The lint exclude property must be an array",
+      "/lint/exclude");
+}
+
+TEST(lint_exclude_element_not_string) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [ 1 ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint exclude array must be strings",
+      "/lint/exclude/0");
+}
+
+TEST(lint_exclude_element_null) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [ null ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint exclude array must be strings",
+      "/lint/exclude/0");
+}
+
+TEST(lint_exclude_element_object) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [ { "name": "enum_to_const" } ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint exclude array must be strings",
+      "/lint/exclude/0");
+}
+
+TEST(lint_exclude_element_array) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [ [ "enum_to_const" ] ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint exclude array must be strings",
+      "/lint/exclude/0");
+}
+
+TEST(lint_exclude_mixed_types) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "lint": { "exclude": [ "enum_to_const", 2 ] }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The values in the lint exclude array must be strings",
+      "/lint/exclude/1");
 }
 
 TEST(ignore_empty) {
