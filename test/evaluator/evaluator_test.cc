@@ -51,6 +51,18 @@ static auto test_resolver(std::string_view identifier)
       },
       "allOf": [ { "$ref": "#/definitions/helper", "type": "integer" } ]
     })JSON");
+  } else if (identifier == "https://example.com/anonymous-embedded") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/anonymous-embedded",
+      "allOf": [ { "$ref": "shared" } ],
+      "definitions": {
+        "https://example.com/shared": {
+          "id": "https://example.com/shared",
+          "type": "string"
+        }
+      }
+    })JSON");
   } else {
     return sourcemeta::blaze::schema_resolver(identifier);
   }
@@ -254,6 +266,36 @@ TEST(cross_2020_12_ref_anonymous_with_draft7_default_dialect_invalid) {
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation,
       "http://json-schema.org/draft-07/schema#")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{5};
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(cross_2020_12_ref_draft4_anonymous_embedded_valid) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/anonymous-embedded"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{"foo"};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(cross_2020_12_ref_draft4_anonymous_embedded_invalid) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/anonymous-embedded"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
   const sourcemeta::core::JSON instance{5};

@@ -1330,6 +1330,7 @@ TEST(default_id_with_different_ref_target_id) {
     "$ref": "https://example.com/schemas/parent",
     "$defs": {
       "https://example.com/schemas/child": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "https://example.com/schemas/child",
         "type": "string"
       },
