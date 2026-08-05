@@ -205,9 +205,9 @@ string within the source grammar of the named scheme. The defined names are:
 - `acct`: the location value MUST be a `user@host` account [RFC7565] whose
   user part, which may itself contain `@`, is limited to the printable ASCII
   repertoire of the PRECIS IdentifierClass, and the minted identity is its
-  `acct` IRI [RFC7565]. The characters outside the user part production are
-  percent encoded and the host is lowercased, while the user part keeps its
-  case.
+  `acct` IRI [RFC7565]. The characters in the user part that [RFC7565] does
+  not let pass through are percent encoded and the host is lowercased, while
+  the user part keeps its case.
 
 A scheme identity name contains no colon and no expression, so read as a URI
 Template it could never have expanded to an absolute IRI. The names are
