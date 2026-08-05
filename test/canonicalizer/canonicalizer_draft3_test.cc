@@ -484,6 +484,156 @@ TEST(draft3_type_any_in_array_empty_object_collapses) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
+TEST(draft3_type_union_string_and_object_schema_variant) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "array", { "type": "object" } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": {} },
+      { "type": "object", "properties": {}, "patternProperties": {}, "additionalProperties": {} }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(draft3_type_union_schema_variant_distributes_properties) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "array", { "type": "object" } ],
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": {} },
+      {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "extends": [ { "type": "string", "minLength": 0 } ],
+            "required": false
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": {}
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(draft3_type_union_with_any_keeps_properties) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "string", "any" ],
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "extends": [ { "type": "string", "minLength": 0 } ],
+            "required": false
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": {}
+      },
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": {} },
+      { "type": "string", "minLength": 0 },
+      { "type": "number" }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(draft3_type_union_nested_schema_union_variant) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "array", { "type": [ "string", { "maxItems": 2 } ] } ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "array", "minItems": 0, "uniqueItems": false, "items": {} },
+      {
+        "type": [
+          { "type": "string", "minLength": 0 },
+          {
+            "type": [
+              { "enum": [ null ] },
+              { "enum": [ false, true ] },
+              { "type": "object", "properties": {}, "patternProperties": {}, "additionalProperties": {} },
+              { "type": "array", "maxItems": 2, "minItems": 0, "uniqueItems": false, "items": {} },
+              { "type": "string", "minLength": 0 },
+              { "type": "number" }
+            ]
+          }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(draft3_type_union_schema_variant_with_extends) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "array", { "type": "object" } ],
+    "extends": {
+      "type": "object",
+      "properties": {
+        "foo": { "type": "string" }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [
+      {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "extends": [ { "type": "string", "minLength": 0 } ],
+            "required": false
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": {}
+      },
+      {
+        "type": [
+          { "type": "array", "minItems": 0, "uniqueItems": false, "items": {} },
+          { "type": "object", "properties": {}, "patternProperties": {}, "additionalProperties": {} }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
 TEST(draft3_type_any_as_string_collapses) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
