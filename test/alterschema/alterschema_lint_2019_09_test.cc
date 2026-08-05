@@ -5955,3 +5955,56 @@ TEST(pattern_properties_non_ecma_regex_multiple_bad_keys) {
   EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(1)),
             "/patternProperties/[[:digit:]]");
 }
+
+TEST(AlterSchema_lint_2019_09, disjunctor_min_branches_1) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "oneOf": [ { "type": "string", "minLength": 5 }, { "type": "string", "maxLength": 3 } ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(AlterSchema_lint_2019_09, disjunctor_min_branches_2) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "oneOf": [ { "type": "string" } ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "disjunctor_min_branches",
+                    "A `oneOf` or `anyOf` keyword should have at least 2 "
+                    "branches to be meaningful",
+                    false);
+}
+
+TEST(AlterSchema_lint_2019_09, disjunctor_min_branches_3) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "title": "My Schema",
+    "description": "A schema",
+    "examples": [ "hello" ],
+    "anyOf": [ { "type": "string" } ]
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "disjunctor_min_branches",
+                    "A `oneOf` or `anyOf` keyword should have at least 2 "
+                    "branches to be meaningful",
+                    false);
+}
