@@ -591,3 +591,27 @@ TEST(unsatisfiable_in_place_applicator_type_type_union_schema_variant) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(non_applicable_type_specific_keywords_type_union_any) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-00/schema#",
+    "type": [ "string", "any" ],
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-00/schema#",
+    "type": [ "string", "any" ],
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
