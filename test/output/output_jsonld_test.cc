@@ -8256,6 +8256,33 @@ TEST(JSONLD_self_mailto_lowercases_domain) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_self_mailto_punycode_domain_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@xn--bcher-kva.example" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:user@xn--bcher-kva.example" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
 TEST(JSONLD_self_mailto_quoted_local_part) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -8540,6 +8567,50 @@ TEST(JSONLD_self_mailto_internationalized_address_is_a_resolution_error) {
       "#/properties/email/x-jsonld-self");
 }
 
+TEST(JSONLD_self_mailto_internationalized_domain_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@bücher.example" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/email", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/email/x-jsonld-self");
+}
+
+TEST(JSONLD_self_mailto_fully_internationalized_address_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "실례@실례.테스트" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/email", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/email/x-jsonld-self");
+}
+
 TEST(JSONLD_self_mailto_non_string_is_a_resolution_error) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -8663,6 +8734,33 @@ TEST(JSONLD_self_acct_encodes_at_sign_in_user_part) {
   EXPECT_JSON_LD_VALUE(schema, instance, expected);
 }
 
+TEST(JSONLD_self_acct_punycode_host_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "account": "alice@xn--bcher-kva.example" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/identifier": [
+        { "@id": "acct:alice@xn--bcher-kva.example" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
 TEST(JSONLD_self_acct_lowercases_host) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -8749,6 +8847,28 @@ TEST(JSONLD_self_acct_internationalized_user_part_is_a_resolution_error) {
 
   const auto instance{sourcemeta::core::parse_json(
       R"JSON({ "account": "alíce@example.com" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/account", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/account/x-jsonld-self");
+}
+
+TEST(JSONLD_self_acct_internationalized_host_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "account": "alice@bücher.example" })JSON")};
 
   EXPECT_JSON_LD_RESOLUTION_ERROR(
       schema, instance, "/account", sourcemeta::blaze::JSONLDFacet::Self,
