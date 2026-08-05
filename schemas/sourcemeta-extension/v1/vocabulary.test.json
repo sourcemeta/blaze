@@ -813,6 +813,20 @@
       }
     },
     {
+      "description": "x-jsonld-self with the mailto scheme identity name is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-self": "mailto"
+      }
+    },
+    {
+      "description": "x-jsonld-self with the acct scheme identity name is valid",
+      "valid": true,
+      "data": {
+        "x-jsonld-self": "acct"
+      }
+    },
+    {
       "description": "x-jsonld-self with unclosed expression is rejected",
       "valid": false,
       "data": {
