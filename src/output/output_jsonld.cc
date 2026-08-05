@@ -1,5 +1,6 @@
 #include <sourcemeta/blaze/output_jsonld.h>
 
+#include <sourcemeta/core/email.h>
 #include <sourcemeta/core/jsonld.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/langtag.h>
@@ -451,6 +452,26 @@ auto literal_error(const sourcemeta::core::WeakPointer &pointer,
   return std::nullopt;
 }
 
+// The scheme identity registry of x-jsonld-self. A registered name mints the
+// canonical IRI of the annotated string value in the named scheme through the
+// transformation that owns it, and any other value keeps its URI Template
+// treatment, which a bare name always fails, as it cannot expand to an
+// absolute IRI
+using SchemeIdentityFunction =
+    std::optional<std::string> (*)(const std::string_view);
+auto scheme_identity_function(const sourcemeta::core::JSON::String &pattern)
+    -> SchemeIdentityFunction {
+  if (pattern == "mailto") {
+    return sourcemeta::core::mailto_iri;
+  }
+
+  if (pattern == "acct") {
+    return sourcemeta::core::acct_iri;
+  }
+
+  return nullptr;
+}
+
 // Expand an x-jsonld-self URI Template into a concrete identifier. An object
 // binds each variable to the member of that name, and a scalar binds the
 // reserved variable this to its own value. Only a non-empty string can bind,
@@ -458,12 +479,35 @@ auto literal_error(const sourcemeta::core::WeakPointer &pointer,
 // is a fail-loud resolution error. Expansion runs in IRI mode so that
 // internationalized characters flowing through a template mint the same raw
 // term that constant identities emit, as RDF compares IRIs by simple string
-// comparison (RDF 1.1 Concepts Section 3.2)
+// comparison (RDF 1.1 Concepts Section 3.2). A scheme identity name bypasses
+// expansion entirely, minting the canonical IRI of the string value in the
+// named scheme, where an input outside the scheme's source grammar is a
+// fail-loud resolution error
 auto expand_self(const sourcemeta::core::WeakPointer &pointer,
                  const sourcemeta::core::JSON::String &pattern,
                  const sourcemeta::core::JSON &value, const std::string &origin)
     -> std::variant<sourcemeta::core::JSON::String,
                     sourcemeta::blaze::JSONLDResolutionError> {
+  const auto scheme_function{scheme_identity_function(pattern)};
+  if (scheme_function != nullptr) {
+    if (!value.is_string()) {
+      return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Self,
+                         "A JSON-LD self identity scheme can only be assigned "
+                         "to a string value",
+                         origin);
+    }
+
+    auto identity{scheme_function(value.to_string())};
+    if (!identity.has_value()) {
+      return facet_error(pointer, sourcemeta::blaze::JSONLDFacet::Self,
+                         "A JSON-LD self identity value is outside the domain "
+                         "of its scheme",
+                         origin);
+    }
+
+    return sourcemeta::core::JSON::String{std::move(identity.value())};
+  }
+
   std::optional<sourcemeta::blaze::JSONLDResolutionError> failure;
   const sourcemeta::core::URITemplate uri_template{pattern};
   auto expanded{uri_template.expand(

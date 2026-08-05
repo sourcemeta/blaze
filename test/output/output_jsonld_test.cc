@@ -8117,6 +8117,779 @@ TEST(JSONLD_self_edge_on_root_is_a_resolution_error) {
       "#/x-jsonld-id");
 }
 
+TEST(JSONLD_self_mailto_scalar_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:user@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_scalar_reference_with_type) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-type": "https://schema.org/ContactPoint",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        {
+          "@id": "mailto:user@example.com",
+          "@type": [ "https://schema.org/ContactPoint" ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_encodes_reserved_characters) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "gorby%kremvax@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:gorby%25kremvax@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_encodes_fragment_delimiter) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "a#b@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:a%23b@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_lowercases_domain) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "User@EXAMPLE.COM" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:User@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_quoted_local_part) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "\"a b\"@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:%22a%20b%22@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_address_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@[192.168.1.1]" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:user@%5B192.168.1.1%5D" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_root_scalar_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "x-jsonld-type": "https://schema.org/ContactPoint",
+    "x-jsonld-self": "mailto"
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON("user@example.com")JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@id": "mailto:user@example.com",
+      "@type": [ "https://schema.org/ContactPoint" ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_reverse_edge_to_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-reverse": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "@reverse": {
+        "https://schema.org/email": [
+          { "@id": "mailto:user@example.com" }
+        ]
+      }
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_fuses_with_value_predicate) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto",
+        "x-jsonld-value": "https://example.com/carries"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        {
+          "@id": "mailto:user@example.com",
+          "https://example.com/carries": [ { "@value": "user@example.com" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_with_constants) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto",
+        "x-jsonld-constants": {
+          "https://example.com/status": "verified"
+        }
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        {
+          "@id": "mailto:user@example.com",
+          "https://example.com/status": [ { "@value": "verified" } ]
+        }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_idempotent_via_allof) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "allOf": [
+          { "x-jsonld-self": "mailto" },
+          { "x-jsonld-self": "mailto" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:user@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_on_null_is_dropped) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "email": null })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_invalid_address_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "email": "plain" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/email", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/email/x-jsonld-self");
+}
+
+TEST(JSONLD_self_mailto_empty_string_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "email": "" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/email", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/email/x-jsonld-self");
+}
+
+TEST(JSONLD_self_mailto_internationalized_address_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "usér@example.com" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/email", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/email/x-jsonld-self");
+}
+
+TEST(JSONLD_self_mailto_non_string_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "email": 42 })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/email", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity scheme can only be assigned to a string value",
+      "#/properties/email/x-jsonld-self");
+}
+
+TEST(JSONLD_self_mailto_on_object_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "object",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": { "address": "user@example.com" } })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/email", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity scheme can only be assigned to a string value",
+      "#/properties/email/x-jsonld-self");
+}
+
+TEST(JSONLD_self_mailto_conflict_with_template_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "allOf": [
+          { "x-jsonld-self": "mailto" },
+          { "x-jsonld-self": "https://example.com/{this}" }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_CONFLICT(
+      schema, instance, "/email", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity cannot be assigned more than one value",
+      "#/properties/email/allOf/0/x-jsonld-self",
+      "#/properties/email/allOf/1/x-jsonld-self");
+}
+
+TEST(JSONLD_self_acct_scalar_reference) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "account": "alice@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/identifier": [
+        { "@id": "acct:alice@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_acct_encodes_at_sign_in_user_part) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "account": "juliet@capulet.example@shoppingsite.example" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/identifier": [
+        { "@id": "acct:juliet%40capulet.example@shoppingsite.example" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_acct_lowercases_host) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "account": "Alice@Example.COM" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/identifier": [
+        { "@id": "acct:Alice@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_acct_missing_host_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "account": "alice" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/account", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/account/x-jsonld-self");
+}
+
+TEST(JSONLD_self_acct_invalid_host_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "account": "alice@-example-" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/account", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/account/x-jsonld-self");
+}
+
+TEST(JSONLD_self_acct_internationalized_user_part_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "account": "alíce@example.com" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/account", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity value is outside the domain of its scheme",
+      "#/properties/account/x-jsonld-self");
+}
+
+TEST(JSONLD_self_acct_non_string_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "account": {
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "acct"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "account": true })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/account", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity scheme can only be assigned to a string value",
+      "#/properties/account/x-jsonld-self");
+}
+
+TEST(JSONLD_self_unknown_scheme_name_is_a_resolution_error) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "document": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/identifier",
+        "x-jsonld-self": "doi"
+      }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "document": "10.1000/182" })JSON")};
+
+  EXPECT_JSON_LD_RESOLUTION_ERROR(
+      schema, instance, "/document", sourcemeta::blaze::JSONLDFacet::Self,
+      "A JSON-LD self identity must expand to an absolute IRI",
+      "#/properties/document/x-jsonld-self");
+}
+
+TEST(JSONLD_self_mailto_prefixed_template_keeps_template_treatment) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto:{this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:user%40example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_override_specializes_referenced_template) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": "mailto",
+        "x-jsonld-override": true,
+        "$ref": "#/$defs/library"
+      }
+    },
+    "$defs": {
+      "library": {
+        "type": "string",
+        "x-jsonld-self": "https://example.com/theirs/{this}"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    {
+      "https://schema.org/email": [
+        { "@id": "mailto:user@example.com" }
+      ]
+    }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
+TEST(JSONLD_self_mailto_override_tombstone_restores_plain_literal) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "email": {
+        "x-jsonld-id": "https://schema.org/email",
+        "x-jsonld-self": null,
+        "x-jsonld-override": true,
+        "$ref": "#/$defs/library"
+      }
+    },
+    "$defs": {
+      "library": {
+        "type": "string",
+        "x-jsonld-self": "mailto"
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(
+      R"JSON({ "email": "user@example.com" })JSON")};
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON([
+    { "https://schema.org/email": [ { "@value": "user@example.com" } ] }
+  ])JSON")};
+
+  EXPECT_JSON_LD_VALUE(schema, instance, expected);
+}
+
 TEST(JSONLD_override_specializes_referenced_datatype) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

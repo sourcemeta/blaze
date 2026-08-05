@@ -253,6 +253,32 @@
       }
     },
     {
+      "description": "x-jsonld-self nested in properties with the mailto scheme identity name is valid",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "x-jsonld-self": "mailto"
+          }
+        }
+      }
+    },
+    {
+      "description": "x-jsonld-self nested in properties with the acct scheme identity name is valid",
+      "valid": true,
+      "data": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "x-jsonld-self": "acct"
+          }
+        }
+      }
+    },
+    {
       "description": "x-jsonld-graph deeply nested through properties and items is valid",
       "valid": true,
       "data": {
