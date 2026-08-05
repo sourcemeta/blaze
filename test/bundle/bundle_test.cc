@@ -40,6 +40,10 @@ static auto test_resolver(std::string_view identifier)
       "id": "https://www.sourcemeta.com/test-4",
       "type": "string"
     })JSON");
+  } else if (identifier == "https://www.sourcemeta.com/anonymous") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "type": "integer"
+    })JSON");
   } else if (identifier == "https://www.sourcemeta.com/no-dialect") {
     return sourcemeta::core::parse_json(R"JSON({
       "foo": 1
@@ -319,6 +323,58 @@ TEST(without_default_dialect) {
     EXPECT_STREQ(error.what(),
                  "Could not determine the base dialect of the schema");
   }
+}
+
+TEST(anonymous_target_with_draft4_default_dialect) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/anonymous"
+  })JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
+      "http://json-schema.org/draft-04/schema#");
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/anonymous",
+    "$defs": {
+      "https://www.sourcemeta.com/anonymous": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://www.sourcemeta.com/anonymous",
+        "type": "integer"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(anonymous_target_with_draft7_default_dialect) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/anonymous"
+  })JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
+      "http://json-schema.org/draft-07/schema#");
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/anonymous",
+    "$defs": {
+      "https://www.sourcemeta.com/anonymous": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/anonymous",
+        "type": "integer"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
 }
 
 TEST(target_no_dialect) {

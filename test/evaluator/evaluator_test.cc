@@ -39,6 +39,18 @@ static auto test_resolver(std::string_view identifier)
       "$id": "https://example.com/schema",
       "type": "string"
     })JSON");
+  } else if (identifier == "https://example.com/anonymous-draft4") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "minimum": 2,
+      "exclusiveMinimum": true
+    })JSON");
+  } else if (identifier == "https://example.com/anonymous-draft7") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "definitions": {
+        "helper": { "type": "string" }
+      },
+      "allOf": [ { "$ref": "#/definitions/helper", "type": "integer" } ]
+    })JSON");
   } else {
     return sourcemeta::blaze::schema_resolver(identifier);
   }
@@ -180,6 +192,74 @@ TEST(cross_2012_12_ref_2019_09_without_id) {
   EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
 }
 
+TEST(cross_2020_12_ref_anonymous_with_draft4_default_dialect_valid) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/anonymous-draft4"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation,
+      "http://json-schema.org/draft-04/schema#")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{3};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(cross_2020_12_ref_anonymous_with_draft4_default_dialect_invalid) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/anonymous-draft4"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation,
+      "http://json-schema.org/draft-04/schema#")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{2};
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(cross_2020_12_ref_anonymous_with_draft7_default_dialect_valid) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/anonymous-draft7"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation,
+      "http://json-schema.org/draft-07/schema#")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{"foo"};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(cross_2020_12_ref_anonymous_with_draft7_default_dialect_invalid) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/anonymous-draft7"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation,
+      "http://json-schema.org/draft-07/schema#")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{5};
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
+}
+
 TEST(explicit_frame) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -228,6 +308,39 @@ TEST(explicit_frame_locations_only) {
     FAIL();
   } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
     EXPECT_STREQ(error.what(), "Could not resolve schema reference");
+  }
+}
+
+TEST(explicit_frame_unaddressable_static_reference_target) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/unaddressable",
+    "$defs": {
+      "https://example.com/unaddressable": {
+        "id": "https://example.com/unaddressable",
+        "type": "string"
+      }
+    }
+  })JSON")};
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               frame, frame.root());
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The referenced schema is not considered to be a valid "
+                 "subschema given the dialect and vocabularies in use");
+    EXPECT_EQ(error.identifier(), "https://example.com/unaddressable");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$ref"}));
   }
 }
 
