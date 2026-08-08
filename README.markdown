@@ -151,3 +151,6 @@ and researchers.
 <a href="https://github.com/sourcemeta/blaze/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=sourcemeta/blaze" />
 </a>
+
+By contributing to this project, you agree to our organisation-wide
+[contribution guidelines](https://github.com/sourcemeta/.github/blob/main/CONTRIBUTING.md).
