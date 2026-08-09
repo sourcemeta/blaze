@@ -3617,7 +3617,7 @@ TEST(exclusive_minimum_fold_int64_max) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "integer",
-    "minimum": 9.223372036854776e+18,
+    "minimum": 9.223372036854775808e+18,
     "multipleOf": 1
   })JSON");
 
@@ -3635,7 +3635,7 @@ TEST(exclusive_maximum_fold_int64_min) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "integer",
-    "maximum": -9.223372036854776e+18,
+    "maximum": -9.223372036854775809e+18,
     "multipleOf": 1
   })JSON");
 
@@ -3653,7 +3653,7 @@ TEST(exclusive_minimum_fold_large_real) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "integer",
-    "minimum": 1.000000000000000e+19,
+    "minimum": 1.0000000000000000001e+19,
     "multipleOf": 1
   })JSON");
 
@@ -3671,7 +3671,7 @@ TEST(exclusive_maximum_fold_large_real) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "integer",
-    "maximum": 1.000000000000000e+19,
+    "maximum": 9.999999999999999999e+18,
     "multipleOf": 1
   })JSON");
 
