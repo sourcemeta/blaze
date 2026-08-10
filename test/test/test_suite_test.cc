@@ -1,6 +1,7 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
+#include <sourcemeta/blaze/output.h>
 #include <sourcemeta/blaze/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
@@ -9,9 +10,11 @@
 #include <sourcemeta/core/uri.h>
 #include <sourcemeta/core/yaml.h>
 
+#include <cstddef>    // std::size_t
 #include <filesystem> // std::filesystem::path
 #include <optional>   // std::optional, std::nullopt
 #include <tuple>      // std::get
+#include <vector>     // std::vector
 
 TEST(error_not_an_object) {
   const auto input{"[]"};
@@ -155,8 +158,6 @@ TEST(valid_empty_tests) {
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
             "https://json-schema.org/draft/2020-12/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_TRUE(result.tests.empty());
 }
 
@@ -180,8 +181,6 @@ TEST(valid_with_test_cases) {
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
             "https://json-schema.org/draft/2020-12/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 2);
   EXPECT_TRUE(result.tests[0].description.empty());
   EXPECT_TRUE(result.tests[0].valid);
@@ -254,8 +253,6 @@ TEST(valid_with_file_path_target) {
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), expected_target.recompose());
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 2);
   EXPECT_TRUE(result.tests[0].description.empty());
   EXPECT_TRUE(result.tests[0].valid);
@@ -333,8 +330,6 @@ TEST(valid_with_default_dialect) {
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), expected_target.recompose());
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 2);
   EXPECT_TRUE(result.tests[0].valid);
   EXPECT_EQ(std::get<0>(result.tests[0].position), 4);
@@ -588,8 +583,6 @@ TEST(valid_target_array_single_element) {
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
             "https://json-schema.org/draft/2020-12/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
 }
 
@@ -618,8 +611,6 @@ TEST(valid_target_array_multiple_uris) {
   EXPECT_EQ(result.targets[0], "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(result.targets[1], "https://json-schema.org/draft/2019-09/schema");
   EXPECT_EQ(result.targets[2], "http://json-schema.org/draft-07/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 3);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 3);
   EXPECT_EQ(result.tests.size(), 2);
 }
 
@@ -653,8 +644,6 @@ TEST(valid_target_array_with_file_paths) {
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), expected_target.recompose());
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
 }
 
@@ -692,8 +681,6 @@ TEST(valid_target_array_mixed_uri_and_file_path) {
   EXPECT_EQ(result.targets.size(), 2);
   EXPECT_EQ(result.targets[0], "https://json-schema.org/draft/2020-12/schema");
   EXPECT_EQ(result.targets[1], expected_file_target.recompose());
-  EXPECT_EQ(result.schemas_fast.size(), 2);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 2);
   EXPECT_EQ(result.tests.size(), 1);
 }
 
@@ -732,8 +719,6 @@ TEST(valid_target_array_with_default_dialect) {
   EXPECT_EQ(result.targets.size(), 2);
   EXPECT_EQ(result.targets[0], expected_file_target.recompose());
   EXPECT_EQ(result.targets[1], "https://json-schema.org/draft/2020-12/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 2);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 2);
   EXPECT_EQ(result.tests.size(), 1);
 }
 
@@ -793,8 +778,6 @@ TEST(valid_rdf_2020_12_target) {
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
             "https://json-schema.org/draft/2020-12/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 2);
   EXPECT_TRUE(result.tests[0].valid);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
@@ -823,8 +806,6 @@ TEST(valid_rdf_2019_09_target) {
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
             "https://json-schema.org/draft/2019-09/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
   EXPECT_EQ(result.tests[0].rdf.value(),
@@ -849,8 +830,6 @@ TEST(valid_rdf_draft7_target) {
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), "http://json-schema.org/draft-07/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
   EXPECT_EQ(result.tests[0].rdf.value(),
@@ -875,8 +854,6 @@ TEST(valid_draft7_target_without_rdf) {
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), "http://json-schema.org/draft-07/schema");
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_FALSE(result.tests[0].rdf.has_value());
 }
@@ -911,8 +888,6 @@ TEST(valid_rdf_embedded_legacy_root_target) {
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), expected_target.recompose());
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
   EXPECT_EQ(result.tests[0].rdf.value(),
@@ -950,10 +925,190 @@ TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), expected_target.recompose());
-  EXPECT_EQ(result.schemas_fast.size(), 1);
-  EXPECT_EQ(result.schemas_exhaustive.size(), 1);
   EXPECT_EQ(result.tests.size(), 1);
   EXPECT_TRUE(result.tests[0].rdf.has_value());
   EXPECT_EQ(result.tests[0].rdf.value(),
             sourcemeta::core::parse_json(R"JSON([])JSON"));
+}
+
+TEST(fast_template_validates_the_target) {
+  const auto input{R"JSON({
+    "target": "schema.json",
+    "tests": [
+      { "data": { "foo": "bar" }, "valid": true }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto test_resolver{
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+        const sourcemeta::core::URI uri{identifier};
+        if (uri.is_file()) {
+          return sourcemeta::core::read_yaml_or_json(uri.to_path());
+        }
+
+        return sourcemeta::blaze::schema_resolver(identifier);
+      }};
+
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
+  sourcemeta::blaze::SimpleOutput output{instance};
+  EXPECT_TRUE(
+      result.evaluator.validate(result.fast(0), instance, std::ref(output)));
+
+  const std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{
+      output.cbegin(), output.cend()};
+  EXPECT_EQ(traces.size(), 0);
+  EXPECT_EQ(output.annotations().size(), 0);
+}
+
+TEST(exhaustive_template_emits_annotations) {
+  const auto input{R"JSON({
+    "target": "schema.json",
+    "tests": [
+      { "data": { "foo": "bar" }, "valid": true }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto test_resolver{
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+        const sourcemeta::core::URI uri{identifier};
+        if (uri.is_file()) {
+          return sourcemeta::core::read_yaml_or_json(uri.to_path());
+        }
+
+        return sourcemeta::blaze::schema_resolver(identifier);
+      }};
+
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+  const auto expected_target{sourcemeta::core::URI::from_path(
+      std::filesystem::path{STUBS_PATH} / "schema.json")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
+  sourcemeta::blaze::SimpleOutput output{instance};
+  EXPECT_TRUE(result.evaluator.validate(result.exhaustive(0), instance,
+                                        std::ref(output)));
+
+  const std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{
+      output.cbegin(), output.cend()};
+  EXPECT_EQ(traces.size(), 0);
+  EXPECT_EQ(output.annotations().size(), 1);
+  EXPECT_EQ(
+      sourcemeta::core::to_string(output.annotations().at(0).instance_location),
+      "");
+  EXPECT_EQ(
+      sourcemeta::core::to_string(output.annotations().at(0).evaluate_path),
+      "/$ref/properties");
+  EXPECT_EQ(output.annotations().at(0).schema_location.get(),
+            expected_target.recompose() + "#/properties");
+  EXPECT_EQ(output.annotations().at(0).value,
+            sourcemeta::core::parse_json(R"JSON("foo")JSON"));
+}
+
+TEST(exhaustive_template_is_compiled_once) {
+  const auto input{R"JSON({
+    "target": "schema.json",
+    "tests": [
+      { "data": {}, "valid": false }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto test_resolver{
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+        const sourcemeta::core::URI uri{identifier};
+        if (uri.is_file()) {
+          return sourcemeta::core::read_yaml_or_json(uri.to_path());
+        }
+
+        return sourcemeta::blaze::schema_resolver(identifier);
+      }};
+
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  EXPECT_EQ(&result.exhaustive(0), &result.exhaustive(0));
+}
+
+TEST(exhaustive_template_is_only_compiled_on_request) {
+  const auto input{R"JSON({
+    "target": "schema.json",
+    "tests": [
+      { "data": {}, "valid": false }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  std::size_t resolutions{0};
+  const auto test_resolver{[&resolutions](std::string_view identifier)
+                               -> std::optional<sourcemeta::core::JSON> {
+    resolutions += 1;
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
+
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const auto resolutions_after_parse{resolutions};
+  [[maybe_unused]] const auto &schema_exhaustive{result.exhaustive(0)};
+  EXPECT_TRUE(resolutions > resolutions_after_parse);
+}
+
+TEST(exhaustive_template_per_target) {
+  const auto input{R"JSON({
+    "target": [ "schema.json", "schema_draft7.json" ],
+    "tests": [
+      { "data": {}, "valid": false }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto test_resolver{
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+        const sourcemeta::core::URI uri{identifier};
+        if (uri.is_file()) {
+          return sourcemeta::core::read_yaml_or_json(uri.to_path());
+        }
+
+        return sourcemeta::blaze::schema_resolver(identifier);
+      }};
+
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  EXPECT_EQ(result.targets.size(), 2);
+  EXPECT_TRUE(&result.exhaustive(0) != &result.exhaustive(1));
+  EXPECT_EQ(&result.exhaustive(0), &result.exhaustive(0));
+  EXPECT_EQ(&result.exhaustive(1), &result.exhaustive(1));
 }
