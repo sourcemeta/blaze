@@ -132,10 +132,11 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
       TestTimestamp start, TestTimestamp end)>;
 
   /// The compiled schema template for fast validation of the given target
-  auto fast(std::size_t target_index) -> const Template &;
+  [[nodiscard]] auto fast(std::size_t target_index) const -> const Template &;
 
   /// The compiled schema template for exhaustive validation of the given
-  /// target, compiled on the first request and cached from then on
+  /// target, compiled on the first request and cached from then on. A test
+  /// suite must not be shared across threads
   auto exhaustive(std::size_t target_index) -> const Template &;
 
   /// Run all test cases in the suite, invoking the callback for each.

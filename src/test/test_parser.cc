@@ -262,7 +262,7 @@ auto TestSuite::compile_target(const std::size_t target_index,
   }
 }
 
-auto TestSuite::fast(const std::size_t target_index) -> const Template & {
+auto TestSuite::fast(const std::size_t target_index) const -> const Template & {
   assert(target_index < this->schemas_fast.size());
   return this->schemas_fast[target_index];
 }
