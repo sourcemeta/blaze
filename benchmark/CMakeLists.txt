@@ -27,6 +27,10 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
     micro/2020_12.cc)
 endif()
 
+if(BLAZE_TEST)
+  list(APPEND BENCHMARK_SOURCES test.cc)
+endif()
+
 if(BLAZE_ALTERSCHEMA)
   list(APPEND BENCHMARK_SOURCES alterschema.cc)
 endif()
@@ -57,6 +61,10 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_OUTPUT)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::output)
+  endif()
+  if(BLAZE_TEST)
+    target_link_libraries(sourcemeta_blaze_benchmark
+      PRIVATE sourcemeta::blaze::test)
   endif()
   if(BLAZE_ALTERSCHEMA)
     target_link_libraries(sourcemeta_blaze_benchmark
