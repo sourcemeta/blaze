@@ -44,6 +44,31 @@ static auto test_resolver(std::string_view identifier)
     return sourcemeta::core::parse_json(R"JSON({
       "type": "integer"
     })JSON");
+  } else if (identifier == "https://www.sourcemeta.com/anonymous-embedded") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://www.sourcemeta.com/anonymous-embedded",
+      "allOf": [ { "$ref": "shared" } ],
+      "definitions": {
+        "https://www.sourcemeta.com/shared": {
+          "id": "https://www.sourcemeta.com/shared",
+          "type": "string"
+        }
+      }
+    })JSON");
+  } else if (identifier ==
+             "https://www.sourcemeta.com/anonymous-embedded-sibling") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://www.sourcemeta.com/anonymous-embedded-sibling",
+      "allOf": [ { "$ref": "shared" } ],
+      "definitions": {
+        "https://www.sourcemeta.com/shared": {
+          "id": "https://www.sourcemeta.com/shared",
+          "type": "string"
+        }
+      }
+    })JSON");
   } else if (identifier == "https://www.sourcemeta.com/no-dialect") {
     return sourcemeta::core::parse_json(R"JSON({
       "foo": 1
@@ -370,6 +395,81 @@ TEST(anonymous_target_with_draft7_default_dialect) {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "$id": "https://www.sourcemeta.com/anonymous",
         "type": "integer"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(elevate_anonymous_embedded_resource_across_dialects) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/anonymous-embedded"
+  })JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/anonymous-embedded",
+    "$defs": {
+      "https://www.sourcemeta.com/shared": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://www.sourcemeta.com/shared",
+        "type": "string"
+      },
+      "https://www.sourcemeta.com/anonymous-embedded": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://www.sourcemeta.com/anonymous-embedded",
+        "allOf": [ { "$ref": "shared" } ]
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(elevate_anonymous_embedded_resource_deduplication) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "$ref": "https://www.sourcemeta.com/anonymous-embedded" },
+      "bar": {
+        "$ref": "https://www.sourcemeta.com/anonymous-embedded-sibling"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "$ref": "https://www.sourcemeta.com/anonymous-embedded" },
+      "bar": {
+        "$ref": "https://www.sourcemeta.com/anonymous-embedded-sibling"
+      }
+    },
+    "$defs": {
+      "https://www.sourcemeta.com/shared": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://www.sourcemeta.com/shared",
+        "type": "string"
+      },
+      "https://www.sourcemeta.com/anonymous-embedded": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://www.sourcemeta.com/anonymous-embedded",
+        "allOf": [ { "$ref": "shared" } ]
+      },
+      "https://www.sourcemeta.com/anonymous-embedded-sibling": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://www.sourcemeta.com/anonymous-embedded-sibling",
+        "allOf": [ { "$ref": "shared" } ]
       }
     }
   })JSON");
