@@ -880,6 +880,47 @@ TEST(embedded_custom_metaschema_chain_draft7) {
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
 }
 
+TEST(embedded_custom_metaschema_chain_precedence) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta-a",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta-a": {
+        "$id": "https://example.com/meta-a",
+        "$schema": "https://example.com/meta-b",
+        "type": "object"
+      },
+      "https://example.com/meta-b": {
+        "$id": "https://example.com/meta-b",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  // A resolver that knows about the intermediate link of the chain, but
+  // with a different base dialect than the embedded copy
+  const auto resolver =
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/meta-b") {
+      return sourcemeta::core::parse_json(R"JSON({
+        "$id": "https://example.com/meta-b",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      })JSON");
+    }
+
+    return test_resolver(identifier);
+  };
+
+  const auto base_dialect{sourcemeta::blaze::base_dialect(document, resolver)};
+  EXPECT_TRUE(base_dialect.has_value());
+  EXPECT_EQ(base_dialect.value(),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+}
+
 TEST(embedded_custom_metaschema_non_canonical_dialect_uri) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta#",

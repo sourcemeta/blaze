@@ -783,6 +783,52 @@ TEST(embedded_custom_metaschema_chain) {
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
 }
 
+TEST(embedded_custom_metaschema_chain_precedence) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta-a",
+    "$id": "https://example.com/schema",
+    "$defs": {
+      "https://example.com/meta-a": {
+        "$id": "https://example.com/meta-a",
+        "$schema": "https://example.com/meta-b",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true
+        },
+        "type": "object"
+      },
+      "https://example.com/meta-b": {
+        "$id": "https://example.com/meta-b",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  // A resolver that knows about the intermediate link of the chain, but
+  // with a definition that cannot be resolved any further
+  const auto resolver =
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/meta-b") {
+      return sourcemeta::core::parse_json(R"JSON({
+        "$id": "https://example.com/meta-b",
+        "$schema": "https://example.com/unknown"
+      })JSON");
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  };
+
+  const sourcemeta::blaze::Vocabularies vocabularies{
+      sourcemeta::blaze::vocabularies(document, resolver)};
+  EXPECT_EQ(vocabularies.size(), 2);
+  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
+  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
+}
+
 TEST(embedded_custom_metaschema_without_vocabulary) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
