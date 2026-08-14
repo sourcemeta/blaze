@@ -1,6 +1,7 @@
 #include <sourcemeta/core/options.h>
 #include <sourcemeta/core/stacktrace.h>
 #include <sourcemeta/core/test.h>
+#include <sourcemeta/core/text.h>
 
 #include <cstddef>         // std::size_t
 #include <cstdlib>         // EXIT_SUCCESS, EXIT_FAILURE
@@ -44,18 +45,10 @@ auto print_usage(std::string_view program) -> void {
 }
 
 auto print_diagnostic(std::string_view message) -> void {
-  std::size_t start{0};
-  while (start <= message.size()) {
-    const auto newline{message.find('\n', start)};
-    const auto end{newline == std::string_view::npos ? message.size()
-                                                     : newline};
-    std::cout << "# " << message.substr(start, end - start) << "\n";
-    if (newline == std::string_view::npos) {
-      break;
-    }
-
-    start = newline + 1;
-  }
+  sourcemeta::core::split(message, '\n',
+                          [](const std::string_view line) -> void {
+                            std::cout << "# " << line << "\n";
+                          });
 }
 
 } // namespace
