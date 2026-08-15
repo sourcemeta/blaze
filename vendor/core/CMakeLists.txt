@@ -53,6 +53,7 @@ option(SOURCEMETA_CORE_INSTALL "Install the Sourcemeta Core library" ON)
 option(SOURCEMETA_CORE_ADDRESS_SANITIZER "Build Sourcemeta Core with an address sanitizer" OFF)
 option(SOURCEMETA_CORE_UNDEFINED_SANITIZER "Build Sourcemeta Core with an undefined behavior sanitizer" OFF)
 option(SOURCEMETA_CORE_CONTRIB_GOOGLEBENCHMARK "Build the GoogleBenchmark library for downstream consumers" OFF)
+option(SOURCEMETA_CORE_USE_SYSTEM_ALLOCATOR "Always use the system allocator" OFF)
 
 include(Sourcemeta)
 
@@ -70,7 +71,9 @@ endif()
 
 if((SOURCEMETA_OS_LINUX OR SOURCEMETA_OS_MACOS)
    AND NOT SOURCEMETA_CORE_ADDRESS_SANITIZER
-   AND NOT SOURCEMETA_CORE_UNDEFINED_SANITIZER)
+   AND NOT SOURCEMETA_CORE_UNDEFINED_SANITIZER
+   AND NOT SOURCEMETA_CORE_USE_SYSTEM_ALLOCATOR)
+  message(STATUS "Using the mimalloc allocator")
   find_package(Mimalloc REQUIRED)
 endif()
 

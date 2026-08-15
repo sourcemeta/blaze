@@ -1,3 +1,4 @@
+#include <sourcemeta/core/diff.h>
 #include <sourcemeta/core/options.h>
 #include <sourcemeta/core/stacktrace.h>
 #include <sourcemeta/core/test.h>
@@ -10,7 +11,9 @@
 #include <functional>      // std::function
 #include <iostream>        // std::cout
 #include <source_location> // std::source_location
+#include <sstream>         // std::ostringstream
 #include <string>          // std::string
+#include <string_view>     // std::string_view
 #include <utility>         // std::move
 #include <vector>          // std::vector
 
@@ -42,6 +45,10 @@ auto print_usage(std::string_view program) -> void {
       << "  -f, --filter <prefix>  Only run tests whose <suite>.<name> starts "
          "with <prefix>\n"
       << "  -h, --help             Show this message\n";
+}
+
+auto has_line_terminator(const std::string_view value) -> bool {
+  return value.find('\n') != std::string_view::npos;
 }
 
 auto print_diagnostic(std::string_view message) -> void {
@@ -87,6 +94,30 @@ auto test_suite_from_path(std::string_view path) -> std::string {
   }
 
   return stem;
+}
+
+auto test_stringify_difference(std::string_view actual,
+                               std::string_view expected) -> std::string {
+  // Values that hold a single line speak for themselves, and an unexpected
+  // equality has no difference to show at all
+  if (actual == expected ||
+      (!has_line_terminator(actual) && !has_line_terminator(expected))) {
+    return {};
+  }
+
+  const auto result{
+      diff(actual, expected, Diff::Mode::Line, Diff::Algorithm::Myers)};
+  std::ostringstream stream;
+  stringify(result, stream, Diff::Format::Unified,
+            {.original_label = "actual", .modified_label = "expected"});
+  auto output{stream.str()};
+  // The last line of a rendered difference is terminated, whereas the message
+  // this becomes part of is not
+  if (!output.empty() && output.back() == '\n') {
+    output.pop_back();
+  }
+
+  return output;
 }
 
 auto test_run(int argc, char **argv) -> int {
