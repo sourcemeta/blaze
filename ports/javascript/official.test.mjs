@@ -16,26 +16,26 @@ const BLACKLISTS = {
   'draft2020-12': new Set(),
   'draft2020-12/optional': new Set(['format-assertion', 'refOfUnknownKeyword']),
   'draft2020-12/optional/format': new Set([
-    'date-time', 'date', 'duration', 'email', 'hostname', 'idn-email',
-    'idn-hostname', 'ipv4', 'ipv6', 'iri-reference', 'iri', 'json-pointer',
-    'regex', 'relative-json-pointer', 'time', 'uri-reference', 'uri-template',
-    'uri', 'uuid', 'ecmascript-regex'
+    'date-time', 'date', 'duration', 'ecmascript-regex', 'email', 'hostname',
+    'idn-email', 'idn-hostname', 'ipv4', 'ipv6', 'iri-reference', 'iri',
+    'json-pointer', 'regex', 'relative-json-pointer', 'time', 'uri-reference',
+    'uri-template', 'uri', 'uuid'
   ]),
   'draft2019-09': new Set(),
   'draft2019-09/optional': new Set(['refOfUnknownKeyword']),
   'draft2019-09/optional/format': new Set([
-    'date-time', 'date', 'duration', 'email', 'hostname', 'idn-email',
-    'idn-hostname', 'ipv4', 'ipv6', 'iri-reference', 'iri', 'json-pointer',
-    'regex', 'relative-json-pointer', 'time', 'uri-reference', 'uri-template',
-    'uri', 'uuid'
+    'date-time', 'date', 'duration', 'ecmascript-regex', 'email', 'hostname',
+    'idn-email', 'idn-hostname', 'ipv4', 'ipv6', 'iri-reference', 'iri',
+    'json-pointer', 'regex', 'relative-json-pointer', 'time', 'uri-reference',
+    'uri-template', 'uri', 'uuid'
   ]),
   'draft7': new Set(),
   'draft7/optional': new Set(['content']),
   'draft7/optional/format': new Set([
-    'date-time', 'date', 'email', 'hostname', 'idn-email', 'idn-hostname',
-    'ipv4', 'ipv6', 'iri-reference', 'iri', 'json-pointer', 'regex',
-    'relative-json-pointer', 'time', 'unknown', 'uri-reference', 'uri-template',
-    'uri'
+    'date-time', 'date', 'ecmascript-regex', 'email', 'hostname', 'idn-email',
+    'idn-hostname', 'ipv4', 'ipv6', 'iri-reference', 'iri', 'json-pointer',
+    'regex', 'relative-json-pointer', 'time', 'unknown', 'uri-reference',
+    'uri-template', 'uri'
   ]),
   'draft6': new Set(),
   'draft6/optional': new Set(),
