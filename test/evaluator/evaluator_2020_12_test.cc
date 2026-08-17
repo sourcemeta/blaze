@@ -2303,6 +2303,114 @@ TEST(format_idn_email_invalid_with_tweak_exhaustive) {
       "internationalized email address");
 }
 
+TEST(format_idn_email_non_nfc_domain_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "idn-email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("user@cafe\u0301.com")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"user@cafe\xcc\x81.com\" was expected to represent a "
+      "valid internationalized email address");
+}
+
+TEST(format_idn_email_fullwidth_domain_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "idn-email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("user@\uff41\uff42\uff43")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"user@\xef\xbd\x81\xef\xbd\x82\xef\xbd\x83\" was "
+      "expected to represent a valid internationalized email address");
+}
+
+TEST(format_idn_email_non_nfc_domain_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "idn-email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("user@cafe\u0301.com")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 2, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "idn-email");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"user@cafe\xcc\x81.com\" was expected to represent a "
+      "valid internationalized email address");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The logical type of the instance was expected to be \"idn-email\"");
+}
+
+TEST(format_idn_email_fullwidth_domain_with_tweak_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "idn-email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("user@\uff41\uff42\uff43")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 2, "",
+                                                 tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "idn-email");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"user@\xef\xbd\x81\xef\xbd\x82\xef\xbd\x83\" was "
+      "expected to represent a valid internationalized email address");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The logical type of the instance was expected to be \"idn-email\"");
+}
+
 TEST(format_idn_email_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
