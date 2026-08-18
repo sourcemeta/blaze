@@ -595,19 +595,23 @@ INSTRUCTION_HANDLER(AssertionTypeStringUpper) {
   EVALUATE_END(AssertionTypeStringUpper);
 }
 
+INSTRUCTION_DIRECT(AssertionTypeArrayBounded, ValueRange) {
+  const auto &[minimum, maximum, exhaustive] = value;
+  // Require early breaking
+  assert(!exhaustive);
+  SOURCEMETA_ASSUME(!exhaustive);
+  return target.type() == JSON::Type::Array && target.array_size() >= minimum &&
+         (!maximum.has_value() || target.array_size() <= maximum.value());
+}
+
 INSTRUCTION_HANDLER(AssertionTypeArrayBounded) {
   EVALUATE_BEGIN_NO_PRECONDITION(AssertionTypeArrayBounded);
   const auto &target{
       resolve_instance(instance, instruction.relative_instance_location)};
   const auto &value{assume_value<ValueRange>(instruction.value)};
-  const auto &[minimum, maximum, exhaustive] = value;
-  assert(!maximum.has_value() || maximum.value() >= minimum);
-  // Require early breaking
-  assert(!exhaustive);
-  SOURCEMETA_ASSUME(!exhaustive);
-  result = target.type() == JSON::Type::Array &&
-           target.array_size() >= minimum &&
-           (!maximum.has_value() || target.array_size() <= maximum.value());
+  assert(!std::get<1>(value).has_value() ||
+         std::get<1>(value).value() >= std::get<0>(value));
+  result = DIRECT(AssertionTypeArrayBounded, target, value);
   EVALUATE_END(AssertionTypeArrayBounded);
 }
 
@@ -2271,7 +2275,27 @@ INSTRUCTION_HANDLER(LoopItems) {
   if constexpr (!Track && !HasCallback) {
     for (const auto &new_instance : target.as_array()) {
       for (const auto &child : instruction.children) {
-        if (!EVALUATE_RECURSE(child, new_instance)) [[unlikely]] {
+        bool child_ok;
+        // Dynamic still pushes and pops a resource per instruction, which the
+        // direct path would skip, so it stays on the general dispatch
+        if constexpr (Dynamic) {
+          child_ok = EVALUATE_RECURSE(child, new_instance);
+        } else {
+          switch (child.type) {
+            case InstructionIndex::AssertionTypeArrayBounded:
+              child_ok =
+                  DIRECT(AssertionTypeArrayBounded,
+                         resolve_instance(new_instance,
+                                          child.relative_instance_location),
+                         assume_value<ValueRange>(child.value));
+              break;
+            default:
+              child_ok = EVALUATE_RECURSE(child, new_instance);
+              break;
+          }
+        }
+
+        if (!child_ok) [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItems);
         }
