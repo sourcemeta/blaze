@@ -37,7 +37,7 @@ TEST(metaschema_self) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "http://json-schema.org/draft-03/schema#")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 312,
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 311,
                                    "");
 }
 
