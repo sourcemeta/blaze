@@ -1351,27 +1351,13 @@ TEST(type_integer_bounded_5) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{3.0};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionLessEqual, "/maximum", "#/maximum", "");
-  EVALUATE_TRACE_PRE(1, AssertionGreaterEqual, "/minimum", "#/minimum", "");
-  EVALUATE_TRACE_PRE(2, AssertionType, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLessEqual, "/maximum", "#/maximum",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionGreaterEqual, "/minimum", "#/minimum",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(2, AssertionType, "/type", "#/type", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The number value 3.0 was expected to be less "
-                               "than or equal to the integer 100");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The number value 3.0 was expected to be "
-                               "greater than or equal to the integer 0");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
-                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBounded, "", "#", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerBounded, "", "#", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer within the given range");
 }
 
 TEST(type_integer_lower_bound_3) {
@@ -1382,20 +1368,13 @@ TEST(type_integer_lower_bound_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{5.0};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 2, "");
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionGreaterEqual, "/minimum", "#/minimum", "");
-  EVALUATE_TRACE_PRE(1, AssertionType, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreaterEqual, "/minimum", "#/minimum",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/type", "#/type", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The number value 5.0 was expected to be "
-                               "greater than or equal to the integer 1");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "", "#", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "", "#", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer above the given minimum");
 }
 
 TEST(prop_type_integer_bounded_6) {
