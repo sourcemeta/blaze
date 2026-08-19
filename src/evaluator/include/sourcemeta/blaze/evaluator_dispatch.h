@@ -189,6 +189,9 @@
 namespace sourcemeta::blaze::dispatch {
 using namespace sourcemeta::core;
 
+// The recursion depth past which evaluation is assumed to be non-terminating
+constexpr auto DEPTH_LIMIT{300};
+
 inline auto resolve_target(const JSON::String *property_target,
                            const JSON &instance) noexcept -> const JSON & {
   if (property_target) [[unlikely]] {
@@ -2273,12 +2276,18 @@ INSTRUCTION_HANDLER(LoopItems) {
 
   // To avoid index lookups and unnecessary conditionals
   if constexpr (!Track && !HasCallback) {
+    // Children are evaluated at `depth + 1`, which the direct path does not
+    // route through the depth check. Give up the direct path at the boundary so
+    // that the general dispatch still reports the limit
+    const auto within_depth{depth < DEPTH_LIMIT};
     for (const auto &new_instance : target.as_array()) {
       for (const auto &child : instruction.children) {
         bool child_ok;
         // Dynamic still pushes and pops a resource per instruction, which the
         // direct path would skip, so it stays on the general dispatch
         if constexpr (Dynamic) {
+          child_ok = EVALUATE_RECURSE(child, new_instance);
+        } else if (!within_depth) [[unlikely]] {
           child_ok = EVALUATE_RECURSE(child, new_instance);
         } else {
           switch (child.type) {
@@ -2919,7 +2928,6 @@ evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                      const std::uint64_t depth,
                      DispatchContext<Track, Dynamic, HasCallback> &context)
     -> bool {
-  constexpr auto DEPTH_LIMIT{300};
   if (depth > DEPTH_LIMIT) [[unlikely]] {
     throw EvaluationError("The evaluation path depth limit was reached "
                           "likely due to infinite recursion");
@@ -2934,7 +2942,6 @@ inline auto evaluate_instruction_without_callback(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::core::JSON &instance, const std::uint64_t depth,
     DispatchContext<Track, Dynamic, HasCallback> &context) -> bool {
-  constexpr auto DEPTH_LIMIT{300};
   if (depth > DEPTH_LIMIT) [[unlikely]] {
     throw EvaluationError("The evaluation path depth limit was reached "
                           "likely due to infinite recursion");
