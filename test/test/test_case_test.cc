@@ -19,7 +19,7 @@ TEST(error_not_an_object) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(), "Test case documents must be objects");
@@ -38,7 +38,7 @@ TEST(error_no_data_or_dataPath) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(
@@ -61,7 +61,7 @@ TEST(error_both_data_and_dataPath) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(), "Test case documents must contain either a "
@@ -82,7 +82,7 @@ TEST(error_dataPath_not_string) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(
@@ -105,7 +105,7 @@ TEST(error_description_not_string) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -125,7 +125,7 @@ TEST(error_no_valid) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -146,7 +146,7 @@ TEST(error_valid_not_boolean) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -165,7 +165,7 @@ TEST(valid_with_inline_data_true) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_TRUE(result.valid);
@@ -185,7 +185,7 @@ TEST(valid_with_inline_data_false) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_FALSE(result.valid);
@@ -206,7 +206,7 @@ TEST(valid_with_description) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_EQ(result.description, "My test case");
   EXPECT_TRUE(result.valid);
@@ -224,7 +224,7 @@ TEST(valid_with_dataPath_json) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_TRUE(result.valid);
@@ -244,7 +244,7 @@ TEST(valid_with_dataPath_yaml) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_TRUE(result.valid);
@@ -265,7 +265,7 @@ TEST(valid_with_dataPath_and_description) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_EQ(result.description, "External data test");
   EXPECT_FALSE(result.valid);
@@ -289,12 +289,12 @@ TEST(error_both_rdf_and_rdfPath) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(), "Test case documents may contain either an "
                                "`rdf` or `rdfPath` property, but not both");
-    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.location(), sourcemeta::core::EMPTY_POINTER);
     EXPECT_EQ(error.line(), 1);
     EXPECT_EQ(error.column(), 1);
   }
@@ -314,7 +314,7 @@ TEST(error_rdfPath_not_string) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(
@@ -340,13 +340,13 @@ TEST(error_rdf_with_valid_false) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
                  "Test case documents may only set the `rdf` or `rdfPath` "
                  "property when the `valid` property is set to true");
-    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.location(), sourcemeta::core::EMPTY_POINTER);
     EXPECT_EQ(error.line(), 1);
     EXPECT_EQ(error.column(), 1);
   }
@@ -366,13 +366,13 @@ TEST(error_rdfPath_with_valid_false) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
                  "Test case documents may only set the `rdf` or `rdfPath` "
                  "property when the `valid` property is set to true");
-    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.location(), sourcemeta::core::EMPTY_POINTER);
     EXPECT_EQ(error.line(), 1);
     EXPECT_EQ(error.column(), 1);
   }
@@ -392,7 +392,7 @@ TEST(error_rdf_not_array) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -417,7 +417,7 @@ TEST(error_rdfPath_document_not_array) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -443,13 +443,13 @@ TEST(error_rdf_with_valid_false_takes_precedence_over_not_array) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
                  "Test case documents may only set the `rdf` or `rdfPath` "
                  "property when the `valid` property is set to true");
-    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.location(), sourcemeta::core::EMPTY_POINTER);
     EXPECT_EQ(error.line(), 1);
     EXPECT_EQ(error.column(), 1);
   }
@@ -470,12 +470,12 @@ TEST(error_both_rdf_and_rdfPath_takes_precedence_over_valid_false) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(), "Test case documents may contain either an "
                                "`rdf` or `rdfPath` property, but not both");
-    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.location(), sourcemeta::core::EMPTY_POINTER);
     EXPECT_EQ(error.line(), 1);
     EXPECT_EQ(error.column(), 1);
   }
@@ -494,12 +494,12 @@ TEST(error_rdf_without_valid) {
   try {
     sourcemeta::blaze::TestCase::parse(
         document, tracker, std::filesystem::path{STUBS_PATH},
-        sourcemeta::core::empty_pointer, STUB_POSITION);
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
                  "Test case documents must contain a `valid` property");
-    EXPECT_EQ(error.location(), sourcemeta::core::empty_pointer);
+    EXPECT_EQ(error.location(), sourcemeta::core::EMPTY_POINTER);
     EXPECT_EQ(error.line(), 1);
     EXPECT_EQ(error.column(), 1);
   }
@@ -516,7 +516,7 @@ TEST(valid_without_rdf_exposes_no_expectation) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_TRUE(result.valid);
@@ -543,7 +543,7 @@ TEST(valid_with_inline_rdf) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_TRUE(result.valid);
@@ -571,7 +571,7 @@ TEST(valid_with_rdfPath_json) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_TRUE(result.valid);
@@ -599,7 +599,7 @@ TEST(valid_with_rdfPath_yaml) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_TRUE(result.valid);
@@ -627,7 +627,7 @@ TEST(valid_with_dataPath_and_inline_rdf) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   const auto result{sourcemeta::blaze::TestCase::parse(
       document, tracker, std::filesystem::path{STUBS_PATH},
-      sourcemeta::core::empty_pointer, STUB_POSITION)};
+      sourcemeta::core::EMPTY_POINTER, STUB_POSITION)};
 
   EXPECT_TRUE(result.description.empty());
   EXPECT_TRUE(result.valid);

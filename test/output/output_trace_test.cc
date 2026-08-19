@@ -270,7 +270,7 @@ TEST(pass_with_frame_exhaustive) {
   std::vector<StoredTrace> traces;
   sourcemeta::blaze::TraceOutput output{
       sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
-      collect(traces), sourcemeta::core::empty_weak_pointer, frame};
+      collect(traces), sourcemeta::core::EMPTY_WEAK_POINTER, frame};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -342,7 +342,7 @@ TEST(pass_with_frame_fast) {
   std::vector<StoredTrace> traces;
   sourcemeta::blaze::TraceOutput output{
       sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
-      collect(traces), sourcemeta::core::empty_weak_pointer, frame};
+      collect(traces), sourcemeta::core::EMPTY_WEAK_POINTER, frame};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -389,7 +389,7 @@ TEST(nested_vocabulary_correctness) {
   std::vector<StoredTrace> traces;
   sourcemeta::blaze::TraceOutput output{
       sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
-      collect(traces), sourcemeta::core::empty_weak_pointer, frame};
+      collect(traces), sourcemeta::core::EMPTY_WEAK_POINTER, frame};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
