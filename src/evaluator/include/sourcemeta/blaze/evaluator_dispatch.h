@@ -2276,20 +2276,15 @@ INSTRUCTION_HANDLER(LoopItems) {
 
   // To avoid index lookups and unnecessary conditionals
   if constexpr (!Track && !HasCallback) {
-    // Children are evaluated at `depth + 1`, which the direct path does not
-    // route through the depth check. Give up the direct path at the boundary so
-    // that the general dispatch still reports the limit
-    const auto within_depth{depth < DEPTH_LIMIT};
+    // Dynamic pushes and pops a resource per instruction that the direct path
+    // would skip, and children are evaluated at `depth + 1`, which the direct
+    // path does not route through the depth check. Both conditions hold for
+    // every child, so decide once rather than per element
+    const auto direct_children{!Dynamic && depth < DEPTH_LIMIT};
     for (const auto &new_instance : target.as_array()) {
       for (const auto &child : instruction.children) {
         bool child_ok;
-        // Dynamic still pushes and pops a resource per instruction, which the
-        // direct path would skip, so it stays on the general dispatch
-        if constexpr (Dynamic) {
-          child_ok = EVALUATE_RECURSE(child, new_instance);
-        } else if (!within_depth) [[unlikely]] {
-          child_ok = EVALUATE_RECURSE(child, new_instance);
-        } else {
+        if (direct_children) [[likely]] {
           switch (child.type) {
             case InstructionIndex::AssertionTypeArrayBounded:
               child_ok =
@@ -2302,6 +2297,8 @@ INSTRUCTION_HANDLER(LoopItems) {
               child_ok = EVALUATE_RECURSE(child, new_instance);
               break;
           }
+        } else {
+          child_ok = EVALUATE_RECURSE(child, new_instance);
         }
 
         if (!child_ok) [[unlikely]] {
