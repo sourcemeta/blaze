@@ -656,10 +656,12 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
     const bool has_explicit_different_id{root_id.has_value() &&
                                          !default_id.empty() &&
                                          root_id.value() != default_id};
+    sourcemeta::core::JSON::String default_id_canonical;
     if (has_explicit_different_id) {
-      const auto default_id_canonical{
-          sourcemeta::core::URI::canonicalize(default_id)};
-      // Use this->root_ as base - it contains root_id.value() and persists
+      default_id_canonical = sourcemeta::core::URI::canonicalize(default_id);
+      // Borrow `this->root_` as the base for now, as the location that owns
+      // that URI does not exist yet. We re-point this entry at that location
+      // key once the traversal below is done
       store(this->locations_, SchemaReferenceType::Static,
             SchemaFrame::LocationType::Resource, default_id_canonical,
             this->root_, path, path.size(), root_dialect,
@@ -1073,6 +1075,20 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                   parent_property_name, parent_orphan, false, true);
           }
         }
+      }
+    }
+
+    // The entry above borrowed `this->root_` as its base. Re-point it at the
+    // location that owns that URI, so that no location ends up with a view
+    // into a member of this class
+    if (has_explicit_different_id) {
+      const auto alias{this->locations_.find(
+          {SchemaReferenceType::Static, default_id_canonical})};
+      const auto canonical{
+          this->locations_.find({SchemaReferenceType::Static, this->root_})};
+      if (alias != this->locations_.cend() &&
+          canonical != this->locations_.cend()) {
+        alias->second.base = canonical->first.second;
       }
     }
   }
