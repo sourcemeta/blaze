@@ -10,9 +10,7 @@
 #include "parser.h"
 #include "stringify.h"
 
-#include <array>       // std::array
 #include <cassert>     // assert
-#include <charconv>    // std::to_chars
 #include <cstddef>     // std::size_t
 #include <iterator>    // std::cbegin, std::cend, std::prev, std::advance
 #include <memory>      // std::allocator
@@ -62,10 +60,9 @@ auto traverse(V &document, typename PointerT::const_iterator begin,
       // token.
       // See https://www.rfc-editor.org/rfc/rfc6901#section-4
       if (current->is_object()) {
-        std::array<char, 20> buffer{};
-        const auto [end_pointer, error_code] = std::to_chars(
-            buffer.data(), buffer.data() + buffer.size(), iterator->to_index());
-        current = &current->at(std::string_view{buffer.data(), end_pointer});
+        sourcemeta::core::DigitsBuffer buffer;
+        current = &current->at(
+            sourcemeta::core::digits_view(iterator->to_index(), buffer));
       } else {
         current = &current->at(iterator->to_index());
       }
@@ -92,10 +89,9 @@ auto traverse_all(V &document, const PointerT &pointer) -> V & {
       current = &current->at(token.to_property(), token.property_hash());
     } else {
       if (current->is_object()) {
-        std::array<char, 20> buffer{};
-        const auto [end_pointer, error_code] = std::to_chars(
-            buffer.data(), buffer.data() + buffer.size(), token.to_index());
-        current = &current->at(std::string_view{buffer.data(), end_pointer});
+        sourcemeta::core::DigitsBuffer buffer;
+        current = &current->at(
+            sourcemeta::core::digits_view(token.to_index(), buffer));
       } else {
         current = &current->at(token.to_index());
       }
@@ -131,11 +127,9 @@ auto try_traverse(const sourcemeta::core::JSON &document,
     } else {
       const auto index{token.to_index()};
       if (is_object) {
-        std::array<char, 20> buffer{};
-        const auto [end_pointer, error_code] =
-            std::to_chars(buffer.data(), buffer.data() + buffer.size(), index);
+        sourcemeta::core::DigitsBuffer buffer;
         const auto *json_value{
-            current->try_at(std::string_view{buffer.data(), end_pointer})};
+            current->try_at(sourcemeta::core::digits_view(index, buffer))};
         if (json_value) {
           current = json_value;
         } else {
@@ -200,26 +194,23 @@ auto try_get(const JSON &document, const WeakPointer &pointer) -> const JSON * {
 auto get(const JSON &document, const Pointer::Token &token) -> const JSON & {
   if (token.is_property()) {
     return document.at(token.to_property());
-  } else {
-    return document.at(token.to_index());
   }
+  return document.at(token.to_index());
 }
 
 auto get(const JSON &document, const WeakPointer::Token &token)
     -> const JSON & {
   if (token.is_property()) {
     return document.at(token.to_property());
-  } else {
-    return document.at(token.to_index());
   }
+  return document.at(token.to_index());
 }
 
 auto get(JSON &document, const Pointer::Token &token) -> JSON & {
   if (token.is_property()) {
     return document.at(token.to_property());
-  } else {
-    return document.at(token.to_index());
   }
+  return document.at(token.to_index());
 }
 
 auto set(JSON &document, const Pointer &pointer, const JSON &value) -> void {
@@ -242,10 +233,8 @@ auto set(JSON &document, const Pointer &pointer, const JSON &value) -> void {
     current.at(last.to_property()).into(value);
   } else {
     if (current.is_object()) {
-      std::array<char, 20> buffer{};
-      const auto [end_pointer, error_code] = std::to_chars(
-          buffer.data(), buffer.data() + buffer.size(), last.to_index());
-      current.at(std::string_view{buffer.data(), end_pointer}).into(value);
+      DigitsBuffer buffer;
+      current.at(digits_view(last.to_index(), buffer)).into(value);
     } else {
       current.at(last.to_index()).into(value);
     }
@@ -272,11 +261,8 @@ auto set(JSON &document, const Pointer &pointer, JSON &&value) -> void {
     current.at(last.to_property()).into(std::move(value));
   } else {
     if (current.is_object()) {
-      std::array<char, 20> buffer{};
-      const auto [end_pointer, error_code] = std::to_chars(
-          buffer.data(), buffer.data() + buffer.size(), last.to_index());
-      current.at(std::string_view{buffer.data(), end_pointer})
-          .into(std::move(value));
+      DigitsBuffer buffer;
+      current.at(digits_view(last.to_index(), buffer)).into(std::move(value));
     } else {
       current.at(last.to_index()).into(std::move(value));
     }
@@ -301,28 +287,23 @@ auto remove_pointer(JSON &document, const PointerT &pointer) -> bool {
   if (last.is_property()) {
     const auto current_size{current.size()};
     return current.erase(last.to_property()) < current_size;
-  } else {
-    if (current.is_object()) {
-      std::array<char, 20> buffer{};
-      const auto [end_pointer, error_code] = std::to_chars(
-          buffer.data(), buffer.data() + buffer.size(), last.to_index());
-      const auto current_size{current.size()};
-      return current.erase(std::string_view{buffer.data(), end_pointer}) <
-             current_size;
-    } else {
-      const auto index{last.to_index()};
-      const auto &array{current.as_array()};
-
-      if (index >= array.size()) {
-        return false;
-      }
-
-      auto iterator{array.cbegin()};
-      std::advance(iterator, index);
-      current.erase(iterator);
-      return true;
-    }
   }
+  if (current.is_object()) {
+    DigitsBuffer buffer;
+    const auto current_size{current.size()};
+    return current.erase(digits_view(last.to_index(), buffer)) < current_size;
+  }
+  const auto index{last.to_index()};
+  const auto &array{current.as_array()};
+
+  if (index >= array.size()) {
+    return false;
+  }
+
+  auto iterator{array.cbegin()};
+  std::advance(iterator, index);
+  current.erase(iterator);
+  return true;
 }
 
 auto remove(JSON &document, const Pointer &pointer) -> bool {
@@ -380,7 +361,8 @@ auto fragment_to_pointer(const URI &uri) -> std::optional<Pointer> {
 
   if (input.empty()) {
     return Pointer{};
-  } else if (input.front() != '/') {
+  }
+  if (input.front() != '/') {
     return std::nullopt;
   }
 

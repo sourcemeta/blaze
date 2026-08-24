@@ -1,11 +1,9 @@
 #include <sourcemeta/core/dns.h>
 #include <sourcemeta/core/http.h>
+#include <sourcemeta/core/text.h>
 
-#include <array>       // std::array
-#include <charconv>    // std::to_chars
 #include <chrono>      // std::chrono::seconds
 #include <cstddef>     // std::size_t
-#include <limits>      // std::numeric_limits
 #include <optional>    // std::optional, std::nullopt
 #include <string>      // std::string
 #include <string_view> // std::string_view
@@ -119,13 +117,37 @@ auto required_size(const sourcemeta::core::HTTPCookie &cookie,
 
 namespace sourcemeta::core {
 
+auto http_expire_cookie(const HTTPCookie &cookie) -> HTTPCookie {
+  HTTPCookie result{cookie};
+  result.value = {};
+  result.max_age = std::chrono::seconds{0};
+  return result;
+}
+
 auto http_cookie_valid(const HTTPCookie &cookie) -> bool {
+  // Every length ceiling is weighed before the scans below, so an oversized
+  // input is refused without a pass over it
+
+  // RFC 6265bis §5.7 ignores a cookie whose name and value are together longer
+  // than the ceiling, so one that large can never be stored
+  if (cookie.name.size() + cookie.value.size() >
+      HTTP_COOKIE_MAXIMUM_NAME_VALUE_LENGTH) {
+    return false;
+  }
+
   if (!sourcemeta::core::http_is_token(cookie.name) ||
       !is_cookie_value(cookie.value)) {
     return false;
   }
 
-  if (cookie.path.has_value() && !is_attribute_value(*cookie.path)) {
+  // RFC 6265bis §5.6 ignores an over-long attribute value while keeping the
+  // rest of the cookie, which would silently change the scope the server asked
+  // for. The path is the only attribute a caller can make that long, since a
+  // host name is already bounded by RFC 1123 §2.1 and a lifetime by the digits
+  // of a second count
+  if (cookie.path.has_value() &&
+      (cookie.path->size() > HTTP_COOKIE_MAXIMUM_ATTRIBUTE_VALUE_LENGTH ||
+       !is_attribute_value(*cookie.path))) {
     return false;
   }
 
@@ -174,17 +196,11 @@ auto http_serialize_cookie(const HTTPCookie &cookie, std::string &out) -> bool {
   }
 
   // Format the max age into a stack buffer, avoiding an intermediate heap
-  // allocation. A non-negative representation never exceeds these digits
-  std::array<char, std::numeric_limits<std::chrono::seconds::rep>::digits10 + 2>
-      max_age_buffer;
+  // allocation
+  DigitsBuffer max_age_buffer;
   std::string_view max_age;
   if (cookie.max_age.has_value()) {
-    const auto result{std::to_chars(
-        max_age_buffer.data(), max_age_buffer.data() + max_age_buffer.size(),
-        cookie.max_age->count())};
-    max_age = std::string_view{
-        max_age_buffer.data(),
-        static_cast<std::size_t>(result.ptr - max_age_buffer.data())};
+    max_age = digits_view(cookie.max_age->count(), max_age_buffer);
   }
 
   out.reserve(out.size() + required_size(cookie, max_age));

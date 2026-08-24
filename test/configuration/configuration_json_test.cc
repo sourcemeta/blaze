@@ -8,9 +8,19 @@
 
 #include <unordered_map> // std::unordered_map
 
+// Windows only treats a path as absolute if it carries a root name, and the
+// configuration parser canonicalises every path that goes through it
+#if defined(_WIN32)
+#define ROOT_NAME "C:"
+#define ROOT_NAME_URI "file:///C:"
+#else
+#define ROOT_NAME ""
+#define ROOT_NAME_URI "file://"
+#endif
+
 TEST(read_json_valid_1) {
   std::unordered_map<std::string, std::string> files;
-  files["/test/blaze.json"] = R"JSON({
+  files[ROOT_NAME "/test/blaze.json"] = R"JSON({
     "title": "Sourcemeta",
     "description": "The JSON Schema company",
     "email": "hello@sourcemeta.com",
@@ -25,7 +35,7 @@ TEST(read_json_valid_1) {
   })JSON";
 
   const auto manifest{sourcemeta::blaze::Configuration::read_json(
-      "/test/blaze.json", MAKE_READER(files))};
+      ROOT_NAME "/test/blaze.json", MAKE_READER(files))};
 
   EXPECT_TRUE(manifest.title.has_value());
   EXPECT_EQ(manifest.title.value(), "Sourcemeta");
@@ -37,7 +47,8 @@ TEST(read_json_valid_1) {
   EXPECT_EQ(manifest.github.value(), "sourcemeta");
   EXPECT_TRUE(manifest.website.has_value());
   EXPECT_EQ(manifest.website.value(), "https://www.sourcemeta.com");
-  EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"} / "schemas");
+  EXPECT_EQ(manifest.absolute_path,
+            std::filesystem::path{ROOT_NAME "/test"} / "schemas");
   EXPECT_TRUE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com");
   EXPECT_EQ(manifest.base_uri.recompose(), "https://schemas.sourcemeta.com");
@@ -53,14 +64,14 @@ TEST(read_json_valid_1) {
 
 TEST(read_json_valid_without_path) {
   std::unordered_map<std::string, std::string> files;
-  files["/test/blaze.json"] = R"JSON({
+  files[ROOT_NAME "/test/blaze.json"] = R"JSON({
     "title": "Test Config Without Path",
     "description": "A test configuration file without a path property",
     "baseUri": "https://example.com"
   })JSON";
 
   const auto manifest{sourcemeta::blaze::Configuration::read_json(
-      "/test/blaze.json", MAKE_READER(files))};
+      ROOT_NAME "/test/blaze.json", MAKE_READER(files))};
 
   EXPECT_TRUE(manifest.title.has_value());
   EXPECT_EQ(manifest.title.value(), "Test Config Without Path");
@@ -70,7 +81,7 @@ TEST(read_json_valid_without_path) {
   EXPECT_FALSE(manifest.email.has_value());
   EXPECT_FALSE(manifest.github.has_value());
   EXPECT_FALSE(manifest.website.has_value());
-  EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"});
+  EXPECT_EQ(manifest.absolute_path, std::filesystem::path{ROOT_NAME "/test"});
   EXPECT_FALSE(manifest.absolute_path_explicit);
   EXPECT_EQ(manifest.base, "https://example.com");
   EXPECT_EQ(manifest.base_uri.recompose(), "https://example.com");
@@ -81,17 +92,18 @@ TEST(read_json_valid_without_path) {
 
 TEST(read_json_base_uri_defaults_to_absolute_path) {
   std::unordered_map<std::string, std::string> files;
-  files["/test/blaze.json"] = R"JSON({
+  files[ROOT_NAME "/test/blaze.json"] = R"JSON({
     "path": "./schemas"
   })JSON";
 
   const auto manifest{sourcemeta::blaze::Configuration::read_json(
-      "/test/blaze.json", MAKE_READER(files))};
+      ROOT_NAME "/test/blaze.json", MAKE_READER(files))};
 
-  EXPECT_EQ(manifest.absolute_path, std::filesystem::path{"/test"} / "schemas");
+  EXPECT_EQ(manifest.absolute_path,
+            std::filesystem::path{ROOT_NAME "/test"} / "schemas");
   EXPECT_TRUE(manifest.absolute_path_explicit);
-  EXPECT_EQ(manifest.base, "file:///test/schemas");
-  EXPECT_EQ(manifest.base_uri.recompose(), "file:///test/schemas");
+  EXPECT_EQ(manifest.base, ROOT_NAME_URI "/test/schemas");
+  EXPECT_EQ(manifest.base_uri.recompose(), ROOT_NAME_URI "/test/schemas");
 }
 
 TEST(to_json_all_fields) {
@@ -101,9 +113,9 @@ TEST(to_json_all_fields) {
   config.email = "hello@sourcemeta.com";
   config.github = "sourcemeta";
   config.website = "https://www.sourcemeta.com";
-  config.absolute_path = "/test/schemas";
+  config.absolute_path = ROOT_NAME "/test/schemas";
   config.absolute_path_explicit = true;
-  config.base_path = "/test/schemas";
+  config.base_path = ROOT_NAME "/test/schemas";
   config.base = "https://schemas.sourcemeta.com";
   config.base_uri = sourcemeta::core::URI{config.base};
   config.default_dialect = "http://json-schema.org/draft-07/schema#";
@@ -111,7 +123,7 @@ TEST(to_json_all_fields) {
   config.resolve.emplace("https://other.com/single.json", "../single.json");
   config.dependencies.emplace(
       "https://json-schema.org/draft/2020-12/schema",
-      std::filesystem::path{"/test/schemas/vendor/2020-12.json"});
+      std::filesystem::path{ROOT_NAME "/test/schemas/vendor/2020-12.json"});
 
   const auto result{config.to_json()};
 
@@ -121,7 +133,7 @@ TEST(to_json_all_fields) {
     "email": "hello@sourcemeta.com",
     "github": "sourcemeta",
     "website": "https://www.sourcemeta.com",
-    "path": "/test/schemas",
+    "path": ")JSON" ROOT_NAME R"JSON(/test/schemas",
     "baseUri": "https://schemas.sourcemeta.com",
     "defaultDialect": "http://json-schema.org/draft-07/schema#",
     "extension": [ ".json", ".yaml" ],
@@ -138,7 +150,7 @@ TEST(to_json_all_fields) {
 
 TEST(to_json_minimal) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
@@ -146,7 +158,7 @@ TEST(to_json_minimal) {
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com"
   })JSON")};
 
@@ -165,7 +177,7 @@ TEST(to_json_empty) {
 
 TEST(to_json_with_extra) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
@@ -174,7 +186,7 @@ TEST(to_json_with_extra) {
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "x-foo": "bar"
   })JSON")};
@@ -191,12 +203,12 @@ TEST(to_json_roundtrip) {
     "website": "https://www.sourcemeta.com",
     "baseUri": "https://schemas.sourcemeta.com",
     "defaultDialect": "http://json-schema.org/draft-07/schema#",
-    "path": "/test/schemas",
+    "path": ")JSON" ROOT_NAME R"JSON(/test/schemas",
     "x-foo": "bar"
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -209,7 +221,7 @@ TEST(to_json_roundtrip_without_path) {
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   EXPECT_FALSE(config.absolute_path_explicit);
   const auto output{config.to_json()};
 
@@ -219,14 +231,14 @@ TEST(to_json_roundtrip_without_path) {
 TEST(to_json_roundtrip_with_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
     }
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -235,7 +247,7 @@ TEST(to_json_roundtrip_with_dependencies) {
 TEST(to_json_roundtrip_with_multiple_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "dependencies": {
       "https://example.com/common.json": "./vendor/common.json",
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
@@ -243,7 +255,7 @@ TEST(to_json_roundtrip_with_multiple_dependencies) {
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -252,14 +264,14 @@ TEST(to_json_roundtrip_with_multiple_dependencies) {
 TEST(to_json_roundtrip_with_parent_dependency) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "../vendor/2020-12.json"
     }
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -268,14 +280,14 @@ TEST(to_json_roundtrip_with_parent_dependency) {
 TEST(to_json_roundtrip_path_differs_from_base) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test/schemas",
+    "path": ")JSON" ROOT_NAME R"JSON(/test/schemas",
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
     }
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -284,7 +296,7 @@ TEST(to_json_roundtrip_path_differs_from_base) {
 TEST(to_json_roundtrip_dependencies_resolve_extra) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "resolve": {
       "https://other.com/single.json": "../single.json"
     },
@@ -295,7 +307,7 @@ TEST(to_json_roundtrip_dependencies_resolve_extra) {
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -303,18 +315,18 @@ TEST(to_json_roundtrip_dependencies_resolve_extra) {
 
 TEST(to_json_with_lint_rules) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
-  config.lint.rules.emplace_back("/test/rules/my-rule.json");
-  config.lint.rules.emplace_back("/test/rules/other-rule.json");
+  config.lint.rules.emplace_back(ROOT_NAME "/test/rules/my-rule.json");
+  config.lint.rules.emplace_back(ROOT_NAME "/test/rules/other-rule.json");
 
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "lint": {
       "rules": [ "./rules/my-rule.json", "./rules/other-rule.json" ]
@@ -326,17 +338,17 @@ TEST(to_json_with_lint_rules) {
 
 TEST(to_json_with_lint_rules_parent) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
-  config.lint.rules.emplace_back("/other/rules/my-rule.json");
+  config.lint.rules.emplace_back(ROOT_NAME "/other/rules/my-rule.json");
 
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "lint": {
       "rules": [ "../other/rules/my-rule.json" ]
@@ -348,7 +360,7 @@ TEST(to_json_with_lint_rules_parent) {
 
 TEST(to_json_empty_lint) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
 
@@ -360,14 +372,14 @@ TEST(to_json_empty_lint) {
 TEST(to_json_roundtrip_with_lint_rules) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ "./rules/my-rule.json" ]
     }
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -375,18 +387,18 @@ TEST(to_json_roundtrip_with_lint_rules) {
 
 TEST(to_json_with_top_level_lint_rule) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
   config.lint.rules.push_back(
-      {.path = "/test/rules/my-rule.json", .top_level = true});
+      {.path = ROOT_NAME "/test/rules/my-rule.json", .top_level = true});
 
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "lint": {
       "rules": [ { "path": "./rules/my-rule.json", "topLevel": true } ]
@@ -398,20 +410,20 @@ TEST(to_json_with_top_level_lint_rule) {
 
 TEST(to_json_with_mixed_lint_rules) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
   config.lint.rules.push_back(
-      {.path = "/test/rules/my-rule.json", .top_level = false});
+      {.path = ROOT_NAME "/test/rules/my-rule.json", .top_level = false});
   config.lint.rules.push_back(
-      {.path = "/test/rules/other-rule.json", .top_level = true});
+      {.path = ROOT_NAME "/test/rules/other-rule.json", .top_level = true});
 
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "lint": {
       "rules": [
@@ -427,14 +439,14 @@ TEST(to_json_with_mixed_lint_rules) {
 TEST(to_json_roundtrip_with_top_level_lint_rule) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ { "path": "./rules/my-rule.json", "topLevel": true } ]
     }
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -443,19 +455,19 @@ TEST(to_json_roundtrip_with_top_level_lint_rule) {
 TEST(to_json_object_lint_rule_without_top_level_as_string) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ { "path": "./rules/my-rule.json" } ]
     }
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ "./rules/my-rule.json" ]
     }
@@ -467,7 +479,7 @@ TEST(to_json_object_lint_rule_without_top_level_as_string) {
 TEST(to_json_roundtrip_with_lint_and_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
     },
@@ -477,7 +489,7 @@ TEST(to_json_roundtrip_with_lint_and_dependencies) {
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -485,9 +497,9 @@ TEST(to_json_roundtrip_with_lint_and_dependencies) {
 
 TEST(to_json_with_lint_exclude) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
   config.lint.exclude.emplace("enum_to_const");
@@ -495,7 +507,7 @@ TEST(to_json_with_lint_exclude) {
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "lint": {
       "exclude": [ "enum_to_const" ]
@@ -507,9 +519,9 @@ TEST(to_json_with_lint_exclude) {
 
 TEST(to_json_with_lint_exclude_sorted) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
   config.lint.exclude.emplace("top_level_title");
@@ -519,7 +531,7 @@ TEST(to_json_with_lint_exclude_sorted) {
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "lint": {
       "exclude": [ "const_not_in_enum", "enum_to_const", "top_level_title" ]
@@ -531,18 +543,18 @@ TEST(to_json_with_lint_exclude_sorted) {
 
 TEST(to_json_with_lint_rules_and_exclude) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
-  config.lint.rules.emplace_back("/test/rules/my-rule.json");
+  config.lint.rules.emplace_back(ROOT_NAME "/test/rules/my-rule.json");
   config.lint.exclude.emplace("enum_to_const");
 
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "lint": {
       "rules": [ "./rules/my-rule.json" ],
@@ -556,19 +568,19 @@ TEST(to_json_with_lint_rules_and_exclude) {
 TEST(to_json_lint_exclude_duplicates_in_document_emitted_once) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "exclude": [ "enum_to_const", "enum_to_const", "enum_to_const" ]
     }
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "exclude": [ "enum_to_const" ]
     }
@@ -580,14 +592,14 @@ TEST(to_json_lint_exclude_duplicates_in_document_emitted_once) {
 TEST(to_json_roundtrip_with_lint_exclude) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "exclude": [ "enum_to_const", "top_level_title" ]
     }
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -596,7 +608,7 @@ TEST(to_json_roundtrip_with_lint_exclude) {
 TEST(to_json_roundtrip_with_lint_rules_and_exclude) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ "./rules/my-rule.json" ],
       "exclude": [ "enum_to_const" ]
@@ -604,7 +616,7 @@ TEST(to_json_roundtrip_with_lint_rules_and_exclude) {
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -612,17 +624,17 @@ TEST(to_json_roundtrip_with_lint_rules_and_exclude) {
 
 TEST(to_json_empty_lint_exclude_omitted) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
-  config.lint.rules.emplace_back("/test/rules/my-rule.json");
+  config.lint.rules.emplace_back(ROOT_NAME "/test/rules/my-rule.json");
 
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "lint": {
       "rules": [ "./rules/my-rule.json" ]
@@ -634,18 +646,18 @@ TEST(to_json_empty_lint_exclude_omitted) {
 
 TEST(to_json_with_ignore) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
-  config.ignore.emplace_back("/test/vendor");
-  config.ignore.emplace_back("/test/build");
+  config.ignore.emplace_back(ROOT_NAME "/test/vendor");
+  config.ignore.emplace_back(ROOT_NAME "/test/build");
 
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "ignore": [ "./vendor", "./build" ]
   })JSON")};
@@ -655,17 +667,17 @@ TEST(to_json_with_ignore) {
 
 TEST(to_json_with_ignore_parent) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.absolute_path_explicit = true;
-  config.base_path = "/test";
+  config.base_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
-  config.ignore.emplace_back("/other/vendor");
+  config.ignore.emplace_back(ROOT_NAME "/other/vendor");
 
   const auto result{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "path": "/test",
+    "path": ")JSON" ROOT_NAME R"JSON(/test",
     "baseUri": "https://example.com",
     "ignore": [ "../other/vendor" ]
   })JSON")};
@@ -675,7 +687,7 @@ TEST(to_json_with_ignore_parent) {
 
 TEST(to_json_empty_ignore) {
   sourcemeta::blaze::Configuration config;
-  config.absolute_path = "/test";
+  config.absolute_path = ROOT_NAME "/test";
   config.base = "https://example.com";
   config.base_uri = sourcemeta::core::URI{config.base};
 
@@ -688,11 +700,11 @@ TEST(to_json_roundtrip_with_ignore) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "baseUri": "https://schemas.sourcemeta.com",
     "ignore": [ "./vendor" ],
-    "path": "/test"
+    "path": ")JSON" ROOT_NAME R"JSON(/test"
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);
@@ -705,11 +717,11 @@ TEST(to_json_roundtrip_with_ignore_and_lint) {
     "lint": {
       "rules": [ "./rules/my-rule.json" ]
     },
-    "path": "/test"
+    "path": ")JSON" ROOT_NAME R"JSON(/test"
   })JSON")};
 
   const auto config{
-      sourcemeta::blaze::Configuration::from_json(input, "/test")};
+      sourcemeta::blaze::Configuration::from_json(input, ROOT_NAME "/test")};
   const auto output{config.to_json()};
 
   EXPECT_EQ(output, input);

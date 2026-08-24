@@ -19,11 +19,10 @@ auto parse_yaml(std::basic_istream<JSON::Char, JSON::CharTraits> &stream)
 
   // The parser position is relative to the input after any byte order mark has
   // been stripped, so the mark is added back to resume the stream at the right
-  // byte
-  const auto consumed{static_cast<std::streamoff>(lexer.bom_length()) +
-                      static_cast<std::streamoff>(parser.position())};
-  stream.clear();
-  stream.seekg(start_pos + consumed);
+  // character
+  resume_stream(stream, start_pos,
+                static_cast<std::streamsize>(lexer.bom_length()) +
+                    static_cast<std::streamsize>(parser.position()));
 
   return result;
 }
@@ -62,11 +61,10 @@ auto parse_yaml(std::basic_istream<JSON::Char, JSON::CharTraits> &stream,
 
   // The parser position is relative to the input after any byte order mark has
   // been stripped, so the mark is added back to resume the stream at the right
-  // byte
-  const auto consumed{static_cast<std::streamoff>(lexer.bom_length()) +
-                      static_cast<std::streamoff>(parser.position())};
-  stream.clear();
-  stream.seekg(start_pos + consumed);
+  // character
+  resume_stream(stream, start_pos,
+                static_cast<std::streamsize>(lexer.bom_length()) +
+                    static_cast<std::streamsize>(parser.position()));
 }
 
 auto parse_yaml(const JSON::String &input, JSON &output,
@@ -96,7 +94,8 @@ auto read_yaml_or_json(const std::filesystem::path &path) -> JSON {
   const auto extension{path.extension()};
   if (extension == ".yaml" || extension == ".yml") {
     return read_yaml(path);
-  } else if (extension == ".json") {
+  }
+  if (extension == ".json") {
     return read_json(path);
   }
 
@@ -113,7 +112,8 @@ auto read_yaml_or_json(const std::filesystem::path &path, JSON &output,
   if (extension == ".yaml" || extension == ".yml") {
     read_yaml(path, output, callback);
     return;
-  } else if (extension == ".json") {
+  }
+  if (extension == ".json") {
     read_json(path, output, callback);
     return;
   }

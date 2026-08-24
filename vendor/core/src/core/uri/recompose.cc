@@ -4,8 +4,6 @@
 
 #include "escaping.h"
 
-#include <array>       // std::array
-#include <charconv>    // std::to_chars
 #include <cstdint>     // std::uint32_t
 #include <optional>    // std::optional
 #include <string>      // std::string
@@ -18,7 +16,7 @@ namespace {
 auto escape_component_to_string(std::string &output, std::string_view input,
                                 const URIEscapeMode mode, const bool iri,
                                 const bool allow_iprivate = false) -> void {
-  output.reserve(output.size() + input.size() * 3);
+  output.reserve(output.size() + (input.size() * 3));
 
   for (std::string_view::size_type index = 0; index < input.size(); ++index) {
     const char character = input[index];
@@ -119,11 +117,7 @@ auto recompose_authority(std::string &output,
 
   if (port.has_value()) {
     output += ':';
-    std::array<char, 20> port_buffer{};
-    const auto [end_pointer, error_code] =
-        std::to_chars(port_buffer.data(),
-                      port_buffer.data() + port_buffer.size(), port.value());
-    output.append(port_buffer.data(), end_pointer);
+    digits_append(output, port.value());
   }
 }
 
@@ -150,8 +144,7 @@ auto append_disambiguated_path(std::string &output,
     // a dot-segment". Percent encoding the colon would avoid the same misparse
     // but would name a different path, since Section 6.2.2.2 only equates
     // percent-encoded unreserved characters
-    if (path_value.substr(0, first_segment_length).find(':') !=
-        std::string_view::npos) {
+    if (path_value.substr(0, first_segment_length).contains(':')) {
       output += "./";
     }
   }
@@ -173,7 +166,7 @@ auto URI::recompose() const -> std::string {
     result = *std::move(uri);
   }
 
-  result.reserve(result.size() + this->fragment_.value().size() * 3 + 1);
+  result.reserve(result.size() + (this->fragment_.value().size() * 3) + 1);
   result += '#';
   escape_component_to_string(result, this->fragment_.value(),
                              URIEscapeMode::Fragment, this->iri_);

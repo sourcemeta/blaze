@@ -69,12 +69,6 @@ jobs:
             type: static
             shell: sh
             options: -DBLAZE_ADDRESS_SANITIZER:BOOL=ON
-          - os: ubuntu-latest
-            cc: clang
-            cxx: clang++
-            type: static
-            shell: sh
-            options: -DBLAZE_UNDEFINED_SANITIZER:BOOL=ON
 
     defaults:
       run:

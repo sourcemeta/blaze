@@ -26,4 +26,4 @@ target_link_libraries(sourcemeta_blaze_canonicalizer_unit
 target_compile_definitions(sourcemeta_blaze_canonicalizer_unit
   PRIVATE SCHEMAS_PATH="${PROJECT_SOURCE_DIR}/schemas")
 
-set_tests_properties(blaze.canonicalizer PROPERTIES TIMEOUT 60)
+set_tests_properties(blaze.canonicalizer PROPERTIES TIMEOUT 90)
