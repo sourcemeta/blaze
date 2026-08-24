@@ -10,7 +10,17 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME frame
     frame_draft2_test.cc
     frame_draft1_test.cc
     frame_draft0_test.cc
-    frame_test.cc)
+    frame_test.cc
+    frame_iterator_test.cc
+    frame_iterator_2020_12_test.cc
+    frame_iterator_2019_09_test.cc
+    frame_iterator_draft7_test.cc
+    frame_iterator_draft6_test.cc
+    frame_iterator_draft4_test.cc
+    frame_iterator_draft3_test.cc
+    frame_iterator_draft2_test.cc
+    frame_iterator_draft1_test.cc
+    frame_iterator_draft0_test.cc)
 
 target_link_libraries(sourcemeta_blaze_frame_unit
   PRIVATE sourcemeta::core::json)

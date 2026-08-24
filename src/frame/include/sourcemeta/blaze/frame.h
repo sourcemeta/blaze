@@ -16,6 +16,7 @@
 
 // NOLINTBEGIN(misc-include-cleaner)
 #include <sourcemeta/blaze/frame_error.h>
+#include <sourcemeta/blaze/frame_iterator.h>
 // NOLINTEND(misc-include-cleaner)
 
 #include <sourcemeta/blaze/foundation.h>
