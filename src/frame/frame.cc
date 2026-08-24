@@ -425,7 +425,7 @@ auto store(sourcemeta::blaze::SchemaFrame::Locations &frame,
 // Check misunderstood struct to be a function
 // NOLINTNEXTLINE(bugprone-exception-escape)
 struct InternalEntry {
-  sourcemeta::blaze::SchemaIteratorEntry common;
+  sourcemeta::blaze::SubschemaEntry common;
   std::optional<sourcemeta::core::JSON::String> id;
 };
 

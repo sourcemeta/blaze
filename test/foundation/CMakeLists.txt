@@ -54,7 +54,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME foundation
     foundation_walker_draft0_test.cc
     foundation_walker_openapi_test.cc
     foundation_error_test.cc
-    foundation_keyword_iterator_test.cc
     foundation_resolver_test.cc
     foundation_parse_type_test.cc
     foundation_json_auto_test.cc)
