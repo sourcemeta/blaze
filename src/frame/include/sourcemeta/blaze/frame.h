@@ -73,6 +73,15 @@ public:
   /// intensive
   enum class Mode : std::uint8_t { Locations, References };
 
+  /// How a caller-provided default identifier relates to the one that the
+  /// schema declares, if any
+  enum class IdentifierMode : std::uint8_t {
+    /// Register the default identifier in addition to the schema's own
+    Additional,
+    /// Register the default identifier only if the schema declares none
+    Fallback
+  };
+
   SchemaFrame(const Mode mode) : mode_{mode} {}
 
   // We rely on internal caches that would be dangling otherwise
@@ -166,6 +175,7 @@ public:
                const SchemaResolver &resolver,
                std::string_view default_dialect = "",
                std::string_view default_id = "",
+               IdentifierMode identifier_mode = IdentifierMode::Additional,
                const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER})
       -> void;
 

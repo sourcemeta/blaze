@@ -4456,7 +4456,8 @@ TEST(zero_paths) {
   sourcemeta::blaze::SchemaFrame frame{
       sourcemeta::blaze::SchemaFrame::Mode::References};
   frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver, "", "", {});
+                sourcemeta::blaze::schema_resolver, "", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional, {});
 
   EXPECT_EQ(frame.locations().size(), 0);
   EXPECT_EQ(frame.references().size(), 0);
@@ -4476,6 +4477,7 @@ TEST(single_nested_path_recursive_with_identifier) {
   const sourcemeta::core::Pointer wrapper_path{"wrapper"};
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver, "", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                 {sourcemeta::core::to_weak_pointer(wrapper_path)});
 
   EXPECT_EQ(frame.locations().size(), 8);
@@ -4551,6 +4553,7 @@ TEST(single_nested_path_recursive_without_identifiers) {
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver,
                 "https://json-schema.org/draft/2020-12/schema", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                 {sourcemeta::core::to_weak_pointer(wrapper_path)});
 
   EXPECT_EQ(frame.locations().size(), 2);
@@ -4594,6 +4597,7 @@ TEST(single_nested_anonymous_with_nested_resource) {
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver,
                 "https://json-schema.org/draft/2020-12/schema", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                 {sourcemeta::core::to_weak_pointer(wrapper_path)});
 
   EXPECT_EQ(frame.locations().size(), 10);
@@ -4695,6 +4699,7 @@ TEST(multiple_nested_cross_ref) {
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver,
                 "https://json-schema.org/draft/2020-12/schema", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                 {sourcemeta::core::to_weak_pointer(path1),
                  sourcemeta::core::to_weak_pointer(path2),
                  sourcemeta::core::to_weak_pointer(path3)});
@@ -4839,6 +4844,7 @@ TEST(multiple_nested_cross_ref_missing_target) {
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver,
                 "https://json-schema.org/draft/2020-12/schema", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                 {sourcemeta::core::to_weak_pointer(path1),
                  sourcemeta::core::to_weak_pointer(path2)});
 
@@ -4908,6 +4914,7 @@ TEST(multiple_nested_no_base_dialect) {
   try {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver, "", "",
+                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                   {sourcemeta::core::to_weak_pointer(path1),
                    sourcemeta::core::to_weak_pointer(path2),
                    sourcemeta::core::to_weak_pointer(path3)});
@@ -4940,6 +4947,7 @@ TEST(multiple_nested_same_id) {
   try {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver, "", "",
+                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                   {sourcemeta::core::to_weak_pointer(path1),
                    sourcemeta::core::to_weak_pointer(path2)});
     FAIL();
@@ -4969,6 +4977,7 @@ TEST(multiple_nested_same_anonymous_anchors) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver,
                   "https://json-schema.org/draft/2020-12/schema", "",
+                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                   {sourcemeta::core::to_weak_pointer(path1),
                    sourcemeta::core::to_weak_pointer(path2)});
     FAIL();
@@ -5008,6 +5017,7 @@ TEST(multiple_nested_with_default_id) {
                 // The default id should be getting ignored on nested schemas
                 // as it only makes sense for top-level framing
                 "https://www.example.com",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                 {sourcemeta::core::to_weak_pointer(path1),
                  sourcemeta::core::to_weak_pointer(path2)});
 

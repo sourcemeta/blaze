@@ -572,6 +572,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                           const SchemaResolver &resolver,
                           std::string_view default_dialect,
                           std::string_view default_id,
+                          const SchemaFrame::IdentifierMode identifier_mode,
                           const SchemaFrame::Paths &paths) -> void {
   this->reset();
   assert((std::unordered_set<sourcemeta::core::WeakPointer,
@@ -653,9 +654,10 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
     // If the top-level schema has a specific identifier but the user
     // passes a different default identifier, then the schema is by
     // definition known by two names, and we should handle that accordingly
-    const bool has_explicit_different_id{root_id.has_value() &&
-                                         !default_id.empty() &&
-                                         root_id.value() != default_id};
+    const bool has_explicit_different_id{
+        identifier_mode == SchemaFrame::IdentifierMode::Additional &&
+        root_id.has_value() && !default_id.empty() &&
+        root_id.value() != default_id};
     sourcemeta::core::JSON::String default_id_canonical;
     if (has_explicit_different_id) {
       default_id_canonical = sourcemeta::core::URI::canonicalize(default_id);
