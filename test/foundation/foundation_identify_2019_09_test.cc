@@ -90,41 +90,6 @@ TEST(base_dialect_shortcut) {
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
-TEST(anonymize_with_base_dialect) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$id": "https://example.com/my-schema",
-    "$schema": "https://json-schema.org/draft/2019-09/schema"
-  })JSON");
-
-  const auto base_dialect{sourcemeta::blaze::base_dialect(
-      document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  sourcemeta::blaze::anonymize(document, base_dialect.value());
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema"
-  })JSON");
-
-  EXPECT_EQ(document, expected);
-}
-
-TEST(anonymize_with_base_dialect_no_id) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema"
-  })JSON");
-
-  const auto base_dialect{sourcemeta::blaze::base_dialect(
-      document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  sourcemeta::blaze::anonymize(document, base_dialect.value());
-
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema"
-  })JSON");
-
-  EXPECT_EQ(document, expected);
-}
-
 TEST(sibling_ref) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-schema",

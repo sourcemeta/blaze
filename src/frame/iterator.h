@@ -9,13 +9,25 @@
 
 #include <cassert>     // assert
 #include <cstddef>     // std::size_t
-#include <functional>  // std::cref
+#include <functional>  // std::cref, std::reference_wrapper
 #include <optional>    // std::optional, std::nullopt
 #include <string_view> // std::string_view
 #include <utility>     // std::move
 #include <vector>      // std::vector
 
 namespace sourcemeta::blaze {
+
+/// A subschema as reported by SchemaIterator
+struct SubschemaEntry {
+  std::optional<sourcemeta::core::WeakPointer> parent;
+  sourcemeta::core::WeakPointer pointer;
+  std::string_view dialect;
+  Vocabularies vocabularies;
+  std::optional<SchemaBaseDialect> base_dialect;
+  std::reference_wrapper<const sourcemeta::core::JSON> subschema;
+  bool orphan;
+  bool property_name;
+};
 
 struct DialectInfo {
   std::string_view dialect;
@@ -58,18 +70,17 @@ resolve_dialect_at(const sourcemeta::core::JSON &subschema,
           .override_active = override_active};
 }
 
-inline auto
-walk(const std::optional<sourcemeta::core::WeakPointer> &parent,
-     const sourcemeta::core::WeakPointer &pointer,
-     std::vector<sourcemeta::blaze::SchemaIteratorEntry> &subschemas,
-     const sourcemeta::core::JSON &subschema,
-     const sourcemeta::blaze::SchemaWalker &walker,
-     const sourcemeta::blaze::SchemaResolver &resolver,
-     const std::string_view dialect,
-     const sourcemeta::blaze::SchemaBaseDialect base_dialect,
-     const std::size_t level, const bool orphan, const bool property_name)
-    -> void {
-  if (!sourcemeta::blaze::is_schema(subschema)) {
+inline auto walk(const std::optional<sourcemeta::core::WeakPointer> &parent,
+                 const sourcemeta::core::WeakPointer &pointer,
+                 std::vector<SubschemaEntry> &subschemas,
+                 const sourcemeta::core::JSON &subschema,
+                 const sourcemeta::blaze::SchemaWalker &walker,
+                 const sourcemeta::blaze::SchemaResolver &resolver,
+                 const std::string_view dialect,
+                 const sourcemeta::blaze::SchemaBaseDialect base_dialect,
+                 const std::size_t level, const bool orphan,
+                 const bool property_name) -> void {
+  if (!subschema.is_object() && !subschema.is_boolean()) {
     return;
   }
 
@@ -114,15 +125,14 @@ walk(const std::optional<sourcemeta::core::WeakPointer> &parent,
       },
       current_base_dialect, current_dialect)};
 
-  sourcemeta::blaze::SchemaIteratorEntry iterator_entry{
-      .parent = parent,
-      .pointer = pointer,
-      .dialect = current_dialect,
-      .vocabularies = vocabularies,
-      .base_dialect = current_base_dialect,
-      .subschema = subschema,
-      .orphan = orphan,
-      .property_name = property_name};
+  SubschemaEntry iterator_entry{.parent = parent,
+                                .pointer = pointer,
+                                .dialect = current_dialect,
+                                .vocabularies = vocabularies,
+                                .base_dialect = current_base_dialect,
+                                .subschema = subschema,
+                                .orphan = orphan,
+                                .property_name = property_name};
   subschemas.push_back(std::move(iterator_entry));
 
   // We can't recurse any further
@@ -386,7 +396,7 @@ walk(const std::optional<sourcemeta::core::WeakPointer> &parent,
 /// Iterate over every subschema of a schema, including the schema itself
 class SchemaIterator {
 private:
-  using internal = typename std::vector<SchemaIteratorEntry>;
+  using internal = typename std::vector<SubschemaEntry>;
 
 public:
   using const_iterator = typename internal::const_iterator;
@@ -418,14 +428,14 @@ inline SchemaIterator::SchemaIterator(
   // not pass a default, then there is nothing we can do. We know
   // the current schema is a subschema, but cannot walk any further.
   if (resolved_dialect.empty()) {
-    sourcemeta::blaze::SchemaIteratorEntry entry{.parent = std::nullopt,
-                                                 .pointer = pointer,
-                                                 .dialect = "",
-                                                 .vocabularies = {},
-                                                 .base_dialect = std::nullopt,
-                                                 .subschema = schema,
-                                                 .orphan = false,
-                                                 .property_name = false};
+    SubschemaEntry entry{.parent = std::nullopt,
+                         .pointer = pointer,
+                         .dialect = "",
+                         .vocabularies = {},
+                         .base_dialect = std::nullopt,
+                         .subschema = schema,
+                         .orphan = false,
+                         .property_name = false};
     this->subschemas.push_back(std::move(entry));
   } else {
     const auto resolved_base_dialect{

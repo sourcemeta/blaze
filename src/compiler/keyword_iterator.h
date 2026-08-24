@@ -1,14 +1,30 @@
+#ifndef SOURCEMETA_BLAZE_COMPILER_KEYWORD_ITERATOR_H_
+#define SOURCEMETA_BLAZE_COMPILER_KEYWORD_ITERATOR_H_
+
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonpointer.h>
+
 #include <sourcemeta/blaze/foundation.h>
 
-#include <algorithm> // std::max, std::ranges::fold_left, std::ranges::sort
-#include <cassert>   // assert
-#include <cstdint>   // std::uint64_t
+#include <algorithm>   // std::max, std::ranges::fold_left, std::ranges::sort
+#include <cassert>     // assert
+#include <cstdint>     // std::uint64_t
+#include <functional>  // std::cref
+#include <string_view> // std::string_view
+#include <utility>     // std::move
+#include <vector>      // std::vector
 
-namespace {
-auto schema_keyword_priority(
-    const std::string_view keyword,
-    const sourcemeta::blaze::Vocabularies &vocabularies,
-    const sourcemeta::blaze::SchemaWalker &walker) -> std::uint64_t {
+namespace sourcemeta::blaze {
+
+/// A top-level keyword as reported by SchemaKeywordIterator
+struct KeywordEntry {
+  sourcemeta::core::WeakPointer pointer;
+};
+
+inline auto schema_keyword_priority(const std::string_view keyword,
+                                    const Vocabularies &vocabularies,
+                                    const SchemaWalker &walker)
+    -> std::uint64_t {
   const auto &result{walker(keyword, vocabularies)};
   const auto priority_from_dependencies{std::ranges::fold_left(
       result.dependencies, static_cast<std::uint64_t>(0),
@@ -28,15 +44,32 @@ auto schema_keyword_priority(
       })};
   return std::max(priority_from_dependencies, priority_from_order_dependencies);
 }
-} // namespace
+
+/// Iterate over the top-level keywords of a schema in evaluation order
+class SchemaKeywordIterator {
+private:
+  using internal = typename std::vector<KeywordEntry>;
+
+public:
+  using const_iterator = typename internal::const_iterator;
+  SchemaKeywordIterator(const sourcemeta::core::JSON &schema,
+                        const SchemaWalker &walker,
+                        const Vocabularies &vocabularies);
+  [[nodiscard]] auto begin() const -> const_iterator;
+  [[nodiscard]] auto end() const -> const_iterator;
+  [[nodiscard]] auto cbegin() const -> const_iterator;
+  [[nodiscard]] auto cend() const -> const_iterator;
+
+private:
+  internal entries{};
+};
 
 // TODO: This iterator is not very efficient. It traverses once on
 // construction and then the client traverses again.
 
-sourcemeta::blaze::SchemaKeywordIterator::SchemaKeywordIterator(
-    const sourcemeta::core::JSON &schema,
-    const sourcemeta::blaze::SchemaWalker &walker,
-    const sourcemeta::blaze::Vocabularies &vocabularies) {
+inline SchemaKeywordIterator::SchemaKeywordIterator(
+    const sourcemeta::core::JSON &schema, const SchemaWalker &walker,
+    const Vocabularies &vocabularies) {
   assert(is_schema(schema));
   if (schema.is_boolean()) {
     return;
@@ -47,16 +80,8 @@ sourcemeta::blaze::SchemaKeywordIterator::SchemaKeywordIterator(
   for (const auto &entry : schema.as_object()) {
     sourcemeta::core::WeakPointer entry_pointer;
     entry_pointer.push_back(std::cref(entry.first));
-    sourcemeta::blaze::SchemaIteratorEntry subschema_entry{
-        .parent = std::nullopt,
-        .pointer = std::move(entry_pointer),
-        .dialect = "",
-        .vocabularies = vocabularies,
-        .base_dialect = std::nullopt,
-        .subschema = entry.second,
-        .orphan = false,
-        .property_name = false};
-    this->entries.push_back(std::move(subschema_entry));
+    KeywordEntry keyword_entry{.pointer = std::move(entry_pointer)};
+    this->entries.push_back(std::move(keyword_entry));
   }
 
   // Sort keywords based on priority for correct evaluation
@@ -85,16 +110,19 @@ sourcemeta::blaze::SchemaKeywordIterator::SchemaKeywordIterator(
       });
 }
 
-auto sourcemeta::blaze::SchemaKeywordIterator::begin() const -> const_iterator {
+inline auto SchemaKeywordIterator::begin() const -> const_iterator {
   return this->entries.begin();
 }
-auto sourcemeta::blaze::SchemaKeywordIterator::end() const -> const_iterator {
+inline auto SchemaKeywordIterator::end() const -> const_iterator {
   return this->entries.end();
 }
-auto sourcemeta::blaze::SchemaKeywordIterator::cbegin() const
-    -> const_iterator {
+inline auto SchemaKeywordIterator::cbegin() const -> const_iterator {
   return this->entries.cbegin();
 }
-auto sourcemeta::blaze::SchemaKeywordIterator::cend() const -> const_iterator {
+inline auto SchemaKeywordIterator::cend() const -> const_iterator {
   return this->entries.cend();
 }
+
+} // namespace sourcemeta::blaze
+
+#endif

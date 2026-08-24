@@ -1,5 +1,8 @@
 #include <sourcemeta/blaze/editor.h>
+
 #include <sourcemeta/blaze/frame.h>
+
+#include "helpers.h"
 
 #include <cassert> // assert
 #include <map>     // std::map
