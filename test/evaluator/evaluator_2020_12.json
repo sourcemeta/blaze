@@ -2032,19 +2032,13 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ],
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "post": [
-        [ true, "AssertionType", "/type", "#/type", "" ],
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ true, "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer",
-        "The integer value 50 was expected to be less than or equal to the integer 100",
-        "The integer value 50 was expected to be greater than or equal to the integer 0"
+        "The value was expected to be an integer within the given range"
       ]
     },
     "exhaustive": {
@@ -2077,16 +2071,13 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ],
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+        [ "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "post": [
-        [ true, "AssertionType", "/type", "#/type", "" ],
-        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+        [ false, "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer",
-        "The integer value 200 was expected to be less than or equal to the integer 100"
+        "The value was expected to be an integer within the given range"
       ]
     },
     "exhaustive": {
@@ -2116,19 +2107,13 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ],
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "post": [
-        [ true, "AssertionType", "/type", "#/type", "" ],
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ true, "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer",
-        "The integer value 0 was expected to be less than or equal to the integer 100",
-        "The integer value 0 was expected to be greater than or equal to the integer 0"
+        "The value was expected to be an integer within the given range"
       ]
     },
     "exhaustive": {
@@ -2161,19 +2146,13 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ],
-        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "post": [
-        [ true, "AssertionType", "/type", "#/type", "" ],
-        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ true, "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer",
-        "The integer value 100 was expected to be less than or equal to the integer 100",
-        "The integer value 100 was expected to be greater than or equal to the integer 0"
+        "The value was expected to be an integer within the given range"
       ]
     },
     "exhaustive": {
@@ -2206,13 +2185,13 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ]
+        [ "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "post": [
-        [ false, "AssertionType", "/type", "#/type", "" ]
+        [ false, "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer but it was of type number"
+        "The value was expected to be an integer within the given range"
       ]
     },
     "exhaustive": {
@@ -2239,13 +2218,13 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ]
+        [ "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "post": [
-        [ false, "AssertionType", "/type", "#/type", "" ]
+        [ false, "AssertionTypeIntegerBounded", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer but it was of type string"
+        "The value was expected to be an integer within the given range"
       ]
     },
     "exhaustive": {
@@ -2271,16 +2250,13 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
       ],
       "post": [
-        [ true, "AssertionType", "/type", "#/type", "" ],
-        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ true, "AssertionTypeIntegerLowerBound", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer",
-        "The integer value 5 was expected to be greater than or equal to the integer 1"
+        "The value was expected to be an integer above the given minimum"
       ]
     },
     "exhaustive": {
@@ -2309,16 +2285,13 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ],
-        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
       ],
       "post": [
-        [ true, "AssertionType", "/type", "#/type", "" ],
-        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+        [ false, "AssertionTypeIntegerLowerBound", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer",
-        "The integer value 0 was expected to be greater than or equal to the integer 1"
+        "The value was expected to be an integer above the given minimum"
       ]
     },
     "exhaustive": {
@@ -2347,13 +2320,13 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionType", "/type", "#/type", "" ]
+        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
       ],
       "post": [
-        [ false, "AssertionType", "/type", "#/type", "" ]
+        [ false, "AssertionTypeIntegerLowerBound", "", "#", "" ]
       ],
       "descriptions": [
-        "The value was expected to be of type integer but it was of type number"
+        "The value was expected to be an integer above the given minimum"
       ]
     },
     "exhaustive": {
