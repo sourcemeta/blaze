@@ -3,6 +3,7 @@
 #include <sourcemeta/blaze/foundation.h>
 
 #include "helpers.h"
+#include "iterator.h"
 
 #include <algorithm> // std::ranges::all_of, std::ranges::contains, std::ranges::sort
 #include <cassert>       // assert

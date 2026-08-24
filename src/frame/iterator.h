@@ -1,4 +1,7 @@
-#include <sourcemeta/blaze/frame.h>
+#ifndef SOURCEMETA_BLAZE_FRAME_ITERATOR_H_
+#define SOURCEMETA_BLAZE_FRAME_ITERATOR_H_
+
+#include <sourcemeta/core/json.h>
 
 #include <sourcemeta/blaze/foundation.h>
 
@@ -12,19 +15,21 @@
 #include <utility>     // std::move
 #include <vector>      // std::vector
 
-namespace {
+namespace sourcemeta::blaze {
+
 struct DialectInfo {
   std::string_view dialect;
   sourcemeta::blaze::SchemaBaseDialect base_dialect;
   bool override_active;
 };
 
-auto resolve_dialect_at(
-    const sourcemeta::core::JSON &subschema,
-    const std::string_view inherited_dialect,
-    const sourcemeta::blaze::SchemaBaseDialect inherited_base,
-    const sourcemeta::blaze::SchemaResolver &resolver, const std::size_t level,
-    const bool allow_dialect_override) -> DialectInfo {
+inline auto
+resolve_dialect_at(const sourcemeta::core::JSON &subschema,
+                   const std::string_view inherited_dialect,
+                   const sourcemeta::blaze::SchemaBaseDialect inherited_base,
+                   const sourcemeta::blaze::SchemaResolver &resolver,
+                   const std::size_t level, const bool allow_dialect_override)
+    -> DialectInfo {
   auto local{sourcemeta::blaze::dialect(subschema, inherited_dialect,
                                         allow_dialect_override)};
   const auto override_active{
@@ -53,15 +58,16 @@ auto resolve_dialect_at(
           .override_active = override_active};
 }
 
-auto walk(const std::optional<sourcemeta::core::WeakPointer> &parent,
-          const sourcemeta::core::WeakPointer &pointer,
-          std::vector<sourcemeta::blaze::SchemaIteratorEntry> &subschemas,
-          const sourcemeta::core::JSON &subschema,
-          const sourcemeta::blaze::SchemaWalker &walker,
-          const sourcemeta::blaze::SchemaResolver &resolver,
-          const std::string_view dialect,
-          const sourcemeta::blaze::SchemaBaseDialect base_dialect,
-          const std::size_t level, const bool orphan, const bool property_name)
+inline auto
+walk(const std::optional<sourcemeta::core::WeakPointer> &parent,
+     const sourcemeta::core::WeakPointer &pointer,
+     std::vector<sourcemeta::blaze::SchemaIteratorEntry> &subschemas,
+     const sourcemeta::core::JSON &subschema,
+     const sourcemeta::blaze::SchemaWalker &walker,
+     const sourcemeta::blaze::SchemaResolver &resolver,
+     const std::string_view dialect,
+     const sourcemeta::blaze::SchemaBaseDialect base_dialect,
+     const std::size_t level, const bool orphan, const bool property_name)
     -> void {
   if (!sourcemeta::blaze::is_schema(subschema)) {
     return;
@@ -376,12 +382,30 @@ auto walk(const std::optional<sourcemeta::core::WeakPointer> &parent,
     }
   }
 }
-} // namespace
+
+/// Iterate over every subschema of a schema, including the schema itself
+class SchemaIterator {
+private:
+  using internal = typename std::vector<SchemaIteratorEntry>;
+
+public:
+  using const_iterator = typename internal::const_iterator;
+  SchemaIterator(const sourcemeta::core::JSON &input,
+                 const SchemaWalker &walker, const SchemaResolver &resolver,
+                 std::string_view default_dialect = "");
+  [[nodiscard]] auto begin() const -> const_iterator;
+  [[nodiscard]] auto end() const -> const_iterator;
+  [[nodiscard]] auto cbegin() const -> const_iterator;
+  [[nodiscard]] auto cend() const -> const_iterator;
+
+private:
+  internal subschemas{};
+};
 
 // TODO: This iterator is not very efficient. It traverses once on
 // construction and then the client traverses again.
 
-sourcemeta::blaze::SchemaIterator::SchemaIterator(
+inline SchemaIterator::SchemaIterator(
     const sourcemeta::core::JSON &schema,
     const sourcemeta::blaze::SchemaWalker &walker,
     const sourcemeta::blaze::SchemaResolver &resolver,
@@ -412,15 +436,19 @@ sourcemeta::blaze::SchemaIterator::SchemaIterator(
   }
 }
 
-auto sourcemeta::blaze::SchemaIterator::begin() const -> const_iterator {
+inline auto SchemaIterator::begin() const -> const_iterator {
   return this->subschemas.begin();
 }
-auto sourcemeta::blaze::SchemaIterator::end() const -> const_iterator {
+inline auto SchemaIterator::end() const -> const_iterator {
   return this->subschemas.end();
 }
-auto sourcemeta::blaze::SchemaIterator::cbegin() const -> const_iterator {
+inline auto SchemaIterator::cbegin() const -> const_iterator {
   return this->subschemas.cbegin();
 }
-auto sourcemeta::blaze::SchemaIterator::cend() const -> const_iterator {
+inline auto SchemaIterator::cend() const -> const_iterator {
   return this->subschemas.cend();
 }
+
+} // namespace sourcemeta::blaze
+
+#endif
