@@ -672,6 +672,17 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
       base_uris.insert({path, {root_id.value(), default_id_canonical}});
     }
 
+    if (this->mode_ == SchemaFrame::Mode::Root) {
+      store(this->locations_, SchemaReferenceType::Static,
+            root_id.has_value() ? SchemaFrame::LocationType::Resource
+                                : SchemaFrame::LocationType::Subschema,
+            root_id.value_or(sourcemeta::core::JSON::String{}),
+            root_id.value_or(sourcemeta::core::JSON::String{}), path,
+            path.size(), root_dialect, root_base_dialect.value(), std::nullopt,
+            false, false, false, true);
+      continue;
+    }
+
     std::vector<std::size_t> current_subschema_entries;
     for (const auto &relative_entry : sourcemeta::blaze::SchemaIterator{
              schema, walker, effective_resolver, default_dialect}) {
@@ -828,7 +839,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
         }
       }
 
-      if (this->mode_ != SchemaFrame::Mode::Locations) {
+      if (this->mode_ == SchemaFrame::Mode::References) {
         // Handle metaschema references
         const auto maybe_metaschema{sourcemeta::blaze::dialect(
             entry.common.subschema.get(), {}, false)};
@@ -1095,7 +1106,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
     }
   }
 
-  if (this->mode_ == SchemaFrame::Mode::Locations) {
+  if (this->mode_ != SchemaFrame::Mode::References) {
     return;
   }
 
@@ -1323,6 +1334,11 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
       set_base_and_fragment(it->second);
     }
   }
+}
+
+auto SchemaFrame::root_location() const
+    -> std::optional<std::reference_wrapper<const Location>> {
+  return this->traverse(this->root_);
 }
 
 auto SchemaFrame::locations() const noexcept -> const Locations & {

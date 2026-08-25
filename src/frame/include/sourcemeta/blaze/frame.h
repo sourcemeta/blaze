@@ -70,8 +70,8 @@ namespace sourcemeta::blaze {
 class SOURCEMETA_BLAZE_FRAME_EXPORT SchemaFrame {
 public:
   /// The mode of framing. More extensive analysis can be compute and memory
-  /// intensive
-  enum class Mode : std::uint8_t { Locations, References };
+  /// intensive. Each mode is a superset of the previous one
+  enum class Mode : std::uint8_t { Root, Locations, References };
 
   /// How a caller-provided default identifier relates to the one that the
   /// schema declares, if any
@@ -197,6 +197,11 @@ public:
   /// Get the root schema identifier (empty if none)
   [[nodiscard]] auto root() const noexcept
       -> const sourcemeta::core::JSON::String &;
+
+  /// Get the location entry of the schema that was analysed. Unlike
+  /// sourcemeta::blaze::SchemaFrame::root, this works for anonymous schemas
+  [[nodiscard]] auto root_location() const
+      -> std::optional<std::reference_wrapper<const Location>>;
 
   /// Get the vocabularies associated with a location entry
   [[nodiscard]] auto vocabularies(const Location &location,

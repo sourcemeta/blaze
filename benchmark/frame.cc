@@ -66,6 +66,20 @@ static void Schema_Frame_ISO_Language_Locations(benchmark::State &state) {
   }
 }
 
+static void Schema_Frame_ISO_Language_Root(benchmark::State &state) {
+  const auto schema{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "files" /
+      "2020_12_iso_language_2023_set_3.json")};
+
+  for (auto _ : state) {
+    sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Root};
+    frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    benchmark::DoNotOptimize(frame);
+  }
+}
+
 static void Schema_Frame_KrakenD_References(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
@@ -155,6 +169,7 @@ BENCHMARK(Schema_Frame_WoT_References);
 BENCHMARK(Schema_Frame_OMC_References);
 BENCHMARK(Schema_Frame_OMC_Locations);
 BENCHMARK(Schema_Frame_ISO_Language_Locations);
+BENCHMARK(Schema_Frame_ISO_Language_Root);
 BENCHMARK(Schema_Frame_KrakenD_References);
 BENCHMARK(Schema_Frame_KrakenD_Reachable);
 BENCHMARK(Schema_Frame_ISO_Language_Locations_To_JSON);
