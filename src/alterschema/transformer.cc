@@ -103,19 +103,6 @@ auto check_rules(
           calculate_health_percentage(subschema_count, subschema_failures)};
 }
 
-auto analyse_frame(sourcemeta::blaze::SchemaFrame &frame,
-                   const sourcemeta::core::JSON &schema,
-                   const sourcemeta::blaze::SchemaWalker &walker,
-                   const sourcemeta::blaze::SchemaResolver &resolver,
-                   const std::string_view default_dialect,
-                   const std::string_view default_id) -> void {
-  if (!sourcemeta::blaze::identify(schema, resolver, default_dialect).empty()) {
-    frame.analyse(schema, walker, resolver, default_dialect);
-  } else {
-    frame.analyse(schema, walker, resolver, default_dialect, default_id);
-  }
-}
-
 } // namespace
 
 namespace sourcemeta::blaze {
@@ -185,7 +172,8 @@ auto SchemaTransformer::check(const core::JSON &schema,
                               const bool is_metaschema) const
     -> std::pair<bool, std::uint8_t> {
   blaze::SchemaFrame frame{blaze::SchemaFrame::Mode::References};
-  analyse_frame(frame, schema, walker, resolver, default_dialect, default_id);
+  frame.analyse(schema, walker, resolver, default_dialect, default_id,
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
   return check_rules(schema, frame, this->rules, walker, resolver, callback,
                      exclude_keyword, false, is_metaschema);
 }
@@ -223,8 +211,8 @@ auto SchemaTransformer::apply(core::JSON &schema,
         break;
       }
 
-      analyse_frame(frame, schema, walker, resolver, default_dialect,
-                    default_id);
+      frame.analyse(schema, walker, resolver, default_dialect, default_id,
+                    sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
     }
 
     std::unordered_set<core::Pointer, core::Pointer::Hasher> visited;
@@ -285,8 +273,9 @@ auto SchemaTransformer::apply(core::JSON &schema,
         applied = true;
 
         if (reframe_after_transform) {
-          analyse_frame(frame, schema, walker, resolver, default_dialect,
-                        default_id);
+          frame.analyse(
+              schema, walker, resolver, default_dialect, default_id,
+              sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
         } else if (current.is_boolean()) {
           std::tuple<core::Pointer, std::string_view, core::JSON> mark{
               entry_pointer, rule->name(), current};
@@ -390,7 +379,8 @@ auto SchemaTransformer::apply(core::JSON &schema,
   }
 
   if (frame.empty() && !schema.is_boolean()) {
-    analyse_frame(frame, schema, walker, resolver, default_dialect, default_id);
+    frame.analyse(schema, walker, resolver, default_dialect, default_id,
+                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
   }
 
   if (frame.empty()) {
