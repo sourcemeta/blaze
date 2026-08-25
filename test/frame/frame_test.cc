@@ -3911,3 +3911,173 @@ TEST(reuse_embedded_custom_metaschema_explicit_reset) {
   EXPECT_FALSE(root_vocabularies.contains(
       sourcemeta::blaze::Vocabularies::Known::JSON_Schema_2020_12_Validation));
 }
+
+TEST(id_with_default_id_additional_mode) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": {
+      "type": "string"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "", "https://other.com",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional);
+
+  EXPECT_EQ(frame.root(), "https://example.com");
+  EXPECT_EQ(frame.locations().size(), 10);
+
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://example.com", "https://example.com", "",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com#/$id", "https://example.com", "/$id",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/$id", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com#/$schema", "https://example.com", "/$schema",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/$schema", "", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com#/additionalProperties", "https://example.com",
+      "/additionalProperties", "https://json-schema.org/draft/2020-12/schema",
+      JSON_Schema_2020_12, "https://example.com", "/additionalProperties", "",
+      false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com#/additionalProperties/type",
+      "https://example.com", "/additionalProperties/type",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/additionalProperties/type",
+      "/additionalProperties", false, false);
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://other.com", "https://example.com", "",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://other.com#/$id", "https://example.com", "/$id",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/$id", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://other.com#/$schema", "https://example.com", "/$schema",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/$schema", "", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://other.com#/additionalProperties", "https://example.com",
+      "/additionalProperties", "https://json-schema.org/draft/2020-12/schema",
+      JSON_Schema_2020_12, "https://example.com", "/additionalProperties", "",
+      false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://other.com#/additionalProperties/type",
+      "https://example.com", "/additionalProperties/type",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/additionalProperties/type",
+      "/additionalProperties", false, false);
+
+  EXPECT_EQ(frame.references().size(), 1);
+
+  EXPECT_STATIC_REFERENCE(
+      frame, "/$schema", "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+}
+
+TEST(id_with_default_id_fallback_mode) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": {
+      "type": "string"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "", "https://other.com",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
+
+  EXPECT_EQ(frame.root(), "https://example.com");
+  EXPECT_EQ(frame.locations().size(), 5);
+
+  EXPECT_FALSE(frame.traverse("https://other.com").has_value());
+
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://example.com", "https://example.com", "",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com#/$id", "https://example.com", "/$id",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/$id", "", false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com#/$schema", "https://example.com", "/$schema",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/$schema", "", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://example.com#/additionalProperties", "https://example.com",
+      "/additionalProperties", "https://json-schema.org/draft/2020-12/schema",
+      JSON_Schema_2020_12, "https://example.com", "/additionalProperties", "",
+      false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://example.com#/additionalProperties/type",
+      "https://example.com", "/additionalProperties/type",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "/additionalProperties/type",
+      "/additionalProperties", false, false);
+
+  EXPECT_EQ(frame.references().size(), 1);
+
+  EXPECT_STATIC_REFERENCE(
+      frame, "/$schema", "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+}
+
+TEST(no_id_with_default_id_fallback_mode) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": {
+      "type": "string"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "", "https://other.com",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
+
+  EXPECT_EQ(frame.root(), "https://other.com");
+  EXPECT_EQ(frame.locations().size(), 4);
+
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://other.com", "https://other.com", "",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://other.com", "", std::nullopt, false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://other.com#/$schema", "https://other.com", "/$schema",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://other.com", "/$schema", "", false, false);
+  EXPECT_FRAME_STATIC_SUBSCHEMA(
+      frame, "https://other.com#/additionalProperties", "https://other.com",
+      "/additionalProperties", "https://json-schema.org/draft/2020-12/schema",
+      JSON_Schema_2020_12, "https://other.com", "/additionalProperties", "",
+      false, false);
+  EXPECT_FRAME_STATIC_POINTER(
+      frame, "https://other.com#/additionalProperties/type",
+      "https://other.com", "/additionalProperties/type",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://other.com", "/additionalProperties/type",
+      "/additionalProperties", false, false);
+
+  EXPECT_EQ(frame.references().size(), 1);
+
+  EXPECT_STATIC_REFERENCE(
+      frame, "/$schema", "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/schema", std::nullopt,
+      "https://json-schema.org/draft/2020-12/schema");
+}
