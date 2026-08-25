@@ -4313,3 +4313,71 @@ TEST(root_mode_identifier_with_non_empty_fragment) {
     EXPECT_EQ(error.identifier(), "https://example.com#foo");
   }
 }
+
+TEST(root_mode_single_container_yields_nothing) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "wrapper": {
+      "$id": "https://example.com",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  const sourcemeta::core::Pointer wrapper_path{"wrapper"};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
+                {sourcemeta::core::to_weak_pointer(wrapper_path)});
+
+  EXPECT_TRUE(frame.empty());
+  EXPECT_TRUE(frame.root().empty());
+  EXPECT_EQ(frame.locations().size(), 0);
+  EXPECT_EQ(frame.references().size(), 0);
+  EXPECT_FALSE(frame.root_location().has_value());
+}
+
+TEST(root_mode_multiple_containers_yield_nothing) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "a": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string"
+    },
+    "b": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "number"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  const sourcemeta::core::Pointer path_a{"a"};
+  const sourcemeta::core::Pointer path_b{"b"};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
+                {sourcemeta::core::to_weak_pointer(path_a),
+                 sourcemeta::core::to_weak_pointer(path_b)});
+
+  EXPECT_TRUE(frame.empty());
+  EXPECT_EQ(frame.locations().size(), 0);
+  EXPECT_FALSE(frame.root_location().has_value());
+}
+
+TEST(root_mode_zero_containers_yields_nothing) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional, {});
+
+  EXPECT_TRUE(frame.empty());
+  EXPECT_EQ(frame.locations().size(), 0);
+  EXPECT_FALSE(frame.root_location().has_value());
+}

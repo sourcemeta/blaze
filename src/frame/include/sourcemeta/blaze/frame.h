@@ -70,7 +70,10 @@ namespace sourcemeta::blaze {
 class SOURCEMETA_BLAZE_FRAME_EXPORT SchemaFrame {
 public:
   /// The mode of framing. More extensive analysis can be compute and memory
-  /// intensive. Each mode is a superset of the previous one
+  /// intensive. Each mode is a superset of the previous one. Note that
+  /// sourcemeta::blaze::SchemaFrame::Mode::Root only reports on the top-level
+  /// schema of the given document, so analysing a wrapper that holds its
+  /// schemas elsewhere yields an empty frame
   enum class Mode : std::uint8_t { Root, Locations, References };
 
   /// How a caller-provided default identifier relates to the one that the

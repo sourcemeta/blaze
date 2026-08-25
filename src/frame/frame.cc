@@ -575,10 +575,13 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                           const SchemaFrame::IdentifierMode identifier_mode,
                           const SchemaFrame::Paths &paths) -> void {
   this->reset();
-  // This mode reports on a single top-level schema, so framing a wrapper
-  // that holds more than one has no meaning here
-  assert(this->mode_ != SchemaFrame::Mode::Root ||
-         (paths.size() == 1 && paths.front().empty()));
+  // This mode reports on the top-level schema of the given document. Framing
+  // a wrapper that holds its schemas elsewhere has no top-level schema to
+  // report on, so there is nothing to analyse
+  if (this->mode_ == SchemaFrame::Mode::Root &&
+      (paths.size() != 1 || !paths.front().empty())) {
+    return;
+  }
   assert((std::unordered_set<sourcemeta::core::WeakPointer,
                              sourcemeta::core::WeakPointer::Hasher>(
               paths.cbegin(), paths.cend())
@@ -699,13 +702,13 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
         }
       }
 
+      const auto location_uri{
+          root_id.value_or(sourcemeta::core::JSON::String{})};
       store(this->locations_, SchemaReferenceType::Static,
             root_id.has_value() ? SchemaFrame::LocationType::Resource
                                 : SchemaFrame::LocationType::Subschema,
-            root_id.value_or(sourcemeta::core::JSON::String{}),
-            root_id.value_or(sourcemeta::core::JSON::String{}), path,
-            path.size(), root_dialect, root_base_dialect.value(), std::nullopt,
-            false, false, false, true);
+            location_uri, location_uri, path, path.size(), root_dialect,
+            root_base_dialect.value(), std::nullopt, false, false, false, true);
       continue;
     }
 
