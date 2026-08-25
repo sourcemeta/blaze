@@ -575,6 +575,10 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                           const SchemaFrame::IdentifierMode identifier_mode,
                           const SchemaFrame::Paths &paths) -> void {
   this->reset();
+  // This mode reports on a single top-level schema, so framing a wrapper
+  // that holds more than one has no meaning here
+  assert(this->mode_ != SchemaFrame::Mode::Root ||
+         (paths.size() == 1 && paths.front().empty()));
   assert((std::unordered_set<sourcemeta::core::WeakPointer,
                              sourcemeta::core::WeakPointer::Hasher>(
               paths.cbegin(), paths.cend())
@@ -673,6 +677,28 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
     }
 
     if (this->mode_ == SchemaFrame::Mode::Root) {
+      // The schema may pin a custom meta-schema inside its own containers.
+      // Cache it, as the vocabulary lookups that this mode exists to serve
+      // consult that cache
+      if (!sourcemeta::blaze::to_base_dialect(root_dialect).has_value()) {
+        const sourcemeta::core::JSON::String dialect_key{root_dialect};
+        const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
+            schema, root_dialect, resolver)};
+        if (embedded) {
+          this->probed_metaschemas_.emplace(dialect_key, embedded);
+        }
+      }
+
+      if (root_id.has_value()) {
+        const sourcemeta::core::URI identifier{root_id.value()};
+        const auto fragment{identifier.fragment()};
+        if (fragment.has_value() && !fragment.value().empty()) {
+          throw SchemaFrameError(
+              root_id.value(),
+              "Identifiers must not contain non-empty fragments");
+        }
+      }
+
       store(this->locations_, SchemaReferenceType::Static,
             root_id.has_value() ? SchemaFrame::LocationType::Resource
                                 : SchemaFrame::LocationType::Subschema,
