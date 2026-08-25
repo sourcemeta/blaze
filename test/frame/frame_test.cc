@@ -4314,7 +4314,7 @@ TEST(root_mode_identifier_with_non_empty_fragment) {
   }
 }
 
-TEST(root_mode_single_container_yields_nothing) {
+TEST(root_mode_single_container_with_identifier) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "wrapper": {
       "$id": "https://example.com",
@@ -4331,11 +4331,75 @@ TEST(root_mode_single_container_yields_nothing) {
                 sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                 {sourcemeta::core::to_weak_pointer(wrapper_path)});
 
-  EXPECT_TRUE(frame.empty());
-  EXPECT_TRUE(frame.root().empty());
-  EXPECT_EQ(frame.locations().size(), 0);
+  EXPECT_FALSE(frame.empty());
+  EXPECT_EQ(frame.root(), "https://example.com");
+  EXPECT_EQ(frame.locations().size(), 1);
   EXPECT_EQ(frame.references().size(), 0);
-  EXPECT_FALSE(frame.root_location().has_value());
+
+  EXPECT_FRAME_STATIC_RESOURCE(
+      frame, "https://example.com", "https://example.com", "/wrapper",
+      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
+      "https://example.com", "", std::nullopt, false, false);
+
+  const auto location{frame.root_location()};
+  EXPECT_TRUE(location.has_value());
+  EXPECT_EQ(location.value().get().type,
+            sourcemeta::blaze::SchemaFrame::LocationType::Resource);
+  EXPECT_EQ(location.value().get().dialect,
+            "https://json-schema.org/draft/2020-12/schema");
+  EXPECT_EQ(location.value().get().base_dialect,
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+}
+
+TEST(root_mode_single_container_anonymous) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "wrapper": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "string"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  const sourcemeta::core::Pointer wrapper_path{"wrapper"};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "", "",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
+                {sourcemeta::core::to_weak_pointer(wrapper_path)});
+
+  EXPECT_FALSE(frame.empty());
+  EXPECT_TRUE(frame.root().empty());
+  EXPECT_EQ(frame.locations().size(), 1);
+
+  const auto location{frame.root_location()};
+  EXPECT_TRUE(location.has_value());
+  EXPECT_EQ(location.value().get().type,
+            sourcemeta::blaze::SchemaFrame::LocationType::Subschema);
+  EXPECT_EQ(location.value().get().dialect,
+            "http://json-schema.org/draft-07/schema#");
+  EXPECT_EQ(location.value().get().base_dialect,
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
+}
+
+TEST(root_mode_single_container_with_default_id) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "wrapper": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  const sourcemeta::core::Pointer wrapper_path{"wrapper"};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, "", "https://other.com",
+                sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback,
+                {sourcemeta::core::to_weak_pointer(wrapper_path)});
+
+  EXPECT_EQ(frame.root(), "https://other.com");
+  EXPECT_EQ(frame.locations().size(), 1);
+  EXPECT_TRUE(frame.root_location().has_value());
 }
 
 TEST(root_mode_multiple_containers_yield_nothing) {

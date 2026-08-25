@@ -575,11 +575,9 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                           const SchemaFrame::IdentifierMode identifier_mode,
                           const SchemaFrame::Paths &paths) -> void {
   this->reset();
-  // This mode reports on the top-level schema of the given document. Framing
-  // a wrapper that holds its schemas elsewhere has no top-level schema to
-  // report on, so there is nothing to analyse
-  if (this->mode_ == SchemaFrame::Mode::Root &&
-      (paths.size() != 1 || !paths.front().empty())) {
+  // This mode reports on a single schema. Framing a wrapper that holds more
+  // than one has no single schema to report on, so there is nothing to analyse
+  if (this->mode_ == SchemaFrame::Mode::Root && paths.size() != 1) {
     return;
   }
   assert((std::unordered_set<sourcemeta::core::WeakPointer,
@@ -637,8 +635,10 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
 
     // If we are dealing with nested schemas, then by definition
     // the root has no identifier
+    // This mode analyses a single schema, which the caller may have pointed
+    // at through a container, so its identifier is the one we report
     std::optional<sourcemeta::core::JSON::String> root_id{std::nullopt};
-    if (path.empty()) {
+    if (path.empty() || this->mode_ == SchemaFrame::Mode::Root) {
       const auto maybe_id{sourcemeta::blaze::identify(
           schema, root_base_dialect.value(), default_id)};
       if (!maybe_id.empty()) {
