@@ -1401,36 +1401,36 @@ auto SchemaFrame::root() const noexcept
 auto SchemaFrame::vocabularies(const Location &location,
                                const SchemaResolver &resolver) const
     -> const Vocabularies & {
-  const std::pair<SchemaBaseDialect, std::string_view> key{
-      location.base_dialect, location.dialect};
-  const auto match{this->vocabularies_.find(key)};
-  if (match != this->vocabularies_.cend()) {
-    return match->second;
+  for (const auto &entry : this->vocabularies_) {
+    if (std::get<0>(entry) == location.base_dialect &&
+        std::get<1>(entry) == location.dialect) {
+      return std::get<2>(entry);
+    }
   }
 
   if (this->probed_metaschemas_.empty()) {
-    return this->vocabularies_
-        .emplace(key, sourcemeta::blaze::vocabularies(
-                          resolver, location.base_dialect, location.dialect))
-        .first->second;
+    return std::get<2>(this->vocabularies_.emplace_back(
+        location.base_dialect, location.dialect,
+        sourcemeta::blaze::vocabularies(resolver, location.base_dialect,
+                                        location.dialect)));
   }
 
   // Meta-schemas embedded in the analysed document take precedence
   // over what the caller's resolver knows about
-  return this->vocabularies_
-      .emplace(key, sourcemeta::blaze::vocabularies(
-                        [this, &resolver](const std::string_view identifier)
-                            -> std::optional<sourcemeta::core::JSON> {
-                          const auto hit{this->probed_metaschemas_.find(
-                              sourcemeta::core::JSON::String{identifier})};
-                          if (hit != this->probed_metaschemas_.cend()) {
-                            return *(hit->second);
-                          }
+  return std::get<2>(this->vocabularies_.emplace_back(
+      location.base_dialect, location.dialect,
+      sourcemeta::blaze::vocabularies(
+          [this, &resolver](const std::string_view identifier)
+              -> std::optional<sourcemeta::core::JSON> {
+            const auto hit{this->probed_metaschemas_.find(
+                sourcemeta::core::JSON::String{identifier})};
+            if (hit != this->probed_metaschemas_.cend()) {
+              return *(hit->second);
+            }
 
-                          return resolver(identifier);
-                        },
-                        location.base_dialect, location.dialect))
-      .first->second;
+            return resolver(identifier);
+          },
+          location.base_dialect, location.dialect)));
 }
 
 auto SchemaFrame::uri(

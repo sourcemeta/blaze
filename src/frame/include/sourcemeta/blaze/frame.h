@@ -25,6 +25,7 @@
 
 #include <concepts>      // std::invocable
 #include <cstdint>       // std::uint8_t
+#include <deque>         // std::deque
 #include <functional>    // std::reference_wrapper
 #include <map>           // std::map
 #include <optional>      // std::optional
@@ -206,7 +207,10 @@ public:
       -> std::optional<std::reference_wrapper<const Location>>;
 
   /// Get the vocabularies associated with a location entry. The frame owns
-  /// the result, computing it at most once per dialect that it came across
+  /// the result, computing it at most once per dialect that it came across.
+  /// Note that as with the meta-schemas that `analyse` found embedded in the
+  /// document, what the first resolver reported for a given dialect is what
+  /// every later call reports, whichever resolver they pass
   [[nodiscard]] auto vocabularies(const Location &location,
                                   const SchemaResolver &resolver) const
       -> const Vocabularies &;
@@ -323,8 +327,13 @@ private:
                      const sourcemeta::core::JSON *>
       probed_metaschemas_;
   // Vocabularies are a function of the base dialect and dialect alone, and a
-  // schema only tends to make use of a handful of those
-  mutable std::map<std::pair<SchemaBaseDialect, std::string_view>, Vocabularies>
+  // schema only tends to make use of a handful of those. We own the dialect
+  // that we key on, as the view that the location holds may point into a
+  // default dialect that the caller of `analyse` only kept around for the
+  // duration of that call. A deque, as handing out references to the
+  // vocabularies means they must survive later insertions
+  mutable std::deque<std::tuple<SchemaBaseDialect,
+                                sourcemeta::core::JSON::String, Vocabularies>>
       vocabularies_;
   mutable std::unordered_map<
       std::reference_wrapper<const sourcemeta::core::WeakPointer>,

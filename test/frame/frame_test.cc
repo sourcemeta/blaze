@@ -4564,3 +4564,44 @@ TEST(root_location_without_analysis) {
   EXPECT_EQ(frame.references().size(), 0);
   EXPECT_FALSE(frame.root_location().has_value());
 }
+
+TEST(vocabularies_reference_survives_later_dialects) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "older": {
+        "$id": "https://example.com/older",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+
+  const auto root{frame.traverse("https://example.com")};
+  EXPECT_TRUE(root.has_value());
+  const auto &first{
+      frame.vocabularies(root->get(), sourcemeta::blaze::schema_resolver)};
+  EXPECT_EQ(first.size(), 7);
+
+  const auto older{frame.traverse("https://example.com/older")};
+  EXPECT_TRUE(older.has_value());
+  const auto &second{
+      frame.vocabularies(older->get(), sourcemeta::blaze::schema_resolver)};
+  EXPECT_EQ(second.size(), 1);
+
+  EXPECT_EQ(first.size(), 7);
+  EXPECT_VOCABULARY_REQUIRED(first, JSON_Schema_2020_12_Core);
+  EXPECT_VOCABULARY_REQUIRED(first, JSON_Schema_2020_12_Applicator);
+  EXPECT_VOCABULARY_REQUIRED(first, JSON_Schema_2020_12_Unevaluated);
+  EXPECT_VOCABULARY_REQUIRED(first, JSON_Schema_2020_12_Validation);
+  EXPECT_VOCABULARY_REQUIRED(first, JSON_Schema_2020_12_Meta_Data);
+  EXPECT_VOCABULARY_REQUIRED(first, JSON_Schema_2020_12_Format_Annotation);
+  EXPECT_VOCABULARY_REQUIRED(first, JSON_Schema_2020_12_Content);
+  EXPECT_VOCABULARY_REQUIRED(second, JSON_Schema_Draft_7);
+}
