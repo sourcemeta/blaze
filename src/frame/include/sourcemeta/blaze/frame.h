@@ -205,10 +205,11 @@ public:
   [[nodiscard]] auto root_location() const
       -> std::optional<std::reference_wrapper<const Location>>;
 
-  /// Get the vocabularies associated with a location entry
+  /// Get the vocabularies associated with a location entry. The frame owns
+  /// the result, computing it at most once per dialect that it came across
   [[nodiscard]] auto vocabularies(const Location &location,
                                   const SchemaResolver &resolver) const
-      -> Vocabularies;
+      -> const Vocabularies &;
 
   /// Get the URI associated with a location entry
   [[nodiscard]] auto
@@ -321,6 +322,10 @@ private:
   std::unordered_map<sourcemeta::core::JSON::String,
                      const sourcemeta::core::JSON *>
       probed_metaschemas_;
+  // Vocabularies are a function of the base dialect and dialect alone, and a
+  // schema only tends to make use of a handful of those
+  mutable std::map<std::pair<SchemaBaseDialect, std::string_view>, Vocabularies>
+      vocabularies_;
   mutable std::unordered_map<
       std::reference_wrapper<const sourcemeta::core::WeakPointer>,
       std::vector<const Location *>, sourcemeta::core::WeakPointer::Hasher,

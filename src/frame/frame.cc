@@ -1400,26 +1400,37 @@ auto SchemaFrame::root() const noexcept
 
 auto SchemaFrame::vocabularies(const Location &location,
                                const SchemaResolver &resolver) const
-    -> Vocabularies {
+    -> const Vocabularies & {
+  const std::pair<SchemaBaseDialect, std::string_view> key{
+      location.base_dialect, location.dialect};
+  const auto match{this->vocabularies_.find(key)};
+  if (match != this->vocabularies_.cend()) {
+    return match->second;
+  }
+
   if (this->probed_metaschemas_.empty()) {
-    return sourcemeta::blaze::vocabularies(resolver, location.base_dialect,
-                                           location.dialect);
+    return this->vocabularies_
+        .emplace(key, sourcemeta::blaze::vocabularies(
+                          resolver, location.base_dialect, location.dialect))
+        .first->second;
   }
 
   // Meta-schemas embedded in the analysed document take precedence
   // over what the caller's resolver knows about
-  return sourcemeta::blaze::vocabularies(
-      [this, &resolver](const std::string_view identifier)
-          -> std::optional<sourcemeta::core::JSON> {
-        const auto hit{this->probed_metaschemas_.find(
-            sourcemeta::core::JSON::String{identifier})};
-        if (hit != this->probed_metaschemas_.cend()) {
-          return *(hit->second);
-        }
+  return this->vocabularies_
+      .emplace(key, sourcemeta::blaze::vocabularies(
+                        [this, &resolver](const std::string_view identifier)
+                            -> std::optional<sourcemeta::core::JSON> {
+                          const auto hit{this->probed_metaschemas_.find(
+                              sourcemeta::core::JSON::String{identifier})};
+                          if (hit != this->probed_metaschemas_.cend()) {
+                            return *(hit->second);
+                          }
 
-        return resolver(identifier);
-      },
-      location.base_dialect, location.dialect);
+                          return resolver(identifier);
+                        },
+                        location.base_dialect, location.dialect))
+      .first->second;
 }
 
 auto SchemaFrame::uri(
@@ -1671,6 +1682,7 @@ auto SchemaFrame::reset() -> void {
   this->locations_.clear();
   this->references_.clear();
   this->probed_metaschemas_.clear();
+  this->vocabularies_.clear();
   this->standalone_ = false;
 }
 
