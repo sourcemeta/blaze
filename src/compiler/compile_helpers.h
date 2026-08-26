@@ -73,25 +73,64 @@ inline auto schema_resource_id(const std::vector<std::string> &resources,
 
 // Intern the vocabulary that owns a keyword, as an index into
 // Template::vocabularies where zero means the keyword has none
-inline auto vocabulary_id(std::vector<std::string> &vocabularies,
-                          const sourcemeta::blaze::SchemaWalker &walker,
-                          const std::string_view keyword,
-                          const sourcemeta::core::WeakPointer &relative_pointer,
-                          const sourcemeta::blaze::Vocabularies &active)
+inline auto vocabulary_intern(std::vector<std::string> &vocabularies,
+                              const sourcemeta::blaze::SchemaWalker &walker,
+                              const std::string_view keyword,
+                              const sourcemeta::blaze::Vocabularies &active)
     -> std::size_t {
-  // Instructions that a keyword emits on its own behalf, such as annotation
-  // emitters, carry no keyword of their own but still belong to whichever
-  // vocabulary owns the subschema location they sit at
-  const auto effective_keyword{
-      !keyword.empty() ? keyword
-      : (!relative_pointer.empty() && relative_pointer.back().is_property())
-          ? std::string_view{relative_pointer.back().to_property()}
-          : std::string_view{}};
-  if (effective_keyword.empty()) {
+  const auto &result{walker(keyword, active)};
+  if (!result.vocabulary.has_value()) {
     return 0;
   }
 
-  const auto &result{walker(effective_keyword, active)};
+  const auto uri{sourcemeta::blaze::to_string(result.vocabulary.value())};
+  const auto iterator{std::ranges::find(vocabularies, uri)};
+  if (iterator == vocabularies.end()) {
+    vocabularies.emplace_back(uri);
+    return vocabularies.size();
+  }
+
+  return 1 + static_cast<std::size_t>(
+                 std::distance(vocabularies.begin(), iterator));
+}
+
+inline auto vocabulary_id(std::vector<std::string> &vocabularies,
+                          const sourcemeta::blaze::SchemaFrame &frame,
+                          const sourcemeta::blaze::SchemaWalker &walker,
+                          const std::string_view keyword,
+                          const sourcemeta::core::WeakPointer &relative_pointer,
+                          const sourcemeta::core::URI &base,
+                          const sourcemeta::blaze::Vocabularies &active)
+    -> std::size_t {
+  if (!keyword.empty()) {
+    return vocabulary_intern(vocabularies, walker, keyword, active);
+  }
+
+  // Instructions that a keyword emits on its own behalf, such as annotation
+  // emitters, carry no keyword of their own. They sit at the location of the
+  // keyword that produced them, so its last token names that keyword
+  if (relative_pointer.empty() || !relative_pointer.back().is_property()) {
+    return 0;
+  }
+
+  // Except that a keyword compiler may build a context pointing at a
+  // subschema rather than at a keyword, in which case the last token is a
+  // property name that may well collide with a keyword. The token names a
+  // keyword exactly when what contains it is itself a schema, so ask the
+  // frame about the parent rather than guessing. Note we cannot ask about
+  // the token itself, as an applicator that takes a schema, such as
+  // `additionalProperties`, sits at a subschema location of its own
+  const auto parent{
+      frame.traverse(to_uri(relative_pointer.initial(), base).recompose())};
+  if (!parent.has_value() ||
+      (parent.value().get().type !=
+           sourcemeta::blaze::SchemaFrame::LocationType::Subschema &&
+       parent.value().get().type !=
+           sourcemeta::blaze::SchemaFrame::LocationType::Resource)) {
+    return 0;
+  }
+
+  const auto &result{walker(relative_pointer.back().to_property(), active)};
   if (!result.vocabulary.has_value()) {
     return 0;
   }
@@ -127,8 +166,9 @@ inline auto make_with_resource(const InstructionIndex type,
                .recompose(),
        .schema_resource = schema_resource_id(context.resources, resource),
        .vocabulary = vocabulary_id(
-           context.vocabularies, context.walker, dynamic_context.keyword,
-           schema_context.relative_pointer, schema_context.vocabularies)});
+           context.vocabularies, context.frame, context.walker,
+           dynamic_context.keyword, schema_context.relative_pointer,
+           schema_context.base, schema_context.vocabularies)});
   return {.type = type,
           .relative_instance_location =
               to_pointer(dynamic_context.base_instance_location),
@@ -165,8 +205,9 @@ inline auto make(const InstructionIndex type, const Context &context,
        .schema_resource = schema_resource_id(context.resources,
                                              schema_context.base.recompose()),
        .vocabulary = vocabulary_id(
-           context.vocabularies, context.walker, dynamic_context.keyword,
-           schema_context.relative_pointer, schema_context.vocabularies)});
+           context.vocabularies, context.frame, context.walker,
+           dynamic_context.keyword, schema_context.relative_pointer,
+           schema_context.base, schema_context.vocabularies)});
   return {.type = type,
           .relative_instance_location =
               to_pointer(dynamic_context.base_instance_location),

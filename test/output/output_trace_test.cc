@@ -500,3 +500,63 @@ TEST(vocabulary_across_schemas_through_a_reference) {
       "https://example.com/remote#/type", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/validation");
 }
+
+TEST(vocabulary_of_a_subschema_under_a_property_named_after_a_keyword) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "type": { "anyOf": [ { "minLength": 1 } ] }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "type": "x"
+  })JSON")};
+
+  std::vector<StoredTrace> traces;
+  sourcemeta::blaze::TraceOutput output{schema_template, collect(traces)};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_TRUE(result);
+
+  EXPECT_EQ(traces.size(), 7);
+
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 0, Push, "LogicalWhenType", "", "/properties",
+      "https://example.com#/properties", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 1, Push, "LogicalOr", "/type", "/properties/type/anyOf",
+      "https://example.com#/properties/type/anyOf", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 2, Push, "AssertionStringSizeGreater", "/type",
+      "/properties/type/anyOf/0/minLength",
+      "https://example.com#/properties/type/anyOf/0/minLength", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/validation");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 3, Pass, "AssertionStringSizeGreater", "/type",
+      "/properties/type/anyOf/0/minLength",
+      "https://example.com#/properties/type/anyOf/0/minLength", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/validation");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 4, Pass, "LogicalOr", "/type", "/properties/type/anyOf",
+      "https://example.com#/properties/type/anyOf", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 5, Annotation, "AnnotationEmit", "", "/properties",
+      "https://example.com#/properties", sourcemeta::core::JSON{"type"},
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_OUTPUT_WITH_VOCABULARY(
+      traces, 6, Pass, "LogicalWhenType", "", "/properties",
+      "https://example.com#/properties", std::nullopt,
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+}
