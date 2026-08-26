@@ -68,7 +68,7 @@ auto main(int argc, char **argv) noexcept -> int {
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
 
     sourcemeta::blaze::TraceOutput output{
-        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+        schema_template,
         [](const sourcemeta::blaze::TraceOutput::Entry &entry) {
           switch (entry.type) {
             case sourcemeta::blaze::TraceOutput::EntryType::Push:

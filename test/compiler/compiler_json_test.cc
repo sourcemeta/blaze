@@ -32,24 +32,28 @@ TEST(example_1) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    5,
-    false,
-    false,
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
+      6,
+      false,
+      false,
       [
         [
-          11,
-          [ "type" ],
-          [],
-          "#/type",
-          0,
-          [ 8, 4 ]
+          [
+            11,
+            [ "type" ],
+            [],
+            "#/type",
+            0,
+            1,
+            [ 8, 4 ]
+          ]
         ]
-      ]
-    ],
-    []
-  ])JSON")};
+      ],
+      [],
+      [ "https://json-schema.org/draft/2020-12/vocab/validation" ]
+    ]
+  )JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
@@ -68,42 +72,51 @@ TEST(example_2) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    5,
-    false,
-    false,
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
+      6,
+      false,
+      false,
       [
         [
-          67,
-          [ "additionalProperties" ],
-          [],
-          "#/additionalProperties",
-          0,
-          [ 0 ],
           [
+            67,
+            [ "additionalProperties" ],
+            [],
+            "#/additionalProperties",
+            0,
+            2,
+            [ 0 ],
             [
-              35,
-              [ "multipleOf" ],
-              [],
-              "#/additionalProperties/multipleOf",
-              0,
-              [ 1, 2 ]
-            ],
-            [
-              10,
-              [ "type" ],
-              [],
-              "#/additionalProperties/type",
-              0,
-              [ 7, 156 ]
+              [
+                35,
+                [ "multipleOf" ],
+                [],
+                "#/additionalProperties/multipleOf",
+                0,
+                1,
+                [ 1, 2 ]
+              ],
+              [
+                10,
+                [ "type" ],
+                [],
+                "#/additionalProperties/type",
+                0,
+                1,
+                [ 7, 156 ]
+              ]
             ]
           ]
         ]
+      ],
+      [],
+      [
+        "https://json-schema.org/draft/2020-12/vocab/validation",
+        "https://json-schema.org/draft/2020-12/vocab/applicator"
       ]
-    ],
-    []
-  ])JSON")};
+    ]
+  )JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
@@ -119,24 +132,28 @@ TEST(example_3) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    5,
-    false,
-    false,
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
+      6,
+      false,
+      false,
       [
         [
-          20,
-          [ "pattern" ],
-          [],
-          "#/pattern",
-          0,
-          [ 9, "^f" ]
+          [
+            20,
+            [ "pattern" ],
+            [],
+            "#/pattern",
+            0,
+            1,
+            [ 9, "^f" ]
+          ]
         ]
-      ]
-    ],
-    []
-  ])JSON")};
+      ],
+      [],
+      [ "https://json-schema.org/draft/2020-12/vocab/validation" ]
+    ]
+  )JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
@@ -157,42 +174,51 @@ TEST(example_4) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
-  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    5,
-    false,
-    false,
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
+      6,
+      false,
+      false,
       [
         [
-          67,
-          [ "additionalProperties" ],
-          [],
-          "https://example.com/top#/additionalProperties",
-          1,
-          [ 0 ],
           [
+            67,
+            [ "additionalProperties" ],
+            [],
+            "https://example.com/top#/additionalProperties",
+            1,
+            2,
+            [ 0 ],
             [
-              35,
-              [ "multipleOf" ],
-              [],
-              "https://other.com/nested#/multipleOf",
-              2,
-              [ 1, 2 ]
-            ],
-            [
-              10,
-              [ "type" ],
-              [],
-              "https://other.com/nested#/type",
-              2,
-              [ 7, 156 ]
+              [
+                35,
+                [ "multipleOf" ],
+                [],
+                "https://other.com/nested#/multipleOf",
+                2,
+                1,
+                [ 1, 2 ]
+              ],
+              [
+                10,
+                [ "type" ],
+                [],
+                "https://other.com/nested#/type",
+                2,
+                1,
+                [ 7, 156 ]
+              ]
             ]
           ]
         ]
+      ],
+      [],
+      [
+        "https://json-schema.org/draft/2020-12/vocab/validation",
+        "https://json-schema.org/draft/2020-12/vocab/applicator"
       ]
-    ],
-    []
-  ])JSON")};
+    ]
+  )JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 
@@ -234,24 +260,28 @@ TEST(example_5) {
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
-  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    5,
-    false,
-    true,
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
+      6,
+      false,
+      true,
       [
         [
-          50,
-          [ "foo%" ],
-          [],
-          "https://example.com/top#/foo%25",
-          1,
-          [ 1, true ]
+          [
+            50,
+            [ "foo%" ],
+            [],
+            "https://example.com/top#/foo%25",
+            1,
+            0,
+            [ 1, true ]
+          ]
         ]
-      ]
-    ],
-    []
-  ])JSON")};
+      ],
+      [],
+      []
+    ]
+  )JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 
@@ -279,42 +309,51 @@ TEST(example_6) {
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
-  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON([
-    5,
-    false,
-    true,
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
+      6,
+      false,
+      true,
       [
         [
-          67,
-          [ "additionalProperties" ],
-          [],
-          "https://example.com/top#/additionalProperties",
-          1,
-          [ 0 ],
           [
+            67,
+            [ "additionalProperties" ],
+            [],
+            "https://example.com/top#/additionalProperties",
+            1,
+            2,
+            [ 0 ],
             [
-              11,
-              [ "type" ],
-              [],
-              "https://example.com/top#/additionalProperties/type",
-              1,
-              [ 8, 4 ]
-            ],
-            [
-              52,
-              [],
-              [],
-              "https://example.com/top#/additionalProperties",
-              1,
-              [ 0 ]
+              [
+                11,
+                [ "type" ],
+                [],
+                "https://example.com/top#/additionalProperties/type",
+                1,
+                1,
+                [ 8, 4 ]
+              ],
+              [
+                52,
+                [],
+                [],
+                "https://example.com/top#/additionalProperties",
+                1,
+                2,
+                [ 0 ]
+              ]
             ]
           ]
         ]
+      ],
+      [],
+      [
+        "https://json-schema.org/draft/2020-12/vocab/validation",
+        "https://json-schema.org/draft/2020-12/vocab/applicator"
       ]
-    ],
-    []
-  ])JSON")};
+    ]
+  )JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 
@@ -459,7 +498,7 @@ TEST(unreachable_refs_are_pruned) {
   const auto json_output{sourcemeta::blaze::to_json(schema_template)};
 
   EXPECT_TRUE(json_output.is_array());
-  EXPECT_EQ(json_output.size(), 5);
+  EXPECT_EQ(json_output.size(), 6);
   const auto &targets{json_output.at(3)};
 
   // NOTE: The targets must have exactly 1 entry (the root)

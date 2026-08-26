@@ -355,6 +355,7 @@ auto compile(const sourcemeta::core::JSON &schema,
       sourcemeta::blaze::unevaluated(schema, frame, walker, resolver)};
 
   std::vector<InstructionExtra> instruction_extra;
+  std::vector<std::string> instruction_vocabularies;
   const Context context{.root = schema,
                         .frame = frame,
                         .resources = std::move(resources),
@@ -367,7 +368,8 @@ auto compile(const sourcemeta::core::JSON &schema,
                         .unevaluated = std::move(unevaluated),
                         .tweaks = effective_tweaks,
                         .targets = std::move(targets_map),
-                        .extra = instruction_extra};
+                        .extra = instruction_extra,
+                        .vocabularies = instruction_vocabularies};
 
   ///////////////////////////////////////////////////////////////////
   // (5) Build labels map for dynamic anchors
@@ -487,7 +489,8 @@ auto compile(const sourcemeta::core::JSON &schema,
           .track = track,
           .targets = std::move(compiled_targets),
           .labels = std::move(labels_map),
-          .extra = std::move(instruction_extra)};
+          .extra = std::move(instruction_extra),
+          .vocabularies = std::move(instruction_vocabularies)};
 }
 
 auto compile(const sourcemeta::core::JSON &schema,
