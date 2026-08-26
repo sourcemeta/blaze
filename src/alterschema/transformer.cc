@@ -75,7 +75,8 @@ auto check_rules(
     subschema_count += 1;
 
     const auto &current{sourcemeta::core::get(schema, entry_pointer)};
-    const auto current_vocabularies{frame.vocabularies(entry.second, resolver)};
+    const auto &current_vocabularies{
+        frame.vocabularies(entry.second, resolver)};
 
     bool subschema_failed{false};
     for (const auto &[rule, mutates, _] : rules) {
