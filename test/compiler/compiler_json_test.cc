@@ -7,9 +7,6 @@
 #define EXPECT_BIDIRECTIONAL_JSON(schema_template, expected_json)              \
   {                                                                            \
     const auto result{sourcemeta::blaze::to_json(schema_template)};            \
-    std::cerr << "ACTUAL_BEGIN\n";                                             \
-    sourcemeta::core::prettify(result, std::cerr);                             \
-    std::cerr << "\nACTUAL_END\n";                                             \
     EXPECT_EQ(result, (expected));                                             \
     const auto template_back{sourcemeta::blaze::from_json(result)};            \
     EXPECT_TRUE(template_back.has_value());                                    \

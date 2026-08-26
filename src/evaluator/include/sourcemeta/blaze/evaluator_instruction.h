@@ -257,7 +257,6 @@ struct InstructionExtra {
   sourcemeta::core::Pointer relative_schema_location;
   std::string keyword_location;
   std::size_t schema_resource;
-  /// An index into Template::vocabularies, where zero means none
   std::size_t vocabulary;
 };
 
