@@ -2,10 +2,9 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
-#include <sourcemeta/blaze/frame.h>
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/output.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/jsonpointer.h>
 
 #include <map>     // std::map

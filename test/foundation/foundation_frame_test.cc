@@ -1,14 +1,13 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
-#include <sourcemeta/blaze/frame.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
 #include <set>
 #include <sstream>
 
-#include "frame_test_utils.h"
+#include "foundation_frame_test_utils.h"
 
 TEST(nested_schemas_mixing_dialects) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({

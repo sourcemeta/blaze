@@ -1,11 +1,10 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
-#include <sourcemeta/blaze/frame.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include "frame_test_utils.h"
+#include "foundation_frame_test_utils.h"
 
 #define EXPECT_FRAME_STATIC_DRAFT6_POINTER(                                    \
     frame, reference, root_id, expected_pointer, expected_base,                \

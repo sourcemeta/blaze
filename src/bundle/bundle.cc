@@ -1,7 +1,6 @@
 #include <sourcemeta/blaze/bundle.h>
 
 #include <sourcemeta/blaze/foundation.h>
-#include <sourcemeta/blaze/frame.h>
 
 #include "helpers.h"
 
