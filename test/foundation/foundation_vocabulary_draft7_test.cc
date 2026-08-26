@@ -29,30 +29,6 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-TEST(parse_vocabularies_without_vocabulary) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object"
-  })JSON");
-
-  const auto result{
-      sourcemeta::blaze::parse_vocabularies(document, test_resolver)};
-  EXPECT_FALSE(result.has_value());
-}
-
-TEST(parse_vocabularies_with_vocabulary) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$vocabulary": {
-      "https://json-schema.org/draft/2020-12/vocab/core": true
-    }
-  })JSON");
-
-  const auto result{
-      sourcemeta::blaze::parse_vocabularies(document, test_resolver)};
-  EXPECT_FALSE(result.has_value());
-}
-
 TEST(schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",

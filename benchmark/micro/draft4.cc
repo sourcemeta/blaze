@@ -17,8 +17,9 @@ static void Micro_Draft4_Meta_1_No_Callback(benchmark::State &state) {
     }
   })JSON")};
 
-  const auto metaschema{sourcemeta::blaze::metaschema(
-      schema, sourcemeta::blaze::schema_resolver)};
+  const auto metaschema{sourcemeta::blaze::schema_resolver(
+                            "http://json-schema.org/draft-04/schema#")
+                            .value()};
   const auto metaschema_template{
       sourcemeta::blaze::compile(metaschema, sourcemeta::blaze::schema_walker,
                                  sourcemeta::blaze::schema_resolver,
