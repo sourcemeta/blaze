@@ -4,8 +4,8 @@
 #include <sourcemeta/blaze/foundation.h>
 
 #include <algorithm> // std::move, std::sort, std::unique
-#include <cassert>
-#include <format> // std::format   // assert
+#include <cassert>   // assert
+#include <format>    // std::format
 // TODO(C++23): Consider std::flat_map/std::flat_set when available in libc++
 #include <map>           // std::map
 #include <set>           // std::set

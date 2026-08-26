@@ -14,10 +14,7 @@
 #include <sourcemeta/blaze/foundation_types.h>
 // NOLINTEND(misc-include-cleaner)
 
-#include <format>      // std::formatter, std::format_to
 #include <optional>    // std::optional, std::nullopt
-#include <ostream>     // std::ostream
-#include <sstream>     // std::ostringstream
 #include <string_view> // std::string_view
 
 /// @defgroup foundation Foundation
@@ -54,12 +51,6 @@ SOURCEMETA_BLAZE_FOUNDATION_EXPORT
 auto schema_walker(const std::string_view keyword,
                    const Vocabularies &vocabularies)
     -> const SchemaWalkerResult &;
-
-/// @ingroup foundation
-/// Write a base dialect to a stream as its URI
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT
-auto operator<<(std::ostream &stream, const SchemaBaseDialect base_dialect)
-    -> std::ostream &;
 
 /// @ingroup foundation
 /// Parse a base dialect URI to its enum representation
@@ -336,19 +327,5 @@ auto parse_schema_type(const sourcemeta::core::JSON &type)
     -> sourcemeta::core::JSON::TypeSet;
 
 } // namespace sourcemeta::blaze
-
-template <> struct std::formatter<sourcemeta::blaze::SchemaBaseDialect> {
-  constexpr auto parse(std::format_parse_context &context)
-      -> decltype(context.begin()) {
-    return context.begin();
-  }
-
-  auto format(const sourcemeta::blaze::SchemaBaseDialect value,
-              std::format_context &context) const -> decltype(context.out()) {
-    std::ostringstream stream;
-    stream << value;
-    return std::format_to(context.out(), "{}", stream.str());
-  }
-};
 
 #endif

@@ -6,8 +6,11 @@
 #include <sourcemeta/core/jsonpointer.h>
 
 #include <cstdint>       // std::uint8_t
+#include <format>        // std::formatter, std::format_to
 #include <functional>    // std::function, std::reference_wrapper
 #include <optional>      // std::optional
+#include <ostream>       // std::ostream
+#include <sstream>       // std::ostringstream
 #include <string>        // std::string
 #include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
@@ -55,6 +58,12 @@ enum class SchemaBaseDialect : std::uint8_t {
   JSON_Schema_Draft_1_Hyper,
   JSON_Schema_Draft_0_Hyper
 };
+
+/// @ingroup foundation
+/// Write a base dialect to a stream as its URI
+SOURCEMETA_BLAZE_FOUNDATION_EXPORT
+auto operator<<(std::ostream &stream, const SchemaBaseDialect base_dialect)
+    -> std::ostream &;
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
@@ -217,5 +226,19 @@ using SchemaWalker = std::function<const SchemaWalkerResult &(
     std::string_view, const Vocabularies &)>;
 
 } // namespace sourcemeta::blaze
+
+template <> struct std::formatter<sourcemeta::blaze::SchemaBaseDialect> {
+  constexpr auto parse(std::format_parse_context &context)
+      -> decltype(context.begin()) {
+    return context.begin();
+  }
+
+  auto format(const sourcemeta::blaze::SchemaBaseDialect value,
+              std::format_context &context) const -> decltype(context.out()) {
+    std::ostringstream stream;
+    stream << value;
+    return std::format_to(context.out(), "{}", stream.str());
+  }
+};
 
 #endif

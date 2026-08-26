@@ -1,7 +1,6 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
-
 #include <sourcemeta/core/json.h>
 
 #include <format>  // std::format
