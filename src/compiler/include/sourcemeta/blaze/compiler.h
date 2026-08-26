@@ -140,6 +140,8 @@ struct Context {
       targets;
   /// Accumulator for instruction extra data during compilation
   std::vector<InstructionExtra> &extra;
+  /// Accumulator for the vocabulary URIs that instructions refer to
+  std::vector<std::string> &vocabularies;
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
 };
 

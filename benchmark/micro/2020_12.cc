@@ -419,7 +419,7 @@ Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
   for (auto _ : state) {
     std::size_t count{0};
     sourcemeta::blaze::TraceOutput output{
-        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+        schema_template,
         [&count](const sourcemeta::blaze::TraceOutput::Entry &) { count++; }};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};

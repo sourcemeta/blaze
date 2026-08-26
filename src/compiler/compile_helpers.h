@@ -71,6 +71,42 @@ inline auto schema_resource_id(const std::vector<std::string> &resources,
          static_cast<std::size_t>(std::distance(resources.cbegin(), iterator));
 }
 
+// Intern the vocabulary that owns a keyword, as an index into
+// Template::vocabularies where zero means the keyword has none
+inline auto vocabulary_id(std::vector<std::string> &vocabularies,
+                          const sourcemeta::blaze::SchemaWalker &walker,
+                          const std::string_view keyword,
+                          const sourcemeta::core::WeakPointer &relative_pointer,
+                          const sourcemeta::blaze::Vocabularies &active)
+    -> std::size_t {
+  // Instructions that a keyword emits on its own behalf, such as annotation
+  // emitters, carry no keyword of their own but still belong to whichever
+  // vocabulary owns the subschema location they sit at
+  const auto effective_keyword{
+      !keyword.empty() ? keyword
+      : (!relative_pointer.empty() && relative_pointer.back().is_property())
+          ? std::string_view{relative_pointer.back().to_property()}
+          : std::string_view{}};
+  if (effective_keyword.empty()) {
+    return 0;
+  }
+
+  const auto &result{walker(effective_keyword, active)};
+  if (!result.vocabulary.has_value()) {
+    return 0;
+  }
+
+  const auto uri{sourcemeta::blaze::to_string(result.vocabulary.value())};
+  const auto iterator{std::ranges::find(vocabularies, uri)};
+  if (iterator == vocabularies.end()) {
+    vocabularies.emplace_back(uri);
+    return vocabularies.size();
+  }
+
+  return 1 + static_cast<std::size_t>(
+                 std::distance(vocabularies.begin(), iterator));
+}
+
 // Instantiate a value-oriented step with a custom resource
 inline auto make_with_resource(const InstructionIndex type,
                                const Context &context,
@@ -89,7 +125,10 @@ inline auto make_with_resource(const InstructionIndex type,
        .keyword_location =
            to_uri(schema_context.relative_pointer, schema_context.base)
                .recompose(),
-       .schema_resource = schema_resource_id(context.resources, resource)});
+       .schema_resource = schema_resource_id(context.resources, resource),
+       .vocabulary = vocabulary_id(
+           context.vocabularies, context.walker, dynamic_context.keyword,
+           schema_context.relative_pointer, schema_context.vocabularies)});
   return {.type = type,
           .relative_instance_location =
               to_pointer(dynamic_context.base_instance_location),
@@ -124,7 +163,10 @@ inline auto make(const InstructionIndex type, const Context &context,
            to_uri(schema_context.relative_pointer, schema_context.base)
                .recompose(),
        .schema_resource = schema_resource_id(context.resources,
-                                             schema_context.base.recompose())});
+                                             schema_context.base.recompose()),
+       .vocabulary = vocabulary_id(
+           context.vocabularies, context.walker, dynamic_context.keyword,
+           schema_context.relative_pointer, schema_context.vocabularies)});
   return {.type = type,
           .relative_instance_location =
               to_pointer(dynamic_context.base_instance_location),
