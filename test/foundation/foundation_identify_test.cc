@@ -222,8 +222,9 @@ TEST(loose_with_unresolvable_dialect) {
 TEST(reidentify_boolean) {
   sourcemeta::core::JSON document{true};
   try {
-    sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
-                                  sourcemeta::blaze::schema_resolver);
+    sourcemeta::blaze::schema_reidentify(document,
+                                         "https://example.com/my-new-id",
+                                         sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),

@@ -10,13 +10,13 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &root,
-            const sourcemeta::blaze::Vocabularies &vocabularies,
+            const sourcemeta::blaze::SchemaVocabularies &vocabularies,
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
             const sourcemeta::blaze::SchemaResolver &resolver, const bool) const
       -> SchemaTransformRule::Result override {
-    using Known = Vocabularies::Known;
+    using Known = SchemaVocabularies::Known;
     // Technically, the `default` keyword goes back to Draft 1, but Blaze
     // only supports Draft 3 and later
     ONLY_CONTINUE_IF(

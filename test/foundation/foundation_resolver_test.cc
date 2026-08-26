@@ -10,7 +10,7 @@
         sourcemeta::blaze::schema_resolver(identifier)};                       \
     EXPECT_TRUE(result.has_value());                                           \
     const sourcemeta::core::JSON &document{result.value()};                    \
-    EXPECT_TRUE(sourcemeta::blaze::is_schema(document));                       \
+    EXPECT_TRUE((document.is_object() || document.is_boolean()));              \
     const auto id{sourcemeta::blaze::identify(                                 \
         document, sourcemeta::blaze::schema_resolver)};                        \
     EXPECT_EQ(sourcemeta::core::URI{id}.canonicalize().recompose(),            \
@@ -419,68 +419,68 @@ TEST(invalid) {
 }
 
 TEST(is_known_schema_2020_12_http) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft/2020-12/schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft/2020-12/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft/2020-12/hyper-schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft/2020-12/meta/applicator"));
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft/2020-12/meta/core"));
 }
 
 TEST(is_known_schema_2019_09_http) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft/2019-09/schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft/2019-09/schema#"));
 }
 
 TEST(is_known_schema_draft7_https) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft-07/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft-07/schema"));
 }
 
 TEST(is_known_schema_draft4_https) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft-04/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft-04/schema"));
 }
 
 TEST(is_known_schema_draft0_https) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft-00/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft-00/schema"));
 }
 
 TEST(is_known_schema_2020_12) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft/2020-12/schema"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://json-schema.org/draft/2020-12/schema")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft/2020-12/schema#"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://json-schema.org/draft/2020-12/schema#")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft/2020-12/hyper-schema"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://json-schema.org/draft/2020-12/hyper-schema")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft/2020-12/meta/applicator"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://json-schema.org/draft/2020-12/meta/applicator")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft/2020-12/meta/core"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://json-schema.org/draft/2020-12/meta/core")
@@ -488,12 +488,12 @@ TEST(is_known_schema_2020_12) {
 }
 
 TEST(is_known_schema_2019_09) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft/2019-09/schema"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://json-schema.org/draft/2019-09/schema")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://json-schema.org/draft/2019-09/schema#"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://json-schema.org/draft/2019-09/schema#")
@@ -501,12 +501,12 @@ TEST(is_known_schema_2019_09) {
 }
 
 TEST(is_known_schema_draft7) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft-07/schema#"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "http://json-schema.org/draft-07/schema#")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft-07/schema"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "http://json-schema.org/draft-07/schema")
@@ -514,12 +514,12 @@ TEST(is_known_schema_draft7) {
 }
 
 TEST(is_known_schema_draft4) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft-04/schema#"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "http://json-schema.org/draft-04/schema#")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft-04/schema"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "http://json-schema.org/draft-04/schema")
@@ -527,12 +527,12 @@ TEST(is_known_schema_draft4) {
 }
 
 TEST(is_known_schema_draft0) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft-00/schema#"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "http://json-schema.org/draft-00/schema#")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft-00/schema"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "http://json-schema.org/draft-00/schema")
@@ -540,12 +540,12 @@ TEST(is_known_schema_draft0) {
 }
 
 TEST(is_known_schema_openapi_3_1) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://spec.openapis.org/oas/3.1/dialect/base"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://spec.openapis.org/oas/3.1/dialect/base")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://spec.openapis.org/oas/3.1/meta/base"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://spec.openapis.org/oas/3.1/meta/base")
@@ -553,12 +553,12 @@ TEST(is_known_schema_openapi_3_1) {
 }
 
 TEST(is_known_schema_openapi_3_2) {
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://spec.openapis.org/oas/3.2/dialect/2025-09-17"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://spec.openapis.org/oas/3.2/dialect/2025-09-17")
                   .has_value());
-  EXPECT_TRUE(sourcemeta::blaze::is_known_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_known(
       "https://spec.openapis.org/oas/3.2/meta/2025-09-17"));
   EXPECT_TRUE(sourcemeta::blaze::schema_resolver(
                   "https://spec.openapis.org/oas/3.2/meta/2025-09-17")
@@ -567,12 +567,12 @@ TEST(is_known_schema_openapi_3_2) {
 
 TEST(is_known_schema_unknown) {
   EXPECT_FALSE(
-      sourcemeta::blaze::is_known_schema("https://example.com/foobar"));
+      sourcemeta::blaze::schema_is_known("https://example.com/foobar"));
   EXPECT_FALSE(sourcemeta::blaze::schema_resolver("https://example.com/foobar")
                    .has_value());
-  EXPECT_FALSE(sourcemeta::blaze::is_known_schema(""));
+  EXPECT_FALSE(sourcemeta::blaze::schema_is_known(""));
   EXPECT_FALSE(sourcemeta::blaze::schema_resolver("").has_value());
-  EXPECT_FALSE(sourcemeta::blaze::is_known_schema(
+  EXPECT_FALSE(sourcemeta::blaze::schema_is_known(
       "http://json-schema.org/draft-99/schema"));
   EXPECT_FALSE(sourcemeta::blaze::schema_resolver(
                    "http://json-schema.org/draft-99/schema")
@@ -580,160 +580,160 @@ TEST(is_known_schema_unknown) {
 }
 
 TEST(is_official_schema_2020_12) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft/2020-12/schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/hyper-schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/meta/applicator"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/meta/core"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/meta/format-annotation"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/meta/format-assertion"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/meta/hyper-schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/meta/meta-data"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/meta/unevaluated"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/meta/validation"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/links"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2020-12/output/schema"));
 }
 
 TEST(is_official_schema_2019_09) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft/2019-09/schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/hyper-schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/meta/applicator"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/meta/core"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/meta/format"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/meta/hyper-schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/meta/meta-data"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/meta/validation"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/links"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/output/schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft/2019-09/output/hyper-schema"));
 }
 
 TEST(is_official_schema_draft7) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-07/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-07/schema"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "https://json-schema.org/draft-07/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-07/hyper-schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-07/links#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-07/hyper-schema-output"));
 }
 
 TEST(is_official_schema_draft6) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-06/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-06/hyper-schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-06/links#"));
 }
 
 TEST(is_official_schema_draft4) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-04/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-04/hyper-schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-04/links#"));
 }
 
 TEST(is_official_schema_draft3) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-03/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-03/hyper-schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-03/links#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-03/json-ref#"));
 }
 
 TEST(is_official_schema_draft2) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-02/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-02/hyper-schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-02/links#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-02/json-ref#"));
 }
 
 TEST(is_official_schema_draft1) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-01/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-01/hyper-schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-01/links#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-01/json-ref#"));
 }
 
 TEST(is_official_schema_draft0) {
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-00/schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-00/hyper-schema#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-00/links#"));
-  EXPECT_TRUE(sourcemeta::blaze::is_official_schema(
+  EXPECT_TRUE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-00/json-ref#"));
 }
 
 TEST(is_official_schema_openapi_3_1) {
-  EXPECT_FALSE(sourcemeta::blaze::is_official_schema(
+  EXPECT_FALSE(sourcemeta::blaze::schema_is_official(
       "https://spec.openapis.org/oas/3.1/dialect/base"));
-  EXPECT_FALSE(sourcemeta::blaze::is_official_schema(
+  EXPECT_FALSE(sourcemeta::blaze::schema_is_official(
       "https://spec.openapis.org/oas/3.1/meta/base"));
 }
 
 TEST(is_official_schema_openapi_3_2) {
-  EXPECT_FALSE(sourcemeta::blaze::is_official_schema(
+  EXPECT_FALSE(sourcemeta::blaze::schema_is_official(
       "https://spec.openapis.org/oas/3.2/dialect/2025-09-17"));
-  EXPECT_FALSE(sourcemeta::blaze::is_official_schema(
+  EXPECT_FALSE(sourcemeta::blaze::schema_is_official(
       "https://spec.openapis.org/oas/3.2/meta/2025-09-17"));
 }
 
 TEST(is_official_schema_unknown) {
   EXPECT_FALSE(
-      sourcemeta::blaze::is_official_schema("https://example.com/foobar"));
-  EXPECT_FALSE(sourcemeta::blaze::is_official_schema(""));
-  EXPECT_FALSE(sourcemeta::blaze::is_official_schema(
+      sourcemeta::blaze::schema_is_official("https://example.com/foobar"));
+  EXPECT_FALSE(sourcemeta::blaze::schema_is_official(""));
+  EXPECT_FALSE(sourcemeta::blaze::schema_is_official(
       "http://json-schema.org/draft-99/schema"));
 }

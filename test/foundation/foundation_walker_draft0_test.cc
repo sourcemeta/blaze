@@ -7,11 +7,12 @@
 #include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_DRAFT0{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_DRAFT0{
     {"http://json-schema.org/draft-00/schema#", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_DRAFT0_HYPERSCHEMA{
-    {"http://json-schema.org/draft-00/hyper-schema#", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_DRAFT0_HYPERSCHEMA{
+        {"http://json-schema.org/draft-00/hyper-schema#", true}};
 
 TEST(schema) {
   using namespace sourcemeta::core;

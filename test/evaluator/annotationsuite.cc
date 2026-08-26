@@ -236,7 +236,7 @@ static auto register_tests(const std::string &suite_name,
     std::cerr << "-- Compiling " << category.str() << "\n";
     assert(entry.defines("schema"));
     const auto &schema{entry.at("schema")};
-    assert(sourcemeta::blaze::is_schema(schema));
+    assert((schema.is_object() || schema.is_boolean()));
 
     assert(entry.defines("tests"));
     assert(entry.at("tests").is_array());

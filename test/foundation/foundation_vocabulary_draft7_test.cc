@@ -34,8 +34,8 @@ TEST(schema) {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object"
   })JSON");
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(document, test_resolver)};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      test_vocabularies(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
 }
@@ -45,8 +45,8 @@ TEST(hyperschema) {
     "$schema": "http://json-schema.org/draft-07/hyper-schema#",
     "type": "object"
   })JSON");
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(document, test_resolver)};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      test_vocabularies(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7_Hyper);
 }
@@ -56,8 +56,8 @@ TEST(one_hop) {
     "$schema": "https://sourcemeta.com/one-hop",
     "type": "object"
   })JSON");
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(document, test_resolver)};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      test_vocabularies(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
 }
@@ -67,8 +67,8 @@ TEST(ignore_vocabulary) {
     "$schema": "https://sourcemeta.com/with-vocabulary",
     "type": "object"
   })JSON");
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(document, test_resolver)};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      test_vocabularies(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
 }

@@ -26,7 +26,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
                        const sourcemeta::blaze::DynamicContext &dynamic_context)
     -> sourcemeta::blaze::Instructions {
   using namespace sourcemeta::blaze;
-  assert(is_schema(schema_context.schema));
+  assert((schema_context.schema.is_object() ||
+          schema_context.schema.is_boolean()));
 
   // Handle boolean schemas earlier on, as nobody should be able to
   // override what these mean.
@@ -207,7 +208,7 @@ auto compile(const sourcemeta::core::JSON &schema,
              const sourcemeta::blaze::SchemaFrame &frame,
              const std::string_view entrypoint, const Mode mode,
              const std::optional<Tweaks> &tweaks) -> Template {
-  assert(is_schema(schema));
+  assert((schema.is_object() || schema.is_boolean()));
   const auto effective_tweaks{tweaks.value_or(Tweaks{})};
 
   const auto maybe_entrypoint_location{frame.traverse(entrypoint)};
@@ -356,7 +357,7 @@ auto compile(const sourcemeta::core::JSON &schema,
       sourcemeta::blaze::unevaluated(schema, frame, walker, resolver)};
 
   std::vector<InstructionExtra> instruction_extra;
-  std::vector<Vocabularies::URI> instruction_vocabularies;
+  std::vector<SchemaVocabularies::URI> instruction_vocabularies;
   const Context context{.root = schema,
                         .frame = frame,
                         .resources = std::move(resources),
@@ -510,7 +511,7 @@ auto compile(const sourcemeta::core::JSON &schema,
              const std::string_view default_id,
              const std::string_view entrypoint,
              const std::optional<Tweaks> &tweaks) -> Template {
-  assert(is_schema(schema));
+  assert((schema.is_object() || schema.is_boolean()));
 
   // Make sure the input schema is bundled, otherwise we won't be able to
   // resolve remote references here. Meta-schemas are not needed, as we
@@ -552,7 +553,7 @@ auto compile(const Context &context, const SchemaContext &schema_context,
   const auto &entry{context.frame.locations().at(
       {sourcemeta::blaze::SchemaReferenceType::Static, destination})};
   const auto &new_schema{get(context.root, entry.pointer)};
-  assert(is_schema(new_schema));
+  assert((new_schema.is_object() || new_schema.is_boolean()));
 
   const sourcemeta::core::WeakPointer destination_pointer{
       dynamic_context.keyword.empty()

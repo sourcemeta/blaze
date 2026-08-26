@@ -20,9 +20,11 @@ TEST(try_embedded_2020_12) {
     }
   })JSON")};
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto *metaschema{&frame.metaschema(sourcemeta::blaze::schema_resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema, &document.at("$defs").at("https://example.com/meta"));
@@ -57,9 +59,11 @@ TEST(try_embedded_definitions_2020_12) {
 
   // In 2019-09 and 2020-12, `definitions` is still supported
   // for backwards compatibility
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto *metaschema{&frame.metaschema(sourcemeta::blaze::schema_resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,
@@ -87,19 +91,14 @@ TEST(try_embedded_chain) {
     }
   })JSON")};
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta-a",
-      sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto *metaschema{&frame.metaschema(sourcemeta::blaze::schema_resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema, &document.at("$defs").at("https://example.com/meta-a"));
-
-  const auto *link{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta-b",
-      sourcemeta::blaze::schema_resolver)};
-
-  EXPECT_TRUE(link);
-  EXPECT_EQ(link, &document.at("$defs").at("https://example.com/meta-b"));
 }
 
 TEST(try_embedded_not_found) {
@@ -115,9 +114,14 @@ TEST(try_embedded_not_found) {
     }
   })JSON")};
 
-  EXPECT_FALSE(sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver));
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  }
 }
 
 TEST(try_embedded_no_containers) {
@@ -127,9 +131,14 @@ TEST(try_embedded_no_containers) {
     "type": "string"
   })JSON")};
 
-  EXPECT_FALSE(sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver));
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  }
 }
 
 TEST(try_embedded_relative_identifier) {
@@ -145,8 +154,14 @@ TEST(try_embedded_relative_identifier) {
     }
   })JSON")};
 
-  EXPECT_FALSE(sourcemeta::blaze::metaschema_try_embedded(
-      document, "meta", sourcemeta::blaze::schema_resolver));
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  }
 }
 
 TEST(try_embedded_wrong_container) {
@@ -162,9 +177,14 @@ TEST(try_embedded_wrong_container) {
     }
   })JSON")};
 
-  EXPECT_FALSE(sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver));
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  }
 }
 
 TEST(try_embedded_wrong_id_keyword) {
@@ -183,9 +203,14 @@ TEST(try_embedded_wrong_id_keyword) {
     }
   })JSON")};
 
-  EXPECT_FALSE(sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver));
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  }
 }
 
 TEST(try_embedded_self_descriptive) {
@@ -202,9 +227,10 @@ TEST(try_embedded_self_descriptive) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::metaschema_try_embedded(
-        document, "https://example.com/meta",
-        sourcemeta::blaze::schema_resolver);
+    sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Root};
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -231,9 +257,10 @@ TEST(try_embedded_cyclic) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::metaschema_try_embedded(
-        document, "https://example.com/meta-a",
-        sourcemeta::blaze::schema_resolver);
+    sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Root};
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -274,8 +301,10 @@ TEST(try_embedded_chain_intermediate_precedence) {
     return sourcemeta::blaze::schema_resolver(identifier);
   };
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta-a", resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+  const auto *metaschema{&frame.metaschema(resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema, &document.at("$defs").at("https://example.com/meta-a"));
@@ -322,8 +351,10 @@ TEST(try_embedded_chain_intermediate_precedence_cyclic) {
     return sourcemeta::blaze::schema_resolver(identifier);
   };
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta-a", resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+  const auto *metaschema{&frame.metaschema(resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema, &document.at("$defs").at("https://example.com/meta-a"));
@@ -370,8 +401,10 @@ TEST(try_embedded_chain_intermediate_precedence_base_dialect) {
     return sourcemeta::blaze::schema_resolver(identifier);
   };
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta-a", resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+  const auto *metaschema{&frame.metaschema(resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema, &document.at("$defs").at("https://example.com/meta-a"));
@@ -401,9 +434,11 @@ TEST(try_embedded_2019_09) {
     }
   })JSON")};
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto *metaschema{&frame.metaschema(sourcemeta::blaze::schema_resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema, &document.at("$defs").at("https://example.com/meta"));
@@ -433,9 +468,11 @@ TEST(try_embedded_draft7) {
     }
   })JSON")};
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto *metaschema{&frame.metaschema(sourcemeta::blaze::schema_resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,
@@ -463,9 +500,11 @@ TEST(try_embedded_draft6) {
     }
   })JSON")};
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto *metaschema{&frame.metaschema(sourcemeta::blaze::schema_resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,
@@ -493,9 +532,11 @@ TEST(try_embedded_draft4) {
     }
   })JSON")};
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto *metaschema{&frame.metaschema(sourcemeta::blaze::schema_resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,
@@ -523,9 +564,11 @@ TEST(try_embedded_draft3) {
     }
   })JSON")};
 
-  const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-      document, "https://example.com/meta",
-      sourcemeta::blaze::schema_resolver)};
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto *metaschema{&frame.metaschema(sourcemeta::blaze::schema_resolver)};
 
   EXPECT_TRUE(metaschema);
   EXPECT_EQ(metaschema,

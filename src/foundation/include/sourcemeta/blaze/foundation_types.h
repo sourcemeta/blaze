@@ -187,7 +187,7 @@ struct SchemaWalkerResult {
   /// The walker strategy to continue traversing across the schema
   SchemaKeywordType type;
   /// The vocabulary associated with the keyword, if any
-  std::optional<Vocabularies::URI> vocabulary;
+  std::optional<SchemaVocabularies::URI> vocabulary;
   /// The keywords a given keyword depends on (if any) during the evaluation
   /// process
   std::unordered_set<std::string_view> dependencies;
@@ -206,7 +206,7 @@ struct SchemaWalkerResult {
   ~SchemaWalkerResult() = default;
 
   SchemaWalkerResult(SchemaKeywordType type_,
-                     std::optional<Vocabularies::URI> vocabulary_,
+                     std::optional<SchemaVocabularies::URI> vocabulary_,
                      std::unordered_set<std::string_view> dependencies_,
                      std::unordered_set<std::string_view> order_dependencies_,
                      sourcemeta::core::JSON::TypeSet instances_)
@@ -223,7 +223,7 @@ struct SchemaWalkerResult {
 /// generic and flexible way that does not assume the use any vocabulary other
 /// than `core`, these functions take a walker function as argument.
 using SchemaWalker = std::function<const SchemaWalkerResult &(
-    std::string_view, const Vocabularies &)>;
+    std::string_view, const SchemaVocabularies &)>;
 
 } // namespace sourcemeta::blaze
 

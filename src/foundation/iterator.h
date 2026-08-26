@@ -22,7 +22,7 @@ struct SubschemaEntry {
   std::optional<sourcemeta::core::WeakPointer> parent;
   sourcemeta::core::WeakPointer pointer;
   std::string_view dialect;
-  Vocabularies vocabularies;
+  SchemaVocabularies vocabularies;
   std::optional<SchemaBaseDialect> base_dialect;
   std::reference_wrapper<const sourcemeta::core::JSON> subschema;
   bool orphan;

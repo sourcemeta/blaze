@@ -14,7 +14,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -42,7 +42,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -74,7 +74,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -108,7 +108,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -142,7 +142,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -170,7 +170,7 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::Vocabularies &,
+            const sourcemeta::blaze::SchemaVocabularies &,
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
@@ -196,7 +196,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -224,7 +224,7 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::Vocabularies &,
+            const sourcemeta::blaze::SchemaVocabularies &,
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
@@ -253,7 +253,7 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::Vocabularies &,
+            const sourcemeta::blaze::SchemaVocabularies &,
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &,
@@ -280,7 +280,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -309,7 +309,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -338,7 +338,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -361,7 +361,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -390,7 +390,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -427,7 +427,7 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::Vocabularies &,
+                               const sourcemeta::blaze::SchemaVocabularies &,
                                const sourcemeta::blaze::SchemaFrame &,
                                const sourcemeta::blaze::SchemaFrame::Location &,
                                const sourcemeta::blaze::SchemaWalker &,
@@ -456,7 +456,7 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::Vocabularies &vocabularies,
+            const sourcemeta::blaze::SchemaVocabularies &vocabularies,
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
@@ -466,12 +466,12 @@ public:
       return false;
     }
 
-    return vocabularies.contains(
-               sourcemeta::blaze::Vocabularies::Known::JSON_Schema_Draft_7) ||
-           vocabularies.contains(
-               sourcemeta::blaze::Vocabularies::Known::JSON_Schema_Draft_6) ||
-           vocabularies.contains(
-               sourcemeta::blaze::Vocabularies::Known::JSON_Schema_Draft_4);
+    return vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+                                     JSON_Schema_Draft_7) ||
+           vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+                                     JSON_Schema_Draft_6) ||
+           vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+                                     JSON_Schema_Draft_4);
   }
 
   auto transform(sourcemeta::core::JSON &schema,
@@ -493,7 +493,7 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::Vocabularies &vocabularies,
+            const sourcemeta::blaze::SchemaVocabularies &vocabularies,
             const sourcemeta::blaze::SchemaFrame &,
             const sourcemeta::blaze::SchemaFrame::Location &,
             const sourcemeta::blaze::SchemaWalker &,
@@ -503,9 +503,9 @@ public:
       return false;
     }
 
-    return vocabularies.contains(sourcemeta::blaze::Vocabularies::Known::
+    return vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
                                      JSON_Schema_2020_12_Core) ||
-           vocabularies.contains(sourcemeta::blaze::Vocabularies::Known::
+           vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
                                      JSON_Schema_2019_09_Core);
   }
 

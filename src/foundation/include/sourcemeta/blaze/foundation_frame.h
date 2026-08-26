@@ -207,9 +207,14 @@ public:
   /// Note that as with the meta-schemas that `analyse` found embedded in the
   /// document, what the first resolver reported for a given dialect is what
   /// every later call reports, whichever resolver they pass
+  /// Get the meta-schema of the analysed schema, preferring one embedded in
+  /// the document itself over what the resolver knows about
+  [[nodiscard]] auto metaschema(const SchemaResolver &resolver) const
+      -> const sourcemeta::core::JSON &;
+
   [[nodiscard]] auto vocabularies(const Location &location,
                                   const SchemaResolver &resolver) const
-      -> const Vocabularies &;
+      -> const SchemaVocabularies &;
 
   /// Get the URI associated with a location entry
   [[nodiscard]] auto
@@ -322,14 +327,19 @@ private:
   std::unordered_map<sourcemeta::core::JSON::String,
                      const sourcemeta::core::JSON *>
       probed_metaschemas_;
-  // Vocabularies are a function of the base dialect and dialect alone, and a
-  // schema only tends to make use of a handful of those. We own the dialect
-  // that we key on, as the view that the location holds may point into a
-  // default dialect that the caller of `analyse` only kept around for the
+  // Meta-schemas that the resolver produced, which we must own to hand out
+  // references to. A map, as handing out those references means they have to
+  // survive later insertions
+  mutable std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON>
+      metaschemas_;
+  // SchemaVocabularies are a function of the base dialect and dialect alone,
+  // and a schema only tends to make use of a handful of those. We own the
+  // dialect that we key on, as the view that the location holds may point into
+  // a default dialect that the caller of `analyse` only kept around for the
   // duration of that call. A deque, as handing out references to the
   // vocabularies means they must survive later insertions
-  mutable std::deque<std::tuple<SchemaBaseDialect,
-                                sourcemeta::core::JSON::String, Vocabularies>>
+  mutable std::deque<std::tuple<
+      SchemaBaseDialect, sourcemeta::core::JSON::String, SchemaVocabularies>>
       vocabularies_;
   mutable std::unordered_map<
       std::reference_wrapper<const sourcemeta::core::WeakPointer>,

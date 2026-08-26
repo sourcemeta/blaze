@@ -79,7 +79,7 @@ auto run_referencing_test(const sourcemeta::core::JSON &suite,
   EXPECT_TRUE(suite.defines("registry"));
   EXPECT_TRUE(suite.at("registry").is_object());
   for (const auto &entry : suite.at("registry").as_object()) {
-    assert(sourcemeta::blaze::is_schema(entry.second));
+    assert((entry.second.is_object() || entry.second.is_boolean()));
     registry.insert({entry.first, {entry.second, entry.first}});
   }
 

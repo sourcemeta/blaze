@@ -4,15 +4,15 @@
 
 #include "foundation_test_utils.h"
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_OPENAPI_3_1{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_OPENAPI_3_1{
     {"https://json-schema.org/draft/2020-12/vocab/core", true},
     {"https://spec.openapis.org/oas/3.1/vocab/base", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_OPENAPI_3_2{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_OPENAPI_3_2{
     {"https://json-schema.org/draft/2020-12/vocab/core", true},
     {"https://spec.openapis.org/oas/3.2/vocab/base", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_CORE{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2020_12_CORE{
     {"https://json-schema.org/draft/2020-12/vocab/core", true}};
 
 TEST(openapi_3_1_discriminator) {
