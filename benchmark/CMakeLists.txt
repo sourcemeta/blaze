@@ -1,11 +1,7 @@
 set(BENCHMARK_SOURCES)
 
 if(BLAZE_FOUNDATION)
-  list(APPEND BENCHMARK_SOURCES foundation.cc)
-endif()
-
-if(BLAZE_FRAME)
-  list(APPEND BENCHMARK_SOURCES frame.cc)
+  list(APPEND BENCHMARK_SOURCES foundation.cc frame.cc)
 endif()
 
 if(BLAZE_BUNDLE)
@@ -73,10 +69,6 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_FOUNDATION)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::foundation)
-  endif()
-  if(BLAZE_FRAME)
-    target_link_libraries(sourcemeta_blaze_benchmark
-      PRIVATE sourcemeta::blaze::frame)
   endif()
   if(BLAZE_BUNDLE)
     target_link_libraries(sourcemeta_blaze_benchmark

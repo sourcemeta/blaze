@@ -1,7 +1,7 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/frame.h>
+#include <sourcemeta/blaze/foundation.h>
 
 #include "compiler_test_utils.h"
 

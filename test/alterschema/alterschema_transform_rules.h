@@ -3,7 +3,6 @@
 
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/foundation.h>
-#include <sourcemeta/blaze/frame.h>
 
 class ExampleRule1 final : public sourcemeta::blaze::SchemaTransformRule {
 public:

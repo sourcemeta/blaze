@@ -1,5 +1,5 @@
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/frame.h>
+#include <sourcemeta/blaze/foundation.h>
 
 #include "compile_helpers.h"
 

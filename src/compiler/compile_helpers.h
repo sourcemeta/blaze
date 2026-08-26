@@ -2,7 +2,7 @@
 #define SOURCEMETA_BLAZE_COMPILER_COMPILE_HELPERS_H_
 
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/frame.h>
+#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/uri.h>
 
 #include <algorithm>  // std::ranges::find, std::ranges::any_of

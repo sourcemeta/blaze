@@ -3,7 +3,6 @@
 #include <sourcemeta/blaze/codegen.h>
 
 #include <sourcemeta/blaze/foundation.h>
-#include <sourcemeta/blaze/frame.h>
 
 TEST(nested_additional_properties_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({

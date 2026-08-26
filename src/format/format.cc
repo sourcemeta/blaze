@@ -1,7 +1,6 @@
 #include <sourcemeta/blaze/format.h>
 
 #include <sourcemeta/blaze/foundation.h>
-#include <sourcemeta/blaze/frame.h>
 
 #include <cstdint>       // std::uint64_t
 #include <limits>        // std::numeric_limits

@@ -1,24 +1,14 @@
-#ifndef SOURCEMETA_BLAZE_FRAME_H_
-#define SOURCEMETA_BLAZE_FRAME_H_
+#ifndef SOURCEMETA_BLAZE_FOUNDATION_FRAME_H_
+#define SOURCEMETA_BLAZE_FOUNDATION_FRAME_H_
 
-/// @defgroup frame Frame
-/// @brief A static analysis pass that maps URIs and pointers to subschemas.
-///
-/// This functionality is included as follows:
-///
-/// ```cpp
-/// #include <sourcemeta/blaze/frame.h>
-/// ```
-
-#ifndef SOURCEMETA_BLAZE_FRAME_EXPORT
-#include <sourcemeta/blaze/frame_export.h>
+#ifndef SOURCEMETA_BLAZE_FOUNDATION_EXPORT
+#include <sourcemeta/blaze/foundation_export.h>
 #endif
 
 // NOLINTBEGIN(misc-include-cleaner)
-#include <sourcemeta/blaze/frame_error.h>
+#include <sourcemeta/blaze/foundation_error.h>
+#include <sourcemeta/blaze/foundation_types.h>
 // NOLINTEND(misc-include-cleaner)
-
-#include <sourcemeta/blaze/foundation.h>
 
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
@@ -38,7 +28,7 @@
 
 namespace sourcemeta::blaze {
 
-/// @ingroup frame
+/// @ingroup foundation
 ///
 /// This class performs a static analysis pass on the input schema, computing
 /// things such as the static identifiers and references of a schema.
@@ -68,7 +58,7 @@ namespace sourcemeta::blaze {
 ///   sourcemeta::blaze::schema_walker,
 ///   sourcemeta::blaze::schema_resolver);
 /// ```
-class SOURCEMETA_BLAZE_FRAME_EXPORT SchemaFrame {
+class SOURCEMETA_BLAZE_FOUNDATION_EXPORT SchemaFrame {
 public:
   /// The mode of framing. More extensive analysis can be compute and memory
   /// intensive. Each mode is a superset of the previous one. Note that
@@ -124,7 +114,7 @@ public:
 // definition), can shadow an alias defined even on a different namespace.
 #pragma GCC diagnostic ignored "-Wshadow"
 #endif
-  /// @ingroup frame
+  /// @ingroup foundation
   /// The type of a location frame
   enum class LocationType : std::uint8_t {
     Resource,

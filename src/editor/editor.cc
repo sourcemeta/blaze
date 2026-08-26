@@ -1,6 +1,6 @@
 #include <sourcemeta/blaze/editor.h>
 
-#include <sourcemeta/blaze/frame.h>
+#include <sourcemeta/blaze/foundation.h>
 
 #include "helpers.h"
 

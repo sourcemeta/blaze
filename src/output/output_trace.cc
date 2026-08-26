@@ -1,7 +1,5 @@
-#include <sourcemeta/blaze/frame.h>
-#include <sourcemeta/blaze/output_trace.h>
-
 #include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/blaze/output_trace.h>
 
 #include <utility> // std::move, std::to_underlying
 #include <variant> // std::visit
