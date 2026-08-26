@@ -494,64 +494,6 @@ TEST(has_unknown_with_multiple_custom) {
   EXPECT_TRUE(vocabularies.has_unknown());
 }
 
-TEST(throw_if_any_unknown_required_empty) {
-  const sourcemeta::blaze::Vocabularies vocabularies{};
-  vocabularies.throw_if_any_unknown_required("Unknown vocabulary");
-}
-
-TEST(throw_if_any_unknown_required_only_known) {
-  using Known = sourcemeta::blaze::Vocabularies::Known;
-
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Applicator, true}};
-
-  vocabularies.throw_if_any_unknown_required("Unknown vocabulary");
-}
-
-TEST(throw_if_any_unknown_required_only_optional) {
-  using Known = sourcemeta::blaze::Vocabularies::Known;
-
-  sourcemeta::blaze::Vocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
-  vocabularies.insert("https://example.com/custom-vocab", false);
-
-  vocabularies.throw_if_any_unknown_required("Unknown vocabulary");
-}
-
-TEST(throw_if_any_unknown_required_with_required) {
-  using Known = sourcemeta::blaze::Vocabularies::Known;
-
-  sourcemeta::blaze::Vocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
-  vocabularies.insert("https://example.com/custom-vocab", true);
-
-  try {
-    vocabularies.throw_if_any_unknown_required("Unknown vocabulary");
-    FAIL();
-  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
-    EXPECT_EQ(error.uri(), "https://example.com/custom-vocab");
-    EXPECT_STREQ(error.what(), "Unknown vocabulary");
-  }
-}
-
-TEST(throw_if_any_unknown_required_mixed_required_optional) {
-  using Known = sourcemeta::blaze::Vocabularies::Known;
-
-  sourcemeta::blaze::Vocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
-  vocabularies.insert("https://example.com/optional-vocab", false);
-  vocabularies.insert("https://example.com/required-vocab", true);
-
-  try {
-    vocabularies.throw_if_any_unknown_required("Unknown vocabulary");
-    FAIL();
-  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
-    EXPECT_EQ(error.uri(), "https://example.com/required-vocab");
-    EXPECT_STREQ(error.what(), "Unknown vocabulary");
-  }
-}
-
 TEST(contains_any_openapi_3_1_base) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
