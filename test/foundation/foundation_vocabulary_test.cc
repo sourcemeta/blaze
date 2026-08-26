@@ -1,6 +1,8 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/foundation.h>
+
+#include <format> // std::format
 #include <sourcemeta/core/json.h>
 
 #include "foundation_test_utils.h"
@@ -405,37 +407,36 @@ TEST(uri_to_string_custom_variant) {
   EXPECT_EQ(stream.str(), "https://example.com/custom-vocab");
 }
 
-TEST(to_string_known) {
+TEST(format_known) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
 
-  EXPECT_EQ(sourcemeta::blaze::to_string(Known::JSON_Schema_2020_12_Core),
+  EXPECT_EQ(std::format("{}", Known::JSON_Schema_2020_12_Core),
             "https://json-schema.org/draft/2020-12/vocab/core");
-  EXPECT_EQ(sourcemeta::blaze::to_string(Known::JSON_Schema_2019_09_Applicator),
+  EXPECT_EQ(std::format("{}", Known::JSON_Schema_2019_09_Applicator),
             "https://json-schema.org/draft/2019-09/vocab/applicator");
-  EXPECT_EQ(sourcemeta::blaze::to_string(Known::JSON_Schema_Draft_7),
+  EXPECT_EQ(std::format("{}", Known::JSON_Schema_Draft_7),
             "http://json-schema.org/draft-07/schema#");
-  EXPECT_EQ(sourcemeta::blaze::to_string(Known::OpenAPI_3_1_Base),
+  EXPECT_EQ(std::format("{}", Known::OpenAPI_3_1_Base),
             "https://spec.openapis.org/oas/3.1/vocab/base");
-  EXPECT_EQ(sourcemeta::blaze::to_string(Known::OpenAPI_3_2_Base),
+  EXPECT_EQ(std::format("{}", Known::OpenAPI_3_2_Base),
             "https://spec.openapis.org/oas/3.2/vocab/base");
 }
 
-TEST(to_string_uri_known_variant) {
+TEST(format_uri_known_variant) {
   using Known = sourcemeta::blaze::Vocabularies::Known;
   using URI = sourcemeta::blaze::Vocabularies::URI;
 
   const URI vocabulary{Known::JSON_Schema_2020_12_Validation};
-  EXPECT_EQ(sourcemeta::blaze::to_string(vocabulary),
+  EXPECT_EQ(std::format("{}", vocabulary),
             "https://json-schema.org/draft/2020-12/vocab/validation");
 }
 
-TEST(to_string_uri_custom_variant) {
+TEST(format_uri_custom_variant) {
   using URI = sourcemeta::blaze::Vocabularies::URI;
 
   const URI vocabulary{
       sourcemeta::core::JSON::String{"https://example.com/my-vocab"}};
-  EXPECT_EQ(sourcemeta::blaze::to_string(vocabulary),
-            "https://example.com/my-vocab");
+  EXPECT_EQ(std::format("{}", vocabulary), "https://example.com/my-vocab");
 }
 
 TEST(has_unknown_empty_vocabularies) {

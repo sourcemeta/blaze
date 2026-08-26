@@ -162,14 +162,6 @@ SOURCEMETA_BLAZE_FOUNDATION_EXPORT auto
 operator<<(std::ostream &stream, const Vocabularies::URI &vocabulary)
     -> std::ostream &;
 
-/// Stringify a known vocabulary to a string
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT auto
-to_string(Vocabularies::Known vocabulary) -> std::string_view;
-
-/// Stringify a vocabulary URI to a string
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT auto
-to_string(const Vocabularies::URI &vocabulary) -> std::string_view;
-
 } // namespace sourcemeta::blaze
 
 template <> struct std::formatter<sourcemeta::blaze::Vocabularies::Known> {

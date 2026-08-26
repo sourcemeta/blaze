@@ -506,7 +506,7 @@ auto SchemaFrame::to_json(
                        location.second.dialect}});
     entry.assign_assume_new(
         "baseDialect", sourcemeta::core::JSON{sourcemeta::core::JSON::String{
-                           to_string(location.second.base_dialect)}});
+                           base_dialect_uri(location.second.base_dialect)}});
     entry.assign_assume_new(
         "propertyName", sourcemeta::core::JSON{location.second.property_name});
     entry.assign_assume_new("orphan",

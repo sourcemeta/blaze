@@ -16,6 +16,10 @@
 
 namespace sourcemeta::blaze {
 
+auto base_dialect_uri(const SchemaBaseDialect base_dialect) -> std::string_view;
+auto vocabulary_uri(Vocabularies::Known vocabulary) -> std::string_view;
+auto vocabulary_uri(const Vocabularies::URI &vocabulary) -> std::string_view;
+
 inline auto id_keyword(const SchemaBaseDialect base_dialect)
     -> std::string_view {
   switch (base_dialect) {
