@@ -53,11 +53,6 @@ auto schema_walker(const std::string_view keyword,
     -> const SchemaWalkerResult &;
 
 /// @ingroup foundation
-/// Stringify a base dialect to its URI
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT
-auto to_string(const SchemaBaseDialect base_dialect) -> std::string_view;
-
-/// @ingroup foundation
 /// Parse a base dialect URI to its enum representation
 SOURCEMETA_BLAZE_FOUNDATION_EXPORT
 auto to_base_dialect(const std::string_view base_dialect)

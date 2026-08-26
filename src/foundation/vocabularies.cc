@@ -1,5 +1,7 @@
 #include <sourcemeta/blaze/foundation_vocabularies.h>
 
+#include "helpers.h"
+
 #include <sourcemeta/blaze/foundation_error.h>
 
 #include <cassert>  // assert
@@ -229,22 +231,10 @@ auto sourcemeta::blaze::Vocabularies::has_unknown() const noexcept -> bool {
 auto sourcemeta::blaze::operator<<(std::ostream &stream,
                                    Vocabularies::Known vocabulary)
     -> std::ostream & {
-  switch (vocabulary) {
-// NOLINTNEXTLINE(bugprone-macro-parentheses)
-#define X_ENUM_TO_URI(enumerator, uri_string)                                  \
-  case Vocabularies::Known::enumerator:                                        \
-    return stream << (uri_string);
-
-    SOURCEMETA_VOCABULARIES_X(X_ENUM_TO_URI)
-
-#undef X_ENUM_TO_URI
-  }
-
-  assert(false);
-  return stream;
+  return stream << vocabulary_uri(vocabulary);
 }
 
-auto sourcemeta::blaze::to_string(Vocabularies::Known vocabulary)
+auto sourcemeta::blaze::vocabulary_uri(Vocabularies::Known vocabulary)
     -> std::string_view {
   switch (vocabulary) {
 // NOLINTNEXTLINE(bugprone-macro-parentheses)
@@ -261,11 +251,11 @@ auto sourcemeta::blaze::to_string(Vocabularies::Known vocabulary)
   return {};
 }
 
-auto sourcemeta::blaze::to_string(const Vocabularies::URI &vocabulary)
+auto sourcemeta::blaze::vocabulary_uri(const Vocabularies::URI &vocabulary)
     -> std::string_view {
   const auto *known{std::get_if<Vocabularies::Known>(&vocabulary)};
   if (known) {
-    return to_string(*known);
+    return vocabulary_uri(*known);
   } else {
     return *std::get_if<sourcemeta::core::JSON::String>(&vocabulary);
   }
@@ -274,7 +264,7 @@ auto sourcemeta::blaze::to_string(const Vocabularies::URI &vocabulary)
 auto sourcemeta::blaze::operator<<(std::ostream &stream,
                                    const Vocabularies::URI &vocabulary)
     -> std::ostream & {
-  return stream << to_string(vocabulary);
+  return stream << vocabulary_uri(vocabulary);
 }
 
 auto sourcemeta::blaze::Vocabularies::throw_if_any_unsupported(

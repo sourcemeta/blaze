@@ -3,6 +3,9 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
+#include <format>  // std::format
+#include <sstream> // std::ostringstream
+
 static auto test_resolver(std::string_view identifier)
     -> std::optional<sourcemeta::core::JSON> {
   if (identifier == "https://sourcemeta.com/metaschema_1") {
@@ -313,101 +316,116 @@ TEST(override_unresolvable_throws) {
   }
 }
 
-TEST(to_string_2020_12) {
-  EXPECT_EQ(sourcemeta::blaze::to_string(
-                sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12),
-            "https://json-schema.org/draft/2020-12/schema");
+TEST(format_2020_12) {
+  EXPECT_EQ(
+      std::format("{}",
+                  sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12),
+      "https://json-schema.org/draft/2020-12/schema");
 }
 
-TEST(to_string_2020_12_hyper) {
+TEST(format_2020_12_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12_Hyper),
       "https://json-schema.org/draft/2020-12/hyper-schema");
 }
 
-TEST(to_string_2019_09) {
-  EXPECT_EQ(sourcemeta::blaze::to_string(
-                sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09),
-            "https://json-schema.org/draft/2019-09/schema");
+TEST(format_2019_09) {
+  EXPECT_EQ(
+      std::format("{}",
+                  sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09),
+      "https://json-schema.org/draft/2019-09/schema");
 }
 
-TEST(to_string_2019_09_hyper) {
+TEST(format_2019_09_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09_Hyper),
       "https://json-schema.org/draft/2019-09/hyper-schema");
 }
 
-TEST(to_string_draft7) {
-  EXPECT_EQ(sourcemeta::blaze::to_string(
-                sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7),
-            "http://json-schema.org/draft-07/schema#");
+TEST(format_draft7) {
+  EXPECT_EQ(
+      std::format("{}",
+                  sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7),
+      "http://json-schema.org/draft-07/schema#");
 }
 
-TEST(to_string_draft7_hyper) {
+TEST(format_draft7_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7_Hyper),
       "http://json-schema.org/draft-07/hyper-schema#");
 }
 
-TEST(to_string_draft6) {
-  EXPECT_EQ(sourcemeta::blaze::to_string(
-                sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6),
-            "http://json-schema.org/draft-06/schema#");
+TEST(format_draft6) {
+  EXPECT_EQ(
+      std::format("{}",
+                  sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6),
+      "http://json-schema.org/draft-06/schema#");
 }
 
-TEST(to_string_draft6_hyper) {
+TEST(format_draft6_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6_Hyper),
       "http://json-schema.org/draft-06/hyper-schema#");
 }
 
-TEST(to_string_draft4) {
-  EXPECT_EQ(sourcemeta::blaze::to_string(
-                sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4),
-            "http://json-schema.org/draft-04/schema#");
+TEST(format_draft4) {
+  EXPECT_EQ(
+      std::format("{}",
+                  sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4),
+      "http://json-schema.org/draft-04/schema#");
 }
 
-TEST(to_string_draft4_hyper) {
+TEST(format_draft4_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4_Hyper),
       "http://json-schema.org/draft-04/hyper-schema#");
 }
 
-TEST(to_string_draft3) {
-  EXPECT_EQ(sourcemeta::blaze::to_string(
-                sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3),
-            "http://json-schema.org/draft-03/schema#");
+TEST(format_draft3) {
+  EXPECT_EQ(
+      std::format("{}",
+                  sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3),
+      "http://json-schema.org/draft-03/schema#");
 }
 
-TEST(to_string_draft3_hyper) {
+TEST(format_draft3_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3_Hyper),
       "http://json-schema.org/draft-03/hyper-schema#");
 }
 
-TEST(to_string_draft2_hyper) {
+TEST(format_draft2_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_2_Hyper),
       "http://json-schema.org/draft-02/hyper-schema#");
 }
 
-TEST(to_string_draft1_hyper) {
+TEST(format_draft1_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_1_Hyper),
       "http://json-schema.org/draft-01/hyper-schema#");
 }
 
-TEST(to_string_draft0_hyper) {
+TEST(format_draft0_hyper) {
   EXPECT_EQ(
-      sourcemeta::blaze::to_string(
+      std::format(
+          "{}",
           sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_0_Hyper),
       "http://json-schema.org/draft-00/hyper-schema#");
 }
@@ -1180,4 +1198,16 @@ TEST(embedded_custom_metaschema_draft3) {
   EXPECT_TRUE(base_dialect.has_value());
   EXPECT_EQ(base_dialect.value(),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3);
+}
+
+TEST(stream_2020_12) {
+  std::ostringstream stream;
+  stream << sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12;
+  EXPECT_EQ(stream.str(), "https://json-schema.org/draft/2020-12/schema");
+}
+
+TEST(stream_draft4_hyper) {
+  std::ostringstream stream;
+  stream << sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4_Hyper;
+  EXPECT_EQ(stream.str(), "http://json-schema.org/draft-04/hyper-schema#");
 }

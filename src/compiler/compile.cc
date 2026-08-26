@@ -5,6 +5,7 @@
 
 #include <algorithm> // std::move, std::sort, std::unique
 #include <cassert>   // assert
+#include <format>    // std::format
 // TODO(C++23): Consider std::flat_map/std::flat_set when available in libc++
 #include <map>           // std::map
 #include <set>           // std::set
@@ -355,7 +356,7 @@ auto compile(const sourcemeta::core::JSON &schema,
       sourcemeta::blaze::unevaluated(schema, frame, walker, resolver)};
 
   std::vector<InstructionExtra> instruction_extra;
-  std::vector<std::string> instruction_vocabularies;
+  std::vector<Vocabularies::URI> instruction_vocabularies;
   const Context context{.root = schema,
                         .frame = frame,
                         .resources = std::move(resources),
@@ -476,6 +477,14 @@ auto compile(const sourcemeta::core::JSON &schema,
   // (8) Return final template
   ///////////////////////////////////////////////////////////////////
 
+  // The template stores vocabularies as plain strings, as the evaluator does
+  // not otherwise depend on the schema machinery
+  std::vector<std::string> template_vocabularies;
+  template_vocabularies.reserve(instruction_vocabularies.size());
+  for (const auto &vocabulary : instruction_vocabularies) {
+    template_vocabularies.push_back(std::format("{}", vocabulary));
+  }
+
   const bool track{
       context.mode != Mode::FastValidation ||
       requires_evaluation(context, entrypoint_location.pointer) ||
@@ -490,7 +499,7 @@ auto compile(const sourcemeta::core::JSON &schema,
           .targets = std::move(compiled_targets),
           .labels = std::move(labels_map),
           .extra = std::move(instruction_extra),
-          .vocabularies = std::move(instruction_vocabularies)};
+          .vocabularies = std::move(template_vocabularies)};
 }
 
 auto compile(const sourcemeta::core::JSON &schema,

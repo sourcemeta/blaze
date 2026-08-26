@@ -21,7 +21,7 @@ auto sourcemeta::blaze::is_empty_schema(const sourcemeta::core::JSON &schema)
          (schema.is_object() && schema.empty());
 }
 
-auto sourcemeta::blaze::to_string(const SchemaBaseDialect base_dialect)
+auto sourcemeta::blaze::base_dialect_uri(const SchemaBaseDialect base_dialect)
     -> std::string_view {
   switch (base_dialect) {
     case SchemaBaseDialect::JSON_Schema_2020_12:
@@ -58,6 +58,12 @@ auto sourcemeta::blaze::to_string(const SchemaBaseDialect base_dialect)
 
   assert(false);
   return {};
+}
+
+auto sourcemeta::blaze::operator<<(std::ostream &stream,
+                                   const SchemaBaseDialect base_dialect)
+    -> std::ostream & {
+  return stream << base_dialect_uri(base_dialect);
 }
 
 auto sourcemeta::blaze::to_base_dialect(const std::string_view base_dialect)
@@ -639,7 +645,7 @@ auto sourcemeta::blaze::vocabularies(const SchemaResolver &resolver,
                                      const SchemaBaseDialect base_dialect,
                                      std::string_view dialect)
     -> sourcemeta::blaze::Vocabularies {
-  const auto base_dialect_string{to_string(base_dialect)};
+  const auto base_dialect_string{base_dialect_uri(base_dialect)};
   // As a performance optimization shortcut
   if (base_dialect_string == dialect ||
       to_base_dialect(dialect) == base_dialect) {

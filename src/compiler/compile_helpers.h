@@ -73,7 +73,7 @@ inline auto schema_resource_id(const std::vector<std::string> &resources,
 
 // Intern the vocabulary that owns a keyword, as an index into
 // Template::vocabularies where zero means the keyword has none
-inline auto vocabulary_intern(std::vector<std::string> &vocabularies,
+inline auto vocabulary_intern(std::vector<Vocabularies::URI> &vocabularies,
                               const sourcemeta::blaze::SchemaWalker &walker,
                               const std::string_view keyword,
                               const sourcemeta::blaze::Vocabularies &active)
@@ -83,10 +83,12 @@ inline auto vocabulary_intern(std::vector<std::string> &vocabularies,
     return 0;
   }
 
-  const auto uri{sourcemeta::blaze::to_string(result.vocabulary.value())};
-  const auto iterator{std::ranges::find(vocabularies, uri)};
+  // Intern on the vocabulary itself rather than on its string form, as the
+  // known ones are a single byte and comparing them allocates nothing
+  const auto iterator{
+      std::ranges::find(vocabularies, result.vocabulary.value())};
   if (iterator == vocabularies.end()) {
-    vocabularies.emplace_back(uri);
+    vocabularies.push_back(result.vocabulary.value());
     return vocabularies.size();
   }
 
@@ -94,7 +96,7 @@ inline auto vocabulary_intern(std::vector<std::string> &vocabularies,
                  std::distance(vocabularies.begin(), iterator));
 }
 
-inline auto vocabulary_id(std::vector<std::string> &vocabularies,
+inline auto vocabulary_id(std::vector<Vocabularies::URI> &vocabularies,
                           const sourcemeta::blaze::SchemaFrame &frame,
                           const sourcemeta::blaze::SchemaWalker &walker,
                           const std::string_view keyword,
@@ -130,20 +132,8 @@ inline auto vocabulary_id(std::vector<std::string> &vocabularies,
     return 0;
   }
 
-  const auto &result{walker(relative_pointer.back().to_property(), active)};
-  if (!result.vocabulary.has_value()) {
-    return 0;
-  }
-
-  const auto uri{sourcemeta::blaze::to_string(result.vocabulary.value())};
-  const auto iterator{std::ranges::find(vocabularies, uri)};
-  if (iterator == vocabularies.end()) {
-    vocabularies.emplace_back(uri);
-    return vocabularies.size();
-  }
-
-  return 1 + static_cast<std::size_t>(
-                 std::distance(vocabularies.begin(), iterator));
+  return vocabulary_intern(vocabularies, walker,
+                           relative_pointer.back().to_property(), active);
 }
 
 // Instantiate a value-oriented step with a custom resource
