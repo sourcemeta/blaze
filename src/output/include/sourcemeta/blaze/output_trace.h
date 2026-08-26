@@ -111,13 +111,6 @@ public:
               sourcemeta::blaze::SchemaResolver resolver, Callback callback,
               sourcemeta::core::WeakPointer base, FrameResolverJSON frames);
 
-  /// Answer out of a single exported set of locations, no matter the schema
-  /// that is being asked about. A keyword location that the given export does
-  /// not know about goes unanswered, the same way that a live schema frame
-  /// that cannot traverse to it does
-  [[nodiscard]] static auto frames(const sourcemeta::core::JSON &locations)
-      -> FrameResolverJSON;
-
   // Prevent accidental copies
   TraceOutput(const TraceOutput &) = delete;
   auto operator=(const TraceOutput &) -> TraceOutput & = delete;

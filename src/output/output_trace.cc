@@ -47,10 +47,18 @@ static auto try_vocabulary_from_export(
     return {false, std::nullopt};
   }
 
-  const auto vocabularies{sourcemeta::blaze::vocabularies(
-      resolver, base_dialect.value(), entry.at("dialect").to_string())};
-  const auto &result{walker(evaluate_path.back().to_property(), vocabularies)};
-  return {true, result.vocabulary};
+  // An export can name a dialect that the caller's resolver knows nothing
+  // about, as it may have been produced elsewhere. Treat that as not knowing
+  // the vocabulary, like every other case we cannot make sense of
+  try {
+    const auto vocabularies{sourcemeta::blaze::vocabularies(
+        resolver, base_dialect.value(), entry.at("dialect").to_string())};
+    const auto &result{
+        walker(evaluate_path.back().to_property(), vocabularies)};
+    return {true, result.vocabulary};
+  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+    return {false, std::nullopt};
+  }
 }
 
 static auto try_vocabulary(
@@ -104,15 +112,6 @@ TraceOutput::TraceOutput(sourcemeta::blaze::SchemaWalker walker,
     : walker_{std::move(walker)}, resolver_{std::move(resolver)},
       base_{std::move(base)}, frame_{std::nullopt}, frames_{std::move(frames)},
       callback_{std::move(callback)} {}
-
-auto TraceOutput::frames(const sourcemeta::core::JSON &locations)
-    -> FrameResolverJSON {
-  return [&locations](const std::string_view)
-             -> std::optional<
-                 std::reference_wrapper<const sourcemeta::core::JSON>> {
-    return std::cref(locations);
-  };
-}
 
 auto TraceOutput::operator()(
     const EvaluationType type, const bool result, const Instruction &step,
