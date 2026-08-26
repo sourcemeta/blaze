@@ -61,12 +61,7 @@ namespace sourcemeta::blaze {
 /// ```
 class SOURCEMETA_BLAZE_OUTPUT_EXPORT TraceOutput {
 public:
-  /// The kind of entry being reported. Note that an entry of type
-  /// sourcemeta::blaze::TraceOutput::EntryType::Annotation always corresponds
-  /// to a successful step, as the evaluator reports annotations as valid by
-  /// construction. Every other type maps to validity as you would expect,
-  /// which is how a consumer recovers what
-  /// sourcemeta::blaze::describe expects
+  /// The kind of entry being reported. Annotations are always valid
   enum class EntryType : std::uint8_t { Push, Pass, Fail, Annotation };
 
   // NOLINTNEXTLINE(bugprone-exception-escape)
@@ -74,8 +69,7 @@ public:
     // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members)
     const EntryType type;
     const std::string_view name;
-    /// The instruction that produced this entry, for describing it with
-    /// sourcemeta::blaze::describe or with a describer of your own
+    /// The instruction that produced this entry
     const Instruction &step;
     const sourcemeta::core::WeakPointer &instance_location;
     const sourcemeta::core::WeakPointer &evaluate_path;
@@ -89,11 +83,7 @@ public:
   // TODO(C++23): Use std::move_only_function when available in libc++
   using Callback = std::function<void(const Entry &)>;
 
-  /// Answer with the previously exported locations of a schema, given its
-  /// identifier. Tracing may cross into schemas other than the one it started
-  /// from, so this is how it asks about them without having to analyse
-  /// anything. The expected value is the `locations` member of what
-  /// sourcemeta::blaze::SchemaFrame::to_json produces
+  /// Given a schema identifier, answer with its previously exported locations
   using FrameResolverJSON = std::function<std::optional<
       std::reference_wrapper<const sourcemeta::core::JSON>>(std::string_view)>;
 
@@ -105,8 +95,7 @@ public:
           std::reference_wrapper<const sourcemeta::blaze::SchemaFrame>> &frame =
           std::nullopt);
 
-  /// Report vocabularies out of previously exported frames, for callers that
-  /// hold those rather than a live schema frame
+  /// Report vocabularies out of previously exported frames
   TraceOutput(sourcemeta::blaze::SchemaWalker walker,
               sourcemeta::blaze::SchemaResolver resolver, Callback callback,
               sourcemeta::core::WeakPointer base, FrameResolverJSON frames);

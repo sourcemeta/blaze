@@ -6,9 +6,8 @@
 #include <utility> // std::move, std::to_underlying
 #include <variant> // std::visit
 
-// The locations that a schema frame exports are keyed by keyword location, but
-// a resolver that answers out of previously exported frames is keyed by the
-// schema those locations belong to, which is the part before the fragment
+// Exported locations are keyed by keyword location, but the frame resolver is
+// keyed by the schema those locations belong to
 static auto schema_of(const std::string &keyword_location) -> std::string_view {
   const auto fragment{keyword_location.find('#')};
   return fragment == std::string::npos
@@ -47,9 +46,7 @@ static auto try_vocabulary_from_export(
     return {false, std::nullopt};
   }
 
-  // An export can name a dialect that the caller's resolver knows nothing
-  // about, as it may have been produced elsewhere. Treat that as not knowing
-  // the vocabulary, like every other case we cannot make sense of
+  // An export produced elsewhere may name a dialect we cannot resolve
   try {
     const auto vocabularies{sourcemeta::blaze::vocabularies(
         resolver, base_dialect.value(), entry.at("dialect").to_string())};
