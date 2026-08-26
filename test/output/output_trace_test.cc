@@ -8,8 +8,10 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <string> // std::string
-#include <vector> // std::vector
+#include <map>     // std::map
+#include <sstream> // std::ostringstream
+#include <string>  // std::string
+#include <vector>  // std::vector
 
 struct StoredTrace {
   sourcemeta::blaze::TraceOutput::EntryType type;
@@ -421,4 +423,436 @@ TEST(nested_vocabulary_correctness) {
       traces, 5, Pass, "LoopPropertiesMatchClosed", "", "/properties",
       "#/properties", std::nullopt,
       sourcemeta::blaze::Vocabularies::Known::JSON_Schema_2020_12_Applicator);
+}
+
+TEST(entry_carries_the_instruction_for_describing) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
+
+  std::vector<std::string> messages;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      [&messages,
+       &instance](const sourcemeta::blaze::TraceOutput::Entry &entry) -> void {
+        if (entry.type == sourcemeta::blaze::TraceOutput::EntryType::Push) {
+          return;
+        }
+
+        const auto valid{entry.type !=
+                         sourcemeta::blaze::TraceOutput::EntryType::Fail};
+        messages.push_back(sourcemeta::blaze::describe(
+            valid, entry.step, entry.evaluate_path, entry.instance_location,
+            instance, entry.annotation));
+      }};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  EXPECT_EQ(messages.size(), 1);
+  EXPECT_EQ(messages.at(0), "The value was expected to be of type string but "
+                            "it was of type integer");
+}
+
+TEST(vocabulary_from_an_exported_frame) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto locations{frame.to_json().at("locations")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
+
+  std::vector<StoredTrace> traces;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      collect(traces), sourcemeta::core::EMPTY_WEAK_POINTER,
+      [&locations](const std::string_view)
+          -> std::optional<
+              std::reference_wrapper<const sourcemeta::core::JSON>> {
+        return std::cref(locations);
+      }};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_TRUE(traces.at(0).vocabulary.first);
+  EXPECT_TRUE(traces.at(0).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(traces.at(0).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/validation");
+  EXPECT_TRUE(traces.at(1).vocabulary.first);
+  EXPECT_TRUE(traces.at(1).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(traces.at(1).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/validation");
+}
+
+TEST(vocabulary_from_an_exported_frame_matches_a_live_frame) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Foo Bar",
+    "additionalProperties": false,
+    "properties": {
+      "foo": true,
+      "bar": true
+    }
+  })JSON")};
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(schema, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  const auto locations{frame.to_json().at("locations")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar",
+    "bar": "baz"
+  })JSON")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+
+  std::vector<StoredTrace> from_live;
+  sourcemeta::blaze::TraceOutput live{
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      collect(from_live), sourcemeta::core::EMPTY_WEAK_POINTER,
+      std::cref(frame)};
+  const auto live_result{
+      evaluator.validate(schema_template, instance, std::ref(live))};
+  EXPECT_TRUE(live_result);
+
+  std::vector<StoredTrace> from_export;
+  sourcemeta::blaze::TraceOutput exported{
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      collect(from_export), sourcemeta::core::EMPTY_WEAK_POINTER,
+      [&locations](const std::string_view)
+          -> std::optional<
+              std::reference_wrapper<const sourcemeta::core::JSON>> {
+        return std::cref(locations);
+      }};
+  const auto export_result{
+      evaluator.validate(schema_template, instance, std::ref(exported))};
+  EXPECT_TRUE(export_result);
+
+  EXPECT_EQ(from_live.size(), 7);
+  EXPECT_EQ(from_export.size(), 7);
+
+  EXPECT_EQ(from_live.at(0).keyword_location, "https://example.com#/title");
+  EXPECT_TRUE(from_live.at(0).vocabulary.first);
+  EXPECT_TRUE(from_live.at(0).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_live.at(0).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/meta-data");
+  EXPECT_EQ(from_export.at(0).keyword_location, "https://example.com#/title");
+  EXPECT_TRUE(from_export.at(0).vocabulary.first);
+  EXPECT_TRUE(from_export.at(0).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_export.at(0).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/meta-data");
+
+  EXPECT_EQ(from_live.at(1).keyword_location,
+            "https://example.com#/properties");
+  EXPECT_TRUE(from_live.at(1).vocabulary.first);
+  EXPECT_TRUE(from_live.at(1).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_live.at(1).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_EQ(from_export.at(1).keyword_location,
+            "https://example.com#/properties");
+  EXPECT_TRUE(from_export.at(1).vocabulary.first);
+  EXPECT_TRUE(from_export.at(1).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_export.at(1).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+
+  EXPECT_EQ(from_live.at(2).keyword_location,
+            "https://example.com#/properties");
+  EXPECT_TRUE(from_live.at(2).vocabulary.first);
+  EXPECT_TRUE(from_live.at(2).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_live.at(2).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_EQ(from_export.at(2).keyword_location,
+            "https://example.com#/properties");
+  EXPECT_TRUE(from_export.at(2).vocabulary.first);
+  EXPECT_TRUE(from_export.at(2).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_export.at(2).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+
+  EXPECT_EQ(from_live.at(3).keyword_location,
+            "https://example.com#/properties");
+  EXPECT_TRUE(from_live.at(3).vocabulary.first);
+  EXPECT_TRUE(from_live.at(3).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_live.at(3).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_EQ(from_export.at(3).keyword_location,
+            "https://example.com#/properties");
+  EXPECT_TRUE(from_export.at(3).vocabulary.first);
+  EXPECT_TRUE(from_export.at(3).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_export.at(3).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+
+  EXPECT_EQ(from_live.at(4).keyword_location,
+            "https://example.com#/properties");
+  EXPECT_TRUE(from_live.at(4).vocabulary.first);
+  EXPECT_TRUE(from_live.at(4).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_live.at(4).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_EQ(from_export.at(4).keyword_location,
+            "https://example.com#/properties");
+  EXPECT_TRUE(from_export.at(4).vocabulary.first);
+  EXPECT_TRUE(from_export.at(4).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_export.at(4).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+
+  EXPECT_EQ(from_live.at(5).keyword_location,
+            "https://example.com#/additionalProperties");
+  EXPECT_TRUE(from_live.at(5).vocabulary.first);
+  EXPECT_TRUE(from_live.at(5).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_live.at(5).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_EQ(from_export.at(5).keyword_location,
+            "https://example.com#/additionalProperties");
+  EXPECT_TRUE(from_export.at(5).vocabulary.first);
+  EXPECT_TRUE(from_export.at(5).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_export.at(5).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+
+  EXPECT_EQ(from_live.at(6).keyword_location,
+            "https://example.com#/additionalProperties");
+  EXPECT_TRUE(from_live.at(6).vocabulary.first);
+  EXPECT_TRUE(from_live.at(6).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_live.at(6).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+  EXPECT_EQ(from_export.at(6).keyword_location,
+            "https://example.com#/additionalProperties");
+  EXPECT_TRUE(from_export.at(6).vocabulary.first);
+  EXPECT_TRUE(from_export.at(6).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(from_export.at(6).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/applicator");
+}
+
+TEST(vocabulary_absent_when_the_export_does_not_know_the_location) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  const auto locations{sourcemeta::core::parse_json(R"JSON({
+    "static": {},
+    "dynamic": {}
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
+
+  std::vector<StoredTrace> traces;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      collect(traces), sourcemeta::core::EMPTY_WEAK_POINTER,
+      [&locations](const std::string_view)
+          -> std::optional<
+              std::reference_wrapper<const sourcemeta::core::JSON>> {
+        return std::cref(locations);
+      }};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_FALSE(result);
+
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_FALSE(traces.at(0).vocabulary.first);
+  EXPECT_FALSE(traces.at(0).vocabulary.second.has_value());
+  EXPECT_FALSE(traces.at(1).vocabulary.first);
+  EXPECT_FALSE(traces.at(1).vocabulary.second.has_value());
+}
+TEST(vocabulary_across_schemas_from_separate_exports) {
+  const sourcemeta::core::JSON remote{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/remote",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/main",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://example.com/remote"
+  })JSON")};
+
+  const auto resolver{[&remote](const std::string_view identifier)
+                          -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/remote") {
+      return remote;
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
+
+  sourcemeta::blaze::SchemaFrame main_frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  main_frame.analyse(schema, sourcemeta::blaze::schema_walker, resolver);
+  sourcemeta::blaze::SchemaFrame remote_frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  remote_frame.analyse(remote, sourcemeta::blaze::schema_walker, resolver);
+
+  std::map<std::string, sourcemeta::core::JSON> exports;
+  exports.emplace("https://example.com/main",
+                  main_frame.to_json().at("locations"));
+  exports.emplace("https://example.com/remote",
+                  remote_frame.to_json().at("locations"));
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker, resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
+
+  std::vector<StoredTrace> traces;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::blaze::schema_walker, resolver, collect(traces),
+      sourcemeta::core::EMPTY_WEAK_POINTER,
+      [&exports](const std::string_view schema_uri)
+          -> std::optional<
+              std::reference_wrapper<const sourcemeta::core::JSON>> {
+        const auto match{exports.find(std::string{schema_uri})};
+        if (match == exports.cend()) {
+          return std::nullopt;
+        }
+
+        return std::cref(match->second);
+      }};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_FALSE(result);
+
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(traces.at(0).type, sourcemeta::blaze::TraceOutput::EntryType::Push);
+  EXPECT_EQ(traces.at(0).name, "AssertionTypeStrict");
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at(0).instance_location), "");
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at(0).evaluate_path),
+            "/$ref/type");
+  EXPECT_EQ(traces.at(0).keyword_location, "https://example.com/remote#/type");
+  EXPECT_TRUE(traces.at(0).vocabulary.first);
+  EXPECT_TRUE(traces.at(0).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(traces.at(0).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/validation");
+
+  EXPECT_EQ(traces.at(1).type, sourcemeta::blaze::TraceOutput::EntryType::Fail);
+  EXPECT_EQ(traces.at(1).name, "AssertionTypeStrict");
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at(1).instance_location), "");
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at(1).evaluate_path),
+            "/$ref/type");
+  EXPECT_EQ(traces.at(1).keyword_location, "https://example.com/remote#/type");
+  EXPECT_TRUE(traces.at(1).vocabulary.first);
+  EXPECT_TRUE(traces.at(1).vocabulary.second.has_value());
+  EXPECT_EQ(
+      sourcemeta::blaze::to_string(traces.at(1).vocabulary.second.value()),
+      "https://json-schema.org/draft/2020-12/vocab/validation");
+}
+
+TEST(vocabulary_absent_when_the_export_names_an_unresolvable_dialect) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  const sourcemeta::core::JSON locations{sourcemeta::core::parse_json(R"JSON({
+    "static": {
+      "https://example.com#/type": {
+        "dialect": "https://example.com/unknown-meta",
+        "baseDialect": "https://json-schema.org/draft/2020-12/schema"
+      }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
+
+  std::vector<StoredTrace> traces;
+  sourcemeta::blaze::TraceOutput output{
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      collect(traces), sourcemeta::core::EMPTY_WEAK_POINTER,
+      [&locations](const std::string_view)
+          -> std::optional<
+              std::reference_wrapper<const sourcemeta::core::JSON>> {
+        return std::cref(locations);
+      }};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+  EXPECT_FALSE(result);
+
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(traces.at(0).type, sourcemeta::blaze::TraceOutput::EntryType::Push);
+  EXPECT_EQ(traces.at(0).name, "AssertionTypeStrict");
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at(0).instance_location), "");
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at(0).evaluate_path), "/type");
+  EXPECT_EQ(traces.at(0).keyword_location, "https://example.com#/type");
+  EXPECT_FALSE(traces.at(0).vocabulary.first);
+  EXPECT_FALSE(traces.at(0).vocabulary.second.has_value());
+
+  EXPECT_EQ(traces.at(1).type, sourcemeta::blaze::TraceOutput::EntryType::Fail);
+  EXPECT_EQ(traces.at(1).name, "AssertionTypeStrict");
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at(1).instance_location), "");
+  EXPECT_EQ(sourcemeta::core::to_string(traces.at(1).evaluate_path), "/type");
+  EXPECT_EQ(traces.at(1).keyword_location, "https://example.com#/type");
+  EXPECT_FALSE(traces.at(1).vocabulary.first);
+  EXPECT_FALSE(traces.at(1).vocabulary.second.has_value());
 }
