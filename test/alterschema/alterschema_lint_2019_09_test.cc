@@ -5678,7 +5678,7 @@ TEST(pattern_non_ecma_regex_unbalanced_bracket) {
       false);
 }
 
-TEST(pattern_non_ecma_regex_posix_class) {
+TEST(pattern_non_ecma_regex_valid_posix_style_class) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "title": "Test",
@@ -5691,13 +5691,8 @@ TEST(pattern_non_ecma_regex_posix_class) {
 
   LINT_WITHOUT_FIX(document, result, traces);
 
-  EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 1);
-  EXPECT_LINT_TRACE(
-      traces, 0, "/properties/foo", "pattern_non_ecma_regex",
-      "For interoperability reasons, only set this keyword to a regular "
-      "expression that strictly adheres to the ECMA-262 dialect",
-      false);
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
 }
 
 TEST(pattern_non_ecma_regex_python_named_group) {
@@ -5730,7 +5725,7 @@ TEST(pattern_non_ecma_regex_multiple_offenders) {
     "examples": [ {} ],
     "properties": {
       "foo": { "type": "string", "pattern": "\\a" },
-      "bar": { "type": "string", "pattern": "[[:digit:]]" }
+      "bar": { "type": "string", "pattern": "(?P<name>[a-z]+)" }
     }
   })JSON");
 
@@ -5832,7 +5827,7 @@ TEST(pattern_properties_non_ecma_regex_unbalanced_bracket) {
       false);
 }
 
-TEST(pattern_properties_non_ecma_regex_posix_class) {
+TEST(pattern_properties_non_ecma_regex_valid_posix_style_class) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "title": "Test",
@@ -5845,13 +5840,8 @@ TEST(pattern_properties_non_ecma_regex_posix_class) {
 
   LINT_WITHOUT_FIX(document, result, traces);
 
-  EXPECT_FALSE(result.first);
-  EXPECT_EQ(traces.size(), 1);
-  EXPECT_LINT_TRACE(
-      traces, 0, "", "pattern_properties_non_ecma_regex",
-      "For interoperability reasons, only set the keys of this keyword to "
-      "regular expressions that strictly adhere to the ECMA-262 dialect",
-      false);
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
 }
 
 TEST(pattern_properties_non_ecma_regex_python_named_group) {
@@ -5934,7 +5924,7 @@ TEST(pattern_properties_non_ecma_regex_multiple_bad_keys) {
     "examples": [ {} ],
     "patternProperties": {
       "\\a": { "type": "string" },
-      "[[:digit:]]": { "type": "integer" }
+      "(?P<name>[a-z]+)": { "type": "integer" }
     }
   })JSON");
 
@@ -5953,5 +5943,5 @@ TEST(pattern_properties_non_ecma_regex_multiple_bad_keys) {
   EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(0)),
             "/patternProperties/\\a");
   EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(1)),
-            "/patternProperties/[[:digit:]]");
+            "/patternProperties/(?P<name>[a-z]+)");
 }
