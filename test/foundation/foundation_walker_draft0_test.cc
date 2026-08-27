@@ -2,9 +2,10 @@
 
 #include <sourcemeta/blaze/foundation.h>
 
-#include <string_view>   // std::string_view
-#include <unordered_set> // std::unordered_set
-#include <variant>       // std::holds_alternative, std::get
+#include <algorithm>   // std::ranges::equal
+#include <array>       // std::to_array
+#include <string_view> // std::string_view
+#include <variant>     // std::holds_alternative, std::get
 
 #define EXPECT_VOCABULARY_KNOWN(vocabulary_value, expected_known)              \
   EXPECT_TRUE(                                                                 \
@@ -94,8 +95,8 @@ TEST(additionalProperties) {
             SchemaKeywordType::ApplicatorValueTraverseSomeProperty);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_0);
-  const std::unordered_set<std::string_view> expected{"properties"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(
+      result.dependencies, std::to_array<std::string_view>({"properties"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
@@ -586,8 +587,8 @@ TEST(hyperschema_additionalProperties) {
             SchemaKeywordType::ApplicatorValueTraverseSomeProperty);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_0_Hyper);
-  const std::unordered_set<std::string_view> expected{"properties"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(
+      result.dependencies, std::to_array<std::string_view>({"properties"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));

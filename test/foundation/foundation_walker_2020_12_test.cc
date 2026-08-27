@@ -2,7 +2,10 @@
 
 #include <sourcemeta/blaze/foundation.h>
 
-#include <algorithm>
+#include <algorithm>   // std::ranges::equal
+#include <array>       // std::to_array
+#include <string_view> // std::string_view
+#include <variant>     // std::holds_alternative, std::get
 
 #include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
@@ -260,8 +263,8 @@ TEST(applicator_then) {
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Applicator);
-  const std::unordered_set<std::string_view> expected{"if"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(result.dependencies,
+                                 std::to_array<std::string_view>({"if"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
 }
@@ -274,8 +277,8 @@ TEST(applicator_else) {
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Applicator);
-  const std::unordered_set<std::string_view> expected{"if"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(result.dependencies,
+                                 std::to_array<std::string_view>({"if"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
 }
@@ -318,8 +321,8 @@ TEST(applicator_items) {
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Applicator);
-  const std::unordered_set<std::string_view> expected{"prefixItems"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(
+      result.dependencies, std::to_array<std::string_view>({"prefixItems"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
@@ -349,9 +352,9 @@ TEST(applicator_contains_with_validation) {
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Applicator);
-  const std::unordered_set<std::string_view> expected{"minContains",
-                                                      "maxContains"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(
+      result.dependencies,
+      std::to_array<std::string_view>({"minContains", "maxContains"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
@@ -399,9 +402,9 @@ TEST(applicator_additionalProperties) {
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Applicator);
-  const std::unordered_set<std::string_view> expected{"properties",
-                                                      "patternProperties"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(
+      result.dependencies,
+      std::to_array<std::string_view>({"properties", "patternProperties"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
@@ -447,9 +450,9 @@ TEST(unevaluated_unevaluatedItems_with_applicator) {
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Unevaluated);
-  const std::unordered_set<std::string_view> expected{"prefixItems", "items",
-                                                      "contains"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(
+      result.dependencies,
+      std::to_array<std::string_view>({"prefixItems", "items", "contains"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Array}));
@@ -482,9 +485,10 @@ TEST(unevaluated_unevaluatedProperties_with_applicator) {
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Unevaluated);
-  const std::unordered_set<std::string_view> expected{
-      "properties", "patternProperties", "additionalProperties"};
-  EXPECT_EQ(result.dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(
+      result.dependencies,
+      std::to_array<std::string_view>(
+          {"properties", "patternProperties", "additionalProperties"})));
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
             sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Object}));
@@ -555,8 +559,8 @@ TEST(validation_maximum) {
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Validation);
   EXPECT_TRUE(result.dependencies.empty());
-  const std::unordered_set<std::string_view> expected{"type"};
-  EXPECT_EQ(result.order_dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(result.order_dependencies,
+                                 std::to_array<std::string_view>({"type"})));
   const auto instances =
       sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Integer,
                                   sourcemeta::core::JSON::Type::Real});
@@ -572,8 +576,8 @@ TEST(validation_minimum) {
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
                           JSON_Schema_2020_12_Validation);
   EXPECT_TRUE(result.dependencies.empty());
-  const std::unordered_set<std::string_view> expected{"type"};
-  EXPECT_EQ(result.order_dependencies, expected);
+  EXPECT_TRUE(std::ranges::equal(result.order_dependencies,
+                                 std::to_array<std::string_view>({"type"})));
   const auto instances =
       sourcemeta::core::make_set({sourcemeta::core::JSON::Type::Integer,
                                   sourcemeta::core::JSON::Type::Real});
