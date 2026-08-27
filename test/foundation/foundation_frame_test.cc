@@ -1513,6 +1513,65 @@ TEST(no_dialect) {
   }
 }
 
+TEST(self_referencing_metaschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/self",
+    "$id": "https://example.com/self"
+  })JSON");
+
+  const auto resolver = [&document](std::string_view identifier)
+      -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/self") {
+      return document;
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  };
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
+}
+
+TEST(indirect_metaschema_cycle) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/b",
+    "$id": "https://example.com/a"
+  })JSON");
+
+  const sourcemeta::core::JSON other = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/a",
+    "$id": "https://example.com/b"
+  })JSON");
+
+  const auto resolver = [&document, &other](std::string_view identifier)
+      -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/a") {
+      return document;
+    } else if (identifier == "https://example.com/b") {
+      return other;
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  };
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
+}
+
 TEST(mode_references) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
