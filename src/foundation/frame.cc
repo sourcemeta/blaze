@@ -461,9 +461,22 @@ auto to_json(const SchemaFrame::LocationType value) -> sourcemeta::core::JSON {
 }
 
 auto SchemaFrame::to_json(
+    const SchemaResolver &resolver,
     const std::optional<sourcemeta::core::PointerPositionTracker> &tracker)
     const -> sourcemeta::core::JSON {
   auto root{sourcemeta::core::JSON::make_object()};
+
+  switch (this->mode_) {
+    case SchemaFrame::Mode::Root:
+      root.assign_assume_new("mode", sourcemeta::core::JSON{"root"});
+      break;
+    case SchemaFrame::Mode::Locations:
+      root.assign_assume_new("mode", sourcemeta::core::JSON{"locations"});
+      break;
+    case SchemaFrame::Mode::References:
+      root.assign_assume_new("mode", sourcemeta::core::JSON{"references"});
+      break;
+  }
 
   root.assign_assume_new("locations", sourcemeta::core::JSON::make_object());
   root.at("locations")
@@ -493,8 +506,6 @@ auto SchemaFrame::to_json(
           "position",
           sourcemeta::core::to_json(tracker.value().get(
               sourcemeta::core::to_pointer(location.second.pointer))));
-    } else {
-      entry.assign_assume_new("position", sourcemeta::core::to_json(nullptr));
     }
 
     entry.assign_assume_new(
@@ -511,6 +522,17 @@ auto SchemaFrame::to_json(
         "propertyName", sourcemeta::core::JSON{location.second.property_name});
     entry.assign_assume_new("orphan",
                             sourcemeta::core::JSON{location.second.orphan});
+
+    auto vocabularies{sourcemeta::core::JSON::make_object()};
+    this->vocabularies(location.second, resolver)
+        .for_each([&vocabularies](const SchemaVocabularies::URI &uri,
+                                  const bool required) -> void {
+          std::ostringstream name;
+          name << uri;
+          vocabularies.assign_assume_new(name.str(),
+                                         sourcemeta::core::JSON{required});
+        });
+    entry.assign_assume_new("vocabularies", std::move(vocabularies));
 
     switch (location.first.first) {
       case SchemaReferenceType::Static:
@@ -542,10 +564,11 @@ auto SchemaFrame::to_json(
           "position",
           sourcemeta::core::to_json(tracker.value().get(
               sourcemeta::core::to_pointer(reference.first.second))));
-    } else {
-      entry.assign_assume_new("position", sourcemeta::core::to_json(nullptr));
     }
 
+    entry.assign_assume_new(
+        "original", sourcemeta::core::to_json(sourcemeta::core::JSON::String{
+                        reference.second.original}));
     entry.assign_assume_new(
         "destination", sourcemeta::core::to_json(reference.second.destination));
     entry.assign_assume_new(

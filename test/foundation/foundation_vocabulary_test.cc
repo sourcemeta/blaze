@@ -8,8 +8,11 @@
 #include "foundation_test_utils.h"
 
 #include <sstream>       // std::ostringstream
+#include <string>        // std::string
 #include <unordered_set> // std::unordered_set
+#include <utility>       // std::pair
 #include <variant>       // std::variant
+#include <vector>        // std::vector
 
 static auto VOCABULARIES(const sourcemeta::core::JSON &document,
                          const sourcemeta::blaze::SchemaResolver &resolver,
@@ -926,4 +929,79 @@ TEST(embedded_custom_metaschema_draft3) {
       VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_3);
+}
+
+TEST(for_each_empty) {
+  const sourcemeta::blaze::SchemaVocabularies vocabularies;
+  std::vector<std::pair<std::string, bool>> seen;
+  vocabularies.for_each(
+      [&seen](const sourcemeta::blaze::SchemaVocabularies::URI &uri,
+              const bool required) {
+        seen.emplace_back(std::format("{}", uri), required);
+      });
+
+  EXPECT_TRUE(seen.empty());
+}
+
+TEST(for_each_known_required_and_optional) {
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  sourcemeta::blaze::SchemaVocabularies vocabularies;
+  vocabularies.insert(Known::JSON_Schema_2020_12_Core, true);
+  vocabularies.insert(Known::JSON_Schema_2020_12_Validation, false);
+
+  std::vector<std::pair<std::string, bool>> seen;
+  vocabularies.for_each(
+      [&seen](const sourcemeta::blaze::SchemaVocabularies::URI &uri,
+              const bool required) {
+        seen.emplace_back(std::format("{}", uri), required);
+      });
+
+  EXPECT_EQ(seen.size(), 2);
+  EXPECT_EQ(seen.at(0).first,
+            "https://json-schema.org/draft/2020-12/vocab/core");
+  EXPECT_TRUE(seen.at(0).second);
+  EXPECT_EQ(seen.at(1).first,
+            "https://json-schema.org/draft/2020-12/vocab/validation");
+  EXPECT_FALSE(seen.at(1).second);
+}
+
+TEST(for_each_unknown) {
+  sourcemeta::blaze::SchemaVocabularies vocabularies;
+  vocabularies.insert(sourcemeta::core::JSON::String{"https://example.com/one"},
+                      true);
+
+  std::vector<std::pair<std::string, bool>> seen;
+  vocabularies.for_each(
+      [&seen](const sourcemeta::blaze::SchemaVocabularies::URI &uri,
+              const bool required) {
+        seen.emplace_back(std::format("{}", uri), required);
+      });
+
+  EXPECT_EQ(seen.size(), 1);
+  EXPECT_EQ(seen.at(0).first, "https://example.com/one");
+  EXPECT_TRUE(seen.at(0).second);
+}
+
+TEST(for_each_known_and_unknown) {
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  sourcemeta::blaze::SchemaVocabularies vocabularies;
+  vocabularies.insert(Known::JSON_Schema_2020_12_Core, true);
+  vocabularies.insert(sourcemeta::core::JSON::String{"https://example.com/one"},
+                      false);
+
+  std::vector<std::pair<std::string, bool>> seen;
+  vocabularies.for_each(
+      [&seen](const sourcemeta::blaze::SchemaVocabularies::URI &uri,
+              const bool required) {
+        seen.emplace_back(std::format("{}", uri), required);
+      });
+
+  EXPECT_EQ(seen.size(), vocabularies.size());
+  EXPECT_EQ(seen.size(), 2);
+  // Known vocabularies always come before unknown ones
+  EXPECT_EQ(seen.at(0).first,
+            "https://json-schema.org/draft/2020-12/vocab/core");
+  EXPECT_TRUE(seen.at(0).second);
+  EXPECT_EQ(seen.at(1).first, "https://example.com/one");
+  EXPECT_FALSE(seen.at(1).second);
 }

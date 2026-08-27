@@ -144,7 +144,7 @@ Schema_Frame_ISO_Language_Locations_To_JSON(benchmark::State &state) {
                 sourcemeta::blaze::schema_resolver);
 
   for (auto _ : state) {
-    auto result{frame.to_json(tracker)};
+    auto result{frame.to_json(sourcemeta::blaze::schema_resolver, tracker)};
     assert(result.is_object());
     benchmark::DoNotOptimize(result);
   }
