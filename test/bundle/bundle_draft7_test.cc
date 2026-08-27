@@ -850,20 +850,24 @@ TEST(ref_to_id_with_default_port) {
       document, sourcemeta::blaze::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
-  // References are canonicalised before they are resolved, so a reference
-  // written with a default port finds a resource registered without one. The
-  // reference itself is left exactly as the author wrote it
-  EXPECT_TRUE(document.at("properties").at("foo").defines("$ref"));
-  EXPECT_EQ(document.at("properties").at("foo").at("$ref"),
-            sourcemeta::core::JSON{
-                "https://www.sourcemeta.com:443/default-port#/definitions/"
-                "string"});
-  EXPECT_TRUE(document.at("definitions")
-                  .defines("https://www.sourcemeta.com/default-port"));
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "$ref": "https://www.sourcemeta.com:443/default-port#/definitions/string"
+      }
+    },
+    "definitions": {
+      "https://www.sourcemeta.com/default-port": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://www.sourcemeta.com/default-port",
+        "definitions": {
+          "string": { "type": "string" }
+        }
+      }
+    }
+  })JSON");
 
-  // Which still resolves, as framing canonicalises both sides
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(document, sourcemeta::blaze::schema_walker, test_resolver);
-  EXPECT_TRUE(frame.standalone());
+  EXPECT_EQ(document, expected);
 }
