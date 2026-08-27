@@ -1,0 +1,113 @@
+{
+  "schema": {
+    "$schema": "https://sourcemeta.com/with-vocabulary",
+    "type": "object"
+  },
+  "resolver": {
+    "https://sourcemeta.com/with-vocabulary": {
+      "$id": "https://sourcemeta.com/with-vocabulary",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": false
+      }
+    }
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "": {
+          "parent": null,
+          "type": "subschema",
+          "root": null,
+          "base": "",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://sourcemeta.com/with-vocabulary",
+          "baseDialect": "http://json-schema.org/draft-07/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-07/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "": {
+          "parent": null,
+          "type": "subschema",
+          "root": null,
+          "base": "",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://sourcemeta.com/with-vocabulary",
+          "baseDialect": "http://json-schema.org/draft-07/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-07/schema#": true
+          }
+        },
+        "#/$schema": {
+          "parent": "",
+          "type": "pointer",
+          "root": null,
+          "base": "",
+          "pointer": "/$schema",
+          "relativePointer": "/$schema",
+          "dialect": "https://sourcemeta.com/with-vocabulary",
+          "baseDialect": "http://json-schema.org/draft-07/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-07/schema#": true
+          }
+        },
+        "#/type": {
+          "parent": "",
+          "type": "pointer",
+          "root": null,
+          "base": "",
+          "pointer": "/type",
+          "relativePointer": "/type",
+          "dialect": "https://sourcemeta.com/with-vocabulary",
+          "baseDialect": "http://json-schema.org/draft-07/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-07/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": [
+      {
+        "type": "static",
+        "origin": "/$schema",
+        "original": "https://sourcemeta.com/with-vocabulary",
+        "destination": "https://sourcemeta.com/with-vocabulary",
+        "base": "https://sourcemeta.com/with-vocabulary",
+        "fragment": null
+      }
+    ]
+  },
+  "standalone": true
+}

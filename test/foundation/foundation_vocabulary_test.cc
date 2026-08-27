@@ -5,14 +5,35 @@
 
 #include <format> // std::format
 
-#include "foundation_test_utils.h"
-
 #include <sstream>       // std::ostringstream
 #include <string>        // std::string
 #include <unordered_set> // std::unordered_set
 #include <utility>       // std::pair
 #include <variant>       // std::variant
 #include <vector>        // std::vector
+
+static auto test_resolver(std::string_view identifier)
+    -> std::optional<sourcemeta::core::JSON> {
+  if (identifier == "https://sourcemeta.com/optional-core") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://sourcemeta.com/optional-core",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": false
+      }
+    })JSON");
+  } else if (identifier == "https://sourcemeta.com/no-core") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://sourcemeta.com/no-core",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/validation": true
+      }
+    })JSON");
+  } else {
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }
+}
 
 static auto VOCABULARIES(const sourcemeta::core::JSON &document,
                          const sourcemeta::blaze::SchemaResolver &resolver,
@@ -47,36 +68,6 @@ TEST(unresolvable_dialect) {
     EXPECT_STREQ(error.what(),
                  "Could not resolve the metaschema of the schema");
   }
-}
-
-TEST(override_returns_override_vocabularies) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "x-sourcemeta-dialect-override-subschema":
-      "https://json-schema.org/draft/2020-12/schema"
-  })JSON");
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 7);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Applicator);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Unevaluated);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Meta_Data);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies,
-                             JSON_Schema_2020_12_Format_Annotation);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Content);
-}
-
-TEST(override_only_returns_override_vocabularies) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "x-sourcemeta-dialect-override-subschema":
-      "http://json-schema.org/draft-07/schema#"
-  })JSON");
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 1);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
 }
 
 TEST(override_unresolvable) {
@@ -614,218 +605,6 @@ TEST(has_unknown_with_openapi_vocabularies) {
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
-TEST(embedded_custom_metaschema) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "type": "string",
-    "$defs": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true,
-          "https://json-schema.org/draft/2020-12/vocab/validation": true
-        },
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 2);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
-}
-
-TEST(embedded_custom_metaschema_2019_09) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "type": "string",
-    "$defs": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "https://json-schema.org/draft/2019-09/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2019-09/vocab/core": true,
-          "https://json-schema.org/draft/2019-09/vocab/validation": true
-        },
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 2);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2019_09_Core);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2019_09_Validation);
-}
-
-TEST(embedded_custom_metaschema_draft7) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "type": "string",
-    "definitions": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 1);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
-}
-
-TEST(embedded_custom_metaschema_draft4) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "id": "https://example.com/schema",
-    "type": "string",
-    "definitions": {
-      "https://example.com/meta": {
-        "id": "https://example.com/meta",
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 1);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_4);
-}
-
-TEST(embedded_custom_metaschema_chain) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta-a",
-    "$id": "https://example.com/schema",
-    "$defs": {
-      "https://example.com/meta-a": {
-        "$id": "https://example.com/meta-a",
-        "$schema": "https://example.com/meta-b",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true,
-          "https://json-schema.org/draft/2020-12/vocab/validation": true
-        },
-        "type": "object"
-      },
-      "https://example.com/meta-b": {
-        "$id": "https://example.com/meta-b",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true
-        },
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 2);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
-}
-
-TEST(embedded_custom_metaschema_chain_precedence) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta-a",
-    "$id": "https://example.com/schema",
-    "$defs": {
-      "https://example.com/meta-a": {
-        "$id": "https://example.com/meta-a",
-        "$schema": "https://example.com/meta-b",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true,
-          "https://json-schema.org/draft/2020-12/vocab/validation": true
-        },
-        "type": "object"
-      },
-      "https://example.com/meta-b": {
-        "$id": "https://example.com/meta-b",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true
-        },
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  // A resolver that knows about the intermediate link of the chain, but
-  // with a definition that cannot be resolved any further
-  const auto resolver =
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-    if (identifier == "https://example.com/meta-b") {
-      return sourcemeta::core::parse_json(R"JSON({
-        "$id": "https://example.com/meta-b",
-        "$schema": "https://example.com/unknown"
-      })JSON");
-    }
-
-    return sourcemeta::blaze::schema_resolver(identifier);
-  };
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, resolver)};
-  EXPECT_EQ(vocabularies.size(), 2);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
-}
-
-TEST(embedded_custom_metaschema_without_vocabulary) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "type": "string",
-    "$defs": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 1);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
-}
-
-TEST(embedded_custom_metaschema_definitions_2020_12) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "definitions": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true
-        },
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  // In 2019-09 and 2020-12, `definitions` is still supported
-  // for backwards compatibility
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 1);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
-}
-
 TEST(embedded_custom_metaschema_wrong_container) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
@@ -847,88 +626,6 @@ TEST(embedded_custom_metaschema_wrong_container) {
   } catch (...) {
     FAIL();
   }
-}
-
-TEST(embedded_custom_metaschema_precedence) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "type": "string",
-    "$defs": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true,
-          "https://json-schema.org/draft/2020-12/vocab/validation": true
-        },
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  // A resolver that knows about the custom meta-schema, but with a
-  // different vocabulary set than the embedded copy
-  const auto resolver =
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-    if (identifier == "https://example.com/meta") {
-      return sourcemeta::core::parse_json(R"JSON({
-        "$id": "https://example.com/meta",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true
-        }
-      })JSON");
-    }
-
-    return sourcemeta::blaze::schema_resolver(identifier);
-  };
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, resolver)};
-  EXPECT_EQ(vocabularies.size(), 2);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
-}
-
-TEST(embedded_custom_metaschema_draft6) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "type": "string",
-    "definitions": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 1);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_6);
-}
-
-TEST(embedded_custom_metaschema_draft3) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "id": "https://example.com/schema",
-    "type": "string",
-    "definitions": {
-      "https://example.com/meta": {
-        "id": "https://example.com/meta",
-        "$schema": "http://json-schema.org/draft-03/schema#",
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(vocabularies.size(), 1);
-  EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_3);
 }
 
 TEST(for_each_empty) {
@@ -1004,4 +701,138 @@ TEST(for_each_known_and_unknown) {
   EXPECT_TRUE(seen.at(0).second);
   EXPECT_EQ(seen.at(1).first, "https://example.com/one");
   EXPECT_FALSE(seen.at(1).second);
+}
+
+TEST(vocabularies_known_2020_12_core) {
+  const auto vocabulary{
+      sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_2020_12_Core};
+  const auto result{sourcemeta::core::to_json(vocabulary)};
+  EXPECT_TRUE(result.is_integer());
+  EXPECT_EQ(result.to_integer(), 21);
+  const auto back{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::Known>(
+          result)};
+  EXPECT_TRUE(back.has_value());
+  EXPECT_EQ(vocabulary, back.value());
+}
+
+TEST(vocabularies_known_2020_12_applicator) {
+  const auto vocabulary{sourcemeta::blaze::SchemaVocabularies::Known::
+                            JSON_Schema_2020_12_Applicator};
+  const auto result{sourcemeta::core::to_json(vocabulary)};
+  EXPECT_TRUE(result.is_integer());
+  EXPECT_EQ(result.to_integer(), 22);
+  const auto back{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::Known>(
+          result)};
+  EXPECT_TRUE(back.has_value());
+  EXPECT_EQ(vocabulary, back.value());
+}
+
+TEST(vocabularies_known_draft_0) {
+  const auto vocabulary{
+      sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_Draft_0};
+  const auto result{sourcemeta::core::to_json(vocabulary)};
+  EXPECT_TRUE(result.is_integer());
+  EXPECT_EQ(result.to_integer(), 0);
+  const auto back{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::Known>(
+          result)};
+  EXPECT_TRUE(back.has_value());
+  EXPECT_EQ(vocabulary, back.value());
+}
+
+TEST(vocabularies_known_from_json_invalid_type) {
+  const sourcemeta::core::JSON input{"not-an-integer"};
+  const auto result{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::Known>(
+          input)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(vocabularies_uri_with_known) {
+  const sourcemeta::blaze::SchemaVocabularies::URI uri{
+      sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_2020_12_Core};
+  const auto result{sourcemeta::core::to_json(uri)};
+  EXPECT_TRUE(result.is_array());
+  EXPECT_EQ(result.size(), 2);
+  EXPECT_TRUE(result.at(0).is_integer());
+  EXPECT_EQ(result.at(0).to_integer(), 0);
+  EXPECT_TRUE(result.at(1).is_integer());
+  EXPECT_EQ(result.at(1).to_integer(), 21);
+  const auto back{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::URI>(
+          result)};
+  EXPECT_TRUE(back.has_value());
+  EXPECT_EQ(uri, back.value());
+}
+
+TEST(vocabularies_uri_with_custom_string) {
+  const sourcemeta::blaze::SchemaVocabularies::URI uri{
+      sourcemeta::core::JSON::String{"https://example.com/my-custom-vocab"}};
+  const auto result{sourcemeta::core::to_json(uri)};
+  EXPECT_TRUE(result.is_array());
+  EXPECT_EQ(result.size(), 2);
+  EXPECT_TRUE(result.at(0).is_integer());
+  EXPECT_EQ(result.at(0).to_integer(), 1);
+  EXPECT_TRUE(result.at(1).is_string());
+  EXPECT_EQ(result.at(1).to_string(), "https://example.com/my-custom-vocab");
+  const auto back{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::URI>(
+          result)};
+  EXPECT_TRUE(back.has_value());
+  EXPECT_EQ(uri, back.value());
+}
+
+TEST(vocabularies_uri_from_json_invalid_type) {
+  const sourcemeta::core::JSON input{"not-an-array"};
+  const auto result{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::URI>(
+          input)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(vocabularies_uri_from_json_invalid_size) {
+  auto input{sourcemeta::core::JSON::make_array()};
+  input.push_back(sourcemeta::core::JSON{0});
+  const auto result{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::URI>(
+          input)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(vocabularies_uri_from_json_invalid_index) {
+  auto input{sourcemeta::core::JSON::make_array()};
+  input.push_back(sourcemeta::core::JSON{99});
+  input.push_back(sourcemeta::core::JSON{0});
+  const auto result{
+      sourcemeta::core::from_json<sourcemeta::blaze::SchemaVocabularies::URI>(
+          input)};
+  EXPECT_FALSE(result.has_value());
+}
+
+TEST(core_cannot_be_optional) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://sourcemeta.com/optional-core"
+  })JSON");
+
+  try {
+    VOCABULARIES(document, test_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(), "The core vocabulary must always be required");
+  }
+}
+
+TEST(core_must_be_declared) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://sourcemeta.com/no-core"
+  })JSON");
+
+  try {
+    VOCABULARIES(document, test_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaError &error) {
+    EXPECT_STREQ(error.what(), "The core vocabulary must always be present");
+  }
 }

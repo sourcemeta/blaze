@@ -1,0 +1,75 @@
+{
+  "schema": {
+    "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-07/schema#"
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "": {
+          "parent": null,
+          "type": "subschema",
+          "root": null,
+          "base": "",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-07/schema#",
+          "baseDialect": "http://json-schema.org/draft-07/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-07/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "": {
+          "parent": null,
+          "type": "subschema",
+          "root": null,
+          "base": "",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-07/schema#",
+          "baseDialect": "http://json-schema.org/draft-07/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-07/schema#": true
+          }
+        },
+        "#/x-sourcemeta-dialect-override-subschema": {
+          "parent": "",
+          "type": "pointer",
+          "root": null,
+          "base": "",
+          "pointer": "/x-sourcemeta-dialect-override-subschema",
+          "relativePointer": "/x-sourcemeta-dialect-override-subschema",
+          "dialect": "http://json-schema.org/draft-07/schema#",
+          "baseDialect": "http://json-schema.org/draft-07/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-07/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "standalone": true
+}

@@ -1,0 +1,25 @@
+{
+  "schema": {
+    "$id": "https://www.sourcemeta.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "defaultId": "",
+  "paths": [],
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {},
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {},
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "standalone": true
+}

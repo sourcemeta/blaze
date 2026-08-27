@@ -1,0 +1,206 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/parent",
+    "$defs": {
+      "child": {
+        "$id": "https://example.com/child",
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-04/schema#"
+      }
+    }
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "https://example.com/parent": {
+          "parent": null,
+          "type": "resource",
+          "root": "https://example.com/parent",
+          "base": "https://example.com/parent",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://json-schema.org/draft/2020-12/schema",
+          "baseDialect": "https://json-schema.org/draft/2020-12/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "https://example.com/parent": {
+          "parent": null,
+          "type": "resource",
+          "root": "https://example.com/parent",
+          "base": "https://example.com/parent",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://json-schema.org/draft/2020-12/schema",
+          "baseDialect": "https://json-schema.org/draft/2020-12/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
+        },
+        "https://example.com/parent#/$defs": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://example.com/parent",
+          "base": "https://example.com/parent",
+          "pointer": "/$defs",
+          "relativePointer": "/$defs",
+          "dialect": "https://json-schema.org/draft/2020-12/schema",
+          "baseDialect": "https://json-schema.org/draft/2020-12/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
+        },
+        "https://example.com/parent#/$defs/child": {
+          "parent": "",
+          "type": "subschema",
+          "root": "https://example.com/parent",
+          "base": "https://example.com/parent",
+          "pointer": "/$defs/child",
+          "relativePointer": "/$defs/child",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": true,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "https://example.com/parent#/$defs/child/$id": {
+          "parent": "/$defs/child",
+          "type": "pointer",
+          "root": "https://example.com/parent",
+          "base": "https://example.com/parent",
+          "pointer": "/$defs/child/$id",
+          "relativePointer": "/$defs/child/$id",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": true,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "https://example.com/parent#/$defs/child/x-sourcemeta-dialect-override-subschema": {
+          "parent": "/$defs/child",
+          "type": "pointer",
+          "root": "https://example.com/parent",
+          "base": "https://example.com/parent",
+          "pointer": "/$defs/child/x-sourcemeta-dialect-override-subschema",
+          "relativePointer": "/$defs/child/x-sourcemeta-dialect-override-subschema",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": true,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "https://example.com/parent#/$id": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://example.com/parent",
+          "base": "https://example.com/parent",
+          "pointer": "/$id",
+          "relativePointer": "/$id",
+          "dialect": "https://json-schema.org/draft/2020-12/schema",
+          "baseDialect": "https://json-schema.org/draft/2020-12/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
+        },
+        "https://example.com/parent#/$schema": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://example.com/parent",
+          "base": "https://example.com/parent",
+          "pointer": "/$schema",
+          "relativePointer": "/$schema",
+          "dialect": "https://json-schema.org/draft/2020-12/schema",
+          "baseDialect": "https://json-schema.org/draft/2020-12/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": [
+      {
+        "type": "static",
+        "origin": "/$schema",
+        "original": "https://json-schema.org/draft/2020-12/schema",
+        "destination": "https://json-schema.org/draft/2020-12/schema",
+        "base": "https://json-schema.org/draft/2020-12/schema",
+        "fragment": null
+      }
+    ]
+  },
+  "standalone": true
+}

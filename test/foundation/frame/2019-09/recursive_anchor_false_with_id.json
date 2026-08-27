@@ -1,0 +1,152 @@
+{
+  "schema": {
+    "$id": "https://www.sourcemeta.com/schema",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$recursiveAnchor": false
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "https://www.sourcemeta.com/schema": {
+          "parent": null,
+          "type": "resource",
+          "root": "https://www.sourcemeta.com/schema",
+          "base": "https://www.sourcemeta.com/schema",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://json-schema.org/draft/2019-09/schema",
+          "baseDialect": "https://json-schema.org/draft/2019-09/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true,
+            "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+            "https://json-schema.org/draft/2019-09/vocab/validation": true,
+            "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+            "https://json-schema.org/draft/2019-09/vocab/format": false,
+            "https://json-schema.org/draft/2019-09/vocab/content": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "https://www.sourcemeta.com/schema": {
+          "parent": null,
+          "type": "resource",
+          "root": "https://www.sourcemeta.com/schema",
+          "base": "https://www.sourcemeta.com/schema",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://json-schema.org/draft/2019-09/schema",
+          "baseDialect": "https://json-schema.org/draft/2019-09/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true,
+            "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+            "https://json-schema.org/draft/2019-09/vocab/validation": true,
+            "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+            "https://json-schema.org/draft/2019-09/vocab/format": false,
+            "https://json-schema.org/draft/2019-09/vocab/content": true
+          }
+        },
+        "https://www.sourcemeta.com/schema#/$id": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/schema",
+          "base": "https://www.sourcemeta.com/schema",
+          "pointer": "/$id",
+          "relativePointer": "/$id",
+          "dialect": "https://json-schema.org/draft/2019-09/schema",
+          "baseDialect": "https://json-schema.org/draft/2019-09/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true,
+            "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+            "https://json-schema.org/draft/2019-09/vocab/validation": true,
+            "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+            "https://json-schema.org/draft/2019-09/vocab/format": false,
+            "https://json-schema.org/draft/2019-09/vocab/content": true
+          }
+        },
+        "https://www.sourcemeta.com/schema#/$recursiveAnchor": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/schema",
+          "base": "https://www.sourcemeta.com/schema",
+          "pointer": "/$recursiveAnchor",
+          "relativePointer": "/$recursiveAnchor",
+          "dialect": "https://json-schema.org/draft/2019-09/schema",
+          "baseDialect": "https://json-schema.org/draft/2019-09/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true,
+            "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+            "https://json-schema.org/draft/2019-09/vocab/validation": true,
+            "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+            "https://json-schema.org/draft/2019-09/vocab/format": false,
+            "https://json-schema.org/draft/2019-09/vocab/content": true
+          }
+        },
+        "https://www.sourcemeta.com/schema#/$schema": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/schema",
+          "base": "https://www.sourcemeta.com/schema",
+          "pointer": "/$schema",
+          "relativePointer": "/$schema",
+          "dialect": "https://json-schema.org/draft/2019-09/schema",
+          "baseDialect": "https://json-schema.org/draft/2019-09/schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true,
+            "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+            "https://json-schema.org/draft/2019-09/vocab/validation": true,
+            "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+            "https://json-schema.org/draft/2019-09/vocab/format": false,
+            "https://json-schema.org/draft/2019-09/vocab/content": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": [
+      {
+        "type": "static",
+        "origin": "/$schema",
+        "original": "https://json-schema.org/draft/2019-09/schema",
+        "destination": "https://json-schema.org/draft/2019-09/schema",
+        "base": "https://json-schema.org/draft/2019-09/schema",
+        "fragment": null
+      }
+    ]
+  },
+  "standalone": true,
+  "reachability": [
+    {
+      "from": "https://www.sourcemeta.com/schema",
+      "to": "https://www.sourcemeta.com/schema",
+      "reachable": true
+    }
+  ]
+}

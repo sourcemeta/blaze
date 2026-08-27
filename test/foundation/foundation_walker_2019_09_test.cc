@@ -4,10 +4,17 @@
 
 #include <algorithm>
 
-#include "foundation_test_utils.h"
-
 #include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
+#include <variant>       // std::holds_alternative, std::get
+
+#define EXPECT_VOCABULARY_KNOWN(vocabulary_value, expected_known)              \
+  EXPECT_TRUE(                                                                 \
+      std::holds_alternative<sourcemeta::blaze::SchemaVocabularies::Known>(    \
+          (vocabulary_value)));                                                \
+  EXPECT_EQ(std::get<sourcemeta::blaze::SchemaVocabularies::Known>(            \
+                (vocabulary_value)),                                           \
+            sourcemeta::blaze::SchemaVocabularies::Known::expected_known)
 
 static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2019_09_CORE{
     {"https://json-schema.org/draft/2019-09/vocab/core", true}};

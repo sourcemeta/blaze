@@ -435,6 +435,44 @@ struct CacheSubschema {
   std::optional<sourcemeta::core::WeakPointer> parent{};
 };
 
+// The location pointers that references resolve to, computed once so that
+// serialising every location does not re-scan the entire reference list
+auto reference_destinations(
+    const sourcemeta::blaze::SchemaFrame::References &references,
+    const sourcemeta::blaze::SchemaFrame::Locations &locations)
+    -> std::vector<sourcemeta::core::WeakPointer> {
+  std::vector<sourcemeta::core::WeakPointer> result;
+  for (const auto &reference : references) {
+    if (reference.first.first ==
+        sourcemeta::blaze::SchemaReferenceType::Static) {
+      const auto match{locations.find(
+          {reference.first.first, reference.second.destination})};
+      if (match != locations.cend()) {
+        result.push_back(match->second.pointer);
+      }
+
+      continue;
+    }
+
+    for (const auto &location : locations) {
+      if (location.second.type !=
+              sourcemeta::blaze::SchemaFrame::LocationType::Anchor ||
+          location.first.first !=
+              sourcemeta::blaze::SchemaReferenceType::Dynamic) {
+        continue;
+      }
+
+      if (!reference.second.fragment.has_value() ||
+          sourcemeta::core::URI{location.first.second}.fragment().value_or(
+              "") == reference.second.fragment.value()) {
+        result.push_back(location.second.pointer);
+      }
+    }
+  }
+
+  return result;
+}
+
 } // namespace
 
 namespace sourcemeta::blaze {
@@ -478,6 +516,8 @@ auto SchemaFrame::to_json(
       break;
   }
 
+  const auto destinations{
+      reference_destinations(this->references_, this->locations_)};
   root.assign_assume_new("locations", sourcemeta::core::JSON::make_object());
   root.at("locations")
       .assign_assume_new("static", sourcemeta::core::JSON::make_object());
@@ -522,6 +562,20 @@ auto SchemaFrame::to_json(
         "propertyName", sourcemeta::core::JSON{location.second.property_name});
     entry.assign_assume_new("orphan",
                             sourcemeta::core::JSON{location.second.orphan});
+    entry.assign_assume_new(
+        "hasReferencesTo",
+        sourcemeta::core::JSON{std::ranges::any_of(
+            destinations,
+            [&location](const sourcemeta::core::WeakPointer &destination)
+                -> bool { return destination == location.second.pointer; })});
+    entry.assign_assume_new(
+        "hasReferencesThrough",
+        sourcemeta::core::JSON{std::ranges::any_of(
+            destinations,
+            [&location](
+                const sourcemeta::core::WeakPointer &destination) -> bool {
+              return destination.starts_with(location.second.pointer);
+            })});
 
     auto vocabularies{sourcemeta::core::JSON::make_object()};
     this->vocabularies(location.second, resolver)
@@ -685,7 +739,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
     const bool has_explicit_different_id{
         identifier_mode == SchemaFrame::IdentifierMode::Additional &&
         root_id.has_value() && !default_id.empty() &&
-        root_id.value() != default_id};
+        root_id.value() != sourcemeta::core::URI::canonicalize(default_id)};
     sourcemeta::core::JSON::String default_id_canonical;
     if (has_explicit_different_id) {
       default_id_canonical = sourcemeta::core::URI::canonicalize(default_id);

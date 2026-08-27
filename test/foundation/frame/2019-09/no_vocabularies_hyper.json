@@ -1,0 +1,90 @@
+{
+  "schema": {
+    "$schema": "https://sourcemeta.com/2019-09-hyper-no-vocabularies"
+  },
+  "resolver": {
+    "https://sourcemeta.com/2019-09-hyper-no-vocabularies": {
+      "$id": "https://sourcemeta.com/2019-09-hyper-no-vocabularies",
+      "$schema": "https://json-schema.org/draft/2019-09/hyper-schema"
+    }
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "": {
+          "parent": null,
+          "type": "subschema",
+          "root": null,
+          "base": "",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://sourcemeta.com/2019-09-hyper-no-vocabularies",
+          "baseDialect": "https://json-schema.org/draft/2019-09/hyper-schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "": {
+          "parent": null,
+          "type": "subschema",
+          "root": null,
+          "base": "",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://sourcemeta.com/2019-09-hyper-no-vocabularies",
+          "baseDialect": "https://json-schema.org/draft/2019-09/hyper-schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true
+          }
+        },
+        "#/$schema": {
+          "parent": "",
+          "type": "pointer",
+          "root": null,
+          "base": "",
+          "pointer": "/$schema",
+          "relativePointer": "/$schema",
+          "dialect": "https://sourcemeta.com/2019-09-hyper-no-vocabularies",
+          "baseDialect": "https://json-schema.org/draft/2019-09/hyper-schema",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": [
+      {
+        "type": "static",
+        "origin": "/$schema",
+        "original": "https://sourcemeta.com/2019-09-hyper-no-vocabularies",
+        "destination": "https://sourcemeta.com/2019-09-hyper-no-vocabularies",
+        "base": "https://sourcemeta.com/2019-09-hyper-no-vocabularies",
+        "fragment": null
+      }
+    ]
+  },
+  "standalone": true
+}

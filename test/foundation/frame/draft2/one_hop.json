@@ -1,0 +1,108 @@
+{
+  "schema": {
+    "$schema": "https://sourcemeta.com/one-hop",
+    "type": "object"
+  },
+  "resolver": {
+    "https://sourcemeta.com/one-hop": {
+      "$id": "https://sourcemeta.com/one-hop",
+      "$schema": "http://json-schema.org/draft-02/schema#"
+    }
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "": {
+          "parent": null,
+          "type": "subschema",
+          "root": null,
+          "base": "",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://sourcemeta.com/one-hop",
+          "baseDialect": "http://json-schema.org/draft-02/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-02/hyper-schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "": {
+          "parent": null,
+          "type": "subschema",
+          "root": null,
+          "base": "",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "https://sourcemeta.com/one-hop",
+          "baseDialect": "http://json-schema.org/draft-02/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-02/hyper-schema#": true
+          }
+        },
+        "#/$schema": {
+          "parent": "",
+          "type": "pointer",
+          "root": null,
+          "base": "",
+          "pointer": "/$schema",
+          "relativePointer": "/$schema",
+          "dialect": "https://sourcemeta.com/one-hop",
+          "baseDialect": "http://json-schema.org/draft-02/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-02/hyper-schema#": true
+          }
+        },
+        "#/type": {
+          "parent": "",
+          "type": "pointer",
+          "root": null,
+          "base": "",
+          "pointer": "/type",
+          "relativePointer": "/type",
+          "dialect": "https://sourcemeta.com/one-hop",
+          "baseDialect": "http://json-schema.org/draft-02/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-02/hyper-schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": [
+      {
+        "type": "static",
+        "origin": "/$schema",
+        "original": "https://sourcemeta.com/one-hop",
+        "destination": "https://sourcemeta.com/one-hop",
+        "base": "https://sourcemeta.com/one-hop",
+        "fragment": null
+      }
+    ]
+  },
+  "standalone": true
+}
