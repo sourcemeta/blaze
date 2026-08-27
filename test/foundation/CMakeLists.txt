@@ -1,36 +1,6 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME foundation
   SOURCES
-    foundation_identify_2020_12_test.cc
-    foundation_identify_2019_09_test.cc
-    foundation_identify_draft7_test.cc
-    foundation_identify_draft6_test.cc
-    foundation_identify_draft4_test.cc
-    foundation_identify_draft3_test.cc
-    foundation_identify_draft2_test.cc
-    foundation_identify_draft1_test.cc
-    foundation_identify_draft0_test.cc
-    foundation_identify_test.cc
-    foundation_metaschema_test.cc
-    foundation_dialect_test.cc
-    foundation_dialect_2020_12_test.cc
-    foundation_dialect_2019_09_test.cc
-    foundation_dialect_draft7_test.cc
-    foundation_dialect_draft6_test.cc
-    foundation_dialect_draft4_test.cc
-    foundation_dialect_draft3_test.cc
-    foundation_dialect_draft2_test.cc
-    foundation_dialect_draft1_test.cc
-    foundation_dialect_draft0_test.cc
-    foundation_base_dialect_test.cc
-    foundation_base_dialect_2020_12_test.cc
-    foundation_base_dialect_2019_09_test.cc
-    foundation_base_dialect_draft7_test.cc
-    foundation_base_dialect_draft6_test.cc
-    foundation_base_dialect_draft4_test.cc
-    foundation_base_dialect_draft3_test.cc
-    foundation_base_dialect_draft2_test.cc
-    foundation_base_dialect_draft1_test.cc
-    foundation_base_dialect_draft0_test.cc
+    foundation_reidentify_test.cc
     foundation_vocabulary_2020_12_test.cc
     foundation_vocabulary_2019_09_test.cc
     foundation_vocabulary_draft7_test.cc
