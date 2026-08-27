@@ -43,7 +43,7 @@ struct SchemaContext {
   /// The current subschema
   const sourcemeta::core::JSON &schema;
   /// The schema vocabularies in use
-  const sourcemeta::blaze::Vocabularies &vocabularies;
+  const sourcemeta::blaze::SchemaVocabularies &vocabularies;
   /// The schema base URI
   const sourcemeta::core::URI &base;
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
@@ -141,7 +141,7 @@ struct Context {
   /// Accumulator for instruction extra data during compilation
   std::vector<InstructionExtra> &extra;
   /// Accumulator for the vocabularies that instructions refer to
-  std::vector<Vocabularies::URI> &vocabularies;
+  std::vector<SchemaVocabularies::URI> &vocabularies;
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
 };
 

@@ -11,13 +11,13 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &root,
-            const sourcemeta::blaze::Vocabularies &vocabularies,
+            const sourcemeta::blaze::SchemaVocabularies &vocabularies,
             const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::blaze::SchemaFrame::Location &location,
             const sourcemeta::blaze::SchemaWalker &walker,
             const sourcemeta::blaze::SchemaResolver &resolver, const bool) const
       -> SchemaTransformRule::Result override {
-    using Known = Vocabularies::Known;
+    using Known = SchemaVocabularies::Known;
     ONLY_CONTINUE_IF(
         vocabularies.contains_any({Known::JSON_Schema_2020_12_Meta_Data,
                                    Known::JSON_Schema_2019_09_Meta_Data,

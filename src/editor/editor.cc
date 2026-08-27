@@ -192,11 +192,11 @@ auto for_editor(sourcemeta::core::JSON &schema,
            .base_dialect = entry.second.base_dialect,
            .add_schema_declaration = add_schema,
            .erase_2020_12_keywords =
-               vocabularies.contains(sourcemeta::blaze::Vocabularies::Known::
-                                         JSON_Schema_2020_12_Core),
+               vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::
+                                         Known::JSON_Schema_2020_12_Core),
            .erase_2019_09_keywords =
-               vocabularies.contains(sourcemeta::blaze::Vocabularies::Known::
-                                         JSON_Schema_2019_09_Core)});
+               vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::
+                                         Known::JSON_Schema_2019_09_Core)});
     }
   }
 

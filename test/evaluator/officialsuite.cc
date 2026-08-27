@@ -264,7 +264,7 @@ static auto register_tests(
       assert(test.defines("schema"));
       assert(test.defines("tests"));
       assert(test.at("description").is_string());
-      assert(sourcemeta::blaze::is_schema(test.at("schema")));
+      assert(test.at("schema").is_object() || test.at("schema").is_boolean());
       assert(test.at("tests").is_array());
 
       std::cerr << "    Compiling: " << test.at("description").to_string()

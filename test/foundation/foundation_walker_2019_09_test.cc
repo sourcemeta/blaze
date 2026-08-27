@@ -9,38 +9,42 @@
 #include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2019_09_CORE{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2019_09_CORE{
     {"https://json-schema.org/draft/2019-09/vocab/core", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2019_09_APPLICATOR{
-    {"https://json-schema.org/draft/2019-09/vocab/core", true},
-    {"https://json-schema.org/draft/2019-09/vocab/applicator", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2019_09_APPLICATOR{
+        {"https://json-schema.org/draft/2019-09/vocab/core", true},
+        {"https://json-schema.org/draft/2019-09/vocab/applicator", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2019_09_VALIDATION{
-    {"https://json-schema.org/draft/2019-09/vocab/core", true},
-    {"https://json-schema.org/draft/2019-09/vocab/validation", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2019_09_VALIDATION{
+        {"https://json-schema.org/draft/2019-09/vocab/core", true},
+        {"https://json-schema.org/draft/2019-09/vocab/validation", true}};
 
-static const sourcemeta::blaze::Vocabularies
+static const sourcemeta::blaze::SchemaVocabularies
     VOCABULARIES_2019_09_APPLICATOR_AND_VALIDATION{
         {"https://json-schema.org/draft/2019-09/vocab/core", true},
         {"https://json-schema.org/draft/2019-09/vocab/applicator", true},
         {"https://json-schema.org/draft/2019-09/vocab/validation", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2019_09_FORMAT{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2019_09_FORMAT{
     {"https://json-schema.org/draft/2019-09/vocab/core", true},
     {"https://json-schema.org/draft/2019-09/vocab/format", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2019_09_CONTENT{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2019_09_CONTENT{
     {"https://json-schema.org/draft/2019-09/vocab/core", true},
     {"https://json-schema.org/draft/2019-09/vocab/content", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2019_09_METADATA{
-    {"https://json-schema.org/draft/2019-09/vocab/core", true},
-    {"https://json-schema.org/draft/2019-09/vocab/meta-data", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2019_09_METADATA{
+        {"https://json-schema.org/draft/2019-09/vocab/core", true},
+        {"https://json-schema.org/draft/2019-09/vocab/meta-data", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2019_09_HYPERSCHEMA{
-    {"https://json-schema.org/draft/2019-09/vocab/core", true},
-    {"https://json-schema.org/draft/2019-09/vocab/hyper-schema", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2019_09_HYPERSCHEMA{
+        {"https://json-schema.org/draft/2019-09/vocab/core", true},
+        {"https://json-schema.org/draft/2019-09/vocab/hyper-schema", true}};
 
 TEST(core_schema) {
   using namespace sourcemeta::core;

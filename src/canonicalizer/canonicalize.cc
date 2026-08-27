@@ -5,6 +5,8 @@
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/uri.h>
 
+#include "schema_helpers.h"
+
 #include <algorithm>     // std::sort, std::unique, std::ranges::none_of
 #include <array>         // std::array
 #include <bit>           // std::popcount

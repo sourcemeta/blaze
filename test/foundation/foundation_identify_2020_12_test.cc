@@ -106,8 +106,9 @@ TEST(reidentify_replace) {
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
 
-  sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
-                                sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::schema_reidentify(document,
+                                       "https://example.com/my-new-id",
+                                       sourcemeta::blaze::schema_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-new-id",
@@ -122,8 +123,9 @@ TEST(reidentify_set) {
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
 
-  sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
-                                sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::schema_reidentify(document,
+                                       "https://example.com/my-new-id",
+                                       sourcemeta::blaze::schema_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-new-id",
@@ -138,9 +140,10 @@ TEST(reidentify_replace_default_dialect) {
     "$id": "https://example.com/my-schema"
   })JSON");
 
-  sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
-                                sourcemeta::blaze::schema_resolver,
-                                "https://json-schema.org/draft/2020-12/schema");
+  sourcemeta::blaze::schema_reidentify(
+      document, "https://example.com/my-new-id",
+      sourcemeta::blaze::schema_resolver,
+      "https://json-schema.org/draft/2020-12/schema");
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-new-id"
@@ -159,8 +162,8 @@ TEST(reidentify_replace_base_dialect_shortcut) {
       document, sourcemeta::blaze::schema_resolver)};
   EXPECT_TRUE(base_dialect.has_value());
 
-  sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
-                                base_dialect.value());
+  sourcemeta::blaze::schema_reidentify(
+      document, "https://example.com/my-new-id", base_dialect.value());
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-new-id",
@@ -176,8 +179,9 @@ TEST(reidentify_set_with_top_level_ref) {
     "$ref": "https://example.com/schema"
   })JSON");
 
-  sourcemeta::blaze::reidentify(document, "https://example.com/my-new-id",
-                                sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::schema_reidentify(document,
+                                       "https://example.com/my-new-id",
+                                       sourcemeta::blaze::schema_resolver);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/my-new-id",

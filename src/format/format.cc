@@ -141,7 +141,7 @@ namespace sourcemeta::blaze {
 auto format(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
             const SchemaResolver &resolver, std::string_view default_dialect)
     -> void {
-  assert(is_schema(schema));
+  assert((schema.is_object() || schema.is_boolean()));
   std::vector<sourcemeta::core::Pointer> subschemas;
 
   {

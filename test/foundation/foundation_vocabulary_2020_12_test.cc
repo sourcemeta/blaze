@@ -53,12 +53,22 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
+static auto VOCABULARIES(const sourcemeta::core::JSON &document,
+                         const sourcemeta::blaze::SchemaResolver &resolver,
+                         const std::string_view default_dialect = "")
+    -> sourcemeta::blaze::SchemaVocabularies {
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
+                default_dialect);
+  return frame.vocabularies(frame.root_location().value().get(), resolver);
+}
+
 TEST(core_vocabularies_boolean_with_default) {
   const sourcemeta::core::JSON document{true};
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(
-          document, test_resolver,
-          "https://sourcemeta.com/2020-12-custom-vocabularies")};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      VOCABULARIES(document, test_resolver,
+                   "https://sourcemeta.com/2020-12-custom-vocabularies")};
   EXPECT_EQ(vocabularies.size(), 3);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Applicator);
@@ -69,10 +79,9 @@ TEST(real_metaschema_takes_precedence_over_default) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2020-12-no-vocabularies"
   })JSON");
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(
-          document, test_resolver,
-          "https://sourcemeta.com/2020-12-custom-vocabularies")};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      VOCABULARIES(document, test_resolver,
+                   "https://sourcemeta.com/2020-12-custom-vocabularies")};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
 }
@@ -83,7 +92,7 @@ TEST(core_cannot_be_optional) {
   })JSON");
 
   try {
-    sourcemeta::blaze::vocabularies(document, test_resolver);
+    VOCABULARIES(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaError &error) {
     EXPECT_STREQ(error.what(), "The core vocabulary must always be required");
@@ -96,7 +105,7 @@ TEST(core_must_be_declared) {
   })JSON");
 
   try {
-    sourcemeta::blaze::vocabularies(document, test_resolver);
+    VOCABULARIES(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaError &error) {
     EXPECT_STREQ(error.what(), "The core vocabulary must always be present");
@@ -107,8 +116,8 @@ TEST(no_vocabularies) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2020-12-no-vocabularies"
   })JSON");
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(document, test_resolver)};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      VOCABULARIES(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
 }
@@ -117,8 +126,8 @@ TEST(no_vocabularies_hyper) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://sourcemeta.com/2020-12-hyper-no-vocabularies"
   })JSON");
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(document, test_resolver)};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      VOCABULARIES(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
 }
@@ -127,8 +136,8 @@ TEST(hyper) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/hyper-schema"
   })JSON");
-  const sourcemeta::blaze::Vocabularies vocabularies{
-      sourcemeta::blaze::vocabularies(document, test_resolver)};
+  const sourcemeta::blaze::SchemaVocabularies vocabularies{
+      VOCABULARIES(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 8);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Applicator);

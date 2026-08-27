@@ -3677,7 +3677,7 @@ TEST(reuse_embedded_custom_metaschema_implicit_reset) {
                           std::nullopt,
                           "https://json-schema.org/draft/2020-12/schema");
 
-  // Vocabularies
+  // SchemaVocabularies
 
   const auto root_location{frame.traverse("https://example.com/schema")};
   EXPECT_TRUE(root_location.has_value());
@@ -3686,8 +3686,9 @@ TEST(reuse_embedded_custom_metaschema_implicit_reset) {
   EXPECT_EQ(root_vocabularies.size(), 2);
   EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Applicator);
-  EXPECT_FALSE(root_vocabularies.contains(
-      sourcemeta::blaze::Vocabularies::Known::JSON_Schema_2020_12_Validation));
+  EXPECT_FALSE(
+      root_vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+                                     JSON_Schema_2020_12_Validation));
 }
 
 TEST(reuse_embedded_custom_metaschema_explicit_reset) {
@@ -3898,7 +3899,7 @@ TEST(reuse_embedded_custom_metaschema_explicit_reset) {
                           std::nullopt,
                           "https://json-schema.org/draft/2020-12/schema");
 
-  // Vocabularies
+  // SchemaVocabularies
 
   const auto root_location{frame.traverse("https://example.com/schema")};
   EXPECT_TRUE(root_location.has_value());
@@ -3907,8 +3908,9 @@ TEST(reuse_embedded_custom_metaschema_explicit_reset) {
   EXPECT_EQ(root_vocabularies.size(), 2);
   EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Applicator);
-  EXPECT_FALSE(root_vocabularies.contains(
-      sourcemeta::blaze::Vocabularies::Known::JSON_Schema_2020_12_Validation));
+  EXPECT_FALSE(
+      root_vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+                                     JSON_Schema_2020_12_Validation));
 }
 
 TEST(id_with_default_id_additional_mode) {

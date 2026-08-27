@@ -17,8 +17,22 @@
 namespace sourcemeta::blaze {
 
 auto base_dialect_uri(const SchemaBaseDialect base_dialect) -> std::string_view;
-auto vocabulary_uri(Vocabularies::Known vocabulary) -> std::string_view;
-auto vocabulary_uri(const Vocabularies::URI &vocabulary) -> std::string_view;
+
+auto vocabularies(const sourcemeta::core::JSON &schema,
+                  const SchemaResolver &resolver,
+                  std::string_view default_dialect = "") -> SchemaVocabularies;
+auto vocabularies(const SchemaResolver &resolver,
+                  const SchemaBaseDialect base_dialect,
+                  std::string_view dialect) -> SchemaVocabularies;
+auto to_base_dialect(const std::string_view base_dialect)
+    -> std::optional<SchemaBaseDialect>;
+auto metaschema_try_embedded(const sourcemeta::core::JSON &schema,
+                             std::string_view identifier,
+                             const SchemaResolver &resolver)
+    -> const sourcemeta::core::JSON *;
+auto vocabulary_uri(SchemaVocabularies::Known vocabulary) -> std::string_view;
+auto vocabulary_uri(const SchemaVocabularies::URI &vocabulary)
+    -> std::string_view;
 
 inline auto id_keyword(const SchemaBaseDialect base_dialect)
     -> std::string_view {

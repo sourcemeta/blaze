@@ -9,62 +9,67 @@
 #include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_CORE{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2020_12_CORE{
     {"https://json-schema.org/draft/2020-12/vocab/core", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_APPLICATOR{
-    {"https://json-schema.org/draft/2020-12/vocab/core", true},
-    {"https://json-schema.org/draft/2020-12/vocab/applicator", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2020_12_APPLICATOR{
+        {"https://json-schema.org/draft/2020-12/vocab/core", true},
+        {"https://json-schema.org/draft/2020-12/vocab/applicator", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_UNEVALUATED{
-    {"https://json-schema.org/draft/2020-12/vocab/core", true},
-    {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2020_12_UNEVALUATED{
+        {"https://json-schema.org/draft/2020-12/vocab/core", true},
+        {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_VALIDATION{
-    {"https://json-schema.org/draft/2020-12/vocab/core", true},
-    {"https://json-schema.org/draft/2020-12/vocab/validation", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2020_12_VALIDATION{
+        {"https://json-schema.org/draft/2020-12/vocab/core", true},
+        {"https://json-schema.org/draft/2020-12/vocab/validation", true}};
 
-static const sourcemeta::blaze::Vocabularies
+static const sourcemeta::blaze::SchemaVocabularies
     VOCABULARIES_2020_12_FORMAT_ANNOTATION{
         {"https://json-schema.org/draft/2020-12/vocab/core", true},
         {"https://json-schema.org/draft/2020-12/vocab/format-annotation",
          true}};
 
-static const sourcemeta::blaze::Vocabularies
+static const sourcemeta::blaze::SchemaVocabularies
     VOCABULARIES_2020_12_FORMAT_ASSERTION{
         {"https://json-schema.org/draft/2020-12/vocab/core", true},
         {"https://json-schema.org/draft/2020-12/vocab/format-assertion", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_CONTENT{
+static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2020_12_CONTENT{
     {"https://json-schema.org/draft/2020-12/vocab/core", true},
     {"https://json-schema.org/draft/2020-12/vocab/content", true}};
 
-static const sourcemeta::blaze::Vocabularies
+static const sourcemeta::blaze::SchemaVocabularies
     VOCABULARIES_2020_12_APPLICATOR_AND_VALIDATION{
         {"https://json-schema.org/draft/2020-12/vocab/core", true},
         {"https://json-schema.org/draft/2020-12/vocab/applicator", true},
         {"https://json-schema.org/draft/2020-12/vocab/validation", true}};
 
-static const sourcemeta::blaze::Vocabularies
+static const sourcemeta::blaze::SchemaVocabularies
     VOCABULARIES_2020_12_UNEVALUATED_AND_APPLICATOR{
         {"https://json-schema.org/draft/2020-12/vocab/core", true},
         {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true},
         {"https://json-schema.org/draft/2020-12/vocab/applicator", true}};
 
-static const sourcemeta::blaze::Vocabularies
+static const sourcemeta::blaze::SchemaVocabularies
     VOCABULARIES_2020_12_APPLICATOR_UNEVALUATED_AND_VALIDATION{
         {"https://json-schema.org/draft/2020-12/vocab/core", true},
         {"https://json-schema.org/draft/2020-12/vocab/applicator", true},
         {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true},
         {"https://json-schema.org/draft/2020-12/vocab/validation", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_METADATA{
-    {"https://json-schema.org/draft/2020-12/vocab/core", true},
-    {"https://json-schema.org/draft/2020-12/vocab/meta-data", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2020_12_METADATA{
+        {"https://json-schema.org/draft/2020-12/vocab/core", true},
+        {"https://json-schema.org/draft/2020-12/vocab/meta-data", true}};
 
-static const sourcemeta::blaze::Vocabularies VOCABULARIES_2020_12_HYPERSCHEMA{
-    {"https://json-schema.org/draft/2020-12/vocab/core", true},
-    {"https://json-schema.org/draft/2019-09/vocab/hyper-schema", true}};
+static const sourcemeta::blaze::SchemaVocabularies
+    VOCABULARIES_2020_12_HYPERSCHEMA{
+        {"https://json-schema.org/draft/2020-12/vocab/core", true},
+        {"https://json-schema.org/draft/2019-09/vocab/hyper-schema", true}};
 
 TEST(core_schema) {
   using namespace sourcemeta::core;

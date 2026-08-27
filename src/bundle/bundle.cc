@@ -26,7 +26,7 @@ auto is_skippable_metaschema_reference(
   }
 
   return mode == sourcemeta::blaze::BundleMode::References ||
-         sourcemeta::blaze::is_official_schema(destination);
+         sourcemeta::blaze::schema_is_official(destination);
 }
 
 auto dependencies_internal(
@@ -86,7 +86,7 @@ auto dependencies_internal(
           identifier, "Could not resolve the reference to an external schema");
     }
 
-    if (!sourcemeta::blaze::is_schema(remote.value())) {
+    if (!remote.value().is_object() && !remote.value().is_boolean()) {
       throw sourcemeta::blaze::SchemaReferenceError(
           identifier, sourcemeta::core::to_pointer(pointer),
           "The JSON document is not a valid JSON Schema");
@@ -105,7 +105,7 @@ auto dependencies_internal(
 
     // Official schemas can only reference other official schemas, so
     // recursing into them can never surface further dependencies
-    if (sourcemeta::blaze::is_official_schema(identifier)) {
+    if (sourcemeta::blaze::schema_is_official(identifier)) {
       return;
     }
 
@@ -358,7 +358,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
           identifier, "Could not resolve the reference to an external schema");
     }
 
-    if (!sourcemeta::blaze::is_schema(remote.value())) {
+    if (!remote.value().is_object() && !remote.value().is_boolean()) {
       throw sourcemeta::blaze::SchemaReferenceError(
           identifier, sourcemeta::core::to_pointer(pointer),
           "The JSON document is not a valid JSON Schema");
@@ -405,8 +405,8 @@ auto bundle_schema(sourcemeta::core::JSON &root,
                                   remote.value(), default_dialect)});
       }
 
-      sourcemeta::blaze::reidentify(remote.value(), effective_id,
-                                    remote_base_dialect.value());
+      sourcemeta::blaze::schema_reidentify(remote.value(), effective_id,
+                                           remote_base_dialect.value());
     }
 
     if (effective_id != identifier) {
@@ -489,7 +489,7 @@ auto bundle(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
   // declare identifiers, so we leave those untouched
   if (!default_id.empty() && schema.is_object() &&
       identify(schema, resolver, default_dialect).empty()) {
-    reidentify(schema, default_id, resolver, default_dialect);
+    schema_reidentify(schema, default_id, resolver, default_dialect);
   }
 
   const auto schema_base_dialect{

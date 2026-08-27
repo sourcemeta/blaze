@@ -73,10 +73,11 @@ inline auto schema_resource_id(const std::vector<std::string> &resources,
 
 // Intern the vocabulary that owns a keyword, as an index into
 // Template::vocabularies where zero means the keyword has none
-inline auto vocabulary_intern(std::vector<Vocabularies::URI> &vocabularies,
-                              const sourcemeta::blaze::SchemaWalker &walker,
-                              const std::string_view keyword,
-                              const sourcemeta::blaze::Vocabularies &active)
+inline auto
+vocabulary_intern(std::vector<SchemaVocabularies::URI> &vocabularies,
+                  const sourcemeta::blaze::SchemaWalker &walker,
+                  const std::string_view keyword,
+                  const sourcemeta::blaze::SchemaVocabularies &active)
     -> std::size_t {
   const auto &result{walker(keyword, active)};
   if (!result.vocabulary.has_value()) {
@@ -96,13 +97,13 @@ inline auto vocabulary_intern(std::vector<Vocabularies::URI> &vocabularies,
                  std::distance(vocabularies.begin(), iterator));
 }
 
-inline auto vocabulary_id(std::vector<Vocabularies::URI> &vocabularies,
+inline auto vocabulary_id(std::vector<SchemaVocabularies::URI> &vocabularies,
                           const sourcemeta::blaze::SchemaFrame &frame,
                           const sourcemeta::blaze::SchemaWalker &walker,
                           const std::string_view keyword,
                           const sourcemeta::core::WeakPointer &relative_pointer,
                           const sourcemeta::core::URI &base,
-                          const sourcemeta::blaze::Vocabularies &active)
+                          const sourcemeta::blaze::SchemaVocabularies &active)
     -> std::size_t {
   if (!keyword.empty()) {
     return vocabulary_intern(vocabularies, walker, keyword, active);
@@ -518,7 +519,7 @@ is_circular(const sourcemeta::blaze::SchemaFrame &frame,
 // level
 inline auto required_properties(const SchemaContext &schema_context)
     -> ValueStringSet {
-  using Known = sourcemeta::blaze::Vocabularies::Known;
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   const auto imports_validation_vocabulary{
       schema_context.vocabularies.contains(Known::JSON_Schema_Draft_4) ||
       schema_context.vocabularies.contains(Known::JSON_Schema_Draft_6) ||

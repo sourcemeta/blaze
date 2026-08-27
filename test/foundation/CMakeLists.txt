@@ -10,8 +10,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME foundation
     foundation_identify_draft1_test.cc
     foundation_identify_draft0_test.cc
     foundation_identify_test.cc
-    foundation_is_schema_test.cc
-    foundation_is_empty_schema_test.cc
     foundation_metaschema_test.cc
     foundation_dialect_test.cc
     foundation_dialect_2020_12_test.cc
@@ -55,7 +53,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME foundation
     foundation_walker_openapi_test.cc
     foundation_error_test.cc
     foundation_resolver_test.cc
-    foundation_parse_type_test.cc
     foundation_json_auto_test.cc
     foundation_frame_test_utils.h
     foundation_frame_2020_12_test.cc

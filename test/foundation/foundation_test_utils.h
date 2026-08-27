@@ -6,27 +6,31 @@
 #include <variant>
 
 #define EXPECT_VOCABULARY_KNOWN(vocabulary_value, expected_known)              \
-  EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::Vocabularies::Known>(  \
-      (vocabulary_value)));                                                    \
-  EXPECT_EQ(                                                                   \
-      std::get<sourcemeta::blaze::Vocabularies::Known>((vocabulary_value)),    \
-      sourcemeta::blaze::Vocabularies::Known::expected_known)
+  EXPECT_TRUE(                                                                 \
+      std::holds_alternative<sourcemeta::blaze::SchemaVocabularies::Known>(    \
+          (vocabulary_value)));                                                \
+  EXPECT_EQ(std::get<sourcemeta::blaze::SchemaVocabularies::Known>(            \
+                (vocabulary_value)),                                           \
+            sourcemeta::blaze::SchemaVocabularies::Known::expected_known)
 
 #define EXPECT_VOCABULARY_REQUIRED(vocabularies, expected_known)               \
   EXPECT_TRUE(                                                                 \
       (vocabularies)                                                           \
-          .contains(sourcemeta::blaze::Vocabularies::Known::expected_known));  \
-  EXPECT_TRUE((vocabularies)                                                   \
-                  .get(sourcemeta::blaze::Vocabularies::Known::expected_known) \
-                  .value())
+          .contains(                                                           \
+              sourcemeta::blaze::SchemaVocabularies::Known::expected_known));  \
+  EXPECT_TRUE(                                                                 \
+      (vocabularies)                                                           \
+          .get(sourcemeta::blaze::SchemaVocabularies::Known::expected_known)   \
+          .value())
 
 #define EXPECT_VOCABULARY_OPTIONAL(vocabularies, expected_known)               \
   EXPECT_TRUE(                                                                 \
       (vocabularies)                                                           \
-          .contains(sourcemeta::blaze::Vocabularies::Known::expected_known));  \
+          .contains(                                                           \
+              sourcemeta::blaze::SchemaVocabularies::Known::expected_known));  \
   EXPECT_FALSE(                                                                \
       (vocabularies)                                                           \
-          .get(sourcemeta::blaze::Vocabularies::Known::expected_known)         \
+          .get(sourcemeta::blaze::SchemaVocabularies::Known::expected_known)   \
           .value())
 
 #define EXPECT_OPTIONAL_POINTER(optional_value, expected_optional)             \
