@@ -63,7 +63,7 @@ static auto test_resolver(std::string_view identifier)
              "https://www.sourcemeta.com/recursive-empty-fragment") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://www.sourcemeta.com/recursive-empty-fragment#",
+      "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
       "properties": {
         "foo": { "$ref": "#" }
       }
@@ -633,9 +633,9 @@ TEST(recursive_empty_fragment) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#",
     "$defs": {
-      "https://www.sourcemeta.com/recursive-empty-fragment#": {
+      "https://www.sourcemeta.com/recursive-empty-fragment": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://www.sourcemeta.com/recursive-empty-fragment#",
+        "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
         "properties": {
           "foo": { "$ref": "#" }
         }

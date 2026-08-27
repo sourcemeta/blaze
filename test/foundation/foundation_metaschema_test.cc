@@ -598,3 +598,46 @@ TEST(try_embedded_draft3) {
 
   EXPECT_EQ(*metaschema, expected);
 }
+
+TEST(resolved_metaschema_not_embedded) {
+  const auto document{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string"
+  })JSON")};
+
+  const auto resolver =
+      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
+    if (identifier == "https://example.com/meta") {
+      return sourcemeta::core::parse_json(R"JSON({
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true
+        },
+        "type": "object"
+      })JSON");
+    }
+
+    return sourcemeta::blaze::schema_resolver(identifier);
+  };
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/meta",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    },
+    "type": "object"
+  })JSON")};
+
+  EXPECT_EQ(frame.metaschema(resolver), expected);
+
+  // The frame owns what the resolver produced, so the reference stays valid
+  // and stable across calls
+  EXPECT_EQ(&frame.metaschema(resolver), &frame.metaschema(resolver));
+}

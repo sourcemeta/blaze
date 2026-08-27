@@ -81,17 +81,19 @@ public:
       return false;
     }
 
-    const auto &root_base_dialect{
-        frame.traverse(frame.root()).value_or(location).get().base_dialect};
+    // Deliberately framed without a default identifier, so that the root
+    // comes back empty exactly when the schema declares none of its own
+    sourcemeta::blaze::SchemaFrame declared_frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Root};
+    declared_frame.analyse(root, walker, resolver, location.dialect);
     std::string_view default_id{location.base};
-    if (!sourcemeta::blaze::identify(root, root_base_dialect).empty() ||
-        default_id.empty()) {
+    if (!declared_frame.root().empty() || default_id.empty()) {
       default_id = "";
     }
 
     sourcemeta::core::WeakPointer base;
     const auto subschema{
-        sourcemeta::blaze::wrap(root, frame, location, resolver, base)};
+        sourcemeta::blaze::wrap(root, frame, location, walker, resolver, base)};
     Template schema_template;
     try {
       schema_template = compile(subschema, walker, resolver, this->compiler_,

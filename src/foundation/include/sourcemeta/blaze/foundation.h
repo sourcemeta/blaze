@@ -54,43 +54,6 @@ auto schema_walker(const std::string_view keyword,
 
 /// @ingroup foundation
 ///
-/// This function returns the URI identifier of the given schema, or an empty
-/// string view if the schema has no identifier. For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/foundation.h>
-/// #include <cassert>
-///
-/// const sourcemeta::core::JSON document =
-///     sourcemeta::core::parse_json(R"JSON({
-///   "$schema": "https://json-schema.org/draft/2020-12/schema",
-///   "$id": "https://sourcemeta.com/example-schema"
-/// })JSON");
-///
-/// const auto id{sourcemeta::blaze::identify(
-///   document, sourcemeta::blaze::schema_resolver)};
-/// assert(!id.empty());
-/// assert(id == "https://sourcemeta.com/example-schema");
-/// ```
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT
-auto identify(const sourcemeta::core::JSON &schema,
-              const SchemaResolver &resolver,
-              std::string_view default_dialect = "",
-              std::string_view default_id = "",
-              bool allow_dialect_override = true) -> std::string_view;
-
-/// @ingroup foundation
-///
-/// A shortcut to sourcemeta::blaze::identify if you know the base dialect
-/// of the schema.
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT
-auto identify(const sourcemeta::core::JSON &schema,
-              const SchemaBaseDialect base_dialect,
-              std::string_view default_id = "") -> std::string_view;
-
-/// @ingroup foundation
-///
 /// This function sets the identifier of a schema, replacing the existing one,
 /// if any. For example:
 ///

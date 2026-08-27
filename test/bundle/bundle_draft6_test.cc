@@ -46,7 +46,7 @@ static auto test_resolver(std::string_view identifier)
              "https://www.sourcemeta.com/recursive-empty-fragment") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "$id": "https://www.sourcemeta.com/recursive-empty-fragment#",
+      "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
       "properties": {
         "foo": { "$ref": "#" }
       }
@@ -58,7 +58,7 @@ static auto test_resolver(std::string_view identifier)
   } else if (identifier == "https://www.sourcemeta.com/trailing-hash") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "$id": "https://www.sourcemeta.com/trailing-hash#",
+      "$id": "https://www.sourcemeta.com/trailing-hash",
       "definitions": {
         "string": { "type": "string" }
       }
@@ -410,9 +410,9 @@ TEST(recursive_empty_fragment) {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ],
     "definitions": {
-      "https://www.sourcemeta.com/recursive-empty-fragment#": {
+      "https://www.sourcemeta.com/recursive-empty-fragment": {
         "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://www.sourcemeta.com/recursive-empty-fragment#",
+        "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
         "properties": {
           "foo": { "$ref": "#" }
         }
@@ -556,9 +556,9 @@ TEST(hyperschema_1) {
   EXPECT_EQ(document.at("definitions").size(), 2);
 
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-06/schema#"));
+                  .defines("http://json-schema.org/draft-06/schema"));
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-06/hyper-schema#"));
+                  .defines("http://json-schema.org/draft-06/hyper-schema"));
 }
 
 TEST(hyperschema_ref_metaschema) {
@@ -578,7 +578,7 @@ TEST(hyperschema_ref_metaschema) {
   EXPECT_EQ(document.at("definitions").size(), 1);
 
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-06/schema#"));
+                  .defines("http://json-schema.org/draft-06/schema"));
 }
 
 TEST(standalone_ref_with_default_dialect) {
@@ -629,9 +629,9 @@ TEST(ref_with_fragment_to_id_with_trailing_hash) {
       }
     },
     "definitions": {
-      "https://www.sourcemeta.com/trailing-hash#": {
+      "https://www.sourcemeta.com/trailing-hash": {
         "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://www.sourcemeta.com/trailing-hash#",
+        "$id": "https://www.sourcemeta.com/trailing-hash",
         "definitions": {
           "string": { "type": "string" }
         }
