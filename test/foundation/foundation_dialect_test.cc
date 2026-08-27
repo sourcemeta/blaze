@@ -3,28 +3,56 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
+#include <string>      // std::string
+#include <string_view> // std::string_view
+
+static auto DIALECT_OF(const sourcemeta::core::JSON &document,
+                       const std::string_view default_dialect = "")
+    -> std::string {
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver, default_dialect);
+  return std::string{frame.root_location().value().get().dialect};
+}
+
 TEST(dialect_true) {
   const sourcemeta::core::JSON document{true};
-  const auto dialect{sourcemeta::blaze::dialect(document)};
-  EXPECT_TRUE(dialect.empty());
+  try {
+    [[maybe_unused]] const auto dialect{DIALECT_OF(document)};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
 TEST(dialect_false) {
   const sourcemeta::core::JSON document{false};
-  const auto dialect{sourcemeta::blaze::dialect(document)};
-  EXPECT_TRUE(dialect.empty());
+  try {
+    [[maybe_unused]] const auto dialect{DIALECT_OF(document)};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
 TEST(dialect_empty_object) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("{}");
-  const auto dialect{sourcemeta::blaze::dialect(document)};
-  EXPECT_TRUE(dialect.empty());
+  try {
+    [[maybe_unused]] const auto dialect{DIALECT_OF(document)};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
 TEST(dialect_empty_object_with_default) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("{}");
-  const auto dialect{sourcemeta::blaze::dialect(
-      document, "https://json-schema.org/draft/2020-12/schema")};
+  const auto dialect{
+      DIALECT_OF(document, "https://json-schema.org/draft/2020-12/schema")};
   EXPECT_EQ(dialect, "https://json-schema.org/draft/2020-12/schema");
 }
 
@@ -34,7 +62,7 @@ TEST(override_takes_precedence_over_schema) {
     "x-sourcemeta-dialect-override-subschema":
       "https://json-schema.org/draft/2020-12/schema"
   })JSON");
-  const auto dialect{sourcemeta::blaze::dialect(document)};
+  const auto dialect{DIALECT_OF(document)};
   EXPECT_EQ(dialect, "https://json-schema.org/draft/2020-12/schema");
 }
 
@@ -43,7 +71,7 @@ TEST(override_without_schema) {
     "x-sourcemeta-dialect-override-subschema":
       "https://json-schema.org/draft/2020-12/schema"
   })JSON");
-  const auto dialect{sourcemeta::blaze::dialect(document)};
+  const auto dialect{DIALECT_OF(document)};
   EXPECT_EQ(dialect, "https://json-schema.org/draft/2020-12/schema");
 }
 
@@ -52,8 +80,8 @@ TEST(override_takes_precedence_over_default) {
     "x-sourcemeta-dialect-override-subschema":
       "http://json-schema.org/draft-04/schema#"
   })JSON");
-  const auto dialect{sourcemeta::blaze::dialect(
-      document, "https://json-schema.org/draft/2020-12/schema")};
+  const auto dialect{
+      DIALECT_OF(document, "https://json-schema.org/draft/2020-12/schema")};
   EXPECT_EQ(dialect, "http://json-schema.org/draft-04/schema#");
 }
 
@@ -62,7 +90,7 @@ TEST(override_non_string_falls_back_to_schema) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-sourcemeta-dialect-override-subschema": 42
   })JSON");
-  const auto dialect{sourcemeta::blaze::dialect(document)};
+  const auto dialect{DIALECT_OF(document)};
   EXPECT_EQ(dialect, "https://json-schema.org/draft/2020-12/schema");
 }
 
@@ -70,8 +98,8 @@ TEST(override_null_falls_back_to_default) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "x-sourcemeta-dialect-override-subschema": null
   })JSON");
-  const auto dialect{sourcemeta::blaze::dialect(
-      document, "https://json-schema.org/draft/2020-12/schema")};
+  const auto dialect{
+      DIALECT_OF(document, "https://json-schema.org/draft/2020-12/schema")};
   EXPECT_EQ(dialect, "https://json-schema.org/draft/2020-12/schema");
 }
 
@@ -82,7 +110,7 @@ TEST(override_object_falls_back_to_schema) {
       "value": "http://json-schema.org/draft-04/schema#"
     }
   })JSON");
-  const auto dialect{sourcemeta::blaze::dialect(document)};
+  const auto dialect{DIALECT_OF(document)};
   EXPECT_EQ(dialect, "https://json-schema.org/draft/2020-12/schema");
 }
 
@@ -91,7 +119,7 @@ TEST(override_empty_string_falls_back_to_schema) {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "x-sourcemeta-dialect-override-subschema": ""
   })JSON");
-  const auto dialect{sourcemeta::blaze::dialect(document)};
+  const auto dialect{DIALECT_OF(document)};
   EXPECT_EQ(dialect, "https://json-schema.org/draft/2020-12/schema");
 }
 
@@ -99,7 +127,7 @@ TEST(override_empty_string_falls_back_to_default) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "x-sourcemeta-dialect-override-subschema": ""
   })JSON");
-  const auto dialect{sourcemeta::blaze::dialect(
-      document, "https://json-schema.org/draft/2020-12/schema")};
+  const auto dialect{
+      DIALECT_OF(document, "https://json-schema.org/draft/2020-12/schema")};
   EXPECT_EQ(dialect, "https://json-schema.org/draft/2020-12/schema");
 }

@@ -131,31 +131,6 @@ auto schema_reidentify(sourcemeta::core::JSON &schema,
 
 /// @ingroup foundation
 ///
-/// Get the dialect URI that corresponds to a JSON Schema instance.
-/// The result is empty if the dialect cannot be determined. For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/foundation.h>
-/// #include <cassert>
-///
-/// const sourcemeta::core::JSON document =
-///   sourcemeta::core::parse_json(R"JSON({
-///   "$schema": "https://json-schema.org/draft/2020-12/schema",
-///   "type": "object"
-/// })JSON");
-///
-/// const auto dialect{sourcemeta::blaze::dialect(document)};
-/// assert(!dialect.empty());
-/// assert(dialect == "https://json-schema.org/draft/2020-12/schema");
-/// ```
-SOURCEMETA_BLAZE_FOUNDATION_EXPORT
-auto dialect(const sourcemeta::core::JSON &schema,
-             std::string_view default_dialect = "",
-             bool allow_dialect_override = true) -> std::string_view;
-
-/// @ingroup foundation
-///
 /// Get the base dialect that applies to the given schema. If you set
 /// a default dialect URI, this will be used if the given schema does not
 /// declare the `$schema` keyword. For example:

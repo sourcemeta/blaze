@@ -168,7 +168,7 @@ auto elevate_embedded_resources(
 
   auto &defs{remote.at(keyword_string)};
   const auto remote_dialect_uri{
-      sourcemeta::blaze::dialect(remote, default_dialect)};
+      sourcemeta::blaze::declared_dialect(remote, default_dialect)};
 
   // Navigate to the root container once, as it doesn't change per entry
   const sourcemeta::core::JSON *root_container{&root};
@@ -228,9 +228,9 @@ auto elevate_embedded_resources(
             // extraction, so compare against a candidate that is stamped in
             // the same way
             auto candidate{value};
-            candidate.assign("$schema",
-                             sourcemeta::core::JSON{sourcemeta::blaze::dialect(
-                                 value, remote_dialect_uri)});
+            candidate.assign("$schema", sourcemeta::core::JSON{
+                                            sourcemeta::blaze::declared_dialect(
+                                                value, remote_dialect_uri)});
             if (root_entry.second != candidate) {
               throw sourcemeta::blaze::SchemaError(
                   "Conflicting embedded resources with the same identifier");
@@ -255,8 +255,9 @@ auto elevate_embedded_resources(
     // dialect of the schema it gets embedded into, which can differ from
     // the dialect it inherited from the remote it was elevated out of
     if (needs_dialect) {
-      value.assign("$schema", sourcemeta::core::JSON{sourcemeta::blaze::dialect(
-                                  value, remote_dialect_uri)});
+      value.assign("$schema",
+                   sourcemeta::core::JSON{sourcemeta::blaze::declared_dialect(
+                       value, remote_dialect_uri)});
     }
 
     embed_schema(root, container, key, std::move(value));
@@ -400,9 +401,10 @@ auto bundle_schema(sourcemeta::core::JSON &root,
       // dialect of the schema it gets embedded into, which can differ from
       // the default dialect that the remote was resolved with
       if (!remote.value().defines("$schema")) {
-        remote.value().assign("$schema",
-                              sourcemeta::core::JSON{sourcemeta::blaze::dialect(
-                                  remote.value(), default_dialect)});
+        remote.value().assign(
+            "$schema",
+            sourcemeta::core::JSON{sourcemeta::blaze::declared_dialect(
+                remote.value(), default_dialect)});
       }
 
       sourcemeta::blaze::schema_reidentify(remote.value(), effective_id,
