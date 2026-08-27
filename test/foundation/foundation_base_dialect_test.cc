@@ -3,6 +3,8 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
+#include <string_view> // std::string_view
+
 #include "foundation_test_utils.h"
 
 #include <format>  // std::format
@@ -51,35 +53,56 @@ static auto BASE_DIALECT_OF(const std::string_view dialect)
   return frame.root_location().value().get().base_dialect;
 }
 
+static auto
+BASE_DIALECT_OF_SCHEMA(const sourcemeta::core::JSON &document,
+                       const sourcemeta::blaze::SchemaResolver &resolver,
+                       const std::string_view default_dialect = "")
+    -> sourcemeta::blaze::SchemaBaseDialect {
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
+                default_dialect);
+  return frame.root_location().value().get().base_dialect;
+}
+
 TEST(boolean_schema_true) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("true");
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_FALSE(base_dialect.has_value());
+  try {
+    [[maybe_unused]] const auto base_dialect{
+        BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
 TEST(boolean_schema_false) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("false");
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_FALSE(base_dialect.has_value());
+  try {
+    [[maybe_unused]] const auto base_dialect{
+        BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
+  }
 }
 
 TEST(boolean_schema_default_dialect_official) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("true");
-  const auto base_dialect{sourcemeta::blaze::base_dialect(
-      document, sourcemeta::blaze::schema_resolver,
-      "https://json-schema.org/draft/2020-12/schema")};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{
+      BASE_DIALECT_OF_SCHEMA(document, sourcemeta::blaze::schema_resolver,
+                             "https://json-schema.org/draft/2020-12/schema")};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
 TEST(boolean_schema_default_dialect_custom_throws) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("true");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver,
-                                    "https://sourcemeta.com/metaschema_1");
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver,
+                           "https://sourcemeta.com/metaschema_1");
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -93,7 +116,7 @@ TEST(self_descriptive_schema_throws) {
     "$schema": "https://example.com/my-schema"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -107,7 +130,7 @@ TEST(non_resolvable_schema_with_id) {
     "$schema": "https://example.com/does-not-exist"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -121,7 +144,7 @@ TEST(relative_schema_uri_with_id) {
     "$schema": "../foo.json"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (
       const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
@@ -135,7 +158,7 @@ TEST(relative_schema_uri) {
     "$schema": "../foo.json"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (
       const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
@@ -149,7 +172,7 @@ TEST(non_resolvable_schema) {
     "$schema": "https://example.com/does-not-exist"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -160,8 +183,8 @@ TEST(non_resolvable_schema) {
 TEST(non_resolvable_default_schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("{}");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver,
-                                    "https://example.com/does-not-exist");
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver,
+                           "https://example.com/does-not-exist");
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -175,7 +198,7 @@ TEST(id_with_custom_metaschema_throws) {
     "$schema": "https://sourcemeta.com/metaschema_1"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -188,7 +211,7 @@ TEST(no_id_with_custom_metaschema_throws) {
     "$schema": "https://sourcemeta.com/metaschema_1"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -202,7 +225,7 @@ TEST(self_descriptive_custom_metaschema_throws) {
     "$schema": "https://sourcemeta.com/no-schema"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -215,7 +238,7 @@ TEST(metaschema_without_schema_one_hop_throws) {
     "$schema": "https://sourcemeta.com/metaschema_3"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -228,8 +251,8 @@ TEST(id_self_descriptive_default_dialect_throws) {
     "$id": "https://sourcemeta.com/foo-bar"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver,
-                                    "https://sourcemeta.com/foo-bar");
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver,
+                           "https://sourcemeta.com/foo-bar");
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -242,8 +265,8 @@ TEST(id_default_dialect_custom_throws) {
     "$id": "https://sourcemeta.com/foo-bar"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver,
-                                    "https://sourcemeta.com/metaschema_1");
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver,
+                           "https://sourcemeta.com/metaschema_1");
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -254,8 +277,8 @@ TEST(id_default_dialect_custom_throws) {
 TEST(default_dialect_custom_throws) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("{}");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver,
-                                    "https://sourcemeta.com/metaschema_1");
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver,
+                           "https://sourcemeta.com/metaschema_1");
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -268,8 +291,8 @@ TEST(default_dialect_precedence_custom_throws) {
     "$schema": "https://sourcemeta.com/metaschema_4"
   })JSON");
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver,
-                                    "https://sourcemeta.com/metaschema_1");
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver,
+                           "https://sourcemeta.com/metaschema_1");
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -281,10 +304,9 @@ TEST(default_dialect_official_takes_precedence) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
-  const auto base_dialect{sourcemeta::blaze::base_dialect(
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(
       document, test_resolver, "https://sourcemeta.com/metaschema_1")};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
@@ -294,10 +316,8 @@ TEST(override_takes_precedence_over_schema) {
     "x-sourcemeta-dialect-override-subschema":
       "https://json-schema.org/draft/2020-12/schema"
   })JSON");
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
@@ -306,10 +326,9 @@ TEST(override_takes_precedence_over_default) {
     "x-sourcemeta-dialect-override-subschema":
       "http://json-schema.org/draft-04/schema#"
   })JSON");
-  const auto base_dialect{sourcemeta::blaze::base_dialect(
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(
       document, test_resolver, "https://json-schema.org/draft/2020-12/schema")};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
 }
 
@@ -321,7 +340,7 @@ TEST(override_unresolvable_throws) {
   })JSON");
 
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/does-not-exist");
@@ -537,7 +556,7 @@ TEST(self_referencing_metaschema) {
       }};
 
   try {
-    sourcemeta::blaze::base_dialect(schema, resolver);
+    BASE_DIALECT_OF_SCHEMA(schema, resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -569,7 +588,7 @@ TEST(indirect_metaschema_cycle) {
       }};
 
   try {
-    sourcemeta::blaze::base_dialect(schema_a, resolver);
+    BASE_DIALECT_OF_SCHEMA(schema_a, resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -659,48 +678,6 @@ TEST(to_base_dialect_empty) {
   }
 }
 
-TEST(override_disallowed_returns_schema_base) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "x-sourcemeta-dialect-override-subschema":
-      "https://json-schema.org/draft/2020-12/schema"
-  })JSON");
-
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver, "", false)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
-            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
-}
-
-TEST(override_disallowed_with_unresolvable_uri) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "x-sourcemeta-dialect-override-subschema":
-      "https://example.com/does-not-exist"
-  })JSON");
-
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver, "", false)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
-            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
-}
-
-TEST(override_disallowed_with_default_dialect) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "x-sourcemeta-dialect-override-subschema":
-      "https://json-schema.org/draft/2020-12/schema"
-  })JSON");
-
-  const auto base_dialect{sourcemeta::blaze::base_dialect(
-      document, test_resolver, "http://json-schema.org/draft-07/schema#",
-      false)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
-            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
-}
-
 TEST(embedded_custom_metaschema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
@@ -718,10 +695,8 @@ TEST(embedded_custom_metaschema) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
@@ -742,10 +717,8 @@ TEST(embedded_custom_metaschema_2019_09) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
@@ -763,10 +736,8 @@ TEST(embedded_custom_metaschema_draft7) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
 }
 
@@ -784,10 +755,8 @@ TEST(embedded_custom_metaschema_draft4) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
 }
 
@@ -812,10 +781,8 @@ TEST(embedded_custom_metaschema_chain) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
@@ -837,10 +804,8 @@ TEST(embedded_custom_metaschema_chain_draft7) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
 }
 
@@ -879,9 +844,8 @@ TEST(embedded_custom_metaschema_chain_precedence) {
     return test_resolver(identifier);
   };
 
-  const auto base_dialect{sourcemeta::blaze::base_dialect(document, resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
@@ -901,10 +865,8 @@ TEST(embedded_custom_metaschema_non_canonical_dialect_uri) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
@@ -922,7 +884,7 @@ TEST(embedded_custom_metaschema_wrong_container) {
   })JSON");
 
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -949,10 +911,8 @@ TEST(embedded_custom_metaschema_definitions_2020_12) {
 
   // In 2019-09 and 2020-12, `definitions` is still supported
   // for backwards compatibility
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
@@ -973,7 +933,7 @@ TEST(embedded_custom_metaschema_wrong_id_keyword) {
   })JSON");
 
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -996,7 +956,7 @@ TEST(embedded_custom_metaschema_draft4_wrong_id_keyword) {
   })JSON");
 
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -1019,7 +979,7 @@ TEST(embedded_custom_metaschema_self_descriptive) {
   })JSON");
 
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -1046,7 +1006,7 @@ TEST(embedded_custom_metaschema_cyclic) {
   })JSON");
 
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -1068,7 +1028,7 @@ TEST(embedded_custom_metaschema_not_found) {
   })JSON");
 
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -1094,7 +1054,7 @@ TEST(embedded_custom_metaschema_relative_dialect) {
   })JSON");
 
   try {
-    sourcemeta::blaze::base_dialect(document, test_resolver);
+    BASE_DIALECT_OF_SCHEMA(document, test_resolver);
     FAIL();
   } catch (
       const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
@@ -1118,10 +1078,8 @@ TEST(embedded_custom_metaschema_draft6) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6);
 }
 
@@ -1139,10 +1097,8 @@ TEST(embedded_custom_metaschema_draft3) {
     }
   })JSON");
 
-  const auto base_dialect{
-      sourcemeta::blaze::base_dialect(document, test_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
-  EXPECT_EQ(base_dialect.value(),
+  const auto base_dialect{BASE_DIALECT_OF_SCHEMA(document, test_resolver)};
+  EXPECT_EQ(base_dialect,
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3);
 }
 
