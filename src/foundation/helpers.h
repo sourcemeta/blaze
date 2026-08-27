@@ -18,6 +18,12 @@ namespace sourcemeta::blaze {
 
 auto base_dialect_uri(const SchemaBaseDialect base_dialect) -> std::string_view;
 
+auto base_dialect(const sourcemeta::core::JSON &schema,
+                  const SchemaResolver &resolver,
+                  std::string_view default_dialect = "",
+                  bool allow_dialect_override = true)
+    -> std::optional<SchemaBaseDialect>;
+
 auto dialect(const sourcemeta::core::JSON &schema,
              std::string_view default_dialect = "",
              bool allow_dialect_override = true) -> std::string_view;

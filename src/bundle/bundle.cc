@@ -92,9 +92,11 @@ auto dependencies_internal(
           "The JSON document is not a valid JSON Schema");
     }
 
-    const auto remote_base_dialect{sourcemeta::blaze::base_dialect(
-        remote.value(), resolver, default_dialect)};
-    if (!remote_base_dialect.has_value()) {
+    sourcemeta::blaze::SchemaFrame remote_frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Root};
+    try {
+      remote_frame.analyse(remote.value(), walker, resolver, default_dialect);
+    } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
       throw sourcemeta::blaze::SchemaReferenceError(
           identifier, sourcemeta::core::to_pointer(pointer),
           "The JSON document is not a valid JSON Schema");
@@ -154,6 +156,7 @@ auto elevate_embedded_resources(
     sourcemeta::core::JSON &remote, sourcemeta::core::JSON &root,
     const sourcemeta::core::Pointer &container,
     const sourcemeta::blaze::SchemaBaseDialect remote_dialect,
+    const sourcemeta::blaze::SchemaWalker &walker,
     const sourcemeta::blaze::SchemaResolver &resolver,
     std::string_view default_dialect,
     std::unordered_map<sourcemeta::core::JSON::String,
@@ -188,11 +191,29 @@ auto elevate_embedded_resources(
   for (const auto &entry : defs.as_object()) {
     const auto &key{entry.first};
     const auto &value{entry.second};
-    const auto entry_dialect{
-        sourcemeta::blaze::base_dialect(value, resolver, default_dialect)};
-    const auto effective_entry_dialect{entry_dialect.value_or(remote_dialect)};
-    const auto identifier{
-        sourcemeta::blaze::identify(value, effective_entry_dialect)};
+    // Only an entry that declares an absolute identifier matching its key can
+    // ever be elevated, and framing rejects the fragment-only identifiers that
+    // older drafts use for anchors. Rule those out before paying for a frame
+    if (!value.is_object()) {
+      continue;
+    }
+    const auto *declared_id{value.try_at("$id")};
+    if (declared_id == nullptr) {
+      declared_id = value.try_at("id");
+    }
+    if (declared_id == nullptr || !declared_id->is_string() ||
+        declared_id->to_string() != key ||
+        !sourcemeta::core::URI{declared_id->to_string()}.is_absolute()) {
+      continue;
+    }
+
+    // The remote's dialect is what an entry that declares none inherits, so
+    // hand it to the frame as the default rather than falling back after
+    sourcemeta::blaze::SchemaFrame entry_frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Root};
+    entry_frame.analyse(value, walker, resolver, remote_dialect_uri);
+    const auto identifier{sourcemeta::blaze::identify(
+        value, entry_frame.root_location().value().get().base_dialect)};
     if (identifier.empty() || identifier != key ||
         !sourcemeta::core::URI{identifier}.is_absolute()) {
       continue;
@@ -207,13 +228,30 @@ auto elevate_embedded_resources(
             continue;
           }
 
-          const auto stored_dialect{sourcemeta::blaze::base_dialect(
-              root_entry.second, resolver, default_dialect)};
-          const auto effective_stored_dialect{stored_dialect.has_value()
-                                                  ? stored_dialect.value()
-                                                  : remote_dialect};
+          // Same reasoning as above: rule out what cannot match, and what
+          // framing would reject, before paying for a frame
+          if (!root_entry.second.is_object()) {
+            continue;
+          }
+          const auto *stored_declared_id{root_entry.second.try_at("$id")};
+          if (stored_declared_id == nullptr) {
+            stored_declared_id = root_entry.second.try_at("id");
+          }
+          if (stored_declared_id == nullptr ||
+              !stored_declared_id->is_string() ||
+              stored_declared_id->to_string() != identifier_string ||
+              !sourcemeta::core::URI{stored_declared_id->to_string()}
+                   .is_absolute()) {
+            continue;
+          }
+
+          sourcemeta::blaze::SchemaFrame stored_frame{
+              sourcemeta::blaze::SchemaFrame::Mode::Root};
+          stored_frame.analyse(root_entry.second, walker, resolver,
+                               remote_dialect_uri);
           const auto stored_id{sourcemeta::blaze::identify(
-              root_entry.second, effective_stored_dialect)};
+              root_entry.second,
+              stored_frame.root_location().value().get().base_dialect)};
           if (stored_id != identifier_string) {
             continue;
           }
@@ -365,14 +403,19 @@ auto bundle_schema(sourcemeta::core::JSON &root,
           "The JSON document is not a valid JSON Schema");
     }
 
-    const auto remote_base_dialect{sourcemeta::blaze::base_dialect(
-        remote.value(), resolver, default_dialect)};
-    if (!remote_base_dialect.has_value()) {
+    sourcemeta::blaze::SchemaFrame remote_root_frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Root};
+    try {
+      remote_root_frame.analyse(remote.value(), walker, resolver,
+                                default_dialect);
+    } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
       throw sourcemeta::blaze::SchemaReferenceError(
           identifier, sourcemeta::core::to_pointer(pointer),
           "The JSON document is not a valid JSON Schema");
     }
 
+    const auto remote_base_dialect{
+        remote_root_frame.root_location().value().get().base_dialect};
     auto remote_id =
         sourcemeta::blaze::identify(remote.value(), resolver, default_dialect);
 
@@ -408,7 +451,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
       }
 
       sourcemeta::blaze::schema_reidentify(remote.value(), effective_id,
-                                           remote_base_dialect.value());
+                                           remote_base_dialect);
     }
 
     if (effective_id != identifier) {
@@ -424,7 +467,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
     bundled.emplace(identifier, effective_id);
     bundled.emplace(effective_id, effective_id);
     deferred.emplace_back(std::move(remote).value(), std::move(effective_id),
-                          remote_base_dialect.value());
+                          remote_base_dialect);
   });
 
   for (auto &[rewrite_pointer, rewrite_value] : ref_rewrites) {
@@ -435,7 +478,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
   for (auto &[remote, effective_id, remote_dialect] : deferred) {
     bundle_schema(root, container, remote, walker, resolver, mode,
                   default_dialect, effective_id, paths, bundled, depth + 1);
-    elevate_embedded_resources(remote, root, container, remote_dialect,
+    elevate_embedded_resources(remote, root, container, remote_dialect, walker,
                                resolver, default_dialect, bundled);
     embed_schema(root, container, effective_id, std::move(remote));
   }
@@ -494,15 +537,19 @@ auto bundle(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
     schema_reidentify(schema, default_id, resolver, default_dialect);
   }
 
-  const auto schema_base_dialect{
-      base_dialect(schema, resolver, default_dialect)};
-  if (!schema_base_dialect.has_value()) {
+  SchemaFrame schema_root_frame{SchemaFrame::Mode::Root};
+  try {
+    schema_root_frame.analyse(schema, walker, resolver, default_dialect,
+                              default_id);
+  } catch (const SchemaUnknownBaseDialectError &) {
     throw SchemaError(
         "Could not determine how to perform bundling in this dialect");
   }
 
-  const auto container_keyword{
-      definitions_keyword(schema_base_dialect.value())};
+  const auto schema_base_dialect{
+      schema_root_frame.root_location().value().get().base_dialect};
+
+  const auto container_keyword{definitions_keyword(schema_base_dialect)};
   if (container_keyword.empty()) {
     SchemaFrame frame{SchemaFrame::Mode::References};
     frame.analyse(schema, walker, resolver, default_dialect, default_id);
@@ -514,13 +561,12 @@ auto bundle(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
         "Could not determine how to perform bundling in this dialect");
   }
 
-  if (ref_overrides_adjacent_keywords(schema_base_dialect.value()) &&
+  if (ref_overrides_adjacent_keywords(schema_base_dialect) &&
       schema.is_object() && schema.defines("$ref")) {
     if (schema.size() == 1) {
-      const auto is_draft3{schema_base_dialect.value() ==
-                               SchemaBaseDialect::JSON_Schema_Draft_3 ||
-                           schema_base_dialect.value() ==
-                               SchemaBaseDialect::JSON_Schema_Draft_3_Hyper};
+      const auto is_draft3{
+          schema_base_dialect == SchemaBaseDialect::JSON_Schema_Draft_3 ||
+          schema_base_dialect == SchemaBaseDialect::JSON_Schema_Draft_3_Hyper};
       auto branches{sourcemeta::core::JSON::make_array()};
       branches.push_back(schema);
       schema.at("$ref").into(std::move(branches));

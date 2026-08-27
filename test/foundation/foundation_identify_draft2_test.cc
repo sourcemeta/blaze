@@ -3,6 +3,8 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
+#include <string_view> // std::string_view
+
 static auto test_resolver(std::string_view identifier)
     -> std::optional<sourcemeta::core::JSON> {
   if (identifier == "https://sourcemeta.com/metaschema") {
@@ -13,6 +15,18 @@ static auto test_resolver(std::string_view identifier)
   } else {
     return sourcemeta::blaze::schema_resolver(identifier);
   }
+}
+
+static auto
+BASE_DIALECT_OF_SCHEMA(const sourcemeta::core::JSON &document,
+                       const sourcemeta::blaze::SchemaResolver &resolver,
+                       const std::string_view default_dialect = "")
+    -> sourcemeta::blaze::SchemaBaseDialect {
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
+                default_dialect);
+  return frame.root_location().value().get().base_dialect;
 }
 
 TEST(valid_one_hop) {
@@ -159,12 +173,11 @@ TEST(reidentify_replace_base_dialect_shortcut) {
     "$schema": "http://json-schema.org/draft-02/schema#"
   })JSON");
 
-  const auto base_dialect{sourcemeta::blaze::base_dialect(
-      document, sourcemeta::blaze::schema_resolver)};
-  EXPECT_TRUE(base_dialect.has_value());
+  const auto base_dialect{
+      BASE_DIALECT_OF_SCHEMA(document, sourcemeta::blaze::schema_resolver)};
 
   sourcemeta::blaze::schema_reidentify(
-      document, "https://example.com/my-new-id", base_dialect.value());
+      document, "https://example.com/my-new-id", base_dialect);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com/my-new-id",
