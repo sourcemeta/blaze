@@ -1917,8 +1917,9 @@ TEST(has_references_through_without_id) {
 TEST(to_json_empty) {
   sourcemeta::blaze::SchemaFrame frame{
       sourcemeta::blaze::SchemaFrame::Mode::References};
-  const auto result{frame.to_json()};
+  const auto result{frame.to_json(sourcemeta::blaze::schema_resolver)};
   const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "mode": "references",
     "locations": {
       "static": {},
       "dynamic": {}
@@ -1950,7 +1951,7 @@ TEST(to_json_mode_references) {
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver);
 
-  const auto result{frame.to_json()};
+  const auto result{frame.to_json(sourcemeta::blaze::schema_resolver)};
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "locations": {
@@ -2192,7 +2193,7 @@ TEST(to_json_mode_locations) {
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver);
 
-  const auto result{frame.to_json()};
+  const auto result{frame.to_json(sourcemeta::blaze::schema_resolver)};
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "locations": {
@@ -2412,7 +2413,7 @@ TEST(to_json_mode_references_with_tracking) {
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver);
 
-  const auto result{frame.to_json(tracker)};
+  const auto result{frame.to_json(sourcemeta::blaze::schema_resolver, tracker)};
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "locations": {
@@ -2657,7 +2658,7 @@ TEST(to_json_mode_references_with_tracking_empty) {
   frame.analyse(document, sourcemeta::blaze::schema_walker,
                 sourcemeta::blaze::schema_resolver);
 
-  const auto result{frame.to_json(tracker)};
+  const auto result{frame.to_json(sourcemeta::blaze::schema_resolver, tracker)};
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "locations": {

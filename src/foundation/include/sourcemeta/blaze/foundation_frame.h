@@ -157,8 +157,9 @@ public:
   /// A list of paths to frame within a schema wrapper
   using Paths = std::vector<sourcemeta::core::WeakPointer>;
 
-  /// Export the frame entries as JSON
+  /// Export the frame as JSON
   [[nodiscard]] auto to_json(
+      const SchemaResolver &resolver,
       const std::optional<sourcemeta::core::PointerPositionTracker> &tracker =
           std::nullopt) const -> sourcemeta::core::JSON;
 
