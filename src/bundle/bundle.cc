@@ -42,8 +42,7 @@ auto dependencies_internal(
   frame.analyse(schema, walker, resolver, default_dialect, default_id,
                 sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
                 paths);
-  const auto origin{sourcemeta::blaze::identify(schema, resolver,
-                                                default_dialect, default_id)};
+  const auto &origin{frame.root()};
 
   std::vector<
       std::tuple<sourcemeta::core::JSON, sourcemeta::core::JSON::String>>
@@ -212,8 +211,7 @@ auto elevate_embedded_resources(
     sourcemeta::blaze::SchemaFrame entry_frame{
         sourcemeta::blaze::SchemaFrame::Mode::Root};
     entry_frame.analyse(value, walker, resolver, remote_dialect_uri);
-    const auto identifier{sourcemeta::blaze::identify(
-        value, entry_frame.root_location().value().get().base_dialect)};
+    const auto &identifier{entry_frame.root()};
     if (identifier.empty() || identifier != key ||
         !sourcemeta::core::URI{identifier}.is_absolute()) {
       continue;
@@ -249,9 +247,7 @@ auto elevate_embedded_resources(
               sourcemeta::blaze::SchemaFrame::Mode::Root};
           stored_frame.analyse(root_entry.second, walker, resolver,
                                remote_dialect_uri);
-          const auto stored_id{sourcemeta::blaze::identify(
-              root_entry.second,
-              stored_frame.root_location().value().get().base_dialect)};
+          const auto &stored_id{stored_frame.root()};
           if (stored_id != identifier_string) {
             continue;
           }
@@ -416,8 +412,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
 
     const auto remote_base_dialect{
         remote_root_frame.root_location().value().get().base_dialect};
-    auto remote_id =
-        sourcemeta::blaze::identify(remote.value(), resolver, default_dialect);
+    auto remote_id = remote_root_frame.root();
 
     // If the reference has a fragment, verify it exists in the remote
     // schema
@@ -532,9 +527,14 @@ auto bundle(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
   // implicit base URI will likely not resolve unless end users happen to
   // know that this implicit base URI is. Note that boolean schemas cannot
   // declare identifiers, so we leave those untouched
-  if (!default_id.empty() && schema.is_object() &&
-      identify(schema, resolver, default_dialect).empty()) {
-    schema_reidentify(schema, default_id, resolver, default_dialect);
+  if (!default_id.empty() && schema.is_object()) {
+    // Deliberately framed without a default identifier, so that the root
+    // comes back empty exactly when the schema declares none of its own
+    SchemaFrame declared_frame{SchemaFrame::Mode::Root};
+    declared_frame.analyse(schema, walker, resolver, default_dialect);
+    if (declared_frame.root().empty()) {
+      schema_reidentify(schema, default_id, resolver, default_dialect);
+    }
   }
 
   SchemaFrame schema_root_frame{SchemaFrame::Mode::Root};

@@ -18,9 +18,9 @@ static auto wrap_schema(const sourcemeta::core::JSON &schema,
       frame.traverse(sourcemeta::core::to_weak_pointer(pointer))};
   assert(location.has_value());
   sourcemeta::core::WeakPointer base;
-  auto result{sourcemeta::blaze::wrap(schema, frame, location.value().get(),
-                                      sourcemeta::blaze::schema_resolver,
-                                      base)};
+  auto result{sourcemeta::blaze::wrap(
+      schema, frame, location.value().get(), sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, base)};
   return {std::move(result), sourcemeta::core::to_pointer(base)};
 }
 

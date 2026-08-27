@@ -3,6 +3,8 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
+#include <string> // std::string
+
 #include <string_view> // std::string_view
 
 static auto test_resolver(std::string_view identifier)
@@ -29,12 +31,23 @@ BASE_DIALECT_OF_SCHEMA(const sourcemeta::core::JSON &document,
   return frame.root_location().value().get().base_dialect;
 }
 
+static auto IDENTIFY_OF(const sourcemeta::core::JSON &document,
+                        const sourcemeta::blaze::SchemaResolver &resolver,
+                        const std::string_view default_dialect = "",
+                        const std::string_view default_id = "") -> std::string {
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
+                default_dialect, default_id);
+  return frame.root();
+}
+
 TEST(valid_one_hop) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://example.com/my-schema",
     "$schema": "https://sourcemeta.com/metaschema"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(document, test_resolver)};
+  const auto id{IDENTIFY_OF(document, test_resolver)};
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
@@ -43,23 +56,21 @@ TEST(new_one_hop) {
     "$id": "https://example.com/my-schema",
     "$schema": "https://sourcemeta.com/metaschema"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(document, test_resolver)};
+  const auto id{IDENTIFY_OF(document, test_resolver)};
   EXPECT_TRUE(id.empty());
 }
 
 TEST(id_boolean_default_dialect) {
   const sourcemeta::core::JSON document{true};
-  const auto id{
-      sourcemeta::blaze::identify(document, sourcemeta::blaze::schema_resolver,
-                                  "http://json-schema.org/draft-04/schema#")};
+  const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver,
+                            "http://json-schema.org/draft-04/schema#")};
   EXPECT_TRUE(id.empty());
 }
 
 TEST(empty_object_default_dialect) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("{}");
-  const auto id{
-      sourcemeta::blaze::identify(document, sourcemeta::blaze::schema_resolver,
-                                  "http://json-schema.org/draft-04/schema#")};
+  const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver,
+                            "http://json-schema.org/draft-04/schema#")};
   EXPECT_TRUE(id.empty());
 }
 
@@ -68,8 +79,7 @@ TEST(valid_id) {
     "id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-04/schema#"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(
-      document, sourcemeta::blaze::schema_resolver)};
+  const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
@@ -78,8 +88,7 @@ TEST(new_id) {
     "$id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-04/schema#"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(
-      document, sourcemeta::blaze::schema_resolver)};
+  const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_TRUE(id.empty());
 }
 
@@ -88,9 +97,8 @@ TEST(default_dialect_precedence) {
     "id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-04/schema#"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(
-      document, sourcemeta::blaze::schema_resolver,
-      "https://json-schema.org/draft/2020-12/schema")};
+  const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver,
+                            "https://json-schema.org/draft/2020-12/schema")};
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
@@ -99,8 +107,7 @@ TEST(base_dialect_shortcut) {
     "id": "https://example.com/my-schema",
     "$schema": "http://json-schema.org/draft-04/schema#"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(
-      document, sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4)};
+  const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(id, "https://example.com/my-schema");
 }
 
@@ -110,7 +117,7 @@ TEST(sibling_ref) {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "$ref": "#"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(document, test_resolver)};
+  const auto id{IDENTIFY_OF(document, test_resolver)};
   EXPECT_TRUE(id.empty());
 }
 
@@ -234,8 +241,7 @@ TEST(id_empty_fragment_only) {
     "id": "#",
     "$schema": "http://json-schema.org/draft-04/schema#"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(
-      document, sourcemeta::blaze::schema_resolver)};
+  const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_TRUE(id.empty());
 }
 
@@ -244,7 +250,6 @@ TEST(id_empty_string) {
     "id": "",
     "$schema": "http://json-schema.org/draft-04/schema#"
   })JSON");
-  const auto id{sourcemeta::blaze::identify(
-      document, sourcemeta::blaze::schema_resolver)};
+  const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_TRUE(id.empty());
 }

@@ -2,7 +2,11 @@
 
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+
+#include <string_view> // std::string_view
+
 #include <sourcemeta/core/uri.h>
+#include <string> // std::string
 
 #define EXPECT_SCHEMA(identifier)                                              \
   {                                                                            \
@@ -11,11 +15,21 @@
     EXPECT_TRUE(result.has_value());                                           \
     const sourcemeta::core::JSON &document{result.value()};                    \
     EXPECT_TRUE((document.is_object() || document.is_boolean()));              \
-    const auto id{sourcemeta::blaze::identify(                                 \
-        document, sourcemeta::blaze::schema_resolver)};                        \
+    const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver)};  \
     EXPECT_EQ(sourcemeta::core::URI{id}.canonicalize().recompose(),            \
               sourcemeta::core::URI{identifier}.canonicalize().recompose());   \
   }
+
+static auto IDENTIFY_OF(const sourcemeta::core::JSON &document,
+                        const sourcemeta::blaze::SchemaResolver &resolver,
+                        const std::string_view default_dialect = "",
+                        const std::string_view default_id = "") -> std::string {
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
+                default_dialect, default_id);
+  return frame.root();
+}
 
 TEST(jsonschema_2020_12) {
   EXPECT_SCHEMA("https://json-schema.org/draft/2020-12/schema");

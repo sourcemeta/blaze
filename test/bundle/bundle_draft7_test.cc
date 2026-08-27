@@ -10,7 +10,15 @@
 
 static auto test_resolver(std::string_view identifier)
     -> std::optional<sourcemeta::core::JSON> {
-  if (identifier == "https://www.sourcemeta.com/test-1") {
+  if (identifier == "https://www.sourcemeta.com/default-port") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://www.sourcemeta.com/default-port",
+      "definitions": {
+        "string": { "type": "string" }
+      }
+    })JSON");
+  } else if (identifier == "https://www.sourcemeta.com/test-1") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-07/schema#",
       "$id": "https://www.sourcemeta.com/test-1",
@@ -46,7 +54,7 @@ static auto test_resolver(std::string_view identifier)
              "https://www.sourcemeta.com/recursive-empty-fragment") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "$id": "https://www.sourcemeta.com/recursive-empty-fragment#",
+      "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
       "properties": {
         "foo": { "$ref": "#" }
       }
@@ -58,7 +66,7 @@ static auto test_resolver(std::string_view identifier)
   } else if (identifier == "https://www.sourcemeta.com/trailing-hash") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "$id": "https://www.sourcemeta.com/trailing-hash#",
+      "$id": "https://www.sourcemeta.com/trailing-hash",
       "definitions": {
         "string": { "type": "string" }
       }
@@ -449,9 +457,9 @@ TEST(recursive_empty_fragment) {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ],
     "definitions": {
-      "https://www.sourcemeta.com/recursive-empty-fragment#": {
+      "https://www.sourcemeta.com/recursive-empty-fragment": {
         "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "https://www.sourcemeta.com/recursive-empty-fragment#",
+        "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
         "properties": {
           "foo": { "$ref": "#" }
         }
@@ -595,11 +603,11 @@ TEST(hyperschema_1) {
   EXPECT_EQ(document.at("definitions").size(), 3);
 
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-07/schema#"));
+                  .defines("http://json-schema.org/draft-07/schema"));
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-07/links#"));
+                  .defines("http://json-schema.org/draft-07/links"));
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-07/hyper-schema#"));
+                  .defines("http://json-schema.org/draft-07/hyper-schema"));
 }
 
 TEST(hyperschema_ref_metaschema) {
@@ -619,7 +627,7 @@ TEST(hyperschema_ref_metaschema) {
   EXPECT_EQ(document.at("definitions").size(), 1);
 
   EXPECT_TRUE(document.at("definitions")
-                  .defines("http://json-schema.org/draft-07/schema#"));
+                  .defines("http://json-schema.org/draft-07/schema"));
 }
 
 TEST(bundle_to_defs) {
@@ -698,9 +706,9 @@ TEST(ref_with_fragment_to_id_with_trailing_hash) {
       }
     },
     "definitions": {
-      "https://www.sourcemeta.com/trailing-hash#": {
+      "https://www.sourcemeta.com/trailing-hash": {
         "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "https://www.sourcemeta.com/trailing-hash#",
+        "$id": "https://www.sourcemeta.com/trailing-hash",
         "definitions": {
           "string": { "type": "string" }
         }
@@ -825,4 +833,37 @@ TEST(metaschema_offline_idempotent) {
   })JSON");
 
   EXPECT_EQ(document, expected);
+}
+
+TEST(ref_to_id_with_default_port) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "$ref": "https://www.sourcemeta.com:443/default-port#/definitions/string"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  // References are canonicalised before they are resolved, so a reference
+  // written with a default port finds a resource registered without one. The
+  // reference itself is left exactly as the author wrote it
+  EXPECT_TRUE(document.at("properties").at("foo").defines("$ref"));
+  EXPECT_EQ(document.at("properties").at("foo").at("$ref"),
+            sourcemeta::core::JSON{
+                "https://www.sourcemeta.com:443/default-port#/definitions/"
+                "string"});
+  EXPECT_TRUE(document.at("definitions")
+                  .defines("https://www.sourcemeta.com/default-port"));
+
+  // Which still resolves, as framing canonicalises both sides
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, test_resolver);
+  EXPECT_TRUE(frame.standalone());
 }

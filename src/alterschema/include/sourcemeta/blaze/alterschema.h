@@ -164,15 +164,17 @@ private:
 /// sourcemeta::core::WeakPointer base;
 /// const sourcemeta::core::JSON result =
 ///   sourcemeta::blaze::wrap(document, frame, location.value().get(),
-///     sourcemeta::blaze::schema_resolver, base);
+///     sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+///     base);
 ///
 /// sourcemeta::core::prettify(result, std::cerr);
 /// std::cerr << "\n";
 /// ```
 SOURCEMETA_BLAZE_ALTERSCHEMA_EXPORT
 auto wrap(const sourcemeta::core::JSON &schema, const SchemaFrame &frame,
-          const SchemaFrame::Location &location, const SchemaResolver &resolver,
-          sourcemeta::core::WeakPointer &base) -> sourcemeta::core::JSON;
+          const SchemaFrame::Location &location, const SchemaWalker &walker,
+          const SchemaResolver &resolver, sourcemeta::core::WeakPointer &base)
+    -> sourcemeta::core::JSON;
 
 } // namespace sourcemeta::blaze
 
