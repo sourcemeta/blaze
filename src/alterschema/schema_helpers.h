@@ -3,7 +3,8 @@
 
 #include <sourcemeta/core/json.h>
 
-#include <utility> // std::to_underlying
+#include <string_view> // std::string_view
+#include <utility>     // std::to_underlying
 
 namespace sourcemeta::blaze {
 
@@ -49,6 +50,28 @@ inline auto parse_schema_type(const sourcemeta::core::JSON &type)
   }
 
   return result;
+}
+
+// The dialect a schema declares, honouring the marker that the upgrade rules
+// leave behind while they walk a document across drafts
+inline auto declared_dialect(const sourcemeta::core::JSON &schema)
+    -> std::string_view {
+  if (!schema.is_object()) {
+    return {};
+  }
+
+  const auto *override_value{
+      schema.try_at("x-sourcemeta-dialect-override-subschema")};
+  if (override_value != nullptr && override_value->is_string()) {
+    return override_value->to_string();
+  }
+
+  const auto *dialect{schema.try_at("$schema")};
+  if (dialect != nullptr && dialect->is_string()) {
+    return dialect->to_string();
+  }
+
+  return {};
 }
 
 } // namespace sourcemeta::blaze

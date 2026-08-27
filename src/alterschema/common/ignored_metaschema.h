@@ -20,7 +20,7 @@ public:
     ONLY_CONTINUE_IF(schema.is_object());
     const auto *schema_keyword{schema.try_at("$schema")};
     ONLY_CONTINUE_IF(schema_keyword && schema_keyword->is_string());
-    const auto dialect{sourcemeta::blaze::dialect(schema)};
+    const auto dialect{declared_dialect(schema)};
     ONLY_CONTINUE_IF(!dialect.empty());
     ONLY_CONTINUE_IF(dialect != location.dialect);
     return APPLIES_TO_KEYWORDS("$schema");
