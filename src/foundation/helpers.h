@@ -18,83 +18,14 @@ namespace sourcemeta::blaze {
 
 auto base_dialect_uri(const SchemaBaseDialect base_dialect) -> std::string_view;
 
-/// @ingroup foundation
-///
-/// List the vocabularies that a specific schema makes use of. If you set a
-/// default dialect URI, this will be used if the given schema does not
-/// declare the
-/// `$schema` keyword. The resulting map values are set to `true` or `false`
-/// depending on whether the corresponding vocabulary is required or optional,
-/// respectively. For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/foundation.h>
-/// #include <cassert>
-///
-/// const sourcemeta::core::JSON document =
-///   sourcemeta::core::parse_json(R"JSON({
-///   "$schema": "https://json-schema.org/draft/2020-12/schema",
-///   "type": "object"
-/// })JSON");
-///
-/// const auto vocabularies{
-///   sourcemeta::blaze::vocabularies(
-///     document, sourcemeta::blaze::schema_resolver)};
-///
-/// assert(vocabularies.at("https://json-schema.org/draft/2020-12/vocab/core"));
-/// assert(vocabularies.at("https://json-schema.org/draft/2020-12/vocab/applicator"));
-/// assert(vocabularies.at("https://json-schema.org/draft/2020-12/vocab/unevaluated"));
-/// assert(vocabularies.at("https://json-schema.org/draft/2020-12/vocab/validation"));
-/// assert(vocabularies.at("https://json-schema.org/draft/2020-12/vocab/meta-data"));
-/// assert(vocabularies.at("https://json-schema.org/draft/2020-12/vocab/format-annotation"));
-/// assert(vocabularies.at("https://json-schema.org/draft/2020-12/vocab/content"));
-/// ```
 auto vocabularies(const sourcemeta::core::JSON &schema,
                   const SchemaResolver &resolver,
                   std::string_view default_dialect = "") -> SchemaVocabularies;
-/// @ingroup foundation
-///
-/// A shortcut to sourcemeta::blaze::vocabularies based on the base
-/// dialect and dialect URI.
 auto vocabularies(const SchemaResolver &resolver,
                   const SchemaBaseDialect base_dialect,
                   std::string_view dialect) -> SchemaVocabularies;
-/// @ingroup foundation
-/// Parse a base dialect URI to its enum representation
 auto to_base_dialect(const std::string_view base_dialect)
     -> std::optional<SchemaBaseDialect>;
-/// @ingroup foundation
-///
-/// Try to locate the meta-schema that the given schema declares from within
-/// the schema itself, as self-contained schemas embed the meta-schemas they
-/// depend on. The result points into the given document and is null if no
-/// valid embedded meta-schema could be found. For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/foundation.h>
-/// #include <cassert>
-///
-/// const sourcemeta::core::JSON schema =
-///   sourcemeta::core::parse_json(R"JSON({
-///   "$schema": "https://example.com/meta",
-///   "$defs": {
-///     "https://example.com/meta": {
-///       "$id": "https://example.com/meta",
-///       "$schema": "https://json-schema.org/draft/2020-12/schema",
-///       "type": "object"
-///     }
-///   }
-/// })JSON");
-///
-/// const auto *metaschema{sourcemeta::blaze::metaschema_try_embedded(
-///   schema, "https://example.com/meta",
-///   sourcemeta::blaze::schema_resolver)};
-///
-/// assert(metaschema);
-/// assert(metaschema == &schema.at("$defs").at("https://example.com/meta"));
-/// ```
 auto metaschema_try_embedded(const sourcemeta::core::JSON &schema,
                              std::string_view identifier,
                              const SchemaResolver &resolver)

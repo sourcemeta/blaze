@@ -120,7 +120,10 @@ TEST(try_embedded_not_found) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
   }
 }
 
@@ -137,7 +140,10 @@ TEST(try_embedded_no_containers) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
   }
 }
 
@@ -160,7 +166,11 @@ TEST(try_embedded_relative_identifier) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (
+      const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
+    EXPECT_STREQ(error.what(), "Relative meta-schema URIs are not valid "
+                               "according to the JSON Schema specification");
+    EXPECT_EQ(error.identifier(), "meta");
   }
 }
 
@@ -183,7 +193,10 @@ TEST(try_embedded_wrong_container) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
   }
 }
 
@@ -209,7 +222,10 @@ TEST(try_embedded_wrong_id_keyword) {
     frame.analyse(document, sourcemeta::blaze::schema_walker,
                   sourcemeta::blaze::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &) {
+  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the metaschema of the schema");
+    EXPECT_EQ(error.identifier(), "https://example.com/meta");
   }
 }
 

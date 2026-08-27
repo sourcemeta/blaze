@@ -39,6 +39,18 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
+static auto BASE_DIALECT_OF(const std::string_view dialect)
+    -> sourcemeta::blaze::SchemaBaseDialect {
+  auto document{sourcemeta::core::JSON::make_object()};
+  document.assign("$schema", sourcemeta::core::JSON{
+                                 sourcemeta::core::JSON::String{dialect}});
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker,
+                sourcemeta::blaze::schema_resolver);
+  return frame.root_location().value().get().base_dialect;
+}
+
 TEST(boolean_schema_true) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json("true");
   const auto base_dialect{
@@ -433,89 +445,80 @@ TEST(format_draft0_hyper) {
 }
 
 TEST(to_base_dialect_2020_12) {
-  EXPECT_EQ(
-      test_base_dialect_of("https://json-schema.org/draft/2020-12/schema"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft/2020-12/schema"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
 TEST(to_base_dialect_2020_12_hyper) {
-  EXPECT_EQ(test_base_dialect_of(
-                "https://json-schema.org/draft/2020-12/hyper-schema"),
-            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12_Hyper);
+  EXPECT_EQ(
+      BASE_DIALECT_OF("https://json-schema.org/draft/2020-12/hyper-schema"),
+      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12_Hyper);
 }
 
 TEST(to_base_dialect_2019_09) {
-  EXPECT_EQ(
-      test_base_dialect_of("https://json-schema.org/draft/2019-09/schema"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft/2019-09/schema"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
 TEST(to_base_dialect_2019_09_hyper) {
-  EXPECT_EQ(test_base_dialect_of(
-                "https://json-schema.org/draft/2019-09/hyper-schema"),
-            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09_Hyper);
+  EXPECT_EQ(
+      BASE_DIALECT_OF("https://json-schema.org/draft/2019-09/hyper-schema"),
+      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09_Hyper);
 }
 
 TEST(to_base_dialect_draft7) {
-  EXPECT_EQ(test_base_dialect_of("http://json-schema.org/draft-07/schema#"),
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-07/schema#"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
 }
 
 TEST(to_base_dialect_draft7_hyper) {
-  EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft-07/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-07/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7_Hyper);
 }
 
 TEST(to_base_dialect_draft6) {
-  EXPECT_EQ(test_base_dialect_of("http://json-schema.org/draft-06/schema#"),
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-06/schema#"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6);
 }
 
 TEST(to_base_dialect_draft6_hyper) {
-  EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft-06/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-06/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6_Hyper);
 }
 
 TEST(to_base_dialect_draft4) {
-  EXPECT_EQ(test_base_dialect_of("http://json-schema.org/draft-04/schema#"),
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-04/schema#"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
 }
 
 TEST(to_base_dialect_draft4_hyper) {
-  EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft-04/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-04/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4_Hyper);
 }
 
 TEST(to_base_dialect_draft3) {
-  EXPECT_EQ(test_base_dialect_of("http://json-schema.org/draft-03/schema#"),
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-03/schema#"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3);
 }
 
 TEST(to_base_dialect_draft3_hyper) {
-  EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft-03/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-03/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3_Hyper);
 }
 
 TEST(to_base_dialect_draft2_hyper) {
-  EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft-02/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_2_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-02/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_2_Hyper);
 }
 
 TEST(to_base_dialect_draft1_hyper) {
-  EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft-01/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_1_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-01/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_1_Hyper);
 }
 
 TEST(to_base_dialect_draft0_hyper) {
-  EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft-00/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_0_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft-00/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_0_Hyper);
 }
 
 TEST(self_referencing_metaschema) {
@@ -575,75 +578,71 @@ TEST(indirect_metaschema_cycle) {
 }
 
 TEST(to_base_dialect_2020_12_http) {
-  EXPECT_EQ(test_base_dialect_of("http://json-schema.org/draft/2020-12/schema"),
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft/2020-12/schema"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12);
 }
 
 TEST(to_base_dialect_2020_12_hyper_http) {
   EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft/2020-12/hyper-schema"),
+      BASE_DIALECT_OF("http://json-schema.org/draft/2020-12/hyper-schema"),
       sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2020_12_Hyper);
 }
 
 TEST(to_base_dialect_2019_09_http) {
-  EXPECT_EQ(test_base_dialect_of("http://json-schema.org/draft/2019-09/schema"),
+  EXPECT_EQ(BASE_DIALECT_OF("http://json-schema.org/draft/2019-09/schema"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09);
 }
 
 TEST(to_base_dialect_2019_09_hyper_http) {
   EXPECT_EQ(
-      test_base_dialect_of("http://json-schema.org/draft/2019-09/hyper-schema"),
+      BASE_DIALECT_OF("http://json-schema.org/draft/2019-09/hyper-schema"),
       sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_2019_09_Hyper);
 }
 
 TEST(to_base_dialect_draft7_https) {
-  EXPECT_EQ(test_base_dialect_of("https://json-schema.org/draft-07/schema#"),
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft-07/schema#"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7);
 }
 
 TEST(to_base_dialect_draft7_hyper_https) {
-  EXPECT_EQ(
-      test_base_dialect_of("https://json-schema.org/draft-07/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft-07/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_7_Hyper);
 }
 
 TEST(to_base_dialect_draft6_https) {
-  EXPECT_EQ(test_base_dialect_of("https://json-schema.org/draft-06/schema#"),
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft-06/schema#"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_6);
 }
 
 TEST(to_base_dialect_draft4_https) {
-  EXPECT_EQ(test_base_dialect_of("https://json-schema.org/draft-04/schema#"),
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft-04/schema#"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_4);
 }
 
 TEST(to_base_dialect_draft3_https) {
-  EXPECT_EQ(test_base_dialect_of("https://json-schema.org/draft-03/schema#"),
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft-03/schema#"),
             sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_3);
 }
 
 TEST(to_base_dialect_draft2_hyper_https) {
-  EXPECT_EQ(
-      test_base_dialect_of("https://json-schema.org/draft-02/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_2_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft-02/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_2_Hyper);
 }
 
 TEST(to_base_dialect_draft1_hyper_https) {
-  EXPECT_EQ(
-      test_base_dialect_of("https://json-schema.org/draft-01/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_1_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft-01/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_1_Hyper);
 }
 
 TEST(to_base_dialect_draft0_hyper_https) {
-  EXPECT_EQ(
-      test_base_dialect_of("https://json-schema.org/draft-00/hyper-schema#"),
-      sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_0_Hyper);
+  EXPECT_EQ(BASE_DIALECT_OF("https://json-schema.org/draft-00/hyper-schema#"),
+            sourcemeta::blaze::SchemaBaseDialect::JSON_Schema_Draft_0_Hyper);
 }
 
 TEST(to_base_dialect_unknown) {
   try {
     [[maybe_unused]] const auto result{
-        test_base_dialect_of("https://example.com/unknown-dialect")};
+        BASE_DIALECT_OF("https://example.com/unknown-dialect")};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/unknown-dialect");
@@ -652,9 +651,11 @@ TEST(to_base_dialect_unknown) {
 
 TEST(to_base_dialect_empty) {
   try {
-    [[maybe_unused]] const auto result{test_base_dialect_of("")};
+    [[maybe_unused]] const auto result{BASE_DIALECT_OF("")};
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
+  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Could not determine the base dialect of the schema");
   }
 }
 

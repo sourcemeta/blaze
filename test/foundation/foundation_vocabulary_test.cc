@@ -11,10 +11,21 @@
 #include <unordered_set> // std::unordered_set
 #include <variant>       // std::variant
 
+static auto VOCABULARIES(const sourcemeta::core::JSON &document,
+                         const sourcemeta::blaze::SchemaResolver &resolver,
+                         const std::string_view default_dialect = "")
+    -> sourcemeta::blaze::SchemaVocabularies {
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
+                default_dialect);
+  return frame.vocabularies(frame.root_location().value().get(), resolver);
+}
+
 TEST(core_vocabularies_boolean_without_default) {
   const sourcemeta::core::JSON document{true};
   try {
-    test_vocabularies(document, sourcemeta::blaze::schema_resolver);
+    VOCABULARIES(document, sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -27,7 +38,7 @@ TEST(unresolvable_dialect) {
     "$schema": "https://non-existent.com/dialect"
   })JSON");
   try {
-    test_vocabularies(document, sourcemeta::blaze::schema_resolver);
+    VOCABULARIES(document, sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -42,7 +53,7 @@ TEST(override_returns_override_vocabularies) {
       "https://json-schema.org/draft/2020-12/schema"
   })JSON");
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 7);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Applicator);
@@ -60,7 +71,7 @@ TEST(override_only_returns_override_vocabularies) {
       "http://json-schema.org/draft-07/schema#"
   })JSON");
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
 }
@@ -72,7 +83,7 @@ TEST(override_unresolvable) {
       "https://non-existent.com/dialect"
   })JSON");
   try {
-    test_vocabularies(document, sourcemeta::blaze::schema_resolver);
+    VOCABULARIES(document, sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -619,7 +630,7 @@ TEST(embedded_custom_metaschema) {
   })JSON");
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 2);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
@@ -644,7 +655,7 @@ TEST(embedded_custom_metaschema_2019_09) {
   })JSON");
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 2);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2019_09_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2019_09_Validation);
@@ -665,7 +676,7 @@ TEST(embedded_custom_metaschema_draft7) {
   })JSON");
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_7);
 }
@@ -685,7 +696,7 @@ TEST(embedded_custom_metaschema_draft4) {
   })JSON");
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_4);
 }
@@ -716,7 +727,7 @@ TEST(embedded_custom_metaschema_chain) {
   })JSON");
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 2);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
@@ -762,7 +773,7 @@ TEST(embedded_custom_metaschema_chain_precedence) {
   };
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, resolver)};
+      VOCABULARIES(document, resolver)};
   EXPECT_EQ(vocabularies.size(), 2);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
@@ -783,7 +794,7 @@ TEST(embedded_custom_metaschema_without_vocabulary) {
   })JSON");
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
 }
@@ -807,7 +818,7 @@ TEST(embedded_custom_metaschema_definitions_2020_12) {
   // In 2019-09 and 2020-12, `definitions` is still supported
   // for backwards compatibility
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
 }
@@ -826,7 +837,7 @@ TEST(embedded_custom_metaschema_wrong_container) {
   })JSON");
 
   try {
-    test_vocabularies(document, sourcemeta::blaze::schema_resolver);
+    VOCABULARIES(document, sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -871,7 +882,7 @@ TEST(embedded_custom_metaschema_precedence) {
   };
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, resolver)};
+      VOCABULARIES(document, resolver)};
   EXPECT_EQ(vocabularies.size(), 2);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Core);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_2020_12_Validation);
@@ -892,7 +903,7 @@ TEST(embedded_custom_metaschema_draft6) {
   })JSON");
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_6);
 }
@@ -912,7 +923,7 @@ TEST(embedded_custom_metaschema_draft3) {
   })JSON");
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, sourcemeta::blaze::schema_resolver)};
+      VOCABULARIES(document, sourcemeta::blaze::schema_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_3);
 }

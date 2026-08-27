@@ -29,13 +29,24 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
+static auto VOCABULARIES(const sourcemeta::core::JSON &document,
+                         const sourcemeta::blaze::SchemaResolver &resolver,
+                         const std::string_view default_dialect = "")
+    -> sourcemeta::blaze::SchemaVocabularies {
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::Root};
+  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
+                default_dialect);
+  return frame.vocabularies(frame.root_location().value().get(), resolver);
+}
+
 TEST(schema) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "object"
   })JSON");
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, test_resolver)};
+      VOCABULARIES(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_3);
 }
@@ -46,7 +57,7 @@ TEST(hyperschema) {
     "type": "object"
   })JSON");
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, test_resolver)};
+      VOCABULARIES(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_3_Hyper);
 }
@@ -57,7 +68,7 @@ TEST(one_hop) {
     "type": "object"
   })JSON");
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, test_resolver)};
+      VOCABULARIES(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_3);
 }
@@ -68,7 +79,7 @@ TEST(ignore_vocabulary) {
     "type": "object"
   })JSON");
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      test_vocabularies(document, test_resolver)};
+      VOCABULARIES(document, test_resolver)};
   EXPECT_EQ(vocabularies.size(), 1);
   EXPECT_VOCABULARY_REQUIRED(vocabularies, JSON_Schema_Draft_3);
 }

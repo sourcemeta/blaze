@@ -10,7 +10,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME foundation
     foundation_identify_draft1_test.cc
     foundation_identify_draft0_test.cc
     foundation_identify_test.cc
-    foundation_is_schema_test.cc
     foundation_metaschema_test.cc
     foundation_dialect_test.cc
     foundation_dialect_2020_12_test.cc
