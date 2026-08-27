@@ -1,0 +1,235 @@
+{
+  "schema": {
+    "id": "https://www.sourcemeta.com/test/qux",
+    "$schema": "http://json-schema.org/draft-00/schema#",
+    "items": {
+      "id": "../foo",
+      "type": "string"
+    }
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "https://www.sourcemeta.com/test/qux": {
+          "parent": null,
+          "type": "resource",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/test/qux",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "https://www.sourcemeta.com/foo": {
+          "parent": "",
+          "type": "resource",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/foo",
+          "pointer": "/items",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        },
+        "https://www.sourcemeta.com/foo#/id": {
+          "parent": "/items",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/foo",
+          "pointer": "/items/id",
+          "relativePointer": "/id",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        },
+        "https://www.sourcemeta.com/foo#/type": {
+          "parent": "/items",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/foo",
+          "pointer": "/items/type",
+          "relativePointer": "/type",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        },
+        "https://www.sourcemeta.com/test/qux": {
+          "parent": null,
+          "type": "resource",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/test/qux",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        },
+        "https://www.sourcemeta.com/test/qux#/$schema": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/test/qux",
+          "pointer": "/$schema",
+          "relativePointer": "/$schema",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        },
+        "https://www.sourcemeta.com/test/qux#/id": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/test/qux",
+          "pointer": "/id",
+          "relativePointer": "/id",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        },
+        "https://www.sourcemeta.com/test/qux#/items": {
+          "parent": "",
+          "type": "subschema",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/foo",
+          "pointer": "/items",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        },
+        "https://www.sourcemeta.com/test/qux#/items/id": {
+          "parent": "/items",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/foo",
+          "pointer": "/items/id",
+          "relativePointer": "/id",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        },
+        "https://www.sourcemeta.com/test/qux#/items/type": {
+          "parent": "/items",
+          "type": "pointer",
+          "root": "https://www.sourcemeta.com/test/qux",
+          "base": "https://www.sourcemeta.com/foo",
+          "pointer": "/items/type",
+          "relativePointer": "/type",
+          "dialect": "http://json-schema.org/draft-00/schema#",
+          "baseDialect": "http://json-schema.org/draft-00/hyper-schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-00/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": [
+      {
+        "type": "static",
+        "origin": "/$schema",
+        "original": "http://json-schema.org/draft-00/schema#",
+        "destination": "http://json-schema.org/draft-00/schema",
+        "base": "http://json-schema.org/draft-00/schema",
+        "fragment": null
+      }
+    ]
+  },
+  "standalone": true,
+  "reachability": [
+    {
+      "from": "https://www.sourcemeta.com/test/qux",
+      "to": "https://www.sourcemeta.com/test/qux",
+      "reachable": true
+    },
+    {
+      "from": "https://www.sourcemeta.com/test/qux",
+      "to": "https://www.sourcemeta.com/foo",
+      "reachable": true
+    },
+    {
+      "from": "https://www.sourcemeta.com/test/qux",
+      "to": "https://www.sourcemeta.com/test/qux#/items",
+      "reachable": true
+    },
+    {
+      "from": "https://www.sourcemeta.com/foo",
+      "to": "https://www.sourcemeta.com/test/qux",
+      "reachable": false
+    },
+    {
+      "from": "https://www.sourcemeta.com/foo",
+      "to": "https://www.sourcemeta.com/foo",
+      "reachable": true
+    }
+  ]
+}

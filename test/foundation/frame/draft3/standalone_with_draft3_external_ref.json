@@ -1,0 +1,166 @@
+{
+  "schema": {
+    "id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "test": {
+        "$ref": "https://www.sourcemeta.com/test-1"
+      }
+    }
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "https://example.com": {
+          "parent": null,
+          "type": "resource",
+          "root": "https://example.com",
+          "base": "https://example.com",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-03/schema#",
+          "baseDialect": "http://json-schema.org/draft-03/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-03/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "https://example.com": {
+          "parent": null,
+          "type": "resource",
+          "root": "https://example.com",
+          "base": "https://example.com",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-03/schema#",
+          "baseDialect": "http://json-schema.org/draft-03/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-03/schema#": true
+          }
+        },
+        "https://example.com#/$schema": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://example.com",
+          "base": "https://example.com",
+          "pointer": "/$schema",
+          "relativePointer": "/$schema",
+          "dialect": "http://json-schema.org/draft-03/schema#",
+          "baseDialect": "http://json-schema.org/draft-03/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-03/schema#": true
+          }
+        },
+        "https://example.com#/id": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://example.com",
+          "base": "https://example.com",
+          "pointer": "/id",
+          "relativePointer": "/id",
+          "dialect": "http://json-schema.org/draft-03/schema#",
+          "baseDialect": "http://json-schema.org/draft-03/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-03/schema#": true
+          }
+        },
+        "https://example.com#/properties": {
+          "parent": "",
+          "type": "pointer",
+          "root": "https://example.com",
+          "base": "https://example.com",
+          "pointer": "/properties",
+          "relativePointer": "/properties",
+          "dialect": "http://json-schema.org/draft-03/schema#",
+          "baseDialect": "http://json-schema.org/draft-03/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-03/schema#": true
+          }
+        },
+        "https://example.com#/properties/test": {
+          "parent": "",
+          "type": "subschema",
+          "root": "https://example.com",
+          "base": "https://example.com",
+          "pointer": "/properties/test",
+          "relativePointer": "/properties/test",
+          "dialect": "http://json-schema.org/draft-03/schema#",
+          "baseDialect": "http://json-schema.org/draft-03/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-03/schema#": true
+          }
+        },
+        "https://example.com#/properties/test/$ref": {
+          "parent": "/properties/test",
+          "type": "pointer",
+          "root": "https://example.com",
+          "base": "https://example.com",
+          "pointer": "/properties/test/$ref",
+          "relativePointer": "/properties/test/$ref",
+          "dialect": "http://json-schema.org/draft-03/schema#",
+          "baseDialect": "http://json-schema.org/draft-03/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-03/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": [
+      {
+        "type": "static",
+        "origin": "/$schema",
+        "original": "http://json-schema.org/draft-03/schema#",
+        "destination": "http://json-schema.org/draft-03/schema",
+        "base": "http://json-schema.org/draft-03/schema",
+        "fragment": null
+      },
+      {
+        "type": "static",
+        "origin": "/properties/test/$ref",
+        "original": "https://www.sourcemeta.com/test-1",
+        "destination": "https://www.sourcemeta.com/test-1",
+        "base": "https://www.sourcemeta.com/test-1",
+        "fragment": null
+      }
+    ]
+  },
+  "standalone": false
+}

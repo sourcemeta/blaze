@@ -1,0 +1,301 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "common",
+    "allOf": [
+      {
+        "$ref": "#foo"
+      }
+    ],
+    "definitions": {
+      "foo": {
+        "id": "#foo"
+      }
+    }
+  },
+  "root": {
+    "mode": "root",
+    "locations": {
+      "static": {
+        "common": {
+          "parent": null,
+          "type": "resource",
+          "root": "common",
+          "base": "common",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": []
+  },
+  "references": {
+    "mode": "references",
+    "locations": {
+      "static": {
+        "common": {
+          "parent": null,
+          "type": "resource",
+          "root": "common",
+          "base": "common",
+          "pointer": "",
+          "relativePointer": "",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": true,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#/$schema": {
+          "parent": "",
+          "type": "pointer",
+          "root": "common",
+          "base": "common",
+          "pointer": "/$schema",
+          "relativePointer": "/$schema",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#/allOf": {
+          "parent": "",
+          "type": "pointer",
+          "root": "common",
+          "base": "common",
+          "pointer": "/allOf",
+          "relativePointer": "/allOf",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#/allOf/0": {
+          "parent": "",
+          "type": "subschema",
+          "root": "common",
+          "base": "common",
+          "pointer": "/allOf/0",
+          "relativePointer": "/allOf/0",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#/allOf/0/$ref": {
+          "parent": "/allOf/0",
+          "type": "pointer",
+          "root": "common",
+          "base": "common",
+          "pointer": "/allOf/0/$ref",
+          "relativePointer": "/allOf/0/$ref",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#/definitions": {
+          "parent": "",
+          "type": "pointer",
+          "root": "common",
+          "base": "common",
+          "pointer": "/definitions",
+          "relativePointer": "/definitions",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": true,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#/definitions/foo": {
+          "parent": "",
+          "type": "subschema",
+          "root": "common",
+          "base": "common",
+          "pointer": "/definitions/foo",
+          "relativePointer": "/definitions/foo",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": true,
+          "hasReferencesTo": true,
+          "hasReferencesThrough": true,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#/definitions/foo/id": {
+          "parent": "/definitions/foo",
+          "type": "pointer",
+          "root": "common",
+          "base": "common",
+          "pointer": "/definitions/foo/id",
+          "relativePointer": "/definitions/foo/id",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": true,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#/id": {
+          "parent": "",
+          "type": "pointer",
+          "root": "common",
+          "base": "common",
+          "pointer": "/id",
+          "relativePointer": "/id",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": false,
+          "hasReferencesTo": false,
+          "hasReferencesThrough": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        },
+        "common#foo": {
+          "parent": "",
+          "type": "anchor",
+          "root": "common",
+          "base": "common",
+          "pointer": "/definitions/foo",
+          "relativePointer": "/definitions/foo",
+          "dialect": "http://json-schema.org/draft-04/schema#",
+          "baseDialect": "http://json-schema.org/draft-04/schema#",
+          "propertyName": false,
+          "orphan": true,
+          "hasReferencesTo": true,
+          "hasReferencesThrough": true,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
+        }
+      },
+      "dynamic": {}
+    },
+    "references": [
+      {
+        "type": "static",
+        "origin": "/$schema",
+        "original": "http://json-schema.org/draft-04/schema#",
+        "destination": "http://json-schema.org/draft-04/schema",
+        "base": "http://json-schema.org/draft-04/schema",
+        "fragment": null
+      },
+      {
+        "type": "static",
+        "origin": "/allOf/0/$ref",
+        "original": "#foo",
+        "destination": "common#foo",
+        "base": "common",
+        "fragment": "foo"
+      }
+    ]
+  },
+  "standalone": true,
+  "reachability": [
+    {
+      "from": "common",
+      "to": "common",
+      "reachable": true
+    },
+    {
+      "from": "common",
+      "to": "common#foo",
+      "reachable": true
+    },
+    {
+      "from": "common",
+      "to": "common#/allOf/0",
+      "reachable": true
+    },
+    {
+      "from": "common",
+      "to": "common#/definitions/foo",
+      "reachable": true
+    },
+    {
+      "from": "common#/allOf/0",
+      "to": "common",
+      "reachable": false
+    },
+    {
+      "from": "common#/allOf/0",
+      "to": "common#/allOf/0",
+      "reachable": true
+    },
+    {
+      "from": "common#/allOf/0",
+      "to": "common#foo",
+      "reachable": true
+    },
+    {
+      "from": "common#/allOf/0",
+      "to": "common#/definitions/foo",
+      "reachable": true
+    },
+    {
+      "from": "common#/definitions/foo",
+      "to": "common",
+      "reachable": false
+    },
+    {
+      "from": "common#/definitions/foo",
+      "to": "common#/allOf/0",
+      "reachable": false
+    },
+    {
+      "from": "common#/definitions/foo",
+      "to": "common#/definitions/foo",
+      "reachable": true
+    },
+    {
+      "from": "common#/definitions/foo",
+      "to": "common#foo",
+      "reachable": true
+    }
+  ]
+}
