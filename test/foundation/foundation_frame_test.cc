@@ -1953,7 +1953,9 @@ TEST(to_json_mode_references) {
 
   const auto result{frame.to_json(sourcemeta::blaze::schema_resolver)};
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+  {
+    "mode": "references",
     "locations": {
       "static": {
         "https://www.sourcemeta.com/bar": {
@@ -1962,12 +1964,14 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar",
-          "position": null,
           "relativePointer": "",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/$schema": {
           "parent": "/properties/bar",
@@ -1975,12 +1979,14 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/$schema",
-          "position": null,
           "relativePointer": "/$schema",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/id": {
           "parent": "/properties/bar",
@@ -1988,12 +1994,14 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/id",
-          "position": null,
           "relativePointer": "/id",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/type": {
           "parent": "/properties/bar",
@@ -2001,12 +2009,14 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/type",
-          "position": null,
           "relativePointer": "/type",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test": {
           "parent": null,
@@ -2014,12 +2024,20 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "",
-          "position": null,
           "relativePointer": "",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/$id": {
           "parent": "",
@@ -2027,12 +2045,20 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/$id",
-          "position": null,
           "relativePointer": "/$id",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/$schema": {
           "parent": "",
@@ -2040,12 +2066,20 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/$schema",
-          "position": null,
           "relativePointer": "/$schema",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties": {
           "parent": "",
@@ -2053,12 +2087,20 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/properties",
-          "position": null,
           "relativePointer": "/properties",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar": {
           "parent": "",
@@ -2066,12 +2108,14 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar",
-          "position": null,
           "relativePointer": "",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/$schema": {
           "parent": "/properties/bar",
@@ -2079,12 +2123,14 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/$schema",
-          "position": null,
           "relativePointer": "/$schema",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/id": {
           "parent": "/properties/bar",
@@ -2092,12 +2138,14 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/id",
-          "position": null,
           "relativePointer": "/id",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/type": {
           "parent": "/properties/bar",
@@ -2105,12 +2153,14 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/type",
-          "position": null,
           "relativePointer": "/type",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/foo": {
           "parent": "",
@@ -2118,12 +2168,20 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/properties/foo",
-          "position": null,
           "relativePointer": "/properties/foo",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/foo/$ref": {
           "parent": "/properties/foo",
@@ -2131,12 +2189,20 @@ TEST(to_json_mode_references) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/properties/foo/$ref",
-          "position": null,
           "relativePointer": "/properties/foo/$ref",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         }
       },
       "dynamic": {}
@@ -2145,7 +2211,7 @@ TEST(to_json_mode_references) {
       {
         "type": "static",
         "origin": "/$schema",
-        "position": null,
+        "original": "https://json-schema.org/draft/2020-12/schema",
         "destination": "https://json-schema.org/draft/2020-12/schema",
         "base": "https://json-schema.org/draft/2020-12/schema",
         "fragment": null
@@ -2153,7 +2219,7 @@ TEST(to_json_mode_references) {
       {
         "type": "static",
         "origin": "/properties/bar/$schema",
-        "position": null,
+        "original": "http://json-schema.org/draft-04/schema#",
         "destination": "http://json-schema.org/draft-04/schema",
         "base": "http://json-schema.org/draft-04/schema",
         "fragment": null
@@ -2161,13 +2227,14 @@ TEST(to_json_mode_references) {
       {
         "type": "static",
         "origin": "/properties/foo/$ref",
-        "position": null,
+        "original": "bar",
         "destination": "https://www.sourcemeta.com/bar",
         "base": "https://www.sourcemeta.com/bar",
         "fragment": null
       }
     ]
-  })JSON");
+  }
+  )JSON");
 
   EXPECT_EQ(result, expected);
 }
@@ -2195,7 +2262,9 @@ TEST(to_json_mode_locations) {
 
   const auto result{frame.to_json(sourcemeta::blaze::schema_resolver)};
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+  {
+    "mode": "locations",
     "locations": {
       "static": {
         "https://www.sourcemeta.com/bar": {
@@ -2204,12 +2273,14 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar",
-          "position": null,
           "relativePointer": "",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/$schema": {
           "parent": "/properties/bar",
@@ -2217,12 +2288,14 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/$schema",
-          "position": null,
           "relativePointer": "/$schema",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/id": {
           "parent": "/properties/bar",
@@ -2230,12 +2303,14 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/id",
-          "position": null,
           "relativePointer": "/id",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/type": {
           "parent": "/properties/bar",
@@ -2243,12 +2318,14 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/type",
-          "position": null,
           "relativePointer": "/type",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test": {
           "parent": null,
@@ -2256,12 +2333,20 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "",
-          "position": null,
           "relativePointer": "",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/$id": {
           "parent": "",
@@ -2269,12 +2354,20 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/$id",
-          "position": null,
           "relativePointer": "/$id",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/$schema": {
           "parent": "",
@@ -2282,12 +2375,20 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/$schema",
-          "position": null,
           "relativePointer": "/$schema",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties": {
           "parent": "",
@@ -2295,12 +2396,20 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/properties",
-          "position": null,
           "relativePointer": "/properties",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar": {
           "parent": "",
@@ -2308,12 +2417,14 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar",
-          "position": null,
           "relativePointer": "",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/$schema": {
           "parent": "/properties/bar",
@@ -2321,12 +2432,14 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/$schema",
-          "position": null,
           "relativePointer": "/$schema",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/id": {
           "parent": "/properties/bar",
@@ -2334,12 +2447,14 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/id",
-          "position": null,
           "relativePointer": "/id",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/type": {
           "parent": "/properties/bar",
@@ -2347,12 +2462,14 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/bar",
           "pointer": "/properties/bar/type",
-          "position": null,
           "relativePointer": "/type",
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/foo": {
           "parent": "",
@@ -2360,12 +2477,20 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/properties/foo",
-          "position": null,
           "relativePointer": "/properties/foo",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/foo/$ref": {
           "parent": "/properties/foo",
@@ -2373,18 +2498,27 @@ TEST(to_json_mode_locations) {
           "root": "https://www.sourcemeta.com/test",
           "base": "https://www.sourcemeta.com/test",
           "pointer": "/properties/foo/$ref",
-          "position": null,
           "relativePointer": "/properties/foo/$ref",
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         }
       },
       "dynamic": {}
     },
     "references": []
-  })JSON");
+  }
+  )JSON");
 
   EXPECT_EQ(result, expected);
 }
@@ -2415,7 +2549,9 @@ TEST(to_json_mode_references_with_tracking) {
 
   const auto result{frame.to_json(sourcemeta::blaze::schema_resolver, tracker)};
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+  {
+    "mode": "references",
     "locations": {
       "static": {
         "https://www.sourcemeta.com/bar": {
@@ -2429,7 +2565,10 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/$schema": {
           "parent": "/properties/bar",
@@ -2442,7 +2581,10 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/id": {
           "parent": "/properties/bar",
@@ -2455,7 +2597,10 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/type": {
           "parent": "/properties/bar",
@@ -2468,7 +2613,10 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test": {
           "parent": null,
@@ -2481,7 +2629,16 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/$id": {
           "parent": "",
@@ -2494,7 +2651,16 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/$schema": {
           "parent": "",
@@ -2507,7 +2673,16 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties": {
           "parent": "",
@@ -2520,7 +2695,16 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar": {
           "parent": "",
@@ -2533,7 +2717,10 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/$schema": {
           "parent": "/properties/bar",
@@ -2546,7 +2733,10 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/id": {
           "parent": "/properties/bar",
@@ -2559,7 +2749,10 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/type": {
           "parent": "/properties/bar",
@@ -2572,7 +2765,10 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/foo": {
           "parent": "",
@@ -2585,7 +2781,16 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/foo/$ref": {
           "parent": "/properties/foo",
@@ -2598,7 +2803,16 @@ TEST(to_json_mode_references_with_tracking) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         }
       },
       "dynamic": {}
@@ -2608,6 +2822,7 @@ TEST(to_json_mode_references_with_tracking) {
         "type": "static",
         "origin": "/$schema",
         "position": [ 3, 5, 3, 61 ],
+        "original": "https://json-schema.org/draft/2020-12/schema",
         "destination": "https://json-schema.org/draft/2020-12/schema",
         "base": "https://json-schema.org/draft/2020-12/schema",
         "fragment": null
@@ -2616,6 +2831,7 @@ TEST(to_json_mode_references_with_tracking) {
         "type": "static",
         "origin": "/properties/bar/$schema",
         "position": [ 10, 9, 10, 60 ],
+        "original": "http://json-schema.org/draft-04/schema#",
         "destination": "http://json-schema.org/draft-04/schema",
         "base": "http://json-schema.org/draft-04/schema",
         "fragment": null
@@ -2624,12 +2840,14 @@ TEST(to_json_mode_references_with_tracking) {
         "type": "static",
         "origin": "/properties/foo/$ref",
         "position": [ 6, 9, 6, 21 ],
+        "original": "bar",
         "destination": "https://www.sourcemeta.com/bar",
         "base": "https://www.sourcemeta.com/bar",
         "fragment": null
       }
     ]
-  })JSON");
+  }
+  )JSON");
 
   EXPECT_EQ(result, expected);
 }
@@ -2660,7 +2878,9 @@ TEST(to_json_mode_references_with_tracking_empty) {
 
   const auto result{frame.to_json(sourcemeta::blaze::schema_resolver, tracker)};
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
+  const auto expected = sourcemeta::core::parse_json(R"JSON(
+  {
+    "mode": "references",
     "locations": {
       "static": {
         "https://www.sourcemeta.com/bar": {
@@ -2674,7 +2894,10 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/$schema": {
           "parent": "/properties/bar",
@@ -2687,7 +2910,10 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/id": {
           "parent": "/properties/bar",
@@ -2700,7 +2926,10 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/bar#/type": {
           "parent": "/properties/bar",
@@ -2713,7 +2942,10 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test": {
           "parent": null,
@@ -2726,7 +2958,16 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/$id": {
           "parent": "",
@@ -2739,7 +2980,16 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/$schema": {
           "parent": "",
@@ -2752,7 +3002,16 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties": {
           "parent": "",
@@ -2765,7 +3024,16 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar": {
           "parent": "",
@@ -2778,7 +3046,10 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/$schema": {
           "parent": "/properties/bar",
@@ -2791,7 +3062,10 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/id": {
           "parent": "/properties/bar",
@@ -2804,7 +3078,10 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/bar/type": {
           "parent": "/properties/bar",
@@ -2817,7 +3094,10 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "http://json-schema.org/draft-04/schema#",
           "baseDialect": "http://json-schema.org/draft-04/schema#",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "http://json-schema.org/draft-04/schema#": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/foo": {
           "parent": "",
@@ -2830,7 +3110,16 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         },
         "https://www.sourcemeta.com/test#/properties/foo/$ref": {
           "parent": "/properties/foo",
@@ -2843,7 +3132,16 @@ TEST(to_json_mode_references_with_tracking_empty) {
           "dialect": "https://json-schema.org/draft/2020-12/schema",
           "baseDialect": "https://json-schema.org/draft/2020-12/schema",
           "propertyName": false,
-          "orphan": false
+          "orphan": false,
+          "vocabularies": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          }
         }
       },
       "dynamic": {}
@@ -2853,6 +3151,7 @@ TEST(to_json_mode_references_with_tracking_empty) {
         "type": "static",
         "origin": "/$schema",
         "position": null,
+        "original": "https://json-schema.org/draft/2020-12/schema",
         "destination": "https://json-schema.org/draft/2020-12/schema",
         "base": "https://json-schema.org/draft/2020-12/schema",
         "fragment": null
@@ -2861,6 +3160,7 @@ TEST(to_json_mode_references_with_tracking_empty) {
         "type": "static",
         "origin": "/properties/bar/$schema",
         "position": null,
+        "original": "http://json-schema.org/draft-04/schema#",
         "destination": "http://json-schema.org/draft-04/schema",
         "base": "http://json-schema.org/draft-04/schema",
         "fragment": null
@@ -2869,12 +3169,14 @@ TEST(to_json_mode_references_with_tracking_empty) {
         "type": "static",
         "origin": "/properties/foo/$ref",
         "position": null,
+        "original": "bar",
         "destination": "https://www.sourcemeta.com/bar",
         "base": "https://www.sourcemeta.com/bar",
         "fragment": null
       }
     ]
-  })JSON");
+  }
+  )JSON");
 
   EXPECT_EQ(result, expected);
 }
