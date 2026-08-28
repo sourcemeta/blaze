@@ -85,9 +85,9 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
         break;
       }
 
-      frame.emplace(blaze::SchemaFrame::Mode::References)
-          .analyse(schema, walker, resolver, default_dialect, default_id,
-                   sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
+      frame.emplace(blaze::SchemaFrame::Mode::References, schema, walker,
+                    resolver, default_dialect, default_id,
+                    sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
     }
 
     std::unordered_set<core::Pointer, core::Pointer::Hasher> visited;
@@ -143,10 +143,10 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
         applied = true;
 
         if (reframe_after_transform) {
-          frame.emplace(blaze::SchemaFrame::Mode::References)
-              .analyse(
-                  schema, walker, resolver, default_dialect, default_id,
-                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
+          frame.emplace(
+              blaze::SchemaFrame::Mode::References, schema, walker, resolver,
+              default_dialect, default_id,
+              sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
         } else if (current.is_boolean()) {
           std::tuple<core::Pointer, std::string_view, core::JSON> mark{
               entry_pointer, rule->name(), current};

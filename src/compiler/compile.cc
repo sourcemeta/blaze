@@ -521,8 +521,12 @@ auto compile(const sourcemeta::core::JSON &schema,
       default_dialect, default_id)};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(result, walker, resolver, default_dialect, default_id);
+      sourcemeta::blaze::SchemaFrame::Mode::References,
+      result,
+      walker,
+      resolver,
+      default_dialect,
+      default_id};
   return compile(result, walker, resolver, compiler, frame,
                  entrypoint.empty() ? frame.root() : entrypoint, mode, tweaks);
 }

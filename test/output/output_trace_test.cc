@@ -250,9 +250,8 @@ TEST(pass_with_frame_exhaustive) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::blaze::schema_walker,
@@ -318,9 +317,8 @@ TEST(pass_with_frame_fast) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::blaze::schema_walker,
@@ -363,9 +361,8 @@ TEST(nested_vocabulary_correctness) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   const auto schema_template{sourcemeta::blaze::compile(
       schema, sourcemeta::blaze::schema_walker,

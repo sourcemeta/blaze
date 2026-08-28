@@ -88,9 +88,12 @@ auto run_referencing_test(const sourcemeta::core::JSON &suite,
       new_entries;
   for (const auto &[uri, schema] : registry) {
     sourcemeta::blaze::SchemaFrame frame{
-        sourcemeta::blaze::SchemaFrame::Mode::References};
-    frame.analyse(schema.first, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver, dialect, uri);
+        sourcemeta::blaze::SchemaFrame::Mode::References,
+        schema.first,
+        sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        dialect,
+        uri};
     for (const auto &[key, entry] : frame.locations()) {
       new_entries.insert({key.second,
                           {sourcemeta::core::get(schema.first, entry.pointer),

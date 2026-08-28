@@ -312,9 +312,8 @@ TEST(explicit_frame) {
       sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas)};
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(result, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, result,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       result, sourcemeta::blaze::schema_walker,
@@ -337,9 +336,8 @@ TEST(explicit_frame_locations_only) {
       sourcemeta::blaze::schema_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas)};
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Locations};
-  frame.analyse(result, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Locations, result,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   try {
     sourcemeta::blaze::compile(result, sourcemeta::blaze::schema_walker,
@@ -365,9 +363,8 @@ TEST(explicit_frame_unaddressable_static_reference_target) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   try {
     sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
@@ -419,9 +416,8 @@ TEST(invalid_entrypoint_does_not_exist) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   try {
     sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
@@ -445,9 +441,8 @@ TEST(invalid_entrypoint_not_a_subschema) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   try {
     sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
@@ -494,10 +489,12 @@ TEST(unevaluated_properties_with_root_dynamic_anchor_and_default_id) {
       "https://example.com/default")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(bundled, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver, "",
-                "https://example.com/default");
+      sourcemeta::blaze::SchemaFrame::Mode::References,
+      bundled,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      "",
+      "https://example.com/default"};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       bundled, sourcemeta::blaze::schema_walker,
@@ -527,10 +524,12 @@ TEST(unevaluated_items_with_root_dynamic_anchor_and_default_id) {
       "https://example.com/default")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(bundled, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver, "",
-                "https://example.com/default");
+      sourcemeta::blaze::SchemaFrame::Mode::References,
+      bundled,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      "",
+      "https://example.com/default"};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       bundled, sourcemeta::blaze::schema_walker,
@@ -560,10 +559,12 @@ TEST(unevaluated_properties_with_root_recursive_anchor_and_default_id_2019_09) {
       "https://example.com/default")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(bundled, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver, "",
-                "https://example.com/default");
+      sourcemeta::blaze::SchemaFrame::Mode::References,
+      bundled,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      "",
+      "https://example.com/default"};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       bundled, sourcemeta::blaze::schema_walker,
@@ -593,10 +594,12 @@ TEST(unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
       "https://example.com/default")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(bundled, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver, "",
-                "https://example.com/default");
+      sourcemeta::blaze::SchemaFrame::Mode::References,
+      bundled,
+      sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver,
+      "",
+      "https://example.com/default"};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       bundled, sourcemeta::blaze::schema_walker,

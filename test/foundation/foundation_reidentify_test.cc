@@ -75,9 +75,8 @@ TEST(reidentify_replace_base_dialect_shortcut_2020_12) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(
@@ -169,9 +168,8 @@ TEST(reidentify_replace_base_dialect_shortcut_2019_09) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(
@@ -263,9 +261,8 @@ TEST(reidentify_replace_base_dialect_shortcut_draft7) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(
@@ -381,9 +378,8 @@ TEST(reidentify_replace_base_dialect_shortcut_draft6) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(
@@ -499,9 +495,8 @@ TEST(reidentify_replace_base_dialect_shortcut_draft4) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(
@@ -617,9 +612,8 @@ TEST(reidentify_replace_base_dialect_shortcut_draft3) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(
@@ -735,9 +729,8 @@ TEST(reidentify_replace_base_dialect_shortcut_draft2) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(
@@ -810,9 +803,8 @@ TEST(reidentify_replace_base_dialect_shortcut_draft1) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(
@@ -885,9 +877,8 @@ TEST(reidentify_replace_base_dialect_shortcut_draft0) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   const auto base_dialect{frame.root_location().value().get().base_dialect};
 
   sourcemeta::blaze::schema_reidentify(

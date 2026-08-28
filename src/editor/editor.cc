@@ -87,8 +87,8 @@ auto for_editor(sourcemeta::core::JSON &schema,
 
   {
     sourcemeta::blaze::SchemaFrame frame{
-        sourcemeta::blaze::SchemaFrame::Mode::References};
-    frame.analyse(schema, walker, resolver, default_dialect);
+        sourcemeta::blaze::SchemaFrame::Mode::References, schema, walker,
+        resolver, default_dialect};
 
     // Otherwise the input is not bundled
     assert(frame.standalone());

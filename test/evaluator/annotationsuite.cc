@@ -142,9 +142,9 @@ auto run_annotation_test(const sourcemeta::core::JSON &schema_json,
                          const sourcemeta::core::JSON::Array &assertions)
     -> void {
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema_json, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver, default_dialect);
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema_json,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      default_dialect};
   const auto exhaustive_schema{sourcemeta::blaze::compile(
       schema_json, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,

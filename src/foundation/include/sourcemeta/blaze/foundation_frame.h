@@ -75,8 +75,6 @@ public:
     Fallback
   };
 
-  SchemaFrame(const Mode mode) : mode_{mode} {}
-
   // We rely on internal caches that would be dangling otherwise
   SchemaFrame(const SchemaFrame &) = delete;
   auto operator=(const SchemaFrame &) -> SchemaFrame & = delete;
@@ -170,13 +168,12 @@ public:
   /// `default_dialect`, as a location that has no dialect of its own reports
   /// the default back as a view into what the caller passed. In contrast,
   /// `default_id` is copied, so it does not need to outlive this call
-  auto analyse(const sourcemeta::core::JSON &root, const SchemaWalker &walker,
-               const SchemaResolver &resolver,
-               std::string_view default_dialect = "",
-               std::string_view default_id = "",
-               IdentifierMode identifier_mode = IdentifierMode::Additional,
-               const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER})
-      -> void;
+  SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
+              const SchemaWalker &walker, const SchemaResolver &resolver,
+              std::string_view default_dialect = "",
+              std::string_view default_id = "",
+              IdentifierMode identifier_mode = IdentifierMode::Additional,
+              const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER});
 
   /// Access the analysed schema locations
   [[nodiscard]] auto locations() const noexcept -> const Locations &;
@@ -301,9 +298,6 @@ public:
   /// Check if the frame has no analysed data
   [[nodiscard]] auto empty() const noexcept -> bool;
 
-  /// Reset the frame, clearing all analysed data
-  auto reset() -> void;
-
   /// Determines if a location could be evaluated during validation
   [[nodiscard]] auto is_reachable(const Location &base,
                                   const Location &location,
@@ -311,6 +305,11 @@ public:
                                   const SchemaResolver &resolver) const -> bool;
 
 private:
+  auto analyse(const sourcemeta::core::JSON &root, const SchemaWalker &walker,
+               const SchemaResolver &resolver, std::string_view default_dialect,
+               std::string_view default_id, IdentifierMode identifier_mode,
+               const Paths &paths) -> void;
+
   Mode mode_;
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.

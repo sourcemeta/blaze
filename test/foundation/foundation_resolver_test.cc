@@ -24,9 +24,12 @@ static auto IDENTIFY_OF(const sourcemeta::core::JSON &document,
                         const std::string_view default_dialect = "",
                         const std::string_view default_id = "") -> std::string {
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
-                default_dialect, default_id);
+      sourcemeta::blaze::SchemaFrame::Mode::Root,
+      document,
+      sourcemeta::blaze::schema_walker,
+      resolver,
+      default_dialect,
+      default_id};
   return frame.root();
 }
 

@@ -11,9 +11,9 @@ static auto wrap_schema(const sourcemeta::core::JSON &schema,
                         std::string_view default_dialect = "")
     -> std::pair<sourcemeta::core::JSON, sourcemeta::core::Pointer> {
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver, default_dialect);
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      default_dialect};
   const auto location{
       frame.traverse(sourcemeta::core::to_weak_pointer(pointer))};
   assert(location.has_value());

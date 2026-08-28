@@ -145,8 +145,8 @@ auto format(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
   std::vector<sourcemeta::core::Pointer> subschemas;
 
   {
-    SchemaFrame frame{SchemaFrame::Mode::Locations};
-    frame.analyse(schema, walker, resolver, default_dialect);
+    SchemaFrame frame{SchemaFrame::Mode::Locations, schema, walker, resolver,
+                      default_dialect};
 
     for (const auto &entry : frame.locations()) {
       if (entry.second.type != SchemaFrame::LocationType::Resource &&

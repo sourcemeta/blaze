@@ -71,12 +71,8 @@ auto make_inputs(const sourcemeta::core::JSON &test) -> Inputs {
   return inputs;
 }
 
-auto analyse(const sourcemeta::core::JSON &test,
-             sourcemeta::blaze::SchemaFrame &frame,
-             const sourcemeta::blaze::SchemaResolver &resolver,
-             const Inputs &inputs) -> void {
-  const auto *identifier_mode{test.try_at("identifierMode")};
-
+auto make_paths(const sourcemeta::core::JSON &test, const Inputs &inputs)
+    -> sourcemeta::blaze::SchemaFrame::Paths {
   sourcemeta::blaze::SchemaFrame::Paths paths;
   if (test.defines("paths")) {
     for (const auto &path : inputs.paths) {
@@ -86,13 +82,16 @@ auto analyse(const sourcemeta::core::JSON &test,
     paths.push_back(sourcemeta::core::EMPTY_WEAK_POINTER);
   }
 
-  frame.analyse(
-      test.at("schema"), sourcemeta::blaze::schema_walker, resolver,
-      inputs.default_dialect, inputs.default_id,
-      (identifier_mode != nullptr && identifier_mode->to_string() == "fallback")
-          ? sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback
-          : sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
-      paths);
+  return paths;
+}
+
+auto make_identifier_mode(const sourcemeta::core::JSON &test)
+    -> sourcemeta::blaze::SchemaFrame::IdentifierMode {
+  const auto *identifier_mode{test.try_at("identifierMode")};
+  return (identifier_mode != nullptr &&
+          identifier_mode->to_string() == "fallback")
+             ? sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback
+             : sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional;
 }
 
 // Whether the target location can be evaluated when validation starts from the
@@ -126,15 +125,29 @@ auto run_frame_test(const sourcemeta::core::JSON &test) -> void {
 
   const auto resolver{make_resolver(test)};
   const auto inputs{make_inputs(test)};
+  const auto paths{make_paths(test, inputs)};
+  const auto identifier_mode{make_identifier_mode(test)};
 
-  sourcemeta::blaze::SchemaFrame root{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  analyse(test, root, resolver, inputs);
+  const sourcemeta::blaze::SchemaFrame root{
+      sourcemeta::blaze::SchemaFrame::Mode::Root,
+      test.at("schema"),
+      sourcemeta::blaze::schema_walker,
+      resolver,
+      inputs.default_dialect,
+      inputs.default_id,
+      identifier_mode,
+      paths};
   EXPECT_EQ(root.to_json(resolver), test.at("root"));
 
-  sourcemeta::blaze::SchemaFrame references{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  analyse(test, references, resolver, inputs);
+  const sourcemeta::blaze::SchemaFrame references{
+      sourcemeta::blaze::SchemaFrame::Mode::References,
+      test.at("schema"),
+      sourcemeta::blaze::schema_walker,
+      resolver,
+      inputs.default_dialect,
+      inputs.default_id,
+      identifier_mode,
+      paths};
   EXPECT_EQ(references.to_json(resolver), test.at("references"));
 
   EXPECT_EQ(references.standalone(), test.at("standalone").to_boolean());
@@ -164,9 +177,15 @@ auto run_frame_test(const sourcemeta::core::JSON &test) -> void {
                            sourcemeta::core::JSON{false});
     }
   }
-  sourcemeta::blaze::SchemaFrame locations{
-      sourcemeta::blaze::SchemaFrame::Mode::Locations};
-  analyse(test, locations, resolver, inputs);
+  const sourcemeta::blaze::SchemaFrame locations{
+      sourcemeta::blaze::SchemaFrame::Mode::Locations,
+      test.at("schema"),
+      sourcemeta::blaze::schema_walker,
+      resolver,
+      inputs.default_dialect,
+      inputs.default_id,
+      identifier_mode,
+      paths};
   EXPECT_EQ(locations.to_json(resolver), expected_locations);
 }
 

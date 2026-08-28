@@ -142,22 +142,6 @@
                    expected_pointer, expected_uri, expected_base,              \
                    expected_fragment, expected_original)
 
-TEST(to_json_empty) {
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  const auto result{frame.to_json(sourcemeta::blaze::schema_resolver)};
-  const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "mode": "references",
-    "locations": {
-      "static": {},
-      "dynamic": {}
-    },
-    "references": []
-  })JSON");
-
-  EXPECT_EQ(result, expected);
-}
-
 TEST(to_json_mode_references_with_tracking) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
@@ -178,9 +162,8 @@ TEST(to_json_mode_references_with_tracking) {
                                document, std::ref(tracker));
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   const auto result{frame.to_json(sourcemeta::blaze::schema_resolver, tracker)};
 
@@ -535,9 +518,8 @@ TEST(to_json_mode_references_with_tracking_empty) {
   })JSON");
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   const auto result{frame.to_json(sourcemeta::blaze::schema_resolver, tracker)};
 
@@ -872,7 +854,7 @@ TEST(to_json_mode_references_with_tracking_empty) {
   EXPECT_EQ(result, expected);
 }
 
-TEST(reuse_embedded_custom_metaschema_implicit_reset) {
+TEST(embedded_custom_metaschema_across_two_frames) {
   const sourcemeta::core::JSON document_a =
       sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/meta",
@@ -909,15 +891,12 @@ TEST(reuse_embedded_custom_metaschema_implicit_reset) {
     }
   })JSON");
 
-  // Reusing a single frame across two analyses of documents that embed the
-  // same custom meta-schema identifier with a different definition must
-  // reflect the second document, as a new analysis resets the internal state
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(document_a, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
-  frame.analyse(document_b, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
+  [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame_a{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document_a,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document_b,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   EXPECT_EQ(frame.locations().size(), 19);
 
@@ -1086,237 +1065,4 @@ TEST(reuse_embedded_custom_metaschema_implicit_reset) {
   EXPECT_FALSE(
       root_vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
                                      JSON_Schema_2020_12_Validation));
-}
-
-TEST(reuse_embedded_custom_metaschema_explicit_reset) {
-  const sourcemeta::core::JSON document_a =
-      sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "type": "string",
-    "$defs": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true,
-          "https://json-schema.org/draft/2020-12/vocab/validation": true
-        },
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  const sourcemeta::core::JSON document_b =
-      sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/meta",
-    "$id": "https://example.com/schema",
-    "type": "string",
-    "$defs": {
-      "https://example.com/meta": {
-        "$id": "https://example.com/meta",
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$vocabulary": {
-          "https://json-schema.org/draft/2020-12/vocab/core": true,
-          "https://json-schema.org/draft/2020-12/vocab/applicator": true
-        },
-        "type": "object"
-      }
-    }
-  })JSON");
-
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(document_a, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
-
-  // An explicit reset must clear every trace of the first analysis, including
-  // the cache of meta-schemas embedded in the previous document
-  frame.reset();
-
-  EXPECT_TRUE(frame.empty());
-  EXPECT_EQ(frame.locations().size(), 0);
-  EXPECT_EQ(frame.references().size(), 0);
-
-  frame.analyse(document_b, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
-
-  EXPECT_EQ(frame.locations().size(), 19);
-
-  // Resources
-
-  EXPECT_FRAME_STATIC_RESOURCE(
-      frame, "https://example.com/schema", "https://example.com/schema", "",
-      "https://example.com/meta", JSON_Schema_2020_12,
-      "https://example.com/schema", "", std::nullopt, false, false);
-  EXPECT_FRAME_STATIC_RESOURCE(
-      frame, "https://example.com/meta", "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "", "", false, true);
-
-  // JSON Pointers
-
-  EXPECT_FRAME_STATIC_POINTER(frame, "https://example.com/schema#/$schema",
-                              "https://example.com/schema", "/$schema",
-                              "https://example.com/meta", JSON_Schema_2020_12,
-                              "https://example.com/schema", "/$schema", "",
-                              false, false);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame, "https://example.com/schema#/$id", "https://example.com/schema",
-      "/$id", "https://example.com/meta", JSON_Schema_2020_12,
-      "https://example.com/schema", "/$id", "", false, false);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame, "https://example.com/schema#/type", "https://example.com/schema",
-      "/type", "https://example.com/meta", JSON_Schema_2020_12,
-      "https://example.com/schema", "/type", "", false, false);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame, "https://example.com/schema#/$defs", "https://example.com/schema",
-      "/$defs", "https://example.com/meta", JSON_Schema_2020_12,
-      "https://example.com/schema", "/$defs", "", false, false);
-  EXPECT_FRAME_STATIC_SUBSCHEMA(
-      frame, "https://example.com/schema#/$defs/https:~1~1example.com~1meta",
-      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "", "", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame,
-      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/$id",
-      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta/$id",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "/$id", "/$defs/https:~1~1example.com~1meta",
-      false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame,
-      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/$schema",
-      "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$schema",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "/$schema",
-      "/$defs/https:~1~1example.com~1meta", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame,
-      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/"
-      "$vocabulary",
-      "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$vocabulary",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "/$vocabulary",
-      "/$defs/https:~1~1example.com~1meta", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame,
-      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/"
-      "$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
-      "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta",
-      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
-      "/$defs/https:~1~1example.com~1meta", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame,
-      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/"
-      "$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
-      "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta",
-      "/$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
-      "/$defs/https:~1~1example.com~1meta", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame,
-      "https://example.com/schema#/$defs/https:~1~1example.com~1meta/type",
-      "https://example.com/schema", "/$defs/https:~1~1example.com~1meta/type",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "/type", "/$defs/https:~1~1example.com~1meta",
-      false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame, "https://example.com/meta#/$id", "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$id",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "/$id", "/$defs/https:~1~1example.com~1meta",
-      false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame, "https://example.com/meta#/$schema", "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$schema",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "/$schema",
-      "/$defs/https:~1~1example.com~1meta", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame, "https://example.com/meta#/$vocabulary",
-      "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$vocabulary",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "/$vocabulary",
-      "/$defs/https:~1~1example.com~1meta", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame,
-      "https://example.com/meta#/$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
-      "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta",
-      "/$vocabulary/https:~1~1json-schema.org~1draft~12020-12~1vocab~1core",
-      "/$defs/https:~1~1example.com~1meta", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame,
-      "https://example.com/meta#/$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
-      "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta",
-      "/$vocabulary/"
-      "https:~1~1json-schema.org~1draft~12020-12~1vocab~1applicator",
-      "/$defs/https:~1~1example.com~1meta", false, true);
-  EXPECT_FRAME_STATIC_POINTER(
-      frame, "https://example.com/meta#/type", "https://example.com/schema",
-      "/$defs/https:~1~1example.com~1meta/type",
-      "https://json-schema.org/draft/2020-12/schema", JSON_Schema_2020_12,
-      "https://example.com/meta", "/type", "/$defs/https:~1~1example.com~1meta",
-      false, true);
-
-  // References
-
-  EXPECT_EQ(frame.references().size(), 2);
-
-  EXPECT_STATIC_REFERENCE(frame, "/$schema", "https://example.com/meta",
-                          "https://example.com/meta", std::nullopt,
-                          "https://example.com/meta");
-  EXPECT_STATIC_REFERENCE(frame, "/$defs/https:~1~1example.com~1meta/$schema",
-                          "https://json-schema.org/draft/2020-12/schema",
-                          "https://json-schema.org/draft/2020-12/schema",
-                          std::nullopt,
-                          "https://json-schema.org/draft/2020-12/schema");
-
-  // SchemaVocabularies
-
-  const auto root_location{frame.traverse("https://example.com/schema")};
-  EXPECT_TRUE(root_location.has_value());
-  const auto root_vocabularies{frame.vocabularies(
-      root_location->get(), sourcemeta::blaze::schema_resolver)};
-  EXPECT_EQ(root_vocabularies.size(), 2);
-  EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Core);
-  EXPECT_VOCABULARY_REQUIRED(root_vocabularies, JSON_Schema_2020_12_Applicator);
-  EXPECT_FALSE(
-      root_vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                     JSON_Schema_2020_12_Validation));
-}
-
-TEST(root_location_without_analysis) {
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-
-  EXPECT_TRUE(frame.empty());
-  EXPECT_TRUE(frame.root().empty());
-  EXPECT_EQ(frame.locations().size(), 0);
-  EXPECT_EQ(frame.references().size(), 0);
-  EXPECT_FALSE(frame.root_location().has_value());
 }

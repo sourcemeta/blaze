@@ -40,9 +40,8 @@ static auto VOCABULARIES(const sourcemeta::core::JSON &document,
                          const std::string_view default_dialect = "")
     -> sourcemeta::blaze::SchemaVocabularies {
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-  frame.analyse(document, sourcemeta::blaze::schema_walker, resolver,
-                default_dialect);
+      sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+      sourcemeta::blaze::schema_walker, resolver, default_dialect};
   return frame.vocabularies(frame.root_location().value().get(), resolver);
 }
 

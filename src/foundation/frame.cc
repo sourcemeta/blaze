@@ -645,6 +645,18 @@ auto SchemaFrame::to_json(
   return root;
 }
 
+SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
+                         const SchemaWalker &walker,
+                         const SchemaResolver &resolver,
+                         const std::string_view default_dialect,
+                         const std::string_view default_id,
+                         const SchemaFrame::IdentifierMode identifier_mode,
+                         const SchemaFrame::Paths &paths)
+    : mode_{mode} {
+  this->analyse(root, walker, resolver, default_dialect, default_id,
+                identifier_mode, paths);
+}
+
 auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                           const SchemaWalker &walker,
                           const SchemaResolver &resolver,
@@ -652,7 +664,6 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                           std::string_view default_id,
                           const SchemaFrame::IdentifierMode identifier_mode,
                           const SchemaFrame::Paths &paths) -> void {
-  this->reset();
   // This mode reports on a single schema. Framing a wrapper that holds more
   // than one has no single schema to report on, so there is nothing to analyse
   if (this->mode_ == SchemaFrame::Mode::Root && paths.size() != 1) {
@@ -1792,25 +1803,6 @@ auto SchemaFrame::relative_instance_location(const Location &location) const
 
 auto SchemaFrame::empty() const noexcept -> bool {
   return this->locations_.empty() && this->references_.empty();
-}
-
-auto SchemaFrame::reset() -> void {
-  this->pointers_with_non_orphan_.clear();
-  this->pointer_to_location_.clear();
-  this->reachability_.clear();
-  this->references_by_destination_.clear();
-  this->location_members_children_.clear();
-  this->descendants_by_pointer_.clear();
-  this->potential_sources_by_location_.clear();
-  this->reachability_graph_.clear();
-  this->canonical_pointer_.clear();
-  this->location_to_canonical_.clear();
-  this->root_.clear();
-  this->locations_.clear();
-  this->references_.clear();
-  this->probed_metaschemas_.clear();
-  this->vocabularies_.clear();
-  this->standalone_ = false;
 }
 
 auto SchemaFrame::populate_pointer_to_location() const -> void {
