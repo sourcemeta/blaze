@@ -4,6 +4,7 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
+#include <cstddef>
 #include <optional>
 #include <set>
 #include <sstream>
