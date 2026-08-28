@@ -1463,7 +1463,7 @@ auto SchemaFrame::metaschema(const SchemaResolver &resolver) const
     return *(embedded->second);
   }
 
-  const auto result{resolver(dialect)};
+  auto result{resolver(dialect)};
   if (!result.has_value()) {
     if (sourcemeta::core::URI{sourcemeta::core::JSON::String{dialect}}
             .is_relative()) {
@@ -1477,7 +1477,7 @@ auto SchemaFrame::metaschema(const SchemaResolver &resolver) const
 
   return this->metaschemas_
       .emplace(sourcemeta::core::JSON::String{dialect},
-               std::move(result).value())
+               std::move(result).to_owned())
       .first->second;
 }
 
