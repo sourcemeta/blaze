@@ -344,7 +344,11 @@ auto canonicalize_pointer_fragment(sourcemeta::core::URI &uri) -> void {
 
   const auto destination{sourcemeta::core::fragment_to_pointer(uri)};
   if (destination.has_value()) {
-    uri.fragment(sourcemeta::core::to_string(destination.value()));
+    // Stringifying a pointer gives back its literal text, so the fragment has
+    // to be re-encoded rather than taken as already encoded. Otherwise a token
+    // that reads as an escape, like `a%20b`, would be handed over untouched and
+    // collide with the location framed for the token it decodes to
+    uri.unescaped_fragment(sourcemeta::core::to_string(destination.value()));
   }
 }
 
