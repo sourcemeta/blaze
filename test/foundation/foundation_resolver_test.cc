@@ -10,8 +10,7 @@
 
 #define EXPECT_SCHEMA(identifier)                                              \
   {                                                                            \
-    const std::optional<sourcemeta::core::JSON> result{                        \
-        sourcemeta::blaze::schema_resolver(identifier)};                       \
+    const auto result{sourcemeta::blaze::schema_resolver(identifier)};         \
     EXPECT_TRUE(result.has_value());                                           \
     const sourcemeta::core::JSON &document{result.value()};                    \
     EXPECT_TRUE((document.is_object() || document.is_boolean()));              \
@@ -427,7 +426,7 @@ TEST(idempotency) {
 }
 
 TEST(invalid) {
-  const std::optional<sourcemeta::core::JSON> result{
+  const auto result{
       sourcemeta::blaze::schema_resolver("https://example.com/foobar")};
   EXPECT_FALSE(result.has_value());
 }

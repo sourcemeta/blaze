@@ -466,7 +466,7 @@ TEST(vocabulary_across_schemas_through_a_reference) {
   })JSON")};
 
   const auto resolver{[&remote](const std::string_view identifier)
-                          -> std::optional<sourcemeta::core::JSON> {
+                          -> sourcemeta::blaze::SchemaResolverResult {
     if (identifier == "https://example.com/remote") {
       return remote;
     }

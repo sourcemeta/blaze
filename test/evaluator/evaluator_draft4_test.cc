@@ -73,7 +73,7 @@ TEST(ref_12) {
   })JSON")};
 
   auto test_resolver = [](const std::string_view identifier)
-      -> std::optional<sourcemeta::core::JSON> {
+      -> sourcemeta::blaze::SchemaResolverResult {
     if (identifier == "https://example.com") {
       return sourcemeta::core::parse_json(R"JSON({
                 "$schema": "http://json-schema.org/draft-04/schema#",
@@ -101,7 +101,7 @@ TEST(ref_13) {
   })JSON")};
 
   auto test_resolver = [](const std::string_view identifier)
-      -> std::optional<sourcemeta::core::JSON> {
+      -> sourcemeta::blaze::SchemaResolverResult {
     if (identifier == "https://example.com") {
       return sourcemeta::core::parse_json(R"JSON({
                 "$schema": "http://json-schema.org/draft-04/schema#",

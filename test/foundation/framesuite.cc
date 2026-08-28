@@ -29,7 +29,7 @@ auto make_resolver(const sourcemeta::core::JSON &test)
 
   const auto &registry{test.at("resolver")};
   return [registry](const std::string_view identifier)
-             -> std::optional<sourcemeta::core::JSON> {
+             -> sourcemeta::blaze::SchemaResolverResult {
     const auto *match{
         registry.try_at(sourcemeta::core::JSON::String{identifier})};
     if (match != nullptr) {

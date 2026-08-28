@@ -13,7 +13,7 @@
 #include <vector>        // std::vector
 
 static auto test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://sourcemeta.com/optional-core") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "https://sourcemeta.com/optional-core",

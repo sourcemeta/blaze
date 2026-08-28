@@ -12,7 +12,7 @@
 #include "evaluator_utils.h"
 
 static auto test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://example.com/metaschema") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
