@@ -777,7 +777,10 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
         if (fragment.has_value() && !fragment.value().empty()) {
           throw SchemaFrameError(
               root_id.value(),
-              "Identifiers must not contain non-empty fragments");
+              supports_id_anchors(root_base_dialect.value())
+                  ? "Identifiers may only carry a fragment when they consist "
+                    "of nothing else"
+                  : "Identifiers must not contain non-empty fragments");
         }
       }
 
@@ -906,9 +909,15 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
             // See
             // https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#section-8.2.1-5
             if (maybe_fragment.has_value() && !maybe_fragment.value().empty()) {
+              // Before 2019-09 an identifier may carry a fragment, but only by
+              // consisting of nothing else, in which case it declares an anchor
+              // and never reaches here
               throw SchemaFrameError(
                   entry.id.value(),
-                  "Identifiers must not contain non-empty fragments");
+                  supports_id_anchors(entry.common.base_dialect.value())
+                      ? "Identifiers may only carry a fragment when they "
+                        "consist of nothing else"
+                      : "Identifiers must not contain non-empty fragments");
             }
 
             const bool maybe_relative_is_absolute{maybe_relative.is_absolute()};

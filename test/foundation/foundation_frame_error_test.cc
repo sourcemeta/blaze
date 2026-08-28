@@ -178,6 +178,83 @@ TEST(draft3_embedded_custom_metaschema_wrong_id_keyword) {
   }
 }
 
+TEST(draft3_top_level_id_absolute_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://www.sourcemeta.com/schema#foo",
+    "$schema": "http://json-schema.org/draft-03/schema#"
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft3_nested_id_absolute_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "foo": {
+        "id": "https://www.sourcemeta.com/nested#foo"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/nested#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft3_nested_id_relative_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "foo": {
+        "id": "nested#foo"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "nested#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
 TEST(draft4_id_override) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "id": "https://www.sourcemeta.com/schema",
@@ -310,6 +387,83 @@ TEST(draft4_embedded_custom_metaschema_wrong_id_keyword) {
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft4_top_level_id_absolute_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://www.sourcemeta.com/schema#foo",
+    "$schema": "http://json-schema.org/draft-04/schema#"
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft4_nested_id_absolute_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": {
+        "id": "https://www.sourcemeta.com/nested#foo"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/nested#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft4_nested_id_relative_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": {
+        "id": "nested#foo"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "nested#foo");
   } catch (...) {
     FAIL();
   }
@@ -462,6 +616,83 @@ TEST(draft6_embedded_custom_metaschema_wrong_id_keyword) {
   }
 }
 
+TEST(draft6_top_level_id_absolute_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.sourcemeta.com/schema#foo",
+    "$schema": "http://json-schema.org/draft-06/schema#"
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft6_nested_id_absolute_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": {
+        "$id": "https://www.sourcemeta.com/nested#foo"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/nested#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft6_nested_id_relative_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "foo": {
+        "$id": "nested#foo"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "nested#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
 TEST(draft7_id_override) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
@@ -602,6 +833,83 @@ TEST(draft7_embedded_custom_metaschema_wrong_container) {
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft7_top_level_id_absolute_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.sourcemeta.com/schema#foo",
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft7_nested_id_absolute_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "foo": {
+        "$id": "https://www.sourcemeta.com/nested#foo"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/nested#foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(draft7_nested_id_relative_with_non_empty_fragment) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "foo": {
+        "$id": "nested#foo"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers may only carry a fragment when they consist of "
+                 "nothing else");
+    EXPECT_EQ(error.identifier(), "nested#foo");
   } catch (...) {
     FAIL();
   }
@@ -883,6 +1191,8 @@ TEST(2019_09_top_level_id_absolute_with_non_empty_fragment) {
                   sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers must not contain non-empty fragments");
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
   } catch (...) {
     FAIL();
@@ -908,6 +1218,8 @@ TEST(2019_09_nested_id_absolute_with_non_empty_fragment) {
                   sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers must not contain non-empty fragments");
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/nested#foo");
   } catch (...) {
     FAIL();
@@ -1509,6 +1821,8 @@ TEST(2020_12_top_level_id_absolute_with_non_empty_fragment) {
                   sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers must not contain non-empty fragments");
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
   } catch (...) {
     FAIL();
@@ -1534,6 +1848,8 @@ TEST(2020_12_nested_id_absolute_with_non_empty_fragment) {
                   sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Identifiers must not contain non-empty fragments");
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/nested#foo");
   } catch (...) {
     FAIL();
