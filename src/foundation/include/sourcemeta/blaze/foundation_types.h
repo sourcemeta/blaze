@@ -4,9 +4,8 @@
 #include <sourcemeta/blaze/foundation_vocabularies.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/memory.h>
 
-#include <cassert>     // assert
-#include <concepts>    // std::move_constructible, std::copy_constructible
 #include <cstdint>     // std::uint8_t
 #include <format>      // std::formatter, std::format_to
 #include <functional>  // std::function, std::reference_wrapper
@@ -16,103 +15,14 @@
 #include <sstream>     // std::ostringstream
 #include <string>      // std::string
 #include <string_view> // std::string_view
-#include <type_traits> // std::is_object_v
 
 namespace sourcemeta::blaze {
-
-// TODO: This is not specific to schemas at all. Once it proves itself here,
-// move it into Core as a general purpose type
-
-/// @ingroup foundation
-/// What a sourcemeta::blaze::OwnedOrReference can hold
-template <typename T>
-concept Referenceable = std::is_object_v<T> && std::move_constructible<T>;
-
-/// @ingroup foundation
-/// Either a value this holds itself, a reference to one that outlives it, or
-/// nothing at all.
-///
-/// Reach for this when a function sometimes materialises its result and
-/// sometimes hands back something it already has. Producers that build a value,
-/// by reading a file, performing a network request, or computing it, return it
-/// as they always would. Producers backed by storage that outlives the call,
-/// such as a long lived cache, return a reference instead and skip the copy.
-///
-/// A reference must stay put and stay alive for as long as the consumer reads
-/// it. Anything temporary binds to the owning constructor, so a temporary can
-/// never be captured by reference here.
-template <Referenceable T> class OwnedOrReference {
-public:
-  /// Hold nothing
-  OwnedOrReference() = default;
-
-  /// Hold nothing
-  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-  OwnedOrReference(std::nullopt_t) {}
-
-  /// Take ownership of a value that may or may not be there
-  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-  OwnedOrReference(std::optional<T> &&value) : owned{std::move(value)} {}
-
-  /// Take ownership of a value
-  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-  OwnedOrReference(T &&value) : owned{std::move(value)} {}
-
-  /// Refer to a value that outlives this. Anything temporary binds to the
-  /// owning constructor above instead, so this never refers to a dead value
-  // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
-  OwnedOrReference(const T &value) : referenced{&value} {}
-
-  // Prevent accidental copies, as copying is the very thing this type exists
-  // to avoid. Take ownership through `to_owned` instead
-  OwnedOrReference(const OwnedOrReference &) = delete;
-  auto operator=(const OwnedOrReference &) -> OwnedOrReference & = delete;
-  /// Move
-  OwnedOrReference(OwnedOrReference &&) = default;
-  /// Move
-  auto operator=(OwnedOrReference &&) -> OwnedOrReference & = default;
-  ~OwnedOrReference() = default;
-
-  /// Whether there is anything to read
-  [[nodiscard]] auto has_value() const noexcept -> bool {
-    return this->referenced != nullptr || this->owned.has_value();
-  }
-
-  /// Read the value, however it is held
-  [[nodiscard]] auto value() const -> const T & {
-    assert(this->has_value());
-    return this->referenced != nullptr ? *this->referenced
-                                       : this->owned.value();
-  }
-
-  /// Read the value, however it is held
-  [[nodiscard]] auto operator*() const -> const T & { return this->value(); }
-
-  /// Read the value, however it is held
-  [[nodiscard]] auto operator->() const -> const T * { return &this->value(); }
-
-  /// Get a value the caller owns, moving out of this one when it owns it and
-  /// copying only when it holds a reference
-  [[nodiscard]] auto to_owned() && -> T
-    requires std::copy_constructible<T>
-  {
-    assert(this->has_value());
-    if (this->referenced != nullptr) {
-      return *this->referenced;
-    }
-
-    return std::move(this->owned).value();
-  }
-
-private:
-  std::optional<T> owned;
-  const T *referenced{nullptr};
-};
 
 /// @ingroup foundation
 /// What a sourcemeta::blaze::SchemaResolver hands back: either a schema it
 /// owns, or a reference to one that outlives the call
-using SchemaResolverResult = OwnedOrReference<sourcemeta::core::JSON>;
+using SchemaResolverResult =
+    sourcemeta::core::OwnedOrReference<sourcemeta::core::JSON>;
 
 /// @ingroup foundation
 ///
