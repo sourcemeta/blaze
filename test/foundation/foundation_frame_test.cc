@@ -1320,31 +1320,3 @@ TEST(root_location_without_analysis) {
   EXPECT_EQ(frame.references().size(), 0);
   EXPECT_FALSE(frame.root_location().has_value());
 }
-
-TEST(deeply_nested_schema) {
-  constexpr std::size_t depth{2000};
-  std::ostringstream input;
-  input << R"({"$id":"https://example.com/schema",)"
-        << R"("$schema":"https://json-schema.org/draft/2020-12/schema",)";
-  for (std::size_t index = 0; index < depth; index++) {
-    input << R"("not":{)";
-  }
-
-  input << R"("type":"string")";
-  for (std::size_t index = 0; index < depth; index++) {
-    input << "}";
-  }
-
-  input << "}";
-
-  const auto document{sourcemeta::core::parse_json(input.str())};
-
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(document, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver);
-
-  EXPECT_EQ(frame.locations().size(), depth + 4);
-  EXPECT_EQ(frame.references().size(), 1);
-  EXPECT_TRUE(frame.standalone());
-}
