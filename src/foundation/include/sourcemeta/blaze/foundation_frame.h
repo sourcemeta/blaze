@@ -13,19 +13,14 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <concepts>      // std::invocable
-#include <cstdint>       // std::uint8_t
-#include <deque>         // std::deque
-#include <functional>    // std::reference_wrapper
-#include <map>           // std::map
-#include <memory>        // std::unique_ptr
-#include <optional>      // std::optional
-#include <set>           // std::set
-#include <tuple>         // std::tuple
-#include <unordered_map> // std::unordered_map
-#include <unordered_set> // std::unordered_set
-#include <utility>       // std::pair
-#include <vector>        // std::vector
+#include <concepts>   // std::invocable
+#include <cstdint>    // std::uint8_t
+#include <functional> // std::reference_wrapper
+#include <map>        // std::map
+#include <memory>     // std::unique_ptr
+#include <optional>   // std::optional
+#include <utility>    // std::pair
+#include <vector>     // std::vector
 
 namespace sourcemeta::blaze {
 

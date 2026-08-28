@@ -5,11 +5,13 @@
 
 #include <algorithm> // std::ranges::all_of, std::ranges::contains, std::ranges::sort
 #include <cassert>       // assert
-#include <functional>    // std::less
+#include <deque>         // std::deque
+#include <functional>    // std::hash, std::less, std::reference_wrapper
 #include <map>           // std::map
 #include <memory>        // std::make_unique, std::unique_ptr
 #include <optional>      // std::optional
 #include <sstream>       // std::ostringstream
+#include <tuple>         // std::tuple
 #include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
 #include <utility>       // std::pair, std::move
