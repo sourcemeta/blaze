@@ -1,3 +1,12 @@
+if(BLAZE_FOUNDATION)
+  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_frame
+    FOLDER "Blaze/Contrib" SOURCES frame.cc)
+  target_link_libraries(sourcemeta_blaze_contrib_frame
+    PRIVATE sourcemeta::core::json)
+  target_link_libraries(sourcemeta_blaze_contrib_frame
+    PRIVATE sourcemeta::blaze::foundation)
+endif()
+
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_compile
     FOLDER "Blaze/Contrib" SOURCES compile.cc)
