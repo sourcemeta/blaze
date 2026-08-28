@@ -71,6 +71,18 @@ inline auto schema_resource_id(const std::vector<std::string> &resources,
          static_cast<std::size_t>(std::distance(resources.cbegin(), iterator));
 }
 
+// A walker only views the custom vocabulary URIs it reports, as its table
+// points at static storage, so interning one has to take a copy
+inline auto own(const SchemaVocabularies::URIView &vocabulary)
+    -> SchemaVocabularies::URI {
+  const auto *known{std::get_if<SchemaVocabularies::Known>(&vocabulary)};
+  if (known != nullptr) {
+    return *known;
+  }
+
+  return sourcemeta::core::JSON::String{std::get<std::string_view>(vocabulary)};
+}
+
 // Intern the vocabulary that owns a keyword, as an index into
 // Template::vocabularies where zero means the keyword has none
 inline auto
@@ -86,10 +98,10 @@ vocabulary_intern(std::vector<SchemaVocabularies::URI> &vocabularies,
 
   // Intern on the vocabulary itself rather than on its string form, as the
   // known ones are a single byte and comparing them allocates nothing
-  const auto iterator{
-      std::ranges::find(vocabularies, result.vocabulary.value())};
+  const auto vocabulary{own(result.vocabulary.value())};
+  const auto iterator{std::ranges::find(vocabularies, vocabulary)};
   if (iterator == vocabularies.end()) {
-    vocabularies.push_back(result.vocabulary.value());
+    vocabularies.push_back(vocabulary);
     return vocabularies.size();
   }
 

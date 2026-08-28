@@ -77,6 +77,10 @@ struct SOURCEMETA_BLAZE_FOUNDATION_EXPORT SchemaVocabularies {
   /// custom string URI
   using URI = std::variant<Known, sourcemeta::core::JSON::String>;
 
+  /// A vocabulary URI that does not own its custom string, for tables that
+  /// point at storage that outlives them
+  using URIView = std::variant<Known, std::string_view>;
+
 public:
   SchemaVocabularies() = default;
   SchemaVocabularies(const SchemaVocabularies &) = default;

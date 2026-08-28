@@ -5,15 +5,15 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <cstdint>       // std::uint8_t
-#include <format>        // std::formatter, std::format_to
-#include <functional>    // std::function, std::reference_wrapper
-#include <optional>      // std::optional
-#include <ostream>       // std::ostream
-#include <sstream>       // std::ostringstream
-#include <string>        // std::string
-#include <string_view>   // std::string_view
-#include <unordered_set> // std::unordered_set
+#include <cstdint>     // std::uint8_t
+#include <format>      // std::formatter, std::format_to
+#include <functional>  // std::function, std::reference_wrapper
+#include <optional>    // std::optional
+#include <ostream>     // std::ostream
+#include <span>        // std::span
+#include <sstream>     // std::ostringstream
+#include <string>      // std::string
+#include <string_view> // std::string_view
 
 namespace sourcemeta::blaze {
 
@@ -187,13 +187,13 @@ struct SchemaWalkerResult {
   /// The walker strategy to continue traversing across the schema
   SchemaKeywordType type;
   /// The vocabulary associated with the keyword, if any
-  std::optional<SchemaVocabularies::URI> vocabulary;
+  std::optional<SchemaVocabularies::URIView> vocabulary;
   /// The keywords a given keyword depends on (if any) during the evaluation
   /// process
-  std::unordered_set<std::string_view> dependencies;
+  std::span<const std::string_view> dependencies;
   /// The keywords a given keyword depends on for evaluation ordering purposes
   /// only (not semantic dependencies)
-  std::unordered_set<std::string_view> order_dependencies;
+  std::span<const std::string_view> order_dependencies;
   /// The JSON instance types that this keyword applies to (empty means all)
   sourcemeta::core::JSON::TypeSet instances;
 
@@ -205,15 +205,14 @@ struct SchemaWalkerResult {
   auto operator=(SchemaWalkerResult &&) -> SchemaWalkerResult & = default;
   ~SchemaWalkerResult() = default;
 
-  SchemaWalkerResult(SchemaKeywordType type_,
-                     std::optional<SchemaVocabularies::URI> vocabulary_,
-                     std::unordered_set<std::string_view> dependencies_,
-                     std::unordered_set<std::string_view> order_dependencies_,
-                     sourcemeta::core::JSON::TypeSet instances_)
-      : type{type_}, vocabulary{std::move(vocabulary_)},
-        dependencies{std::move(dependencies_)},
-        order_dependencies{std::move(order_dependencies_)},
-        instances{instances_} {}
+  constexpr SchemaWalkerResult(
+      SchemaKeywordType type_,
+      std::optional<SchemaVocabularies::URIView> vocabulary_,
+      std::span<const std::string_view> dependencies_,
+      std::span<const std::string_view> order_dependencies_,
+      sourcemeta::core::JSON::TypeSet instances_)
+      : type{type_}, vocabulary{vocabulary_}, dependencies{dependencies_},
+        order_dependencies{order_dependencies_}, instances{instances_} {}
 };
 
 /// @ingroup foundation
