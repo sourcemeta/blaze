@@ -17,7 +17,7 @@ static const std::string FORMAT_ASSERTION_METASCHEMA_URI{
     "https://example.com/2020-12-format-assertion-meta"};
 
 static auto test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == FORMAT_ASSERTION_METASCHEMA_URI) {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "https://example.com/2020-12-format-assertion-meta",

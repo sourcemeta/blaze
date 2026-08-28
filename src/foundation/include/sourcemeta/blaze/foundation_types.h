@@ -4,6 +4,7 @@
 #include <sourcemeta/blaze/foundation_vocabularies.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/memory.h>
 
 #include <cstdint>     // std::uint8_t
 #include <format>      // std::formatter, std::format_to
@@ -17,7 +18,12 @@
 
 namespace sourcemeta::blaze {
 
-// Take a URI and get back a schema
+/// @ingroup foundation
+/// What a sourcemeta::blaze::SchemaResolver hands back: either a schema it
+/// owns, or a reference to one that outlives the call
+using SchemaResolverResult =
+    sourcemeta::core::OwnedOrReference<sourcemeta::core::JSON>;
+
 /// @ingroup foundation
 ///
 /// Some functions need to reference other schemas by their URIs. To accomplish
@@ -32,8 +38,7 @@ namespace sourcemeta::blaze {
 /// requests, or anything your application might require. Unless your resolver
 /// is trivial, it is recommended to create a callable object that implements
 /// the function interface.
-using SchemaResolver =
-    std::function<std::optional<sourcemeta::core::JSON>(std::string_view)>;
+using SchemaResolver = std::function<SchemaResolverResult(std::string_view)>;
 
 /// @ingroup foundation
 /// The reference type

@@ -20,7 +20,7 @@
 #include <sourcemeta/core/json.h>
 
 static auto test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   const std::filesystem::path remotes_path{
       std::filesystem::path{OFFICIAL_SUITE_PATH} / "remotes"};
 

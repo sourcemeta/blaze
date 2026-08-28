@@ -9,7 +9,7 @@
 #include <string_view> // std::string_view
 
 static auto test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/test-1") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-02/schema#",

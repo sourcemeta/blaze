@@ -22,7 +22,7 @@ static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
                                   "files" / "draft7_w3c_wot_td_v1_1.json")};
 
   const auto resolver{[&schema](const std::string_view identifier)
-                          -> std::optional<sourcemeta::core::JSON> {
+                          -> sourcemeta::blaze::SchemaResolverResult {
     if (identifier == WOT_IDENTIFIER) {
       return schema;
     }

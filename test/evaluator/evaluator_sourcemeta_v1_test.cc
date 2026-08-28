@@ -13,7 +13,7 @@
 #include "evaluator_utils.h"
 
 static auto test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "tag:sourcemeta.com,2026:extension/v1/2019-09") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "tag:sourcemeta.com,2026:extension/v1/2019-09",

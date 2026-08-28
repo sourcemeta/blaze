@@ -664,8 +664,8 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
   // over what the resolver knows about, as the document pins the exact
   // meta-schema it is described by
   const SchemaResolver effective_resolver{
-      [&root, &resolver, this](const std::string_view identifier)
-          -> std::optional<sourcemeta::core::JSON> {
+      [&root, &resolver,
+       this](const std::string_view identifier) -> SchemaResolverResult {
         const sourcemeta::core::JSON::String key{identifier};
         const auto hit{this->probed_metaschemas_.find(key)};
         if (hit != this->probed_metaschemas_.cend()) {
@@ -1531,8 +1531,8 @@ auto SchemaFrame::vocabularies(const Location &location,
   return std::get<2>(this->vocabularies_.emplace_back(
       location.base_dialect, location.dialect,
       sourcemeta::blaze::vocabularies(
-          [this, &resolver](const std::string_view identifier)
-              -> std::optional<sourcemeta::core::JSON> {
+          [this, &resolver](
+              const std::string_view identifier) -> SchemaResolverResult {
             const auto hit{this->probed_metaschemas_.find(
                 sourcemeta::core::JSON::String{identifier})};
             if (hit != this->probed_metaschemas_.cend()) {

@@ -10,7 +10,7 @@
 #include <vector>
 
 static auto alterschema_test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier ==
       "https://sourcemeta.com/2020-12-custom-vocabulary-optional") {
     return sourcemeta::core::parse_json(R"JSON({

@@ -31,7 +31,7 @@ static auto parse_resolve_directory(const std::string_view value)
 
 static auto resolve_schema(const std::string_view identifier,
                            const ResolveDirectories &resolve_directories)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   for (const auto &[prefix, directory] : resolve_directories) {
     if (!identifier.starts_with(prefix)) {
       continue;
@@ -124,7 +124,7 @@ auto main(int argc, char **argv) noexcept -> int {
 
     const auto resolver{
         [&resolve_directories](const std::string_view identifier)
-            -> std::optional<sourcemeta::core::JSON> {
+            -> sourcemeta::blaze::SchemaResolverResult {
           return resolve_schema(identifier, resolve_directories);
         }};
 

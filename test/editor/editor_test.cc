@@ -4,7 +4,7 @@
 #include <sourcemeta/blaze/editor.h>
 
 static auto test_resolver_2020_12(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://example.com/foo/bar") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -48,7 +48,7 @@ static auto test_resolver_2020_12(std::string_view identifier)
 }
 
 static auto test_resolver_2019_09(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://example.com/foo/bar") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -92,7 +92,7 @@ static auto test_resolver_2019_09(std::string_view identifier)
 }
 
 static auto test_resolver_draft7(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -117,7 +117,7 @@ static auto test_resolver_draft7(std::string_view identifier)
 }
 
 static auto test_resolver_draft6(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-06/schema#",
@@ -142,7 +142,7 @@ static auto test_resolver_draft6(std::string_view identifier)
 }
 
 static auto test_resolver_draft4(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",

@@ -70,8 +70,13 @@ public:
     }
 
     auto remote{resolver(reference_base)};
+    std::optional<sourcemeta::core::JSON> owned;
+    if (remote.has_value()) {
+      owned = std::move(remote).to_owned();
+    }
+
     const auto &[entry,
-                 _]{this->resolver_cache_.emplace(base_key, std::move(remote))};
+                 _]{this->resolver_cache_.emplace(base_key, std::move(owned))};
     if (!entry->second.has_value()) {
       return APPLIES_TO_KEYWORDS(KEYWORD);
     }

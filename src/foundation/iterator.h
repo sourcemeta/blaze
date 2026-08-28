@@ -113,8 +113,8 @@ inline auto walk(const std::optional<sourcemeta::core::WeakPointer> &parent,
   // same way we do at the document root, so that nested self-contained
   // meta-schemas resolve to their embedded definition before the resolver
   const auto vocabularies{sourcemeta::blaze::vocabularies(
-      [&subschema, &resolver](const std::string_view identifier)
-          -> std::optional<sourcemeta::core::JSON> {
+      [&subschema,
+       &resolver](const std::string_view identifier) -> SchemaResolverResult {
         const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
             subschema, identifier, resolver)};
         if (embedded) {

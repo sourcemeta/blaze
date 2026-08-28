@@ -1953,7 +1953,7 @@ TEST(self_referencing_metaschema) {
   })JSON");
 
   const auto resolver = [&document](std::string_view identifier)
-      -> std::optional<sourcemeta::core::JSON> {
+      -> sourcemeta::blaze::SchemaResolverResult {
     if (identifier == "https://example.com/self") {
       return document;
     }
@@ -1984,7 +1984,7 @@ TEST(indirect_metaschema_cycle) {
   })JSON");
 
   const auto resolver = [&document, &other](std::string_view identifier)
-      -> std::optional<sourcemeta::core::JSON> {
+      -> sourcemeta::blaze::SchemaResolverResult {
     if (identifier == "https://example.com/a") {
       return document;
     } else if (identifier == "https://example.com/b") {

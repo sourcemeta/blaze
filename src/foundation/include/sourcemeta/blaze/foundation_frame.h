@@ -119,7 +119,6 @@ public:
   enum class LocationType : std::uint8_t {
     Resource,
     Anchor,
-    // TODO: Distinguish between a Pointer and a Keyword
     Pointer,
     Subschema
   };

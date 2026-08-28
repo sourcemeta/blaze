@@ -234,15 +234,15 @@ TEST(valid_with_file_path_target) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -277,15 +277,15 @@ TEST(error_no_dialect_without_default) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   try {
     sourcemeta::blaze::TestSuite::parse(
@@ -310,15 +310,15 @@ TEST(valid_with_default_dialect) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -625,15 +625,15 @@ TEST(valid_target_array_with_file_paths) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -661,15 +661,15 @@ TEST(valid_target_array_mixed_uri_and_file_path) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -698,15 +698,15 @@ TEST(valid_target_array_with_default_dialect) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -869,15 +869,15 @@ TEST(valid_rdf_embedded_legacy_root_target) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -905,15 +905,15 @@ TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   const auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -942,15 +942,15 @@ TEST(fast_template_validates_the_target) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -980,15 +980,15 @@ TEST(exhaustive_template_emits_annotations) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -1030,15 +1030,15 @@ TEST(exhaustive_template_is_compiled_once) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
@@ -1061,7 +1061,7 @@ TEST(exhaustive_template_is_only_compiled_on_request) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
   std::size_t resolutions{0};
   const auto test_resolver{[&resolutions](std::string_view identifier)
-                               -> std::optional<sourcemeta::core::JSON> {
+                               -> sourcemeta::blaze::SchemaResolverResult {
     resolutions += 1;
     const sourcemeta::core::URI uri{identifier};
     if (uri.is_file()) {
@@ -1092,15 +1092,15 @@ TEST(exhaustive_template_per_target) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto test_resolver{
-      [](std::string_view identifier) -> std::optional<sourcemeta::core::JSON> {
-        const sourcemeta::core::URI uri{identifier};
-        if (uri.is_file()) {
-          return sourcemeta::core::read_yaml_or_json(uri.to_path());
-        }
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::blaze::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
 
-        return sourcemeta::blaze::schema_resolver(identifier);
-      }};
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
 
   auto result{sourcemeta::blaze::TestSuite::parse(
       document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,

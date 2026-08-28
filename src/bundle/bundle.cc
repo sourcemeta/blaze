@@ -381,8 +381,8 @@ auto bundle_schema(sourcemeta::core::JSON &root,
       return;
     }
 
-    auto remote{resolver(identifier)};
-    if (!remote.has_value()) {
+    auto resolved{resolver(identifier)};
+    if (!resolved.has_value()) {
       if (frame.traverse(identifier).has_value()) {
         throw sourcemeta::blaze::SchemaReferenceError(
             reference.destination, sourcemeta::core::to_pointer(pointer),
@@ -393,7 +393,10 @@ auto bundle_schema(sourcemeta::core::JSON &root,
           identifier, "Could not resolve the reference to an external schema");
     }
 
-    if (!remote.value().is_object() && !remote.value().is_boolean()) {
+    // Bundling rewrites the schema before embedding it, so it needs a copy
+    // it owns rather than whatever the resolver chose to hand back
+    auto remote{std::move(resolved).to_owned()};
+    if (!remote.is_object() && !remote.is_boolean()) {
       throw sourcemeta::blaze::SchemaReferenceError(
           identifier, sourcemeta::core::to_pointer(pointer),
           "The JSON document is not a valid JSON Schema");
@@ -402,8 +405,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
     sourcemeta::blaze::SchemaFrame remote_root_frame{
         sourcemeta::blaze::SchemaFrame::Mode::Root};
     try {
-      remote_root_frame.analyse(remote.value(), walker, resolver,
-                                default_dialect);
+      remote_root_frame.analyse(remote, walker, resolver, default_dialect);
     } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &) {
       throw sourcemeta::blaze::SchemaReferenceError(
           identifier, sourcemeta::core::to_pointer(pointer),
@@ -421,7 +423,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
       // for this is probably insanely slow
       sourcemeta::blaze::SchemaFrame remote_frame{
           sourcemeta::blaze::SchemaFrame::Mode::Locations};
-      remote_frame.analyse(remote.value(), walker, resolver, default_dialect,
+      remote_frame.analyse(remote, walker, resolver, default_dialect,
                            identifier);
       if (!remote_frame.traverse(reference.destination).has_value()) {
         throw sourcemeta::blaze::SchemaReferenceError(
@@ -434,18 +436,17 @@ auto bundle_schema(sourcemeta::core::JSON &root,
         remote_id.empty() ? sourcemeta::core::JSON::String{identifier}
                           : sourcemeta::core::JSON::String{remote_id}};
 
-    if (remote.value().is_object()) {
+    if (remote.is_object()) {
       // Otherwise the embedded resource would be re-interpreted under the
       // dialect of the schema it gets embedded into, which can differ from
       // the default dialect that the remote was resolved with
-      if (!remote.value().defines("$schema")) {
-        remote.value().assign(
-            "$schema",
-            sourcemeta::core::JSON{sourcemeta::blaze::declared_dialect(
-                remote.value(), default_dialect)});
+      if (!remote.defines("$schema")) {
+        remote.assign("$schema", sourcemeta::core::JSON{
+                                     sourcemeta::blaze::declared_dialect(
+                                         remote, default_dialect)});
       }
 
-      sourcemeta::blaze::schema_reidentify(remote.value(), effective_id,
+      sourcemeta::blaze::schema_reidentify(remote, effective_id,
                                            remote_base_dialect);
     }
 
@@ -461,7 +462,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
 
     bundled.emplace(identifier, effective_id);
     bundled.emplace(effective_id, effective_id);
-    deferred.emplace_back(std::move(remote).value(), std::move(effective_id),
+    deferred.emplace_back(std::move(remote), std::move(effective_id),
                           remote_base_dialect);
   });
 

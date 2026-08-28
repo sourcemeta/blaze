@@ -287,7 +287,7 @@
             (expected_schema_location));
 
 static auto test_resolver(std::string_view identifier)
-    -> std::optional<sourcemeta::core::JSON> {
+    -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://example.com/remote") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "https://example.com/remote",
