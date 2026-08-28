@@ -18,6 +18,7 @@
 #include <deque>         // std::deque
 #include <functional>    // std::reference_wrapper
 #include <map>           // std::map
+#include <memory>        // std::unique_ptr
 #include <optional>      // std::optional
 #include <set>           // std::set
 #include <tuple>         // std::tuple
@@ -72,6 +73,8 @@ public:
     /// Register the default identifier only if the schema declares none
     Fallback
   };
+
+  ~SchemaFrame();
 
   // We rely on internal caches that would be dangling otherwise
   SchemaFrame(const SchemaFrame &) = delete;
@@ -312,108 +315,10 @@ private:
   sourcemeta::core::JSON::String root_;
   Locations locations_;
   References references_;
-  // Custom meta-schemas that the resolver could not resolve but that were
-  // found embedded in the analysed document itself. The values point into
-  // the analysed document, which the frame must not outlive anyway
-  std::unordered_map<sourcemeta::core::JSON::String,
-                     const sourcemeta::core::JSON *>
-      probed_metaschemas_;
-  // Meta-schemas that the resolver produced, which we must own to hand out
-  // references to. A map, as handing out those references means they have to
-  // survive later insertions
-  mutable std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON>
-      metaschemas_;
-  // SchemaVocabularies are a function of the base dialect and dialect alone,
-  // and a schema only tends to make use of a handful of those. We own the
-  // dialect that we key on, as the view that the location holds may point into
-  // a default dialect that the caller of the constructor only kept around for
-  // duration of that call. A deque, as handing out references to the
-  // vocabularies means they must survive later insertions
-  mutable std::deque<std::tuple<
-      SchemaBaseDialect, sourcemeta::core::JSON::String, SchemaVocabularies>>
-      vocabularies_;
-  mutable std::unordered_map<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      std::vector<const Location *>, sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      pointer_to_location_;
-  mutable std::unordered_set<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      pointers_with_non_orphan_;
-  using ReachabilityCache =
-      std::unordered_map<const sourcemeta::core::WeakPointer *, bool>;
-  struct ReachabilityKey {
-    const sourcemeta::core::WeakPointer *pointer;
-    bool orphan;
-    auto operator==(const ReachabilityKey &other) const noexcept -> bool {
-      return this->pointer == other.pointer && this->orphan == other.orphan;
-    }
-  };
-  struct ReachabilityKeyHasher {
-    auto operator()(const ReachabilityKey &key) const noexcept -> std::size_t {
-      return std::hash<const void *>{}(key.pointer) ^
-             (std::hash<bool>{}(key.orphan) << 1);
-    }
-  };
-  mutable std::unordered_map<ReachabilityKey, ReachabilityCache,
-                             ReachabilityKeyHasher>
-      reachability_;
-  mutable std::unordered_map<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      std::vector<const sourcemeta::core::WeakPointer *>,
-      sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      references_by_destination_;
-  mutable std::unordered_set<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      location_members_children_;
-  mutable std::unordered_map<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      std::vector<const Location *>, sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      descendants_by_pointer_;
-  struct PotentialSource {
-    const sourcemeta::core::WeakPointer *source_pointer;
-    sourcemeta::core::WeakPointer source_parent;
-    bool crosses;
-  };
-  mutable std::unordered_map<const Location *, std::vector<PotentialSource>>
-      potential_sources_by_location_;
-  struct ReachabilityEdge {
-    const Location *target;
-    bool orphan_context_only;
-    bool is_reference;
-  };
-  mutable std::unordered_map<const Location *, std::vector<ReachabilityEdge>>
-      reachability_graph_;
-  mutable std::unordered_map<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      const sourcemeta::core::WeakPointer *,
-      sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      canonical_pointer_;
-  mutable std::unordered_map<const Location *,
-                             const sourcemeta::core::WeakPointer *>
-      location_to_canonical_;
-  bool standalone_{false};
-
-  auto populate_pointer_to_location() const -> void;
-  auto populate_reference_graph() const -> void;
-  auto populate_location_members(const SchemaWalker &walker,
-                                 const SchemaResolver &resolver) const -> void;
-  auto populate_descendants() const -> void;
-  auto populate_potential_sources(const SchemaWalker &walker,
-                                  const SchemaResolver &resolver) const -> void;
-  auto populate_reachability_graph(const SchemaWalker &walker,
-                                   const SchemaResolver &resolver) const
-      -> void;
-  auto populate_reachability(const Location &base, const SchemaWalker &walker,
-                             const SchemaResolver &resolver) const
-      -> const ReachabilityCache &;
+  // What the frame derives rather than is, kept out of line so that this
+  // declaration stays down to the schema it framed
+  struct Cache;
+  std::unique_ptr<Cache> cache_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251 4275)
 #endif
