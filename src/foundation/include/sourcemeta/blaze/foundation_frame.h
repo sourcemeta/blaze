@@ -51,19 +51,17 @@ namespace sourcemeta::blaze {
 ///   }
 /// })JSON");
 ///
-/// sourcemeta::blaze::SchemaFrame
-///   frame{sourcemeta::blaze::SchemaFrame::Mode::References};
-///
-/// frame.analyse(document,
+/// const sourcemeta::blaze::SchemaFrame frame{
+///   sourcemeta::blaze::SchemaFrame::Mode::References, document,
 ///   sourcemeta::blaze::schema_walker,
-///   sourcemeta::blaze::schema_resolver);
+///   sourcemeta::blaze::schema_resolver};
 /// ```
 class SOURCEMETA_BLAZE_FOUNDATION_EXPORT SchemaFrame {
 public:
   /// The mode of framing. More extensive analysis can be compute and memory
   /// intensive. Each mode is a superset of the previous one. Note that
   /// sourcemeta::blaze::SchemaFrame::Mode::Root reports on a single schema,
-  /// so analysing a wrapper that holds more than one yields an empty frame
+  /// so framing a wrapper that holds more than one yields no locations
   enum class Mode : std::uint8_t { Root, Locations, References };
 
   /// How a caller-provided default identifier relates to the one that the
@@ -160,8 +158,10 @@ public:
       const std::optional<sourcemeta::core::PointerPositionTracker> &tracker =
           std::nullopt) const -> sourcemeta::core::JSON;
 
-  /// Analyse a schema or set of schemas from a given root. Passing
-  /// multiple paths that have any overlap is undefined behaviour
+  /// Frame a schema or set of schemas from a given root. Passing multiple
+  /// paths that have any overlap is undefined behaviour
+  ///
+  /// A frame is analysed once, on construction, and is immutable afterwards
   ///
   /// The resulting locations point into the schema rather than copying from
   /// it, so the schema must outlive the frame. The same goes for
@@ -201,7 +201,7 @@ public:
 
   /// Get the vocabularies associated with a location entry. The frame owns
   /// the result, computing it at most once per dialect that it came across.
-  /// Note that as with the meta-schemas that `analyse` found embedded in the
+  /// Note that as with the meta-schemas that framing found embedded in the
   /// document, what the first resolver reported for a given dialect is what
   /// every later call reports, whichever resolver they pass
   /// Get the meta-schema of the analysed schema, preferring one embedded in
@@ -295,9 +295,6 @@ public:
   [[nodiscard]] auto relative_instance_location(const Location &location) const
       -> sourcemeta::core::WeakPointer;
 
-  /// Check if the frame has no analysed data
-  [[nodiscard]] auto empty() const noexcept -> bool;
-
   /// Determines if a location could be evaluated during validation
   [[nodiscard]] auto is_reachable(const Location &base,
                                   const Location &location,
@@ -305,11 +302,6 @@ public:
                                   const SchemaResolver &resolver) const -> bool;
 
 private:
-  auto analyse(const sourcemeta::core::JSON &root, const SchemaWalker &walker,
-               const SchemaResolver &resolver, std::string_view default_dialect,
-               std::string_view default_id, IdentifierMode identifier_mode,
-               const Paths &paths) -> void;
-
   Mode mode_;
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
@@ -334,7 +326,7 @@ private:
   // SchemaVocabularies are a function of the base dialect and dialect alone,
   // and a schema only tends to make use of a handful of those. We own the
   // dialect that we key on, as the view that the location holds may point into
-  // a default dialect that the caller of `analyse` only kept around for the
+  // a default dialect that the caller of the constructor only kept around for
   // duration of that call. A deque, as handing out references to the
   // vocabularies means they must survive later insertions
   mutable std::deque<std::tuple<

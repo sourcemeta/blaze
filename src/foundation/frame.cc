@@ -653,17 +653,6 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                          const SchemaFrame::IdentifierMode identifier_mode,
                          const SchemaFrame::Paths &paths)
     : mode_{mode} {
-  this->analyse(root, walker, resolver, default_dialect, default_id,
-                identifier_mode, paths);
-}
-
-auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
-                          const SchemaWalker &walker,
-                          const SchemaResolver &resolver,
-                          std::string_view default_dialect,
-                          std::string_view default_id,
-                          const SchemaFrame::IdentifierMode identifier_mode,
-                          const SchemaFrame::Paths &paths) -> void {
   // This mode reports on a single schema. Framing a wrapper that holds more
   // than one has no single schema to report on, so there is nothing to analyse
   if (this->mode_ == SchemaFrame::Mode::Root && paths.size() != 1) {
@@ -1799,10 +1788,6 @@ auto SchemaFrame::has_references_through(
 auto SchemaFrame::relative_instance_location(const Location &location) const
     -> sourcemeta::core::WeakPointer {
   return location.pointer.slice(location.relative_pointer);
-}
-
-auto SchemaFrame::empty() const noexcept -> bool {
-  return this->locations_.empty() && this->references_.empty();
 }
 
 auto SchemaFrame::populate_pointer_to_location() const -> void {

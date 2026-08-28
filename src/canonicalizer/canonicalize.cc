@@ -43,7 +43,6 @@ template <std::derived_from<SchemaTransformRule> T>
           std::is_same_v<typename T::reframe_after_transform, std::true_type>};
 }
 
-/// Re-analyse the frame, honouring any identifier already present in the schema
 /// Apply the given rules top-down to every subschema until none of them applies
 auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
            const sourcemeta::blaze::SchemaWalker &walker,
