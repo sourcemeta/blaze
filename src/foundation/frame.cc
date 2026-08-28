@@ -394,7 +394,6 @@ auto store(sourcemeta::blaze::SchemaFrame::Locations &frame,
            const sourcemeta::blaze::SchemaBaseDialect base_dialect,
            const std::optional<sourcemeta::core::WeakPointer> &parent,
            const bool property_name, const bool orphan,
-           const bool ignore_if_present = false,
            const bool already_canonical = false) -> void {
   auto canonical{already_canonical ? std::move(uri)
                                    : sourcemeta::core::URI::canonicalize(uri)};
@@ -409,7 +408,7 @@ auto store(sourcemeta::blaze::SchemaFrame::Locations &frame,
                      .base_dialect = base_dialect,
                      .property_name = property_name,
                      .orphan = orphan}});
-  if (!ignore_if_present && !inserted) {
+  if (!inserted) {
     if (entry_type == sourcemeta::blaze::SchemaFrame::LocationType::Anchor) {
       throw sourcemeta::blaze::SchemaAnchorCollisionError(
           iterator->first.second,
@@ -790,7 +789,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
             root_id.has_value() ? SchemaFrame::LocationType::Resource
                                 : SchemaFrame::LocationType::Subschema,
             location_uri, location_uri, path, path.size(), root_dialect,
-            root_base_dialect.value(), std::nullopt, false, false, false, true);
+            root_base_dialect.value(), std::nullopt, false, false, true);
       continue;
     }
 
@@ -1023,15 +1022,18 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                   common_parent, entry.common.property_name,
                   entry.common.orphan);
 
-            // Register a dynamic anchor as a static anchor if possible too
-            if (entry.common.vocabularies.contains(
+            // A dynamic anchor declares a static anchor of the same name
+            // too. When the location also carries `$anchor`, the branch above
+            // already registered it
+            if (type == AnchorType::Dynamic &&
+                entry.common.vocabularies.contains(
                     SchemaVocabularies::Known::JSON_Schema_2020_12_Core)) {
               store(this->locations_, SchemaReferenceType::Static,
                     SchemaFrame::LocationType::Anchor, relative_anchor_uri, "",
                     common_pointer_weak, bases.second.size(),
                     entry.common.dialect, entry.common.base_dialect.value(),
                     common_parent, entry.common.property_name,
-                    entry.common.orphan, true);
+                    entry.common.orphan);
             }
           }
         } else {
@@ -1074,7 +1076,8 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                     common_parent, entry.common.property_name,
                     entry.common.orphan);
 
-              if (entry.common.vocabularies.contains(
+              if (type == AnchorType::Dynamic &&
+                  entry.common.vocabularies.contains(
                       SchemaVocabularies::Known::JSON_Schema_2020_12_Core)) {
                 store(this->locations_,
                       sourcemeta::blaze::SchemaReferenceType::Static,
@@ -1082,7 +1085,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                       common_pointer_weak, bases.second.size(),
                       entry.common.dialect, entry.common.base_dialect.value(),
                       common_parent, entry.common.property_name,
-                      entry.common.orphan, true);
+                      entry.common.orphan);
               }
             }
 
@@ -1185,7 +1188,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                   dialect_for_pointer, base_dialect_for_pointer,
                   subschema_it->second.parent,
                   subschema_it->second.property_name,
-                  subschema_it->second.orphan, false, true);
+                  subschema_it->second.orphan, true);
           } else {
             const auto &parent_pointer{
                 combined.dialect_match.has_value()
@@ -1202,7 +1205,7 @@ auto SchemaFrame::analyse(const sourcemeta::core::JSON &root,
                   SchemaFrame::LocationType::Pointer, std::move(result),
                   base_view, pointer_weak, nearest_base_depth,
                   dialect_for_pointer, base_dialect_for_pointer, parent_pointer,
-                  parent_property_name, parent_orphan, false, true);
+                  parent_property_name, parent_orphan, true);
           }
         }
       }

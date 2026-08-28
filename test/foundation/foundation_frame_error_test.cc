@@ -1292,6 +1292,170 @@ TEST(2020_12_dynamic_anchor_same_on_schema_resource) {
   }
 }
 
+TEST(2020_12_static_anchor_then_dynamic_anchor_same_on_schema_resource) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.sourcemeta.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": {
+        "$anchor": "test"
+      },
+      "bar": {
+        "$dynamicAnchor": "test"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#test");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/$defs/bar");
+    EXPECT_EQ(sourcemeta::core::to_string(error.other()), "/$defs/foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(2020_12_dynamic_anchor_then_static_anchor_same_on_schema_resource) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.sourcemeta.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "bar": {
+        "$dynamicAnchor": "test"
+      },
+      "foo": {
+        "$anchor": "test"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#test");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/$defs/foo");
+    EXPECT_EQ(sourcemeta::core::to_string(error.other()), "/$defs/bar");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(2020_12_root_static_anchor_then_nested_dynamic_anchor) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.sourcemeta.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$anchor": "test",
+    "items": {
+      "$dynamicAnchor": "test"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#test");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/items");
+    EXPECT_EQ(sourcemeta::core::to_string(error.other()), "");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(2020_12_root_dynamic_anchor_then_nested_static_anchor) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.sourcemeta.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicAnchor": "test",
+    "items": {
+      "$anchor": "test"
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
+    EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#test");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/items");
+    EXPECT_EQ(sourcemeta::core::to_string(error.other()), "");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(2020_12_static_anchor_then_dynamic_anchor_same_without_id) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": {
+        "$anchor": "test"
+      },
+      "bar": {
+        "$dynamicAnchor": "test"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
+    EXPECT_EQ(error.identifier(), "#test");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/$defs/bar");
+    EXPECT_EQ(sourcemeta::core::to_string(error.other()), "/$defs/foo");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(2020_12_dynamic_anchor_then_static_anchor_same_without_id) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "bar": {
+        "$dynamicAnchor": "test"
+      },
+      "foo": {
+        "$anchor": "test"
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References};
+  try {
+    frame.analyse(document, sourcemeta::blaze::schema_walker,
+                  sourcemeta::blaze::schema_resolver);
+    FAIL();
+  } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
+    EXPECT_EQ(error.identifier(), "#test");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/$defs/foo");
+    EXPECT_EQ(sourcemeta::core::to_string(error.other()), "/$defs/bar");
+  } catch (...) {
+    FAIL();
+  }
+}
+
 TEST(2020_12_location_independent_identifier_anonymous) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
