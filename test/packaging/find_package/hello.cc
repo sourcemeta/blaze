@@ -45,9 +45,8 @@ auto main() -> int {
     "$id": "https://example.com/foundation"
   })JSON")};
   sourcemeta::blaze::SchemaFrame foundation_frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Locations};
-  foundation_frame.analyse(foundation_schema, sourcemeta::blaze::schema_walker,
-                           sourcemeta::blaze::schema_resolver);
+      sourcemeta::blaze::SchemaFrame::Mode::Locations, foundation_schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
   auto bundle_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

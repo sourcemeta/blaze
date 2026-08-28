@@ -106,10 +106,9 @@ private:
                       const SchemaFrame::Location &location) const -> bool {
     auto frame_iterator{this->frame_cache_.find(base_key)};
     if (frame_iterator == this->frame_cache_.end()) {
-      auto remote_frame{
-          std::make_unique<SchemaFrame>(SchemaFrame::Mode::Locations)};
-      remote_frame->analyse(remote.value(), walker, resolver, location.dialect,
-                            base_key);
+      auto remote_frame{std::make_unique<SchemaFrame>(
+          SchemaFrame::Mode::Locations, remote.value(), walker, resolver,
+          location.dialect, base_key)};
       frame_iterator =
           this->frame_cache_.emplace(base_key, std::move(remote_frame)).first;
     }

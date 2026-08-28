@@ -14,11 +14,10 @@ TEST(draft0_id_override) {
     "items": { "id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -32,11 +31,10 @@ TEST(draft1_id_override) {
     "items": { "id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -50,11 +48,10 @@ TEST(draft2_id_override) {
     "items": { "id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -68,11 +65,10 @@ TEST(draft3_id_override) {
     "items": { "id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -85,12 +81,10 @@ TEST(draft3_id_fragment_invalid_whitespace) {
     "$schema": "http://json-schema.org/draft-03/schema#"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "id");
@@ -109,12 +103,10 @@ TEST(draft3_non_string_id_throws) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "id");
@@ -137,12 +129,10 @@ TEST(draft3_embedded_custom_metaschema_wrong_container) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -164,12 +154,10 @@ TEST(draft3_embedded_custom_metaschema_wrong_id_keyword) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -184,12 +172,10 @@ TEST(draft3_top_level_id_absolute_with_non_empty_fragment) {
     "$schema": "http://json-schema.org/draft-03/schema#"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -211,12 +197,10 @@ TEST(draft3_nested_id_absolute_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -238,12 +222,10 @@ TEST(draft3_nested_id_relative_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -262,11 +244,10 @@ TEST(draft4_id_override) {
     "items": { "id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -279,12 +260,10 @@ TEST(draft4_ref_with_invalid_type) {
     "$ref": 123
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$ref");
@@ -300,12 +279,10 @@ TEST(draft4_invalid_id_not_string) {
     "id": 123
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "id");
@@ -325,12 +302,10 @@ TEST(draft4_id_fragment_invalid_whitespace) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "id");
@@ -350,12 +325,10 @@ TEST(draft4_id_fragment_invalid_angle_bracket) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "id");
@@ -378,12 +351,10 @@ TEST(draft4_embedded_custom_metaschema_wrong_id_keyword) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -398,12 +369,10 @@ TEST(draft4_top_level_id_absolute_with_non_empty_fragment) {
     "$schema": "http://json-schema.org/draft-04/schema#"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -425,12 +394,10 @@ TEST(draft4_nested_id_absolute_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -452,12 +419,10 @@ TEST(draft4_nested_id_relative_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -476,11 +441,10 @@ TEST(draft6_id_override) {
     "items": { "$id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -497,12 +461,10 @@ TEST(draft6_id_fragment_invalid_leading_digit) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -522,12 +484,10 @@ TEST(draft6_id_fragment_invalid_punctuation) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -547,12 +507,10 @@ TEST(draft6_id_fragment_invalid_leading_underscore) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -575,12 +533,10 @@ TEST(draft6_embedded_custom_metaschema_wrong_container) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -602,12 +558,10 @@ TEST(draft6_embedded_custom_metaschema_wrong_id_keyword) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -622,12 +576,10 @@ TEST(draft6_top_level_id_absolute_with_non_empty_fragment) {
     "$schema": "http://json-schema.org/draft-06/schema#"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -649,12 +601,10 @@ TEST(draft6_nested_id_absolute_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -676,12 +626,10 @@ TEST(draft6_nested_id_relative_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -700,11 +648,10 @@ TEST(draft7_id_override) {
     "items": { "$id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -721,12 +668,10 @@ TEST(draft7_id_fragment_invalid_leading_digit) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -746,12 +691,10 @@ TEST(draft7_id_fragment_invalid_punctuation) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -771,12 +714,10 @@ TEST(draft7_id_fragment_invalid_at_sign) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -796,12 +737,10 @@ TEST(draft7_id_fragment_invalid_leading_underscore) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -824,12 +763,10 @@ TEST(draft7_embedded_custom_metaschema_wrong_container) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -844,12 +781,10 @@ TEST(draft7_top_level_id_absolute_with_non_empty_fragment) {
     "$schema": "http://json-schema.org/draft-07/schema#"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -871,12 +806,10 @@ TEST(draft7_nested_id_absolute_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -898,12 +831,10 @@ TEST(draft7_nested_id_relative_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -922,11 +853,10 @@ TEST(2019_09_id_override) {
     "items": { "$id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -941,11 +871,10 @@ TEST(2019_09_static_anchor_override) {
     "items": { "$anchor": "foo" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
@@ -969,12 +898,10 @@ TEST(2019_09_location_independent_identifier_anonymous) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_EQ(error.identifier(), "#foo");
@@ -993,11 +920,10 @@ TEST(2019_09_recursive_anchor_conflict) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema");
@@ -1015,12 +941,10 @@ TEST(2019_09_invalid_recursive_ref) {
     "$recursiveRef": "nested#"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema");
@@ -1036,12 +960,10 @@ TEST(2019_09_invalid_recursive_anchor_not_boolean) {
     "$recursiveAnchor": "foo"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$recursiveAnchor");
@@ -1057,12 +979,10 @@ TEST(2019_09_invalid_recursive_ref_not_string) {
     "$recursiveRef": 123
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$recursiveRef");
@@ -1078,12 +998,10 @@ TEST(2019_09_anchor_with_invalid_format_empty) {
     "$anchor": ""
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1099,12 +1017,10 @@ TEST(2019_09_anchor_with_invalid_format_leading_digit) {
     "$anchor": "1foo"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1120,12 +1036,10 @@ TEST(2019_09_anchor_with_invalid_format_leading_underscore) {
     "$anchor": "_foo"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1141,12 +1055,10 @@ TEST(2019_09_anchor_with_invalid_format_whitespace) {
     "$anchor": "foo bar"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1162,12 +1074,10 @@ TEST(2019_09_anchor_with_invalid_format_punctuation) {
     "$anchor": "foo!bar"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1183,12 +1093,10 @@ TEST(2019_09_top_level_id_absolute_with_non_empty_fragment) {
     "$schema": "https://json-schema.org/draft/2019-09/schema"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -1210,12 +1118,10 @@ TEST(2019_09_nested_id_absolute_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -1233,11 +1139,10 @@ TEST(2020_12_id_override) {
     "items": { "$id": "schema" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -1252,11 +1157,10 @@ TEST(2020_12_static_anchor_override) {
     "items": { "$anchor": "foo" }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
@@ -1277,11 +1181,10 @@ TEST(2020_12_dynamic_anchor_same_on_schema_resource) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#foo");
@@ -1306,11 +1209,10 @@ TEST(2020_12_static_anchor_then_dynamic_anchor_same_on_schema_resource) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#test");
@@ -1335,11 +1237,10 @@ TEST(2020_12_dynamic_anchor_then_static_anchor_same_on_schema_resource) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#test");
@@ -1360,11 +1261,10 @@ TEST(2020_12_root_static_anchor_then_nested_dynamic_anchor) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#test");
@@ -1385,11 +1285,10 @@ TEST(2020_12_root_dynamic_anchor_then_nested_static_anchor) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "https://www.sourcemeta.com/schema#test");
@@ -1413,11 +1312,10 @@ TEST(2020_12_static_anchor_then_dynamic_anchor_same_without_id) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "#test");
@@ -1441,11 +1339,10 @@ TEST(2020_12_dynamic_anchor_then_static_anchor_same_without_id) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "#test");
@@ -1469,12 +1366,10 @@ TEST(2020_12_location_independent_identifier_anonymous) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_EQ(error.identifier(), "#foo");
@@ -1500,19 +1395,22 @@ TEST(2020_12_multiple_nested_no_base_dialect) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   const sourcemeta::core::Pointer path1{"wrapper"};
   const sourcemeta::core::Pointer path2{"common", "test"};
   const sourcemeta::core::Pointer path3{"common", "with-id"};
 
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver, "", "",
-                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
-                  {sourcemeta::core::to_weak_pointer(path1),
-                   sourcemeta::core::to_weak_pointer(path2),
-                   sourcemeta::core::to_weak_pointer(path3)});
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References,
+        document,
+        sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        "",
+        "",
+        sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
+        {sourcemeta::core::to_weak_pointer(path1),
+         sourcemeta::core::to_weak_pointer(path2),
+         sourcemeta::core::to_weak_pointer(path3)}};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -1534,17 +1432,20 @@ TEST(2020_12_multiple_nested_same_id) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   const sourcemeta::core::Pointer path1{"common", "foo"};
   const sourcemeta::core::Pointer path2{"common", "bar"};
 
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver, "", "",
-                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
-                  {sourcemeta::core::to_weak_pointer(path1),
-                   sourcemeta::core::to_weak_pointer(path2)});
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References,
+        document,
+        sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        "",
+        "",
+        sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
+        {sourcemeta::core::to_weak_pointer(path1),
+         sourcemeta::core::to_weak_pointer(path2)}};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
@@ -1563,18 +1464,20 @@ TEST(2020_12_multiple_nested_same_anonymous_anchors) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   const sourcemeta::core::Pointer path1{"common", "foo"};
   const sourcemeta::core::Pointer path2{"common", "bar"};
 
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver,
-                  "https://json-schema.org/draft/2020-12/schema", "",
-                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
-                  {sourcemeta::core::to_weak_pointer(path1),
-                   sourcemeta::core::to_weak_pointer(path2)});
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References,
+        document,
+        sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        "https://json-schema.org/draft/2020-12/schema",
+        "",
+        sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
+        {sourcemeta::core::to_weak_pointer(path1),
+         sourcemeta::core::to_weak_pointer(path2)}};
     FAIL();
   } catch (sourcemeta::blaze::SchemaAnchorCollisionError &error) {
     EXPECT_EQ(error.identifier(), "#test");
@@ -1591,12 +1494,10 @@ TEST(2020_12_dynamic_ref_with_invalid_type) {
     "$dynamicRef": 123
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$dynamicRef");
@@ -1616,12 +1517,10 @@ TEST(2020_12_nested_invalid_schema_keyword) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$schema");
@@ -1637,12 +1536,10 @@ TEST(2020_12_invalid_id_not_string) {
     "$id": 123
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -1658,12 +1555,10 @@ TEST(2020_12_invalid_id_not_uri) {
     "$id": "not a valid uri"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$id");
@@ -1683,12 +1578,10 @@ TEST(2020_12_nested_invalid_schema_not_uri) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$schema");
@@ -1704,12 +1597,10 @@ TEST(2020_12_invalid_ref_not_string) {
     "$ref": 123
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$ref");
@@ -1725,12 +1616,10 @@ TEST(2020_12_invalid_ref_not_uri) {
     "$ref": "not a valid uri"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$ref");
@@ -1746,12 +1635,10 @@ TEST(2020_12_invalid_dynamic_ref_not_string) {
     "$dynamicRef": 123
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$dynamicRef");
@@ -1767,12 +1654,10 @@ TEST(2020_12_invalid_dynamic_ref_not_uri) {
     "$dynamicRef": "not a valid uri"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$dynamicRef");
@@ -1788,12 +1673,10 @@ TEST(2020_12_anchor_with_invalid_format_empty) {
     "$anchor": ""
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1809,12 +1692,10 @@ TEST(2020_12_anchor_with_invalid_format_leading_digit) {
     "$anchor": "1foo"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1830,12 +1711,10 @@ TEST(2020_12_anchor_with_invalid_format_leading_hyphen) {
     "$anchor": "-foo"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1851,12 +1730,10 @@ TEST(2020_12_anchor_with_invalid_format_whitespace) {
     "$anchor": "foo bar"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1872,12 +1749,10 @@ TEST(2020_12_anchor_with_invalid_format_punctuation) {
     "$anchor": "foo!bar"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1893,12 +1768,10 @@ TEST(2020_12_anchor_with_invalid_format_colon) {
     "$anchor": "foo:bar"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$anchor");
@@ -1914,12 +1787,10 @@ TEST(2020_12_dynamic_anchor_with_invalid_format_empty) {
     "$dynamicAnchor": ""
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$dynamicAnchor");
@@ -1935,12 +1806,10 @@ TEST(2020_12_dynamic_anchor_with_invalid_format_leading_digit) {
     "$dynamicAnchor": "1foo"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$dynamicAnchor");
@@ -1956,12 +1825,10 @@ TEST(2020_12_dynamic_anchor_with_invalid_format_colon) {
     "$dynamicAnchor": "foo:bar"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$dynamicAnchor");
@@ -1977,12 +1844,10 @@ TEST(2020_12_top_level_id_absolute_with_non_empty_fragment) {
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -2004,12 +1869,10 @@ TEST(2020_12_nested_id_absolute_with_non_empty_fragment) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),
@@ -2033,12 +1896,10 @@ TEST(2020_12_embedded_custom_metaschema_self_descriptive) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -2059,12 +1920,10 @@ TEST(2020_12_embedded_custom_metaschema_missing) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -2089,12 +1948,10 @@ TEST(2020_12_embedded_custom_metaschema_wrong_id_keyword) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -2121,12 +1978,10 @@ TEST(2020_12_embedded_custom_metaschema_cyclic) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -2150,12 +2005,10 @@ TEST(2020_12_embedded_custom_metaschema_relative_dialect) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (
       const sourcemeta::blaze::SchemaRelativeMetaschemaResolutionError &error) {
@@ -2176,12 +2029,10 @@ TEST(2020_12_embedded_custom_metaschema_outside_container) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -2205,12 +2056,10 @@ TEST(2020_12_embedded_custom_metaschema_nested_in_subschema) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -2249,12 +2098,10 @@ TEST(2020_12_embedded_custom_metaschema_conflicting_resources) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -2284,12 +2131,10 @@ TEST(2020_12_embedded_custom_metaschema_nested_inside_instance_data) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -2321,12 +2166,10 @@ TEST(2020_12_embedded_custom_metaschema_nested_in_sibling) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -2344,12 +2187,10 @@ TEST(2020_12_embedded_custom_metaschema_boolean) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -2370,12 +2211,10 @@ TEST(2020_12_embedded_custom_metaschema_missing_dialect) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -2396,12 +2235,10 @@ TEST(2020_12_embedded_custom_metaschema_non_string_dialect) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -2414,11 +2251,10 @@ TEST(no_dialect) {
     "type": "string"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -2441,10 +2277,10 @@ TEST(self_referencing_metaschema) {
     return sourcemeta::blaze::schema_resolver(identifier);
   };
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -2474,10 +2310,10 @@ TEST(indirect_metaschema_cycle) {
     return sourcemeta::blaze::schema_resolver(identifier);
   };
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker, resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -2490,12 +2326,10 @@ TEST(invalid_schema_not_string) {
     "$schema": 123
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$schema");
@@ -2510,12 +2344,10 @@ TEST(invalid_schema_not_uri) {
     "$schema": "not a valid uri"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaKeywordError &error) {
     EXPECT_EQ(error.keyword(), "$schema");
@@ -2532,11 +2364,10 @@ TEST(override_unresolvable_throws) {
       "https://example.com/does-not-exist"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Locations};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Locations, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -2559,11 +2390,10 @@ TEST(override_surfaces_after_2019_09_upgrade) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Locations};
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Locations, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -2577,12 +2407,10 @@ TEST(root_mode_identifier_with_non_empty_fragment) {
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Root};
-
   try {
-    frame.analyse(document, sourcemeta::blaze::schema_walker,
-                  sourcemeta::blaze::schema_resolver);
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Root, document,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(),

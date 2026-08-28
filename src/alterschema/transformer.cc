@@ -175,9 +175,14 @@ auto SchemaTransformer::check(const core::JSON &schema,
                               const core::JSON::String &exclude_keyword,
                               const bool is_metaschema) const
     -> std::pair<bool, std::uint8_t> {
-  blaze::SchemaFrame frame{blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, walker, resolver, default_dialect, default_id,
-                sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
+  blaze::SchemaFrame frame{
+      blaze::SchemaFrame::Mode::References,
+      schema,
+      walker,
+      resolver,
+      default_dialect,
+      default_id,
+      sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback};
   return check_rules(schema, frame, this->rules, walker, resolver, callback,
                      exclude_keyword, false, is_metaschema);
 }
@@ -215,9 +220,9 @@ auto SchemaTransformer::apply(core::JSON &schema,
         break;
       }
 
-      frame.emplace(blaze::SchemaFrame::Mode::References)
-          .analyse(schema, walker, resolver, default_dialect, default_id,
-                   sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
+      frame.emplace(blaze::SchemaFrame::Mode::References, schema, walker,
+                    resolver, default_dialect, default_id,
+                    sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
     }
 
     std::unordered_set<core::Pointer, core::Pointer::Hasher> visited;
@@ -278,10 +283,10 @@ auto SchemaTransformer::apply(core::JSON &schema,
         applied = true;
 
         if (reframe_after_transform) {
-          frame.emplace(blaze::SchemaFrame::Mode::References)
-              .analyse(
-                  schema, walker, resolver, default_dialect, default_id,
-                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
+          frame.emplace(
+              blaze::SchemaFrame::Mode::References, schema, walker, resolver,
+              default_dialect, default_id,
+              sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
         } else if (current.is_boolean()) {
           std::tuple<core::Pointer, std::string_view, core::JSON> mark{
               entry_pointer, rule->name(), current};
@@ -385,9 +390,9 @@ auto SchemaTransformer::apply(core::JSON &schema,
   }
 
   if (!frame.has_value() && !schema.is_boolean()) {
-    frame.emplace(blaze::SchemaFrame::Mode::References)
-        .analyse(schema, walker, resolver, default_dialect, default_id,
-                 sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
+    frame.emplace(blaze::SchemaFrame::Mode::References, schema, walker,
+                  resolver, default_dialect, default_id,
+                  sourcemeta::blaze::SchemaFrame::IdentifierMode::Fallback);
   }
 
   if (!frame.has_value()) {

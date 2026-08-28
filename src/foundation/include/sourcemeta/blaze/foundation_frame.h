@@ -13,18 +13,14 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <concepts>      // std::invocable
-#include <cstdint>       // std::uint8_t
-#include <deque>         // std::deque
-#include <functional>    // std::reference_wrapper
-#include <map>           // std::map
-#include <optional>      // std::optional
-#include <set>           // std::set
-#include <tuple>         // std::tuple
-#include <unordered_map> // std::unordered_map
-#include <unordered_set> // std::unordered_set
-#include <utility>       // std::pair
-#include <vector>        // std::vector
+#include <concepts>   // std::invocable
+#include <cstdint>    // std::uint8_t
+#include <functional> // std::reference_wrapper
+#include <map>        // std::map
+#include <memory>     // std::unique_ptr
+#include <optional>   // std::optional
+#include <utility>    // std::pair
+#include <vector>     // std::vector
 
 namespace sourcemeta::blaze {
 
@@ -51,19 +47,17 @@ namespace sourcemeta::blaze {
 ///   }
 /// })JSON");
 ///
-/// sourcemeta::blaze::SchemaFrame
-///   frame{sourcemeta::blaze::SchemaFrame::Mode::References};
-///
-/// frame.analyse(document,
+/// const sourcemeta::blaze::SchemaFrame frame{
+///   sourcemeta::blaze::SchemaFrame::Mode::References, document,
 ///   sourcemeta::blaze::schema_walker,
-///   sourcemeta::blaze::schema_resolver);
+///   sourcemeta::blaze::schema_resolver};
 /// ```
 class SOURCEMETA_BLAZE_FOUNDATION_EXPORT SchemaFrame {
 public:
   /// The mode of framing. More extensive analysis can be compute and memory
   /// intensive. Each mode is a superset of the previous one. Note that
   /// sourcemeta::blaze::SchemaFrame::Mode::Root reports on a single schema,
-  /// so analysing a wrapper that holds more than one yields an empty frame
+  /// so framing a wrapper that holds more than one yields no locations
   enum class Mode : std::uint8_t { Root, Locations, References };
 
   /// How a caller-provided default identifier relates to the one that the
@@ -75,7 +69,7 @@ public:
     Fallback
   };
 
-  SchemaFrame(const Mode mode) : mode_{mode} {}
+  ~SchemaFrame();
 
   // We rely on internal caches that would be dangling otherwise
   SchemaFrame(const SchemaFrame &) = delete;
@@ -162,21 +156,22 @@ public:
       const std::optional<sourcemeta::core::PointerPositionTracker> &tracker =
           std::nullopt) const -> sourcemeta::core::JSON;
 
-  /// Analyse a schema or set of schemas from a given root. Passing
-  /// multiple paths that have any overlap is undefined behaviour
+  /// Frame a schema or set of schemas from a given root. Passing multiple
+  /// paths that have any overlap is undefined behaviour
+  ///
+  /// A frame is analysed once, on construction, and is immutable afterwards
   ///
   /// The resulting locations point into the schema rather than copying from
   /// it, so the schema must outlive the frame. The same goes for
   /// `default_dialect`, as a location that has no dialect of its own reports
   /// the default back as a view into what the caller passed. In contrast,
   /// `default_id` is copied, so it does not need to outlive this call
-  auto analyse(const sourcemeta::core::JSON &root, const SchemaWalker &walker,
-               const SchemaResolver &resolver,
-               std::string_view default_dialect = "",
-               std::string_view default_id = "",
-               IdentifierMode identifier_mode = IdentifierMode::Additional,
-               const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER})
-      -> void;
+  SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
+              const SchemaWalker &walker, const SchemaResolver &resolver,
+              std::string_view default_dialect = "",
+              std::string_view default_id = "",
+              IdentifierMode identifier_mode = IdentifierMode::Additional,
+              const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER});
 
   /// Access the analysed schema locations
   [[nodiscard]] auto locations() const noexcept -> const Locations &;
@@ -204,7 +199,7 @@ public:
 
   /// Get the vocabularies associated with a location entry. The frame owns
   /// the result, computing it at most once per dialect that it came across.
-  /// Note that as with the meta-schemas that `analyse` found embedded in the
+  /// Note that as with the meta-schemas that framing found embedded in the
   /// document, what the first resolver reported for a given dialect is what
   /// every later call reports, whichever resolver they pass
   /// Get the meta-schema of the analysed schema, preferring one embedded in
@@ -298,12 +293,6 @@ public:
   [[nodiscard]] auto relative_instance_location(const Location &location) const
       -> sourcemeta::core::WeakPointer;
 
-  /// Check if the frame has no analysed data
-  [[nodiscard]] auto empty() const noexcept -> bool;
-
-  /// Reset the frame, clearing all analysed data
-  auto reset() -> void;
-
   /// Determines if a location could be evaluated during validation
   [[nodiscard]] auto is_reachable(const Location &base,
                                   const Location &location,
@@ -321,108 +310,10 @@ private:
   sourcemeta::core::JSON::String root_;
   Locations locations_;
   References references_;
-  // Custom meta-schemas that the resolver could not resolve but that were
-  // found embedded in the analysed document itself. The values point into
-  // the analysed document, which the frame must not outlive anyway
-  std::unordered_map<sourcemeta::core::JSON::String,
-                     const sourcemeta::core::JSON *>
-      probed_metaschemas_;
-  // Meta-schemas that the resolver produced, which we must own to hand out
-  // references to. A map, as handing out those references means they have to
-  // survive later insertions
-  mutable std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON>
-      metaschemas_;
-  // SchemaVocabularies are a function of the base dialect and dialect alone,
-  // and a schema only tends to make use of a handful of those. We own the
-  // dialect that we key on, as the view that the location holds may point into
-  // a default dialect that the caller of `analyse` only kept around for the
-  // duration of that call. A deque, as handing out references to the
-  // vocabularies means they must survive later insertions
-  mutable std::deque<std::tuple<
-      SchemaBaseDialect, sourcemeta::core::JSON::String, SchemaVocabularies>>
-      vocabularies_;
-  mutable std::unordered_map<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      std::vector<const Location *>, sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      pointer_to_location_;
-  mutable std::unordered_set<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      pointers_with_non_orphan_;
-  using ReachabilityCache =
-      std::unordered_map<const sourcemeta::core::WeakPointer *, bool>;
-  struct ReachabilityKey {
-    const sourcemeta::core::WeakPointer *pointer;
-    bool orphan;
-    auto operator==(const ReachabilityKey &other) const noexcept -> bool {
-      return this->pointer == other.pointer && this->orphan == other.orphan;
-    }
-  };
-  struct ReachabilityKeyHasher {
-    auto operator()(const ReachabilityKey &key) const noexcept -> std::size_t {
-      return std::hash<const void *>{}(key.pointer) ^
-             (std::hash<bool>{}(key.orphan) << 1);
-    }
-  };
-  mutable std::unordered_map<ReachabilityKey, ReachabilityCache,
-                             ReachabilityKeyHasher>
-      reachability_;
-  mutable std::unordered_map<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      std::vector<const sourcemeta::core::WeakPointer *>,
-      sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      references_by_destination_;
-  mutable std::unordered_set<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      location_members_children_;
-  mutable std::unordered_map<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      std::vector<const Location *>, sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      descendants_by_pointer_;
-  struct PotentialSource {
-    const sourcemeta::core::WeakPointer *source_pointer;
-    sourcemeta::core::WeakPointer source_parent;
-    bool crosses;
-  };
-  mutable std::unordered_map<const Location *, std::vector<PotentialSource>>
-      potential_sources_by_location_;
-  struct ReachabilityEdge {
-    const Location *target;
-    bool orphan_context_only;
-    bool is_reference;
-  };
-  mutable std::unordered_map<const Location *, std::vector<ReachabilityEdge>>
-      reachability_graph_;
-  mutable std::unordered_map<
-      std::reference_wrapper<const sourcemeta::core::WeakPointer>,
-      const sourcemeta::core::WeakPointer *,
-      sourcemeta::core::WeakPointer::Hasher,
-      sourcemeta::core::WeakPointer::Comparator>
-      canonical_pointer_;
-  mutable std::unordered_map<const Location *,
-                             const sourcemeta::core::WeakPointer *>
-      location_to_canonical_;
-  bool standalone_{false};
-
-  auto populate_pointer_to_location() const -> void;
-  auto populate_reference_graph() const -> void;
-  auto populate_location_members(const SchemaWalker &walker,
-                                 const SchemaResolver &resolver) const -> void;
-  auto populate_descendants() const -> void;
-  auto populate_potential_sources(const SchemaWalker &walker,
-                                  const SchemaResolver &resolver) const -> void;
-  auto populate_reachability_graph(const SchemaWalker &walker,
-                                   const SchemaResolver &resolver) const
-      -> void;
-  auto populate_reachability(const Location &base, const SchemaWalker &walker,
-                             const SchemaResolver &resolver) const
-      -> const ReachabilityCache &;
+  // What the frame derives rather than is, kept out of line so that this
+  // declaration stays down to the schema it framed
+  struct Cache;
+  std::unique_ptr<Cache> cache_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251 4275)
 #endif

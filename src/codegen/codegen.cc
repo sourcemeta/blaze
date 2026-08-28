@@ -78,8 +78,12 @@ auto compile(const sourcemeta::core::JSON &input,
   // --------------------------------------------------------------------------
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, walker, resolver, default_dialect, default_id);
+      sourcemeta::blaze::SchemaFrame::Mode::References,
+      schema,
+      walker,
+      resolver,
+      default_dialect,
+      default_id};
 
   // --------------------------------------------------------------------------
   // (4) Convert every subschema into a code generation object

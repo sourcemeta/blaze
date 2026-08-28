@@ -22,10 +22,9 @@ TEST(nested_additional_properties_items) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver,
-                "https://json-schema.org/draft/2020-12/schema");
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      "https://json-schema.org/draft/2020-12/schema"};
 
   const auto location{
       frame.traverse("#/properties/data/additionalProperties/items")};
@@ -55,10 +54,9 @@ TEST(inside_defs) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver,
-                "https://json-schema.org/draft/2020-12/schema");
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      "https://json-schema.org/draft/2020-12/schema"};
 
   const auto location{frame.traverse("#/$defs/MyType/properties/name")};
   EXPECT_TRUE(location.has_value());
@@ -82,10 +80,9 @@ TEST(property_named_properties) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver,
-                "https://json-schema.org/draft/2020-12/schema");
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      "https://json-schema.org/draft/2020-12/schema"};
 
   const auto location{frame.traverse("#/properties/properties")};
   EXPECT_TRUE(location.has_value());
@@ -106,10 +103,9 @@ TEST(anyof_child) {
   })JSON")};
 
   sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References};
-  frame.analyse(schema, sourcemeta::blaze::schema_walker,
-                sourcemeta::blaze::schema_resolver,
-                "https://json-schema.org/draft/2020-12/schema");
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+      "https://json-schema.org/draft/2020-12/schema"};
 
   const auto location{frame.traverse("#/anyOf/1")};
   EXPECT_TRUE(location.has_value());
