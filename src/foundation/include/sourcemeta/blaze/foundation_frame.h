@@ -80,8 +80,8 @@ public:
   // Query the current mode that the schema frame was configured with
   [[nodiscard]] auto mode() const noexcept -> Mode { return this->mode_; }
 
-  /// A single entry in a JSON Schema reference map
-  struct ReferencesEntry {
+  /// A reference that the schema declares, as found by framing
+  struct Reference {
     std::string_view original;
     // TODO: This one is tricky to turn into a view, as there is no
     // location entry to point to if it is an external unresolved reference
@@ -152,7 +152,7 @@ public:
   [[nodiscard]] auto
   reference(const SchemaReferenceType type,
             const sourcemeta::core::WeakPointer &pointer) const
-      -> std::optional<std::reference_wrapper<const ReferencesEntry>>;
+      -> std::optional<std::reference_wrapper<const Reference>>;
 
   /// Get a specific location entry by reference type and URI
   [[nodiscard]] auto location(const SchemaReferenceType type,
@@ -239,7 +239,8 @@ public:
   template <std::invocable<const Location &> F>
   auto for_each_subschema(const F &callback) const -> void {
     for (const auto &entry : this->locations_) {
-      if (is_subschema(entry.second)) {
+      if (entry.second.type == LocationType::Resource ||
+          entry.second.type == LocationType::Subschema) {
         callback(entry.second);
       }
     }
@@ -251,8 +252,10 @@ public:
   auto for_each_subschema_under(const sourcemeta::core::WeakPointer &pointer,
                                 const F &callback) const -> void {
     for (const auto &entry : this->locations_) {
-      if (is_subschema(entry.second) &&
-          is_strictly_under(entry.second, pointer)) {
+      if ((entry.second.type == LocationType::Resource ||
+           entry.second.type == LocationType::Subschema) &&
+          entry.second.pointer.size() > pointer.size() &&
+          entry.second.pointer.starts_with(pointer)) {
         callback(entry.second);
       }
     }
@@ -262,7 +265,9 @@ public:
   template <std::predicate<const Location &> F>
   [[nodiscard]] auto any_subschema(const F &predicate) const -> bool {
     for (const auto &entry : this->locations_) {
-      if (is_subschema(entry.second) && predicate(entry.second)) {
+      if ((entry.second.type == LocationType::Resource ||
+           entry.second.type == LocationType::Subschema) &&
+          predicate(entry.second)) {
         return true;
       }
     }
@@ -277,8 +282,11 @@ public:
   any_subschema_under(const sourcemeta::core::WeakPointer &pointer,
                       const F &predicate) const -> bool {
     for (const auto &entry : this->locations_) {
-      if (is_subschema(entry.second) &&
-          is_strictly_under(entry.second, pointer) && predicate(entry.second)) {
+      if ((entry.second.type == LocationType::Resource ||
+           entry.second.type == LocationType::Subschema) &&
+          entry.second.pointer.size() > pointer.size() &&
+          entry.second.pointer.starts_with(pointer) &&
+          predicate(entry.second)) {
         return true;
       }
     }
@@ -348,7 +356,7 @@ public:
   /// Iterate over every reference, along with the pointer it originates from
   template <
       std::invocable<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
-                     const ReferencesEntry &>
+                     const Reference &>
           F>
   auto for_each_reference(const F &callback) const -> void {
     for (const auto &entry : this->references_) {
@@ -359,7 +367,7 @@ public:
   /// Check whether any reference satisfies the predicate
   template <
       std::predicate<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
-                     const ReferencesEntry &>
+                     const Reference &>
           F>
   [[nodiscard]] auto any_reference(const F &predicate) const -> bool {
     for (const auto &entry : this->references_) {
@@ -374,7 +382,7 @@ public:
   /// Iterate over every reference that originates at or below the given pointer
   template <
       std::invocable<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
-                     const ReferencesEntry &>
+                     const Reference &>
           F>
   auto for_each_reference_from(const sourcemeta::core::WeakPointer &pointer,
                                const F &callback) const -> void {
@@ -389,7 +397,7 @@ public:
   /// satisfies the predicate
   template <
       std::predicate<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
-                     const ReferencesEntry &>
+                     const Reference &>
           F>
   [[nodiscard]] auto
   any_reference_from(const sourcemeta::core::WeakPointer &pointer,
@@ -410,7 +418,7 @@ public:
   /// destination exactly, this covers the entire subtree
   template <
       std::invocable<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
-                     const ReferencesEntry &>
+                     const Reference &>
           F>
   auto for_each_reference_into(const sourcemeta::core::WeakPointer &pointer,
                                const F &callback) const -> void {
@@ -427,7 +435,7 @@ public:
   /// given pointer satisfies the predicate
   template <
       std::predicate<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
-                     const ReferencesEntry &>
+                     const Reference &>
           F>
   [[nodiscard]] auto
   any_reference_into(const sourcemeta::core::WeakPointer &pointer,
@@ -456,9 +464,9 @@ public:
 
   /// Iterate over all unresolved references (where destination cannot be
   /// traversed)
-  template <std::invocable<const sourcemeta::core::WeakPointer &,
-                           const ReferencesEntry &>
-                F>
+  template <
+      std::invocable<const sourcemeta::core::WeakPointer &, const Reference &>
+          F>
   auto for_each_unresolved_reference(const F &callback) const -> void {
     for (const auto &[key, reference] : this->references_) {
       if (!this->traverse(reference.destination).has_value()) {
@@ -502,7 +510,7 @@ private:
   /// on the same schema object.
   using References =
       std::map<std::pair<SchemaReferenceType, sourcemeta::core::WeakPointer>,
-               ReferencesEntry>;
+               Reference>;
 
   using Locations =
       // While it might seem weird that we namespace the location URIs with a
@@ -512,14 +520,6 @@ private:
       // point to different places.
       std::map<std::pair<SchemaReferenceType, sourcemeta::core::JSON::String>,
                Location>;
-
-  [[nodiscard]] static auto is_subschema(const Location &location) noexcept
-      -> bool;
-
-  [[nodiscard]] static auto
-  is_strictly_under(const Location &location,
-                    const sourcemeta::core::WeakPointer &pointer) noexcept
-      -> bool;
 
   Mode mode_;
 // Exporting symbols that depends on the standard C++ library is considered

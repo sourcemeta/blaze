@@ -494,7 +494,7 @@ inline auto annotations_enabled(const Context &context,
 inline auto
 is_circular(const sourcemeta::blaze::SchemaFrame &frame,
             const sourcemeta::core::WeakPointer &reference_origin,
-            const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference,
+            const sourcemeta::blaze::SchemaFrame::Reference &reference,
             std::unordered_set<std::string> &visited) -> bool {
   if (visited.contains(reference.destination)) {
     return false;
@@ -516,8 +516,7 @@ is_circular(const sourcemeta::blaze::SchemaFrame &frame,
       destination_pointer,
       [&](const sourcemeta::blaze::SchemaReferenceType type,
           const sourcemeta::core::WeakPointer &,
-          const sourcemeta::blaze::SchemaFrame::ReferencesEntry &entry)
-          -> bool {
+          const sourcemeta::blaze::SchemaFrame::Reference &entry) -> bool {
         return type == sourcemeta::blaze::SchemaReferenceType::Static &&
                is_circular(frame, reference_origin, entry, visited);
       });

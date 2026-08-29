@@ -114,7 +114,7 @@ public:
         location.pointer,
         [&](const sourcemeta::blaze::SchemaReferenceType,
             const sourcemeta::core::WeakPointer &source_pointer,
-            const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
+            const sourcemeta::blaze::SchemaFrame::Reference &reference)
             -> void {
           const auto relative{source_pointer.resolve_from(location.pointer)};
           if (relative.empty() || !relative.at(0).is_property()) {
@@ -159,7 +159,7 @@ public:
           location.pointer,
           [&](const sourcemeta::blaze::SchemaReferenceType,
               const sourcemeta::core::WeakPointer &source_pointer,
-              const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
+              const sourcemeta::blaze::SchemaFrame::Reference &reference)
               -> bool {
             const auto relative_src{
                 source_pointer.resolve_from(location.pointer)};

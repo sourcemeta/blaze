@@ -66,7 +66,7 @@ public:
     frame.for_each_reference(
         [&](const sourcemeta::blaze::SchemaReferenceType,
             const sourcemeta::core::WeakPointer &,
-            const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
+            const sourcemeta::blaze::SchemaFrame::Reference &reference)
             -> void {
           const auto dest{frame.traverse(reference.destination)};
           if (!dest.has_value()) {

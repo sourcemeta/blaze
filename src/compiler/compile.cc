@@ -131,8 +131,7 @@ auto schema_frame_populate_target_types(
   frame.for_each_reference(
       [&](const sourcemeta::blaze::SchemaReferenceType,
           const sourcemeta::core::WeakPointer &origin,
-          const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
-          -> void {
+          const sourcemeta::blaze::SchemaFrame::Reference &reference) -> void {
         if (is_metaschema_reference(origin)) {
           return;
         }
@@ -162,8 +161,7 @@ auto schema_frame_populate_target_types(
   frame.for_each_reference(
       [&](const sourcemeta::blaze::SchemaReferenceType,
           const sourcemeta::core::WeakPointer &origin,
-          const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
-          -> void {
+          const sourcemeta::blaze::SchemaFrame::Reference &reference) -> void {
         if (is_metaschema_reference(origin)) {
           return;
         }
@@ -282,8 +280,7 @@ auto compile(const sourcemeta::core::JSON &schema,
   frame.for_each_reference(
       [&](const sourcemeta::blaze::SchemaReferenceType type,
           const sourcemeta::core::WeakPointer &origin,
-          const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
-          -> void {
+          const sourcemeta::blaze::SchemaFrame::Reference &reference) -> void {
         if (is_metaschema_reference(origin)) {
           return;
         }

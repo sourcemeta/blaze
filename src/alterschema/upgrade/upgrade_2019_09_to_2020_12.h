@@ -545,7 +545,7 @@ private:
         resource_pointer,
         [&](const sourcemeta::blaze::SchemaReferenceType,
             const sourcemeta::core::WeakPointer &origin,
-            const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
+            const sourcemeta::blaze::SchemaFrame::Reference &reference)
             -> void {
           if (!reference.fragment.has_value()) {
             return;

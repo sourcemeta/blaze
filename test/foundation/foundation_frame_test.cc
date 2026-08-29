@@ -1158,7 +1158,7 @@ TEST(accessors_has_dynamic_references) {
   EXPECT_TRUE(frame.any_reference(
       [](const sourcemeta::blaze::SchemaReferenceType type,
          const sourcemeta::core::WeakPointer &,
-         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+         const sourcemeta::blaze::SchemaFrame::Reference &) {
         return type == sourcemeta::blaze::SchemaReferenceType::Dynamic;
       }));
 }
@@ -1703,10 +1703,9 @@ TEST(accessors_for_each_reference) {
   std::vector<std::string> origins;
   std::vector<sourcemeta::blaze::SchemaReferenceType> types;
   frame.for_each_reference(
-      [&origins,
-       &types](const sourcemeta::blaze::SchemaReferenceType type,
-               const sourcemeta::core::WeakPointer &origin,
-               const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+      [&origins, &types](const sourcemeta::blaze::SchemaReferenceType type,
+                         const sourcemeta::core::WeakPointer &origin,
+                         const sourcemeta::blaze::SchemaFrame::Reference &) {
         origins.push_back(sourcemeta::core::to_string(origin));
         types.push_back(type);
       });
@@ -1755,13 +1754,13 @@ TEST(accessors_any_reference) {
   EXPECT_TRUE(frame.any_reference(
       [](const sourcemeta::blaze::SchemaReferenceType,
          const sourcemeta::core::WeakPointer &origin,
-         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+         const sourcemeta::blaze::SchemaFrame::Reference &) {
         return sourcemeta::core::to_string(origin) == "/properties/one/$ref";
       }));
   EXPECT_FALSE(frame.any_reference(
       [](const sourcemeta::blaze::SchemaReferenceType,
          const sourcemeta::core::WeakPointer &,
-         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &entry) {
+         const sourcemeta::blaze::SchemaFrame::Reference &entry) {
         return entry.destination == "https://example.com/nowhere";
       }));
 }
@@ -1796,7 +1795,7 @@ TEST(accessors_for_each_reference_from) {
       sourcemeta::core::to_weak_pointer(properties),
       [&origins](const sourcemeta::blaze::SchemaReferenceType,
                  const sourcemeta::core::WeakPointer &origin,
-                 const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+                 const sourcemeta::blaze::SchemaFrame::Reference &) {
         origins.push_back(sourcemeta::core::to_string(origin));
       });
 
@@ -1835,16 +1834,12 @@ TEST(accessors_any_reference_from) {
       sourcemeta::core::to_weak_pointer(definitions),
       [](const sourcemeta::blaze::SchemaReferenceType,
          const sourcemeta::core::WeakPointer &,
-         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
-        return true;
-      }));
+         const sourcemeta::blaze::SchemaFrame::Reference &) { return true; }));
   EXPECT_FALSE(frame.any_reference_from(
       sourcemeta::core::to_weak_pointer(nowhere),
       [](const sourcemeta::blaze::SchemaReferenceType,
          const sourcemeta::core::WeakPointer &,
-         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
-        return true;
-      }));
+         const sourcemeta::blaze::SchemaFrame::Reference &) { return true; }));
 }
 
 TEST(accessors_for_each_reference_into) {
@@ -1877,7 +1872,7 @@ TEST(accessors_for_each_reference_into) {
       sourcemeta::core::to_weak_pointer(target),
       [&origins](const sourcemeta::blaze::SchemaReferenceType,
                  const sourcemeta::core::WeakPointer &origin,
-                 const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+                 const sourcemeta::blaze::SchemaFrame::Reference &) {
         origins.push_back(sourcemeta::core::to_string(origin));
       });
 
@@ -1916,7 +1911,7 @@ TEST(accessors_any_reference_into) {
       sourcemeta::core::to_weak_pointer(bar),
       [](const sourcemeta::blaze::SchemaReferenceType,
          const sourcemeta::core::WeakPointer &origin,
-         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+         const sourcemeta::blaze::SchemaFrame::Reference &) {
         return sourcemeta::core::to_string(origin) ==
                "/properties/two/$dynamicRef";
       }));
@@ -1924,7 +1919,5 @@ TEST(accessors_any_reference_into) {
       sourcemeta::core::to_weak_pointer(one),
       [](const sourcemeta::blaze::SchemaReferenceType,
          const sourcemeta::core::WeakPointer &,
-         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
-        return true;
-      }));
+         const sourcemeta::blaze::SchemaFrame::Reference &) { return true; }));
 }

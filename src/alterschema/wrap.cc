@@ -35,7 +35,7 @@ auto wrap(const sourcemeta::core::JSON &schema, const SchemaFrame &frame,
   const auto has_internal_references{frame.any_reference_from(
       pointer,
       [](const SchemaReferenceType, const sourcemeta::core::WeakPointer &,
-         const SchemaFrame::ReferencesEntry &) -> bool { return true; })};
+         const SchemaFrame::Reference &) -> bool { return true; })};
 
   if (!has_internal_references) {
     auto subschema{sourcemeta::core::get(schema, pointer)};

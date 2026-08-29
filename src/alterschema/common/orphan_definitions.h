@@ -88,7 +88,7 @@ private:
         pointer,
         [&](const sourcemeta::blaze::SchemaReferenceType,
             const sourcemeta::core::WeakPointer &source_pointer,
-            const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) -> bool {
+            const sourcemeta::blaze::SchemaFrame::Reference &) -> bool {
           if (source_pointer.empty()) {
             return true;
           }

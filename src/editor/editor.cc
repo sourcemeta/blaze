@@ -108,7 +108,7 @@ auto for_editor(sourcemeta::core::JSON &schema,
     frame.for_each_reference(
         [&](const sourcemeta::blaze::SchemaReferenceType type,
             const sourcemeta::core::WeakPointer &origin,
-            const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
+            const sourcemeta::blaze::SchemaFrame::Reference &reference)
             -> void {
           assert(!origin.empty());
           assert(origin.back().is_property());

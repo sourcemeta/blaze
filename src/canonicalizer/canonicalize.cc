@@ -116,29 +116,25 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
             }
 
             potentially_broken_references.clear();
-            frame->for_each_reference(
-                [&](const blaze::SchemaReferenceType,
-                    const core::WeakPointer &origin,
-                    const blaze::SchemaFrame::ReferencesEntry &reference)
-                    -> void {
-                  const auto destination{
-                      frame->traverse(reference.destination)};
-                  if (!destination.has_value() ||
-                      !reference.fragment.has_value() ||
-                      !reference.fragment.value().starts_with('/')) {
-                    return;
-                  }
+            frame->for_each_reference([&](const blaze::SchemaReferenceType,
+                                          const core::WeakPointer &origin,
+                                          const blaze::SchemaFrame::Reference
+                                              &reference) -> void {
+              const auto destination{frame->traverse(reference.destination)};
+              if (!destination.has_value() || !reference.fragment.has_value() ||
+                  !reference.fragment.value().starts_with('/')) {
+                return;
+              }
 
-                  const auto &target{destination.value().get()};
-                  potentially_broken_references.push_back(
-                      {.origin = core::to_pointer(origin),
-                       .original = core::JSON::String{reference.original},
-                       .destination = reference.destination,
-                       .fragment =
-                           core::JSON::String{reference.fragment.value()},
-                       .target_pointer = core::to_pointer(target.pointer),
-                       .target_relative_pointer = target.relative_pointer});
-                });
+              const auto &target{destination.value().get()};
+              potentially_broken_references.push_back(
+                  {.origin = core::to_pointer(origin),
+                   .original = core::JSON::String{reference.original},
+                   .destination = reference.destination,
+                   .fragment = core::JSON::String{reference.fragment.value()},
+                   .target_pointer = core::to_pointer(target.pointer),
+                   .target_relative_pointer = target.relative_pointer});
+            });
 
             rule->transform(current);
 

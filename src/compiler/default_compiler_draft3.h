@@ -361,7 +361,7 @@ auto properties_as_loop(const Context &context,
           [&context, &current_entry](
               const sourcemeta::blaze::SchemaReferenceType,
               const sourcemeta::core::WeakPointer &origin,
-              const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
+              const sourcemeta::blaze::SchemaFrame::Reference &reference)
               -> bool {
             const auto destination{context.frame.location(
                 sourcemeta::blaze::SchemaReferenceType::Static,
