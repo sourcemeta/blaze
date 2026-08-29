@@ -29,6 +29,39 @@ auto is_metaschema_reference(const sourcemeta::core::WeakPointer &origin)
          origin.back().to_property() == "$schema";
 }
 
+// An invalid schema may set a keyword to a value that does not match the shape
+// its applicator strategy mandates, in which case we ignore the keyword
+auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
+                              const sourcemeta::core::JSON &value) -> bool {
+  using namespace sourcemeta::blaze;
+  switch (type) {
+    case SchemaKeywordType::ApplicatorValueTraverseSomeProperty:
+    case SchemaKeywordType::ApplicatorValueTraverseAnyPropertyKey:
+    case SchemaKeywordType::ApplicatorValueTraverseAnyItem:
+    case SchemaKeywordType::ApplicatorValueTraverseSomeItem:
+    case SchemaKeywordType::ApplicatorValueTraverseParent:
+    case SchemaKeywordType::ApplicatorValueInPlaceMaybe:
+    case SchemaKeywordType::ApplicatorValueInPlaceOther:
+    case SchemaKeywordType::ApplicatorValueInPlaceNegate:
+      return value.is_object() || value.is_boolean();
+    case SchemaKeywordType::ApplicatorValueOrElementsTraverseAnyItemOrItem:
+    case SchemaKeywordType::ApplicatorValueOrElementsInPlace:
+      return value.is_object() || value.is_boolean() || value.is_array();
+    // Note that `ApplicatorElementsInPlaceSome` and its negated variant are
+    // deliberately absent, as Draft 3 `type` and `disallow` also take a plain
+    // type name, so their strategy does not mandate an array
+    case SchemaKeywordType::ApplicatorElementsTraverseItem:
+    case SchemaKeywordType::ApplicatorElementsInPlace:
+      return value.is_array();
+    case SchemaKeywordType::ApplicatorMembersTraversePropertyStatic:
+    case SchemaKeywordType::ApplicatorMembersTraversePropertyRegex:
+    case SchemaKeywordType::ApplicatorMembersInPlaceSome:
+      return value.is_object();
+    default:
+      return true;
+  }
+}
+
 auto compile_subschema(const sourcemeta::blaze::Context &context,
                        const sourcemeta::blaze::SchemaContext &schema_context,
                        const sourcemeta::blaze::DynamicContext &dynamic_context)
@@ -59,6 +92,12 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
            schema_context.vocabularies}) {
     assert(entry.pointer.back().is_property());
     const auto &keyword{entry.pointer.back().to_property()};
+    if (!applicator_shape_matches(
+            context.walker(keyword, schema_context.vocabularies).type,
+            schema_context.schema.at(keyword))) [[unlikely]] {
+      continue;
+    }
+
     // Bases must not contain fragments
     assert(!schema_context.base.fragment().has_value());
     for (auto &&step : context.compiler(
@@ -547,7 +586,12 @@ auto compile(const Context &context, const SchemaContext &schema_context,
           .value()
           .get()};
   const auto &new_schema{get(context.root, entry.pointer)};
-  assert((new_schema.is_object() || new_schema.is_boolean()));
+
+  // An invalid schema may set an applicator to a value that is not a schema
+  // at all, in which case we consider it to impose no constraints
+  if (!new_schema.is_object() && !new_schema.is_boolean()) [[unlikely]] {
+    return {};
+  }
 
   const sourcemeta::core::WeakPointer destination_pointer{
       dynamic_context.keyword.empty()

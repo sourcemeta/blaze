@@ -49,6 +49,10 @@ auto compiler_2019_09_applicator_dependentschemas(
     }
   }
 
+  if (children.empty()) {
+    return {};
+  }
+
   // TODO: Is this wrapper really necessary?
   return {make(sourcemeta::blaze::InstructionIndex::LogicalWhenType, context,
                schema_context, dynamic_context,
@@ -78,7 +82,10 @@ auto compiler_2019_09_validation_dependentrequired(
 
     std::vector<sourcemeta::core::JSON::String> properties;
     for (const auto &property : entry.second.as_array()) {
-      assert(property.is_string());
+      if (!property.is_string()) {
+        continue;
+      }
+
       properties.push_back(property.to_string());
     }
 

@@ -40,12 +40,17 @@ public:
     }
 
     if (this->add_min_properties_) {
+      // Only string entries name a property, so only they raise the lower bound
+      std::size_t names{0};
       if (schema.defines("required") && schema.at("required").is_array()) {
-        schema.assign("minProperties",
-                      sourcemeta::core::JSON{schema.at("required").size()});
-      } else {
-        schema.assign("minProperties", sourcemeta::core::JSON{0});
+        for (const auto &property : schema.at("required").as_array()) {
+          if (property.is_string()) {
+            names += 1;
+          }
+        }
       }
+
+      schema.assign("minProperties", sourcemeta::core::JSON{names});
     }
 
     if (this->add_properties_) {

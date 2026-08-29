@@ -329,6 +329,14 @@ auto describe(const bool valid, const Instruction &step,
       return "The constraints declared for this keyword were not satisfiable";
     }
 
+    if (keyword == "anyOf" || keyword == "oneOf") {
+      std::ostringstream message;
+      message << "The " << type_name(target.type())
+              << " value was not expected to validate against the empty list "
+                 "of subschemas";
+      return message.str();
+    }
+
     // A `false` subschema declares no keyword of its own, so its evaluation
     // path ends at whatever declared it, which under `properties` and its
     // relatives is a name the author chose. A name that happens to read like

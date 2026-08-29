@@ -342,7 +342,10 @@ auto compiler_draft6_validation_type(const Context &context,
     ValueTypes types{};
     for (const auto &type :
          schema_context.schema.at(dynamic_context.keyword).as_array()) {
-      assert(type.is_string());
+      if (!type.is_string()) {
+        continue;
+      }
+
       const auto &type_string{type.to_string()};
       if (type_string == "null") {
         types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));

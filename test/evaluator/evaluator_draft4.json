@@ -12971,5 +12971,47 @@
         "The object value was expected to validate against the defined properties subschemas"
       ]
     }
+  },
+  {
+    "description": "dependencies_non_string_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "dependencies": { "a": [ 1 ] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "dependencies_non_string_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "dependencies": { "a": [ "b", 1 ] }
+    },
+    "instance": { "a": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"a\", it was also expected to define the property \"b\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+      ],
+      "descriptions": [
+        "Because the object value defined the property \"a\", it was also expected to define the property \"b\""
+      ]
+    }
   }
 ]

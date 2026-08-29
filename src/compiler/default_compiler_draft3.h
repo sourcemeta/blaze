@@ -60,7 +60,10 @@ static auto json_array_to_string_set(const sourcemeta::core::JSON &document)
     -> sourcemeta::blaze::ValueStringSet {
   sourcemeta::blaze::ValueStringSet result;
   for (const auto &value : document.as_array()) {
-    assert(value.is_string());
+    if (!value.is_string()) {
+      continue;
+    }
+
     result.insert(value.to_string());
   }
 
@@ -1830,11 +1833,10 @@ auto compiler_draft3_validation_maxlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1867,11 +1869,10 @@ auto compiler_draft3_validation_minlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1905,11 +1906,10 @@ auto compiler_draft3_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1938,11 +1938,10 @@ auto compiler_draft3_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -2375,7 +2374,10 @@ auto compiler_draft3_validation_type(const Context &context,
   } else if (value.is_array()) {
     ValueTypes types{};
     for (const auto &element : value.as_array()) {
-      assert(element.is_string());
+      if (!element.is_string()) {
+        continue;
+      }
+
       const auto &type_string{element.to_string()};
       if (type_string == "null") {
         types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
@@ -2600,7 +2602,10 @@ auto compiler_draft3_applicator_dependencies(
     } else if (entry.second.is_array()) {
       std::vector<sourcemeta::core::JSON::String> properties;
       for (const auto &property : entry.second.as_array()) {
-        assert(property.is_string());
+        if (!property.is_string()) {
+          continue;
+        }
+
         properties.push_back(property.to_string());
       }
 
@@ -2627,11 +2632,10 @@ auto compiler_draft3_validation_divisibleby(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_number() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&

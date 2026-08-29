@@ -34,11 +34,12 @@ auto compiler_draft4_applicator_allof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
+  // An empty conjunction has no branch that could fail, so it constrains
+  // nothing, unlike the disjunctions below
+  if (!schema_context.schema.at(dynamic_context.keyword).is_array() ||
+      schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {};
   }
-
-  assert(!schema_context.schema.at(dynamic_context.keyword).empty());
 
   Instructions children;
 
@@ -67,6 +68,11 @@ auto compiler_draft4_applicator_allof(const Context &context,
       }
     }
 
+    // Every branch imposed no constraints, so neither does the conjunction
+    if (children.empty()) {
+      return {};
+    }
+
     return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
                  schema_context, dynamic_context, ValueNone{},
                  std::move(children))};
@@ -81,7 +87,12 @@ auto compiler_draft4_applicator_anyof(const Context &context,
     return {};
   }
 
-  assert(!schema_context.schema.at(dynamic_context.keyword).empty());
+  // An empty disjunction offers no branch that an instance could match, so
+  // nothing validates against it
+  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                 schema_context, dynamic_context, ValueNone{})};
+  }
 
   Instructions disjunctors;
   for (std::uint64_t index = 0;
@@ -157,7 +168,12 @@ auto compiler_draft4_applicator_oneof(const Context &context,
     return {};
   }
 
-  assert(!schema_context.schema.at(dynamic_context.keyword).empty());
+  // An empty disjunction offers no branch that an instance could match, so
+  // nothing validates against it
+  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                 schema_context, dynamic_context, ValueNone{})};
+  }
 
   Instructions disjunctors;
   for (std::uint64_t index = 0;
@@ -218,11 +234,10 @@ auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -251,11 +266,10 @@ auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
