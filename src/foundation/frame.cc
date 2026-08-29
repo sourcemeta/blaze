@@ -355,8 +355,8 @@ auto canonicalize_pointer_fragment(sourcemeta::core::URI &uri) -> void {
   }
 }
 
-auto set_base_and_fragment(
-    sourcemeta::blaze::SchemaFrame::ReferencesEntry &entry) -> void {
+auto set_base_and_fragment(sourcemeta::blaze::SchemaFrame::Reference &entry)
+    -> void {
   const std::string_view destination_view{entry.destination};
   if (destination_view.empty()) {
     entry.base = std::string_view{};
@@ -387,8 +387,8 @@ auto throw_already_exists(const sourcemeta::core::JSON::String &uri) -> void {
                                             "Schema identifier already exists");
 }
 
-auto store(sourcemeta::blaze::SchemaFrame::Locations &frame,
-           const sourcemeta::blaze::SchemaReferenceType type,
+template <typename Locations>
+auto store(Locations &frame, const sourcemeta::blaze::SchemaReferenceType type,
            const sourcemeta::blaze::SchemaFrame::LocationType entry_type,
            sourcemeta::core::JSON::String uri, const std::string_view base,
            const sourcemeta::core::WeakPointer &pointer_from_root,
@@ -443,9 +443,9 @@ struct CacheSubschema {
 
 // The location pointers that references resolve to, computed once so that
 // serialising every location does not re-scan the entire reference list
-auto reference_destinations(
-    const sourcemeta::blaze::SchemaFrame::References &references,
-    const sourcemeta::blaze::SchemaFrame::Locations &locations)
+template <typename References, typename Locations>
+auto reference_destinations(const References &references,
+                            const Locations &locations)
     -> std::vector<sourcemeta::core::WeakPointer> {
   std::vector<sourcemeta::core::WeakPointer> result;
   for (const auto &reference : references) {
@@ -721,6 +721,7 @@ struct SchemaFrame::Cache {
   std::unordered_map<const Location *, const sourcemeta::core::WeakPointer *>
       location_to_canonical_;
   bool standalone_{false};
+  bool has_dynamic_references_{false};
 
   auto populate_pointer_to_location(const SchemaFrame &frame) -> void;
   auto populate_reference_graph(const SchemaFrame &frame) -> void;
@@ -1077,11 +1078,10 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           schema_pointer.push_back(std::cref(KEYWORD_SCHEMA));
           const auto [it, inserted] = this->references_.insert_or_assign(
               {SchemaReferenceType::Static, std::move(schema_pointer)},
-              SchemaFrame::ReferencesEntry{.original = maybe_metaschema,
-                                           .destination =
-                                               metaschema.recompose(),
-                                           .base = std::string_view{},
-                                           .fragment = std::nullopt});
+              SchemaFrame::Reference{.original = maybe_metaschema,
+                                     .destination = metaschema.recompose(),
+                                     .base = std::string_view{},
+                                     .fragment = std::nullopt});
           set_base_and_fragment(it->second);
         }
       }
@@ -1360,10 +1360,10 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         ref_pointer.push_back(std::cref(KEYWORD_REF));
         const auto [it, inserted] = this->references_.insert_or_assign(
             {SchemaReferenceType::Static, std::move(ref_pointer)},
-            SchemaFrame::ReferencesEntry{.original = original,
-                                         .destination = ref.recompose(),
-                                         .base = std::string_view{},
-                                         .fragment = std::nullopt});
+            SchemaFrame::Reference{.original = original,
+                                   .destination = ref.recompose(),
+                                   .base = std::string_view{},
+                                   .fragment = std::nullopt});
         set_base_and_fragment(it->second);
       }
 
@@ -1406,10 +1406,10 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         recursive_ref_pointer.push_back(std::cref(KEYWORD_RECURSIVE_REF));
         const auto [it, inserted] = this->references_.insert_or_assign(
             {reference_type, std::move(recursive_ref_pointer)},
-            SchemaFrame::ReferencesEntry{.original = ref,
-                                         .destination = anchor_uri.recompose(),
-                                         .base = std::string_view{},
-                                         .fragment = std::nullopt});
+            SchemaFrame::Reference{.original = ref,
+                                   .destination = anchor_uri.recompose(),
+                                   .base = std::string_view{},
+                                   .fragment = std::nullopt});
         set_base_and_fragment(it->second);
       }
 
@@ -1463,10 +1463,10 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
             {behaves_as_static ? SchemaReferenceType::Static
                                : SchemaReferenceType::Dynamic,
              std::move(dynamic_ref_pointer)},
-            SchemaFrame::ReferencesEntry{.original = original,
-                                         .destination = std::move(ref_string),
-                                         .base = std::string_view{},
-                                         .fragment = std::nullopt});
+            SchemaFrame::Reference{.original = original,
+                                   .destination = std::move(ref_string),
+                                   .base = std::string_view{},
+                                   .fragment = std::nullopt});
         set_base_and_fragment(it->second);
       }
     }
@@ -1547,6 +1547,13 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
       set_base_and_fragment(it->second);
     }
   }
+
+  // Only meaningful once the rewrite above has settled, as that is what
+  // decides whether a dynamic reference stays dynamic at all
+  this->cache_->has_dynamic_references_ =
+      std::ranges::any_of(this->references_, [](const auto &reference) -> bool {
+        return reference.first.first == SchemaReferenceType::Dynamic;
+      });
 }
 
 auto SchemaFrame::root_location() const
@@ -1590,23 +1597,39 @@ auto SchemaFrame::metaschema(const SchemaResolver &resolver) const
       .first->second;
 }
 
-auto SchemaFrame::locations() const noexcept -> const Locations & {
-  return this->locations_;
-}
-
-auto SchemaFrame::references() const noexcept -> const References & {
-  return this->references_;
-}
-
 auto SchemaFrame::reference(const SchemaReferenceType type,
                             const sourcemeta::core::WeakPointer &pointer) const
-    -> std::optional<std::reference_wrapper<const ReferencesEntry>> {
+    -> std::optional<std::reference_wrapper<const Reference>> {
   const auto result{this->references_.find({type, pointer})};
   if (result != this->references_.cend()) {
     return result->second;
   }
 
   return std::nullopt;
+}
+
+auto SchemaFrame::location(const SchemaReferenceType type,
+                           const std::string_view uri) const
+    -> std::optional<std::reference_wrapper<const Location>> {
+  const sourcemeta::core::JSON::String uri_string{uri};
+  const auto result{this->locations_.find({type, uri_string})};
+  if (result != this->locations_.cend()) {
+    return result->second;
+  }
+
+  return std::nullopt;
+}
+
+auto SchemaFrame::location_count() const noexcept -> std::size_t {
+  return this->locations_.size();
+}
+
+auto SchemaFrame::reference_count() const noexcept -> std::size_t {
+  return this->references_.size();
+}
+
+auto SchemaFrame::has_dynamic_references() const noexcept -> bool {
+  return this->cache_->has_dynamic_references_;
 }
 
 auto SchemaFrame::standalone() const noexcept -> bool {

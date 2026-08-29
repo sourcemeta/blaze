@@ -103,11 +103,11 @@ auto check_reachability(const sourcemeta::blaze::SchemaFrame &frame,
                           check.at("type").to_string() == "dynamic"
                       ? sourcemeta::blaze::SchemaReferenceType::Dynamic
                       : sourcemeta::blaze::SchemaReferenceType::Static};
-  const auto target{frame.locations().find({type, check.at("to").to_string()})};
-  EXPECT_TRUE(target != frame.locations().cend());
+  const auto target{frame.location(type, check.at("to").to_string())};
+  EXPECT_TRUE(target.has_value());
   const auto origin{frame.traverse(check.at("from").to_string())};
   EXPECT_TRUE(origin.has_value());
-  EXPECT_EQ(frame.is_reachable(origin.value().get(), target->second,
+  EXPECT_EQ(frame.is_reachable(origin.value().get(), target.value().get(),
                                sourcemeta::blaze::schema_walker, resolver),
             check.at("reachable").to_boolean());
 }

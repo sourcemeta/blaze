@@ -104,24 +104,26 @@ static void Schema_Frame_KrakenD_Reachable(benchmark::State &state) {
                   sourcemeta::blaze::schema_resolver);
     state.ResumeTiming();
 
-    for (const auto &entry : frame->locations()) {
-      if (entry.second.type ==
-          sourcemeta::blaze::SchemaFrame::LocationType::Pointer) {
-        continue;
-      }
+    frame->for_each_location(
+        [&frame](
+            const sourcemeta::blaze::SchemaReferenceType,
+            const std::string_view,
+            const sourcemeta::blaze::SchemaFrame::Location &entry) -> void {
+          if (entry.type ==
+              sourcemeta::blaze::SchemaFrame::LocationType::Pointer) {
+            return;
+          }
 
-      for (const auto &subentry : frame->locations()) {
-        if (subentry.second.type ==
-                sourcemeta::blaze::SchemaFrame::LocationType::Resource ||
-            subentry.second.type ==
-                sourcemeta::blaze::SchemaFrame::LocationType::Subschema) {
-          auto result{frame->is_reachable(subentry.second, entry.second,
-                                          sourcemeta::blaze::schema_walker,
-                                          sourcemeta::blaze::schema_resolver)};
-          benchmark::DoNotOptimize(result);
-        }
-      }
-    }
+          frame->for_each_subschema(
+              [&frame,
+               &entry](const sourcemeta::blaze::SchemaFrame::Location &subentry)
+                  -> void {
+                auto result{frame->is_reachable(
+                    subentry, entry, sourcemeta::blaze::schema_walker,
+                    sourcemeta::blaze::schema_resolver)};
+                benchmark::DoNotOptimize(result);
+              });
+        });
   }
 }
 

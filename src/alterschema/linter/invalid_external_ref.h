@@ -99,7 +99,7 @@ private:
       frame_cache_;
 
   [[nodiscard]] auto
-  is_fragment_invalid(const SchemaFrame::ReferencesEntry &reference_entry,
+  is_fragment_invalid(const SchemaFrame::Reference &reference_entry,
                       const std::optional<JSON> &remote,
                       const JSON::String &base_key, const SchemaWalker &walker,
                       const SchemaResolver &resolver,

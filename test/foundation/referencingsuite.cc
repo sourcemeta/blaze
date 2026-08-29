@@ -94,11 +94,15 @@ auto run_referencing_test(const sourcemeta::core::JSON &suite,
         sourcemeta::blaze::schema_resolver,
         dialect,
         uri};
-    for (const auto &[key, entry] : frame.locations()) {
-      new_entries.insert({key.second,
-                          {sourcemeta::core::get(schema.first, entry.pointer),
-                           std::string{entry.base}}});
-    }
+    frame.for_each_location(
+        [&](const sourcemeta::blaze::SchemaReferenceType,
+            const std::string_view location_uri,
+            const sourcemeta::blaze::SchemaFrame::Location &entry) -> void {
+          new_entries.insert(
+              {sourcemeta::core::JSON::String{location_uri},
+               {sourcemeta::core::get(schema.first, entry.pointer),
+                std::string{entry.base}}});
+        });
   }
 
   // We don't insert into the main registry on the above loop,
