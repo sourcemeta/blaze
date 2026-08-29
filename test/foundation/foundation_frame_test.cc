@@ -9,6 +9,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #define EXPECT_VOCABULARY_REQUIRED(vocabularies, expected_known)               \
   EXPECT_TRUE(                                                                 \
@@ -37,35 +38,49 @@
                      expected_base_dialect, expected_base,                     \
                      expected_relative_pointer, expected_parent,               \
                      expected_property_name, expected_orphan)                  \
-  EXPECT_TRUE((frame).locations().contains({(expected_type), (reference)}));   \
+  EXPECT_TRUE((frame).location((expected_type), (reference)).has_value());     \
   EXPECT_EQ((frame).root(), (root_id));                                        \
   EXPECT_EQ(                                                                   \
-      sourcemeta::core::to_string(                                             \
-          (frame).locations().at({(expected_type), (reference)}).pointer),     \
+      sourcemeta::core::to_string((frame)                                      \
+                                      .location((expected_type), (reference))  \
+                                      .value()                                 \
+                                      .get()                                   \
+                                      .pointer),                               \
       (expected_pointer));                                                     \
-  EXPECT_EQ((frame).locations().at({(expected_type), (reference)}).dialect,    \
-            (expected_dialect));                                               \
-  EXPECT_EQ((frame).locations().at({(expected_type), (reference)}).base,       \
+  EXPECT_EQ(                                                                   \
+      (frame).location((expected_type), (reference)).value().get().dialect,    \
+      (expected_dialect));                                                     \
+  EXPECT_EQ((frame).location((expected_type), (reference)).value().get().base, \
             (expected_base));                                                  \
-  EXPECT_TRUE(                                                                 \
-      (frame)                                                                  \
-          .traverse(                                                           \
-              (frame).locations().at({(expected_type), (reference)}).base)     \
-          .has_value());                                                       \
+  EXPECT_TRUE((frame)                                                          \
+                  .traverse((frame)                                            \
+                                .location((expected_type), (reference))        \
+                                .value()                                       \
+                                .get()                                         \
+                                .base)                                         \
+                  .has_value());                                               \
+  EXPECT_EQ((frame)                                                            \
+                .location((expected_type), (reference))                        \
+                .value()                                                       \
+                .get()                                                         \
+                .base_dialect,                                                 \
+            sourcemeta::blaze::SchemaBaseDialect::expected_base_dialect);      \
   EXPECT_EQ(                                                                   \
-      (frame).locations().at({(expected_type), (reference)}).base_dialect,     \
-      sourcemeta::blaze::SchemaBaseDialect::expected_base_dialect);            \
-  EXPECT_EQ(sourcemeta::core::to_string((frame).relative_instance_location(    \
-                (frame).locations().at({(expected_type), (reference)}))),      \
-            (expected_relative_pointer));                                      \
+      sourcemeta::core::to_string((frame).relative_instance_location(          \
+          (frame).location((expected_type), (reference)).value().get())),      \
+      (expected_relative_pointer));                                            \
   EXPECT_OPTIONAL_POINTER(                                                     \
-      (frame).locations().at({(expected_type), (reference)}).parent,           \
+      (frame).location((expected_type), (reference)).value().get().parent,     \
       expected_parent);                                                        \
+  EXPECT_EQ((frame)                                                            \
+                .location((expected_type), (reference))                        \
+                .value()                                                       \
+                .get()                                                         \
+                .property_name,                                                \
+            (expected_property_name));                                         \
   EXPECT_EQ(                                                                   \
-      (frame).locations().at({(expected_type), (reference)}).property_name,    \
-      (expected_property_name));                                               \
-  EXPECT_EQ((frame).locations().at({(expected_type), (reference)}).orphan,     \
-            (expected_orphan));
+      (frame).location((expected_type), (reference)).value().get().orphan,     \
+      (expected_orphan));
 
 #define EXPECT_FRAME_STATIC(                                                   \
     frame, reference, root_id, expected_pointer, expected_dialect,             \
@@ -85,12 +100,13 @@
                       expected_dialect, expected_base_dialect, expected_base,  \
                       expected_relative_pointer, expected_parent,              \
                       expected_property_name, expected_orphan)                 \
-  EXPECT_EQ(                                                                   \
-      (frame)                                                                  \
-          .locations()                                                         \
-          .at({sourcemeta::blaze::SchemaReferenceType::Static, (reference)})   \
-          .type,                                                               \
-      sourcemeta::blaze::SchemaFrame::LocationType::Resource);
+  EXPECT_EQ((frame)                                                            \
+                .location(sourcemeta::blaze::SchemaReferenceType::Static,      \
+                          (reference))                                         \
+                .value()                                                       \
+                .get()                                                         \
+                .type,                                                         \
+            sourcemeta::blaze::SchemaFrame::LocationType::Resource);
 
 #define EXPECT_FRAME_STATIC_POINTER(                                           \
     frame, reference, root_id, expected_pointer, expected_dialect,             \
@@ -100,12 +116,13 @@
                       expected_dialect, expected_base_dialect, expected_base,  \
                       expected_relative_pointer, expected_parent,              \
                       expected_property_name, expected_orphan)                 \
-  EXPECT_EQ(                                                                   \
-      (frame)                                                                  \
-          .locations()                                                         \
-          .at({sourcemeta::blaze::SchemaReferenceType::Static, (reference)})   \
-          .type,                                                               \
-      sourcemeta::blaze::SchemaFrame::LocationType::Pointer);
+  EXPECT_EQ((frame)                                                            \
+                .location(sourcemeta::blaze::SchemaReferenceType::Static,      \
+                          (reference))                                         \
+                .value()                                                       \
+                .get()                                                         \
+                .type,                                                         \
+            sourcemeta::blaze::SchemaFrame::LocationType::Pointer);
 
 #define EXPECT_FRAME_STATIC_SUBSCHEMA(                                         \
     frame, reference, root_id, expected_pointer, expected_dialect,             \
@@ -115,12 +132,13 @@
                       expected_dialect, expected_base_dialect, expected_base,  \
                       expected_relative_pointer, expected_parent,              \
                       expected_property_name, expected_orphan)                 \
-  EXPECT_EQ(                                                                   \
-      (frame)                                                                  \
-          .locations()                                                         \
-          .at({sourcemeta::blaze::SchemaReferenceType::Static, (reference)})   \
-          .type,                                                               \
-      sourcemeta::blaze::SchemaFrame::LocationType::Subschema);
+  EXPECT_EQ((frame)                                                            \
+                .location(sourcemeta::blaze::SchemaReferenceType::Static,      \
+                          (reference))                                         \
+                .value()                                                       \
+                .get()                                                         \
+                .type,                                                         \
+            sourcemeta::blaze::SchemaFrame::LocationType::Subschema);
 
 #define EXPECT_REFERENCE(frame, expected_type, expected_pointer, expected_uri, \
                          expected_base, expected_fragment, expected_original)  \
@@ -898,7 +916,7 @@ TEST(embedded_custom_metaschema_across_two_frames) {
       sourcemeta::blaze::SchemaFrame::Mode::References, document_b,
       sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
-  EXPECT_EQ(frame.locations().size(), 19);
+  EXPECT_EQ(frame.location_count(), 19);
 
   // Resources
 
@@ -1042,7 +1060,7 @@ TEST(embedded_custom_metaschema_across_two_frames) {
 
   // References
 
-  EXPECT_EQ(frame.references().size(), 2);
+  EXPECT_EQ(frame.reference_count(), 2);
 
   EXPECT_STATIC_REFERENCE(frame, "/$schema", "https://example.com/meta",
                           "https://example.com/meta", std::nullopt,
@@ -1065,4 +1083,848 @@ TEST(embedded_custom_metaschema_across_two_frames) {
   EXPECT_FALSE(
       root_vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
                                      JSON_Schema_2020_12_Validation));
+}
+
+TEST(accessors_location_count) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_EQ(frame.location_count(), 28);
+}
+
+TEST(accessors_reference_count) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_EQ(frame.reference_count(), 4);
+}
+
+TEST(accessors_has_dynamic_references) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "a": { "$id": "one", "$dynamicAnchor": "shared" },
+      "b": { "$id": "two", "$dynamicAnchor": "shared" }
+    },
+    "properties": { "value": { "$dynamicRef": "#shared" } }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_TRUE(frame.has_dynamic_references());
+  EXPECT_TRUE(frame.any_reference(
+      [](const sourcemeta::blaze::SchemaReferenceType type,
+         const sourcemeta::core::WeakPointer &,
+         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        return type == sourcemeta::blaze::SchemaReferenceType::Dynamic;
+      }));
+}
+
+TEST(accessors_has_dynamic_references_after_static_rewrite) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "a": { "$dynamicAnchor": "only" } },
+    "properties": { "value": { "$dynamicRef": "#only" } }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_FALSE(frame.has_dynamic_references());
+}
+
+TEST(accessors_has_dynamic_references_without_any) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "one": { "$ref": "#" } }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_FALSE(frame.has_dynamic_references());
+}
+
+TEST(accessors_location_by_uri) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  const auto result{
+      frame.location(sourcemeta::blaze::SchemaReferenceType::Static,
+                     "https://example.com/schema#static-anchor")};
+  EXPECT_TRUE(result.has_value());
+  EXPECT_EQ(sourcemeta::core::to_string(result.value().get().pointer),
+            "/$defs/foo");
+  EXPECT_EQ(result.value().get().type,
+            sourcemeta::blaze::SchemaFrame::LocationType::Anchor);
+}
+
+TEST(accessors_location_by_uri_wrong_type) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_FALSE(frame
+                   .location(sourcemeta::blaze::SchemaReferenceType::Dynamic,
+                             "https://example.com/schema#static-anchor")
+                   .has_value());
+}
+
+TEST(accessors_location_by_uri_unknown) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_FALSE(frame
+                   .location(sourcemeta::blaze::SchemaReferenceType::Static,
+                             "https://example.com/nowhere")
+                   .has_value());
+}
+
+TEST(accessors_for_each_subschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  std::vector<std::string> pointers;
+  frame.for_each_subschema(
+      [&pointers](const sourcemeta::blaze::SchemaFrame::Location &location) {
+        pointers.push_back(sourcemeta::core::to_string(location.pointer));
+      });
+
+  EXPECT_EQ(pointers.size(), 9);
+  EXPECT_EQ(pointers.at(0), "/$defs/baz");
+  EXPECT_EQ(pointers.at(1), "/$defs/baz/properties/deep");
+  EXPECT_EQ(pointers.at(2), "");
+  EXPECT_EQ(pointers.at(3), "/$defs/bar");
+  EXPECT_EQ(pointers.at(4), "/$defs/baz");
+  EXPECT_EQ(pointers.at(5), "/$defs/baz/properties/deep");
+  EXPECT_EQ(pointers.at(6), "/$defs/foo");
+  EXPECT_EQ(pointers.at(7), "/properties/one");
+  EXPECT_EQ(pointers.at(8), "/properties/two");
+}
+
+TEST(accessors_for_each_subschema_under) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  const sourcemeta::core::Pointer base{"$defs"};
+  std::vector<std::string> pointers;
+  frame.for_each_subschema_under(
+      sourcemeta::core::to_weak_pointer(base),
+      [&pointers](const sourcemeta::blaze::SchemaFrame::Location &location) {
+        pointers.push_back(sourcemeta::core::to_string(location.pointer));
+      });
+
+  EXPECT_EQ(pointers.size(), 6);
+  EXPECT_EQ(pointers.at(0), "/$defs/baz");
+  EXPECT_EQ(pointers.at(1), "/$defs/baz/properties/deep");
+  EXPECT_EQ(pointers.at(2), "/$defs/bar");
+  EXPECT_EQ(pointers.at(3), "/$defs/baz");
+  EXPECT_EQ(pointers.at(4), "/$defs/baz/properties/deep");
+  EXPECT_EQ(pointers.at(5), "/$defs/foo");
+}
+
+TEST(accessors_any_subschema) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_TRUE(frame.any_subschema(
+      [](const sourcemeta::blaze::SchemaFrame::Location &location) {
+        return sourcemeta::core::to_string(location.pointer) ==
+               "/properties/two";
+      }));
+  EXPECT_FALSE(frame.any_subschema(
+      [](const sourcemeta::blaze::SchemaFrame::Location &location) {
+        return sourcemeta::core::to_string(location.pointer) == "/nowhere";
+      }));
+}
+
+TEST(accessors_any_subschema_under) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  const sourcemeta::core::Pointer properties{"properties"};
+  const sourcemeta::core::Pointer definitions{"$defs"};
+  EXPECT_TRUE(frame.any_subschema_under(
+      sourcemeta::core::to_weak_pointer(properties),
+      [](const sourcemeta::blaze::SchemaFrame::Location &location) {
+        return sourcemeta::core::to_string(location.pointer) ==
+               "/properties/one";
+      }));
+  EXPECT_FALSE(frame.any_subschema_under(
+      sourcemeta::core::to_weak_pointer(definitions),
+      [](const sourcemeta::blaze::SchemaFrame::Location &location) {
+        return sourcemeta::core::to_string(location.pointer) ==
+               "/properties/one";
+      }));
+}
+
+TEST(accessors_for_each_anchor_static) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  std::vector<std::string> uris;
+  frame.for_each_anchor(
+      sourcemeta::blaze::SchemaReferenceType::Static,
+      [&uris](const std::string_view uri,
+              const sourcemeta::blaze::SchemaFrame::Location &) {
+        uris.emplace_back(uri);
+      });
+
+  EXPECT_EQ(uris.size(), 2);
+  EXPECT_EQ(uris.at(0), "https://example.com/schema#dynamic-anchor");
+  EXPECT_EQ(uris.at(1), "https://example.com/schema#static-anchor");
+}
+
+TEST(accessors_for_each_anchor_dynamic) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  std::vector<std::string> uris;
+  std::vector<std::string> pointers;
+  frame.for_each_anchor(
+      sourcemeta::blaze::SchemaReferenceType::Dynamic,
+      [&uris,
+       &pointers](const std::string_view uri,
+                  const sourcemeta::blaze::SchemaFrame::Location &location) {
+        uris.emplace_back(uri);
+        pointers.push_back(sourcemeta::core::to_string(location.pointer));
+      });
+
+  EXPECT_EQ(uris.size(), 1);
+  EXPECT_EQ(uris.at(0), "https://example.com/schema#dynamic-anchor");
+  EXPECT_EQ(pointers.size(), 1);
+  EXPECT_EQ(pointers.at(0), "/$defs/bar");
+}
+
+TEST(accessors_any_anchor) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_TRUE(frame.any_anchor(
+      sourcemeta::blaze::SchemaReferenceType::Dynamic,
+      [](const std::string_view uri,
+         const sourcemeta::blaze::SchemaFrame::Location &) {
+        return uri == "https://example.com/schema#dynamic-anchor";
+      }));
+  EXPECT_FALSE(frame.any_anchor(
+      sourcemeta::blaze::SchemaReferenceType::Dynamic,
+      [](const std::string_view uri,
+         const sourcemeta::blaze::SchemaFrame::Location &) {
+        return uri == "https://example.com/schema#static-anchor";
+      }));
+  EXPECT_TRUE(frame.any_anchor(
+      sourcemeta::blaze::SchemaReferenceType::Static,
+      [](const std::string_view uri,
+         const sourcemeta::blaze::SchemaFrame::Location &) {
+        return uri == "https://example.com/schema#static-anchor";
+      }));
+}
+
+TEST(accessors_for_each_resource) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  std::vector<std::string> uris;
+  std::vector<std::string> pointers;
+  frame.for_each_resource(
+      [&uris,
+       &pointers](const std::string_view uri,
+                  const sourcemeta::blaze::SchemaFrame::Location &location) {
+        uris.emplace_back(uri);
+        pointers.push_back(sourcemeta::core::to_string(location.pointer));
+      });
+
+  EXPECT_EQ(uris.size(), 2);
+  EXPECT_EQ(uris.at(0), "https://example.com/nested");
+  EXPECT_EQ(pointers.at(0), "/$defs/baz");
+  EXPECT_EQ(uris.at(1), "https://example.com/schema");
+  EXPECT_EQ(pointers.at(1), "");
+}
+
+TEST(accessors_for_each_location) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  std::size_t visited{0};
+  std::size_t dynamic{0};
+  frame.for_each_location(
+      [&visited, &dynamic](const sourcemeta::blaze::SchemaReferenceType type,
+                           const std::string_view,
+                           const sourcemeta::blaze::SchemaFrame::Location &) {
+        visited += 1;
+        if (type == sourcemeta::blaze::SchemaReferenceType::Dynamic) {
+          dynamic += 1;
+        }
+      });
+
+  EXPECT_EQ(visited, frame.location_count());
+  EXPECT_EQ(visited, 28);
+  EXPECT_EQ(dynamic, 1);
+}
+
+TEST(accessors_any_location) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_TRUE(
+      frame.any_location([](const sourcemeta::blaze::SchemaReferenceType,
+                            const std::string_view uri,
+                            const sourcemeta::blaze::SchemaFrame::Location &) {
+        return uri == "https://example.com/nested#/properties/deep";
+      }));
+  EXPECT_FALSE(
+      frame.any_location([](const sourcemeta::blaze::SchemaReferenceType,
+                            const std::string_view uri,
+                            const sourcemeta::blaze::SchemaFrame::Location &) {
+        return uri == "https://example.com/nowhere";
+      }));
+}
+
+TEST(accessors_for_each_reference) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  std::vector<std::string> origins;
+  std::vector<sourcemeta::blaze::SchemaReferenceType> types;
+  frame.for_each_reference(
+      [&origins,
+       &types](const sourcemeta::blaze::SchemaReferenceType type,
+               const sourcemeta::core::WeakPointer &origin,
+               const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        origins.push_back(sourcemeta::core::to_string(origin));
+        types.push_back(type);
+      });
+
+  EXPECT_EQ(origins.size(), 4);
+  EXPECT_EQ(types.size(), 4);
+  std::size_t dynamic_references{0};
+  for (const auto type : types) {
+    if (type == sourcemeta::blaze::SchemaReferenceType::Dynamic) {
+      dynamic_references += 1;
+    }
+  }
+
+  EXPECT_EQ(dynamic_references, 0);
+  EXPECT_FALSE(frame.has_dynamic_references());
+  EXPECT_EQ(origins.at(0), "/$defs/baz/properties/deep/$ref");
+  EXPECT_EQ(origins.at(1), "/$schema");
+  EXPECT_EQ(origins.at(2), "/properties/one/$ref");
+  EXPECT_EQ(origins.at(3), "/properties/two/$dynamicRef");
+}
+
+TEST(accessors_any_reference) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  EXPECT_TRUE(frame.any_reference(
+      [](const sourcemeta::blaze::SchemaReferenceType,
+         const sourcemeta::core::WeakPointer &origin,
+         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        return sourcemeta::core::to_string(origin) == "/properties/one/$ref";
+      }));
+  EXPECT_FALSE(frame.any_reference(
+      [](const sourcemeta::blaze::SchemaReferenceType,
+         const sourcemeta::core::WeakPointer &,
+         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &entry) {
+        return entry.destination == "https://example.com/nowhere";
+      }));
+}
+
+TEST(accessors_for_each_reference_from) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  const sourcemeta::core::Pointer properties{"properties"};
+  std::vector<std::string> origins;
+  frame.for_each_reference_from(
+      sourcemeta::core::to_weak_pointer(properties),
+      [&origins](const sourcemeta::blaze::SchemaReferenceType,
+                 const sourcemeta::core::WeakPointer &origin,
+                 const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        origins.push_back(sourcemeta::core::to_string(origin));
+      });
+
+  EXPECT_EQ(origins.size(), 2);
+  EXPECT_EQ(origins.at(0), "/properties/one/$ref");
+  EXPECT_EQ(origins.at(1), "/properties/two/$dynamicRef");
+}
+
+TEST(accessors_any_reference_from) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  const sourcemeta::core::Pointer definitions{"$defs"};
+  const sourcemeta::core::Pointer nowhere{"nowhere"};
+  EXPECT_TRUE(frame.any_reference_from(
+      sourcemeta::core::to_weak_pointer(definitions),
+      [](const sourcemeta::blaze::SchemaReferenceType,
+         const sourcemeta::core::WeakPointer &,
+         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        return true;
+      }));
+  EXPECT_FALSE(frame.any_reference_from(
+      sourcemeta::core::to_weak_pointer(nowhere),
+      [](const sourcemeta::blaze::SchemaReferenceType,
+         const sourcemeta::core::WeakPointer &,
+         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        return true;
+      }));
+}
+
+TEST(accessors_for_each_reference_into) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  const sourcemeta::core::Pointer target{"$defs", "foo"};
+  std::vector<std::string> origins;
+  frame.for_each_reference_into(
+      sourcemeta::core::to_weak_pointer(target),
+      [&origins](const sourcemeta::blaze::SchemaReferenceType,
+                 const sourcemeta::core::WeakPointer &origin,
+                 const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        origins.push_back(sourcemeta::core::to_string(origin));
+      });
+
+  EXPECT_EQ(origins.size(), 2);
+  EXPECT_EQ(origins.at(0), "/$defs/baz/properties/deep/$ref");
+  EXPECT_EQ(origins.at(1), "/properties/one/$ref");
+}
+
+TEST(accessors_any_reference_into) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": { "$anchor": "static-anchor", "type": "string" },
+      "bar": { "$dynamicAnchor": "dynamic-anchor", "type": "number" },
+      "baz": {
+        "$id": "nested",
+        "properties": {
+          "deep": { "$ref": "https://example.com/schema#/$defs/foo" }
+        }
+      }
+    },
+    "properties": {
+      "one": { "$ref": "#/$defs/foo" },
+      "two": { "$dynamicRef": "#dynamic-anchor" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  const sourcemeta::core::Pointer bar{"$defs", "bar"};
+  const sourcemeta::core::Pointer one{"properties", "one"};
+  EXPECT_TRUE(frame.any_reference_into(
+      sourcemeta::core::to_weak_pointer(bar),
+      [](const sourcemeta::blaze::SchemaReferenceType,
+         const sourcemeta::core::WeakPointer &origin,
+         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        return sourcemeta::core::to_string(origin) ==
+               "/properties/two/$dynamicRef";
+      }));
+  EXPECT_FALSE(frame.any_reference_into(
+      sourcemeta::core::to_weak_pointer(one),
+      [](const sourcemeta::blaze::SchemaReferenceType,
+         const sourcemeta::core::WeakPointer &,
+         const sourcemeta::blaze::SchemaFrame::ReferencesEntry &) {
+        return true;
+      }));
 }

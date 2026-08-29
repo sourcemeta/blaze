@@ -357,22 +357,22 @@ auto properties_as_loop(const Context &context,
   const auto inside_disjunctor{
       is_inside_disjunctor(schema_context.relative_pointer) ||
       // Check if any reference from `anyOf` or `oneOf` points to us
-      std::ranges::any_of(
-          context.frame.references(),
-          [&context, &current_entry](const auto &reference) -> auto {
-            if (!context.frame.locations().contains(
-                    {sourcemeta::blaze::SchemaReferenceType::Static,
-                     reference.second.destination})) {
+      context.frame.any_reference(
+          [&context, &current_entry](
+              const sourcemeta::blaze::SchemaReferenceType,
+              const sourcemeta::core::WeakPointer &origin,
+              const sourcemeta::blaze::SchemaFrame::ReferencesEntry &reference)
+              -> bool {
+            const auto destination{context.frame.location(
+                sourcemeta::blaze::SchemaReferenceType::Static,
+                reference.destination)};
+            if (!destination.has_value()) {
               return false;
             }
 
-            const auto &target{
-                context.frame.locations()
-                    .at({sourcemeta::blaze::SchemaReferenceType::Static,
-                         reference.second.destination})
-                    .pointer};
-            return is_inside_disjunctor(reference.first.second) &&
-                   current_entry.pointer.initial() == target;
+            return is_inside_disjunctor(origin) &&
+                   current_entry.pointer.initial() ==
+                       destination.value().get().pointer;
           })};
 
   if (!inside_disjunctor &&

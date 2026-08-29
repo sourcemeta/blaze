@@ -91,17 +91,6 @@ public:
     std::optional<std::string_view> fragment;
   };
 
-  /// A JSON Schema reference map is a mapping of a JSON Pointer
-  /// of a subschema to a destination static reference URI.
-  /// For convenience, the value consists of the URI on its entirety,
-  /// but also broken down by its potential fragment component.
-  /// The reference type is part of the key as it is possible to
-  /// have a static and a dynamic reference to the same location
-  /// on the same schema object.
-  using References =
-      std::map<std::pair<SchemaReferenceType, sourcemeta::core::WeakPointer>,
-               ReferencesEntry>;
-
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 // GCC believes that a member of an enum class (which is namespaced by
@@ -133,20 +122,6 @@ public:
     bool orphan;
   };
 
-  /// A JSON Schema reference frame is a mapping of URIs to schema identifiers,
-  /// JSON Pointers within the schema, and subschemas dialects. We call it
-  /// reference frame as this mapping is essential for resolving references.
-  // TODO: Consider replacing std::map with std::flat_map once libc++
-  // supports it (__cpp_lib_flat_map) for better cache locality
-  using Locations =
-      // While it might seem weird that we namespace the location URIs with a
-      // reference type, it is essential for distinguishing schema resource URIs
-      // from `$recursiveRef: true` on another place of the schema schema
-      // resource, as otherwise they would both have the exact same URI, but
-      // point to different places.
-      std::map<std::pair<SchemaReferenceType, sourcemeta::core::JSON::String>,
-               Location>;
-
   /// A list of paths to frame within a schema wrapper
   using Paths = std::vector<sourcemeta::core::WeakPointer>;
 
@@ -173,17 +148,25 @@ public:
               IdentifierMode identifier_mode = IdentifierMode::Additional,
               const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER});
 
-  /// Access the analysed schema locations
-  [[nodiscard]] auto locations() const noexcept -> const Locations &;
-
-  /// Access the analysed schema references
-  [[nodiscard]] auto references() const noexcept -> const References &;
-
   /// Get a specific reference entry by type and pointer
   [[nodiscard]] auto
   reference(const SchemaReferenceType type,
             const sourcemeta::core::WeakPointer &pointer) const
       -> std::optional<std::reference_wrapper<const ReferencesEntry>>;
+
+  /// Get a specific location entry by reference type and URI
+  [[nodiscard]] auto location(const SchemaReferenceType type,
+                              const std::string_view uri) const
+      -> std::optional<std::reference_wrapper<const Location>>;
+
+  /// The number of locations in the frame
+  [[nodiscard]] auto location_count() const noexcept -> std::size_t;
+
+  /// The number of references in the frame
+  [[nodiscard]] auto reference_count() const noexcept -> std::size_t;
+
+  /// Check whether the analysed schema makes use of dynamic referencing at all
+  [[nodiscard]] auto has_dynamic_references() const noexcept -> bool;
 
   /// Check whether the analysed schema has no external references
   [[nodiscard]] auto standalone() const noexcept -> bool;
@@ -251,6 +234,216 @@ public:
       -> std::pair<SchemaReferenceType,
                    std::optional<std::reference_wrapper<const Location>>>;
 
+  /// Iterate over every schema resource and subschema, skipping the pointer
+  /// and anchor entries that do not stand for a schema of their own
+  template <std::invocable<const Location &> F>
+  auto for_each_subschema(const F &callback) const -> void {
+    for (const auto &entry : this->locations_) {
+      if (is_subschema(entry.second)) {
+        callback(entry.second);
+      }
+    }
+  }
+
+  /// Iterate over every schema resource and subschema strictly below the given
+  /// pointer
+  template <std::invocable<const Location &> F>
+  auto for_each_subschema_under(const sourcemeta::core::WeakPointer &pointer,
+                                const F &callback) const -> void {
+    for (const auto &entry : this->locations_) {
+      if (is_subschema(entry.second) &&
+          is_strictly_under(entry.second, pointer)) {
+        callback(entry.second);
+      }
+    }
+  }
+
+  /// Check whether any schema resource or subschema satisfies the predicate
+  template <std::predicate<const Location &> F>
+  [[nodiscard]] auto any_subschema(const F &predicate) const -> bool {
+    for (const auto &entry : this->locations_) {
+      if (is_subschema(entry.second) && predicate(entry.second)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Check whether any schema resource or subschema strictly below the given
+  /// pointer satisfies the predicate
+  template <std::predicate<const Location &> F>
+  [[nodiscard]] auto
+  any_subschema_under(const sourcemeta::core::WeakPointer &pointer,
+                      const F &predicate) const -> bool {
+    for (const auto &entry : this->locations_) {
+      if (is_subschema(entry.second) &&
+          is_strictly_under(entry.second, pointer) && predicate(entry.second)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Iterate over every anchor of the given kind, along with its URI
+  template <std::invocable<std::string_view, const Location &> F>
+  auto for_each_anchor(const SchemaReferenceType type, const F &callback) const
+      -> void {
+    for (const auto &entry : this->locations_) {
+      if (entry.first.first == type &&
+          entry.second.type == LocationType::Anchor) {
+        callback(entry.first.second, entry.second);
+      }
+    }
+  }
+
+  /// Check whether any anchor of the given kind satisfies the predicate
+  template <std::predicate<std::string_view, const Location &> F>
+  [[nodiscard]] auto any_anchor(const SchemaReferenceType type,
+                                const F &predicate) const -> bool {
+    for (const auto &entry : this->locations_) {
+      if (entry.first.first == type &&
+          entry.second.type == LocationType::Anchor &&
+          predicate(entry.first.second, entry.second)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Iterate over every schema resource, along with its URI
+  template <std::invocable<std::string_view, const Location &> F>
+  auto for_each_resource(const F &callback) const -> void {
+    for (const auto &entry : this->locations_) {
+      if (entry.second.type == LocationType::Resource) {
+        callback(entry.first.second, entry.second);
+      }
+    }
+  }
+
+  /// Iterate over every location, whatever kind it is
+  template <
+      std::invocable<SchemaReferenceType, std::string_view, const Location &> F>
+  auto for_each_location(const F &callback) const -> void {
+    for (const auto &entry : this->locations_) {
+      callback(entry.first.first, entry.first.second, entry.second);
+    }
+  }
+
+  /// Check whether any location satisfies the predicate
+  template <
+      std::predicate<SchemaReferenceType, std::string_view, const Location &> F>
+  [[nodiscard]] auto any_location(const F &predicate) const -> bool {
+    for (const auto &entry : this->locations_) {
+      if (predicate(entry.first.first, entry.first.second, entry.second)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Iterate over every reference, along with the pointer it originates from
+  template <
+      std::invocable<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
+                     const ReferencesEntry &>
+          F>
+  auto for_each_reference(const F &callback) const -> void {
+    for (const auto &entry : this->references_) {
+      callback(entry.first.first, entry.first.second, entry.second);
+    }
+  }
+
+  /// Check whether any reference satisfies the predicate
+  template <
+      std::predicate<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
+                     const ReferencesEntry &>
+          F>
+  [[nodiscard]] auto any_reference(const F &predicate) const -> bool {
+    for (const auto &entry : this->references_) {
+      if (predicate(entry.first.first, entry.first.second, entry.second)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Iterate over every reference that originates at or below the given pointer
+  template <
+      std::invocable<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
+                     const ReferencesEntry &>
+          F>
+  auto for_each_reference_from(const sourcemeta::core::WeakPointer &pointer,
+                               const F &callback) const -> void {
+    for (const auto &entry : this->references_) {
+      if (entry.first.second.starts_with(pointer)) {
+        callback(entry.first.first, entry.first.second, entry.second);
+      }
+    }
+  }
+
+  /// Check whether any reference originating at or below the given pointer
+  /// satisfies the predicate
+  template <
+      std::predicate<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
+                     const ReferencesEntry &>
+          F>
+  [[nodiscard]] auto
+  any_reference_from(const sourcemeta::core::WeakPointer &pointer,
+                     const F &predicate) const -> bool {
+    for (const auto &entry : this->references_) {
+      if (entry.first.second.starts_with(pointer) &&
+          predicate(entry.first.first, entry.first.second, entry.second)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Iterate over every reference whose destination resolves at or below the
+  /// given pointer. Note that unlike
+  /// sourcemeta::blaze::SchemaFrame::has_references_to, which matches a
+  /// destination exactly, this covers the entire subtree
+  template <
+      std::invocable<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
+                     const ReferencesEntry &>
+          F>
+  auto for_each_reference_into(const sourcemeta::core::WeakPointer &pointer,
+                               const F &callback) const -> void {
+    for (const auto &entry : this->references_) {
+      const auto destination{this->traverse(entry.second.destination)};
+      if (destination.has_value() &&
+          destination.value().get().pointer.starts_with(pointer)) {
+        callback(entry.first.first, entry.first.second, entry.second);
+      }
+    }
+  }
+
+  /// Check whether any reference whose destination resolves at or below the
+  /// given pointer satisfies the predicate
+  template <
+      std::predicate<SchemaReferenceType, const sourcemeta::core::WeakPointer &,
+                     const ReferencesEntry &>
+          F>
+  [[nodiscard]] auto
+  any_reference_into(const sourcemeta::core::WeakPointer &pointer,
+                     const F &predicate) const -> bool {
+    for (const auto &entry : this->references_) {
+      const auto destination{this->traverse(entry.second.destination)};
+      if (destination.has_value() &&
+          destination.value().get().pointer.starts_with(pointer) &&
+          predicate(entry.first.first, entry.first.second, entry.second)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   /// Iterate over all resource URIs in the frame
   template <std::invocable<std::string_view> F>
   auto for_each_resource_uri(const F &callback) const -> void {
@@ -300,6 +493,34 @@ public:
                                   const SchemaResolver &resolver) const -> bool;
 
 private:
+  /// A JSON Schema reference map is a mapping of a JSON Pointer
+  /// of a subschema to a destination static reference URI.
+  /// For convenience, the value consists of the URI on its entirety,
+  /// but also broken down by its potential fragment component.
+  /// The reference type is part of the key as it is possible to
+  /// have a static and a dynamic reference to the same location
+  /// on the same schema object.
+  using References =
+      std::map<std::pair<SchemaReferenceType, sourcemeta::core::WeakPointer>,
+               ReferencesEntry>;
+
+  using Locations =
+      // While it might seem weird that we namespace the location URIs with a
+      // reference type, it is essential for distinguishing schema resource URIs
+      // from `$recursiveRef: true` on another place of the schema schema
+      // resource, as otherwise they would both have the exact same URI, but
+      // point to different places.
+      std::map<std::pair<SchemaReferenceType, sourcemeta::core::JSON::String>,
+               Location>;
+
+  [[nodiscard]] static auto is_subschema(const Location &location) noexcept
+      -> bool;
+
+  [[nodiscard]] static auto
+  is_strictly_under(const Location &location,
+                    const sourcemeta::core::WeakPointer &pointer) noexcept
+      -> bool;
+
   Mode mode_;
 // Exporting symbols that depends on the standard C++ library is considered
 // safe.
