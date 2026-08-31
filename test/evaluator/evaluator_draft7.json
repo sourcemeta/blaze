@@ -1863,28 +1863,6 @@
     }
   },
   {
-    "description": "property_names_type_unknown_names",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "propertyNames": { "type": [ "foo" ] }
-    },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
-  },
-  {
-    "description": "property_names_type_unknown_name_scalar",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "propertyNames": { "type": "foo" }
-    },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
-  },
-  {
     "description": "type_object_empty_required_null",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",

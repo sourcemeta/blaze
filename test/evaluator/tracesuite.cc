@@ -163,20 +163,38 @@ auto main(int argc, char **argv) -> int {
                        "evaluator_draft7.json",
                    "Evaluator_trace_draft7");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_draft7_invalid.json",
+                   "Evaluator_trace_draft7_invalid");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_2019_09.json",
                    "Evaluator_trace_2019_09");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_2019_09_invalid.json",
+                   "Evaluator_trace_2019_09_invalid");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_draft6.json",
                    "Evaluator_trace_draft6");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_draft6_invalid.json",
+                   "Evaluator_trace_draft6_invalid");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_2020_12.json",
                    "Evaluator_trace_2020_12");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_2020_12_invalid.json",
+                   "Evaluator_trace_2020_12_invalid");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_draft4.json",
                    "Evaluator_trace_draft4");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_draft4_invalid.json",
+                   "Evaluator_trace_draft4_invalid");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_draft3.json",
                    "Evaluator_trace_draft3");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_draft3_invalid.json",
+                   "Evaluator_trace_draft3_invalid");
   } catch (const std::exception &error) {
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
