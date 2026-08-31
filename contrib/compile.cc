@@ -160,6 +160,13 @@ auto main(int argc, char **argv) noexcept -> int {
     sourcemeta::core::prettify(sourcemeta::blaze::to_json(schema_template),
                                std::cout);
     std::cout << "\n";
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    std::cerr << "error: " << error.what() << "\n";
+    std::cerr << "  at base: " << error.base().recompose() << "\n";
+    std::cerr << "  at location: ";
+    sourcemeta::core::stringify(error.location(), std::cerr);
+    std::cerr << "\n";
+    return EXIT_FAILURE;
   } catch (const std::exception &error) {
     std::cerr << "error: " << error.what() << "\n";
     return EXIT_FAILURE;

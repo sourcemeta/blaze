@@ -146,8 +146,28 @@ def is_trace_format(test):
             or "pre" in exhaustive or "post" in exhaustive)
 
 
+def format_error_entry(test):
+    """Format a test entry that expects compilation to fail."""
+    lines = []
+    lines.append("  {")
+    lines.append(
+        f"    \"description\": {json.dumps(test['description'])},"
+    )
+    lines.append(
+        f"    \"schema\": {format_json_value(test['schema'], 2)},"
+    )
+    lines.append(
+        f"    \"error\": {format_json_value(test['error'], 2)}"
+    )
+    lines.append("  }")
+    return "\n".join(lines)
+
+
 def format_test_entry(test):
     """Format a single test entry."""
+    if "error" in test:
+        return format_error_entry(test)
+
     if is_trace_format(test):
         fmt = format_trace_mode_section
     else:

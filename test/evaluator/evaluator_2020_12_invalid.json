@@ -5,29 +5,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": [ "string", "foo" ]
     },
-    "instance": "x",
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeAny", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeAny", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeAny", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeAny", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type string"
-      ]
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/type"
     }
   },
   {
@@ -36,17 +17,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": [ "foo", "bar" ]
     },
-    "instance": 5,
-    "valid": true,
-    "fast": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    },
-    "exhaustive": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/type"
     }
   },
   {
@@ -55,10 +29,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "propertyNames": { "type": [ "foo" ] }
     },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/propertyNames/type"
+    }
   },
   {
     "description": "property_names_type_unknown_name_scalar",
@@ -66,85 +41,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "propertyNames": { "type": "foo" }
     },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
-  },
-  {
-    "description": "annotation_title_not_a_string",
-    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "title": 42 },
-    "instance": 1,
-    "valid": true,
-    "fast": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    },
-    "exhaustive": {
-      "pre": [
-        [ "Annotation", "/title", "#/title", "" ]
-      ],
-      "post": [
-        [ true, "Annotation", "/title", "#/title", "", 42 ]
-      ],
-      "descriptions": [
-        "The unrecognized keyword \"title\" was collected as the annotation 42"
-      ]
-    }
-  },
-  {
-    "description": "annotation_examples_not_an_array",
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "examples": "x"
-    },
-    "instance": 1,
-    "valid": true,
-    "fast": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    },
-    "exhaustive": {
-      "pre": [
-        [ "Annotation", "/examples", "#/examples", "" ]
-      ],
-      "post": [
-        [ true, "Annotation", "/examples", "#/examples", "", "x" ]
-      ],
-      "descriptions": [
-        "The unrecognized keyword \"examples\" was collected as the annotation \"x\""
-      ]
-    }
-  },
-  {
-    "description": "annotation_content_encoding_not_a_string",
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "contentEncoding": 42,
-      "contentMediaType": "text/plain"
-    },
-    "instance": "x",
-    "valid": true,
-    "fast": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    },
-    "exhaustive": {
-      "pre": [
-        [ "Annotation", "/contentEncoding", "#/contentEncoding", "" ],
-        [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ]
-      ],
-      "post": [
-        [ true, "Annotation", "/contentEncoding", "#/contentEncoding", "", 42 ],
-        [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "text/plain" ]
-      ],
-      "descriptions": [
-        "The unrecognized keyword \"contentEncoding\" was collected as the annotation 42",
-        "The content media type of the instance was \"text/plain\""
-      ]
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/propertyNames/type"
     }
   },
   {
@@ -154,29 +54,10 @@
       "type": "array",
       "items": 1
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
     }
   },
   {
@@ -186,29 +67,10 @@
       "type": "array",
       "items": "a"
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
     }
   },
   {
@@ -218,29 +80,10 @@
       "type": "array",
       "items": [ "a", "b", "c" ]
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
     }
   },
   {
@@ -250,29 +93,10 @@
       "type": "array",
       "items": [ 1 ]
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
     }
   },
   {
@@ -282,29 +106,10 @@
       "type": "array",
       "items": []
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
     }
   },
   {
@@ -314,38 +119,20 @@
       "type": "array",
       "items": null
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type array"
-      ]
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
     }
   },
   {
     "description": "not_non_schema_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "not": 1 },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/not"
+    }
   },
   {
     "description": "allof_non_schema_1",
@@ -353,42 +140,47 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "allOf": [ 1 ]
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/allOf"
+    }
   },
   {
     "description": "allof_empty_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "allOf": [] },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/allOf"
+    }
   },
   {
     "description": "anyof_empty_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "anyOf": [] },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
   },
   {
     "description": "oneof_empty_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "oneOf": [] },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/oneOf"
+    }
   },
   {
     "description": "contains_non_schema_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "contains": 1 },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/contains"
+    }
   },
   {
     "description": "additionalproperties_non_schema_1",
@@ -396,10 +188,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": 1
     },
-    "instance": { "foo": "bar" },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/additionalProperties"
+    }
   },
   {
     "description": "propertynames_non_schema_1",
@@ -407,10 +200,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "propertyNames": 1
     },
-    "instance": { "foo": "bar" },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/propertyNames"
+    }
   },
   {
     "description": "unevaluateditems_non_schema_1",
@@ -418,10 +212,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "unevaluatedItems": 1
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/unevaluatedItems"
+    }
   },
   {
     "description": "if_non_schema_1",
@@ -430,10 +225,11 @@
       "if": 1,
       "then": { "type": "integer" }
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/if"
+    }
   },
   {
     "description": "required_non_string_1",
@@ -441,18 +237,20 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "required": [ 1 ]
     },
-    "instance": {},
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
   },
   {
     "description": "type_non_string_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": [ 1 ] },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/type"
+    }
   },
   {
     "description": "dependentrequired_non_string_1",
@@ -460,10 +258,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "dependentRequired": { "a": [ 1 ] }
     },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+      "base": "",
+      "location": "/dependentRequired"
+    }
   },
   {
     "description": "maxlength_negative_1",
@@ -471,10 +270,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "maxLength": -1
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/maxLength"
+    }
   },
   {
     "description": "minlength_negative_1",
@@ -482,10 +282,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "minLength": -1
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/minLength"
+    }
   },
   {
     "description": "maxitems_negative_1",
@@ -493,10 +294,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "maxItems": -1
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/maxItems"
+    }
   },
   {
     "description": "minitems_negative_1",
@@ -504,10 +306,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "minItems": -1
     },
-    "instance": [ "foo" ],
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/minItems"
+    }
   },
   {
     "description": "maxproperties_negative_1",
@@ -515,10 +318,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "maxProperties": -1
     },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/maxProperties"
+    }
   },
   {
     "description": "minproperties_negative_1",
@@ -526,10 +330,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "minProperties": -1
     },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/minProperties"
+    }
   },
   {
     "description": "multipleof_negative_1",
@@ -537,10 +342,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "multipleOf": -1
     },
-    "instance": 3,
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/multipleOf"
+    }
   },
   {
     "description": "required_non_string_2",
@@ -548,10 +354,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "required": [ "a", 1 ]
     },
-    "instance": {},
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
   },
   {
     "description": "type_non_string_2",
@@ -559,10 +366,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": [ "string", 1 ]
     },
-    "instance": 3,
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/type"
+    }
   },
   {
     "description": "anyof_non_schema_1",
@@ -570,10 +378,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "anyOf": [ 1 ]
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
   },
   {
     "description": "oneof_non_schema_1",
@@ -581,18 +390,20 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "oneOf": [ 1 ]
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/oneOf"
+    }
   },
   {
     "description": "allof_non_array_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "allOf": 1 },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/allOf"
+    }
   },
   {
     "description": "prefixitems_non_array_1",
@@ -600,10 +411,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "prefixItems": 1
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/prefixItems"
+    }
   },
   {
     "description": "properties_non_object_1",
@@ -611,10 +423,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "properties": 1
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/properties"
+    }
   },
   {
     "description": "patternproperties_non_object_1",
@@ -622,10 +435,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "patternProperties": 1
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/patternProperties"
+    }
   },
   {
     "description": "dependentschemas_non_object_1",
@@ -633,10 +447,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "dependentSchemas": 1
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/dependentSchemas"
+    }
   },
   {
     "description": "anyof_non_schema_2",
@@ -644,10 +459,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "anyOf": [ 1, { "type": "integer" } ]
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
   },
   {
     "description": "anyof_non_schema_3",
@@ -655,10 +471,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "anyOf": [ 1, false ]
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
   },
   {
     "description": "oneof_non_schema_2",
@@ -666,10 +483,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "oneOf": [ 1, { "type": "integer" } ]
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/oneOf"
+    }
   },
   {
     "description": "oneof_non_schema_3",
@@ -677,10 +495,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "oneOf": [ 1, false ]
     },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/oneOf"
+    }
   },
   {
     "description": "required_duplicate_1",
@@ -688,10 +507,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "required": [ "a", "a" ]
     },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
   },
   {
     "description": "required_duplicate_non_string_1",
@@ -699,9 +519,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "required": [ 1, 1 ]
     },
-    "instance": {},
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
   }
 ]

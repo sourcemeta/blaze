@@ -5696,14 +5696,20 @@ TEST(type_array_partially_unknown_names_invalid) {
     "type": [ "string", "foo" ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("5")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
-
-  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeAny, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string "
-                               "but it was of type integer");
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(), "This keyword was expected to be set to a "
+                               "known type name, or to a non-empty array of "
+                               "unique ones");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"type"}));
+    EXPECT_EQ(error.base().recompose(), "");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(type_object_oversized_max_properties_ignored) {

@@ -13,11 +13,18 @@ auto compiler_2019_09_applicator_dependentschemas(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_object() ||
-      !std::ranges::all_of(
+  if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_OBJECT);
+  }
+
+  if (!std::ranges::all_of(
           schema_context.schema.at(dynamic_context.keyword).as_object(),
           [](const auto &entry) -> bool { return is_schema(entry.second); })) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_SCHEMA_OBJECT);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -67,7 +74,9 @@ auto compiler_2019_09_validation_dependentrequired(
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_OBJECT);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -81,7 +90,9 @@ auto compiler_2019_09_validation_dependentrequired(
           [](const auto &entry) -> bool {
             return is_string_array(entry.second);
           })) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_DEPENDENCIES);
   }
 
   ValueStringMap dependencies;

@@ -33,6 +33,26 @@ for (const file of suiteFiles) {
     for (let testIndex = 0; testIndex < tests.length; testIndex++) {
       const testCase = tests[testIndex];
 
+      if (testCase.error) {
+        // The compiler refuses these, so there is no template to trace
+        it(testCase.description, () => {
+          assert.throws(() => compileSchema(filePath, {
+            mode: 'exhaustive',
+            path: `/${testIndex}/schema`
+          }), (error) => {
+            assert.match(error.message, new RegExp(
+              testCase.error.message.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+              'Compiler error message mismatch');
+            assert.match(error.message, new RegExp(
+              'at location: ' + testCase.error.location.replace(
+                /[.*+?^${}()|[\]\\]/g, '\\$&')),
+              'Compiler error location mismatch');
+            return true;
+          });
+        });
+        continue;
+      }
+
       for (const mode of ['fast', 'exhaustive']) {
         if (!testCase[mode]) continue;
         const modeData = testCase[mode];

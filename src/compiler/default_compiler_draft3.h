@@ -56,6 +56,51 @@ static auto is_inside_disjunctor(const sourcemeta::core::WeakPointer &pointer)
           pointer.at(pointer.size() - 3).to_property() == "anyOf");
 }
 
+// The location a `CompilerError` carries names the keyword, so these read as
+// statements about it
+static constexpr auto EXPECTED_STRING{
+    "This keyword was expected to be set to a string"};
+static constexpr auto EXPECTED_INTEGER{
+    "This keyword was expected to be set to an integer"};
+static constexpr auto EXPECTED_NUMBER{
+    "This keyword was expected to be set to a number"};
+static constexpr auto EXPECTED_ARRAY{
+    "This keyword was expected to be set to an array"};
+static constexpr auto EXPECTED_OBJECT{
+    "This keyword was expected to be set to an object"};
+static constexpr auto EXPECTED_SCHEMA_ARRAY{
+    "This keyword was expected to be set to a non-empty array of valid "
+    "schemas"};
+static constexpr auto EXPECTED_SCHEMA_ARRAY_ANY_SIZE{
+    "This keyword was expected to be set to an array of valid schemas"};
+static constexpr auto EXPECTED_PROPERTY_NAME_ARRAY{
+    "This keyword was expected to be set to an array of unique property "
+    "names"};
+static constexpr auto EXPECTED_NON_NEGATIVE{
+    "This keyword was expected to be set to a non-negative number"};
+static constexpr auto EXPECTED_TYPE_NAMES{
+    "This keyword was expected to be set to a known type name, or to a "
+    "non-empty array of unique ones"};
+static constexpr auto EXPECTED_UNIQUE_VALUES{
+    "This keyword was expected to be set to a non-empty array of unique "
+    "values"};
+static constexpr auto EXPECTED_SCHEMA_OBJECT{
+    "Every value of this keyword was expected to be a valid schema"};
+static constexpr auto EXPECTED_DEPENDENCIES{
+    "Every value of this keyword was expected to be a valid schema or an "
+    "array of unique property names"};
+
+// Draft 3 and Draft 4 read "integer" as a number written without a fractional
+// part, so a bound like `2.0` is not one there. Draft 6 onwards widened it to
+// any number whose fractional part is zero
+auto integral_reals_are_integers(
+    const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> bool {
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  return !vocabularies.contains_any(
+      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper,
+       Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper});
+}
+
 auto is_schema(const sourcemeta::core::JSON &value) -> bool {
   return value.is_object() || value.is_boolean();
 }
@@ -576,7 +621,9 @@ auto compiler_draft3_applicator_properties_with_options(
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_OBJECT);
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
@@ -1095,7 +1142,9 @@ auto compiler_draft3_applicator_patternproperties_with_options(
     const DynamicContext &dynamic_context, const bool annotate,
     const bool track_evaluation) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_OBJECT);
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
@@ -1400,7 +1449,9 @@ auto compiler_draft3_validation_pattern(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_string()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_STRING);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -1428,15 +1479,30 @@ auto compiler_draft3_applicator_items_array(
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_ARRAY);
   }
 
-  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
-    return {};
+  // Draft 3 puts no lower bound on how many schemas the tuple form may list,
+  // whereas every dialect after it asks for at least one
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  const auto allows_empty{schema_context.vocabularies.contains_any(
+      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper})};
+  const auto &items{schema_context.schema.at(dynamic_context.keyword)};
+  if ((items.empty() && !allows_empty) ||
+      !std::ranges::all_of(items.as_array(), is_schema)) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        allows_empty ? EXPECTED_SCHEMA_ARRAY_ANY_SIZE : EXPECTED_SCHEMA_ARRAY);
   }
 
   const auto items_size{
       schema_context.schema.at(dynamic_context.keyword).size()};
+
+  if (items_size == 0) {
+    return {};
+  }
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1793,7 +1859,9 @@ auto compiler_draft3_validation_enum(const Context &context,
                                      const DynamicContext &dynamic_context,
                                      const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_ARRAY);
   }
 
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
@@ -1804,7 +1872,9 @@ auto compiler_draft3_validation_enum(const Context &context,
            Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper}) &&
       (schema_context.schema.at(dynamic_context.keyword).empty() ||
        !schema_context.schema.at(dynamic_context.keyword).unique())) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_UNIQUE_VALUES);
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
@@ -1876,8 +1946,17 @@ auto compiler_draft3_validation_maxlength(const Context &context,
                                           const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
-    return {};
+      (!integral_reals_are_integers(schema_context.vocabularies) &&
+       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_INTEGER);
+  }
+
+  if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NON_NEGATIVE);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -1912,8 +1991,17 @@ auto compiler_draft3_validation_minlength(const Context &context,
                                           const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
-    return {};
+      (!integral_reals_are_integers(schema_context.vocabularies) &&
+       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_INTEGER);
+  }
+
+  if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NON_NEGATIVE);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -1949,8 +2037,17 @@ auto compiler_draft3_validation_maxitems(const Context &context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
-    return {};
+      (!integral_reals_are_integers(schema_context.vocabularies) &&
+       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_INTEGER);
+  }
+
+  if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NON_NEGATIVE);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -1981,8 +2078,17 @@ auto compiler_draft3_validation_minitems(const Context &context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
-    return {};
+      (!integral_reals_are_integers(schema_context.vocabularies) &&
+       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_INTEGER);
+  }
+
+  if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NON_NEGATIVE);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -2015,7 +2121,9 @@ auto compiler_draft3_validation_maximum(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NUMBER);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -2049,7 +2157,9 @@ auto compiler_draft3_validation_minimum(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NUMBER);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -2097,7 +2207,9 @@ auto compiler_draft3_validation_type(const Context &context,
 
     if (value.is_array()) {
       if (!is_draft3_type_union(value)) {
-        return {};
+        throw sourcemeta::blaze::CompilerError(
+            schema_context.base, to_pointer(schema_context.relative_pointer),
+            EXPECTED_TYPE_NAMES);
       }
 
       bool has_object{false};
@@ -2481,7 +2593,9 @@ auto compiler_draft3_validation_disallow(const Context &context,
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
 
   if (value.is_array() && !is_draft3_type_union(value)) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_TYPE_NAMES);
   }
 
   const auto contains_any{
@@ -2563,8 +2677,12 @@ auto compiler_draft3_applicator_extends(const Context &context,
                                         const Instructions &) -> Instructions {
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
 
-  if (value.is_array() && !is_schema_array(value)) {
-    return {};
+  // Unlike the keywords that share this shape, Draft 3 puts no lower bound on
+  // how many schemas `extends` may combine
+  if (value.is_array() && !std::ranges::all_of(value.as_array(), is_schema)) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_SCHEMA_ARRAY_ANY_SIZE);
   }
 
   if (value.is_object()) {
@@ -2642,7 +2760,9 @@ auto compiler_draft3_applicator_dependencies(
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_OBJECT);
   }
 
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
@@ -2656,11 +2776,12 @@ auto compiler_draft3_applicator_dependencies(
   if (!std::ranges::all_of(
           schema_context.schema.at(dynamic_context.keyword).as_object(),
           [is_draft3](const auto &entry) -> bool {
-            return entry.second.is_object() || entry.second.is_boolean() ||
-                   is_string_array(entry.second) ||
+            return is_schema(entry.second) || is_string_array(entry.second) ||
                    (is_draft3 && entry.second.is_string());
           })) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_DEPENDENCIES);
   }
 
   Instructions children;
@@ -2709,9 +2830,16 @@ auto compiler_draft3_validation_divisibleby(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_number() ||
-      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
-    return {};
+  if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NUMBER);
+  }
+
+  if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NON_NEGATIVE);
   }
 
   if (schema_context.schema.defines("type") &&

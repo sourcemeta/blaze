@@ -33,11 +33,24 @@ auto is_schema(const sourcemeta::core::JSON &value) -> bool {
   return value.is_object() || value.is_boolean();
 }
 
-// An invalid schema may set a keyword to a value that does not match the shape
-// its applicator strategy mandates, in which case we ignore the keyword
-auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
-                              const sourcemeta::core::JSON &value) -> bool {
+// The reason the keyword's value is not the shape its applicator strategy
+// mandates, or `nullptr` when it is what the meta-schema asks for. The location
+// the error carries names the keyword, so these read as statements about it
+auto applicator_shape_error(const sourcemeta::blaze::SchemaKeywordType type,
+                            const sourcemeta::core::JSON &value) -> const
+    char * {
   using namespace sourcemeta::blaze;
+  static constexpr auto EXPECTED_SCHEMA{
+      "This keyword was expected to be set to a valid schema"};
+  static constexpr auto EXPECTED_SCHEMA_OR_ARRAY{
+      "This keyword was expected to be set to a valid schema or to an array "
+      "of them"};
+  static constexpr auto EXPECTED_SCHEMA_ARRAY{
+      "This keyword was expected to be set to an array of valid schemas"};
+  static constexpr auto EXPECTED_SCHEMA_OBJECT{
+      "This keyword was expected to be set to an object whose values are "
+      "valid schemas"};
+
   switch (type) {
     case SchemaKeywordType::ApplicatorValueTraverseSomeProperty:
     case SchemaKeywordType::ApplicatorValueTraverseAnyPropertyKey:
@@ -47,10 +60,11 @@ auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
     case SchemaKeywordType::ApplicatorValueInPlaceMaybe:
     case SchemaKeywordType::ApplicatorValueInPlaceOther:
     case SchemaKeywordType::ApplicatorValueInPlaceNegate:
-      return value.is_object() || value.is_boolean();
+      return is_schema(value) ? nullptr : EXPECTED_SCHEMA;
     case SchemaKeywordType::ApplicatorValueOrElementsTraverseAnyItemOrItem:
     case SchemaKeywordType::ApplicatorValueOrElementsInPlace:
-      return value.is_object() || value.is_boolean() || value.is_array();
+      return (is_schema(value) || value.is_array()) ? nullptr
+                                                    : EXPECTED_SCHEMA_OR_ARRAY;
     // Note that `ApplicatorElementsInPlaceSome` and its negated variant are
     // deliberately absent, as Draft 3 `type` and `disallow` also take a plain
     // type name, so their strategy does not mandate an array. So is
@@ -58,17 +72,21 @@ auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
     // list of property names as a member
     case SchemaKeywordType::ApplicatorElementsTraverseItem:
     case SchemaKeywordType::ApplicatorElementsInPlace:
-      return value.is_array() &&
-             std::ranges::all_of(value.as_array(), is_schema);
+      return (value.is_array() &&
+              std::ranges::all_of(value.as_array(), is_schema))
+                 ? nullptr
+                 : EXPECTED_SCHEMA_ARRAY;
     case SchemaKeywordType::ApplicatorMembersTraversePropertyStatic:
     case SchemaKeywordType::ApplicatorMembersTraversePropertyRegex:
-      return value.is_object() &&
-             std::ranges::all_of(value.as_object(),
-                                 [](const auto &entry) -> bool {
-                                   return is_schema(entry.second);
-                                 });
+      return (value.is_object() &&
+              std::ranges::all_of(value.as_object(),
+                                  [](const auto &entry) -> bool {
+                                    return is_schema(entry.second);
+                                  }))
+                 ? nullptr
+                 : EXPECTED_SCHEMA_OBJECT;
     default:
-      return true;
+      return nullptr;
   }
 }
 
@@ -102,10 +120,15 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
            schema_context.vocabularies}) {
     assert(entry.pointer.back().is_property());
     const auto &keyword{entry.pointer.back().to_property()};
-    if (!applicator_shape_matches(
-            context.walker(keyword, schema_context.vocabularies).type,
-            schema_context.schema.at(keyword))) [[unlikely]] {
-      continue;
+    const auto *shape_error{applicator_shape_error(
+        context.walker(keyword, schema_context.vocabularies).type,
+        schema_context.schema.at(keyword))};
+    if (shape_error) [[unlikely]] {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base,
+          to_pointer(schema_context.relative_pointer.concat(
+              sourcemeta::blaze::make_weak_pointer(keyword))),
+          shape_error);
     }
 
     // Bases must not contain fragments
