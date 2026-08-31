@@ -39,16 +39,9 @@ auto compiler_draft6_validation_type(const Context &context,
                    schema_context, dynamic_context, ValueNone{})};
     }
 
-    // No known type was named. An empty array names nothing at all, so no name
-    // can match it, whereas an unrecognised name is an invalid but legitimate
-    // use that constrains nothing and is ignored, matching how the forms below
-    // treat both outside `propertyNames`
-    if (schema_context.schema.at(dynamic_context.keyword).is_array() &&
-        schema_context.schema.at(dynamic_context.keyword).empty()) {
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                   schema_context, dynamic_context, ValueNone{})};
-    }
-
+    // No known type was named, which for a union the meta-schema rejects means
+    // the keyword is not a constraint at all, matching how the forms below
+    // treat it outside `propertyNames`
     return {};
   }
 

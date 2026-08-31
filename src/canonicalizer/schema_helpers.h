@@ -3,6 +3,7 @@
 
 #include <sourcemeta/core/json.h>
 
+#include <algorithm>   // std::ranges::all_of
 #include <string_view> // std::string_view
 #include <utility>     // std::to_underlying
 

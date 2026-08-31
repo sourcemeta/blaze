@@ -68,6 +68,15 @@ auto is_schema_array(const sourcemeta::core::JSON &value) -> bool {
          std::ranges::all_of(value.as_array(), is_schema);
 }
 
+// Draft 3 describes `type` and `disallow` as a type name or an array of unique
+// entries, each of which is a type name or a subschema
+auto is_draft3_type_union(const sourcemeta::core::JSON &value) -> bool {
+  return value.unique() &&
+         std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
+           return entry.is_string() || entry.is_object();
+         });
+}
+
 // Likewise for the keywords the meta-schema describes as an array of unique
 // property names
 auto is_string_array(const sourcemeta::core::JSON &value) -> bool {
@@ -2087,6 +2096,10 @@ auto compiler_draft3_validation_type(const Context &context,
     }
 
     if (value.is_array()) {
+      if (!is_draft3_type_union(value)) {
+        return {};
+      }
+
       bool has_object{false};
       for (const auto &element : value.as_array()) {
         if (element.is_string() && element.to_string() == "any") {
@@ -2407,12 +2420,11 @@ auto compiler_draft3_validation_type(const Context &context,
   } else if (value.is_array()) {
     // Draft 4 asks for a non-empty array of unique type names, whereas Draft 3
     // also admits a subschema as an alternative and tolerates an empty union
-    if (!value.unique() ||
-        (!is_draft3 && (value.empty() ||
-                        !std::ranges::all_of(value.as_array(),
-                                             [](const auto &element) -> bool {
-                                               return element.is_string();
-                                             })))) {
+    if (!value.unique() || (!is_draft3 && value.empty()) ||
+        !std::ranges::all_of(
+            value.as_array(), [is_draft3](const auto &element) -> bool {
+              return element.is_string() || (is_draft3 && element.is_object());
+            })) {
       return {};
     }
 
@@ -2467,6 +2479,10 @@ auto compiler_draft3_validation_disallow(const Context &context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+
+  if (value.is_array() && !is_draft3_type_union(value)) {
+    return {};
+  }
 
   const auto contains_any{
       (value.is_string() && value.to_string() == "any") ||
@@ -2546,6 +2562,10 @@ auto compiler_draft3_applicator_extends(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+
+  if (value.is_array() && !is_schema_array(value)) {
+    return {};
+  }
 
   if (value.is_object()) {
     // TODO: Make this work with `$dynamicRef`

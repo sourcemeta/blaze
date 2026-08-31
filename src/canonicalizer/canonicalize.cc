@@ -281,6 +281,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/duplicate_disallow_entries.h"
 #include "rules/duplicate_enum_values.h"
 #include "rules/duplicate_required_values.h"
+#include "rules/duplicate_type_entries.h"
 #include "rules/dynamic_ref_to_static_ref.h"
 #include "rules/else_without_if.h"
 #include "rules/empty_definitions_drop.h"
@@ -498,6 +499,7 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<RequiredPropertyImplicit>());
   rules.push_back(make_rule<OptionalPropertyImplicit>());
   rules.push_back(make_rule<DuplicateDisallowEntries>());
+  rules.push_back(make_rule<DuplicateTypeEntries>());
   rules.push_back(make_rule<DisallowArrayToExtends>());
   rules.push_back(make_rule<DisallowExtendsToType>());
   rules.push_back(make_rule<DisallowTypeUnionToExtends>());

@@ -12840,5 +12840,39 @@
     "valid": true,
     "fast": {},
     "exhaustive": {}
+  },
+  {
+    "description": "property_named_anyof_false_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "anyOf": false }
+    },
+    "instance": { "anyOf": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
   }
 ]
