@@ -306,7 +306,12 @@ unsigned_integer_property(const sourcemeta::core::JSON &document,
     // non-integral bound is ignored, rather than let the conversion raise
     try {
       const auto value{document.at(property).as_integer()};
-      assert(value >= 0);
+      // A negative bound is invalid, and the keyword compilers ignore it, so
+      // the fused form must ignore it too
+      if (value < 0) {
+        return std::nullopt;
+      }
+
       return static_cast<std::size_t>(value);
     } catch (const std::out_of_range &) {
       return std::nullopt;

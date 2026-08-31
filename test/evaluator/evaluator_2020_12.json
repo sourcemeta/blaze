@@ -12261,5 +12261,618 @@
         "The boolean value was expected to validate against the given conditional"
       ]
     }
+  },
+  {
+    "description": "items_non_schema_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": 1
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "items_non_schema_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": "a"
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "items_non_schema_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": [ "a", "b", "c" ]
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "items_non_schema_4",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": [ 1 ]
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "items_non_schema_5",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": []
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "items_non_schema_6",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": null
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "not_non_schema_1",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "not": 1 },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "allof_non_schema_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "allOf": [ 1 ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "allof_no_constraints_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "allOf": [ true, {} ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "allof_empty_1",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "allOf": [] },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "anyof_empty_1",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "anyOf": [] },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "oneof_empty_1",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "oneOf": [] },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "contains_non_schema_1",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "contains": 1 },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "additionalproperties_non_schema_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": 1
+    },
+    "instance": { "foo": "bar" },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "propertynames_non_schema_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "propertyNames": 1
+    },
+    "instance": { "foo": "bar" },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "unevaluateditems_non_schema_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "unevaluatedItems": 1
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "if_non_schema_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "if": 1,
+      "then": { "type": "integer" }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "required_non_string_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "required": [ 1 ]
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "type_non_string_1",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": [ 1 ] },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "dependentrequired_non_string_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentRequired": { "a": [ 1 ] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "dependentschemas_no_constraints_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentSchemas": { "a": true }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "maxlength_negative_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxLength": -1
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "minlength_negative_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minLength": -1
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "maxitems_negative_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxItems": -1
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "minitems_negative_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minItems": -1
+    },
+    "instance": [ "foo" ],
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "maxproperties_negative_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxProperties": -1
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "minproperties_negative_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minProperties": -1
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "multipleof_negative_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "multipleOf": -1
+    },
+    "instance": 3,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "required_non_string_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "required": [ "a", 1 ]
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "type_non_string_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": [ "string", 1 ]
+    },
+    "instance": 3,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "anyof_non_schema_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [ 1 ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "oneof_non_schema_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [ 1 ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "allof_non_array_1",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "allOf": 1 },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "prefixitems_non_array_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": 1
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "properties_non_object_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": 1
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "patternproperties_non_object_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "patternProperties": 1
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "dependentschemas_non_object_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentSchemas": 1
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "anyof_non_schema_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [ 1, { "type": "integer" } ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "anyof_non_schema_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [ 1, false ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "oneof_non_schema_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [ 1, { "type": "integer" } ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "oneof_non_schema_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [ 1, false ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "required_duplicate_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "required": [ "a", "a" ]
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "required_duplicate_non_string_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "required": [ 1, 1 ]
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "property_named_anyof_false_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "anyOf": false }
+    },
+    "instance": { "anyOf": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
   }
 ]

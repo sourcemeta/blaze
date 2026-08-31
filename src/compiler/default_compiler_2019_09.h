@@ -13,7 +13,10 @@ auto compiler_2019_09_applicator_dependentschemas(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_object() ||
+      !std::ranges::all_of(
+          schema_context.schema.at(dynamic_context.keyword).as_object(),
+          [](const auto &entry) -> bool { return is_schema(entry.second); })) {
     return {};
   }
 
@@ -49,6 +52,10 @@ auto compiler_2019_09_applicator_dependentschemas(
     }
   }
 
+  if (children.empty()) {
+    return {};
+  }
+
   // TODO: Is this wrapper really necessary?
   return {make(sourcemeta::blaze::InstructionIndex::LogicalWhenType, context,
                schema_context, dynamic_context,
@@ -69,16 +76,24 @@ auto compiler_2019_09_validation_dependentrequired(
     return {};
   }
 
+  if (!std::ranges::all_of(
+          schema_context.schema.at(dynamic_context.keyword).as_object(),
+          [](const auto &entry) -> bool {
+            return is_string_array(entry.second);
+          })) {
+    return {};
+  }
+
   ValueStringMap dependencies;
   for (const auto &entry :
        schema_context.schema.at(dynamic_context.keyword).as_object()) {
-    if (!entry.second.is_array()) {
-      continue;
-    }
 
     std::vector<sourcemeta::core::JSON::String> properties;
     for (const auto &property : entry.second.as_array()) {
-      assert(property.is_string());
+      if (!property.is_string()) {
+        continue;
+      }
+
       properties.push_back(property.to_string());
     }
 

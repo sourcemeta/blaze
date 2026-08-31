@@ -40,12 +40,12 @@ public:
     }
 
     if (this->add_min_properties_) {
-      if (schema.defines("required") && schema.at("required").is_array()) {
-        schema.assign("minProperties",
-                      sourcemeta::core::JSON{schema.at("required").size()});
-      } else {
-        schema.assign("minProperties", sourcemeta::core::JSON{0});
-      }
+      const auto *required{schema.try_at("required")};
+      schema.assign(
+          "minProperties",
+          sourcemeta::core::JSON{required && is_property_name_array(*required)
+                                     ? required->size()
+                                     : 0});
     }
 
     if (this->add_properties_) {

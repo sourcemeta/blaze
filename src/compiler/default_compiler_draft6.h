@@ -39,16 +39,9 @@ auto compiler_draft6_validation_type(const Context &context,
                    schema_context, dynamic_context, ValueNone{})};
     }
 
-    // No known type was named. An empty array names nothing at all, so no name
-    // can match it, whereas an unrecognised name is an invalid but legitimate
-    // use that constrains nothing and is ignored, matching how the forms below
-    // treat both outside `propertyNames`
-    if (schema_context.schema.at(dynamic_context.keyword).is_array() &&
-        schema_context.schema.at(dynamic_context.keyword).empty()) {
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                   schema_context, dynamic_context, ValueNone{})};
-    }
-
+    // No known type was named, which for a union the meta-schema rejects means
+    // the keyword is not a constraint at all, matching how the forms below
+    // treat it outside `propertyNames`
     return {};
   }
 
@@ -339,10 +332,20 @@ auto compiler_draft6_validation_type(const Context &context,
       return {};
     }
   } else if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
+    // The meta-schema asks for a non-empty array of unique type names, and a
+    // union that does not satisfy that is not a constraint at all
+    if (schema_context.schema.at(dynamic_context.keyword).empty() ||
+        !schema_context.schema.at(dynamic_context.keyword).unique()) {
+      return {};
+    }
+
     ValueTypes types{};
     for (const auto &type :
          schema_context.schema.at(dynamic_context.keyword).as_array()) {
-      assert(type.is_string());
+      if (!type.is_string()) {
+        return {};
+      }
+
       const auto &type_string{type.to_string()};
       if (type_string == "null") {
         types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
@@ -363,16 +366,9 @@ auto compiler_draft6_validation_type(const Context &context,
       }
     }
 
+    // A union that named only unrecognised types constrains nothing, exactly
+    // as the scalar form does for a single unrecognised name
     if (types.none()) {
-      // An empty array names no type at all, so no value can match it. A
-      // non-empty one that named only unrecognised types is an invalid but
-      // legitimate use of the keyword that we ignore, constraining nothing,
-      // exactly as the scalar form does for a single unrecognised name
-      if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-        return {make(sourcemeta::blaze::InstructionIndex::AssertionFail,
-                     context, schema_context, dynamic_context, ValueNone{})};
-      }
-
       return {};
     }
 

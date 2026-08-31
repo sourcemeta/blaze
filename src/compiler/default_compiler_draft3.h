@@ -56,11 +56,44 @@ static auto is_inside_disjunctor(const sourcemeta::core::WeakPointer &pointer)
           pointer.at(pointer.size() - 3).to_property() == "anyOf");
 }
 
+auto is_schema(const sourcemeta::core::JSON &value) -> bool {
+  return value.is_object() || value.is_boolean();
+}
+
+// The meta-schema describes these as a non-empty array of schemas. A keyword
+// that does not satisfy that is not a constraint at all, so we ignore it
+// rather than compile part of it or turn it into a failure
+auto is_schema_array(const sourcemeta::core::JSON &value) -> bool {
+  return value.is_array() && !value.empty() &&
+         std::ranges::all_of(value.as_array(), is_schema);
+}
+
+// Draft 3 describes `type` and `disallow` as a type name or an array of unique
+// entries, each of which is a type name or a subschema
+auto is_draft3_type_union(const sourcemeta::core::JSON &value) -> bool {
+  return value.unique() &&
+         std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
+           return entry.is_string() || entry.is_object();
+         });
+}
+
+// Likewise for the keywords the meta-schema describes as an array of unique
+// property names
+auto is_string_array(const sourcemeta::core::JSON &value) -> bool {
+  return value.is_array() && value.unique() &&
+         std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
+           return entry.is_string();
+         });
+}
+
 static auto json_array_to_string_set(const sourcemeta::core::JSON &document)
     -> sourcemeta::blaze::ValueStringSet {
   sourcemeta::blaze::ValueStringSet result;
   for (const auto &value : document.as_array()) {
-    assert(value.is_string());
+    if (!value.is_string()) {
+      continue;
+    }
+
     result.insert(value.to_string());
   }
 
@@ -1398,11 +1431,12 @@ auto compiler_draft3_applicator_items_array(
     return {};
   }
 
-  const auto items_size{
-      schema_context.schema.at(dynamic_context.keyword).size()};
-  if (items_size == 0) {
+  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
     return {};
   }
+
+  const auto items_size{
+      schema_context.schema.at(dynamic_context.keyword).size()};
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1762,6 +1796,17 @@ auto compiler_draft3_validation_enum(const Context &context,
     return {};
   }
 
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  if (schema_context.vocabularies.contains_any(
+          {Known::JSON_Schema_Draft_7, Known::JSON_Schema_Draft_7_Hyper,
+           Known::JSON_Schema_Draft_6, Known::JSON_Schema_Draft_6_Hyper,
+           Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper,
+           Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper}) &&
+      (schema_context.schema.at(dynamic_context.keyword).empty() ||
+       !schema_context.schema.at(dynamic_context.keyword).unique())) {
+    return {};
+  }
+
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
                  schema_context, dynamic_context, ValueNone{})};
@@ -1830,11 +1875,10 @@ auto compiler_draft3_validation_maxlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1867,11 +1911,10 @@ auto compiler_draft3_validation_minlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1905,11 +1948,10 @@ auto compiler_draft3_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1938,11 +1980,10 @@ auto compiler_draft3_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -2055,6 +2096,10 @@ auto compiler_draft3_validation_type(const Context &context,
     }
 
     if (value.is_array()) {
+      if (!is_draft3_type_union(value)) {
+        return {};
+      }
+
       bool has_object{false};
       for (const auto &element : value.as_array()) {
         if (element.is_string() && element.to_string() == "any") {
@@ -2373,9 +2418,22 @@ auto compiler_draft3_validation_type(const Context &context,
       return {};
     }
   } else if (value.is_array()) {
+    // Draft 4 asks for a non-empty array of unique type names, whereas Draft 3
+    // also admits a subschema as an alternative and tolerates an empty union
+    if (!value.unique() || (!is_draft3 && value.empty()) ||
+        !std::ranges::all_of(
+            value.as_array(), [is_draft3](const auto &element) -> bool {
+              return element.is_string() || (is_draft3 && element.is_object());
+            })) {
+      return {};
+    }
+
     ValueTypes types{};
     for (const auto &element : value.as_array()) {
-      assert(element.is_string());
+      if (!element.is_string()) {
+        continue;
+      }
+
       const auto &type_string{element.to_string()};
       if (type_string == "null") {
         types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
@@ -2421,6 +2479,10 @@ auto compiler_draft3_validation_disallow(const Context &context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+
+  if (value.is_array() && !is_draft3_type_union(value)) {
+    return {};
+  }
 
   const auto contains_any{
       (value.is_string() && value.to_string() == "any") ||
@@ -2500,6 +2562,10 @@ auto compiler_draft3_applicator_extends(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+
+  if (value.is_array() && !is_schema_array(value)) {
+    return {};
+  }
 
   if (value.is_object()) {
     // TODO: Make this work with `$dynamicRef`
@@ -2584,6 +2650,19 @@ auto compiler_draft3_applicator_dependencies(
       schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3) ||
       schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3_Hyper)};
 
+  // Every member must be a schema or a list of property names, plus a single
+  // property name in Draft 3. A member that is none of those makes the keyword
+  // as a whole stop being a constraint
+  if (!std::ranges::all_of(
+          schema_context.schema.at(dynamic_context.keyword).as_object(),
+          [is_draft3](const auto &entry) -> bool {
+            return entry.second.is_object() || entry.second.is_boolean() ||
+                   is_string_array(entry.second) ||
+                   (is_draft3 && entry.second.is_string());
+          })) {
+    return {};
+  }
+
   Instructions children;
   ValueStringMap dependencies;
 
@@ -2600,7 +2679,10 @@ auto compiler_draft3_applicator_dependencies(
     } else if (entry.second.is_array()) {
       std::vector<sourcemeta::core::JSON::String> properties;
       for (const auto &property : entry.second.as_array()) {
-        assert(property.is_string());
+        if (!property.is_string()) {
+          continue;
+        }
+
         properties.push_back(property.to_string());
       }
 
@@ -2627,11 +2709,10 @@ auto compiler_draft3_validation_divisibleby(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
+  if (!schema_context.schema.at(dynamic_context.keyword).is_number() ||
+      !schema_context.schema.at(dynamic_context.keyword).is_positive()) {
     return {};
   }
-
-  assert(schema_context.schema.at(dynamic_context.keyword).is_positive());
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&

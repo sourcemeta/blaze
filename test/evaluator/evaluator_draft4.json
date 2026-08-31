@@ -12971,5 +12971,27 @@
         "The object value was expected to validate against the defined properties subschemas"
       ]
     }
+  },
+  {
+    "description": "dependencies_non_string_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "dependencies": { "a": [ 1 ] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "dependencies_non_string_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "dependencies": { "a": [ "b", 1 ] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]
