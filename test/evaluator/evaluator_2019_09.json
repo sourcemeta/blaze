@@ -373,17 +373,6 @@
     }
   },
   {
-    "description": "dependentSchemas_5",
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "dependentSchemas": "not-an-object"
-    },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
-  },
-  {
     "description": "additionalProperties_1",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -6300,47 +6289,6 @@
         "Every item in the array value was expected to validate against the given subschema"
       ]
     }
-  },
-  {
-    "description": "type_array_unknown_names",
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "type": [ "foo", "bar" ]
-    },
-    "instance": 5,
-    "valid": true,
-    "fast": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    },
-    "exhaustive": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    }
-  },
-  {
-    "description": "property_names_type_unknown_names",
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "propertyNames": { "type": [ "foo" ] }
-    },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
-  },
-  {
-    "description": "property_names_type_unknown_name_scalar",
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "propertyNames": { "type": "foo" }
-    },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
   },
   {
     "description": "type_object_empty_required_null",

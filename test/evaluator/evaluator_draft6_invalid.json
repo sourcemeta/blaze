@@ -1,0 +1,65 @@
+[
+  {
+    "description": "exclusiveMinimum_4",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "exclusiveMinimum": "not-a-number"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "exclusiveMaximum_4",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "exclusiveMaximum": "not-a-number"
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "type_array_unknown_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": [ "foo", "bar" ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    },
+    "exhaustive": {
+      "pre": [],
+      "post": [],
+      "descriptions": []
+    }
+  },
+  {
+    "description": "property_names_type_unknown_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "propertyNames": { "type": [ "foo" ] }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "property_names_type_unknown_name_scalar",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "propertyNames": { "type": "foo" }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  }
+]
