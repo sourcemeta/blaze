@@ -1,5 +1,17 @@
 [
   {
+    "description": "type_array_unknown_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": [ "foo", "bar" ]
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/type"
+    }
+  },
+  {
     "description": "type_object_real_max_properties",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",

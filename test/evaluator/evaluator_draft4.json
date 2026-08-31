@@ -12021,25 +12021,6 @@
     }
   },
   {
-    "description": "type_array_unknown_names",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-04/schema#",
-      "type": [ "foo", "bar" ]
-    },
-    "instance": 5,
-    "valid": true,
-    "fast": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    },
-    "exhaustive": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    }
-  },
-  {
     "description": "required_5",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",

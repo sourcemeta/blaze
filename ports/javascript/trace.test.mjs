@@ -18,8 +18,12 @@ function resolveInstructionType(name) {
   return opcode;
 }
 
+// This port is a JavaScript evaluator, not a compiler: it borrows the C++
+// compiler to obtain a template. The `_invalid` suites assert which schemas
+// that compiler refuses, which exercises nothing here
 const suiteFiles = readdirSync(TRACE_SUITE_PATH)
-  .filter(file => file.startsWith('evaluator_') && file.endsWith('.json'))
+  .filter(file => file.startsWith('evaluator_') && file.endsWith('.json') &&
+                  !file.endsWith('_invalid.json'))
   .sort();
 
 for (const file of suiteFiles) {
@@ -32,26 +36,6 @@ for (const file of suiteFiles) {
   describe(suiteName, () => {
     for (let testIndex = 0; testIndex < tests.length; testIndex++) {
       const testCase = tests[testIndex];
-
-      if (testCase.error) {
-        // The compiler refuses these, so there is no template to trace
-        it(testCase.description, () => {
-          assert.throws(() => compileSchema(filePath, {
-            mode: 'exhaustive',
-            path: `/${testIndex}/schema`
-          }), (error) => {
-            assert.match(error.message, new RegExp(
-              testCase.error.message.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
-              'Compiler error message mismatch');
-            assert.match(error.message, new RegExp(
-              'at location: ' + testCase.error.location.replace(
-                /[.*+?^${}()|[\]\\]/g, '\\$&')),
-              'Compiler error location mismatch');
-            return true;
-          });
-        });
-        continue;
-      }
 
       for (const mode of ['fast', 'exhaustive']) {
         if (!testCase[mode]) continue;

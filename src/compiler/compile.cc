@@ -33,13 +33,21 @@ auto is_schema(const sourcemeta::core::JSON &value) -> bool {
   return value.is_object() || value.is_boolean();
 }
 
-// The reason the keyword's value is not the shape its applicator strategy
-// mandates, or `nullptr` when it is what the meta-schema asks for. The location
-// the error carries names the keyword, so these read as statements about it
-auto applicator_shape_error(const sourcemeta::blaze::SchemaKeywordType type,
-                            const sourcemeta::core::JSON &value) -> const
-    char * {
+// The reason the keyword's value is not the shape the meta-schema asks for, or
+// `nullptr` when it is. The location the error carries names the keyword, so
+// these read as statements about it
+auto keyword_shape_error(
+    const sourcemeta::core::JSON::String &keyword,
+    const sourcemeta::blaze::SchemaKeywordType type,
+    const sourcemeta::core::JSON &value,
+    const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> const char * {
   using namespace sourcemeta::blaze;
+  static constexpr auto EXPECTED_STRING{
+      "This keyword was expected to be set to a string"};
+  static constexpr auto EXPECTED_ARRAY{
+      "This keyword was expected to be set to an array"};
+  static constexpr auto EXPECTED_BOOLEAN{
+      "This keyword was expected to be set to a boolean"};
   static constexpr auto EXPECTED_SCHEMA{
       "This keyword was expected to be set to a valid schema"};
   static constexpr auto EXPECTED_SCHEMA_OR_ARRAY{
@@ -50,6 +58,15 @@ auto applicator_shape_error(const sourcemeta::blaze::SchemaKeywordType type,
   static constexpr auto EXPECTED_SCHEMA_OBJECT{
       "This keyword was expected to be set to an object whose values are "
       "valid schemas"};
+
+  // Draft 3 spells `required` as a flag on the property itself rather than as
+  // a list on the object, so the shape it asks for is a different one
+  if (keyword == "required" &&
+      vocabularies.contains_any(
+          {SchemaVocabularies::Known::JSON_Schema_Draft_3,
+           SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper})) {
+    return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
+  }
 
   switch (type) {
     case SchemaKeywordType::ApplicatorValueTraverseSomeProperty:
@@ -85,6 +102,22 @@ auto applicator_shape_error(const sourcemeta::blaze::SchemaKeywordType type,
                                   }))
                  ? nullptr
                  : EXPECTED_SCHEMA_OBJECT;
+    // The walker only reports this for a keyword the dialect in use actually
+    // defines, so an unknown keyword never reaches here and stays ignored, as
+    // the specification requires
+    case SchemaKeywordType::Annotation:
+      if (keyword == "title" || keyword == "description" ||
+          keyword == "contentEncoding" || keyword == "contentMediaType") {
+        return value.is_string() ? nullptr : EXPECTED_STRING;
+      } else if (keyword == "examples") {
+        return value.is_array() ? nullptr : EXPECTED_ARRAY;
+      } else if (keyword == "deprecated" || keyword == "readOnly" ||
+                 keyword == "writeOnly") {
+        return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
+      }
+
+      // Others, like `default`, take any value at all
+      return nullptr;
     default:
       return nullptr;
   }
@@ -120,9 +153,9 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
            schema_context.vocabularies}) {
     assert(entry.pointer.back().is_property());
     const auto &keyword{entry.pointer.back().to_property()};
-    const auto *shape_error{applicator_shape_error(
-        context.walker(keyword, schema_context.vocabularies).type,
-        schema_context.schema.at(keyword))};
+    const auto *shape_error{keyword_shape_error(
+        keyword, context.walker(keyword, schema_context.vocabularies).type,
+        schema_context.schema.at(keyword), schema_context.vocabularies)};
     if (shape_error) [[unlikely]] {
       throw sourcemeta::blaze::CompilerError(
           schema_context.base,

@@ -2526,8 +2526,14 @@ auto compiler_draft3_validation_type(const Context &context,
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::String)};
-    } else {
+    } else if (is_draft3) {
+      // Draft 3 puts no enumeration on `type`, so any name at all satisfies
+      // the meta-schema, and one we do not know constrains nothing
       return {};
+    } else {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base, to_pointer(schema_context.relative_pointer),
+          EXPECTED_TYPE_NAMES);
     }
   } else if (value.is_array()) {
     // Draft 4 asks for a non-empty array of unique type names, whereas Draft 3
@@ -2563,6 +2569,10 @@ auto compiler_draft3_validation_type(const Context &context,
         types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
       } else if (type_string == "string") {
         types.set(std::to_underlying(sourcemeta::core::JSON::Type::String));
+      } else if (!is_draft3) {
+        throw sourcemeta::blaze::CompilerError(
+            schema_context.base, to_pointer(schema_context.relative_pointer),
+            EXPECTED_TYPE_NAMES);
       }
     }
 

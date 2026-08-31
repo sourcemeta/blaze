@@ -584,6 +584,8 @@ TEST(schema_rule_title_only_underscores) {
 }
 
 TEST(schema_rule_non_string_description_integer) {
+  // The meta-schema asks that `description` be a string, so a rule that does
+  // not satisfy it is refused rather than compiled
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/integer_desc",
@@ -593,42 +595,24 @@ TEST(schema_rule_non_string_description_integer) {
   })JSON")};
 
   sourcemeta::blaze::SchemaTransformer bundle;
-  bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler);
 
-  const auto schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "minLength": 1
-  })JSON")};
-
-  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
-      entries;
-  const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
-      [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
-      });
-
-  EXPECT_FALSE(result.first);
-  EXPECT_EQ(entries.size(), 1);
-
-  EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
-  EXPECT_EQ(std::get<1>(entries.at(0)), "test/integer_desc");
-  EXPECT_EQ(std::get<2>(entries.at(0)), "42");
-  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
-            "The value was expected to be an object that defines the property "
-            "\"type\"");
-  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
-  EXPECT_FALSE(std::get<4>(entries.at(0)));
+  try {
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This keyword was expected to be set to a string");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"description"}));
+  } catch (...) {
+    FAIL();
+  }
 }
-
 TEST(schema_rule_non_string_description_boolean) {
+  // The meta-schema asks that `description` be a string, so a rule that does
+  // not satisfy it is refused rather than compiled
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/bool_desc",
@@ -638,42 +622,24 @@ TEST(schema_rule_non_string_description_boolean) {
   })JSON")};
 
   sourcemeta::blaze::SchemaTransformer bundle;
-  bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler);
 
-  const auto schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "minLength": 1
-  })JSON")};
-
-  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
-      entries;
-  const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
-      [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
-      });
-
-  EXPECT_FALSE(result.first);
-  EXPECT_EQ(entries.size(), 1);
-
-  EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
-  EXPECT_EQ(std::get<1>(entries.at(0)), "test/bool_desc");
-  EXPECT_EQ(std::get<2>(entries.at(0)), "true");
-  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
-            "The value was expected to be an object that defines the property "
-            "\"type\"");
-  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
-  EXPECT_FALSE(std::get<4>(entries.at(0)));
+  try {
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This keyword was expected to be set to a string");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"description"}));
+  } catch (...) {
+    FAIL();
+  }
 }
-
 TEST(schema_rule_non_string_description_null) {
+  // The meta-schema asks that `description` be a string, so a rule that does
+  // not satisfy it is refused rather than compiled
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "test/null_desc",
@@ -683,41 +649,21 @@ TEST(schema_rule_non_string_description_null) {
   })JSON")};
 
   sourcemeta::blaze::SchemaTransformer bundle;
-  bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler);
 
-  const auto schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "minLength": 1
-  })JSON")};
-
-  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
-                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
-      entries;
-  const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
-      [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
-      });
-
-  EXPECT_FALSE(result.first);
-  EXPECT_EQ(entries.size(), 1);
-
-  EXPECT_EQ(std::get<0>(entries.at(0)), sourcemeta::core::Pointer({}));
-  EXPECT_EQ(std::get<1>(entries.at(0)), "test/null_desc");
-  EXPECT_EQ(std::get<2>(entries.at(0)), "null");
-  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
-  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
-            "The value was expected to be an object that defines the property "
-            "\"type\"");
-  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
-  EXPECT_FALSE(std::get<4>(entries.at(0)));
+  try {
+    bundle.add<sourcemeta::blaze::SchemaRule>(
+        rule_schema, sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This keyword was expected to be set to a string");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"description"}));
+  } catch (...) {
+    FAIL();
+  }
 }
-
 TEST(schema_rule_with_default_dialect_no_schema_keyword) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "title": "test/require_type_no_schema",

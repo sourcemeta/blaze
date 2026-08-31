@@ -1,5 +1,39 @@
 [
   {
+    "description": "annotation_title_not_a_string",
+    "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "title": 42 },
+    "error": {
+      "message": "This keyword was expected to be set to a string",
+      "base": "",
+      "location": "/title"
+    }
+  },
+  {
+    "description": "annotation_examples_not_an_array",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "examples": "x"
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an array",
+      "base": "",
+      "location": "/examples"
+    }
+  },
+  {
+    "description": "annotation_content_encoding_not_a_string",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "contentEncoding": 42,
+      "contentMediaType": "text/plain"
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a string",
+      "base": "",
+      "location": "/contentEncoding"
+    }
+  },
+  {
     "description": "type_array_partially_unknown_names",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",

@@ -1,5 +1,30 @@
 [
   {
+    "description": "required_5",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "properties": { "foo": { "required": "bar" } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/properties/foo/required"
+    }
+  },
+  {
+    "description": "required_string_value_ignored",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "properties": { "foo": { "required": "yes", "type": "string" } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/properties/foo/required"
+    }
+  },
+  {
     "description": "enum_empty_string_instance",
     "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "enum": [] },
     "error": {
