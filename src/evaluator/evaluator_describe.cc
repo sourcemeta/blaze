@@ -329,7 +329,12 @@ auto describe(const bool valid, const Instruction &step,
       return "The constraints declared for this keyword were not satisfiable";
     }
 
-    if (keyword == "anyOf" || keyword == "oneOf") {
+    // These are in-place applicators, so a genuine empty one leaves the
+    // instance where it was. An instance that just stepped into a property of
+    // the same name came from a `false` subschema declared under that name
+    if ((keyword == "anyOf" || keyword == "oneOf") &&
+        (instance_location.empty() || !instance_location.back().is_property() ||
+         instance_location.back().to_property() != keyword)) {
       std::ostringstream message;
       message << "The " << type_name(target.type())
               << " value was not expected to validate against the empty list "

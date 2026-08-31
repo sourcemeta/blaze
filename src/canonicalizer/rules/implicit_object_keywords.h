@@ -40,17 +40,18 @@ public:
     }
 
     if (this->add_min_properties_) {
-      // Only string entries name a property, so only they raise the lower bound
-      std::size_t names{0};
+      // Only string entries name a property, and only distinct ones raise the
+      // lower bound, as a repeated name is satisfied by a single property
+      std::unordered_set<sourcemeta::core::JSON::String> names;
       if (schema.defines("required") && schema.at("required").is_array()) {
         for (const auto &property : schema.at("required").as_array()) {
           if (property.is_string()) {
-            names += 1;
+            names.emplace(property.to_string());
           }
         }
       }
 
-      schema.assign("minProperties", sourcemeta::core::JSON{names});
+      schema.assign("minProperties", sourcemeta::core::JSON{names.size()});
     }
 
     if (this->add_properties_) {

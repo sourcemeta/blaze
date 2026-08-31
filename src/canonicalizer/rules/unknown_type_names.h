@@ -44,7 +44,7 @@ public:
   }
 
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
-    if (!schema.at("type").is_array()) {
+    if (schema.at("type").is_string()) {
       schema.erase("type");
       return;
     }

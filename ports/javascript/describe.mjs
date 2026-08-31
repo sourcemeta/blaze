@@ -436,7 +436,11 @@ export function describe(valid, instruction, evaluatePath,
     if (keyword === 'contains') {
       return 'The constraints declared for this keyword were not satisfiable';
     }
-    if (keyword === 'anyOf' || keyword === 'oneOf') {
+    // These are in-place applicators, so a genuine empty one leaves the
+    // instance where it was. An instance that just stepped into a property of
+    // the same name came from a `false` subschema declared under that name
+    if ((keyword === 'anyOf' || keyword === 'oneOf') &&
+        lastInstanceToken(instanceLocation) !== keyword) {
       return 'The ' + typeName(targetType) +
         ' value was not expected to validate against the empty list of ' +
         'subschemas';

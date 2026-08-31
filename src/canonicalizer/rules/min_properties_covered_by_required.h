@@ -24,19 +24,21 @@ public:
     const auto *min_properties{schema.try_at("minProperties")};
     ONLY_CONTINUE_IF(min_properties && min_properties->is_integer());
     const auto *required{schema.try_at("required")};
-    ONLY_CONTINUE_IF(required && required->is_array() && required->unique());
+    ONLY_CONTINUE_IF(required && required->is_array());
 
-    // Only string entries name a property, so only they raise the lower bound
-    std::size_t names{0};
+    // Only string entries name a property, and only distinct ones raise the
+    // lower bound, as a repeated name is satisfied by a single property
+    std::unordered_set<sourcemeta::core::JSON::String> names;
     for (const auto &property : required->as_array()) {
       if (property.is_string()) {
-        names += 1;
+        names.emplace(property.to_string());
       }
     }
 
     ONLY_CONTINUE_IF(std::cmp_greater(
-        names, static_cast<std::uint64_t>(min_properties->to_integer())));
-    this->names_ = names;
+        names.size(),
+        static_cast<std::uint64_t>(min_properties->to_integer())));
+    this->names_ = names.size();
     return true;
   }
 
