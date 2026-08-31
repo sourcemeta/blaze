@@ -12496,57 +12496,17 @@
     "description": "anyof_empty_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "anyOf": [] },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionFail", "/anyOf", "#/anyOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/anyOf", "#/anyOf", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty list of subschemas"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionFail", "/anyOf", "#/anyOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/anyOf", "#/anyOf", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty list of subschemas"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "oneof_empty_1",
     "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "oneOf": [] },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionFail", "/oneOf", "#/oneOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/oneOf", "#/oneOf", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty list of subschemas"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionFail", "/oneOf", "#/oneOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/oneOf", "#/oneOf", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty list of subschemas"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "contains_non_schema_1",
@@ -12726,29 +12686,9 @@
       "required": [ "a", 1 ]
     },
     "instance": {},
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionDefines", "/required", "#/required", "" ]
-      ],
-      "post": [
-        [ false, "AssertionDefines", "/required", "#/required", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to define the property \"a\""
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionDefines", "/required", "#/required", "" ]
-      ],
-      "post": [
-        [ false, "AssertionDefines", "/required", "#/required", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to define the property \"a\""
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "type_non_string_2",
@@ -12757,29 +12697,9 @@
       "type": [ "string", 1 ]
     },
     "instance": 3,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeAny", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeAny", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type string but it was of type integer"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeAny", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeAny", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type string but it was of type integer"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "anyof_non_schema_1",
@@ -12788,29 +12708,9 @@
       "anyOf": [ 1 ]
     },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionFail", "/anyOf", "#/anyOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/anyOf", "#/anyOf", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty list of subschemas"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionFail", "/anyOf", "#/anyOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/anyOf", "#/anyOf", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty list of subschemas"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "oneof_non_schema_1",
@@ -12819,29 +12719,9 @@
       "oneOf": [ 1 ]
     },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionFail", "/oneOf", "#/oneOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/oneOf", "#/oneOf", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty list of subschemas"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionFail", "/oneOf", "#/oneOf", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/oneOf", "#/oneOf", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty list of subschemas"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "allof_non_array_1",
@@ -12902,35 +12782,9 @@
       "anyOf": [ 1, { "type": "integer" } ]
     },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer but it was of type string",
-        "The string value was expected to validate against the given subschema"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer but it was of type string",
-        "The string value was expected to validate against the given subschema"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "anyof_non_schema_3",
@@ -12939,35 +12793,9 @@
       "anyOf": [ 1, false ]
     },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "AssertionFail", "/anyOf/1", "#/anyOf/1", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/anyOf/1", "#/anyOf/1", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
-      ],
-      "descriptions": [
-        "No instance is expected to succeed against the false schema",
-        "The string value was expected to validate against the given subschema"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "AssertionFail", "/anyOf/1", "#/anyOf/1", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/anyOf/1", "#/anyOf/1", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
-      ],
-      "descriptions": [
-        "No instance is expected to succeed against the false schema",
-        "The string value was expected to validate against the given subschema"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "oneof_non_schema_2",
@@ -12976,35 +12804,9 @@
       "oneOf": [ 1, { "type": "integer" } ]
     },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
-        [ "AssertionType", "/oneOf/1/type", "#/oneOf/1/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionType", "/oneOf/1/type", "#/oneOf/1/type", "" ],
-        [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer but it was of type string",
-        "The string value was expected to validate against the given subschema"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
-        [ "AssertionType", "/oneOf/1/type", "#/oneOf/1/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionType", "/oneOf/1/type", "#/oneOf/1/type", "" ],
-        [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type integer but it was of type string",
-        "The string value was expected to validate against the given subschema"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "oneof_non_schema_3",
@@ -13013,69 +12815,9 @@
       "oneOf": [ 1, false ]
     },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
-        [ "AssertionFail", "/oneOf/1", "#/oneOf/1", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/oneOf/1", "#/oneOf/1", "" ],
-        [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
-      ],
-      "descriptions": [
-        "No instance is expected to succeed against the false schema",
-        "The string value was expected to validate against the given subschema"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
-        [ "AssertionFail", "/oneOf/1", "#/oneOf/1", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/oneOf/1", "#/oneOf/1", "" ],
-        [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
-      ],
-      "descriptions": [
-        "No instance is expected to succeed against the false schema",
-        "The string value was expected to validate against the given subschema"
-      ]
-    }
-  },
-  {
-    "description": "property_named_anyof_false_1",
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "properties": { "anyOf": false }
-    },
-    "instance": { "anyOf": 1 },
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
-      ],
-      "descriptions": [
-        "No instance is expected to succeed against the false schema"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "LogicalWhenType", "/properties", "#/properties", "" ],
-        [ "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/properties/anyOf", "#/properties/anyOf", "/anyOf" ],
-        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
-      ],
-      "descriptions": [
-        "No instance is expected to succeed against the false schema",
-        "The object value was expected to validate against the single defined property subschema"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "required_duplicate_1",
@@ -13085,28 +12827,8 @@
     },
     "instance": { "a": 1 },
     "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionDefines", "/required", "#/required", "" ]
-      ],
-      "post": [
-        [ true, "AssertionDefines", "/required", "#/required", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to define the property \"a\""
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionDefines", "/required", "#/required", "" ]
-      ],
-      "post": [
-        [ true, "AssertionDefines", "/required", "#/required", "" ]
-      ],
-      "descriptions": [
-        "The object value was expected to define the property \"a\""
-      ]
-    }
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "required_duplicate_non_string_1",

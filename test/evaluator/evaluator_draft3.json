@@ -2740,57 +2740,17 @@
     "description": "enum_empty_string_instance",
     "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "enum": [] },
     "instance": "foo",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionFail", "/enum", "#/enum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/enum", "#/enum", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty enumeration"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionFail", "/enum", "#/enum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/enum", "#/enum", "" ]
-      ],
-      "descriptions": [
-        "The string value was not expected to validate against the empty enumeration"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "enum_empty_integer_instance",
     "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "enum": [] },
     "instance": 42,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionFail", "/enum", "#/enum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/enum", "#/enum", "" ]
-      ],
-      "descriptions": [
-        "The integer value was not expected to validate against the empty enumeration"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionFail", "/enum", "#/enum", "" ]
-      ],
-      "post": [
-        [ false, "AssertionFail", "/enum", "#/enum", "" ]
-      ],
-      "descriptions": [
-        "The integer value was not expected to validate against the empty enumeration"
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   },
   {
     "description": "enum_singleton_hyperschema",

@@ -15,16 +15,12 @@
 namespace internal {
 using namespace sourcemeta::blaze;
 
-auto is_schema(const sourcemeta::core::JSON &value) -> bool {
-  return value.is_object() || value.is_boolean();
-}
-
 auto compiler_draft4_validation_required(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &current)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
+  if (!is_string_array(schema_context.schema.at(dynamic_context.keyword))) {
     return {};
   }
 
@@ -38,10 +34,7 @@ auto compiler_draft4_applicator_allof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  // An empty conjunction has no branch that could fail, so it constrains
-  // nothing, unlike the disjunctions below
-  if (!schema_context.schema.at(dynamic_context.keyword).is_array() ||
-      schema_context.schema.at(dynamic_context.keyword).empty()) {
+  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
     return {};
   }
 
@@ -87,41 +80,20 @@ auto compiler_draft4_applicator_anyof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
+  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
     return {};
-  }
-
-  // An empty disjunction offers no branch that an instance could match, so
-  // nothing validates against it
-  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
   }
 
   Instructions disjunctors;
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
-    // A branch that is not a schema at all is not an alternative the instance
-    // could take. Dropping it is not the same as letting it compile to nothing,
-    // as an empty branch would succeed against every instance
-    if (!is_schema(schema_context.schema.at(dynamic_context.keyword).at(index)))
-        [[unlikely]] {
-      continue;
-    }
-
     disjunctors.push_back(make(
         sourcemeta::blaze::InstructionIndex::ControlGroup, context,
         schema_context, relative_dynamic_context(), ValueNone{},
         compile(
             context, schema_context, relative_dynamic_context(),
             {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})));
-  }
-
-  // Every branch was invalid, leaving the same empty disjunction as above
-  if (disjunctors.empty()) [[unlikely]] {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
   }
 
   if (context.mode == Mode::FastValidation &&
@@ -182,41 +154,20 @@ auto compiler_draft4_applicator_oneof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
+  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
     return {};
-  }
-
-  // An empty disjunction offers no branch that an instance could match, so
-  // nothing validates against it
-  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
   }
 
   Instructions disjunctors;
   for (std::uint64_t index = 0;
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
-    // A branch that is not a schema at all is not an alternative the instance
-    // could take. Dropping it is not the same as letting it compile to nothing,
-    // as an empty branch would succeed against every instance
-    if (!is_schema(schema_context.schema.at(dynamic_context.keyword).at(index)))
-        [[unlikely]] {
-      continue;
-    }
-
     disjunctors.push_back(make(
         sourcemeta::blaze::InstructionIndex::ControlGroup, context,
         schema_context, relative_dynamic_context(), ValueNone{},
         compile(
             context, schema_context, relative_dynamic_context(),
             {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})));
-  }
-
-  // Every branch was invalid, leaving the same empty disjunction as above
-  if (disjunctors.empty()) [[unlikely]] {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
   }
 
   const auto requires_exhaustive{context.mode == Mode::Exhaustive ||

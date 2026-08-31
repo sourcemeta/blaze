@@ -339,11 +339,18 @@ auto compiler_draft6_validation_type(const Context &context,
       return {};
     }
   } else if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
+    // The meta-schema asks for a non-empty array of unique type names, and a
+    // union that does not satisfy that is not a constraint at all
+    if (schema_context.schema.at(dynamic_context.keyword).empty() ||
+        !schema_context.schema.at(dynamic_context.keyword).unique()) {
+      return {};
+    }
+
     ValueTypes types{};
     for (const auto &type :
          schema_context.schema.at(dynamic_context.keyword).as_array()) {
       if (!type.is_string()) {
-        continue;
+        return {};
       }
 
       const auto &type_string{type.to_string()};
@@ -366,16 +373,9 @@ auto compiler_draft6_validation_type(const Context &context,
       }
     }
 
+    // A union that named only unrecognised types constrains nothing, exactly
+    // as the scalar form does for a single unrecognised name
     if (types.none()) {
-      // An empty array names no type at all, so no value can match it. A
-      // non-empty one that named only unrecognised types is an invalid but
-      // legitimate use of the keyword that we ignore, constraining nothing,
-      // exactly as the scalar form does for a single unrecognised name
-      if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-        return {make(sourcemeta::blaze::InstructionIndex::AssertionFail,
-                     context, schema_context, dynamic_context, ValueNone{})};
-      }
-
       return {};
     }
 

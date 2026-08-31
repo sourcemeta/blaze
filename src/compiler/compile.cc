@@ -29,6 +29,10 @@ auto is_metaschema_reference(const sourcemeta::core::WeakPointer &origin)
          origin.back().to_property() == "$schema";
 }
 
+auto is_schema(const sourcemeta::core::JSON &value) -> bool {
+  return value.is_object() || value.is_boolean();
+}
+
 // An invalid schema may set a keyword to a value that does not match the shape
 // its applicator strategy mandates, in which case we ignore the keyword
 auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
@@ -49,14 +53,20 @@ auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
       return value.is_object() || value.is_boolean() || value.is_array();
     // Note that `ApplicatorElementsInPlaceSome` and its negated variant are
     // deliberately absent, as Draft 3 `type` and `disallow` also take a plain
-    // type name, so their strategy does not mandate an array
+    // type name, so their strategy does not mandate an array. So is
+    // `ApplicatorMembersInPlaceSome`, as Draft 4 `dependencies` also takes a
+    // list of property names as a member
     case SchemaKeywordType::ApplicatorElementsTraverseItem:
     case SchemaKeywordType::ApplicatorElementsInPlace:
-      return value.is_array();
+      return value.is_array() &&
+             std::ranges::all_of(value.as_array(), is_schema);
     case SchemaKeywordType::ApplicatorMembersTraversePropertyStatic:
     case SchemaKeywordType::ApplicatorMembersTraversePropertyRegex:
-    case SchemaKeywordType::ApplicatorMembersInPlaceSome:
-      return value.is_object();
+      return value.is_object() &&
+             std::ranges::all_of(value.as_object(),
+                                 [](const auto &entry) -> bool {
+                                   return is_schema(entry.second);
+                                 });
     default:
       return true;
   }

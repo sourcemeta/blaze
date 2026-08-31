@@ -56,6 +56,27 @@ static auto is_inside_disjunctor(const sourcemeta::core::WeakPointer &pointer)
           pointer.at(pointer.size() - 3).to_property() == "anyOf");
 }
 
+auto is_schema(const sourcemeta::core::JSON &value) -> bool {
+  return value.is_object() || value.is_boolean();
+}
+
+// The meta-schema describes these as a non-empty array of schemas. A keyword
+// that does not satisfy that is not a constraint at all, so we ignore it
+// rather than compile part of it or turn it into a failure
+auto is_schema_array(const sourcemeta::core::JSON &value) -> bool {
+  return value.is_array() && !value.empty() &&
+         std::ranges::all_of(value.as_array(), is_schema);
+}
+
+// Likewise for the keywords the meta-schema describes as an array of unique
+// property names
+auto is_string_array(const sourcemeta::core::JSON &value) -> bool {
+  return value.is_array() && value.unique() &&
+         std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
+           return entry.is_string();
+         });
+}
+
 static auto json_array_to_string_set(const sourcemeta::core::JSON &document)
     -> sourcemeta::blaze::ValueStringSet {
   sourcemeta::blaze::ValueStringSet result;
@@ -1401,11 +1422,12 @@ auto compiler_draft3_applicator_items_array(
     return {};
   }
 
-  const auto items_size{
-      schema_context.schema.at(dynamic_context.keyword).size()};
-  if (items_size == 0) {
+  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
     return {};
   }
+
+  const auto items_size{
+      schema_context.schema.at(dynamic_context.keyword).size()};
 
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
@@ -1762,6 +1784,17 @@ auto compiler_draft3_validation_enum(const Context &context,
                                      const DynamicContext &dynamic_context,
                                      const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
+    return {};
+  }
+
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  if (schema_context.vocabularies.contains_any(
+          {Known::JSON_Schema_Draft_7, Known::JSON_Schema_Draft_7_Hyper,
+           Known::JSON_Schema_Draft_6, Known::JSON_Schema_Draft_6_Hyper,
+           Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper,
+           Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper}) &&
+      (schema_context.schema.at(dynamic_context.keyword).empty() ||
+       !schema_context.schema.at(dynamic_context.keyword).unique())) {
     return {};
   }
 
@@ -2372,6 +2405,17 @@ auto compiler_draft3_validation_type(const Context &context,
       return {};
     }
   } else if (value.is_array()) {
+    // Draft 4 asks for a non-empty array of unique type names, whereas Draft 3
+    // also admits a subschema as an alternative and tolerates an empty union
+    if (!value.unique() ||
+        (!is_draft3 && (value.empty() ||
+                        !std::ranges::all_of(value.as_array(),
+                                             [](const auto &element) -> bool {
+                                               return element.is_string();
+                                             })))) {
+      return {};
+    }
+
     ValueTypes types{};
     for (const auto &element : value.as_array()) {
       if (!element.is_string()) {
@@ -2585,6 +2629,19 @@ auto compiler_draft3_applicator_dependencies(
   const auto is_draft3{
       schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3) ||
       schema_context.vocabularies.contains(Known::JSON_Schema_Draft_3_Hyper)};
+
+  // Every member must be a schema or a list of property names, plus a single
+  // property name in Draft 3. A member that is none of those makes the keyword
+  // as a whole stop being a constraint
+  if (!std::ranges::all_of(
+          schema_context.schema.at(dynamic_context.keyword).as_object(),
+          [is_draft3](const auto &entry) -> bool {
+            return entry.second.is_object() || entry.second.is_boolean() ||
+                   is_string_array(entry.second) ||
+                   (is_draft3 && entry.second.is_string());
+          })) {
+    return {};
+  }
 
   Instructions children;
   ValueStringMap dependencies;

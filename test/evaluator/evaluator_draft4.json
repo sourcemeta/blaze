@@ -12990,28 +12990,8 @@
       "dependencies": { "a": [ "b", 1 ] }
     },
     "instance": { "a": 1 },
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
-      ],
-      "post": [
-        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
-      ],
-      "descriptions": [
-        "Because the object value defined the property \"a\", it was also expected to define the property \"b\""
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
-      ],
-      "post": [
-        [ false, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
-      ],
-      "descriptions": [
-        "Because the object value defined the property \"a\", it was also expected to define the property \"b\""
-      ]
-    }
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]

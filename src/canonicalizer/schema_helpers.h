@@ -74,6 +74,17 @@ inline auto declared_dialect(const sourcemeta::core::JSON &schema)
   return {};
 }
 
+// The meta-schema describes `required` and its relatives as an array of unique
+// property names. One that does not satisfy that names no property at all, so
+// no rule may derive anything from it
+inline auto is_property_name_array(const sourcemeta::core::JSON &value)
+    -> bool {
+  return value.is_array() && value.unique() &&
+         std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
+           return entry.is_string();
+         });
+}
+
 } // namespace sourcemeta::blaze
 
 #endif
