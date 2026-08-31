@@ -86,7 +86,8 @@ auto SimpleOutput::operator()(
           {.instance_location = instance_location,
            .evaluate_path = std::move(effective_evaluate_path),
            .schema_location = step_metadata.keyword_location,
-           .value = annotation});
+           .value = annotation,
+           .is_collection = is_collection_annotation(step.type)});
     }
 
     return;

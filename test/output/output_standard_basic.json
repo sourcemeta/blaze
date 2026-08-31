@@ -21,6 +21,30 @@
     }
   },
   {
+    "description": "success_properties_multiple",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "foo": { "type": "string" },
+        "bar": { "type": "string" }
+      }
+    },
+    "instance": { "foo": "a", "bar": "b" },
+    "valid": true,
+    "fast": { "valid": true },
+    "exhaustive": {
+      "valid": true,
+      "annotations": [
+        {
+          "keywordLocation": "/properties",
+          "absoluteKeywordLocation": "#/properties",
+          "instanceLocation": "",
+          "annotation": [ "bar", "foo" ]
+        }
+      ]
+    }
+  },
+  {
     "description": "success_2",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -39,7 +63,7 @@
           "keywordLocation": "/anyOf/1/title",
           "absoluteKeywordLocation": "#/anyOf/1/title",
           "instanceLocation": "",
-          "annotation": [ "#2" ]
+          "annotation": "#2"
         }
       ]
     }
@@ -85,7 +109,7 @@
           "keywordLocation": "/oneOf/1/title",
           "absoluteKeywordLocation": "#/oneOf/1/title",
           "instanceLocation": "",
-          "annotation": [ "Second" ]
+          "annotation": "Second"
         }
       ]
     }
@@ -142,7 +166,7 @@
           "keywordLocation": "/anyOf/1/title",
           "absoluteKeywordLocation": "#/anyOf/1/title",
           "instanceLocation": "",
-          "annotation": [ "#2" ]
+          "annotation": "#2"
         }
       ]
     }
@@ -176,7 +200,7 @@
           "keywordLocation": "/then/title",
           "absoluteKeywordLocation": "#/then/title",
           "instanceLocation": "",
-          "annotation": [ "Then Title" ]
+          "annotation": "Then Title"
         }
       ]
     }
@@ -210,7 +234,7 @@
           "keywordLocation": "/else/title",
           "absoluteKeywordLocation": "#/else/title",
           "instanceLocation": "",
-          "annotation": [ "Else Title" ]
+          "annotation": "Else Title"
         }
       ]
     }

@@ -119,7 +119,8 @@ enum class InstructionIndex : std::uint8_t {
   ControlGroupWhenType,
   ControlEvaluate,
   ControlDynamicAnchorJump,
-  ControlJump
+  ControlJump,
+  AnnotationEmitCollection
 };
 
 /// @ingroup evaluator
@@ -224,7 +225,8 @@ constexpr std::string_view InstructionNames[] = {
     "ControlGroupWhenType",
     "ControlEvaluate",
     "ControlDynamicAnchorJump",
-    "ControlJump"};
+    "ControlJump",
+    "AnnotationEmitCollection"};
 
 /// @ingroup evaluator
 /// Check if a given instruction type corresponds to an annotation
@@ -236,6 +238,21 @@ inline auto is_annotation(const InstructionIndex type) noexcept -> bool {
     case InstructionIndex::AnnotationToParent:
       return true;
     case InstructionIndex::AnnotationEmit:
+      return true;
+    case InstructionIndex::AnnotationEmitCollection:
+      return true;
+    default:
+      return false;
+  }
+}
+
+/// @ingroup evaluator
+/// Check if a given instruction type corresponds to a collection annotation
+inline auto is_collection_annotation(const InstructionIndex type) noexcept
+    -> bool {
+  switch (type) {
+    case InstructionIndex::AnnotationBasenameToParent:
+    case InstructionIndex::AnnotationEmitCollection:
       return true;
     default:
       return false;

@@ -163,11 +163,11 @@ TEST(pass_annotations) {
       traces, 1, Push, "LoopPropertiesMatch", "", "/properties", "#/properties",
       std::nullopt, "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 2, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 2, Annotation, "AnnotationEmitCollection", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"foo"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 3, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 3, Annotation, "AnnotationEmitCollection", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"bar"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
@@ -285,11 +285,11 @@ TEST(pass_with_frame_exhaustive) {
                                    "#/properties/foo/unknown",
                                    sourcemeta::core::JSON{true});
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 3, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 3, Annotation, "AnnotationEmitCollection", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"foo"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 4, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 4, Annotation, "AnnotationEmitCollection", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"bar"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
@@ -549,7 +549,7 @@ TEST(vocabulary_of_a_subschema_under_a_property_named_after_a_keyword) {
       "https://example.com#/properties/type/anyOf", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 5, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 5, Annotation, "AnnotationEmitCollection", "", "/properties",
       "https://example.com#/properties", sourcemeta::core::JSON{"type"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(

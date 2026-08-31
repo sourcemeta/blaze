@@ -98,6 +98,7 @@ export const CONTROL_GROUP_WHEN_TYPE = 96;
 export const CONTROL_EVALUATE = 97;
 export const CONTROL_DYNAMIC_ANCHOR_JUMP = 98;
 export const CONTROL_JUMP = 99;
+export const ANNOTATION_EMIT_COLLECTION = 100;
 
 export const INSTRUCTION_NAMES = {
   "AssertionFail": ASSERTION_FAIL,
@@ -151,6 +152,7 @@ export const INSTRUCTION_NAMES = {
   "AssertionArrayPrefixEvaluate": ASSERTION_ARRAY_PREFIX_EVALUATE,
   "AssertionObjectPropertiesSimple": ASSERTION_OBJECT_PROPERTIES_SIMPLE,
   "AnnotationEmit": ANNOTATION_EMIT,
+  "AnnotationEmitCollection": ANNOTATION_EMIT_COLLECTION,
   "AnnotationToParent": ANNOTATION_TO_PARENT,
   "AnnotationBasenameToParent": ANNOTATION_BASENAME_TO_PARENT,
   "Evaluate": EVALUATE,
@@ -204,5 +206,9 @@ export const INSTRUCTION_NAMES = {
 };
 
 export const ANNOTATION_OPCODES = new Set([
-  ANNOTATION_EMIT, ANNOTATION_TO_PARENT, ANNOTATION_BASENAME_TO_PARENT
+  ANNOTATION_EMIT, ANNOTATION_EMIT_COLLECTION, ANNOTATION_TO_PARENT, ANNOTATION_BASENAME_TO_PARENT
 ]);
+
+export function isCollectionAnnotationOpcode(opcode) {
+  return opcode === ANNOTATION_EMIT_COLLECTION || opcode === ANNOTATION_BASENAME_TO_PARENT;
+}

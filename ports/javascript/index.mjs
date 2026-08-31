@@ -1,5 +1,6 @@
 import {
-  ANNOTATION_EMIT, ANNOTATION_TO_PARENT, ANNOTATION_BASENAME_TO_PARENT,
+  ANNOTATION_EMIT, ANNOTATION_EMIT_COLLECTION, ANNOTATION_TO_PARENT, ANNOTATION_BASENAME_TO_PARENT,
+  isCollectionAnnotationOpcode,
   ASSERTION_EQUALS_ANY,
   CONTROL_GROUP as CONTROL_GROUP_START,
   CONTROL_EVALUATE as CONTROL_EVALUATE_END,
@@ -529,8 +530,9 @@ class Blaze {
   }
 
   callbackPop(instruction, result) {
-    const isAnnotation = instruction[0] >= ANNOTATION_EMIT &&
-                         instruction[0] <= ANNOTATION_BASENAME_TO_PARENT;
+    const isAnnotation = (instruction[0] >= ANNOTATION_EMIT &&
+                         instruction[0] <= ANNOTATION_BASENAME_TO_PARENT) ||
+                         instruction[0] === ANNOTATION_EMIT_COLLECTION;
     this.callback("post", result, instruction,
       buildJsonPointer(this.evaluatePathTokens, this.evaluatePathLength),
       buildJsonPointer(this.instanceLocationTokens, this.instanceLocationLength),
@@ -555,7 +557,7 @@ class Blaze {
     const evaluatePath = buildJsonPointer(this.evaluatePathTokens, this.evaluatePathLength);
     const opcode = instruction[0];
     let instanceLocation;
-    if (opcode === ANNOTATION_EMIT) {
+    if (opcode === ANNOTATION_EMIT || opcode === ANNOTATION_EMIT_COLLECTION) {
       instanceLocation = buildJsonPointer(this.instanceLocationTokens, this.instanceLocationLength);
     } else {
       const parentLength = this.instanceLocationLength > 0 ? this.instanceLocationLength - 1 : 0;
@@ -1586,6 +1588,10 @@ function AssertionObjectPropertiesSimple(instruction, instance, depth, template,
 };
 
 function AnnotationEmit(instruction, instance, depth, template, evaluator) {
+  if (evaluator.callbackMode) evaluator.callbackAnnotation(instruction);
+  return true;
+}
+function AnnotationEmitCollection(instruction, instance, depth, template, evaluator) {
   if (evaluator.callbackMode) evaluator.callbackAnnotation(instruction);
   return true;
 }
@@ -2753,7 +2759,8 @@ const handlers = [
   ControlGroupWhenType,                       // 96
   ControlEvaluate,                            // 97
   ControlDynamicAnchorJump,                   // 98
-  ControlJump                                 // 99
+  ControlJump,                                // 99
+  AnnotationEmitCollection                    // 100
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {
@@ -3517,6 +3524,7 @@ function AssertionObjectPropertiesSimple_fast(instruction, instance, depth, temp
 }
 
 function AnnotationEmit_fast() { return true; }
+function AnnotationEmitCollection_fast() { return true; }
 function AnnotationToParent_fast() { return true; }
 function AnnotationBasenameToParent_fast() { return true; }
 
@@ -4050,6 +4058,7 @@ fastHandlers[89] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
 fastHandlers[90] = LoopItemsIntegerBounded_fast;
 fastHandlers[91] = LoopItemsIntegerBoundedSized_fast;
 fastHandlers[98] = ControlDynamicAnchorJump_fast;
+fastHandlers[100] = AnnotationEmitCollection_fast;
 
 import { describe } from './describe.mjs';
 
@@ -4057,7 +4066,8 @@ const STANDARD_MASK_KEYWORDS =
   new Set([ 'anyOf', 'oneOf', 'not', 'if', 'contains' ]);
 
 function isAnnotationOpcode(opcode) {
-  return opcode >= ANNOTATION_EMIT && opcode <= ANNOTATION_BASENAME_TO_PARENT;
+  return (opcode >= ANNOTATION_EMIT && opcode <= ANNOTATION_BASENAME_TO_PARENT) ||
+         opcode === ANNOTATION_EMIT_COLLECTION;
 }
 
 function lastEvaluatePathToken(evaluatePath) {
@@ -4118,17 +4128,18 @@ class SimpleOutput {
           keywordLocation: evaluatePath,
           absoluteKeywordLocation: instruction[3],
           instanceLocation,
-          annotation: [ annotation ]
+          values: [ annotation ],
+          isCollection: isCollectionAnnotationOpcode(instruction[0])
         };
         this.annotations.set(annotationKey, bucket);
       } else {
-        const last = bucket.annotation[bucket.annotation.length - 1];
+        const last = bucket.values[bucket.values.length - 1];
         let isSame = last === annotation;
         if (!isSame && Array.isArray(last) && Array.isArray(annotation) &&
             last.length === annotation.length) {
           isSame = last.every((value, index) => value === annotation[index]);
         }
-        if (!isSame) bucket.annotation.push(annotation);
+        if (!isSame) bucket.values.push(annotation);
       }
       return;
     }
@@ -4201,7 +4212,14 @@ class SimpleOutput {
     if (valid) {
       const result = { valid: true };
       if (this.annotations.size > 0) {
-        result.annotations = [ ...this.annotations.values() ];
+        result.annotations = [ ...this.annotations.values() ].map(entry => ({
+          keywordLocation: entry.keywordLocation,
+          absoluteKeywordLocation: entry.absoluteKeywordLocation,
+          instanceLocation: entry.instanceLocation,
+          annotation: entry.isCollection
+            ? entry.values
+            : entry.values[entry.values.length - 1]
+        }));
       }
       return result;
     }
