@@ -446,6 +446,20 @@ auto compile(const sourcemeta::core::JSON &schema,
         entrypoint, "The given entry point URI is not a valid subschema"};
   }
 
+  // Compiling from an entry point makes that subschema a root of its own, and
+  // a dialect without boolean schemas has no more room for a boolean there
+  // than it has at the root of a schema resource
+  const auto &entrypoint_schema{
+      sourcemeta::core::get(schema, entrypoint_location.pointer)};
+  if (entrypoint_schema.is_boolean() &&
+      !booleans_are_schemas(frame.vocabularies(entrypoint_location, resolver)))
+      [[unlikely]] {
+    throw CompilerError(sourcemeta::core::URI{entrypoint_location.base},
+                        to_pointer(entrypoint_location.pointer.slice(
+                            entrypoint_location.relative_pointer)),
+                        "This dialect does not support boolean schemas");
+  }
+
   const bool collects_annotations{
       mode == Mode::Exhaustive ||
       (effective_tweaks.annotations.has_value() &&
