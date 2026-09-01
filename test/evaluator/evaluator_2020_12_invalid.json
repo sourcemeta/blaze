@@ -558,5 +558,19 @@
       "base": "",
       "location": "/required"
     }
+  },
+  {
+    "description": "embedded_resource_properties_not_an_object",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com",
+      "properties": { "foo": { "$ref": "#/$defs/inner" } },
+      "$defs": { "inner": { "$id": "https://example.com/inner", "properties": true } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "https://example.com/inner",
+      "location": "/$defs/inner/properties"
+    }
   }
 ]
