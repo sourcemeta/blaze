@@ -1441,6 +1441,7 @@ TEST(format_keyword_value_integer_with_tweak_fast) {
     FAIL();
   }
 }
+
 TEST(format_keyword_value_integer_with_tweak_exhaustive) {
   // The meta-schema asks that `format` be a string, so a schema that does not
   // satisfy it is refused rather than compiled
@@ -1467,6 +1468,7 @@ TEST(format_keyword_value_integer_with_tweak_exhaustive) {
     FAIL();
   }
 }
+
 TEST(format_keyword_value_null_with_tweak_fast) {
   // The meta-schema asks that `format` be a string, so a schema that does not
   // satisfy it is refused rather than compiled
@@ -1493,6 +1495,7 @@ TEST(format_keyword_value_null_with_tweak_fast) {
     FAIL();
   }
 }
+
 TEST(format_keyword_value_null_with_tweak_exhaustive) {
   // The meta-schema asks that `format` be a string, so a schema that does not
   // satisfy it is refused rather than compiled
@@ -1519,6 +1522,7 @@ TEST(format_keyword_value_null_with_tweak_exhaustive) {
     FAIL();
   }
 }
+
 TEST(format_date_time_non_string_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",

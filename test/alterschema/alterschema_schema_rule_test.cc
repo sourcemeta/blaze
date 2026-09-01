@@ -610,6 +610,7 @@ TEST(schema_rule_non_string_description_integer) {
     FAIL();
   }
 }
+
 TEST(schema_rule_non_string_description_boolean) {
   // The meta-schema asks that `description` be a string, so a rule that does
   // not satisfy it is refused rather than compiled
@@ -637,6 +638,7 @@ TEST(schema_rule_non_string_description_boolean) {
     FAIL();
   }
 }
+
 TEST(schema_rule_non_string_description_null) {
   // The meta-schema asks that `description` be a string, so a rule that does
   // not satisfy it is refused rather than compiled
@@ -664,6 +666,7 @@ TEST(schema_rule_non_string_description_null) {
     FAIL();
   }
 }
+
 TEST(schema_rule_with_default_dialect_no_schema_keyword) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
     "title": "test/require_type_no_schema",

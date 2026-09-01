@@ -1415,6 +1415,7 @@ TEST(prop_type_integer_lower_bound_4_exhaustive) {
                                "The object value was expected to validate "
                                "against the single defined property subschema");
 }
+
 TEST(format_date_time_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4446,6 +4447,7 @@ TEST(format_uuid_non_string_with_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
                                                  tweaks);
 }
+
 TEST(format_unknown_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4501,6 +4503,7 @@ TEST(format_keyword_value_integer_with_tweak_fast) {
     FAIL();
   }
 }
+
 TEST(format_keyword_value_integer_with_tweak_exhaustive) {
   // The meta-schema asks that `format` be a string, so a schema that does not
   // satisfy it is refused rather than compiled
@@ -4527,6 +4530,7 @@ TEST(format_keyword_value_integer_with_tweak_exhaustive) {
     FAIL();
   }
 }
+
 TEST(format_keyword_value_null_with_tweak_fast) {
   // The meta-schema asks that `format` be a string, so a schema that does not
   // satisfy it is refused rather than compiled
@@ -4553,6 +4557,7 @@ TEST(format_keyword_value_null_with_tweak_fast) {
     FAIL();
   }
 }
+
 TEST(format_keyword_value_null_with_tweak_exhaustive) {
   // The meta-schema asks that `format` be a string, so a schema that does not
   // satisfy it is refused rather than compiled
@@ -4579,6 +4584,7 @@ TEST(format_keyword_value_null_with_tweak_exhaustive) {
     FAIL();
   }
 }
+
 TEST(format_under_properties_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
