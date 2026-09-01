@@ -128,6 +128,11 @@ auto run_error_test(const sourcemeta::core::JSON &data) -> void {
     EXPECT_EQ(error.base().recompose(), expected.at("base").to_string());
     EXPECT_EQ(sourcemeta::core::to_string(error.location()),
               expected.at("location").to_string());
+  } catch (const std::exception &error) {
+    // Any other failure is still a failure of this expectation, and reporting
+    // it here beats letting it escape as an uncaught exception
+    std::fprintf(stderr, "Unexpected exception: %s\n", error.what());
+    FAIL();
   }
 }
 } // namespace

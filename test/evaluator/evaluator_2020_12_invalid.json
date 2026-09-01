@@ -377,7 +377,7 @@
       "multipleOf": -1
     },
     "error": {
-      "message": "This keyword was expected to be set to a non-negative number",
+      "message": "This keyword was expected to be set to a number greater than zero",
       "base": "",
       "location": "/multipleOf"
     }

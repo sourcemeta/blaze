@@ -288,7 +288,9 @@ auto compiler_draft6_validation_type(const Context &context,
                    context, schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::String)};
     } else {
-      return {};
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base, to_pointer(schema_context.relative_pointer),
+          EXPECTED_TYPE_NAMES);
     }
   } else if (schema_context.schema.at(dynamic_context.keyword).is_array() &&
              schema_context.schema.at(dynamic_context.keyword).size() == 1 &&
@@ -381,7 +383,10 @@ auto compiler_draft6_validation_type(const Context &context,
                  schema_context, dynamic_context, types)};
   }
 
-  return {};
+  // Neither a type name nor a union of them, which the meta-schema rejects
+  throw sourcemeta::blaze::CompilerError(
+      schema_context.base, to_pointer(schema_context.relative_pointer),
+      EXPECTED_TYPE_NAMES);
 }
 
 auto compiler_draft6_validation_const(const Context &context,

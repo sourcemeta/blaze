@@ -38,7 +38,7 @@ auto is_schema(const sourcemeta::core::JSON &value) -> bool {
 // these read as statements about it
 auto keyword_shape_error(
     const sourcemeta::core::JSON::String &keyword,
-    const sourcemeta::blaze::SchemaKeywordType type,
+    const sourcemeta::blaze::SchemaKeywordType type, const bool known,
     const sourcemeta::core::JSON &value,
     const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> const char * {
   using namespace sourcemeta::blaze;
@@ -48,6 +48,10 @@ auto keyword_shape_error(
       "This keyword was expected to be set to an array"};
   static constexpr auto EXPECTED_BOOLEAN{
       "This keyword was expected to be set to a boolean"};
+  static constexpr auto EXPECTED_NUMBER{
+      "This keyword was expected to be set to a number"};
+  static constexpr auto EXPECTED_NON_NEGATIVE_INTEGER{
+      "This keyword was expected to be set to a non-negative integer"};
   static constexpr auto EXPECTED_SCHEMA{
       "This keyword was expected to be set to a valid schema"};
   static constexpr auto EXPECTED_SCHEMA_OR_ARRAY{
@@ -58,6 +62,49 @@ auto keyword_shape_error(
   static constexpr auto EXPECTED_SCHEMA_OBJECT{
       "This keyword was expected to be set to an object whose values are "
       "valid schemas"};
+
+  // A keyword the dialect in use does not define carries no vocabulary, so
+  // what follows never touches one and it stays ignored, as the specification
+  // requires
+  if (known) {
+    if (keyword == "title" || keyword == "description" ||
+        keyword == "$comment" || keyword == "format" ||
+        keyword == "contentEncoding" || keyword == "contentMediaType") {
+      return value.is_string() ? nullptr : EXPECTED_STRING;
+    } else if (keyword == "uniqueItems" || keyword == "deprecated" ||
+               keyword == "readOnly" || keyword == "writeOnly") {
+      return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
+    } else if (keyword == "examples") {
+      return value.is_array() ? nullptr : EXPECTED_ARRAY;
+    } else if (keyword == "maxContains" || keyword == "minContains") {
+      // These only exist from 2019-09 onwards, where a number whose fractional
+      // part is zero counts as an integer
+      return (value.is_integral() && value.is_positive())
+                 ? nullptr
+                 : EXPECTED_NON_NEGATIVE_INTEGER;
+    } else if (keyword == "exclusiveMaximum" || keyword == "exclusiveMinimum") {
+      return (vocabularies.contains_any(
+                  {SchemaVocabularies::Known::JSON_Schema_Draft_3,
+                   SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper,
+                   SchemaVocabularies::Known::JSON_Schema_Draft_4,
+                   SchemaVocabularies::Known::JSON_Schema_Draft_4_Hyper})
+                  ? (value.is_boolean() ? nullptr : EXPECTED_BOOLEAN)
+                  : (value.is_number() ? nullptr : EXPECTED_NUMBER));
+    } else if ((keyword == "$defs" || keyword == "definitions") &&
+               // The walker treats these as containers in every dialect, but
+               // no meta-schema before Draft 4 defines either of them
+               !vocabularies.contains_any(
+                   {SchemaVocabularies::Known::JSON_Schema_Draft_3,
+                    SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper})) {
+      return (value.is_object() &&
+              std::ranges::all_of(value.as_object(),
+                                  [](const auto &entry) -> bool {
+                                    return is_schema(entry.second);
+                                  }))
+                 ? nullptr
+                 : EXPECTED_SCHEMA_OBJECT;
+    }
+  }
 
   // Draft 3 spells `required` as a flag on the property itself rather than as
   // a list on the object, so the shape it asks for is a different one
@@ -153,8 +200,9 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
            schema_context.vocabularies}) {
     assert(entry.pointer.back().is_property());
     const auto &keyword{entry.pointer.back().to_property()};
+    const auto &metadata{context.walker(keyword, schema_context.vocabularies)};
     const auto *shape_error{keyword_shape_error(
-        keyword, context.walker(keyword, schema_context.vocabularies).type,
+        keyword, metadata.type, metadata.vocabulary.has_value(),
         schema_context.schema.at(keyword), schema_context.vocabularies)};
     if (shape_error) [[unlikely]] {
       throw sourcemeta::blaze::CompilerError(

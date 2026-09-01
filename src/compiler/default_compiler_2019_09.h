@@ -79,12 +79,6 @@ auto compiler_2019_09_validation_dependentrequired(
         EXPECTED_OBJECT);
   }
 
-  if (schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() != "object") {
-    return {};
-  }
-
   if (!std::ranges::all_of(
           schema_context.schema.at(dynamic_context.keyword).as_object(),
           [](const auto &entry) -> bool {
@@ -93,6 +87,12 @@ auto compiler_2019_09_validation_dependentrequired(
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
         EXPECTED_DEPENDENCIES);
+  }
+
+  if (schema_context.schema.defines("type") &&
+      schema_context.schema.at("type").is_string() &&
+      schema_context.schema.at("type").to_string() != "object") {
+    return {};
   }
 
   ValueStringMap dependencies;
