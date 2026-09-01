@@ -3107,6 +3107,45 @@ TEST(format_keyword_value_integer_with_tweak_fast) {
   }
 }
 
+TEST(boolean_root_schema) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json("true")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::FastValidation,
+                               "http://json-schema.org/draft-04/schema#");
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(), "This dialect does not support boolean schemas");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(boolean_subschema_entrypoint) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "everything": true
+    }
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::FastValidation, "", "",
+                               "#/definitions/everything");
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(), "This dialect does not support boolean schemas");
+  } catch (...) {
+    FAIL();
+  }
+}
+
 TEST(format_keyword_value_integer_with_tweak_exhaustive) {
   // The meta-schema asks that `format` be a string, so a schema that does not
   // satisfy it is refused rather than compiled

@@ -103,14 +103,15 @@ auto integral_reals_are_integers(
        Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper});
 }
 
-// Draft 6 introduced boolean schemas. Draft 3 has none, and the only places it
-// accepts a boolean are `additionalProperties` and `additionalItems`, whose own
-// definitions spell that out
+// Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
+// only places they accept a boolean are `additionalProperties` and
+// `additionalItems`, whose own definitions spell that out
 auto booleans_are_schemas(
     const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   return !vocabularies.contains_any(
-      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper});
+      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper,
+       Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper});
 }
 
 auto is_schema(const sourcemeta::core::JSON &value, const bool allow_boolean)
@@ -1647,14 +1648,23 @@ auto compiler_draft3_applicator_items_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
     const bool track_evaluation) -> Instructions {
-  // The tuple form must hold schemas whatever the instance turns out to be, so
-  // this runs before the check on which instances the keyword can apply to
-  if (schema_context.schema.at(dynamic_context.keyword).is_array() &&
-      !all_are_schemas(schema_context.schema.at(dynamic_context.keyword),
-                       booleans_are_schemas(schema_context.vocabularies))) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, to_pointer(schema_context.relative_pointer),
-        EXPECTED_SCHEMA_ARRAY_ANY_SIZE);
+  // The tuple form must be a well-formed list of schemas whatever the instance
+  // turns out to be, so this runs before the check on which instances the
+  // keyword can apply to. Draft 3 puts no lower bound on how many it may list,
+  // whereas every dialect after it asks for at least one
+  if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
+    using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+    const auto allows_empty{schema_context.vocabularies.contains_any(
+        {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper})};
+    const auto &entries{schema_context.schema.at(dynamic_context.keyword)};
+    if ((entries.empty() && !allows_empty) ||
+        !all_are_schemas(entries,
+                         booleans_are_schemas(schema_context.vocabularies))) {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base, to_pointer(schema_context.relative_pointer),
+          allows_empty ? EXPECTED_SCHEMA_ARRAY_ANY_SIZE
+                       : EXPECTED_SCHEMA_ARRAY);
+    }
   }
 
   if (schema_context.schema.defines("type") &&

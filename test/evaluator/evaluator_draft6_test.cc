@@ -3118,3 +3118,17 @@ TEST(format_with_type_integer_short_circuits_with_tweak_fast) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
 }
+
+TEST(boolean_subschema_entrypoint) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "everything": true
+    }
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"foo"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0,
+                                   "#/definitions/everything");
+}

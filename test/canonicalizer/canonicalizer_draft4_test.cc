@@ -114,9 +114,10 @@ TEST(type_boolean_as_enum_2) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -142,40 +143,60 @@ TEST(type_null_as_enum_2) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
 TEST(boolean_true_1) {
   auto document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "properties": {
-      "foo": true
-    }
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "foo": {}
+      }
+    })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
-      {
-        "type": "object",
-        "properties": {
-          "foo": true
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "anyOf": [
+        {
+          "enum": [
+            null
+          ]
         },
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0
-      },
-      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
-      { "type": "string", "minLength": 0 },
-      { "type": "number" }
-    ]
-  })JSON");
+        {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "foo": {}
+          },
+          "patternProperties": {},
+          "minProperties": 0,
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "uniqueItems": false,
+          "items": {},
+          "minItems": 0
+        },
+        {
+          "type": "string",
+          "minLength": 0
+        },
+        {
+          "type": "number"
+        }
+      ]
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -188,8 +209,7 @@ TEST(min_properties_covered_by_required_1) {
     "required": [ "foo", "bar" ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "minProperties": 2,
@@ -199,12 +219,11 @@ TEST(min_properties_covered_by_required_1) {
       ],
       "patternProperties": {},
       "properties": {
-        "foo": true,
-        "bar": true
+        "foo": {},
+        "bar": {}
       },
       "additionalProperties": true
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -216,8 +235,7 @@ TEST(min_properties_implicit_1) {
     "required": [ "foo", "bar" ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "required": [
@@ -227,12 +245,11 @@ TEST(min_properties_implicit_1) {
       "patternProperties": {},
       "minProperties": 2,
       "properties": {
-        "foo": true,
-        "bar": true
+        "foo": {},
+        "bar": {}
       },
       "additionalProperties": true
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -245,8 +262,7 @@ TEST(min_properties_implicit_2) {
     "required": [ "foo", "bar" ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "minProperties": 2,
@@ -256,32 +272,35 @@ TEST(min_properties_implicit_2) {
       ],
       "patternProperties": {},
       "properties": {
-        "foo": true,
-        "bar": true
+        "foo": {},
+        "bar": {}
       },
       "additionalProperties": true
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
 TEST(pattern_properties_additional_properties_false) {
   auto document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "object",
-    "patternProperties": { "^[a-z]+$": true },
-    "additionalProperties": false
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "patternProperties": {
+        "^[a-z]+$": {}
+      },
+      "additionalProperties": false
+    })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "object",
-    "minProperties": 0,
-    "properties": {},
-    "patternProperties": { "^[a-z]+$": true },
-    "additionalProperties": false
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "patternProperties": {
+        "^[a-z]+$": {}
+      },
+      "additionalProperties": false,
+      "minProperties": 0,
+      "properties": {}
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -589,12 +608,12 @@ TEST(array_bare) {
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "array",
-    "minItems": 0,
-    "uniqueItems": false,
-    "items": true
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "uniqueItems": false,
+      "items": {},
+      "minItems": 0
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -852,15 +871,15 @@ TEST(empty_subschema_to_true) {
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "object",
-    "properties": {
-      "data": true
-    },
-    "patternProperties": {},
-    "additionalProperties": true,
-    "minProperties": 0
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "properties": {
+        "data": {}
+      },
+      "patternProperties": {},
+      "minProperties": 0,
+      "additionalProperties": true
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -912,9 +931,9 @@ TEST(not_with_boolean_true) {
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "not": true
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "not": {}
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -1258,14 +1277,23 @@ TEST(type_array_object_and_array) {
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "anyOf": [
-      { "type": "object", "properties": {}, "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 1 },
-      { "type": "array", "minItems": 1, "uniqueItems": false, "items": true }
-    ]
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "anyOf": [
+        {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {},
+          "properties": {},
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": false,
+          "items": {}
+        }
+      ]
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -1277,8 +1305,7 @@ TEST(dependencies_property_single) {
     "dependencies": { "foo": [ "bar" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -1292,7 +1319,7 @@ TEST(dependencies_property_single) {
                 "patternProperties": {},
                 "minProperties": 1,
                 "properties": {
-                  "foo": true
+                  "foo": {}
                 },
                 "additionalProperties": true
               }
@@ -1306,8 +1333,8 @@ TEST(dependencies_property_single) {
               "patternProperties": {},
               "minProperties": 2,
               "properties": {
-                "foo": true,
-                "bar": true
+                "foo": {},
+                "bar": {}
               },
               "additionalProperties": true
             }
@@ -1321,8 +1348,7 @@ TEST(dependencies_property_single) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -1334,8 +1360,7 @@ TEST(dependencies_schema_single) {
     "dependencies": { "foo": { "required": [ "bar" ] } }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -1349,7 +1374,7 @@ TEST(dependencies_schema_single) {
                 "patternProperties": {},
                 "minProperties": 1,
                 "properties": {
-                  "foo": true
+                  "foo": {}
                 },
                 "additionalProperties": true
               }
@@ -1364,7 +1389,7 @@ TEST(dependencies_schema_single) {
                   "patternProperties": {},
                   "minProperties": 1,
                   "properties": {
-                    "foo": true
+                    "foo": {}
                   },
                   "additionalProperties": true
                 },
@@ -1376,7 +1401,7 @@ TEST(dependencies_schema_single) {
                   "patternProperties": {},
                   "minProperties": 1,
                   "properties": {
-                    "bar": true
+                    "bar": {}
                   },
                   "additionalProperties": true
                 }
@@ -1392,8 +1417,7 @@ TEST(dependencies_schema_single) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -1701,8 +1725,7 @@ TEST(anyof_with_nested_allof) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "anyOf": [
         {
@@ -1715,7 +1738,7 @@ TEST(anyof_with_nested_allof) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "name": true
+                "name": {}
               },
               "additionalProperties": true
             },
@@ -1727,7 +1750,7 @@ TEST(anyof_with_nested_allof) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "age": true
+                "age": {}
               },
               "additionalProperties": true
             }
@@ -1738,8 +1761,7 @@ TEST(anyof_with_nested_allof) {
           "minLength": 0
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -1770,8 +1792,7 @@ TEST(not_with_object_schema) {
     "not": { "type": "object", "required": [ "forbidden" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "not": {
         "type": "object",
@@ -1781,12 +1802,11 @@ TEST(not_with_object_schema) {
         "patternProperties": {},
         "minProperties": 1,
         "properties": {
-          "forbidden": true
+          "forbidden": {}
         },
         "additionalProperties": true
       }
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -1941,8 +1961,7 @@ TEST(anyof_with_type_sibling) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -1955,7 +1974,7 @@ TEST(anyof_with_type_sibling) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "a": true
+                "a": {}
               },
               "additionalProperties": true
             },
@@ -1967,7 +1986,7 @@ TEST(anyof_with_type_sibling) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "b": true
+                "b": {}
               },
               "additionalProperties": true
             }
@@ -1981,8 +2000,7 @@ TEST(anyof_with_type_sibling) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -2034,8 +2052,7 @@ TEST(type_with_anyof_and_properties) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -2048,7 +2065,7 @@ TEST(type_with_anyof_and_properties) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "name": true
+                "name": {}
               },
               "additionalProperties": true
             },
@@ -2060,7 +2077,7 @@ TEST(type_with_anyof_and_properties) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "age": true
+                "age": {}
               },
               "additionalProperties": true
             }
@@ -2079,8 +2096,7 @@ TEST(type_with_anyof_and_properties) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -2309,8 +2325,7 @@ TEST(object_required_max_less_than_required) {
     "maxProperties": 2
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "required": [
@@ -2322,13 +2337,12 @@ TEST(object_required_max_less_than_required) {
       "patternProperties": {},
       "minProperties": 3,
       "properties": {
-        "a": true,
-        "b": true,
-        "c": true
+        "a": {},
+        "b": {},
+        "c": {}
       },
       "additionalProperties": true
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -2437,15 +2451,15 @@ TEST(empty_subschemas_become_true) {
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "object",
-    "minProperties": 0,
-    "properties": {},
-    "patternProperties": {
-      "^x-": true
-    },
-    "additionalProperties": true
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "patternProperties": {
+        "^x-": {}
+      },
+      "additionalProperties": {},
+      "minProperties": 0,
+      "properties": {}
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -2906,8 +2920,7 @@ TEST(property_named_ref_not_a_reference) {
     "not": { "required": [ "admin" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -2919,7 +2932,7 @@ TEST(property_named_ref_not_a_reference) {
             "patternProperties": {},
             "minProperties": 1,
             "properties": {
-              "admin": true
+              "admin": {}
             },
             "additionalProperties": true
           }
@@ -2937,8 +2950,7 @@ TEST(property_named_ref_not_a_reference) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -2955,8 +2967,7 @@ TEST(enum_value_containing_ref_string) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -2967,7 +2978,7 @@ TEST(enum_value_containing_ref_string) {
           "patternProperties": {},
           "minProperties": 1,
           "properties": {
-            "kind": true
+            "kind": {}
           },
           "additionalProperties": true
         },
@@ -2986,8 +2997,7 @@ TEST(enum_value_containing_ref_string) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3030,8 +3040,7 @@ TEST(dependencies_tautology_stripped) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "required": [
@@ -3041,12 +3050,11 @@ TEST(dependencies_tautology_stripped) {
       "patternProperties": {},
       "minProperties": 2,
       "properties": {
-        "bar": true,
-        "foo": true
+        "bar": {},
+        "foo": {}
       },
       "additionalProperties": true
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3064,8 +3072,7 @@ TEST(type_allof_ref_and_typed_not) {
     "not": { "type": "object", "required": [ "forbidden" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "definitions": {
         "base": {
@@ -3086,7 +3093,7 @@ TEST(type_allof_ref_and_typed_not) {
             "patternProperties": {},
             "minProperties": 1,
             "properties": {
-              "forbidden": true
+              "forbidden": {}
             },
             "additionalProperties": true
           }
@@ -3102,8 +3109,7 @@ TEST(type_allof_ref_and_typed_not) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3155,8 +3161,7 @@ TEST(dependencies_with_existing_anyof) {
     "dependencies": { "x": [ "y" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -3169,7 +3174,7 @@ TEST(dependencies_with_existing_anyof) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "a": true
+                "a": {}
               },
               "additionalProperties": true
             },
@@ -3181,7 +3186,7 @@ TEST(dependencies_with_existing_anyof) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "b": true
+                "b": {}
               },
               "additionalProperties": true
             }
@@ -3198,7 +3203,7 @@ TEST(dependencies_with_existing_anyof) {
                 "patternProperties": {},
                 "minProperties": 1,
                 "properties": {
-                  "x": true
+                  "x": {}
                 },
                 "additionalProperties": true
               }
@@ -3212,8 +3217,8 @@ TEST(dependencies_with_existing_anyof) {
               "patternProperties": {},
               "minProperties": 2,
               "properties": {
-                "x": true,
-                "y": true
+                "x": {},
+                "y": {}
               },
               "additionalProperties": true
             }
@@ -3227,8 +3232,7 @@ TEST(dependencies_with_existing_anyof) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3250,8 +3254,7 @@ TEST(full_restructure_ref_in_typed_keyword) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "definitions": {
         "pos": {
@@ -3270,7 +3273,7 @@ TEST(full_restructure_ref_in_typed_keyword) {
             "patternProperties": {},
             "minProperties": 1,
             "properties": {
-              "forbidden": true
+              "forbidden": {}
             },
             "additionalProperties": true
           }
@@ -3285,7 +3288,7 @@ TEST(full_restructure_ref_in_typed_keyword) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "a": true
+                "a": {}
               },
               "additionalProperties": true
             },
@@ -3297,7 +3300,7 @@ TEST(full_restructure_ref_in_typed_keyword) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "b": true
+                "b": {}
               },
               "additionalProperties": true
             }
@@ -3315,8 +3318,7 @@ TEST(full_restructure_ref_in_typed_keyword) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3330,9 +3332,10 @@ TEST(equal_bounds_with_exclusive_minimum_unsatisfiable) {
     "exclusiveMinimum": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3346,9 +3349,10 @@ TEST(equal_bounds_with_exclusive_maximum_unsatisfiable) {
     "exclusiveMaximum": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3450,9 +3454,10 @@ TEST(equal_bounds_exclusive_exponential_unsatisfiable) {
     "exclusiveMinimum": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3552,22 +3557,41 @@ TEST(exclusive_equal_bounds_without_type_not_unsatisfiable) {
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "anyOf": [
-      { "enum": [ null ] },
-      { "enum": [ false, true ] },
-      {
-        "type": "object",
-        "minProperties": 0,
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true
-      },
-      { "type": "array", "minItems": 0, "uniqueItems": false, "items": true },
-      { "type": "string", "minLength": 0 },
-      false
-    ]
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "anyOf": [
+        {
+          "enum": [
+            null
+          ]
+        },
+        {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        {
+          "type": "object",
+          "patternProperties": {},
+          "minProperties": 0,
+          "properties": {},
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "uniqueItems": false,
+          "items": {},
+          "minItems": 0
+        },
+        {
+          "type": "string",
+          "minLength": 0
+        },
+        {
+          "not": {}
+        }
+      ]
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3831,10 +3855,17 @@ TEST(enum_assertion_pattern_wrapped) {
 
 TEST(enum_tautological_items_true_dropped) {
   auto document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "enum": [ [ 1 ], [ 2 ] ],
-    "items": true
-  })JSON");
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "enum": [
+        [
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "items": {}
+    })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -4086,14 +4117,13 @@ TEST(enum_assertion_uniqueItems_wrapped) {
     "uniqueItems": false
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
           "uniqueItems": false,
           "type": "array",
-          "items": true,
+          "items": {},
           "minItems": 0
         },
         {
@@ -4109,8 +4139,7 @@ TEST(enum_assertion_uniqueItems_wrapped) {
           ]
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4189,8 +4218,7 @@ TEST(allof_typed_with_cross_dep_plus_untyped_has_redundant_type_union) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -4211,13 +4239,12 @@ TEST(allof_typed_with_cross_dep_plus_untyped_has_redundant_type_union) {
           "patternProperties": {},
           "minProperties": 1,
           "properties": {
-            "name": true
+            "name": {}
           },
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4229,8 +4256,7 @@ TEST(type_object_not_untyped_has_redundant_type_union) {
     "not": { "required": [ "forbidden" ] }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -4242,7 +4268,7 @@ TEST(type_object_not_untyped_has_redundant_type_union) {
             "patternProperties": {},
             "minProperties": 1,
             "properties": {
-              "forbidden": true
+              "forbidden": {}
             },
             "additionalProperties": true
           }
@@ -4255,8 +4281,7 @@ TEST(type_object_not_untyped_has_redundant_type_union) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4269,8 +4294,7 @@ TEST(type_object_anyof_and_allof_both_untyped_has_redundant_type_union) {
     "allOf": [ { "required": [ "b" ] } ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -4281,7 +4305,7 @@ TEST(type_object_anyof_and_allof_both_untyped_has_redundant_type_union) {
           "patternProperties": {},
           "minProperties": 1,
           "properties": {
-            "a": true
+            "a": {}
           },
           "additionalProperties": true
         },
@@ -4293,7 +4317,7 @@ TEST(type_object_anyof_and_allof_both_untyped_has_redundant_type_union) {
           "patternProperties": {},
           "minProperties": 1,
           "properties": {
-            "b": true
+            "b": {}
           },
           "additionalProperties": true
         },
@@ -4305,8 +4329,7 @@ TEST(type_object_anyof_and_allof_both_untyped_has_redundant_type_union) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4326,8 +4349,7 @@ TEST(allof_ref_typed_plus_untyped_has_redundant_type_union) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -4342,7 +4364,7 @@ TEST(allof_ref_typed_plus_untyped_has_redundant_type_union) {
           "patternProperties": {},
           "minProperties": 1,
           "properties": {
-            "name": true
+            "name": {}
           },
           "additionalProperties": true
         }
@@ -4361,8 +4383,7 @@ TEST(allof_ref_typed_plus_untyped_has_redundant_type_union) {
           "additionalProperties": true
         }
       }
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4426,8 +4447,7 @@ TEST(type_object_allof_ref_untyped_has_redundant_type_union) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -4438,7 +4458,7 @@ TEST(type_object_allof_ref_untyped_has_redundant_type_union) {
           "type": "object",
           "patternProperties": {},
           "properties": {
-            "name": true
+            "name": {}
           },
           "additionalProperties": true
         },
@@ -4450,8 +4470,7 @@ TEST(type_object_allof_ref_untyped_has_redundant_type_union) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4468,8 +4487,7 @@ TEST(type_object_with_anyof_has_redundant_type_union) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -4480,7 +4498,7 @@ TEST(type_object_with_anyof_has_redundant_type_union) {
           "patternProperties": {},
           "minProperties": 1,
           "properties": {
-            "a": true
+            "a": {}
           },
           "additionalProperties": true
         },
@@ -4497,8 +4515,7 @@ TEST(type_object_with_anyof_has_redundant_type_union) {
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4620,8 +4637,7 @@ TEST(allof_no_merge_branch_has_ref) {
     }
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -4639,13 +4655,12 @@ TEST(allof_no_merge_branch_has_ref) {
           "patternProperties": {},
           "minProperties": 1,
           "properties": {
-            "x": true
+            "x": {}
           },
           "additionalProperties": true
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4663,8 +4678,7 @@ TEST(allof_no_merge_in_place_applicator) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "allOf": [
         {
@@ -4684,7 +4698,7 @@ TEST(allof_no_merge_in_place_applicator) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "a": true
+                "a": {}
               },
               "additionalProperties": true
             },
@@ -4696,15 +4710,14 @@ TEST(allof_no_merge_in_place_applicator) {
               "patternProperties": {},
               "minProperties": 1,
               "properties": {
-                "b": true
+                "b": {}
               },
               "additionalProperties": true
             }
           ]
         }
       ]
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4718,8 +4731,7 @@ TEST(allof_type_union_redundant_with_sibling_type) {
     ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    {
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "required": [
@@ -4729,12 +4741,11 @@ TEST(allof_type_union_redundant_with_sibling_type) {
       "patternProperties": {},
       "minProperties": 2,
       "properties": {
-        "foo": true,
-        "bar": true
+        "foo": {},
+        "bar": {}
       },
       "additionalProperties": true
-    }
-  )JSON");
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -4759,59 +4770,68 @@ TEST(anyof_with_untyped_properties_branches) {
   })JSON");
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "anyOf": [
-      {
-        "enum": [ null ]
-      },
-      {
-        "enum": [ false, true ]
-      },
-      {
-        "type": "object",
-        "properties": {
-          "version": {
-            "enum": [ 1 ]
-          },
-          "data": {
-            "type": "string",
-            "minLength": 0
-          }
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "anyOf": [
+        {
+          "enum": [
+            null
+          ]
         },
-        "patternProperties": {},
-        "minProperties": 0,
-        "additionalProperties": true
-      },
-      {
-        "type": "array",
-        "uniqueItems": false,
-        "items": true,
-        "minItems": 0
-      },
-      {
-        "type": "string",
-        "minLength": 0
-      },
-      {
-        "type": "number"
-      },
-      {
-        "type": "object",
-        "properties": {
-          "version": {
-            "enum": [ 2 ]
-          },
-          "data": {
-            "type": "integer",
-            "multipleOf": 1
-          }
+        {
+          "enum": [
+            false,
+            true
+          ]
         },
-        "patternProperties": {},
-        "minProperties": 0,
-        "additionalProperties": true
-      }
-    ]
-  })JSON");
+        {
+          "type": "object",
+          "properties": {
+            "version": {
+              "enum": [
+                1
+              ]
+            },
+            "data": {
+              "type": "string",
+              "minLength": 0
+            }
+          },
+          "patternProperties": {},
+          "minProperties": 0,
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "uniqueItems": false,
+          "items": {},
+          "minItems": 0
+        },
+        {
+          "type": "string",
+          "minLength": 0
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "version": {
+              "enum": [
+                2
+              ]
+            },
+            "data": {
+              "type": "integer",
+              "multipleOf": 1
+            }
+          },
+          "patternProperties": {},
+          "minProperties": 0,
+          "additionalProperties": true
+        }
+      ]
+    })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }

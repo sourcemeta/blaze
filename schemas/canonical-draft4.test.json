@@ -2,13 +2,13 @@
   "target": "./canonical-draft4.json",
   "tests": [
     {
-      "description": "Boolean true is canonical",
-      "valid": true,
+      "description": "Boolean true is rejected",
+      "valid": false,
       "data": true
     },
     {
-      "description": "Boolean false is canonical",
-      "valid": true,
+      "description": "Boolean false is rejected",
+      "valid": false,
       "data": false
     },
     {
@@ -133,7 +133,7 @@
       "data": {
         "$ref": "#/definitions/foo",
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -142,7 +142,9 @@
       "valid": false,
       "data": {
         "$ref": "#/definitions/foo",
-        "anyOf": [ true ]
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
@@ -150,7 +152,9 @@
       "valid": false,
       "data": {
         "$ref": "#/definitions/foo",
-        "allOf": [ true ]
+        "allOf": [
+          {}
+        ]
       }
     },
     {
@@ -236,7 +240,7 @@
       "data": {
         "enum": [ 1 ],
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -299,7 +303,9 @@
       "valid": false,
       "data": {
         "enum": [ 1 ],
-        "anyOf": [ true ]
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
@@ -307,7 +313,7 @@
       "valid": false,
       "data": {
         "enum": [ 1 ],
-        "items": true
+        "items": {}
       }
     },
     {
@@ -385,7 +391,7 @@
         "type": "string",
         "minLength": 0,
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -454,7 +460,7 @@
       "data": {
         "type": "string",
         "minLength": 0,
-        "items": true
+        "items": {}
       }
     },
     {
@@ -472,7 +478,9 @@
       "data": {
         "type": "string",
         "minLength": 0,
-        "anyOf": [ true ]
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
@@ -561,7 +569,7 @@
         "type": "integer",
         "multipleOf": 1,
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -641,7 +649,7 @@
       "data": {
         "type": "integer",
         "multipleOf": 1,
-        "items": true
+        "items": {}
       }
     },
     {
@@ -659,7 +667,9 @@
       "data": {
         "type": "integer",
         "multipleOf": 1,
-        "anyOf": [ true ]
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
@@ -770,7 +780,7 @@
       "data": {
         "type": "number",
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -835,7 +845,7 @@
       "valid": false,
       "data": {
         "type": "number",
-        "items": true
+        "items": {}
       }
     },
     {
@@ -851,7 +861,9 @@
       "valid": false,
       "data": {
         "type": "number",
-        "anyOf": [ true ]
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
@@ -897,7 +909,7 @@
           }
         },
         "patternProperties": {
-          "^x-": true
+          "^x-": {}
         },
         "additionalProperties": false,
         "required": [ "name" ],
@@ -953,7 +965,7 @@
         "additionalProperties": true,
         "minProperties": 0,
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -1030,7 +1042,7 @@
         "patternProperties": {},
         "additionalProperties": true,
         "minProperties": 0,
-        "items": true
+        "items": {}
       }
     },
     {
@@ -1068,7 +1080,9 @@
         "patternProperties": {},
         "additionalProperties": true,
         "minProperties": 0,
-        "anyOf": [ true ]
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
@@ -1182,18 +1196,18 @@
       }
     },
     {
-      "description": "Array with boolean items is canonical",
+      "description": "Array with empty schema items is canonical",
       "valid": true,
       "data": {
         "type": "array",
         "minItems": 0,
         "uniqueItems": true,
-        "items": true
+        "items": {}
       }
     },
     {
-      "description": "Array with false items is canonical",
-      "valid": true,
+      "description": "Array with false items is rejected",
+      "valid": false,
       "data": {
         "type": "array",
         "minItems": 0,
@@ -1209,7 +1223,7 @@
         "minItems": 0,
         "maxItems": 10,
         "uniqueItems": true,
-        "items": true
+        "items": {}
       }
     },
     {
@@ -1219,7 +1233,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "title": "List",
         "description": "A list",
         "default": []
@@ -1232,7 +1246,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "$schema": "http://json-schema.org/draft-04/schema#"
       }
     },
@@ -1243,7 +1257,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "id": "https://example.com/a"
       }
     },
@@ -1254,9 +1268,9 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -1267,7 +1281,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "x-max": 100
       }
     },
@@ -1277,7 +1291,7 @@
       "data": {
         "type": "array",
         "uniqueItems": false,
-        "items": true
+        "items": {}
       }
     },
     {
@@ -1295,7 +1309,7 @@
       "data": {
         "type": "array",
         "minItems": 0,
-        "items": true
+        "items": {}
       }
     },
     {
@@ -1319,7 +1333,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "minLength": 0
       }
     },
@@ -1330,7 +1344,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "properties": {}
       }
     },
@@ -1341,7 +1355,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "minimum": 0
       }
     },
@@ -1352,7 +1366,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "enum": [
           []
         ]
@@ -1365,8 +1379,10 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
-        "anyOf": [ true ]
+        "items": {},
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
@@ -1376,7 +1392,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "definitions": {}
       }
     },
@@ -1399,7 +1415,7 @@
         "type": "array",
         "minItems": 0,
         "uniqueItems": false,
-        "items": true,
+        "items": {},
         "definitions": {
           "x": {
             "type": "boolean"
@@ -1492,7 +1508,7 @@
         ],
         "additionalItems": true,
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -1654,7 +1670,12 @@
       "description": "anyOf with description is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true, false ],
+        "anyOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "description": "A union"
       }
     },
@@ -1662,7 +1683,12 @@
       "description": "anyOf with default is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true, false ],
+        "anyOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "default": "foo"
       }
     },
@@ -1670,7 +1696,12 @@
       "description": "anyOf with $schema is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true, false ],
+        "anyOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "$schema": "http://json-schema.org/draft-04/schema#"
       }
     },
@@ -1678,7 +1709,12 @@
       "description": "anyOf with id is canonical",
       "valid": true,
       "data": {
-        "anyOf": [ true, false ],
+        "anyOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "id": "https://example.com/u"
       }
     },
@@ -1690,7 +1726,7 @@
           {
             "$ref": "#/definitions/a"
           },
-          true
+          {}
         ],
         "definitions": {
           "a": {
@@ -1796,38 +1832,50 @@
             "minLength": 0
           }
         ],
-        "items": true
+        "items": {}
       }
     },
     {
       "description": "anyOf with allOf sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [ true ],
-        "allOf": [ true ]
+        "anyOf": [
+          {}
+        ],
+        "allOf": [
+          {}
+        ]
       }
     },
     {
       "description": "anyOf with oneOf sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [ true ],
-        "oneOf": [ true ]
+        "anyOf": [
+          {}
+        ],
+        "oneOf": [
+          {}
+        ]
       }
     },
     {
       "description": "anyOf with not sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [ true ],
-        "not": true
+        "anyOf": [
+          {}
+        ],
+        "not": {}
       }
     },
     {
       "description": "anyOf with enum sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [
+          {}
+        ],
         "enum": [ 1 ]
       }
     },
@@ -1835,7 +1883,9 @@
       "description": "anyOf with empty definitions is rejected",
       "valid": false,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [
+          {}
+        ],
         "definitions": {}
       }
     },
@@ -1857,7 +1907,9 @@
       "description": "anyOf definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "anyOf": [ true ],
+        "anyOf": [
+          {}
+        ],
         "definitions": {
           "x": {
             "type": "boolean"
@@ -1869,14 +1921,19 @@
       "description": "anyOf with single branch is rejected",
       "valid": false,
       "data": {
-        "anyOf": [ true ]
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
       "description": "anyOf with duplicate branches is rejected",
       "valid": false,
       "data": {
-        "anyOf": [ true, true ]
+        "anyOf": [
+          {},
+          {}
+        ]
       }
     },
     {
@@ -1917,7 +1974,12 @@
       "description": "allOf with description is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true, false ],
+        "allOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "description": "Combined"
       }
     },
@@ -1925,7 +1987,12 @@
       "description": "allOf with default is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true, false ],
+        "allOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "default": {}
       }
     },
@@ -1933,7 +2000,12 @@
       "description": "allOf with $schema is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true, false ],
+        "allOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "$schema": "http://json-schema.org/draft-04/schema#"
       }
     },
@@ -1941,7 +2013,12 @@
       "description": "allOf with id is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true, false ],
+        "allOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "id": "https://example.com/c"
       }
     },
@@ -1953,7 +2030,7 @@
           {
             "$ref": "#/definitions/a"
           },
-          true
+          {}
         ],
         "definitions": {
           "a": {
@@ -1966,7 +2043,12 @@
       "description": "allOf with x-keyword is canonical",
       "valid": true,
       "data": {
-        "allOf": [ true, false ],
+        "allOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "x-note": "combined"
       }
     },
@@ -2005,7 +2087,9 @@
       "description": "allOf with $ref sibling is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ],
+        "allOf": [
+          {}
+        ],
         "$ref": "#/definitions/a"
       }
     },
@@ -2025,7 +2109,9 @@
       "description": "allOf with minLength sibling is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ],
+        "allOf": [
+          {}
+        ],
         "minLength": 0
       }
     },
@@ -2033,39 +2119,53 @@
       "description": "allOf with items sibling is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ],
-        "items": true
+        "allOf": [
+          {}
+        ],
+        "items": {}
       }
     },
     {
       "description": "allOf with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ],
-        "anyOf": [ true ]
+        "allOf": [
+          {}
+        ],
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
       "description": "allOf with oneOf sibling is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ],
-        "oneOf": [ true ]
+        "allOf": [
+          {}
+        ],
+        "oneOf": [
+          {}
+        ]
       }
     },
     {
       "description": "allOf with not sibling is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ],
-        "not": true
+        "allOf": [
+          {}
+        ],
+        "not": {}
       }
     },
     {
       "description": "allOf with enum sibling is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ],
+        "allOf": [
+          {}
+        ],
         "enum": [ 1 ]
       }
     },
@@ -2073,7 +2173,9 @@
       "description": "allOf with empty definitions is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ],
+        "allOf": [
+          {}
+        ],
         "definitions": {}
       }
     },
@@ -2092,7 +2194,9 @@
       "description": "allOf definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "allOf": [ true ],
+        "allOf": [
+          {}
+        ],
         "definitions": {
           "x": {
             "type": "boolean"
@@ -2104,14 +2208,19 @@
       "description": "allOf with single branch is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true ]
+        "allOf": [
+          {}
+        ]
       }
     },
     {
       "description": "allOf with duplicate branches is rejected",
       "valid": false,
       "data": {
-        "allOf": [ true, true ]
+        "allOf": [
+          {},
+          {}
+        ]
       }
     },
     {
@@ -2149,7 +2258,12 @@
       "description": "oneOf with description is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true, false ],
+        "oneOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "description": "Exclusive"
       }
     },
@@ -2157,7 +2271,12 @@
       "description": "oneOf with default is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true, false ],
+        "oneOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "default": "x"
       }
     },
@@ -2165,7 +2284,12 @@
       "description": "oneOf with $schema is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true, false ],
+        "oneOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "$schema": "http://json-schema.org/draft-04/schema#"
       }
     },
@@ -2173,7 +2297,12 @@
       "description": "oneOf with id is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true, false ],
+        "oneOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "id": "https://example.com/x"
       }
     },
@@ -2185,7 +2314,7 @@
           {
             "$ref": "#/definitions/a"
           },
-          true
+          {}
         ],
         "definitions": {
           "a": {
@@ -2198,7 +2327,12 @@
       "description": "oneOf with x-keyword is canonical",
       "valid": true,
       "data": {
-        "oneOf": [ true, false ],
+        "oneOf": [
+          {},
+          {
+            "not": {}
+          }
+        ],
         "x-mode": "strict"
       }
     },
@@ -2225,7 +2359,9 @@
       "description": "oneOf with properties sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [
+          {}
+        ],
         "properties": {}
       }
     },
@@ -2233,7 +2369,9 @@
       "description": "oneOf with $ref sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [
+          {}
+        ],
         "$ref": "#/definitions/a"
       }
     },
@@ -2253,7 +2391,9 @@
       "description": "oneOf with minLength sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [
+          {}
+        ],
         "minLength": 0
       }
     },
@@ -2261,39 +2401,53 @@
       "description": "oneOf with items sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
-        "items": true
+        "oneOf": [
+          {}
+        ],
+        "items": {}
       }
     },
     {
       "description": "oneOf with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
-        "anyOf": [ true ]
+        "oneOf": [
+          {}
+        ],
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
       "description": "oneOf with allOf sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
-        "allOf": [ true ]
+        "oneOf": [
+          {}
+        ],
+        "allOf": [
+          {}
+        ]
       }
     },
     {
       "description": "oneOf with not sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
-        "not": true
+        "oneOf": [
+          {}
+        ],
+        "not": {}
       }
     },
     {
       "description": "oneOf with enum sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [
+          {}
+        ],
         "enum": [ 1 ]
       }
     },
@@ -2301,7 +2455,9 @@
       "description": "oneOf with empty definitions is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [
+          {}
+        ],
         "definitions": {}
       }
     },
@@ -2323,7 +2479,9 @@
       "description": "oneOf definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "oneOf": [ true ],
+        "oneOf": [
+          {}
+        ],
         "definitions": {
           "x": {
             "type": "boolean"
@@ -2335,19 +2493,21 @@
       "description": "oneOf with single branch is rejected",
       "valid": false,
       "data": {
-        "oneOf": [ true ]
+        "oneOf": [
+          {}
+        ]
       }
     },
     {
-      "description": "not with boolean is canonical",
+      "description": "not with empty schema is canonical",
       "valid": true,
       "data": {
-        "not": true
+        "not": {}
       }
     },
     {
-      "description": "not with false is canonical",
-      "valid": true,
+      "description": "not with false is rejected",
+      "valid": false,
       "data": {
         "not": false
       }
@@ -2366,7 +2526,7 @@
       "description": "not with title is canonical",
       "valid": true,
       "data": {
-        "not": true,
+        "not": {},
         "title": "Impossible"
       }
     },
@@ -2374,7 +2534,7 @@
       "description": "not with description is canonical",
       "valid": true,
       "data": {
-        "not": true,
+        "not": {},
         "description": "Negated"
       }
     },
@@ -2382,7 +2542,7 @@
       "description": "not with default is canonical",
       "valid": true,
       "data": {
-        "not": true,
+        "not": {},
         "default": null
       }
     },
@@ -2390,7 +2550,7 @@
       "description": "not with $schema is canonical",
       "valid": true,
       "data": {
-        "not": true,
+        "not": {},
         "$schema": "http://json-schema.org/draft-04/schema#"
       }
     },
@@ -2398,7 +2558,7 @@
       "description": "not with id is canonical",
       "valid": true,
       "data": {
-        "not": true,
+        "not": {},
         "id": "https://example.com/not"
       }
     },
@@ -2406,9 +2566,9 @@
       "description": "not with definitions is canonical",
       "valid": true,
       "data": {
-        "not": true,
+        "not": {},
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },
@@ -2416,7 +2576,7 @@
       "description": "not with x-keyword is canonical",
       "valid": true,
       "data": {
-        "not": true,
+        "not": {},
         "x-reason": "legacy"
       }
     },
@@ -2424,7 +2584,7 @@
       "description": "not with type sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
+        "not": {},
         "type": "string"
       }
     },
@@ -2432,7 +2592,7 @@
       "description": "not with properties sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
+        "not": {},
         "properties": {}
       }
     },
@@ -2440,7 +2600,7 @@
       "description": "not with $ref sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
+        "not": {},
         "$ref": "#/definitions/a"
       }
     },
@@ -2448,7 +2608,7 @@
       "description": "not with minimum sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
+        "not": {},
         "minimum": 0
       }
     },
@@ -2456,7 +2616,7 @@
       "description": "not with minLength sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
+        "not": {},
         "minLength": 0
       }
     },
@@ -2464,39 +2624,45 @@
       "description": "not with items sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
-        "items": true
+        "not": {},
+        "items": {}
       }
     },
     {
       "description": "not with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
-        "anyOf": [ true ]
+        "not": {},
+        "anyOf": [
+          {}
+        ]
       }
     },
     {
       "description": "not with allOf sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
-        "allOf": [ true ]
+        "not": {},
+        "allOf": [
+          {}
+        ]
       }
     },
     {
       "description": "not with oneOf sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
-        "oneOf": [ true ]
+        "not": {},
+        "oneOf": [
+          {}
+        ]
       }
     },
     {
       "description": "not with enum sibling is rejected",
       "valid": false,
       "data": {
-        "not": true,
+        "not": {},
         "enum": [ 1 ]
       }
     },
@@ -2504,7 +2670,7 @@
       "description": "not with empty definitions is rejected",
       "valid": false,
       "data": {
-        "not": true,
+        "not": {},
         "definitions": {}
       }
     },
@@ -2521,7 +2687,7 @@
       "description": "not definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "not": true,
+        "not": {},
         "definitions": {
           "x": {
             "type": "boolean"
@@ -2551,8 +2717,8 @@
       }
     },
     {
-      "description": "Empty object is rejected",
-      "valid": false,
+      "description": "Empty object is canonical (accept all)",
+      "valid": true,
       "data": {}
     },
     {
@@ -2588,7 +2754,7 @@
       "valid": false,
       "data": {
         "definitions": {
-          "x": true
+          "x": {}
         }
       }
     },

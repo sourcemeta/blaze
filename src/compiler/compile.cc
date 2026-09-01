@@ -30,12 +30,25 @@ auto is_metaschema_reference(const sourcemeta::core::WeakPointer &origin)
          origin.back().to_property() == "$schema";
 }
 
-// Draft 6 introduced boolean schemas, and Draft 3 has none
+// Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
+// only places they accept a boolean are `additionalProperties` and
+// `additionalItems`, whose own definitions spell that out
 auto booleans_are_schemas(
     const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   return !vocabularies.contains_any(
-      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper});
+      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper,
+       Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper});
+}
+
+// Draft 4 and earlier spell these as flags on a sibling bound rather than as
+// bounds of their own, and their meta-schemas ask for that sibling to be there
+auto exclusive_bounds_need_a_sibling(
+    const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> bool {
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  return vocabularies.contains_any(
+      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper,
+       Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper});
 }
 
 auto is_schema(const sourcemeta::core::JSON &value, const bool allow_boolean)
@@ -245,7 +258,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     // their own, and its meta-schema asks for that sibling to be there
     static const sourcemeta::core::JSON::String KEYWORD_MINIMUM{"minimum"};
     static const sourcemeta::core::JSON::String KEYWORD_MAXIMUM{"maximum"};
-    if (official && !booleans_are_schemas(schema_context.vocabularies) &&
+    if (official &&
+        exclusive_bounds_need_a_sibling(schema_context.vocabularies) &&
         ((keyword == "exclusiveMinimum" &&
           !schema_context.schema.defines(KEYWORD_MINIMUM)) ||
          (keyword == "exclusiveMaximum" &&
@@ -430,6 +444,20 @@ auto compile(const sourcemeta::core::JSON &schema,
       sourcemeta::blaze::SchemaFrame::LocationType::Pointer) [[unlikely]] {
     throw CompilerInvalidEntryPoint{
         entrypoint, "The given entry point URI is not a valid subschema"};
+  }
+
+  // Compiling from an entry point makes that subschema a root of its own, and
+  // a dialect without boolean schemas has no more room for a boolean there
+  // than it has at the root of a schema resource
+  const auto &entrypoint_schema{
+      sourcemeta::core::get(schema, entrypoint_location.pointer)};
+  if (entrypoint_schema.is_boolean() &&
+      !booleans_are_schemas(frame.vocabularies(entrypoint_location, resolver)))
+      [[unlikely]] {
+    throw CompilerError(sourcemeta::core::URI{entrypoint_location.base},
+                        to_pointer(entrypoint_location.pointer.slice(
+                            entrypoint_location.relative_pointer)),
+                        "This dialect does not support boolean schemas");
   }
 
   const bool collects_annotations{

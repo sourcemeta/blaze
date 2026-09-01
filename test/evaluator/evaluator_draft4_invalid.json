@@ -392,5 +392,92 @@
       "base": "",
       "location": "/dependencies"
     }
+  },
+  {
+    "description": "properties_boolean_subschema",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "foo": true }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/properties"
+    }
+  },
+  {
+    "description": "pattern_properties_boolean_subschema",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "patternProperties": { "^@": true }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/patternProperties"
+    }
+  },
+  {
+    "description": "items_boolean_subschema",
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "items": true },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema or to an array of them",
+      "base": "",
+      "location": "/items"
+    }
+  },
+  {
+    "description": "not_boolean_subschema",
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "not": true },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/not"
+    }
+  },
+  {
+    "description": "any_of_boolean_subschema",
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "anyOf": [ true ] },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
+  },
+  {
+    "description": "definitions_boolean_subschema",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "definitions": { "foo": true }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/definitions"
+    }
+  },
+  {
+    "description": "exclusive_minimum_without_minimum",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "exclusiveMinimum": true
+    },
+    "error": {
+      "message": "This keyword was expected to accompany the bound it applies to",
+      "base": "",
+      "location": "/exclusiveMinimum"
+    }
+  },
+  {
+    "description": "exclusive_maximum_without_maximum",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "exclusiveMaximum": true
+    },
+    "error": {
+      "message": "This keyword was expected to accompany the bound it applies to",
+      "base": "",
+      "location": "/exclusiveMaximum"
+    }
   }
 ]

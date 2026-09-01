@@ -2679,3 +2679,25 @@ TEST(format_with_type_integer_short_circuits_with_tweak_fast) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
 }
+
+TEST(boolean_subschema_entrypoint) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "everything": true
+    }
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::FastValidation, "", "",
+                               "#/properties/everything");
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(), "This dialect does not support boolean schemas");
+  } catch (...) {
+    FAIL();
+  }
+}
