@@ -55,9 +55,6 @@
           "const": {}
         },
         {
-          "const": false
-        },
-        {
           "x-lint-exclude": "simple_properties_identifiers",
           "$ref": "#/$defs/metadata",
           "type": "object",

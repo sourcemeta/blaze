@@ -7,8 +7,8 @@
       "data": true
     },
     {
-      "description": "Boolean false is canonical",
-      "valid": true,
+      "description": "Boolean false is rejected",
+      "valid": false,
       "data": false
     },
     {
@@ -1206,8 +1206,8 @@
       }
     },
     {
-      "description": "Array with false items is canonical",
-      "valid": true,
+      "description": "Array with false items is rejected",
+      "valid": false,
       "data": {
         "type": "array",
         "minItems": 0,
@@ -1672,7 +1672,9 @@
       "data": {
         "anyOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "description": "A union"
       }
@@ -1683,7 +1685,9 @@
       "data": {
         "anyOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "default": "foo"
       }
@@ -1694,7 +1698,9 @@
       "data": {
         "anyOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "$schema": "http://json-schema.org/draft-04/schema#"
       }
@@ -1705,7 +1711,9 @@
       "data": {
         "anyOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "id": "https://example.com/u"
       }
@@ -1968,7 +1976,9 @@
       "data": {
         "allOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "description": "Combined"
       }
@@ -1979,7 +1989,9 @@
       "data": {
         "allOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "default": {}
       }
@@ -1990,7 +2002,9 @@
       "data": {
         "allOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "$schema": "http://json-schema.org/draft-04/schema#"
       }
@@ -2001,7 +2015,9 @@
       "data": {
         "allOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "id": "https://example.com/c"
       }
@@ -2029,7 +2045,9 @@
       "data": {
         "allOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "x-note": "combined"
       }
@@ -2242,7 +2260,9 @@
       "data": {
         "oneOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "description": "Exclusive"
       }
@@ -2253,7 +2273,9 @@
       "data": {
         "oneOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "default": "x"
       }
@@ -2264,7 +2286,9 @@
       "data": {
         "oneOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "$schema": "http://json-schema.org/draft-04/schema#"
       }
@@ -2275,7 +2299,9 @@
       "data": {
         "oneOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "id": "https://example.com/x"
       }
@@ -2303,7 +2329,9 @@
       "data": {
         "oneOf": [
           {},
-          false
+          {
+            "not": {}
+          }
         ],
         "x-mode": "strict"
       }
@@ -2478,8 +2506,8 @@
       }
     },
     {
-      "description": "not with false is canonical",
-      "valid": true,
+      "description": "not with false is rejected",
+      "valid": false,
       "data": {
         "not": false
       }

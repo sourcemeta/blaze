@@ -114,9 +114,10 @@ TEST(type_boolean_as_enum_2) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -142,9 +143,10 @@ TEST(type_null_as_enum_2) {
     "enum": [ 1, 2, 3 ]
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3330,9 +3332,10 @@ TEST(equal_bounds_with_exclusive_minimum_unsatisfiable) {
     "exclusiveMinimum": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3346,9 +3349,10 @@ TEST(equal_bounds_with_exclusive_maximum_unsatisfiable) {
     "exclusiveMaximum": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3450,9 +3454,10 @@ TEST(equal_bounds_exclusive_exponential_unsatisfiable) {
     "exclusiveMinimum": true
   })JSON");
 
-  const auto expected = sourcemeta::core::parse_json(R"JSON(
-    false
-  )JSON");
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": {}
+  })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
@@ -3582,7 +3587,9 @@ TEST(exclusive_equal_bounds_without_type_not_unsatisfiable) {
           "type": "string",
           "minLength": 0
         },
-        false
+        {
+          "not": {}
+        }
       ]
     })JSON");
 
