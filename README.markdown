@@ -93,7 +93,7 @@ hooks for supporting custom vocabularies, resolving external schemas, and more.
 
 ```cpp
 // (1) Get a JSON Schema
-const auto schema{sourcemeta::core::parse(R"JSON({
+const auto schema{sourcemeta::core::parse_json(R"JSON({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "string"
 })JSON")};
@@ -105,8 +105,8 @@ const auto compiled_schema{sourcemeta::blaze::compile(
   // These options allow you tweak how Blaze works,
   // the JSON Schema vocabularies it understands,
   // and how to resolve references to external schemas
-  sourcemeta::core::schema_walker,
-  sourcemeta::core::schema_resolver,
+  sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::schema_resolver,
   sourcemeta::blaze::default_schema_compiler,
 
   // Fast validation means getting to a boolean result
