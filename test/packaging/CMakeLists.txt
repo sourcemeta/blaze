@@ -12,3 +12,16 @@ add_test(NAME packaging.find_package_build COMMAND
   --config "${CMAKE_BUILD_TYPE}")
 set_tests_properties(packaging.find_package_build
   PROPERTIES DEPENDS packaging.find_package_configure)
+
+find_program(MESON_EXECUTABLE NAMES meson)
+if(MESON_EXECUTABLE)
+  add_test(NAME packaging.meson_setup COMMAND
+    "${MESON_EXECUTABLE}" setup --reconfigure
+    "${CMAKE_CURRENT_BINARY_DIR}/meson"
+    "${CMAKE_CURRENT_SOURCE_DIR}/meson"
+    "-Dcmake_prefix_path=${PROJECT_SOURCE_DIR}/build/dist")
+  add_test(NAME packaging.meson_compile COMMAND
+    "${MESON_EXECUTABLE}" compile -C "${CMAKE_CURRENT_BINARY_DIR}/meson")
+  set_tests_properties(packaging.meson_compile
+    PROPERTIES DEPENDS packaging.meson_setup)
+endif()

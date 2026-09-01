@@ -87,7 +87,12 @@ jobs:
           HOMEBREW_NO_ANALYTICS: 1
           HOMEBREW_NO_AUTO_UPDATE: 1
       - run: npm ci
+      - name: Install Meson (non-macOS)
+        if: runner.os != 'macos'
+        run: pipx install meson && pipx install ninja
       - run: cmake --version
+      - run: meson --version
+      - run: ninja --version
       - name: Configure Blaze (static)
         if: matrix.platform.type == 'static'
         run: >
