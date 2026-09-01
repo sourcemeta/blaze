@@ -12392,7 +12392,7 @@
         [ false, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type string but it was of type string"
+        "The value was expected to be of a type other than string, as no string is short enough to satisfy a negative maximum length"
       ]
     },
     "exhaustive": {
@@ -12403,7 +12403,7 @@
         [ false, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type string but it was of type string"
+        "The value was expected to be of a type other than string, as no string is short enough to satisfy a negative maximum length"
       ]
     }
   },
@@ -12420,7 +12420,7 @@
         [ true, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type string"
+        "The value was expected to be of a type other than string, as no string is short enough to satisfy a negative maximum length"
       ]
     },
     "exhaustive": {
@@ -12431,7 +12431,7 @@
         [ true, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type string"
+        "The value was expected to be of a type other than string, as no string is short enough to satisfy a negative maximum length"
       ]
     }
   },
