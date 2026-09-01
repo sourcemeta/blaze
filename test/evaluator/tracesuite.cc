@@ -278,12 +278,13 @@ auto main(int argc, char **argv) -> int {
     register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                              "evaluator_draft4_invalid.json",
                          "Evaluator_error_draft4");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_draft3.json",
-                   "Evaluator_trace_draft3");
+    register_tests(
+        std::filesystem::path{TRACE_SUITE_PATH} / "evaluator_draft3.json",
+        "Evaluator_trace_draft3", "http://json-schema.org/draft-03/schema#");
     register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                              "evaluator_draft3_invalid.json",
-                         "Evaluator_error_draft3");
+                         "Evaluator_error_draft3",
+                         "http://json-schema.org/draft-03/schema#");
   } catch (const std::exception &error) {
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;

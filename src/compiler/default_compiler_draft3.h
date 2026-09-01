@@ -103,16 +103,36 @@ auto integral_reals_are_integers(
        Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper});
 }
 
-auto is_schema(const sourcemeta::core::JSON &value) -> bool {
-  return value.is_object() || value.is_boolean();
+// Draft 6 introduced boolean schemas. Draft 3 has none, and the only places it
+// accepts a boolean are `additionalProperties` and `additionalItems`, whose own
+// definitions spell that out
+auto booleans_are_schemas(
+    const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> bool {
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  return !vocabularies.contains_any(
+      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper});
+}
+
+auto is_schema(const sourcemeta::core::JSON &value, const bool allow_boolean)
+    -> bool {
+  return value.is_object() || (allow_boolean && value.is_boolean());
+}
+
+auto all_are_schemas(const sourcemeta::core::JSON &value,
+                     const bool allow_boolean) -> bool {
+  return std::ranges::all_of(value.as_array(),
+                             [allow_boolean](const auto &entry) -> bool {
+                               return is_schema(entry, allow_boolean);
+                             });
 }
 
 // The meta-schema describes these as a non-empty array of schemas. A keyword
 // that does not satisfy that is not a constraint at all, so we ignore it
 // rather than compile part of it or turn it into a failure
-auto is_schema_array(const sourcemeta::core::JSON &value) -> bool {
+auto is_schema_array(const sourcemeta::core::JSON &value,
+                     const bool allow_boolean) -> bool {
   return value.is_array() && !value.empty() &&
-         std::ranges::all_of(value.as_array(), is_schema);
+         all_are_schemas(value, allow_boolean);
 }
 
 // Draft 3 describes `type` and `disallow` as a type name or an array of unique
@@ -1493,7 +1513,8 @@ auto compiler_draft3_applicator_items_array(
       {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper})};
   const auto &items{schema_context.schema.at(dynamic_context.keyword)};
   if ((items.empty() && !allows_empty) ||
-      !std::ranges::all_of(items.as_array(), is_schema)) {
+      !all_are_schemas(items,
+                       booleans_are_schemas(schema_context.vocabularies))) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
         allows_empty ? EXPECTED_SCHEMA_ARRAY_ANY_SIZE : EXPECTED_SCHEMA_ARRAY);
@@ -1626,6 +1647,16 @@ auto compiler_draft3_applicator_items_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
     const bool track_evaluation) -> Instructions {
+  // The tuple form must hold schemas whatever the instance turns out to be, so
+  // this runs before the check on which instances the keyword can apply to
+  if (schema_context.schema.at(dynamic_context.keyword).is_array() &&
+      !all_are_schemas(schema_context.schema.at(dynamic_context.keyword),
+                       booleans_are_schemas(schema_context.vocabularies))) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_SCHEMA_ARRAY_ANY_SIZE);
+  }
+
   if (schema_context.schema.defines("type") &&
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "array") {
@@ -2721,7 +2752,9 @@ auto compiler_draft3_applicator_extends(const Context &context,
 
   // Unlike the keywords that share this shape, Draft 3 puts no lower bound on
   // how many schemas `extends` may combine
-  if (value.is_array() && !std::ranges::all_of(value.as_array(), is_schema)) {
+  if (value.is_array() &&
+      !all_are_schemas(value,
+                       booleans_are_schemas(schema_context.vocabularies))) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
         EXPECTED_SCHEMA_ARRAY_ANY_SIZE);
@@ -2795,12 +2828,6 @@ auto compiler_draft3_applicator_dependencies(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() != "object") {
-    return {};
-  }
-
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
@@ -2817,19 +2844,29 @@ auto compiler_draft3_applicator_dependencies(
   // as a whole stop being a constraint
   if (!std::ranges::all_of(
           schema_context.schema.at(dynamic_context.keyword).as_object(),
-          [is_draft3](const auto &entry) -> bool {
+          [is_draft3,
+           allow_boolean = booleans_are_schemas(schema_context.vocabularies)](
+              const auto &entry) -> bool {
             const auto names_only{
                 entry.second.is_array() &&
                 std::ranges::all_of(
                     entry.second.as_array(),
                     [](const auto &name) -> bool { return name.is_string(); })};
-            return is_schema(entry.second) ||
+            return is_schema(entry.second, allow_boolean) ||
                    (names_only && (is_draft3 || entry.second.unique())) ||
                    (is_draft3 && entry.second.is_string());
           })) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
         EXPECTED_DEPENDENCIES);
+  }
+
+  // Only once the shape is known to be good does it matter whether the keyword
+  // can apply to the instances this schema admits
+  if (schema_context.schema.defines("type") &&
+      schema_context.schema.at("type").is_string() &&
+      schema_context.schema.at("type").to_string() != "object") {
+    return {};
   }
 
   Instructions children;

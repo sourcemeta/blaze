@@ -12380,10 +12380,66 @@
     }
   },
   {
+    "description": "max_length_negative_string",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "maxLength": -2 },
+    "instance": "hello",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than string, as no string is short enough to satisfy a negative maximum length"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than string, as no string is short enough to satisfy a negative maximum length"
+      ]
+    }
+  },
+  {
+    "description": "max_length_negative_non_string",
+    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "maxLength": -2 },
+    "instance": 42,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than string, as no string is short enough to satisfy a negative maximum length"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than string, as no string is short enough to satisfy a negative maximum length"
+      ]
+    }
+  },
+  {
     "description": "patternProperties_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",
-      "patternProperties": { "^v": true }
+      "patternProperties": { "^v": {} }
     },
     "instance": { "foo": 1, "bar": 2 },
     "valid": true,
@@ -12394,7 +12450,7 @@
     "description": "patternProperties_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",
-      "patternProperties": { "^f": true }
+      "patternProperties": { "^f": {} }
     },
     "instance": { "foo": 1, "bar": 2 },
     "valid": true,
@@ -12405,7 +12461,7 @@
     "description": "patternProperties_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",
-      "patternProperties": { "^@": true },
+      "patternProperties": { "^@": {} },
       "additionalProperties": { "type": "string" }
     },
     "instance": { "@foo": 1, "bar": "baz" },
@@ -12443,7 +12499,7 @@
     "description": "patternProperties_13",
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",
-      "patternProperties": { "^[a-z]+$": true },
+      "patternProperties": { "^[a-z]+$": {} },
       "additionalProperties": false
     },
     "instance": { "foo": "bar" },
@@ -12475,7 +12531,7 @@
     "description": "patternProperties_14",
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",
-      "patternProperties": { "^[a-z]+$": true },
+      "patternProperties": { "^[a-z]+$": {} },
       "additionalProperties": false
     },
     "instance": { "foo": "bar", "@bar": 1 },
@@ -12512,7 +12568,7 @@
       "$schema": "http://json-schema.org/draft-03/schema#",
       "type": "object",
       "properties": {},
-      "patternProperties": { "^[a-z]+$": true },
+      "patternProperties": { "^[a-z]+$": {} },
       "additionalProperties": false
     },
     "instance": { "foo": "bar", "@bar": 1 },
@@ -12551,7 +12607,7 @@
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",
       "additionalProperties": false,
-      "patternProperties": { "^@": true },
+      "patternProperties": { "^@": {} },
       "properties": {
         "foo": { "type": "boolean", "required": true },
         "bar": { "type": "boolean", "required": true }
@@ -12600,62 +12656,6 @@
         "The value was expected to be of type boolean",
         "The object value was expected to validate against the defined properties subschemas",
         "The object value was not expected to define additional properties"
-      ]
-    }
-  },
-  {
-    "description": "max_length_negative_string",
-    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "maxLength": -2 },
-    "instance": "hello",
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
-      ],
-      "post": [
-        [ false, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to NOT be of type string but it was of type string"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
-      ],
-      "post": [
-        [ false, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to NOT be of type string but it was of type string"
-      ]
-    }
-  },
-  {
-    "description": "max_length_negative_non_string",
-    "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "maxLength": -2 },
-    "instance": 42,
-    "valid": true,
-    "fast": {
-      "pre": [
-        [ "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
-      ],
-      "post": [
-        [ true, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to NOT be of type string"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
-      ],
-      "post": [
-        [ true, "AssertionNotTypeStrictAny", "/maxLength", "#/maxLength", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to NOT be of type string"
       ]
     }
   }

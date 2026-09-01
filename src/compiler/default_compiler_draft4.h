@@ -42,7 +42,8 @@ auto compiler_draft4_applicator_allof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
+  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
+                       booleans_are_schemas(schema_context.vocabularies))) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
         EXPECTED_SCHEMA_ARRAY);
@@ -90,7 +91,8 @@ auto compiler_draft4_applicator_anyof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
+  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
+                       booleans_are_schemas(schema_context.vocabularies))) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
         EXPECTED_SCHEMA_ARRAY);
@@ -166,7 +168,8 @@ auto compiler_draft4_applicator_oneof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword))) {
+  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
+                       booleans_are_schemas(schema_context.vocabularies))) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
         EXPECTED_SCHEMA_ARRAY);
