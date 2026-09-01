@@ -195,6 +195,17 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   assert((schema_context.schema.is_object() ||
           schema_context.schema.is_boolean()));
 
+  // A boolean in a keyword position is settled by the keyword's own contract,
+  // which the shape check below applies. What is left is the root of a schema
+  // resource, where a dialect without boolean schemas admits no boolean at all
+  if (schema_context.schema.is_boolean() &&
+      schema_context.relative_pointer.empty() &&
+      !booleans_are_schemas(schema_context.vocabularies)) [[unlikely]] {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        "This dialect does not support boolean schemas");
+  }
+
   // Handle boolean schemas earlier on, as nobody should be able to
   // override what these mean.
   if (schema_context.schema.is_boolean()) {
@@ -234,7 +245,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     // their own, and its meta-schema asks for that sibling to be there
     static const sourcemeta::core::JSON::String KEYWORD_MINIMUM{"minimum"};
     static const sourcemeta::core::JSON::String KEYWORD_MAXIMUM{"maximum"};
-    if (!booleans_are_schemas(schema_context.vocabularies) &&
+    if (official && !booleans_are_schemas(schema_context.vocabularies) &&
         ((keyword == "exclusiveMinimum" &&
           !schema_context.schema.defines(KEYWORD_MINIMUM)) ||
          (keyword == "exclusiveMaximum" &&
