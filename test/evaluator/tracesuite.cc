@@ -12,6 +12,7 @@
 #include <cstdint>     // std::uint8_t
 #include <cstdio>      // std::fprintf
 #include <filesystem>  // std::filesystem::path
+#include <map>         // std::map
 #include <string>      // std::string
 #include <string_view> // std::string_view
 #include <utility>     // std::move, std::unreachable
@@ -32,10 +33,45 @@ static auto to_instruction_index(const std::string_view name)
 }
 
 namespace {
+
+// Compiling a meta-schema is expensive, so each one is compiled on first use
+// and reused for every case in its suite
+auto metaschema_template(const std::string &uri)
+    -> const sourcemeta::blaze::Template & {
+  static std::map<std::string, sourcemeta::blaze::Template> cache;
+  const auto match{cache.find(uri)};
+  if (match != cache.cend()) {
+    return match->second;
+  }
+
+  const auto metaschema{sourcemeta::blaze::schema_resolver(uri)};
+  assert(metaschema.has_value());
+  return cache
+      .emplace(uri, sourcemeta::blaze::compile(
+                        metaschema.value(), sourcemeta::blaze::schema_walker,
+                        sourcemeta::blaze::schema_resolver,
+                        sourcemeta::blaze::default_schema_compiler,
+                        sourcemeta::blaze::Mode::FastValidation))
+      .first->second;
+}
+
+// Whether the schema is one its own dialect considers well-formed. Compilation
+// must agree with this: a schema the meta-schema accepts must compile, and one
+// it rejects must not
+auto matches_metaschema(const std::string &uri,
+                        const sourcemeta::core::JSON &schema) -> bool {
+  sourcemeta::blaze::Evaluator evaluator;
+  return evaluator.validate(metaschema_template(uri), schema);
+}
+
 auto run_trace_test(const sourcemeta::core::JSON &data,
-                    const sourcemeta::blaze::Mode mode, const char *mode_key)
-    -> void {
+                    const sourcemeta::blaze::Mode mode, const char *mode_key,
+                    const std::string &metaschema) -> void {
   const auto &schema{data.at("schema")};
+  if (!metaschema.empty()) {
+    EXPECT_TRUE(matches_metaschema(metaschema, schema));
+  }
+
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
 
@@ -115,8 +151,13 @@ auto run_trace_test(const sourcemeta::core::JSON &data,
                                  trace_descriptions.at(index).to_string());
   }
 }
-auto run_error_test(const sourcemeta::core::JSON &data) -> void {
+auto run_error_test(const sourcemeta::core::JSON &data,
+                    const std::string &metaschema) -> void {
   const auto &expected{data.at("error")};
+  if (!metaschema.empty()) {
+    EXPECT_FALSE(matches_metaschema(metaschema, data.at("schema")));
+  }
+
   try {
     sourcemeta::blaze::compile(data.at("schema"),
                                sourcemeta::blaze::schema_walker,
@@ -140,7 +181,8 @@ auto run_error_test(const sourcemeta::core::JSON &data) -> void {
 // Schemas whose keywords the official meta-schema rejects, which the compiler
 // refuses rather than silently ignores
 static auto register_error_tests(const std::filesystem::path &path,
-                                 const std::string &suite_name) -> void {
+                                 const std::string &suite_name,
+                                 const std::string &metaschema = "") -> void {
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
   assert(suite.is_array());
@@ -151,12 +193,15 @@ static auto register_error_tests(const std::filesystem::path &path,
     assert(test_case.defines("error"));
     sourcemeta::core::test_register(
         suite_name, test_case.at("description").to_string(), __FILE__, __LINE__,
-        [test_case]() -> void { run_error_test(test_case); });
+        [test_case, metaschema]() -> void {
+          run_error_test(test_case, metaschema);
+        });
   }
 }
 
 static auto register_tests(const std::filesystem::path &path,
-                           const std::string &suite_name) -> void {
+                           const std::string &suite_name,
+                           const std::string &metaschema = "") -> void {
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
   assert(suite.is_array());
@@ -180,11 +225,11 @@ static auto register_tests(const std::filesystem::path &path,
                             ? "_fast"
                             : "_exhaustive")};
 
-      sourcemeta::core::test_register(suite_name, title, __FILE__, __LINE__,
-                                      [test_case, mode, mode_key]() -> void {
-                                        run_trace_test(test_case, mode,
-                                                       mode_key);
-                                      });
+      sourcemeta::core::test_register(
+          suite_name, title, __FILE__, __LINE__,
+          [test_case, mode, mode_key, metaschema]() -> void {
+            run_trace_test(test_case, mode, mode_key, metaschema);
+          });
     }
   }
 }
@@ -197,30 +242,36 @@ auto main(int argc, char **argv) -> int {
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_openapi_3_2.json",
                    "Evaluator_trace_OpenAPI_3_2");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_draft7.json",
-                   "Evaluator_trace_draft7");
+    register_tests(
+        std::filesystem::path{TRACE_SUITE_PATH} / "evaluator_draft7.json",
+        "Evaluator_trace_draft7", "http://json-schema.org/draft-07/schema#");
     register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                              "evaluator_draft7_invalid.json",
-                         "Evaluator_error_draft7");
+                         "Evaluator_error_draft7",
+                         "http://json-schema.org/draft-07/schema#");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_2019_09.json",
-                   "Evaluator_trace_2019_09");
+                   "Evaluator_trace_2019_09",
+                   "https://json-schema.org/draft/2019-09/schema");
     register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                              "evaluator_2019_09_invalid.json",
-                         "Evaluator_error_2019_09");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_draft6.json",
-                   "Evaluator_trace_draft6");
+                         "Evaluator_error_2019_09",
+                         "https://json-schema.org/draft/2019-09/schema");
+    register_tests(
+        std::filesystem::path{TRACE_SUITE_PATH} / "evaluator_draft6.json",
+        "Evaluator_trace_draft6", "http://json-schema.org/draft-06/schema#");
     register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                              "evaluator_draft6_invalid.json",
-                         "Evaluator_error_draft6");
+                         "Evaluator_error_draft6",
+                         "http://json-schema.org/draft-06/schema#");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_2020_12.json",
-                   "Evaluator_trace_2020_12");
+                   "Evaluator_trace_2020_12",
+                   "https://json-schema.org/draft/2020-12/schema");
     register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                              "evaluator_2020_12_invalid.json",
-                         "Evaluator_error_2020_12");
+                         "Evaluator_error_2020_12",
+                         "https://json-schema.org/draft/2020-12/schema");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_draft4.json",
                    "Evaluator_trace_draft4");
