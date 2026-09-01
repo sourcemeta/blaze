@@ -1972,6 +1972,17 @@ auto compiler_draft3_validation_maxlength(const Context &context,
     return {};
   }
 
+  // Draft 3 permits a negative bound, which no string can ever be short
+  // enough to meet. Converting it would wrap around and drop the constraint,
+  // so we say what it means instead: every string fails, and nothing else is
+  // affected
+  if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
+    ValueTypes types;
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::String));
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
+                 context, schema_context, dynamic_context, types)};
+  }
+
   // We'll handle it at the type level as an optimization. Note that the type
   // compiler bails out before it reads these bounds when it is compiling a
   // property name, so there we must still emit them ourselves

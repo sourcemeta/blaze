@@ -13,6 +13,7 @@
 #include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
 #include <utility>       // std::move, std::pair
+#include <variant>       // std::holds_alternative
 #include <vector>        // std::vector
 
 #include "compile_helpers.h"
@@ -63,9 +64,10 @@ auto keyword_shape_error(
       "This keyword was expected to be set to an object whose values are "
       "valid schemas"};
 
-  // A keyword the dialect in use does not define carries no vocabulary, so
-  // what follows never touches one and it stays ignored, as the specification
-  // requires
+  // What follows describes the contracts of the official vocabularies. A
+  // keyword the dialect does not define carries no vocabulary at all, and one
+  // that a custom vocabulary defines carries its URI rather than a known
+  // value, so neither is held to these
   if (known) {
     if (keyword == "title" || keyword == "description" ||
         keyword == "$comment" || keyword == "format" ||
@@ -201,9 +203,13 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     assert(entry.pointer.back().is_property());
     const auto &keyword{entry.pointer.back().to_property()};
     const auto &metadata{context.walker(keyword, schema_context.vocabularies)};
+    const auto official{
+        metadata.vocabulary.has_value() &&
+        std::holds_alternative<sourcemeta::blaze::SchemaVocabularies::Known>(
+            metadata.vocabulary.value())};
     const auto *shape_error{keyword_shape_error(
-        keyword, metadata.type, metadata.vocabulary.has_value(),
-        schema_context.schema.at(keyword), schema_context.vocabularies)};
+        keyword, metadata.type, official, schema_context.schema.at(keyword),
+        schema_context.vocabularies)};
     if (shape_error) [[unlikely]] {
       throw sourcemeta::blaze::CompilerError(
           schema_context.base,
