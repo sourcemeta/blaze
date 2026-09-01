@@ -1,43 +1,14 @@
 [
   {
-    "description": "exclusiveMinimum_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMinimum": "not-a-number"
-    },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
-  },
-  {
-    "description": "exclusiveMaximum_4",
-    "schema": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "exclusiveMaximum": "not-a-number"
-    },
-    "instance": "foo",
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
-  },
-  {
     "description": "type_array_unknown_names",
     "schema": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": [ "foo", "bar" ]
     },
-    "instance": 5,
-    "valid": true,
-    "fast": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
-    },
-    "exhaustive": {
-      "pre": [],
-      "post": [],
-      "descriptions": []
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/type"
     }
   },
   {
@@ -46,10 +17,11 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "propertyNames": { "type": [ "foo" ] }
     },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/propertyNames/type"
+    }
   },
   {
     "description": "property_names_type_unknown_name_scalar",
@@ -57,9 +29,34 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "propertyNames": { "type": "foo" }
     },
-    "instance": { "a": 1 },
-    "valid": true,
-    "fast": {},
-    "exhaustive": {}
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/propertyNames/type"
+    }
+  },
+  {
+    "description": "exclusiveMinimum_4",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "exclusiveMinimum": "not-a-number"
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a number",
+      "base": "",
+      "location": "/exclusiveMinimum"
+    }
+  },
+  {
+    "description": "exclusiveMaximum_4",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "exclusiveMaximum": "not-a-number"
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a number",
+      "base": "",
+      "location": "/exclusiveMaximum"
+    }
   }
 ]

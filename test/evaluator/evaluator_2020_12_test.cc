@@ -1415,6 +1415,7 @@ TEST(prop_type_integer_lower_bound_4_exhaustive) {
                                "The object value was expected to validate "
                                "against the single defined property subschema");
 }
+
 TEST(format_date_time_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4446,6 +4447,7 @@ TEST(format_uuid_non_string_with_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
                                                  tweaks);
 }
+
 TEST(format_unknown_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -4476,61 +4478,111 @@ TEST(format_unknown_with_tweak_exhaustive) {
 }
 
 TEST(format_keyword_value_integer_with_tweak_fast) {
+  // The meta-schema asks that `format` be a string, so a schema that does not
+  // satisfy it is refused rather than compiled
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": 42
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"anything"};
-
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::FastValidation, "", "",
+                               "", tweaks);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This keyword was expected to be set to a string");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(format_keyword_value_integer_with_tweak_exhaustive) {
+  // The meta-schema asks that `format` be a string, so a schema that does not
+  // satisfy it is refused rather than compiled
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": 42
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"anything"};
-
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
+                               tweaks);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This keyword was expected to be set to a string");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(format_keyword_value_null_with_tweak_fast) {
+  // The meta-schema asks that `format` be a string, so a schema that does not
+  // satisfy it is refused rather than compiled
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": null
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"anything"};
-
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::FastValidation, "", "",
+                               "", tweaks);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This keyword was expected to be set to a string");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(format_keyword_value_null_with_tweak_exhaustive) {
+  // The meta-schema asks that `format` be a string, so a schema that does not
+  // satisfy it is refused rather than compiled
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "format": null
   })JSON")};
 
-  const sourcemeta::core::JSON instance{"anything"};
-
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
+                               tweaks);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This keyword was expected to be set to a string");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(format_under_properties_valid_with_tweak_fast) {
@@ -5696,14 +5748,20 @@ TEST(type_array_partially_unknown_names_invalid) {
     "type": [ "string", "foo" ]
   })JSON")};
 
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("5")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
-
-  EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeAny, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string "
-                               "but it was of type integer");
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_STREQ(error.what(), "This keyword was expected to be set to a "
+                               "known type name, or to a non-empty array of "
+                               "unique ones");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"type"}));
+    EXPECT_EQ(error.base().recompose(), "");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 TEST(type_object_oversized_max_properties_ignored) {

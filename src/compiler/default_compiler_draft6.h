@@ -39,10 +39,10 @@ auto compiler_draft6_validation_type(const Context &context,
                    schema_context, dynamic_context, ValueNone{})};
     }
 
-    // No known type was named, which for a union the meta-schema rejects means
-    // the keyword is not a constraint at all, matching how the forms below
-    // treat it outside `propertyNames`
-    return {};
+    // No known type was named at all, which the meta-schema rejects
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_TYPE_NAMES);
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).is_string()) {
@@ -288,7 +288,9 @@ auto compiler_draft6_validation_type(const Context &context,
                    context, schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::String)};
     } else {
-      return {};
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base, to_pointer(schema_context.relative_pointer),
+          EXPECTED_TYPE_NAMES);
     }
   } else if (schema_context.schema.at(dynamic_context.keyword).is_array() &&
              schema_context.schema.at(dynamic_context.keyword).size() == 1 &&
@@ -329,21 +331,27 @@ auto compiler_draft6_validation_type(const Context &context,
                    context, schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::String)};
     } else {
-      return {};
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base, to_pointer(schema_context.relative_pointer),
+          EXPECTED_TYPE_NAMES);
     }
   } else if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
     // The meta-schema asks for a non-empty array of unique type names, and a
     // union that does not satisfy that is not a constraint at all
     if (schema_context.schema.at(dynamic_context.keyword).empty() ||
         !schema_context.schema.at(dynamic_context.keyword).unique()) {
-      return {};
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base, to_pointer(schema_context.relative_pointer),
+          EXPECTED_TYPE_NAMES);
     }
 
     ValueTypes types{};
     for (const auto &type :
          schema_context.schema.at(dynamic_context.keyword).as_array()) {
       if (!type.is_string()) {
-        return {};
+        throw sourcemeta::blaze::CompilerError(
+            schema_context.base, to_pointer(schema_context.relative_pointer),
+            EXPECTED_TYPE_NAMES);
       }
 
       const auto &type_string{type.to_string()};
@@ -363,20 +371,22 @@ auto compiler_draft6_validation_type(const Context &context,
         types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
       } else if (type_string == "string") {
         types.set(std::to_underlying(sourcemeta::core::JSON::Type::String));
+      } else {
+        throw sourcemeta::blaze::CompilerError(
+            schema_context.base, to_pointer(schema_context.relative_pointer),
+            EXPECTED_TYPE_NAMES);
       }
     }
 
-    // A union that named only unrecognised types constrains nothing, exactly
-    // as the scalar form does for a single unrecognised name
-    if (types.none()) {
-      return {};
-    }
-
+    assert(types.any());
     return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeAny, context,
                  schema_context, dynamic_context, types)};
   }
 
-  return {};
+  // Neither a type name nor a union of them, which the meta-schema rejects
+  throw sourcemeta::blaze::CompilerError(
+      schema_context.base, to_pointer(schema_context.relative_pointer),
+      EXPECTED_TYPE_NAMES);
 }
 
 auto compiler_draft6_validation_const(const Context &context,
@@ -394,7 +404,9 @@ auto compiler_draft6_validation_exclusivemaximum(
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NUMBER);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -415,7 +427,9 @@ auto compiler_draft6_validation_exclusiveminimum(
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    return {};
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, to_pointer(schema_context.relative_pointer),
+        EXPECTED_NUMBER);
   }
 
   if (schema_context.schema.defines("type") &&

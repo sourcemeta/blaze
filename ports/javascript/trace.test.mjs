@@ -18,8 +18,12 @@ function resolveInstructionType(name) {
   return opcode;
 }
 
+// This port is a JavaScript evaluator, not a compiler: it borrows the C++
+// compiler to obtain a template. The `_invalid` suites assert which schemas
+// that compiler refuses, which exercises nothing here
 const suiteFiles = readdirSync(TRACE_SUITE_PATH)
-  .filter(file => file.startsWith('evaluator_') && file.endsWith('.json'))
+  .filter(file => file.startsWith('evaluator_') && file.endsWith('.json') &&
+                  !file.endsWith('_invalid.json'))
   .sort();
 
 for (const file of suiteFiles) {

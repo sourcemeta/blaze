@@ -13,6 +13,7 @@
 #include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
 #include <utility>       // std::move, std::pair
+#include <variant>       // std::holds_alternative
 #include <vector>        // std::vector
 
 #include "compile_helpers.h"
@@ -33,11 +34,89 @@ auto is_schema(const sourcemeta::core::JSON &value) -> bool {
   return value.is_object() || value.is_boolean();
 }
 
-// An invalid schema may set a keyword to a value that does not match the shape
-// its applicator strategy mandates, in which case we ignore the keyword
-auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
-                              const sourcemeta::core::JSON &value) -> bool {
+// The reason the keyword's value is not the shape the meta-schema asks for, or
+// `nullptr` when it is. The location the error carries names the keyword, so
+// these read as statements about it
+auto keyword_shape_error(
+    const sourcemeta::core::JSON::String &keyword,
+    const sourcemeta::blaze::SchemaKeywordType type, const bool known,
+    const sourcemeta::core::JSON &value,
+    const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> const char * {
   using namespace sourcemeta::blaze;
+  static constexpr auto EXPECTED_STRING{
+      "This keyword was expected to be set to a string"};
+  static constexpr auto EXPECTED_ARRAY{
+      "This keyword was expected to be set to an array"};
+  static constexpr auto EXPECTED_BOOLEAN{
+      "This keyword was expected to be set to a boolean"};
+  static constexpr auto EXPECTED_NUMBER{
+      "This keyword was expected to be set to a number"};
+  static constexpr auto EXPECTED_NON_NEGATIVE_INTEGER{
+      "This keyword was expected to be set to a non-negative integer"};
+  static constexpr auto EXPECTED_SCHEMA{
+      "This keyword was expected to be set to a valid schema"};
+  static constexpr auto EXPECTED_SCHEMA_OR_ARRAY{
+      "This keyword was expected to be set to a valid schema or to an array "
+      "of them"};
+  static constexpr auto EXPECTED_SCHEMA_ARRAY{
+      "This keyword was expected to be set to an array of valid schemas"};
+  static constexpr auto EXPECTED_SCHEMA_OBJECT{
+      "This keyword was expected to be set to an object whose values are "
+      "valid schemas"};
+
+  // What follows describes the contracts of the official vocabularies. A
+  // keyword the dialect does not define carries no vocabulary at all, and one
+  // that a custom vocabulary defines carries its URI rather than a known
+  // value, so neither is held to these
+  if (known) {
+    if (keyword == "title" || keyword == "description" ||
+        keyword == "$comment" || keyword == "format" ||
+        keyword == "contentEncoding" || keyword == "contentMediaType") {
+      return value.is_string() ? nullptr : EXPECTED_STRING;
+    } else if (keyword == "uniqueItems" || keyword == "deprecated" ||
+               keyword == "readOnly" || keyword == "writeOnly") {
+      return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
+    } else if (keyword == "examples") {
+      return value.is_array() ? nullptr : EXPECTED_ARRAY;
+    } else if (keyword == "maxContains" || keyword == "minContains") {
+      // These only exist from 2019-09 onwards, where a number whose fractional
+      // part is zero counts as an integer
+      return (value.is_integral() && value.is_positive())
+                 ? nullptr
+                 : EXPECTED_NON_NEGATIVE_INTEGER;
+    } else if (keyword == "exclusiveMaximum" || keyword == "exclusiveMinimum") {
+      return (vocabularies.contains_any(
+                  {SchemaVocabularies::Known::JSON_Schema_Draft_3,
+                   SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper,
+                   SchemaVocabularies::Known::JSON_Schema_Draft_4,
+                   SchemaVocabularies::Known::JSON_Schema_Draft_4_Hyper})
+                  ? (value.is_boolean() ? nullptr : EXPECTED_BOOLEAN)
+                  : (value.is_number() ? nullptr : EXPECTED_NUMBER));
+    } else if ((keyword == "$defs" || keyword == "definitions") &&
+               // The walker treats these as containers in every dialect, but
+               // no meta-schema before Draft 4 defines either of them
+               !vocabularies.contains_any(
+                   {SchemaVocabularies::Known::JSON_Schema_Draft_3,
+                    SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper})) {
+      return (value.is_object() &&
+              std::ranges::all_of(value.as_object(),
+                                  [](const auto &entry) -> bool {
+                                    return is_schema(entry.second);
+                                  }))
+                 ? nullptr
+                 : EXPECTED_SCHEMA_OBJECT;
+    }
+  }
+
+  // Draft 3 spells `required` as a flag on the property itself rather than as
+  // a list on the object, so the shape it asks for is a different one
+  if (keyword == "required" &&
+      vocabularies.contains_any(
+          {SchemaVocabularies::Known::JSON_Schema_Draft_3,
+           SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper})) {
+    return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
+  }
+
   switch (type) {
     case SchemaKeywordType::ApplicatorValueTraverseSomeProperty:
     case SchemaKeywordType::ApplicatorValueTraverseAnyPropertyKey:
@@ -47,10 +126,11 @@ auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
     case SchemaKeywordType::ApplicatorValueInPlaceMaybe:
     case SchemaKeywordType::ApplicatorValueInPlaceOther:
     case SchemaKeywordType::ApplicatorValueInPlaceNegate:
-      return value.is_object() || value.is_boolean();
+      return is_schema(value) ? nullptr : EXPECTED_SCHEMA;
     case SchemaKeywordType::ApplicatorValueOrElementsTraverseAnyItemOrItem:
     case SchemaKeywordType::ApplicatorValueOrElementsInPlace:
-      return value.is_object() || value.is_boolean() || value.is_array();
+      return (is_schema(value) || value.is_array()) ? nullptr
+                                                    : EXPECTED_SCHEMA_OR_ARRAY;
     // Note that `ApplicatorElementsInPlaceSome` and its negated variant are
     // deliberately absent, as Draft 3 `type` and `disallow` also take a plain
     // type name, so their strategy does not mandate an array. So is
@@ -58,17 +138,37 @@ auto applicator_shape_matches(const sourcemeta::blaze::SchemaKeywordType type,
     // list of property names as a member
     case SchemaKeywordType::ApplicatorElementsTraverseItem:
     case SchemaKeywordType::ApplicatorElementsInPlace:
-      return value.is_array() &&
-             std::ranges::all_of(value.as_array(), is_schema);
+      return (value.is_array() &&
+              std::ranges::all_of(value.as_array(), is_schema))
+                 ? nullptr
+                 : EXPECTED_SCHEMA_ARRAY;
     case SchemaKeywordType::ApplicatorMembersTraversePropertyStatic:
     case SchemaKeywordType::ApplicatorMembersTraversePropertyRegex:
-      return value.is_object() &&
-             std::ranges::all_of(value.as_object(),
-                                 [](const auto &entry) -> bool {
-                                   return is_schema(entry.second);
-                                 });
+      return (value.is_object() &&
+              std::ranges::all_of(value.as_object(),
+                                  [](const auto &entry) -> bool {
+                                    return is_schema(entry.second);
+                                  }))
+                 ? nullptr
+                 : EXPECTED_SCHEMA_OBJECT;
+    // The walker only reports this for a keyword the dialect in use actually
+    // defines, so an unknown keyword never reaches here and stays ignored, as
+    // the specification requires
+    case SchemaKeywordType::Annotation:
+      if (keyword == "title" || keyword == "description" ||
+          keyword == "contentEncoding" || keyword == "contentMediaType") {
+        return value.is_string() ? nullptr : EXPECTED_STRING;
+      } else if (keyword == "examples") {
+        return value.is_array() ? nullptr : EXPECTED_ARRAY;
+      } else if (keyword == "deprecated" || keyword == "readOnly" ||
+                 keyword == "writeOnly") {
+        return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
+      }
+
+      // Others, like `default`, take any value at all
+      return nullptr;
     default:
-      return true;
+      return nullptr;
   }
 }
 
@@ -102,10 +202,20 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
            schema_context.vocabularies}) {
     assert(entry.pointer.back().is_property());
     const auto &keyword{entry.pointer.back().to_property()};
-    if (!applicator_shape_matches(
-            context.walker(keyword, schema_context.vocabularies).type,
-            schema_context.schema.at(keyword))) [[unlikely]] {
-      continue;
+    const auto &metadata{context.walker(keyword, schema_context.vocabularies)};
+    const auto official{
+        metadata.vocabulary.has_value() &&
+        std::holds_alternative<sourcemeta::blaze::SchemaVocabularies::Known>(
+            metadata.vocabulary.value())};
+    const auto *shape_error{keyword_shape_error(
+        keyword, metadata.type, official, schema_context.schema.at(keyword),
+        schema_context.vocabularies)};
+    if (shape_error) [[unlikely]] {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base,
+          to_pointer(schema_context.relative_pointer.concat(
+              sourcemeta::blaze::make_weak_pointer(keyword))),
+          shape_error);
     }
 
     // Bases must not contain fragments
