@@ -340,6 +340,10 @@ absolute_schema_location(const Context &context,
     -> sourcemeta::core::Pointer {
   const auto resource{context.frame.location(
       sourcemeta::blaze::SchemaReferenceType::Static, base.recompose())};
+  // Framing is where this base came from, so the resource it names is there.
+  // Were that to stop holding, the relative pointer is all we could report,
+  // and it would silently mean something else, so catch the drift here
+  assert(resource.has_value());
   if (!resource.has_value()) [[unlikely]] {
     return to_pointer(relative_pointer);
   }
