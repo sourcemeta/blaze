@@ -288,7 +288,35 @@ TEST(pattern_6) {
   } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
     EXPECT_STREQ(error.what(), "Invalid regular expression");
     EXPECT_EQ(error.regex(), "^[a-zA-Z0-9\\/\\_]{1,32}$");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"pattern"}));
+    EXPECT_EQ(error.location(),
+              sourcemeta::core::Pointer({"properties", "foo", "pattern"}));
+    EXPECT_EQ(error.base().recompose(), "https://nested.com");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(pattern_7) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": {
+        "id": "https://nested.com",
+        "pattern": "("
+      }
+    }
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
+    EXPECT_STREQ(error.what(), "Invalid regular expression");
+    EXPECT_EQ(error.regex(), "(");
+    EXPECT_EQ(error.location(),
+              sourcemeta::core::Pointer({"properties", "foo", "pattern"}));
     EXPECT_EQ(error.base().recompose(), "https://nested.com");
   } catch (...) {
     FAIL();
