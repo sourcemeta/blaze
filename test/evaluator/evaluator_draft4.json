@@ -12026,7 +12026,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "required": [ "foo", "bar" ],
-      "properties": { "foo": true, "bar": true },
+      "properties": { "foo": {}, "bar": {} },
       "patternProperties": { "^@": {} },
       "additionalProperties": false
     },
@@ -12068,7 +12068,7 @@
     "description": "patternProperties_2",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": { "^v": true }
+      "patternProperties": { "^v": {} }
     },
     "instance": { "foo": 1, "bar": 2 },
     "valid": true,
@@ -12079,7 +12079,7 @@
     "description": "patternProperties_3",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": { "^f": true }
+      "patternProperties": { "^f": {} }
     },
     "instance": { "foo": 1, "bar": 2 },
     "valid": true,
@@ -12090,7 +12090,7 @@
     "description": "patternProperties_8",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": { "^@": true },
+      "patternProperties": { "^@": {} },
       "additionalProperties": { "type": "string" }
     },
     "instance": { "@foo": 1, "bar": "baz" },
@@ -12128,7 +12128,7 @@
     "description": "patternProperties_13",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": { "^[a-z]+$": true },
+      "patternProperties": { "^[a-z]+$": {} },
       "additionalProperties": false
     },
     "instance": { "foo": "bar" },
@@ -12160,7 +12160,7 @@
     "description": "patternProperties_14",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "patternProperties": { "^[a-z]+$": true },
+      "patternProperties": { "^[a-z]+$": {} },
       "additionalProperties": false
     },
     "instance": { "foo": "bar", "@bar": 1 },
@@ -12197,7 +12197,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "type": "object",
       "properties": {},
-      "patternProperties": { "^[a-z]+$": true },
+      "patternProperties": { "^[a-z]+$": {} },
       "additionalProperties": false
     },
     "instance": { "foo": "bar", "@bar": 1 },
@@ -12234,7 +12234,7 @@
       "$schema": "http://json-schema.org/draft-04/schema#",
       "required": [ "foo", "bar" ],
       "additionalProperties": false,
-      "patternProperties": { "^@": true },
+      "patternProperties": { "^@": {} },
       "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
     },
     "instance": { "foo": true, "bar": false },
@@ -12287,7 +12287,7 @@
     "description": "anyOf_4",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "anyOf": [ { "$ref": "#/definitions/test" }, true ],
+      "anyOf": [ { "$ref": "#/definitions/test" }, {} ],
       "definitions": {
         "test": {
           "properties": {

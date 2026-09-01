@@ -272,12 +272,13 @@ auto main(int argc, char **argv) -> int {
                              "evaluator_2020_12_invalid.json",
                          "Evaluator_error_2020_12",
                          "https://json-schema.org/draft/2020-12/schema");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_draft4.json",
-                   "Evaluator_trace_draft4");
+    register_tests(
+        std::filesystem::path{TRACE_SUITE_PATH} / "evaluator_draft4.json",
+        "Evaluator_trace_draft4", "http://json-schema.org/draft-04/schema#");
     register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                              "evaluator_draft4_invalid.json",
-                         "Evaluator_error_draft4");
+                         "Evaluator_error_draft4",
+                         "http://json-schema.org/draft-04/schema#");
     register_tests(
         std::filesystem::path{TRACE_SUITE_PATH} / "evaluator_draft3.json",
         "Evaluator_trace_draft3", "http://json-schema.org/draft-03/schema#");
