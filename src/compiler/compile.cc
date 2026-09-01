@@ -30,8 +30,17 @@ auto is_metaschema_reference(const sourcemeta::core::WeakPointer &origin)
          origin.back().to_property() == "$schema";
 }
 
-auto is_schema(const sourcemeta::core::JSON &value) -> bool {
-  return value.is_object() || value.is_boolean();
+// Draft 6 introduced boolean schemas, and Draft 3 has none
+auto booleans_are_schemas(
+    const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> bool {
+  using Known = sourcemeta::blaze::SchemaVocabularies::Known;
+  return !vocabularies.contains_any(
+      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper});
+}
+
+auto is_schema(const sourcemeta::core::JSON &value, const bool allow_boolean)
+    -> bool {
+  return value.is_object() || (allow_boolean && value.is_boolean());
 }
 
 // The reason the keyword's value is not the shape the meta-schema asks for, or
@@ -40,7 +49,7 @@ auto is_schema(const sourcemeta::core::JSON &value) -> bool {
 auto keyword_shape_error(
     const sourcemeta::core::JSON::String &keyword,
     const sourcemeta::blaze::SchemaKeywordType type, const bool known,
-    const sourcemeta::core::JSON &value,
+    const sourcemeta::core::JSON &value, const bool allow_boolean,
     const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> const char * {
   using namespace sourcemeta::blaze;
   static constexpr auto EXPECTED_STRING{
@@ -100,8 +109,9 @@ auto keyword_shape_error(
                     SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper})) {
       return (value.is_object() &&
               std::ranges::all_of(value.as_object(),
-                                  [](const auto &entry) -> bool {
-                                    return is_schema(entry.second);
+                                  [allow_boolean](const auto &entry) -> bool {
+                                    return is_schema(entry.second,
+                                                     allow_boolean);
                                   }))
                  ? nullptr
                  : EXPECTED_SCHEMA_OBJECT;
@@ -126,11 +136,12 @@ auto keyword_shape_error(
     case SchemaKeywordType::ApplicatorValueInPlaceMaybe:
     case SchemaKeywordType::ApplicatorValueInPlaceOther:
     case SchemaKeywordType::ApplicatorValueInPlaceNegate:
-      return is_schema(value) ? nullptr : EXPECTED_SCHEMA;
+      return is_schema(value, allow_boolean) ? nullptr : EXPECTED_SCHEMA;
     case SchemaKeywordType::ApplicatorValueOrElementsTraverseAnyItemOrItem:
     case SchemaKeywordType::ApplicatorValueOrElementsInPlace:
-      return (is_schema(value) || value.is_array()) ? nullptr
-                                                    : EXPECTED_SCHEMA_OR_ARRAY;
+      return (is_schema(value, allow_boolean) || value.is_array())
+                 ? nullptr
+                 : EXPECTED_SCHEMA_OR_ARRAY;
     // Note that `ApplicatorElementsInPlaceSome` and its negated variant are
     // deliberately absent, as Draft 3 `type` and `disallow` also take a plain
     // type name, so their strategy does not mandate an array. So is
@@ -139,15 +150,19 @@ auto keyword_shape_error(
     case SchemaKeywordType::ApplicatorElementsTraverseItem:
     case SchemaKeywordType::ApplicatorElementsInPlace:
       return (value.is_array() &&
-              std::ranges::all_of(value.as_array(), is_schema))
+              std::ranges::all_of(value.as_array(),
+                                  [allow_boolean](const auto &entry) -> bool {
+                                    return is_schema(entry, allow_boolean);
+                                  }))
                  ? nullptr
                  : EXPECTED_SCHEMA_ARRAY;
     case SchemaKeywordType::ApplicatorMembersTraversePropertyStatic:
     case SchemaKeywordType::ApplicatorMembersTraversePropertyRegex:
       return (value.is_object() &&
               std::ranges::all_of(value.as_object(),
-                                  [](const auto &entry) -> bool {
-                                    return is_schema(entry.second);
+                                  [allow_boolean](const auto &entry) -> bool {
+                                    return is_schema(entry.second,
+                                                     allow_boolean);
                                   }))
                  ? nullptr
                  : EXPECTED_SCHEMA_OBJECT;
@@ -207,9 +222,30 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
         metadata.vocabulary.has_value() &&
         std::holds_alternative<sourcemeta::blaze::SchemaVocabularies::Known>(
             metadata.vocabulary.value())};
+    // Draft 3 has no boolean schemas, but its own definitions of these two
+    // keywords accept a boolean in place of one
+    const auto allow_boolean{
+        booleans_are_schemas(schema_context.vocabularies) ||
+        keyword == "additionalProperties" || keyword == "additionalItems"};
     const auto *shape_error{keyword_shape_error(
         keyword, metadata.type, official, schema_context.schema.at(keyword),
-        schema_context.vocabularies)};
+        allow_boolean, schema_context.vocabularies)};
+    // Draft 3 spells these as flags on a sibling bound rather than as bounds of
+    // their own, and its meta-schema asks for that sibling to be there
+    static const sourcemeta::core::JSON::String KEYWORD_MINIMUM{"minimum"};
+    static const sourcemeta::core::JSON::String KEYWORD_MAXIMUM{"maximum"};
+    if (!booleans_are_schemas(schema_context.vocabularies) &&
+        ((keyword == "exclusiveMinimum" &&
+          !schema_context.schema.defines(KEYWORD_MINIMUM)) ||
+         (keyword == "exclusiveMaximum" &&
+          !schema_context.schema.defines(KEYWORD_MAXIMUM)))) [[unlikely]] {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base,
+          to_pointer(schema_context.relative_pointer.concat(
+              sourcemeta::blaze::make_weak_pointer(keyword))),
+          "This keyword was expected to accompany the bound it applies to");
+    }
+
     if (shape_error) [[unlikely]] {
       throw sourcemeta::blaze::CompilerError(
           schema_context.base,

@@ -21,7 +21,10 @@ auto compiler_2019_09_applicator_dependentschemas(
 
   if (!std::ranges::all_of(
           schema_context.schema.at(dynamic_context.keyword).as_object(),
-          [](const auto &entry) -> bool { return is_schema(entry.second); })) {
+          [allow_boolean = booleans_are_schemas(schema_context.vocabularies)](
+              const auto &entry) -> bool {
+            return is_schema(entry.second, allow_boolean);
+          })) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, to_pointer(schema_context.relative_pointer),
         EXPECTED_SCHEMA_OBJECT);
