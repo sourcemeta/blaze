@@ -644,10 +644,10 @@ static void Micro_Draft4_Non_Recursive_Ref(benchmark::State &state) {
   }
 }
 
-static void Micro_Draft4_Pattern_Properties_True(benchmark::State &state) {
+static void Micro_Draft4_Pattern_Properties_Empty(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "patternProperties": { "^@": true },
+    "patternProperties": { "^@": {} },
     "additionalProperties": { "type": "string" }
   })JSON")};
 
@@ -1219,7 +1219,7 @@ BENCHMARK(Micro_Draft4_Properties_Triad_Closed);
 BENCHMARK(Micro_Draft4_Properties_Triad_Required);
 BENCHMARK(Micro_Draft4_Properties_Closed);
 BENCHMARK(Micro_Draft4_Non_Recursive_Ref);
-BENCHMARK(Micro_Draft4_Pattern_Properties_True);
+BENCHMARK(Micro_Draft4_Pattern_Properties_Empty);
 BENCHMARK(Micro_Draft4_Ref_To_Single_Property);
 BENCHMARK(Micro_Draft4_Additional_Properties_Type);
 BENCHMARK(Micro_Draft4_Nested_Oneof);
