@@ -1,6 +1,8 @@
 project('blaze_hello', 'cpp',
         version : '0.0.1',
-        default_options : [ 'cpp_std=c++23' ])
+        # MSVC exposes no c++23, so fall back to its latest, which is
+        # what this project's own Windows build compiles with anyway
+        default_options : [ 'cpp_std=c++23,c++latest' ])
 
 blaze_dependency = dependency('Blaze',
                               method : 'cmake',
