@@ -2027,14 +2027,17 @@ auto SchemaFrame::Cache::populate_reachability_graph(
   this->populate_location_members(frame, walker, resolver);
   this->populate_reference_graph(frame);
 
+  // Containment edges go from the enclosing subschema straight to what it
+  // encloses, rather than hopping through the location of every keyword in
+  // between. Both reach the same set, but this one holds even when the frame
+  // did not register a location for each of those intermediate keywords
   for (const auto &entry : frame.locations_) {
-    if (entry.second.pointer.empty()) {
+    if (!entry.second.parent.has_value()) {
       continue;
     }
 
-    const auto parent_pointer{entry.second.pointer.initial()};
-    auto parent_iterator =
-        this->pointer_to_location_.find(std::cref(parent_pointer));
+    const auto parent_iterator{this->pointer_to_location_.find(
+        std::cref(entry.second.parent.value()))};
     if (parent_iterator == this->pointer_to_location_.end()) {
       continue;
     }
