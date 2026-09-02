@@ -2,9 +2,12 @@
 #define SOURCEMETA_BLAZE_CANONICALIZER_TEST_UTILS_H_
 
 #include <sourcemeta/blaze/canonicalizer.h>
+#include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+
+#include <initializer_list> // std::initializer_list
 
 #include <optional>    // std::optional
 #include <string_view> // std::string_view
@@ -98,6 +101,31 @@ static auto canonicalizer_test_resolver(std::string_view identifier)
     EXPECT_EQ(document, expected);                                             \
     sourcemeta::blaze::Evaluator _evaluator;                                   \
     EXPECT_TRUE(_evaluator.validate(compiled_template, document));             \
+  }
+
+// Structural expectations cannot tell whether a rewrite preserved what the
+// schema actually accepts. Compile the schema before and after canonicalising
+// it and require both to agree on every given instance
+#define CANONICALIZE_AND_COMPARE_EVALUATION(document, ...)                     \
+  {                                                                            \
+    auto _canonical{document};                                                 \
+    sourcemeta::blaze::canonicalize(_canonical,                                \
+                                    sourcemeta::blaze::schema_walker,          \
+                                    canonicalizer_test_resolver);              \
+    const auto _before{sourcemeta::blaze::compile(                             \
+        document, sourcemeta::blaze::schema_walker,                            \
+        canonicalizer_test_resolver,                                           \
+        sourcemeta::blaze::default_schema_compiler)};                          \
+    const auto _after{sourcemeta::blaze::compile(                              \
+        _canonical, sourcemeta::blaze::schema_walker,                          \
+        canonicalizer_test_resolver,                                           \
+        sourcemeta::blaze::default_schema_compiler)};                          \
+    sourcemeta::blaze::Evaluator _evaluator;                                   \
+    for (const auto &_instance :                                               \
+         std::initializer_list<sourcemeta::core::JSON>{__VA_ARGS__}) {         \
+      EXPECT_EQ(_evaluator.validate(_before, _instance),                       \
+                _evaluator.validate(_after, _instance));                       \
+    }                                                                          \
   }
 
 #endif

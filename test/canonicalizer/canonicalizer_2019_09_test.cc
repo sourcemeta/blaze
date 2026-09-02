@@ -927,6 +927,222 @@ TEST(
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
+TEST(unevaluated_properties_single_ref_target_with_uncovered_required_stays) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "type": "object",
+        "properties": { "shared": true },
+        "required": [ "shared", "extra" ]
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "$ref": "#/$defs/base"
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "local": true
+        },
+        "patternProperties": {}
+      }
+    ],
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "type": "object",
+        "minProperties": 2,
+        "propertyNames": true,
+        "properties": {
+          "shared": true,
+          "extra": true
+        },
+        "patternProperties": {},
+        "required": [ "shared", "extra" ]
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(unevaluated_properties_single_ref_target_with_pattern_properties_stays) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "type": "object",
+        "properties": { "shared": true },
+        "patternProperties": { "^x-": true }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "$ref": "#/$defs/base"
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "local": true
+        },
+        "patternProperties": {}
+      }
+    ],
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "shared": true
+        },
+        "patternProperties": {
+          "^x-": true
+        }
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(unevaluated_properties_single_ref_target_with_if_then_stays) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "type": "object",
+        "properties": { "shared": true },
+        "if": { "properties": { "shared": { "const": 1 } } },
+        "then": { "properties": { "extra": true } }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "$ref": "#/$defs/base"
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "local": true
+        },
+        "patternProperties": {}
+      }
+    ],
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "allOf": [
+          {
+            "if": {
+              "type": "object",
+              "minProperties": 0,
+              "propertyNames": true,
+              "properties": {
+                "shared": {
+                  "enum": [ 1 ]
+                }
+              },
+              "patternProperties": {}
+            },
+            "then": {
+              "type": "object",
+              "minProperties": 0,
+              "propertyNames": true,
+              "properties": {
+                "extra": true
+              },
+              "patternProperties": {}
+            },
+            "else": true
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "propertyNames": true,
+            "properties": {
+              "shared": true
+            },
+            "patternProperties": {}
+          }
+        ]
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(unevaluated_properties_single_ref_preserves_evaluation) {
+  const auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": { "type": "object", "properties": { "shared": true } }
+    }
+  })JSON");
+
+  // `shared` is the case a bare rename would break: it is evaluated through
+  // the `$ref`, so `unevaluatedProperties` admits it while a plain
+  // `additionalProperties` would not
+  CANONICALIZE_AND_COMPARE_EVALUATION(
+      document, sourcemeta::core::parse_json("{}"),
+      sourcemeta::core::parse_json(R"JSON({ "local": 1 })JSON"),
+      sourcemeta::core::parse_json(R"JSON({ "shared": 1 })JSON"),
+      sourcemeta::core::parse_json(R"JSON({ "local": 1, "shared": 2 })JSON"),
+      sourcemeta::core::parse_json(R"JSON({ "other": 1 })JSON"),
+      sourcemeta::core::parse_json(R"JSON({ "local": 1, "other": 2 })JSON"),
+      sourcemeta::core::parse_json(R"JSON({ "shared": 1, "other": 2 })JSON"));
+}
+
 TEST(items_implicit_skipped_with_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",

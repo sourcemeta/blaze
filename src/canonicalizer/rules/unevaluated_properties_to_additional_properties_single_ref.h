@@ -64,7 +64,7 @@ public:
         [&destination,
          &location](const sourcemeta::blaze::SchemaReferenceType type,
                     const sourcemeta::core::WeakPointer &source,
-                    const sourcemeta::blaze::SchemaFrame::Reference &reference)
+                    const sourcemeta::blaze::SchemaFrame::Reference &entry_ref)
             -> void {
           if (destination ||
               type != sourcemeta::blaze::SchemaReferenceType::Static) {
@@ -76,7 +76,7 @@ public:
               relative.at(1).is_index() && relative.at(1).to_index() == 0 &&
               relative.at(2).is_property() &&
               relative.at(2).to_property() == "$ref") {
-            destination = &reference.destination;
+            destination = &entry_ref.destination;
           }
         });
 
@@ -120,9 +120,13 @@ public:
     const auto *target_properties{target_schema.try_at("properties")};
     ONLY_CONTINUE_IF(!target_properties || target_properties->is_object());
 
-    // A `required` entry that `properties` does not already spell out would
-    // later get one of its own through `required_properties_in_properties`,
-    // again widening the property set behind our back
+    // Only trust a target whose `required` its `properties` already spells
+    // out. This is a point-in-time check, not a guarantee: nothing stops
+    // `required_properties_in_properties` from filling in the missing entry
+    // on an earlier pass, in which case the target really does evaluate that
+    // name by the time we look and merging it is faithful to what we see. The
+    // check simply keeps us from being the rule that first depends on a name
+    // whose evaluation status is still in flux
     const auto *target_required{target_schema.try_at("required")};
     if (target_required && target_required->is_array()) {
       for (const auto &entry : target_required->as_array()) {
