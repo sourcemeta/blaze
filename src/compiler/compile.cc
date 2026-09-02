@@ -785,6 +785,11 @@ auto compile(const Context &context, const SchemaContext &schema_context,
           "The target of the reference does not exist in the schema");
     }
 
+    // A pointer that sits under more than one base is framed once per base, so
+    // this may be any of those entries. They are interchangeable here, as
+    // framing resolves the base, the dialect and the depth of a location from
+    // the resource nearest to it rather than from the URI it got keyed under,
+    // so every entry of a given pointer reports the same ones
     entry = context.frame.traverse(target);
   }
 
