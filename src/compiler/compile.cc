@@ -298,10 +298,9 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
               .base_instance_location = dynamic_context.base_instance_location},
              steps)) {
       // Just a sanity check to ensure every keyword location is indeed valid
-      assert(context.frame
-                 .location(sourcemeta::blaze::SchemaReferenceType::Static,
-                           context.extra[step.extra_index].keyword_location)
-                 .has_value());
+      assert(sourcemeta::core::try_get(
+          context.root,
+          absolute_schema_pointer(context, schema_context)) != nullptr);
       steps.push_back(std::move(step));
     }
   }
@@ -360,7 +359,9 @@ auto schema_frame_populate_target_types(
           return;
         }
 
-        const auto reference_location{frame.traverse(origin)};
+        // A reference is always a keyword of the subschema that declares it,
+        // so that subschema is what the origin sits directly inside of
+        const auto reference_location{frame.traverse(origin.initial())};
         assert(reference_location.has_value());
         auto &context{target_types[reference.destination]};
         if (reference_location->get().property_name) {
@@ -522,20 +523,11 @@ auto compile(const sourcemeta::core::JSON &schema,
           return;
         }
 
-        auto reference_origin{frame.traverse(origin)};
+        const auto reference_origin{frame.traverse(origin.initial())};
         assert(reference_origin.has_value());
-        while (reference_origin->get().type ==
-                   sourcemeta::blaze::SchemaFrame::LocationType::Pointer &&
-               reference_origin->get().parent.has_value()) {
-          reference_origin =
-              frame.traverse(reference_origin->get().parent.value());
-          assert(reference_origin.has_value());
-        }
 
         // Skip unreachable targets
-        if (reference_origin->get().type !=
-                sourcemeta::blaze::SchemaFrame::LocationType::Pointer &&
-            !frame.is_reachable(entrypoint_location, reference_origin->get(),
+        if (!frame.is_reachable(entrypoint_location, reference_origin->get(),
                                 walker, resolver)) {
           return;
         }
@@ -759,31 +751,44 @@ auto compile(const Context &context, const SchemaContext &schema_context,
              const sourcemeta::core::WeakPointer &schema_suffix,
              const sourcemeta::core::WeakPointer &instance_suffix,
              const std::optional<std::string_view> uri) -> Instructions {
-  // Determine URI of the destination after recursion
-  const std::string destination{
-      uri.has_value()
-          ? sourcemeta::core::URI::canonicalize(uri.value())
-          : to_uri(schema_context.relative_pointer.concat(schema_suffix),
-                   schema_context.base)
-                .canonicalize()
-                .recompose()};
+  // An explicit URI is a jump elsewhere in the schema, which only the frame
+  // can resolve. Without one we are recursing within the subschema we are
+  // already at, so where we land follows from the pointer we came in with
+  std::optional<
+      std::reference_wrapper<const sourcemeta::blaze::SchemaFrame::Location>>
+      entry;
+  sourcemeta::core::WeakPointer target;
+  if (uri.has_value()) {
+    const auto destination{sourcemeta::core::URI::canonicalize(uri.value())};
+    entry = context.frame.location(
+        sourcemeta::blaze::SchemaReferenceType::Static, destination);
+    // Otherwise the recursion attempt is non-sense
+    if (!entry.has_value()) [[unlikely]] {
+      throw sourcemeta::blaze::SchemaReferenceError(
+          destination, absolute_schema_location(context, schema_context),
+          "The target of the reference does not exist in the schema");
+    }
 
-  // Otherwise the recursion attempt is non-sense
-  if (!context.frame
-           .location(sourcemeta::blaze::SchemaReferenceType::Static,
-                     destination)
-           .has_value()) [[unlikely]] {
-    throw sourcemeta::blaze::SchemaReferenceError(
-        destination, absolute_schema_location(context, schema_context),
-        "The target of the reference does not exist in the schema");
+    target = entry.value().get().pointer;
+  } else {
+    target = absolute_schema_pointer(context, schema_context)
+                 .concat(schema_suffix);
+    // Otherwise the recursion attempt is non-sense
+    if (sourcemeta::core::try_get(context.root, target) == nullptr)
+        [[unlikely]] {
+      throw sourcemeta::blaze::SchemaReferenceError(
+          to_uri(schema_context.relative_pointer.concat(schema_suffix),
+                 schema_context.base)
+              .canonicalize()
+              .recompose(),
+          absolute_schema_location(context, schema_context),
+          "The target of the reference does not exist in the schema");
+    }
+
+    entry = context.frame.traverse(target);
   }
 
-  const auto &entry{
-      context.frame
-          .location(sourcemeta::blaze::SchemaReferenceType::Static, destination)
-          .value()
-          .get()};
-  const auto &new_schema{get(context.root, entry.pointer)};
+  const auto &new_schema{get(context.root, target)};
 
   // An invalid schema may set an applicator to a value that is not a schema
   // at all, in which case we consider it to impose no constraints
@@ -798,16 +803,29 @@ auto compile(const Context &context, const SchemaContext &schema_context,
                 .concat(make_weak_pointer(dynamic_context.keyword))
                 .concat(schema_suffix)};
 
-  const auto new_relative_pointer{entry.pointer.slice(entry.relative_pointer)};
+  // A schema that the walker never descended into has no location of its own,
+  // in which case it inherits the resource and the dialect of what encloses it
+  const auto new_relative_pointer{
+      entry.has_value()
+          ? entry.value().get().pointer.slice(
+                entry.value().get().relative_pointer)
+          : schema_context.relative_pointer.concat(schema_suffix)};
   const sourcemeta::core::URI new_base{
-      sourcemeta::core::URI{entry.base}.recompose_without_fragment().value_or(
-          "")};
+      entry.has_value()
+          ? sourcemeta::core::URI{entry.value().get().base}
+                .recompose_without_fragment()
+                .value_or("")
+          : schema_context.base.recompose_without_fragment().value_or("")};
 
   return compile_subschema(
       context,
       {.relative_pointer = new_relative_pointer,
        .schema = new_schema,
-       .vocabularies = context.frame.vocabularies(entry, context.resolver),
+       .vocabularies =
+           entry.has_value()
+               ? context.frame.vocabularies(entry.value().get(),
+                                            context.resolver)
+               : schema_context.vocabularies,
        .base = new_base,
        .is_property_name = schema_context.is_property_name},
       {.keyword = dynamic_context.keyword,
