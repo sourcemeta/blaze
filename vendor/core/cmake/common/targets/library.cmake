@@ -136,16 +136,23 @@ endfunction()
 # A static library records its private dependencies as $<LINK_ONLY:...> in the
 # exported link interface. Build systems that read the export without evaluating
 # generator expressions drop those entries and lose the transitive link closure,
-# so unwrap them on the way out. CMake consumers are unaffected, as the wrapper
-# only suppresses usage requirements that an installed interface does not carry
+# so unwrap them for the installed interface. The build interface keeps the
+# wrapper, so that consumers within this project do not start inheriting the
+# usage requirements that a private dependency is not meant to hand them
 function(sourcemeta_library_export_flatten TARGET_NAME)
   get_target_property(SOURCEMETA_LIBRARY_INTERFACE
     ${TARGET_NAME} INTERFACE_LINK_LIBRARIES)
   if(SOURCEMETA_LIBRARY_INTERFACE)
     set(SOURCEMETA_LIBRARY_FLATTENED)
     foreach(entry IN LISTS SOURCEMETA_LIBRARY_INTERFACE)
-      string(REGEX REPLACE "\\$<LINK_ONLY:([^>]+)>" "\\1" entry "${entry}")
-      list(APPEND SOURCEMETA_LIBRARY_FLATTENED "${entry}")
+      string(REGEX REPLACE "^\\$<LINK_ONLY:(.*)>$" "\\1" unwrapped "${entry}")
+      if(unwrapped STREQUAL entry)
+        list(APPEND SOURCEMETA_LIBRARY_FLATTENED "${entry}")
+      else()
+        list(APPEND SOURCEMETA_LIBRARY_FLATTENED
+          "$<BUILD_INTERFACE:${entry}>"
+          "$<INSTALL_INTERFACE:${unwrapped}>")
+      endif()
     endforeach()
     set_property(TARGET ${TARGET_NAME}
       PROPERTY INTERFACE_LINK_LIBRARIES ${SOURCEMETA_LIBRARY_FLATTENED})

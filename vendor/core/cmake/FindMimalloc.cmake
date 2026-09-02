@@ -43,8 +43,12 @@ if(NOT Mimalloc_FOUND)
   # Link the resolved thread library rather than the imported target, as the
   # latter obliges every consumer of the exported package to run FindThreads,
   # whose try_compile cannot run inside build systems that read the export by
-  # tracing CMake instead of calling it
+  # tracing CMake instead of calling it. The imported target also carries a
+  # compile option on the platforms whose threads need one, which we set here
   find_package(Threads REQUIRED)
+  if(THREADS_HAVE_PTHREAD_ARG)
+    target_compile_options(mimalloc PRIVATE -pthread)
+  endif()
   if(CMAKE_THREAD_LIBS_INIT)
     target_link_libraries(mimalloc PRIVATE "${CMAKE_THREAD_LIBS_INIT}")
   endif()
