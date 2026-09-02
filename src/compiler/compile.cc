@@ -299,8 +299,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
              steps)) {
       // Just a sanity check to ensure every keyword location is indeed valid
       assert(sourcemeta::core::try_get(
-          context.root,
-          absolute_schema_pointer(context, schema_context)) != nullptr);
+                 context.root,
+                 absolute_schema_pointer(context, schema_context)) != nullptr);
       steps.push_back(std::move(step));
     }
   }
@@ -771,8 +771,8 @@ auto compile(const Context &context, const SchemaContext &schema_context,
 
     target = entry.value().get().pointer;
   } else {
-    target = absolute_schema_pointer(context, schema_context)
-                 .concat(schema_suffix);
+    target =
+        absolute_schema_pointer(context, schema_context).concat(schema_suffix);
     // Otherwise the recursion attempt is non-sense
     if (sourcemeta::core::try_get(context.root, target) == nullptr)
         [[unlikely]] {
@@ -821,11 +821,10 @@ auto compile(const Context &context, const SchemaContext &schema_context,
       context,
       {.relative_pointer = new_relative_pointer,
        .schema = new_schema,
-       .vocabularies =
-           entry.has_value()
-               ? context.frame.vocabularies(entry.value().get(),
-                                            context.resolver)
-               : schema_context.vocabularies,
+       .vocabularies = entry.has_value()
+                           ? context.frame.vocabularies(entry.value().get(),
+                                                        context.resolver)
+                           : schema_context.vocabularies,
        .base = new_base,
        .is_property_name = schema_context.is_property_name},
       {.keyword = dynamic_context.keyword,
