@@ -401,13 +401,13 @@ auto compiler_draft3_core_ref(const Context &context,
                               const SchemaContext &schema_context,
                               const DynamicContext &dynamic_context,
                               const Instructions &) -> Instructions {
-  const auto &entry{static_frame_entry(context, schema_context)};
+  const auto entry_pointer{absolute_schema_pointer(context, schema_context)};
   const auto type{sourcemeta::blaze::SchemaReferenceType::Static};
-  const auto reference{context.frame.reference(type, entry.pointer)};
+  const auto reference{context.frame.reference(type, entry_pointer)};
   if (!reference.has_value()) [[unlikely]] {
     throw sourcemeta::blaze::SchemaReferenceError(
         schema_context.schema.at(dynamic_context.keyword).to_string(),
-        to_pointer(entry.pointer), "Could not resolve schema reference");
+        to_pointer(entry_pointer), "Could not resolve schema reference");
   }
 
   const auto key{std::make_tuple(type,
@@ -455,12 +455,13 @@ auto properties_as_loop(const Context &context,
     }
   }
 
-  const auto &current_entry{static_frame_entry(context, schema_context)};
+  const auto current_entry_pointer{
+      absolute_schema_pointer(context, schema_context)};
   const auto inside_disjunctor{
       is_inside_disjunctor(schema_context.relative_pointer) ||
       // Check if any reference from `anyOf` or `oneOf` points to us
       context.frame.any_reference(
-          [&context, &current_entry](
+          [&context, &current_entry_pointer](
               const sourcemeta::blaze::SchemaReferenceType,
               const sourcemeta::core::WeakPointer &origin,
               const sourcemeta::blaze::SchemaFrame::Reference &reference)
@@ -473,7 +474,7 @@ auto properties_as_loop(const Context &context,
             }
 
             return is_inside_disjunctor(origin) &&
-                   current_entry.pointer.initial() ==
+                   current_entry_pointer.initial() ==
                        destination.value().get().pointer;
           })};
 
