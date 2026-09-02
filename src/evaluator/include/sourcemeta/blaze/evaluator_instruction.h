@@ -71,6 +71,7 @@ enum class InstructionIndex : std::uint8_t {
   AssertionArrayPrefixEvaluate,
   AssertionObjectPropertiesSimple,
   AnnotationEmit,
+  AnnotationEmitWrapped,
   AnnotationToParent,
   AnnotationBasenameToParent,
   Evaluate,
@@ -119,8 +120,7 @@ enum class InstructionIndex : std::uint8_t {
   ControlGroupWhenType,
   ControlEvaluate,
   ControlDynamicAnchorJump,
-  ControlJump,
-  AnnotationEmitCollection
+  ControlJump
 };
 
 /// @ingroup evaluator
@@ -177,6 +177,7 @@ constexpr std::string_view InstructionNames[] = {
     "AssertionArrayPrefixEvaluate",
     "AssertionObjectPropertiesSimple",
     "AnnotationEmit",
+    "AnnotationEmitWrapped",
     "AnnotationToParent",
     "AnnotationBasenameToParent",
     "Evaluate",
@@ -225,8 +226,7 @@ constexpr std::string_view InstructionNames[] = {
     "ControlGroupWhenType",
     "ControlEvaluate",
     "ControlDynamicAnchorJump",
-    "ControlJump",
-    "AnnotationEmitCollection"};
+    "ControlJump"};
 
 /// @ingroup evaluator
 /// Check if a given instruction type corresponds to an annotation
@@ -239,7 +239,7 @@ inline auto is_annotation(const InstructionIndex type) noexcept -> bool {
       return true;
     case InstructionIndex::AnnotationEmit:
       return true;
-    case InstructionIndex::AnnotationEmitCollection:
+    case InstructionIndex::AnnotationEmitWrapped:
       return true;
     default:
       return false;
@@ -247,12 +247,12 @@ inline auto is_annotation(const InstructionIndex type) noexcept -> bool {
 }
 
 /// @ingroup evaluator
-/// Check if a given instruction type corresponds to a collection annotation
-inline auto is_collection_annotation(const InstructionIndex type) noexcept
+/// Check if a given instruction type corresponds to a wrapped annotation
+inline auto is_wrapped_annotation(const InstructionIndex type) noexcept
     -> bool {
   switch (type) {
     case InstructionIndex::AnnotationBasenameToParent:
-    case InstructionIndex::AnnotationEmitCollection:
+    case InstructionIndex::AnnotationEmitWrapped:
       return true;
     default:
       return false;

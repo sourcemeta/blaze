@@ -34,7 +34,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      6,
+      7,
       false,
       false,
       [
@@ -74,13 +74,13 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      6,
+      7,
       false,
       false,
       [
         [
           [
-            67,
+            68,
             [ "additionalProperties" ],
             [],
             "#/additionalProperties",
@@ -134,7 +134,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      6,
+      7,
       false,
       false,
       [
@@ -176,13 +176,13 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      6,
+      7,
       false,
       false,
       [
         [
           [
-            67,
+            68,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -262,7 +262,7 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      6,
+      7,
       false,
       true,
       [
@@ -311,13 +311,13 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      6,
+      7,
       false,
       true,
       [
         [
           [
-            67,
+            68,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -335,7 +335,7 @@ TEST(example_6) {
                 [ 8, 4 ]
               ],
               [
-                52,
+                53,
                 [],
                 [],
                 "https://example.com/top#/additionalProperties",

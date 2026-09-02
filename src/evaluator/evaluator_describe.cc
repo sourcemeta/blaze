@@ -484,8 +484,7 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmit ||
-      step.type ==
-          sourcemeta::blaze::InstructionIndex::AnnotationEmitCollection) {
+      step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped) {
     if (keyword == "properties") {
       assert(annotation.is_string());
       std::ostringstream message;

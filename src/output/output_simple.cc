@@ -87,7 +87,7 @@ auto SimpleOutput::operator()(
            .evaluate_path = std::move(effective_evaluate_path),
            .schema_location = step_metadata.keyword_location,
            .value = annotation,
-           .is_collection = is_collection_annotation(step.type)});
+           .is_wrapped = is_wrapped_annotation(step.type)});
     }
 
     return;

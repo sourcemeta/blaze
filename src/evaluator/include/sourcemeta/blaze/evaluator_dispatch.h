@@ -1579,9 +1579,9 @@ INSTRUCTION_HANDLER(AnnotationEmit) {
                       value);
 }
 
-INSTRUCTION_HANDLER(AnnotationEmitCollection) {
+INSTRUCTION_HANDLER(AnnotationEmitWrapped) {
   const auto &value{assume_value<ValueJSON>(instruction.value)};
-  EVALUATE_ANNOTATION(AnnotationEmitCollection,
+  EVALUATE_ANNOTATION(AnnotationEmitWrapped,
                       context.evaluator->instance_location, value);
 }
 
@@ -2874,6 +2874,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[101] = {
     AssertionArrayPrefixEvaluate,
     AssertionObjectPropertiesSimple,
     AnnotationEmit,
+    AnnotationEmitWrapped,
     AnnotationToParent,
     AnnotationBasenameToParent,
     Evaluate,
@@ -2922,8 +2923,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> handlers[101] = {
     ControlGroupWhenType,
     ControlEvaluate,
     ControlDynamicAnchorJump,
-    ControlJump,
-    AnnotationEmitCollection};
+    ControlJump};
 
 template <bool Track, bool Dynamic, bool HasCallback>
 inline auto

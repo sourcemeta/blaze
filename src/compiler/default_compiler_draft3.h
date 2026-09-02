@@ -610,7 +610,7 @@ auto compiler_draft3_applicator_properties_with_options(
 
       if (emit_annotation) {
         substeps.push_back(
-            make(sourcemeta::blaze::InstructionIndex::AnnotationEmitCollection,
+            make(sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped,
                  context, schema_context, relative_dynamic_context(),
                  sourcemeta::core::JSON{name}));
       }
@@ -769,7 +769,7 @@ auto compiler_draft3_applicator_properties_with_options(
   for (auto &&[name, substeps] : properties) {
     if (emit_annotation) {
       substeps.push_back(
-          make(sourcemeta::blaze::InstructionIndex::AnnotationEmitCollection,
+          make(sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped,
                context, schema_context, effective_dynamic_context,
                sourcemeta::core::JSON{name}));
     }

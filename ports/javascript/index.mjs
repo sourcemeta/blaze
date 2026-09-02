@@ -1,13 +1,13 @@
 import {
-  ANNOTATION_EMIT, ANNOTATION_EMIT_COLLECTION, ANNOTATION_TO_PARENT, ANNOTATION_BASENAME_TO_PARENT,
-  isCollectionAnnotationOpcode,
+  ANNOTATION_EMIT, ANNOTATION_EMIT_WRAPPED, ANNOTATION_TO_PARENT, ANNOTATION_BASENAME_TO_PARENT,
+  isWrappedAnnotationOpcode,
   ASSERTION_EQUALS_ANY,
   CONTROL_GROUP as CONTROL_GROUP_START,
   CONTROL_EVALUATE as CONTROL_EVALUATE_END,
   CONTROL_JUMP, CONTROL_DYNAMIC_ANCHOR_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 6;
+const JSON_VERSION = 7;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -530,9 +530,8 @@ class Blaze {
   }
 
   callbackPop(instruction, result) {
-    const isAnnotation = (instruction[0] >= ANNOTATION_EMIT &&
-                         instruction[0] <= ANNOTATION_BASENAME_TO_PARENT) ||
-                         instruction[0] === ANNOTATION_EMIT_COLLECTION;
+    const isAnnotation = instruction[0] >= ANNOTATION_EMIT &&
+                         instruction[0] <= ANNOTATION_BASENAME_TO_PARENT;
     this.callback("post", result, instruction,
       buildJsonPointer(this.evaluatePathTokens, this.evaluatePathLength),
       buildJsonPointer(this.instanceLocationTokens, this.instanceLocationLength),
@@ -557,7 +556,7 @@ class Blaze {
     const evaluatePath = buildJsonPointer(this.evaluatePathTokens, this.evaluatePathLength);
     const opcode = instruction[0];
     let instanceLocation;
-    if (opcode === ANNOTATION_EMIT || opcode === ANNOTATION_EMIT_COLLECTION) {
+    if (opcode === ANNOTATION_EMIT || opcode === ANNOTATION_EMIT_WRAPPED) {
       instanceLocation = buildJsonPointer(this.instanceLocationTokens, this.instanceLocationLength);
     } else {
       const parentLength = this.instanceLocationLength > 0 ? this.instanceLocationLength - 1 : 0;
@@ -1591,7 +1590,7 @@ function AnnotationEmit(instruction, instance, depth, template, evaluator) {
   if (evaluator.callbackMode) evaluator.callbackAnnotation(instruction);
   return true;
 }
-function AnnotationEmitCollection(instruction, instance, depth, template, evaluator) {
+function AnnotationEmitWrapped(instruction, instance, depth, template, evaluator) {
   if (evaluator.callbackMode) evaluator.callbackAnnotation(instruction);
   return true;
 }
@@ -2711,56 +2710,56 @@ const handlers = [
   AssertionArrayPrefixEvaluate,               // 48
   AssertionObjectPropertiesSimple,            // 49
   AnnotationEmit,                             // 50
-  AnnotationToParent,                         // 51
-  AnnotationBasenameToParent,                 // 52
-  Evaluate,                                   // 53
-  LogicalNot,                                 // 54
-  LogicalNotEvaluate,                         // 55
-  LogicalOr,                                  // 56
-  LogicalAnd,                                 // 57
-  LogicalXor,                                 // 58
-  LogicalCondition,                           // 59
-  LogicalWhenType,                            // 60
-  LogicalWhenDefines,                         // 61
-  LogicalWhenArraySizeGreater,                // 62
-  LoopPropertiesUnevaluated,                  // 63
-  LoopPropertiesUnevaluatedExcept,            // 64
-  LoopPropertiesMatch,                        // 65
-  LoopPropertiesMatchClosed,                  // 66
-  LoopProperties,                             // 67
-  LoopPropertiesEvaluate,                     // 68
-  LoopPropertiesRegex,                        // 69
-  LoopPropertiesRegexClosed,                  // 70
-  LoopPropertiesStartsWith,                   // 71
-  LoopPropertiesExcept,                       // 72
-  LoopPropertiesType,                         // 73
-  LoopPropertiesTypeEvaluate,                 // 74
-  LoopPropertiesExactlyTypeStrict,            // 75
-  LoopPropertiesExactlyTypeStrictHash,        // 76
-  LoopPropertiesTypeStrict,                   // 77
-  LoopPropertiesTypeStrictEvaluate,           // 78
-  LoopPropertiesTypeStrictAny,                // 79
-  LoopPropertiesTypeStrictAnyEvaluate,        // 80
-  LoopKeys,                                   // 81
-  LoopItems,                                  // 82
-  LoopItemsFrom,                              // 83
-  LoopItemsUnevaluated,                       // 84
-  LoopItemsType,                              // 85
-  LoopItemsTypeStrict,                        // 86
-  LoopItemsTypeStrictAny,                     // 87
-  LoopItemsPropertiesExactlyTypeStrictHash,   // 88
+  AnnotationEmitWrapped,                      // 51
+  AnnotationToParent,                         // 52
+  AnnotationBasenameToParent,                 // 53
+  Evaluate,                                   // 54
+  LogicalNot,                                 // 55
+  LogicalNotEvaluate,                         // 56
+  LogicalOr,                                  // 57
+  LogicalAnd,                                 // 58
+  LogicalXor,                                 // 59
+  LogicalCondition,                           // 60
+  LogicalWhenType,                            // 61
+  LogicalWhenDefines,                         // 62
+  LogicalWhenArraySizeGreater,                // 63
+  LoopPropertiesUnevaluated,                  // 64
+  LoopPropertiesUnevaluatedExcept,            // 65
+  LoopPropertiesMatch,                        // 66
+  LoopPropertiesMatchClosed,                  // 67
+  LoopProperties,                             // 68
+  LoopPropertiesEvaluate,                     // 69
+  LoopPropertiesRegex,                        // 70
+  LoopPropertiesRegexClosed,                  // 71
+  LoopPropertiesStartsWith,                   // 72
+  LoopPropertiesExcept,                       // 73
+  LoopPropertiesType,                         // 74
+  LoopPropertiesTypeEvaluate,                 // 75
+  LoopPropertiesExactlyTypeStrict,            // 76
+  LoopPropertiesExactlyTypeStrictHash,        // 77
+  LoopPropertiesTypeStrict,                   // 78
+  LoopPropertiesTypeStrictEvaluate,           // 79
+  LoopPropertiesTypeStrictAny,                // 80
+  LoopPropertiesTypeStrictAnyEvaluate,        // 81
+  LoopKeys,                                   // 82
+  LoopItems,                                  // 83
+  LoopItemsFrom,                              // 84
+  LoopItemsUnevaluated,                       // 85
+  LoopItemsType,                              // 86
+  LoopItemsTypeStrict,                        // 87
+  LoopItemsTypeStrictAny,                     // 88
   LoopItemsPropertiesExactlyTypeStrictHash,   // 89
-  LoopItemsIntegerBounded,                    // 90
-  LoopItemsIntegerBoundedSized,               // 91
-  LoopContains,                               // 92
-  ControlGroup,                               // 93
-  ControlGroupWhenDefines,                    // 94
-  ControlGroupWhenDefinesDirect,              // 95
-  ControlGroupWhenType,                       // 96
-  ControlEvaluate,                            // 97
-  ControlDynamicAnchorJump,                   // 98
-  ControlJump,                                // 99
-  AnnotationEmitCollection                    // 100
+  LoopItemsPropertiesExactlyTypeStrictHash,   // 90
+  LoopItemsIntegerBounded,                    // 91
+  LoopItemsIntegerBoundedSized,               // 92
+  LoopContains,                               // 93
+  ControlGroup,                               // 94
+  ControlGroupWhenDefines,                    // 95
+  ControlGroupWhenDefinesDirect,              // 96
+  ControlGroupWhenType,                       // 97
+  ControlEvaluate,                            // 98
+  ControlDynamicAnchorJump,                   // 99
+  ControlJump                                 // 100
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {
@@ -3524,7 +3523,7 @@ function AssertionObjectPropertiesSimple_fast(instruction, instance, depth, temp
 }
 
 function AnnotationEmit_fast() { return true; }
-function AnnotationEmitCollection_fast() { return true; }
+function AnnotationEmitWrapped_fast() { return true; }
 function AnnotationToParent_fast() { return true; }
 function AnnotationBasenameToParent_fast() { return true; }
 
@@ -3964,35 +3963,35 @@ function AssertionTypeIntegerLowerBoundStrict_fast(instruction, instance, depth,
 
 const fastHandlers = handlers.slice();
 fastHandlers[16] = AssertionTypeArrayBounded_fast;
-fastHandlers[87] = LoopItemsTypeStrictAny_fast;
+fastHandlers[88] = LoopItemsTypeStrictAny_fast;
 fastHandlers[43] = AssertionPropertyTypeStrict_fast;
 fastHandlers[11] = AssertionTypeStrict_fast;
 fastHandlers[4] = AssertionDefinesAllStrict_fast;
 fastHandlers[27] = AssertionEqual_fast;
-fastHandlers[65] = LoopPropertiesMatch_fast;
-fastHandlers[56] = LogicalOr_fast;
-fastHandlers[99] = ControlJump_fast;
+fastHandlers[66] = LoopPropertiesMatch_fast;
+fastHandlers[57] = LogicalOr_fast;
+fastHandlers[100] = ControlJump_fast;
 fastHandlers[29] = AssertionEqualsAnyStringHash_fast;
-fastHandlers[58] = LogicalXor_fast;
+fastHandlers[59] = LogicalXor_fast;
 fastHandlers[2] = AssertionDefinesStrict_fast;
-fastHandlers[82] = LoopItems_fast;
-fastHandlers[66] = LoopPropertiesMatchClosed_fast;
+fastHandlers[83] = LoopItems_fast;
+fastHandlers[67] = LoopPropertiesMatchClosed_fast;
 fastHandlers[14] = AssertionTypeStringBounded_fast;
-fastHandlers[57] = LogicalAnd_fast;
+fastHandlers[58] = LogicalAnd_fast;
 fastHandlers[8] = AssertionPropertyDependencies_fast;
 fastHandlers[10] = AssertionTypeAny_fast;
-fastHandlers[59] = LogicalCondition_fast;
-fastHandlers[72] = LoopPropertiesExcept_fast;
+fastHandlers[60] = LogicalCondition_fast;
+fastHandlers[73] = LoopPropertiesExcept_fast;
 fastHandlers[20] = AssertionRegex_fast;
-fastHandlers[67] = LoopProperties_fast;
+fastHandlers[68] = LoopProperties_fast;
 fastHandlers[1] = AssertionDefines_fast;
-fastHandlers[60] = LogicalWhenType_fast;
-fastHandlers[61] = LogicalWhenDefines_fast;
+fastHandlers[61] = LogicalWhenType_fast;
+fastHandlers[62] = LogicalWhenDefines_fast;
 fastHandlers[0] = AssertionFail_fast;
-fastHandlers[92] = LoopContains_fast;
-fastHandlers[54] = LogicalNot_fast;
-fastHandlers[85] = LoopItemsType_fast;
-fastHandlers[86] = LoopItemsTypeStrict_fast;
+fastHandlers[93] = LoopContains_fast;
+fastHandlers[55] = LogicalNot_fast;
+fastHandlers[86] = LoopItemsType_fast;
+fastHandlers[87] = LoopItemsTypeStrict_fast;
 fastHandlers[28] = AssertionEqualsAny_fast;
 fastHandlers[3] = AssertionDefinesAll_fast;
 fastHandlers[5] = AssertionDefinesExactly_fast;
@@ -4031,34 +4030,34 @@ fastHandlers[47] = AssertionArrayPrefix_fast;
 fastHandlers[48] = AssertionArrayPrefixEvaluate_fast;
 fastHandlers[49] = AssertionObjectPropertiesSimple_fast;
 fastHandlers[50] = AnnotationEmit_fast;
-fastHandlers[51] = AnnotationToParent_fast;
-fastHandlers[52] = AnnotationBasenameToParent_fast;
-fastHandlers[53] = Evaluate_fast;
-fastHandlers[55] = LogicalNotEvaluate_fast;
-fastHandlers[62] = LogicalWhenArraySizeGreater_fast;
-fastHandlers[63] = LoopPropertiesUnevaluated_fast;
-fastHandlers[64] = LoopPropertiesUnevaluatedExcept_fast;
-fastHandlers[68] = LoopPropertiesEvaluate_fast;
-fastHandlers[69] = LoopPropertiesRegex_fast;
-fastHandlers[70] = LoopPropertiesRegexClosed_fast;
-fastHandlers[71] = LoopPropertiesStartsWith_fast;
-fastHandlers[73] = LoopPropertiesType_fast;
-fastHandlers[74] = LoopPropertiesTypeEvaluate_fast;
-fastHandlers[75] = LoopPropertiesExactlyTypeStrict_fast;
-fastHandlers[76] = LoopPropertiesExactlyTypeStrictHash_fast;
-fastHandlers[77] = LoopPropertiesTypeStrict_fast;
-fastHandlers[78] = LoopPropertiesTypeStrictEvaluate_fast;
-fastHandlers[79] = LoopPropertiesTypeStrictAny_fast;
-fastHandlers[80] = LoopPropertiesTypeStrictAnyEvaluate_fast;
-fastHandlers[81] = LoopKeys_fast;
-fastHandlers[83] = LoopItemsFrom_fast;
-fastHandlers[84] = LoopItemsUnevaluated_fast;
-fastHandlers[88] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
+fastHandlers[51] = AnnotationEmitWrapped_fast;
+fastHandlers[52] = AnnotationToParent_fast;
+fastHandlers[53] = AnnotationBasenameToParent_fast;
+fastHandlers[54] = Evaluate_fast;
+fastHandlers[56] = LogicalNotEvaluate_fast;
+fastHandlers[63] = LogicalWhenArraySizeGreater_fast;
+fastHandlers[64] = LoopPropertiesUnevaluated_fast;
+fastHandlers[65] = LoopPropertiesUnevaluatedExcept_fast;
+fastHandlers[69] = LoopPropertiesEvaluate_fast;
+fastHandlers[70] = LoopPropertiesRegex_fast;
+fastHandlers[71] = LoopPropertiesRegexClosed_fast;
+fastHandlers[72] = LoopPropertiesStartsWith_fast;
+fastHandlers[74] = LoopPropertiesType_fast;
+fastHandlers[75] = LoopPropertiesTypeEvaluate_fast;
+fastHandlers[76] = LoopPropertiesExactlyTypeStrict_fast;
+fastHandlers[77] = LoopPropertiesExactlyTypeStrictHash_fast;
+fastHandlers[78] = LoopPropertiesTypeStrict_fast;
+fastHandlers[79] = LoopPropertiesTypeStrictEvaluate_fast;
+fastHandlers[80] = LoopPropertiesTypeStrictAny_fast;
+fastHandlers[81] = LoopPropertiesTypeStrictAnyEvaluate_fast;
+fastHandlers[82] = LoopKeys_fast;
+fastHandlers[84] = LoopItemsFrom_fast;
+fastHandlers[85] = LoopItemsUnevaluated_fast;
 fastHandlers[89] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
-fastHandlers[90] = LoopItemsIntegerBounded_fast;
-fastHandlers[91] = LoopItemsIntegerBoundedSized_fast;
-fastHandlers[98] = ControlDynamicAnchorJump_fast;
-fastHandlers[100] = AnnotationEmitCollection_fast;
+fastHandlers[90] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
+fastHandlers[91] = LoopItemsIntegerBounded_fast;
+fastHandlers[92] = LoopItemsIntegerBoundedSized_fast;
+fastHandlers[99] = ControlDynamicAnchorJump_fast;
 
 import { describe } from './describe.mjs';
 
@@ -4066,8 +4065,7 @@ const STANDARD_MASK_KEYWORDS =
   new Set([ 'anyOf', 'oneOf', 'not', 'if', 'contains' ]);
 
 function isAnnotationOpcode(opcode) {
-  return (opcode >= ANNOTATION_EMIT && opcode <= ANNOTATION_BASENAME_TO_PARENT) ||
-         opcode === ANNOTATION_EMIT_COLLECTION;
+  return opcode >= ANNOTATION_EMIT && opcode <= ANNOTATION_BASENAME_TO_PARENT;
 }
 
 function lastEvaluatePathToken(evaluatePath) {
@@ -4129,7 +4127,7 @@ class SimpleOutput {
           absoluteKeywordLocation: instruction[3],
           instanceLocation,
           values: [ annotation ],
-          isCollection: isCollectionAnnotationOpcode(instruction[0])
+          isWrapped: isWrappedAnnotationOpcode(instruction[0])
         };
         this.annotations.set(annotationKey, bucket);
       } else {
@@ -4216,7 +4214,7 @@ class SimpleOutput {
           keywordLocation: entry.keywordLocation,
           absoluteKeywordLocation: entry.absoluteKeywordLocation,
           instanceLocation: entry.instanceLocation,
-          annotation: entry.isCollection
+          annotation: entry.isWrapped
             ? entry.values
             : entry.values[entry.values.length - 1]
         }));

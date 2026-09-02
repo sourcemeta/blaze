@@ -31,7 +31,7 @@ struct AnnotationLocation {
 
 struct AnnotationGroup {
   std::vector<sourcemeta::core::JSON> values;
-  bool is_collection{false};
+  bool is_wrapped{false};
 };
 
 auto group_annotations(const SimpleOutput &output)
@@ -41,7 +41,7 @@ auto group_annotations(const SimpleOutput &output)
     auto &group{result[{.instance_location = entry.instance_location,
                         .evaluate_path = entry.evaluate_path,
                         .schema_location = entry.schema_location}]};
-    group.is_collection = entry.is_collection;
+    group.is_wrapped = entry.is_wrapped;
     if (group.values.empty() || group.values.back() != entry.value) {
       group.values.push_back(entry.value);
     }
@@ -93,7 +93,7 @@ auto handle_standard(Evaluator &evaluator, const Template &schema,
           }
         }
 
-        if (annotation.second.is_collection) {
+        if (annotation.second.is_wrapped) {
           unit.assign_assume_new("annotation", sourcemeta::core::to_json(
                                                    annotation.second.values));
         } else {
