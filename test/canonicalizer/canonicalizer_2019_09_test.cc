@@ -746,6 +746,187 @@ TEST(items_implicit_1) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
+TEST(unevaluated_properties_single_ref_to_additional_properties) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": { "type": "object", "properties": { "shared": true } }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "$ref": "#/$defs/base"
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "local": true,
+          "shared": true
+        },
+        "patternProperties": {},
+        "additionalProperties": false
+      }
+    ],
+    "$defs": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "shared": true
+        },
+        "patternProperties": {}
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(unevaluated_properties_single_ref_target_with_anyof_stays) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "type": "object",
+        "anyOf": [ { "properties": { "a": true } }, { "properties": { "b": true } } ]
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "$ref": "#/$defs/base"
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "local": true
+        },
+        "patternProperties": {}
+      }
+    ],
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "allOf": [
+          {
+            "anyOf": [
+              {
+                "type": "object",
+                "minProperties": 0,
+                "propertyNames": true,
+                "properties": {
+                  "a": true
+                },
+                "patternProperties": {}
+              },
+              {
+                "type": "object",
+                "minProperties": 0,
+                "propertyNames": true,
+                "properties": {
+                  "b": true
+                },
+                "patternProperties": {}
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "minProperties": 0,
+            "propertyNames": true,
+            "properties": {},
+            "patternProperties": {}
+          }
+        ]
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(
+    unevaluated_properties_single_ref_target_with_additional_properties_stays) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "type": "object",
+        "properties": { "shared": true },
+        "additionalProperties": true
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "$ref": "#/$defs/base"
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "local": true
+        },
+        "patternProperties": {}
+      }
+    ],
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": {
+        "type": "object",
+        "minProperties": 0,
+        "propertyNames": true,
+        "properties": {
+          "shared": true
+        },
+        "patternProperties": {},
+        "additionalProperties": true
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
 TEST(items_implicit_skipped_with_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",

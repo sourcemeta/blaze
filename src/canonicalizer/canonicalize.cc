@@ -360,6 +360,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/type_with_applicator_to_extends.h"
 #include "rules/unevaluated_items_to_items.h"
 #include "rules/unevaluated_properties_to_additional_properties.h"
+#include "rules/unevaluated_properties_to_additional_properties_single_ref.h"
 #include "rules/unknown_keywords_prefix.h"
 #include "rules/unknown_local_ref.h"
 #include "rules/unknown_type_names.h"
@@ -380,7 +381,7 @@ auto canonicalize(sourcemeta::core::JSON &schema,
                   const std::string_view default_dialect,
                   const std::string_view default_id) -> void {
   std::vector<Rule> rules;
-  rules.reserve(125);
+  rules.reserve(128);
   rules.push_back(make_rule<ExclusiveMinimumBooleanIntegerFold>());
   rules.push_back(make_rule<ExclusiveMaximumBooleanIntegerFold>());
   rules.push_back(make_rule<UnsatisfiableExclusiveEqualBounds>());
@@ -393,6 +394,8 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<RecursiveAnchorFalseDrop>());
   rules.push_back(make_rule<UnevaluatedItemsToItems>());
   rules.push_back(make_rule<UnevaluatedPropertiesToAdditionalProperties>());
+  rules.push_back(
+      make_rule<UnevaluatedPropertiesToAdditionalPropertiesSingleRef>());
   rules.push_back(make_rule<IfThenElseImplicit>());
   rules.push_back(make_rule<ImplicitObjectKeywords>());
   rules.push_back(make_rule<ImplicitContainsKeywords>());
