@@ -133,6 +133,25 @@ function(sourcemeta_library)
   endif()
 endfunction()
 
+# A static library records its private dependencies as $<LINK_ONLY:...> in the
+# exported link interface. Build systems that read the export without evaluating
+# generator expressions drop those entries and lose the transitive link closure,
+# so unwrap them on the way out. CMake consumers are unaffected, as the wrapper
+# only suppresses usage requirements that an installed interface does not carry
+function(sourcemeta_library_export_flatten TARGET_NAME)
+  get_target_property(SOURCEMETA_LIBRARY_INTERFACE
+    ${TARGET_NAME} INTERFACE_LINK_LIBRARIES)
+  if(SOURCEMETA_LIBRARY_INTERFACE)
+    set(SOURCEMETA_LIBRARY_FLATTENED)
+    foreach(entry IN LISTS SOURCEMETA_LIBRARY_INTERFACE)
+      string(REGEX REPLACE "\\$<LINK_ONLY:([^>]+)>" "\\1" entry "${entry}")
+      list(APPEND SOURCEMETA_LIBRARY_FLATTENED "${entry}")
+    endforeach()
+    set_property(TARGET ${TARGET_NAME}
+      PROPERTY INTERFACE_LINK_LIBRARIES ${SOURCEMETA_LIBRARY_FLATTENED})
+  endif()
+endfunction()
+
 function(sourcemeta_library_install)
   cmake_parse_arguments(SOURCEMETA_LIBRARY "" "NAMESPACE;PROJECT;NAME;VARIANT" "" ${ARGN})
 
@@ -173,6 +192,12 @@ function(sourcemeta_library_install)
       NAMELINK_COMPONENT ${COMPONENT_NAME}_dev
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     COMPONENT ${COMPONENT_NAME}_dev)
+  # Deferred, as callers link their dependencies after installing the target.
+  # The target name is expanded into the deferred call, as its arguments are
+  # not evaluated until the call runs, by which point the variable is gone
+  cmake_language(EVAL CODE
+    "cmake_language(DEFER CALL sourcemeta_library_export_flatten ${TARGET_NAME})")
+
   install(EXPORT ${TARGET_NAME}
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${SOURCEMETA_LIBRARY_PROJECT}"
     NAMESPACE ${NAMESPACE_PREFIX}
