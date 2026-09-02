@@ -15,8 +15,11 @@ set_tests_properties(packaging.find_package_build
 
 find_program(MESON_EXECUTABLE NAMES meson)
 if(MESON_EXECUTABLE)
+  # Meson otherwise prefers whatever compiler it finds first on the system,
+  # which on Windows is the MinGW GCC that the runners ship, while this project
+  # is built with MSVC. The option is a no-op everywhere else
   add_test(NAME packaging.meson_setup COMMAND
-    "${MESON_EXECUTABLE}" setup --reconfigure
+    "${MESON_EXECUTABLE}" setup --reconfigure --vsenv
     "${CMAKE_CURRENT_BINARY_DIR}/meson"
     "${CMAKE_CURRENT_SOURCE_DIR}/meson"
     "-Dcmake_prefix_path=${PROJECT_SOURCE_DIR}/build/dist")
