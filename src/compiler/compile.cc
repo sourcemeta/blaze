@@ -428,6 +428,35 @@ auto schema_frame_populate_target_types(
 
 namespace sourcemeta::blaze {
 
+// Whether an entry point that the frame could not locate nonetheless names a
+// place that the document has, which means it is a keyword rather than a
+// schema. Only reachable when the entry point carries a pointer fragment, as
+// anything else can only ever name a schema
+auto entrypoint_names_non_schema(const sourcemeta::core::JSON &schema,
+                                 const sourcemeta::blaze::SchemaFrame &frame,
+                                 const std::string_view entrypoint) -> bool {
+  sourcemeta::core::URI uri{sourcemeta::core::JSON::String{entrypoint}};
+  const auto fragment{uri.fragment()};
+  if (!fragment.has_value() || !fragment.value().starts_with('/')) {
+    return false;
+  }
+
+  const sourcemeta::core::Pointer relative{
+      sourcemeta::core::to_pointer(sourcemeta::core::JSON::String{
+          fragment.value()})};
+  const auto base{
+      uri.recompose_without_fragment().value_or(sourcemeta::core::JSON::String{})};
+  const auto base_location{frame.traverse(base)};
+  if (!base_location.has_value()) {
+    return sourcemeta::core::try_get(schema, relative) != nullptr;
+  }
+
+  return sourcemeta::core::try_get(
+             schema, sourcemeta::core::to_pointer(
+                         base_location.value().get().pointer)
+                         .concat(relative)) != nullptr;
+}
+
 auto compile(const sourcemeta::core::JSON &schema,
              const sourcemeta::blaze::SchemaWalker &walker,
              const sourcemeta::blaze::SchemaResolver &resolver,
@@ -440,8 +469,14 @@ auto compile(const sourcemeta::core::JSON &schema,
 
   const auto maybe_entrypoint_location{frame.traverse(entrypoint)};
   if (!maybe_entrypoint_location.has_value()) [[unlikely]] {
+    // A frame that only locates schemas has nothing to say about an entry
+    // point that names a plain keyword, so tell the two apart by asking the
+    // document rather than reporting a place that does exist as missing
     throw CompilerInvalidEntryPoint{
-        entrypoint, "The given entry point URI does not exist in the schema"};
+        entrypoint,
+        entrypoint_names_non_schema(schema, frame, entrypoint)
+            ? "The given entry point URI is not a valid subschema"
+            : "The given entry point URI does not exist in the schema"};
   }
 
   const auto &entrypoint_location{maybe_entrypoint_location->get()};

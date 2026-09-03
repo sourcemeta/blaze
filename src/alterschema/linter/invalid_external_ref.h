@@ -106,8 +106,10 @@ private:
                       const SchemaFrame::Location &location) const -> bool {
     auto frame_iterator{this->frame_cache_.find(base_key)};
     if (frame_iterator == this->frame_cache_.end()) {
+      // A reference may name any place of the remote rather than only the
+      // schemas of it, so this needs framing to address every pointer
       auto remote_frame{std::make_unique<SchemaFrame>(
-          SchemaFrame::Mode::Locations, remote.value(), walker, resolver,
+          SchemaFrame::Mode::Pointers, remote.value(), walker, resolver,
           location.dialect, base_key)};
       frame_iterator =
           this->frame_cache_.emplace(base_key, std::move(remote_frame)).first;

@@ -422,8 +422,11 @@ auto bundle_schema(sourcemeta::core::JSON &root,
     if (reference.fragment.has_value()) {
       // TODO: The fact that we have to re-frame on each loop pass to check
       // for this is probably insanely slow
+      // A fragment may name any place of the remote rather than only the
+      // schemas of it, so this is one of the few callers that needs framing
+      // to address every pointer
       sourcemeta::blaze::SchemaFrame remote_frame{
-          sourcemeta::blaze::SchemaFrame::Mode::Locations,
+          sourcemeta::blaze::SchemaFrame::Mode::Pointers,
           remote,
           walker,
           resolver,

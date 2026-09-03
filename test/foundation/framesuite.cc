@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <iostream>
 #include <optional>
+#include <set>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -19,7 +20,7 @@ namespace {
 // otherwise go unnoticed, as the runner would simply not read it
 const std::vector<std::string> KNOWN_KEYS{
     "schema", "resolver",       "defaultDialect", "defaultId",    "paths",
-    "root",   "identifierMode", "references",     "reachability", "standalone"};
+    "root",   "identifierMode", "pointers",       "reachability", "standalone"};
 
 auto make_resolver(const sourcemeta::core::JSON &test)
     -> sourcemeta::blaze::SchemaResolver {
@@ -112,6 +113,39 @@ auto check_reachability(const sourcemeta::blaze::SchemaFrame &frame,
             check.at("reachable").to_boolean());
 }
 
+// Every mode below sourcemeta::blaze::SchemaFrame::Mode::Pointers reports a
+// pointer location only when a reference names it, so the expectations for
+// those follow from the one fixture we store rather than from near-duplicates
+// of it
+auto drop_pointer_locations(
+    sourcemeta::core::JSON &document,
+    const std::set<sourcemeta::core::JSON::String> &keep) -> void {
+  for (const auto &kind : {"static", "dynamic"}) {
+    auto &group{document.at("locations").at(kind)};
+    std::vector<sourcemeta::core::JSON::String> doomed;
+    for (const auto &location : group.as_object()) {
+      if (location.second.at("type").to_string() == "pointer" &&
+          !keep.contains(location.first)) {
+        doomed.push_back(location.first);
+      }
+    }
+
+    for (const auto &uri : doomed) {
+      group.erase(uri);
+    }
+  }
+}
+
+auto reference_destinations(const sourcemeta::core::JSON &document)
+    -> std::set<sourcemeta::core::JSON::String> {
+  std::set<sourcemeta::core::JSON::String> result;
+  for (const auto &reference : document.at("references").as_array()) {
+    result.insert(reference.at("destination").to_string());
+  }
+
+  return result;
+}
+
 auto run_frame_test(const sourcemeta::core::JSON &test) -> void {
   for (const auto &entry : test.as_object()) {
     EXPECT_TRUE(std::ranges::find(KNOWN_KEYS, entry.first) !=
@@ -120,7 +154,7 @@ auto run_frame_test(const sourcemeta::core::JSON &test) -> void {
 
   EXPECT_TRUE(test.defines("schema"));
   EXPECT_TRUE(test.defines("root"));
-  EXPECT_TRUE(test.defines("references"));
+  EXPECT_TRUE(test.defines("pointers"));
   EXPECT_TRUE(test.defines("standalone"));
 
   const auto resolver{make_resolver(test)};
@@ -139,6 +173,23 @@ auto run_frame_test(const sourcemeta::core::JSON &test) -> void {
       paths};
   EXPECT_EQ(root.to_json(resolver), test.at("root"));
 
+  const sourcemeta::blaze::SchemaFrame pointers{
+      sourcemeta::blaze::SchemaFrame::Mode::Pointers,
+      test.at("schema"),
+      sourcemeta::blaze::schema_walker,
+      resolver,
+      inputs.default_dialect,
+      inputs.default_id,
+      identifier_mode,
+      paths};
+  EXPECT_EQ(pointers.to_json(resolver), test.at("pointers"));
+
+  // References mode locates every schema, but of the remaining pointers only
+  // the ones that a reference actually names
+  auto expected_references{test.at("pointers")};
+  expected_references.assign("mode", sourcemeta::core::JSON{"references"});
+  drop_pointer_locations(expected_references,
+                         reference_destinations(expected_references));
   const sourcemeta::blaze::SchemaFrame references{
       sourcemeta::blaze::SchemaFrame::Mode::References,
       test.at("schema"),
@@ -148,7 +199,7 @@ auto run_frame_test(const sourcemeta::core::JSON &test) -> void {
       inputs.default_id,
       identifier_mode,
       paths};
-  EXPECT_EQ(references.to_json(resolver), test.at("references"));
+  EXPECT_EQ(references.to_json(resolver), expected_references);
 
   EXPECT_EQ(references.standalone(), test.at("standalone").to_boolean());
 
@@ -158,12 +209,12 @@ auto run_frame_test(const sourcemeta::core::JSON &test) -> void {
     }
   }
 
-  // Locations mode reports the same locations as References mode, only without
-  // resolving any reference, so we assert it as a relationship rather than
-  // storing a near-duplicate of the same data
-  auto expected_locations{test.at("references")};
-  expected_locations.assign("references", sourcemeta::core::JSON::make_array());
+  // Locations mode resolves no reference at all, so it keeps no pointer that
+  // only a reference would have justified either
+  auto expected_locations{test.at("pointers")};
   expected_locations.assign("mode", sourcemeta::core::JSON{"locations"});
+  expected_locations.assign("references", sourcemeta::core::JSON::make_array());
+  drop_pointer_locations(expected_locations, {});
   for (const auto &kind : {"static", "dynamic"}) {
     auto &group{expected_locations.at("locations").at(kind)};
     std::vector<sourcemeta::core::JSON::String> uris;

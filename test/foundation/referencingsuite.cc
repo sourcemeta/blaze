@@ -88,7 +88,7 @@ auto run_referencing_test(const sourcemeta::core::JSON &suite,
       new_entries;
   for (const auto &[uri, schema] : registry) {
     sourcemeta::blaze::SchemaFrame frame{
-        sourcemeta::blaze::SchemaFrame::Mode::References,
+        sourcemeta::blaze::SchemaFrame::Mode::Pointers,
         schema.first,
         sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::schema_resolver,
