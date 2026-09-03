@@ -430,6 +430,61 @@ TEST(schema_not_found) {
   }
 }
 
+TEST(pointer_fragment_found) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "$ref": "https://example.com/baz-anchor#/$defs/baz" }
+    }
+  })JSON");
+
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "$ref": "https://example.com/baz-anchor#/$defs/baz" }
+    },
+    "$defs": {
+      "https://example.com/baz-anchor": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/baz-anchor",
+        "$defs": {
+          "baz": {
+            "$anchor": "baz",
+            "type": "string"
+          }
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(pointer_fragment_not_found) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "$ref": "https://example.com/baz-anchor#/$defs/qux" }
+    }
+  })JSON");
+
+  try {
+    sourcemeta::blaze::bundle(
+        document, sourcemeta::blaze::schema_walker, test_resolver,
+        sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+    EXPECT_STREQ(error.what(), "Could not resolve schema reference");
+  }
+}
+
 TEST(anchor_not_found) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",

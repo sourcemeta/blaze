@@ -420,19 +420,29 @@ auto bundle_schema(sourcemeta::core::JSON &root,
     // If the reference has a fragment, verify it exists in the remote
     // schema
     if (reference.fragment.has_value()) {
-      // TODO: The fact that we have to re-frame on each loop pass to check
-      // for this is probably insanely slow
-      // A fragment may name any place of the remote rather than only the
-      // schemas of it, so this is one of the few callers that needs framing
-      // to address every pointer
-      sourcemeta::blaze::SchemaFrame remote_frame{
-          sourcemeta::blaze::SchemaFrame::Mode::Pointers,
-          remote,
-          walker,
-          resolver,
-          default_dialect,
-          identifier};
-      if (!remote_frame.traverse(reference.destination).has_value()) {
+      bool exists{false};
+      const auto fragment_pointer{sourcemeta::core::fragment_to_pointer(
+          sourcemeta::core::URI{reference.destination})};
+      if (fragment_pointer.has_value()) {
+        // A pointer fragment names a place of the document, and the document
+        // can answer for that on its own without paying to frame it
+        exists = sourcemeta::core::try_get(remote, fragment_pointer.value()) !=
+                 nullptr;
+      } else {
+        // An anchor is not a place of the document, so this one does need a
+        // frame, but only for the anchors of the remote rather than for every
+        // pointer of it
+        const sourcemeta::blaze::SchemaFrame remote_frame{
+            sourcemeta::blaze::SchemaFrame::Mode::Locations,
+            remote,
+            walker,
+            resolver,
+            default_dialect,
+            identifier};
+        exists = remote_frame.traverse(reference.destination).has_value();
+      }
+
+      if (!exists) {
         throw sourcemeta::blaze::SchemaReferenceError(
             reference.destination, sourcemeta::core::to_pointer(pointer),
             "Could not resolve schema reference");
