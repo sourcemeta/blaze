@@ -60,9 +60,10 @@ public:
   /// sourcemeta::blaze::SchemaFrame::Mode::Root reports on a single schema,
   /// so framing a wrapper that holds more than one yields no locations
   ///
-  /// Every mode below sourcemeta::blaze::SchemaFrame::Mode::Pointers locates
-  /// the schemas of the document rather than each of its JSON Pointers, plus
-  /// whatever place a reference happens to name. Reach for
+  /// sourcemeta::blaze::SchemaFrame::Mode::Locations and
+  /// sourcemeta::blaze::SchemaFrame::Mode::References locate the schemas of
+  /// the document rather than each of its JSON Pointers, and the latter also
+  /// locates whatever place a reference names. Reach for
   /// sourcemeta::blaze::SchemaFrame::Mode::Pointers only to address a keyword
   /// or a value of the document by URI, as computing those locations tends to
   /// dominate the cost of framing

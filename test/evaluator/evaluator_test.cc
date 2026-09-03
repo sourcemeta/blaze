@@ -409,6 +409,29 @@ TEST(instruction_move_assignable) {
   EXPECT_TRUE(std::is_move_assignable_v<sourcemeta::blaze::Instruction>);
 }
 
+TEST(invalid_entrypoint_that_is_not_a_uri) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               frame, "http://[");
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    EXPECT_EQ(error.identifier(), "http://[");
+    EXPECT_STREQ(error.what(),
+                 "The given entry point URI does not exist in the schema");
+  }
+}
+
 TEST(invalid_entrypoint_does_not_exist) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

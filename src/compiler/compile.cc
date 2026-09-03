@@ -435,25 +435,34 @@ namespace sourcemeta::blaze {
 auto entrypoint_names_non_schema(const sourcemeta::core::JSON &schema,
                                  const sourcemeta::blaze::SchemaFrame &frame,
                                  const std::string_view entrypoint) -> bool {
-  sourcemeta::core::URI uri{sourcemeta::core::JSON::String{entrypoint}};
-  const auto fragment{uri.fragment()};
-  if (!fragment.has_value() || !fragment.value().starts_with('/')) {
+  std::optional<sourcemeta::core::URI> uri;
+  try {
+    uri.emplace(sourcemeta::core::JSON::String{entrypoint});
+  } catch (const sourcemeta::core::URIParseError &) {
+    // A URI that does not even parse names nothing at all, so leave the
+    // caller to report it as the invalid entry point that it is
     return false;
   }
 
-  const sourcemeta::core::Pointer relative{sourcemeta::core::to_pointer(
-      sourcemeta::core::JSON::String{fragment.value()})};
-  const auto base{uri.recompose_without_fragment().value_or(
+  const auto relative{sourcemeta::core::fragment_to_pointer(uri.value())};
+  if (!relative.has_value()) {
+    return false;
+  }
+
+  const auto base{uri.value().recompose_without_fragment().value_or(
       sourcemeta::core::JSON::String{})};
   const auto base_location{frame.traverse(base)};
   if (!base_location.has_value()) {
-    return sourcemeta::core::try_get(schema, relative) != nullptr;
+    // A base that framing does not know names some other document, which this
+    // one has nothing to say about
+    return base.empty() &&
+           sourcemeta::core::try_get(schema, relative.value()) != nullptr;
   }
 
   return sourcemeta::core::try_get(
              schema,
              sourcemeta::core::to_pointer(base_location.value().get().pointer)
-                 .concat(relative)) != nullptr;
+                 .concat(relative.value())) != nullptr;
 }
 
 auto compile(const sourcemeta::core::JSON &schema,

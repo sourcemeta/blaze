@@ -1505,9 +1505,17 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         continue;
       }
 
+      // The fragment of a reference is URI-encoded, so it has to be decoded
+      // rather than read as-is, else an escape like `a%20b` would stand for a
+      // property of that literal name
+      const auto relative{sourcemeta::core::fragment_to_pointer(
+          sourcemeta::core::URI{reference.second.destination})};
+      if (!relative.has_value()) {
+        continue;
+      }
+
       auto absolute{sourcemeta::core::to_pointer(base_entry->second.pointer)
-                        .concat(sourcemeta::core::to_pointer(
-                            sourcemeta::core::JSON::String{fragment.value()}))};
+                        .concat(relative.value())};
       if (sourcemeta::core::try_get(root, absolute) == nullptr) {
         continue;
       }

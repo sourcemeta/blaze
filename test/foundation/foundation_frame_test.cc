@@ -732,6 +732,30 @@ TEST(accessors_reference_count) {
   EXPECT_EQ(frame.reference_count(), 4);
 }
 
+TEST(materialised_reference_target_with_percent_encoded_token) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "a b": { "type": "string" },
+      "other": { "$ref": "#/properties/a%20b/type" }
+    }
+  })JSON");
+
+  const sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, document,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  // The target is a keyword value rather than a schema, so only materialising
+  // it puts it on the frame, and its fragment has to be decoded to get there
+  const auto target{frame.location(
+      sourcemeta::blaze::SchemaReferenceType::Static,
+      "https://example.com/schema#/properties/a%20b/type")};
+  EXPECT_TRUE(target.has_value());
+  EXPECT_EQ(sourcemeta::core::to_string(target.value().get().pointer),
+            "/properties/a b/type");
+}
+
 TEST(accessors_has_dynamic_references) {
   const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com/schema",
