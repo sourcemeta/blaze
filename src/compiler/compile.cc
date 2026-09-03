@@ -441,20 +441,19 @@ auto entrypoint_names_non_schema(const sourcemeta::core::JSON &schema,
     return false;
   }
 
-  const sourcemeta::core::Pointer relative{
-      sourcemeta::core::to_pointer(sourcemeta::core::JSON::String{
-          fragment.value()})};
-  const auto base{
-      uri.recompose_without_fragment().value_or(sourcemeta::core::JSON::String{})};
+  const sourcemeta::core::Pointer relative{sourcemeta::core::to_pointer(
+      sourcemeta::core::JSON::String{fragment.value()})};
+  const auto base{uri.recompose_without_fragment().value_or(
+      sourcemeta::core::JSON::String{})};
   const auto base_location{frame.traverse(base)};
   if (!base_location.has_value()) {
     return sourcemeta::core::try_get(schema, relative) != nullptr;
   }
 
   return sourcemeta::core::try_get(
-             schema, sourcemeta::core::to_pointer(
-                         base_location.value().get().pointer)
-                         .concat(relative)) != nullptr;
+             schema,
+             sourcemeta::core::to_pointer(base_location.value().get().pointer)
+                 .concat(relative)) != nullptr;
 }
 
 auto compile(const sourcemeta::core::JSON &schema,
