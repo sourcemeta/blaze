@@ -42,8 +42,8 @@
     },
     "references": []
   },
-  "references": {
-    "mode": "references",
+  "pointers": {
+    "mode": "pointers",
     "locations": {
       "static": {
         "": {

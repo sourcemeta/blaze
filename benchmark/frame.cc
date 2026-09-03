@@ -36,6 +36,19 @@ static void Schema_Frame_OMC_References(benchmark::State &state) {
   }
 }
 
+static void Schema_Frame_OMC_Pointers(benchmark::State &state) {
+  const auto schema{
+      sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
+                                  "files" / "2019_09_omc_json_v2.json")};
+
+  for (auto _ : state) {
+    sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::Pointers, schema,
+        sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+    benchmark::DoNotOptimize(frame);
+  }
+}
+
 static void Schema_Frame_OMC_Locations(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
@@ -175,6 +188,7 @@ static void Schema_Frame_Deeply_Nested_References(benchmark::State &state) {
 
 BENCHMARK(Schema_Frame_WoT_References);
 BENCHMARK(Schema_Frame_OMC_References);
+BENCHMARK(Schema_Frame_OMC_Pointers);
 BENCHMARK(Schema_Frame_OMC_Locations);
 BENCHMARK(Schema_Frame_ISO_Language_Locations);
 BENCHMARK(Schema_Frame_ISO_Language_Root);

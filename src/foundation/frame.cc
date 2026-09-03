@@ -520,6 +520,9 @@ auto SchemaFrame::to_json(
     case SchemaFrame::Mode::References:
       root.assign_assume_new("mode", sourcemeta::core::JSON{"references"});
       break;
+    case SchemaFrame::Mode::Pointers:
+      root.assign_assume_new("mode", sourcemeta::core::JSON{"pointers"});
+      break;
   }
 
   const auto destinations{
@@ -1049,7 +1052,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         }
       }
 
-      if (this->mode_ == SchemaFrame::Mode::References) {
+      if (this->mode_ >= SchemaFrame::Mode::References) {
         // Handle metaschema references
         const auto maybe_metaschema{sourcemeta::blaze::dialect(
             entry.common.subschema.get(), {}, false)};
@@ -1201,6 +1204,11 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
     for (const auto &relative_pointer : pointers) {
       const auto pointer_weak{path.concat(relative_pointer)};
 
+      if (this->mode_ != SchemaFrame::Mode::Pointers &&
+          !subschemas.contains(pointer_weak)) {
+        continue;
+      }
+
       const auto combined{
           find_dialect_and_all_bases(base_dialects, base_uris, pointer_weak)};
       const auto &dialect_for_pointer{
@@ -1319,7 +1327,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
     }
   }
 
-  if (this->mode_ != SchemaFrame::Mode::References) {
+  if (this->mode_ < SchemaFrame::Mode::References) {
     return;
   }
 
@@ -1469,6 +1477,93 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                                    .fragment = std::nullopt});
         set_base_and_fragment(it->second);
       }
+    }
+  }
+
+  // A reference may target a place that the walker never descends into, like
+  // a keyword value or a container that a top-level `$ref` overrides. Those
+  // have no location of their own outside of
+  // sourcemeta::blaze::SchemaFrame::Mode::Pointers, so materialise one for
+  // each, which costs an entry per reference rather than one per pointer of
+  // the analysed document
+  if (this->mode_ < SchemaFrame::Mode::Pointers) {
+    for (const auto &reference : this->references_) {
+      const auto &fragment{reference.second.fragment};
+      if (!fragment.has_value() || !fragment.value().starts_with('/')) {
+        continue;
+      }
+
+      if (this->locations_.contains(
+              {SchemaReferenceType::Static, reference.second.destination})) {
+        continue;
+      }
+
+      const auto base_entry{this->locations_.find(
+          {SchemaReferenceType::Static,
+           sourcemeta::core::JSON::String{reference.second.base}})};
+      if (base_entry == this->locations_.cend()) {
+        continue;
+      }
+
+      // The fragment of a reference is URI-encoded, so it has to be decoded
+      // rather than read as-is, else an escape like `a%20b` would stand for a
+      // property of that literal name
+      const auto relative{sourcemeta::core::fragment_to_pointer(
+          sourcemeta::core::URI{reference.second.destination})};
+      if (!relative.has_value()) {
+        continue;
+      }
+
+      auto absolute{sourcemeta::core::to_pointer(base_entry->second.pointer)
+                        .concat(relative.value())};
+      if (sourcemeta::core::try_get(root, absolute) == nullptr) {
+        continue;
+      }
+
+      this->reference_pointers_.push_back(std::move(absolute));
+      const auto pointer_weak{
+          sourcemeta::core::to_weak_pointer(this->reference_pointers_.back())};
+      const auto combined{
+          find_dialect_and_all_bases(base_dialects, base_uris, pointer_weak)};
+
+      std::size_t nearest_base_depth{base_entry->second.pointer.size()};
+      std::string_view nearest_base_view{base_entry->first.second};
+      for (const auto &candidate : combined.every_base) {
+        if (candidate.first.empty()) {
+          continue;
+        }
+
+        nearest_base_depth = candidate.second.size();
+        const auto candidate_entry{this->locations_.find(
+            {SchemaReferenceType::Static,
+             sourcemeta::core::JSON::String{candidate.first}})};
+        if (candidate_entry != this->locations_.cend()) {
+          nearest_base_view = candidate_entry->first.second;
+        }
+
+        break;
+      }
+
+      const auto parent{combined.dialect_match.has_value()
+                            ? combined.dialect_match->second
+                            : base_entry->second.pointer};
+      const auto parent_subschema{subschemas.find(parent)};
+      store(this->locations_, SchemaReferenceType::Static,
+            SchemaFrame::LocationType::Pointer,
+            sourcemeta::core::JSON::String{reference.second.destination},
+            nearest_base_view, pointer_weak, nearest_base_depth,
+            combined.dialect_match.has_value()
+                ? combined.dialect_match->first.get().dialects.front()
+                : base_entry->second.dialect,
+            combined.dialect_match.has_value()
+                ? combined.dialect_match->first.get().base_dialect
+                : base_entry->second.base_dialect,
+            parent,
+            parent_subschema != subschemas.cend() &&
+                parent_subschema->second.property_name,
+            parent_subschema != subschemas.cend() &&
+                parent_subschema->second.orphan,
+            true);
     }
   }
 

@@ -46,8 +46,8 @@
     },
     "references": []
   },
-  "references": {
-    "mode": "references",
+  "pointers": {
+    "mode": "pointers",
     "locations": {
       "static": {
         "https://www.sourcemeta.com/bar": {
