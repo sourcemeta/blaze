@@ -723,6 +723,10 @@ struct SchemaFrame::Cache {
       canonical_pointer_;
   std::unordered_map<const Location *, const sourcemeta::core::WeakPointer *>
       location_to_canonical_;
+  // The key that a location is stored under, so that reporting the URI of a
+  // pointer does not have to search the locations for the entry it already has
+  std::unordered_map<const Location *, const sourcemeta::core::JSON::String *>
+      location_to_uri_;
   bool standalone_{false};
   bool has_dynamic_references_{false};
 
@@ -1867,10 +1871,9 @@ auto SchemaFrame::uri(const sourcemeta::core::WeakPointer &pointer) const
   }
 
   if (best != nullptr) {
-    for (const auto &entry : this->locations_) {
-      if (&entry.second == best) {
-        return entry.first.second;
-      }
+    const auto match{this->cache_->location_to_uri_.find(best)};
+    if (match != this->cache_->location_to_uri_.cend()) {
+      return *(match->second);
     }
   }
 
@@ -2011,9 +2014,11 @@ auto SchemaFrame::Cache::populate_pointer_to_location(const SchemaFrame &frame)
   }
 
   this->pointer_to_location_.reserve(frame.locations_.size());
+  this->location_to_uri_.reserve(frame.locations_.size());
   for (const auto &entry : frame.locations_) {
     this->pointer_to_location_[std::cref(entry.second.pointer)].push_back(
         &entry.second);
+    this->location_to_uri_.emplace(&entry.second, &entry.first.second);
   }
 }
 
