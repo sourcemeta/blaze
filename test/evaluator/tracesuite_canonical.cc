@@ -16,6 +16,18 @@
 #include <utility>    // std::move
 
 namespace {
+auto declared_dialect(const sourcemeta::core::JSON &schema)
+    -> sourcemeta::core::JSON::String {
+  if (!schema.is_object()) {
+    return {};
+  }
+
+  const auto *dialect{schema.try_at("$schema")};
+  return (dialect != nullptr && dialect->is_string())
+             ? dialect->to_string()
+             : sourcemeta::core::JSON::String{};
+}
+
 auto run_canonicalize_test(const sourcemeta::core::JSON &data,
                            const sourcemeta::blaze::Mode mode) -> void {
   auto schema{data.at("schema")};
@@ -25,9 +37,7 @@ auto run_canonicalize_test(const sourcemeta::core::JSON &data,
   // Canonicalisation can collapse an unsatisfiable schema into a boolean,
   // which has no room for the dialect the document declares, so hold on to
   // that dialect for the compilation that follows
-  const auto dialect{schema.is_object() && schema.defines("$schema")
-                         ? schema.at("$schema").to_string()
-                         : sourcemeta::core::JSON::String{}};
+  const auto dialect{declared_dialect(schema)};
 
   sourcemeta::blaze::canonicalize(schema, sourcemeta::blaze::schema_walker,
                                   sourcemeta::blaze::schema_resolver, dialect);

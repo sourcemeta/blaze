@@ -380,3 +380,76 @@ TEST(draft7_empty_enum) {
 
   EXPECT_EQ(output.str(), "export type Schema = never;\n");
 }
+
+TEST(unexpected_schema_error_required_property_not_allowed) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "foo": { "type": "string" } },
+    "required": [ "bar" ],
+    "additionalProperties": false
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CodegenUnexpectedSchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This schema requires a property that it does not allow");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unexpected_schema_error_required_property_not_allowed_nested) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "type": "object",
+        "properties": { "qux": { "type": "string" } },
+        "required": [ "bar" ],
+        "additionalProperties": false
+      }
+    }
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CodegenUnexpectedSchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "This schema requires a property that it does not allow");
+    EXPECT_AS_STRING(error.pointer(), "/properties/foo");
+  }
+}
+
+TEST(required_property_not_in_properties_open) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "foo": { "type": "string" } },
+    "required": [ "bar" ]
+  })JSON")};
+
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+
+  std::ostringstream output;
+  sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(output, result);
+
+  EXPECT_EQ(output.str(), "export type SchemaFoo = string;\n"
+                          "\n"
+                          "export type SchemaBar = unknown;\n"
+                          "\n"
+                          "export interface Schema {\n"
+                          "  \"foo\"?: SchemaFoo;\n"
+                          "  \"bar\": SchemaBar;\n"
+                          "  [key: string]: unknown | undefined;\n"
+                          "}\n");
+}

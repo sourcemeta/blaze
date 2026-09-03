@@ -129,8 +129,14 @@ auto handle_object(const sourcemeta::core::JSON &schema,
             "Expected an array of string values");
       }
 
-      // Guaranteed by canonicalisation
-      assert(properties.defines(item.to_string()));
+      // Canonicalisation adds a required property that the schema leaves
+      // unconstrained, but it cannot do so for an object that forbids it
+      if (!properties.defines(item.to_string())) {
+        throw CodegenUnexpectedSchemaError(
+            schema, location.pointer,
+            "This schema requires a property that it does not allow");
+      }
+
       required_set.insert(item.to_string());
     }
   }

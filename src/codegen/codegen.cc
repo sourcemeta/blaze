@@ -48,17 +48,20 @@ auto is_validation_subschema(
                                  resolver);
 }
 
-auto effective_dialect(const sourcemeta::core::JSON &schema,
-                       const std::string_view fallback)
+// The dialect a schema declares, falling back to the given default. Unlike the
+// equivalent helper in bundling, this one hands back a copy rather than a view,
+// as canonicalisation goes on to rewrite the very document it reads from
+auto declared_dialect(const sourcemeta::core::JSON &schema,
+                      const std::string_view default_dialect)
     -> sourcemeta::core::JSON::String {
-  if (schema.is_object()) {
-    const auto *dialect{schema.try_at("$schema")};
-    if (dialect && dialect->is_string()) {
-      return dialect->to_string();
-    }
+  if (!schema.is_object()) {
+    return sourcemeta::core::JSON::String{default_dialect};
   }
 
-  return sourcemeta::core::JSON::String{fallback};
+  const auto *dialect{schema.try_at("$schema")};
+  return (dialect != nullptr && dialect->is_string())
+             ? dialect->to_string()
+             : sourcemeta::core::JSON::String{default_dialect};
 }
 
 } // anonymous namespace
@@ -86,7 +89,7 @@ auto compile(const sourcemeta::core::JSON &input,
   // Canonicalisation can collapse an unsatisfiable schema into a boolean,
   // which has no room for the dialect the document declares, so hold on to
   // that dialect for the framing that follows
-  const auto dialect{effective_dialect(schema, default_dialect)};
+  const auto dialect{declared_dialect(schema, default_dialect)};
 
   sourcemeta::blaze::canonicalize(schema, walker, resolver, dialect,
                                   default_id);
