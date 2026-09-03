@@ -28,6 +28,14 @@ static auto test_resolver(std::string_view identifier)
       "id": "https://www.sourcemeta.com/test-3",
       "allOf": [ { "$ref": "test-1" } ]
     })JSON");
+  } else if (identifier == "https://www.sourcemeta.com/pointer-shaped-id") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://www.sourcemeta.com/pointer-shaped-id",
+      "definitions": {
+        "bar": { "id": "#/foo", "type": "string" }
+      }
+    })JSON");
   } else if (identifier == "https://www.sourcemeta.com/test-4") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -742,6 +750,42 @@ TEST(metaschema_offline_idempotent) {
       "https://example.com/meta/2.json": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "id": "https://example.com/meta/2.json"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(reference_to_pointer_shaped_legacy_identifier) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://www.sourcemeta.com/main",
+    "properties": {
+      "foo": { "$ref": "https://www.sourcemeta.com/pointer-shaped-id#/foo" }
+    }
+  })JSON");
+
+  // The remote has no `/foo` property. What the fragment names is the
+  // location independent identifier that `/definitions/bar` declares, which
+  // the drafts that spell identifiers as `id` let look just like a pointer
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::blaze::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://www.sourcemeta.com/main",
+    "properties": {
+      "foo": { "$ref": "https://www.sourcemeta.com/pointer-shaped-id#/foo" }
+    },
+    "definitions": {
+      "https://www.sourcemeta.com/pointer-shaped-id": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://www.sourcemeta.com/pointer-shaped-id",
+        "definitions": {
+          "bar": { "id": "#/foo", "type": "string" }
+        }
       }
     }
   })JSON");

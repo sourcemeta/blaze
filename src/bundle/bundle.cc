@@ -420,18 +420,19 @@ auto bundle_schema(sourcemeta::core::JSON &root,
     // If the reference has a fragment, verify it exists in the remote
     // schema
     if (reference.fragment.has_value()) {
-      bool exists{false};
+      // A pointer fragment names a place of the document, and the document can
+      // answer for that on its own without paying to frame it
       const auto fragment_pointer{sourcemeta::core::fragment_to_pointer(
           sourcemeta::core::URI{reference.destination})};
-      if (fragment_pointer.has_value()) {
-        // A pointer fragment names a place of the document, and the document
-        // can answer for that on its own without paying to frame it
-        exists = sourcemeta::core::try_get(remote, fragment_pointer.value()) !=
-                 nullptr;
-      } else {
-        // An anchor is not a place of the document, so this one does need a
-        // frame, but only for the anchors of the remote rather than for every
-        // pointer of it
+      bool exists{fragment_pointer.has_value() &&
+                  sourcemeta::core::try_get(remote, fragment_pointer.value()) !=
+                      nullptr};
+
+      // An anchor is not a place of the document, and the drafts that spell
+      // identifiers as `id` let one look just like a pointer, so a miss above
+      // still has to ask the frame. Only the anchors of the remote matter
+      // here, rather than every pointer of it
+      if (!exists) {
         const sourcemeta::blaze::SchemaFrame remote_frame{
             sourcemeta::blaze::SchemaFrame::Mode::Locations,
             remote,
