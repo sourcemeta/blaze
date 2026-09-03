@@ -22,13 +22,20 @@ auto run_canonicalize_test(const sourcemeta::core::JSON &data,
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
 
+  // Canonicalisation can collapse an unsatisfiable schema into a boolean,
+  // which has no room for the dialect the document declares, so hold on to
+  // that dialect for the compilation that follows
+  const auto dialect{schema.is_object() && schema.defines("$schema")
+                         ? schema.at("$schema").to_string()
+                         : sourcemeta::core::JSON::String{}};
+
   sourcemeta::blaze::canonicalize(schema, sourcemeta::blaze::schema_walker,
-                                  sourcemeta::blaze::schema_resolver);
+                                  sourcemeta::blaze::schema_resolver, dialect);
 
   const auto compiled_schema{sourcemeta::blaze::compile(
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler, mode)};
+      sourcemeta::blaze::default_schema_compiler, mode, dialect)};
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
 
   sourcemeta::blaze::Evaluator evaluator;

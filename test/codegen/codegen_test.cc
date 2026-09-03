@@ -5,6 +5,8 @@
 
 #include <sstream> // std::ostringstream
 
+#include "codegen_test_utils.h"
+
 TEST(unsupported_dialect_draft3) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
@@ -88,4 +90,293 @@ TEST(unknown_type_value_ignored) {
                           "  Schema_3 |\n"
                           "  Schema_4 |\n"
                           "  Schema_5;\n");
+}
+
+TEST(unsupported_keyword_value_error_properties_not_object) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com",
+    "properties": true
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected an object value");
+    EXPECT_EQ(error.keyword(), "properties");
+    EXPECT_AS_STRING(error.pointer(), "/anyOf/2");
+  }
+}
+
+TEST(unsupported_keyword_value_error_properties_not_object_nested) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "foo": { "type": "object", "properties": true } }
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected an object value");
+    EXPECT_EQ(error.keyword(), "properties");
+    EXPECT_AS_STRING(error.pointer(), "/properties/foo");
+  }
+}
+
+TEST(unsupported_keyword_value_error_required_not_array) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "foo": { "type": "string" } },
+    "required": true
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected an array value");
+    EXPECT_EQ(error.keyword(), "required");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_required_item_not_string) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "foo": { "type": "string" } },
+    "required": [ 5 ]
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected an array of string values");
+    EXPECT_EQ(error.keyword(), "required");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_pattern_properties_not_object) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "patternProperties": true
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected an object value");
+    EXPECT_EQ(error.keyword(), "patternProperties");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_prefix_items_not_array) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "prefixItems": true
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected an array value");
+    EXPECT_EQ(error.keyword(), "prefixItems");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_enum_not_array) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "enum": 5
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected an array value");
+    EXPECT_EQ(error.keyword(), "enum");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_any_of_not_array) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": true
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected a non-empty array value");
+    EXPECT_EQ(error.keyword(), "anyOf");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_any_of_empty) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": []
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected a non-empty array value");
+    EXPECT_EQ(error.keyword(), "anyOf");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_one_of_not_array) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": 5
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected a non-empty array value");
+    EXPECT_EQ(error.keyword(), "oneOf");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_one_of_empty) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": []
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected a non-empty array value");
+    EXPECT_EQ(error.keyword(), "oneOf");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_all_of_not_array) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": { "type": "string" }
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected a non-empty array value");
+    EXPECT_EQ(error.keyword(), "allOf");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_value_error_all_of_empty) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": []
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CodegenUnsupportedKeywordValueError &error) {
+    EXPECT_STREQ(error.what(), "Expected a non-empty array value");
+    EXPECT_EQ(error.keyword(), "allOf");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(unsupported_keyword_error_draft4_empty_enum) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "enum": []
+  })JSON")};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &error) {
+    EXPECT_STREQ(error.what(), "Unsupported keyword in subschema");
+    EXPECT_EQ(error.keyword(), "not");
+    EXPECT_AS_STRING(error.pointer(), "");
+  }
+}
+
+TEST(draft7_empty_enum) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "enum": []
+  })JSON")};
+
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+
+  std::ostringstream output;
+  sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(output, result);
+
+  EXPECT_EQ(output.str(), "export type Schema = never;\n");
 }

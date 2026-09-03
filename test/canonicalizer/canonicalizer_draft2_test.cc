@@ -374,3 +374,17 @@ TEST(type_union_schema_variant) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
+
+TEST(unsatisfiable_empty_enum) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-02/schema#",
+    "enum": []
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-02/schema#",
+    "disallow": [ "any" ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}

@@ -48,6 +48,19 @@ auto is_validation_subschema(
                                  resolver);
 }
 
+auto effective_dialect(const sourcemeta::core::JSON &schema,
+                       const std::string_view fallback)
+    -> sourcemeta::core::JSON::String {
+  if (schema.is_object()) {
+    const auto *dialect{schema.try_at("$schema")};
+    if (dialect && dialect->is_string()) {
+      return dialect->to_string();
+    }
+  }
+
+  return sourcemeta::core::JSON::String{fallback};
+}
+
 } // anonymous namespace
 
 namespace sourcemeta::blaze {
@@ -70,7 +83,12 @@ auto compile(const sourcemeta::core::JSON &input,
   // (2) Canonicalize the schema for easier analysis
   // --------------------------------------------------------------------------
 
-  sourcemeta::blaze::canonicalize(schema, walker, resolver, default_dialect,
+  // Canonicalisation can collapse an unsatisfiable schema into a boolean,
+  // which has no room for the dialect the document declares, so hold on to
+  // that dialect for the framing that follows
+  const auto dialect{effective_dialect(schema, default_dialect)};
+
+  sourcemeta::blaze::canonicalize(schema, walker, resolver, dialect,
                                   default_id);
 
   // --------------------------------------------------------------------------
@@ -82,7 +100,7 @@ auto compile(const sourcemeta::core::JSON &input,
       schema,
       walker,
       resolver,
-      default_dialect,
+      dialect,
       default_id};
 
   // --------------------------------------------------------------------------

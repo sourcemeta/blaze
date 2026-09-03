@@ -70,6 +70,23 @@ inline auto UNSATISFIABLE_SCHEMA(const SchemaVocabularies &vocabularies)
     return result;
   }
 
+  // Draft 2 and earlier have no boolean schemas either, and their negation
+  // keyword takes type names rather than schemas, so the name to rule out is
+  // the wildcard that every instance answers to
+  if (vocabularies.contains_any(
+          {SchemaVocabularies::Known::JSON_Schema_Draft_0,
+           SchemaVocabularies::Known::JSON_Schema_Draft_0_Hyper,
+           SchemaVocabularies::Known::JSON_Schema_Draft_1,
+           SchemaVocabularies::Known::JSON_Schema_Draft_1_Hyper,
+           SchemaVocabularies::Known::JSON_Schema_Draft_2,
+           SchemaVocabularies::Known::JSON_Schema_Draft_2_Hyper})) {
+    auto types{sourcemeta::core::JSON::make_array()};
+    types.push_back(sourcemeta::core::JSON{"any"});
+    auto result{sourcemeta::core::JSON::make_object()};
+    result.assign("disallow", std::move(types));
+    return result;
+  }
+
   return sourcemeta::core::JSON{false};
 }
 
