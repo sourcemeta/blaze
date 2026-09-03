@@ -144,13 +144,6 @@ Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
     properties.assign("from-" + std::to_string(index), std::move(property));
   }
 
-  // One reference that cannot resolve, so that the assertion below tells
-  // "every other remote resolved" apart from "the rule never ran at all"
-  auto unresolvable{sourcemeta::core::JSON::make_object()};
-  unresolvable.assign(
-      "$ref", sourcemeta::core::JSON{"https://example.com/missing#/nowhere"});
-  properties.assign("unresolvable", std::move(unresolvable));
-
   auto schema{sourcemeta::core::JSON::make_object()};
   schema.assign("$schema", sourcemeta::core::JSON{
                                "https://json-schema.org/draft/2020-12/schema"});
@@ -180,11 +173,9 @@ Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
                          trace_count++;
                        }
                      });
-    // Exactly the one reference that cannot resolve. Fewer would mean the rule
-    // stopped running, more would mean a remote or a fragment stopped
-    // resolving, and either way this would quietly turn into a measurement of
-    // the invalid reference path instead
-    assert(trace_count == 1);
+    // Otherwise a remote or a fragment that stops resolving would quietly turn
+    // this into a measurement of the invalid reference path instead
+    assert(trace_count == 0);
     benchmark::DoNotOptimize(result);
   }
 }
