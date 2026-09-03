@@ -47,6 +47,49 @@ TEST(prettify_annotations) {
   EXPECT_EQ(prettified.str(), expected);
 }
 
+TEST(prettify_annotations_multiple) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "type": "string" },
+      "bar": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "a",
+    "bar": "b"
+  })JSON")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{R"JSON({
+  "valid": true,
+  "annotations": [
+    {
+      "keywordLocation": "/properties",
+      "absoluteKeywordLocation": "#/properties",
+      "instanceLocation": "",
+      "annotation": [ "bar", "foo" ]
+    }
+  ]
+})JSON"};
+
+  std::ostringstream prettified;
+  sourcemeta::core::prettify(result, prettified);
+
+  EXPECT_EQ(prettified.str(), expected);
+}
+
 TEST(prettify_annotations_with_instance_positions) {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -168,6 +211,125 @@ TEST(prettify_errors_with_instance_positions) {
       "instanceLocation": "/foo",
       "instancePosition": [ 2, 5, 2, 12 ],
       "error": "The value was expected to be of type string but it was of type integer"
+    }
+  ]
+})JSON"};
+
+  std::ostringstream prettified;
+  sourcemeta::core::prettify(result, prettified);
+
+  EXPECT_EQ(prettified.str(), expected);
+}
+
+TEST(prettify_annotations_unknown_keyword_scalar_in_custom_dialect) {
+  const auto metaschema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/meta/core-only",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true
+    }
+  })JSON")};
+
+  const auto resolver{[&metaschema](const std::string_view identifier)
+                          -> sourcemeta::blaze::SchemaResolverResult {
+    if (identifier == "https://example.com/meta/core-only") {
+      return metaschema;
+    }
+    return sourcemeta::blaze::schema_resolver(identifier);
+  }};
+
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/meta/core-only",
+    "unevaluatedProperties": "scalar_annotation",
+    "properties": "scalar_props"
+  })JSON")};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker, resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive)};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "foo": "bar"
+  })JSON")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{R"JSON({
+  "valid": true,
+  "annotations": [
+    {
+      "keywordLocation": "/properties",
+      "absoluteKeywordLocation": "#/properties",
+      "instanceLocation": "",
+      "annotation": "scalar_props"
+    },
+    {
+      "keywordLocation": "/unevaluatedProperties",
+      "absoluteKeywordLocation": "#/unevaluatedProperties",
+      "instanceLocation": "",
+      "annotation": "scalar_annotation"
+    }
+  ]
+})JSON"};
+
+  std::ostringstream prettified;
+  sourcemeta::core::prettify(result, prettified);
+
+  EXPECT_EQ(prettified.str(), expected);
+}
+
+TEST(prettify_annotations_scalar_metadata) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "My Schema",
+    "description": "A test schema",
+    "readOnly": true,
+    "default": 42
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                                 sourcemeta::blaze::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON(123)JSON")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      sourcemeta::blaze::standard(evaluator, schema_template, instance,
+                                  sourcemeta::blaze::StandardOutput::Basic)};
+
+  const auto expected{R"JSON({
+  "valid": true,
+  "annotations": [
+    {
+      "keywordLocation": "/default",
+      "absoluteKeywordLocation": "#/default",
+      "instanceLocation": "",
+      "annotation": 42
+    },
+    {
+      "keywordLocation": "/description",
+      "absoluteKeywordLocation": "#/description",
+      "instanceLocation": "",
+      "annotation": "A test schema"
+    },
+    {
+      "keywordLocation": "/readOnly",
+      "absoluteKeywordLocation": "#/readOnly",
+      "instanceLocation": "",
+      "annotation": true
+    },
+    {
+      "keywordLocation": "/title",
+      "absoluteKeywordLocation": "#/title",
+      "instanceLocation": "",
+      "annotation": "My Schema"
     }
   ]
 })JSON"};

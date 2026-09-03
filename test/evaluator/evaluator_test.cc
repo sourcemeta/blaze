@@ -389,7 +389,22 @@ TEST(is_annotation) {
       sourcemeta::blaze::InstructionIndex::AnnotationToParent));
   EXPECT_TRUE(sourcemeta::blaze::is_annotation(
       sourcemeta::blaze::InstructionIndex::AnnotationEmit));
+  EXPECT_TRUE(sourcemeta::blaze::is_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped));
   EXPECT_FALSE(sourcemeta::blaze::is_annotation(
+      sourcemeta::blaze::InstructionIndex::AssertionFail));
+}
+
+TEST(is_wrapped_annotation) {
+  EXPECT_TRUE(sourcemeta::blaze::is_wrapped_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent));
+  EXPECT_TRUE(sourcemeta::blaze::is_wrapped_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped));
+  EXPECT_FALSE(sourcemeta::blaze::is_wrapped_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationEmit));
+  EXPECT_FALSE(sourcemeta::blaze::is_wrapped_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationToParent));
+  EXPECT_FALSE(sourcemeta::blaze::is_wrapped_annotation(
       sourcemeta::blaze::InstructionIndex::AssertionFail));
 }
 
