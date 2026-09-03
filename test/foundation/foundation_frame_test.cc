@@ -748,9 +748,9 @@ TEST(materialised_reference_target_with_percent_encoded_token) {
 
   // The target is a keyword value rather than a schema, so only materialising
   // it puts it on the frame, and its fragment has to be decoded to get there
-  const auto target{frame.location(
-      sourcemeta::blaze::SchemaReferenceType::Static,
-      "https://example.com/schema#/properties/a%20b/type")};
+  const auto target{
+      frame.location(sourcemeta::blaze::SchemaReferenceType::Static,
+                     "https://example.com/schema#/properties/a%20b/type")};
   EXPECT_TRUE(target.has_value());
   EXPECT_EQ(sourcemeta::core::to_string(target.value().get().pointer),
             "/properties/a b/type");
