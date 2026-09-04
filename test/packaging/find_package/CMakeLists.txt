@@ -17,3 +17,13 @@ target_link_libraries(blaze_hello PRIVATE sourcemeta::blaze::editor)
 target_link_libraries(blaze_hello PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(blaze_hello PRIVATE sourcemeta::blaze::bundle)
 target_link_libraries(blaze_hello PRIVATE sourcemeta::blaze::format)
+
+# Linking is not enough to know that the consumer got a working library
+add_custom_command(TARGET blaze_hello POST_BUILD COMMAND blaze_hello)
+
+# Blaze must not impose its own diagnostics or code generation choices on the
+# programs that consume it. Reading the property through a generator expression
+# collects the options inherited from every library in the link closure, so
+# this covers the entire installation rather than the targets named above
+file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/inherited-options.txt"
+  CONTENT "$<TARGET_PROPERTY:blaze_hello,COMPILE_OPTIONS>")

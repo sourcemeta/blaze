@@ -10,10 +10,18 @@
 #include <sourcemeta/blaze/output.h>
 #include <sourcemeta/blaze/test.h>
 
+#include <sourcemeta/core/allocator.h>
 #include <sourcemeta/core/json.h>
 
 #include <cstdlib>  // EXIT_SUCCESS
 #include <iostream> // std::cerr
+
+// Provided by the allocator that Blaze links into its consumers. Declared
+// rather than included, as the allocator headers are an implementation detail
+// that the installation must not expose
+#if SOURCEMETA_CORE_ALLOCATOR_MIMALLOC
+extern "C" auto mi_is_in_heap_region(const void *) -> bool;
+#endif
 
 auto main() -> int {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -63,6 +71,18 @@ auto main() -> int {
   })JSON")};
   sourcemeta::blaze::format(format_schema, sourcemeta::blaze::schema_walker,
                             sourcemeta::blaze::schema_resolver);
+
+#if SOURCEMETA_CORE_ALLOCATOR_MIMALLOC
+  // Linking the allocator in is not enough. It only does anything if it also
+  // took over the standard allocation entry points that this program uses
+  const auto *allocation{new int{1}};
+  const auto allocator_took_over{mi_is_in_heap_region(allocation)};
+  delete allocation;
+  if (!allocator_took_over) {
+    std::cerr << "The mimalloc allocator did not take over the program\n";
+    return EXIT_FAILURE;
+  }
+#endif
 
   return EXIT_SUCCESS;
 }
