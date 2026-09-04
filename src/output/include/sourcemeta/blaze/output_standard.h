@@ -26,9 +26,6 @@ enum class StandardOutput : std::uint8_t {
   // TODO: Implement the "detailed" and "verbose" output formats
 };
 
-// TODO: Integrate with
-// https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/output-tests
-
 /// @ingroup output
 /// Perform JSON Schema evaluation using Standard Output formats. For example:
 ///
