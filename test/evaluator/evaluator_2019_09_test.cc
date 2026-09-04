@@ -4415,3 +4415,87 @@ TEST(annotation_fast_unknown_keyword) {
                                "The unrecognized keyword \"x-custom\" was "
                                "collected as the annotation \"hello\"");
 }
+
+TEST(properties_closed_required_annotation_whitelist_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "required": [ "a", "b" ],
+    "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
+      R"JSON({ "a": "x", "b": "y", "zzz": 1 })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"properties"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrict, "/required",
+                     "#/required", "");
+
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionDefinesExactlyStrict, "/required",
+                              "#/required", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an object that only defines properties "
+      "\"a\", and \"b\", but it also defines the property \"zzz\"");
+}
+
+TEST(properties_closed_required_annotation_whitelist_fast_exact) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "required": [ "a", "b" ],
+    "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+    "additionalProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": "x", "b": "y" })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations =
+      std::unordered_set<sourcemeta::core::JSON::StringView>{"properties"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 5, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionDefinesExactlyStrict, "/required",
+                     "#/required", "");
+  EVALUATE_TRACE_PRE(1, AssertionPropertyTypeStrict, "/properties/a/type",
+                     "#/properties/a/type", "/a");
+  EVALUATE_TRACE_PRE_ANNOTATION(2, "/properties", "#/properties", "");
+  EVALUATE_TRACE_PRE(3, AssertionPropertyTypeStrict, "/properties/b/type",
+                     "#/properties/b/type", "/b");
+  EVALUATE_TRACE_PRE_ANNOTATION(4, "/properties", "#/properties", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionDefinesExactlyStrict, "/required",
+                              "#/required", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionPropertyTypeStrict,
+                              "/properties/a/type", "#/properties/a/type",
+                              "/a");
+  EVALUATE_TRACE_POST_ANNOTATION(2, "/properties", "#/properties", "", "a");
+  EVALUATE_TRACE_POST_SUCCESS(3, AssertionPropertyTypeStrict,
+                              "/properties/b/type", "#/properties/b/type",
+                              "/b");
+  EVALUATE_TRACE_POST_ANNOTATION(4, "/properties", "#/properties", "", "b");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an object that only defines properties "
+      "\"a\", and \"b\"");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
+                               "The object property \"a\" successfully "
+                               "validated against its property subschema");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
+                               "The value was expected to be of type string");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 4,
+                               "The object property \"b\" successfully "
+                               "validated against its property subschema");
+}
