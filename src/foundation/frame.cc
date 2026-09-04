@@ -425,9 +425,10 @@ auto store(Locations &frame, const std::uint64_t max_locations,
 
   // Charging for a location that got registered rather than for an attempt to
   // register one keeps this limit and what the frame reports holding in the
-  // same units. Charging after the fact also leaves a schema that is invalid
-  // on its own terms reporting why it is invalid, rather than reporting the
-  // limit in place of it
+  // same units. It also settles what an insertion that both collides and runs
+  // past the limit reports, as a schema that is invalid on its own terms is
+  // worth saying so about. A limit that runs out before framing ever reaches
+  // the collision still reports the limit
   if (frame.size() > max_locations) {
     throw sourcemeta::blaze::SchemaFrameLimitError(max_locations);
   }

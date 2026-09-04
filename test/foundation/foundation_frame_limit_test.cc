@@ -115,29 +115,51 @@ TEST(pointers_mode_consumes_more_than_references_mode) {
   }
 }
 
-// A schema that is invalid on its own terms reports why it is invalid whether
-// or not a limit is in play, so setting one never rewrites an existing error
-TEST(limit_does_not_mask_an_identifier_collision) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
-    "id": "https://www.sourcemeta.com/schema",
-    "$schema": "http://json-schema.org/draft-00/schema#",
-    "items": { "id": "schema" }
-  })JSON");
+static const sourcemeta::core::JSON COLLIDING_DOCUMENT =
+    sourcemeta::core::parse_json(R"JSON({
+  "id": "https://www.sourcemeta.com/schema",
+  "$schema": "http://json-schema.org/draft-00/schema#",
+  "items": { "id": "schema" }
+})JSON");
 
+// The insertion that collides is checked for collision before it is charged,
+// so a schema that is invalid on its own terms is still reported as invalid
+// rather than as too expensive
+TEST(collision_wins_when_the_same_insertion_also_exceeds_the_limit) {
   try {
     [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
         sourcemeta::blaze::SchemaFrame::Mode::References,
-        document,
+        COLLIDING_DOCUMENT,
         sourcemeta::blaze::schema_walker,
         sourcemeta::blaze::schema_resolver,
         "",
         "",
         sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
         {sourcemeta::core::EMPTY_WEAK_POINTER},
-        std::numeric_limits<std::uint64_t>::max()};
+        1};
     FAIL();
   } catch (const sourcemeta::blaze::SchemaFrameError &error) {
     EXPECT_STREQ(error.what(), "Schema identifier already exists");
+  }
+}
+
+// Whereas a limit that runs out before framing ever reaches the collision
+// reports the limit, as framing never got far enough to find the collision
+TEST(limit_wins_when_it_runs_out_before_the_collision) {
+  try {
+    [[maybe_unused]] const sourcemeta::blaze::SchemaFrame frame{
+        sourcemeta::blaze::SchemaFrame::Mode::References,
+        COLLIDING_DOCUMENT,
+        sourcemeta::blaze::schema_walker,
+        sourcemeta::blaze::schema_resolver,
+        "",
+        "",
+        sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
+        {sourcemeta::core::EMPTY_WEAK_POINTER},
+        0};
+    FAIL();
+  } catch (const sourcemeta::blaze::SchemaFrameLimitError &error) {
+    EXPECT_EQ(error.limit(), 0);
   }
 }
 
@@ -146,7 +168,8 @@ TEST(limit_does_not_mask_an_identifier_collision) {
 // what makes framing grow faster than the schema does, and what the limit
 // exists to catch
 TEST(nested_identifiers_cost_more_than_the_same_shape_without_them) {
-  const sourcemeta::core::JSON anonymous = sourcemeta::core::parse_json(R"JSON({
+  const sourcemeta::core::JSON without_identifiers =
+      sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
@@ -158,7 +181,7 @@ TEST(nested_identifiers_cost_more_than_the_same_shape_without_them) {
     }
   })JSON");
 
-  const sourcemeta::core::JSON identified =
+  const sourcemeta::core::JSON with_identifiers =
       sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.sourcemeta.com/schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -172,13 +195,13 @@ TEST(nested_identifiers_cost_more_than_the_same_shape_without_them) {
     }
   })JSON");
 
-  const sourcemeta::blaze::SchemaFrame anonymous_frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, anonymous,
+  const sourcemeta::blaze::SchemaFrame without_identifiers_frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, without_identifiers,
       sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
-  EXPECT_EQ(anonymous_frame.location_count(), 4);
+  EXPECT_EQ(without_identifiers_frame.location_count(), 4);
 
-  const sourcemeta::blaze::SchemaFrame identified_frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, identified,
+  const sourcemeta::blaze::SchemaFrame with_identifiers_frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, with_identifiers,
       sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
-  EXPECT_EQ(identified_frame.location_count(), 9);
+  EXPECT_EQ(with_identifiers_frame.location_count(), 9);
 }
