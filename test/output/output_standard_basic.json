@@ -24,10 +24,7 @@
     "description": "success_properties_multiple",
     "schema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "properties": {
-        "foo": { "type": "string" },
-        "bar": { "type": "string" }
-      }
+      "properties": { "foo": { "type": "string" }, "bar": { "type": "string" } }
     },
     "instance": { "foo": "a", "bar": "b" },
     "valid": true,
