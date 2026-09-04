@@ -61,7 +61,18 @@ function(sourcemeta_library)
   else()
     add_library(${TARGET_NAME} INTERFACE
       ${PUBLIC_HEADER} ${ABSOLUTE_PRIVATE_HEADERS})
+    # A header-only library has nothing of its own to compile, so the defaults
+    # can only reach the translation units that include it. Consumers outside
+    # this project must not inherit our diagnostics and code generation
+    # choices, so they stop at the install boundary
     sourcemeta_add_default_options(INTERFACE ${TARGET_NAME})
+    get_target_property(DEFAULT_OPTIONS ${TARGET_NAME} INTERFACE_COMPILE_OPTIONS)
+    set(BUILD_ONLY_OPTIONS)
+    foreach(option IN LISTS DEFAULT_OPTIONS)
+      list(APPEND BUILD_ONLY_OPTIONS "$<BUILD_INTERFACE:${option}>")
+    endforeach()
+    set_property(TARGET ${TARGET_NAME}
+      PROPERTY INTERFACE_COMPILE_OPTIONS ${BUILD_ONLY_OPTIONS})
   endif()
 
   add_library(${ALIAS_NAME} ALIAS ${TARGET_NAME})
@@ -148,6 +159,16 @@ function(sourcemeta_library_export_flatten TARGET_NAME)
       string(REGEX REPLACE "^\\$<LINK_ONLY:(.*)>$" "\\1" unwrapped "${entry}")
       if(unwrapped STREQUAL entry)
         list(APPEND SOURCEMETA_LIBRARY_FLATTENED "${entry}")
+        continue()
+      endif()
+      # An object library is compiled straight into this one, so there is
+      # nothing left for installed consumers to link against
+      set(dependency_type)
+      if(TARGET "${unwrapped}")
+        get_target_property(dependency_type "${unwrapped}" TYPE)
+      endif()
+      if(dependency_type STREQUAL "OBJECT_LIBRARY")
+        list(APPEND SOURCEMETA_LIBRARY_FLATTENED "$<BUILD_INTERFACE:${entry}>")
       else()
         list(APPEND SOURCEMETA_LIBRARY_FLATTENED
           "$<BUILD_INTERFACE:${entry}>"

@@ -10,6 +10,16 @@ blaze_dependency = dependency('Blaze',
                                           'sourcemeta::blaze::compiler',
                                           'sourcemeta::blaze::evaluator',
                                           'sourcemeta::blaze::output' ],
-                              required : true)
+                              required : true,
+                              # Meson's own `cmake_prefix_path` option is
+                              # global, so a project with more than one CMake
+                              # dependency needs this per-dependency form
+                              cmake_args : [
+                                '-DCMAKE_PREFIX_PATH=' +
+                                  ';'.join(get_option('blaze_prefix')) ])
 
-executable('blaze_hello', 'hello.cc', dependencies : [ blaze_dependency ])
+blaze_hello = executable('blaze_hello', 'hello.cc',
+                         dependencies : [ blaze_dependency ])
+
+# Linking is not enough to know that the consumer got a working library
+test('blaze_hello', blaze_hello)

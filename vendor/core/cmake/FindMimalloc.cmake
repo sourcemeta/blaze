@@ -6,11 +6,6 @@ if(NOT Mimalloc_FOUND)
 
   set(MIMALLOC_DIR "${PROJECT_SOURCE_DIR}/vendor/mimalloc")
   set(MIMALLOC_SOURCE_DIR "${MIMALLOC_DIR}/src")
-  set(MIMALLOC_PUBLIC_HEADERS
-    "${MIMALLOC_DIR}/include/mimalloc.h"
-    "${MIMALLOC_DIR}/include/mimalloc-new-delete.h"
-    "${MIMALLOC_DIR}/include/mimalloc-override.h"
-    "${MIMALLOC_DIR}/include/mimalloc-stats.h")
 
   set(MIMALLOC_SOURCES
     "${MIMALLOC_SOURCE_DIR}/alloc.c"
@@ -118,18 +113,25 @@ if(NOT Mimalloc_FOUND)
   set_target_properties(mimalloc
     PROPERTIES
       OUTPUT_NAME mimalloc
-      PUBLIC_HEADER "${MIMALLOC_PUBLIC_HEADERS}"
       EXPORT_NAME mimalloc)
 
-  # Nothing refers to the entry points that replace the standard allocator by
-  # name, so a linker that only pulls in the archive members it needs would
-  # leave the program running on the allocator it was trying to replace
+  # A linker that only pulls in the archive members it needs can resolve the
+  # standard allocation entry points from the system library instead, leaving
+  # the program running on the allocator this one is meant to replace. Whole
+  # archive linking takes that ordering question out of the picture
   add_library(mimalloc_interface INTERFACE)
   if(BUILD_SHARED_LIBS)
     target_link_libraries(mimalloc_interface INTERFACE mimalloc)
   else()
+    # Build systems other than CMake cannot parse the generator expression and
+    # drop the only reference to the archive, silently leaving the program on
+    # the system allocator, so installed consumers get the plain form, which
+    # every program pulls in through its undefined references to those same
+    # entry points. CMake refuses to see one item both with and without a link
+    # feature, hence the split
     target_link_libraries(mimalloc_interface INTERFACE
-      "$<LINK_LIBRARY:WHOLE_ARCHIVE,$<TARGET_NAME:mimalloc>>")
+      "$<BUILD_INTERFACE:$<LINK_LIBRARY:WHOLE_ARCHIVE,$<TARGET_NAME:mimalloc>>>"
+      "$<INSTALL_INTERFACE:mimalloc>")
   endif()
 
   set_target_properties(mimalloc_interface
@@ -140,8 +142,6 @@ if(NOT Mimalloc_FOUND)
   if(SOURCEMETA_CORE_INSTALL)
     install(TARGETS mimalloc mimalloc_interface
       EXPORT mimalloc
-      PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-        COMPONENT sourcemeta_core_dev
       RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         COMPONENT sourcemeta_core
       LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"

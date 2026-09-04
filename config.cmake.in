@@ -19,10 +19,14 @@ if(NOT BLAZE_COMPONENTS)
 endif()
 
 include(CMakeFindDependencyMacro)
+
+# Blaze always installs its own copy of Core into the same prefix, so resolve it
+# from next to this file rather than letting an unrelated installation win
 find_dependency(Core COMPONENTS
   unicode punycode idna regex uri uritemplate json
   jsonpointer jsonld io yaml crypto email ip dns time css
-  memory)
+  memory
+  PATHS "${CMAKE_CURRENT_LIST_DIR}/../core" NO_DEFAULT_PATH)
 
 foreach(component ${BLAZE_COMPONENTS})
   if(component STREQUAL "foundation")

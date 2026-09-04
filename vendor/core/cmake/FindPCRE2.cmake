@@ -57,8 +57,6 @@ if(NOT PCRE2_FOUND)
     "${PCRE2_BINARY_DIR}/src/pcre2_chartables.c"
     COPYONLY)
 
-  set(PCRE2_PUBLIC_HEADER "${PCRE2_BINARY_DIR}/interface/pcre2.h")
-
   set(PCRE2_SOURCES
     "${PCRE2_SOURCE_DIR}/pcre2_auto_possess.c"
     "${PCRE2_BINARY_DIR}/src/pcre2_chartables.c"
@@ -95,7 +93,7 @@ if(NOT PCRE2_FOUND)
   set(SLJIT_DIR "${PCRE2_DIR}/deps/sljit/sljit_src")
   set(SLJIT_SOURCES "${SLJIT_DIR}/sljitLir.c")
 
-  add_library(sljit STATIC ${SLJIT_SOURCES})
+  add_library(sljit OBJECT ${SLJIT_SOURCES})
   sourcemeta_add_default_options(PRIVATE sljit)
 
   if(SOURCEMETA_COMPILER_LLVM OR SOURCEMETA_COMPILER_GCC)
@@ -121,14 +119,7 @@ if(NOT PCRE2_FOUND)
     target_compile_definitions(sljit PRIVATE _GNU_SOURCE)
   endif()
 
-  set_target_properties(sljit
-    PROPERTIES
-      OUTPUT_NAME sljit
-      C_VISIBILITY_PRESET "default"
-      C_VISIBILITY_INLINES_HIDDEN FALSE
-      EXPORT_NAME sljit)
-
-  add_library(pcre2 ${PCRE2_SOURCES})
+  add_library(pcre2 OBJECT ${PCRE2_SOURCES})
   sourcemeta_add_default_options(PRIVATE pcre2)
 
   if(SOURCEMETA_COMPILER_LLVM OR SOURCEMETA_COMPILER_GCC)
@@ -178,43 +169,6 @@ if(NOT PCRE2_FOUND)
   target_link_libraries(pcre2 PRIVATE sljit)
 
   add_library(PCRE2::pcre2 ALIAS pcre2)
-
-  set_target_properties(pcre2
-    PROPERTIES
-      OUTPUT_NAME pcre2
-      PUBLIC_HEADER "${PCRE2_PUBLIC_HEADER}"
-      C_VISIBILITY_PRESET "default"
-      C_VISIBILITY_INLINES_HIDDEN FALSE
-      EXPORT_NAME pcre2
-      WINDOWS_EXPORT_ALL_SYMBOLS OFF)
-
-  if(SOURCEMETA_CORE_INSTALL)
-    include(GNUInstallDirs)
-    install(TARGETS sljit pcre2
-      EXPORT pcre2
-      PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-        COMPONENT sourcemeta_core_dev
-      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-        COMPONENT sourcemeta_core
-      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        COMPONENT sourcemeta_core
-        NAMELINK_COMPONENT sourcemeta_core_dev
-      ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        COMPONENT sourcemeta_core_dev)
-    sourcemeta_library_export_flatten(pcre2)
-    install(EXPORT pcre2
-      DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/pcre2"
-      NAMESPACE PCRE2::
-      COMPONENT sourcemeta_core_dev)
-
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pcre2-config.cmake
-      "include(\"\${CMAKE_CURRENT_LIST_DIR}/pcre2.cmake\")\n"
-      "check_required_components(\"pcre2\")\n")
-    install(FILES
-      "${CMAKE_CURRENT_BINARY_DIR}/pcre2-config.cmake"
-      DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/pcre2"
-      COMPONENT sourcemeta_core_dev)
-  endif()
 
   set(PCRE2_FOUND ON)
 endif()
