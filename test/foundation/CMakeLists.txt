@@ -15,7 +15,8 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME foundation
     foundation_error_test.cc
     foundation_resolver_test.cc
     foundation_frame_test.cc
-    foundation_frame_error_test.cc)
+    foundation_frame_error_test.cc
+    foundation_frame_limit_test.cc)
 
 target_link_libraries(sourcemeta_blaze_foundation_unit
   PRIVATE sourcemeta::core::json)

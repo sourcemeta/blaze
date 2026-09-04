@@ -5,6 +5,7 @@
 
 #include <algorithm> // std::ranges::all_of, std::ranges::contains, std::ranges::sort
 #include <cassert>       // assert
+#include <cstdint>       // std::uint64_t
 #include <deque>         // std::deque
 #include <functional>    // std::hash, std::less, std::reference_wrapper
 #include <map>           // std::map
@@ -388,7 +389,8 @@ auto throw_already_exists(const sourcemeta::core::JSON::String &uri) -> void {
 }
 
 template <typename Locations>
-auto store(Locations &frame, const sourcemeta::blaze::SchemaReferenceType type,
+auto store(Locations &frame, const std::uint64_t max_locations,
+           const sourcemeta::blaze::SchemaReferenceType type,
            const sourcemeta::blaze::SchemaFrame::LocationType entry_type,
            sourcemeta::core::JSON::String uri, const std::string_view base,
            const sourcemeta::core::WeakPointer &pointer_from_root,
@@ -419,6 +421,16 @@ auto store(Locations &frame, const sourcemeta::blaze::SchemaReferenceType type,
           sourcemeta::core::to_pointer(iterator->second.pointer));
     }
     throw_already_exists(iterator->first.second);
+  }
+
+  // Charging for a location that got registered rather than for an attempt to
+  // register one keeps this limit and what the frame reports holding in the
+  // same units. It also settles what an insertion that both collides and runs
+  // past the limit reports, as a schema that is invalid on its own terms is
+  // worth saying so about. A limit that runs out before framing ever reaches
+  // the collision still reports the limit
+  if (frame.size() > max_locations) {
+    throw sourcemeta::blaze::SchemaFrameLimitError(max_locations);
   }
 
   if (inserted && iterator->first.second == base) {
@@ -752,7 +764,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                          const std::string_view default_dialect,
                          const std::string_view default_id,
                          const SchemaFrame::IdentifierMode identifier_mode,
-                         const SchemaFrame::Paths &paths)
+                         const SchemaFrame::Paths &paths,
+                         const std::uint64_t max_locations)
     : mode_{mode}, cache_{std::make_unique<Cache>()} {
   // This mode reports on a single schema. Framing a wrapper that holds more
   // than one has no single schema to report on, so there is nothing to analyse
@@ -850,7 +863,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
       // Borrow `this->root_` as the base for now, as the location that owns
       // that URI does not exist yet. We re-point this entry at that location
       // key once the traversal below is done
-      store(this->locations_, SchemaReferenceType::Static,
+      store(this->locations_, max_locations, SchemaReferenceType::Static,
             SchemaFrame::LocationType::Resource, default_id_canonical,
             this->root_, path, path.size(), root_dialect,
             root_base_dialect.value(), std::nullopt, false, false);
@@ -886,7 +899,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
 
       const auto location_uri{
           root_id.value_or(sourcemeta::core::JSON::String{})};
-      store(this->locations_, SchemaReferenceType::Static,
+      store(this->locations_, max_locations, SchemaReferenceType::Static,
             root_id.has_value() ? SchemaFrame::LocationType::Resource
                                 : SchemaFrame::LocationType::Subschema,
             location_uri, location_uri, path, path.size(), root_dialect,
@@ -1036,7 +1049,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                 maybe_match == this->locations_.cend()) {
               assert(entry.common.base_dialect.has_value());
 
-              store(this->locations_, SchemaReferenceType::Static,
+              store(this->locations_, max_locations,
+                    SchemaReferenceType::Static,
                     SchemaFrame::LocationType::Resource, new_id, new_id,
                     common_pointer_weak, common_pointer_weak.size(),
                     entry.common.dialect, entry.common.base_dialect.value(),
@@ -1106,7 +1120,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           const auto relative_anchor_uri{anchor_uri.recompose()};
 
           if (type == AnchorType::Static || type == AnchorType::All) {
-            store(this->locations_, SchemaReferenceType::Static,
+            store(this->locations_, max_locations, SchemaReferenceType::Static,
                   SchemaFrame::LocationType::Anchor, relative_anchor_uri, "",
                   common_pointer_weak, bases.second.size(),
                   entry.common.dialect, entry.common.base_dialect.value(),
@@ -1115,7 +1129,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           }
 
           if (type == AnchorType::Dynamic || type == AnchorType::All) {
-            store(this->locations_, SchemaReferenceType::Dynamic,
+            store(this->locations_, max_locations, SchemaReferenceType::Dynamic,
                   SchemaFrame::LocationType::Anchor, relative_anchor_uri, "",
                   common_pointer_weak, bases.second.size(),
                   entry.common.dialect, entry.common.base_dialect.value(),
@@ -1128,7 +1142,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
             if (type == AnchorType::Dynamic &&
                 entry.common.vocabularies.contains(
                     SchemaVocabularies::Known::JSON_Schema_2020_12_Core)) {
-              store(this->locations_, SchemaReferenceType::Static,
+              store(this->locations_, max_locations,
+                    SchemaReferenceType::Static,
                     SchemaFrame::LocationType::Anchor, relative_anchor_uri, "",
                     common_pointer_weak, bases.second.size(),
                     entry.common.dialect, entry.common.base_dialect.value(),
@@ -1158,7 +1173,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                     : std::string_view{base_string}};
 
             if (type == AnchorType::Static || type == AnchorType::All) {
-              store(this->locations_,
+              store(this->locations_, max_locations,
                     sourcemeta::blaze::SchemaReferenceType::Static,
                     SchemaFrame::LocationType::Anchor, anchor_uri, base_view,
                     common_pointer_weak, bases.second.size(),
@@ -1168,7 +1183,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
             }
 
             if (type == AnchorType::Dynamic || type == AnchorType::All) {
-              store(this->locations_,
+              store(this->locations_, max_locations,
                     sourcemeta::blaze::SchemaReferenceType::Dynamic,
                     SchemaFrame::LocationType::Anchor, anchor_uri, base_view,
                     common_pointer_weak, bases.second.size(),
@@ -1179,7 +1194,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
               if (type == AnchorType::Dynamic &&
                   entry.common.vocabularies.contains(
                       SchemaVocabularies::Known::JSON_Schema_2020_12_Core)) {
-                store(this->locations_,
+                store(this->locations_, max_locations,
                       sourcemeta::blaze::SchemaReferenceType::Static,
                       SchemaFrame::LocationType::Anchor, anchor_uri, base_view,
                       common_pointer_weak, bases.second.size(),
@@ -1287,7 +1302,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           }
 
           if (is_subschema) {
-            store(this->locations_, SchemaReferenceType::Static,
+            store(this->locations_, max_locations, SchemaReferenceType::Static,
                   SchemaFrame::LocationType::Subschema, std::move(result),
                   base_view, pointer_weak, nearest_base_depth,
                   dialect_for_pointer, base_dialect_for_pointer,
@@ -1306,7 +1321,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
             const bool parent_orphan{parent_subschema_it != subschemas.cend() &&
                                      parent_subschema_it->second.orphan};
 
-            store(this->locations_, SchemaReferenceType::Static,
+            store(this->locations_, max_locations, SchemaReferenceType::Static,
                   SchemaFrame::LocationType::Pointer, std::move(result),
                   base_view, pointer_weak, nearest_base_depth,
                   dialect_for_pointer, base_dialect_for_pointer, parent_pointer,
@@ -1552,7 +1567,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                             ? combined.dialect_match->second
                             : base_entry->second.pointer};
       const auto parent_subschema{subschemas.find(parent)};
-      store(this->locations_, SchemaReferenceType::Static,
+      store(this->locations_, max_locations, SchemaReferenceType::Static,
             SchemaFrame::LocationType::Pointer,
             sourcemeta::core::JSON::String{reference.second.destination},
             nearest_base_view, pointer_weak, nearest_base_depth,
