@@ -96,6 +96,10 @@ if(SOURCEMETA_CORE_INSTALL)
     COMPONENT sourcemeta_${PROJECT_NAME}_dev)
 endif()
 
+# Everything else in this project links this one, so it comes first
+add_subdirectory(src/lang/allocator)
+set(SOURCEMETA_ALLOCATOR_TARGET sourcemeta_core_allocator)
+
 if(SOURCEMETA_CORE_LANG_PREPROCESSOR)
   add_subdirectory(src/lang/preprocessor)
 endif()

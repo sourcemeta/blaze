@@ -1,7 +1,6 @@
 if(NOT LibDeflate_FOUND)
   set(LIBDEFLATE_DIR "${PROJECT_SOURCE_DIR}/vendor/libdeflate")
   set(LIBDEFLATE_LIB_DIR "${LIBDEFLATE_DIR}/lib")
-  set(LIBDEFLATE_PUBLIC_HEADER "${LIBDEFLATE_DIR}/libdeflate.h")
 
   set(LIBDEFLATE_SOURCES
     "${LIBDEFLATE_LIB_DIR}/utils.c"
@@ -23,7 +22,7 @@ if(NOT LibDeflate_FOUND)
       "${LIBDEFLATE_LIB_DIR}/x86/cpu_features.c")
   endif()
 
-  add_library(libdeflate STATIC ${LIBDEFLATE_SOURCES})
+  add_library(libdeflate OBJECT ${LIBDEFLATE_SOURCES})
   sourcemeta_add_default_options(PRIVATE libdeflate)
 
   # Check if the assembler supports ARM dot-product (udot) instructions.
@@ -127,42 +126,7 @@ if(NOT LibDeflate_FOUND)
     target_compile_options(libdeflate PRIVATE /wd4267)
   endif()
 
-  set_target_properties(libdeflate
-    PROPERTIES
-      OUTPUT_NAME deflate
-      PUBLIC_HEADER "${LIBDEFLATE_PUBLIC_HEADER}"
-      C_VISIBILITY_PRESET "default"
-      C_VISIBILITY_INLINES_HIDDEN FALSE
-      EXPORT_NAME LibDeflate)
-
   add_library(LibDeflate::LibDeflate ALIAS libdeflate)
-
-  if(SOURCEMETA_CORE_INSTALL)
-    include(GNUInstallDirs)
-    install(TARGETS libdeflate
-      EXPORT libdeflate
-      PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-        COMPONENT sourcemeta_core_dev
-      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-        COMPONENT sourcemeta_core
-      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        COMPONENT sourcemeta_core
-        NAMELINK_COMPONENT sourcemeta_core_dev
-      ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        COMPONENT sourcemeta_core_dev)
-    install(EXPORT libdeflate
-      DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdeflate"
-      NAMESPACE LibDeflate::
-      COMPONENT sourcemeta_core_dev)
-
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/libdeflate-config.cmake
-      "include(\"\${CMAKE_CURRENT_LIST_DIR}/libdeflate.cmake\")\n"
-      "check_required_components(\"libdeflate\")\n")
-    install(FILES
-      "${CMAKE_CURRENT_BINARY_DIR}/libdeflate-config.cmake"
-      DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdeflate"
-      COMPONENT sourcemeta_core_dev)
-  endif()
 
   set(LibDeflate_FOUND ON)
 endif()

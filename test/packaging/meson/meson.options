@@ -1,0 +1,2 @@
+option('blaze_prefix', type : 'array', value : [],
+       description : 'Prefixes to search for the Blaze CMake package')

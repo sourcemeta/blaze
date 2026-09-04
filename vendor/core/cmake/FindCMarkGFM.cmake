@@ -79,7 +79,7 @@ if(NOT CMarkGFM_FOUND)
     "${CMARK_GFM_EXTENSIONS_DIR}/tagfilter.c"
     "${CMARK_GFM_EXTENSIONS_DIR}/tasklist.c")
 
-  add_library(cmark_gfm
+  add_library(cmark_gfm OBJECT
     ${CMARK_GFM_CORE_SOURCES} ${CMARK_GFM_EXTENSION_SOURCES})
   sourcemeta_add_default_options(PRIVATE cmark_gfm)
 
@@ -112,39 +112,6 @@ if(NOT CMarkGFM_FOUND)
     EXPORT_FILE_NAME "${CMARK_GFM_BINARY_DIR}/include/cmark-gfm_export.h")
 
   add_library(CMarkGFM::cmark_gfm ALIAS cmark_gfm)
-
-  set_target_properties(cmark_gfm
-    PROPERTIES
-      OUTPUT_NAME cmark_gfm
-      C_VISIBILITY_PRESET "default"
-      C_VISIBILITY_INLINES_HIDDEN FALSE
-      EXPORT_NAME cmark_gfm
-      WINDOWS_EXPORT_ALL_SYMBOLS OFF)
-
-  if(SOURCEMETA_CORE_INSTALL)
-    include(GNUInstallDirs)
-    install(TARGETS cmark_gfm
-      EXPORT cmark_gfm
-      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-        COMPONENT sourcemeta_core
-      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        COMPONENT sourcemeta_core
-        NAMELINK_COMPONENT sourcemeta_core_dev
-      ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        COMPONENT sourcemeta_core_dev)
-    install(EXPORT cmark_gfm
-      DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark_gfm"
-      NAMESPACE CMarkGFM::
-      COMPONENT sourcemeta_core_dev)
-
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/cmark_gfm-config.cmake
-      "include(\"\${CMAKE_CURRENT_LIST_DIR}/cmark_gfm.cmake\")\n"
-      "check_required_components(\"cmark_gfm\")\n")
-    install(FILES
-      "${CMAKE_CURRENT_BINARY_DIR}/cmark_gfm-config.cmake"
-      DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cmark_gfm"
-      COMPONENT sourcemeta_core_dev)
-  endif()
 
   set(CMarkGFM_FOUND ON)
 endif()
