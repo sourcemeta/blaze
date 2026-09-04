@@ -2,8 +2,8 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
+#include <sourcemeta/core/allocator.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/memory.h>
 
 #include <cstdlib>    // EXIT_SUCCESS
 #include <functional> // std::ref

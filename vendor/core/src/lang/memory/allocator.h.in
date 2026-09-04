@@ -1,9 +1,0 @@
-#ifndef SOURCEMETA_CORE_MEMORY_ALLOCATOR_H_
-#define SOURCEMETA_CORE_MEMORY_ALLOCATOR_H_
-
-/// @ingroup memory
-/// Whether this build replaces the standard allocator with mimalloc, which
-/// only happens on some platforms and never alongside a sanitizer
-#define SOURCEMETA_CORE_ALLOCATOR_MIMALLOC @SOURCEMETA_CORE_ALLOCATOR_MIMALLOC@
-
-#endif

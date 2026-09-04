@@ -2,7 +2,6 @@
 #define SOURCEMETA_CORE_MEMORY_H_
 
 // NOLINTBEGIN(misc-include-cleaner)
-#include <sourcemeta/core/memory_allocator.h>
 #include <sourcemeta/core/memory_owned_or_reference.h>
 // NOLINTEND(misc-include-cleaner)
 

@@ -10,8 +10,8 @@
 #include <sourcemeta/blaze/output.h>
 #include <sourcemeta/blaze/test.h>
 
+#include <sourcemeta/core/allocator.h>
 #include <sourcemeta/core/json.h>
-#include <sourcemeta/core/memory.h>
 
 #include <cstdlib>  // EXIT_SUCCESS
 #include <iostream> // std::cerr

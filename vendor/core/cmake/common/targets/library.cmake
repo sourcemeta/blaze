@@ -77,11 +77,14 @@ function(sourcemeta_library)
 
   add_library(${ALIAS_NAME} ALIAS ${TARGET_NAME})
 
-  if(Mimalloc_FOUND)
+  # Every library reaches the allocator through the one that carries it, so
+  # that the standard entry points it replaces are defined exactly once
+  if(SOURCEMETA_ALLOCATOR_TARGET AND
+     NOT "${TARGET_NAME}" STREQUAL "${SOURCEMETA_ALLOCATOR_TARGET}")
     if(SOURCEMETA_LIBRARY_SOURCES)
-      target_link_libraries(${TARGET_NAME} PRIVATE Mimalloc::Mimalloc)
+      target_link_libraries(${TARGET_NAME} PRIVATE ${SOURCEMETA_ALLOCATOR_TARGET})
     else()
-      target_link_libraries(${TARGET_NAME} INTERFACE Mimalloc::Mimalloc)
+      target_link_libraries(${TARGET_NAME} INTERFACE ${SOURCEMETA_ALLOCATOR_TARGET})
     endif()
   endif()
 

@@ -1,38 +1,14 @@
 if(NOT Mimalloc_FOUND)
-  # This module runs before the top-level project sets up its install
-  # locations, so the interface that installed consumers see would otherwise
-  # be built out of empty directory variables
-  include(GNUInstallDirs)
-
   set(MIMALLOC_DIR "${PROJECT_SOURCE_DIR}/vendor/mimalloc")
   set(MIMALLOC_SOURCE_DIR "${MIMALLOC_DIR}/src")
 
-  set(MIMALLOC_SOURCES
-    "${MIMALLOC_SOURCE_DIR}/alloc.c"
-    "${MIMALLOC_SOURCE_DIR}/alloc-aligned.c"
-    "${MIMALLOC_SOURCE_DIR}/alloc-posix.c"
-    "${MIMALLOC_SOURCE_DIR}/arena.c"
-    "${MIMALLOC_SOURCE_DIR}/arena-meta.c"
-    "${MIMALLOC_SOURCE_DIR}/bitmap.c"
-    "${MIMALLOC_SOURCE_DIR}/heap.c"
-    "${MIMALLOC_SOURCE_DIR}/init.c"
-    "${MIMALLOC_SOURCE_DIR}/libc.c"
-    "${MIMALLOC_SOURCE_DIR}/options.c"
-    "${MIMALLOC_SOURCE_DIR}/os.c"
-    "${MIMALLOC_SOURCE_DIR}/page.c"
-    "${MIMALLOC_SOURCE_DIR}/page-map.c"
-    "${MIMALLOC_SOURCE_DIR}/prim/prim.c"
-    "${MIMALLOC_SOURCE_DIR}/random.c"
-    "${MIMALLOC_SOURCE_DIR}/stats.c"
-    "${MIMALLOC_SOURCE_DIR}/theap.c"
-    "${MIMALLOC_SOURCE_DIR}/threadlocal.c")
+  # Upstream builds the whole allocator as a single translation unit exactly
+  # for static overriding: a linker pulls all of it in or none of it, so the
+  # entry points that nothing refers to by name, such as the macOS zone
+  # registration, cannot be left behind
+  set(MIMALLOC_SOURCES "${MIMALLOC_SOURCE_DIR}/static.c")
 
-  if(SOURCEMETA_OS_MACOS)
-    list(APPEND MIMALLOC_SOURCES
-      "${MIMALLOC_SOURCE_DIR}/prim/osx/alloc-override-zone.c")
-  endif()
-
-  add_library(mimalloc ${MIMALLOC_SOURCES})
+  add_library(mimalloc OBJECT ${MIMALLOC_SOURCES})
   sourcemeta_add_default_options(PRIVATE mimalloc)
 
   # Link the resolved thread library rather than the imported target, as the
@@ -49,8 +25,7 @@ if(NOT Mimalloc_FOUND)
   endif()
 
   target_include_directories(mimalloc PUBLIC
-    "$<BUILD_INTERFACE:${MIMALLOC_DIR}/include>"
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+    "$<BUILD_INTERFACE:${MIMALLOC_DIR}/include>")
 
   # Define the standard allocation entry points, so that every allocation
   # in the program goes through this library rather than through the
@@ -108,59 +83,6 @@ if(NOT Mimalloc_FOUND)
 
   if(SOURCEMETA_COMPILER_LLVM)
     target_compile_options(mimalloc PRIVATE -Wno-comma)
-  endif()
-
-  set_target_properties(mimalloc
-    PROPERTIES
-      OUTPUT_NAME mimalloc
-      EXPORT_NAME mimalloc)
-
-  # A linker that only pulls in the archive members it needs can resolve the
-  # standard allocation entry points from the system library instead, leaving
-  # the program running on the allocator this one is meant to replace. Whole
-  # archive linking takes that ordering question out of the picture
-  add_library(mimalloc_interface INTERFACE)
-  if(BUILD_SHARED_LIBS)
-    target_link_libraries(mimalloc_interface INTERFACE mimalloc)
-  else()
-    # Build systems other than CMake cannot parse the generator expression and
-    # drop the only reference to the archive, silently leaving the program on
-    # the system allocator, so installed consumers get the plain form, which
-    # every program pulls in through its undefined references to those same
-    # entry points. CMake refuses to see one item both with and without a link
-    # feature, hence the split
-    target_link_libraries(mimalloc_interface INTERFACE
-      "$<BUILD_INTERFACE:$<LINK_LIBRARY:WHOLE_ARCHIVE,$<TARGET_NAME:mimalloc>>>"
-      "$<INSTALL_INTERFACE:mimalloc>")
-  endif()
-
-  set_target_properties(mimalloc_interface
-    PROPERTIES EXPORT_NAME Mimalloc)
-
-  add_library(Mimalloc::Mimalloc ALIAS mimalloc_interface)
-
-  if(SOURCEMETA_CORE_INSTALL)
-    install(TARGETS mimalloc mimalloc_interface
-      EXPORT mimalloc
-      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-        COMPONENT sourcemeta_core
-      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        COMPONENT sourcemeta_core
-        NAMELINK_COMPONENT sourcemeta_core_dev
-      ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        COMPONENT sourcemeta_core_dev)
-    install(EXPORT mimalloc
-      DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/mimalloc"
-      NAMESPACE Mimalloc::
-      COMPONENT sourcemeta_core_dev)
-
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/mimalloc-config.cmake
-      "include(\"\${CMAKE_CURRENT_LIST_DIR}/mimalloc.cmake\")\n"
-      "check_required_components(\"mimalloc\")\n")
-    install(FILES
-      "${CMAKE_CURRENT_BINARY_DIR}/mimalloc-config.cmake"
-      DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/mimalloc"
-      COMPONENT sourcemeta_core_dev)
   endif()
 
   set(Mimalloc_FOUND ON)
