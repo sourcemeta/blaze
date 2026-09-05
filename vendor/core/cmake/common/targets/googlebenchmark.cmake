@@ -19,6 +19,12 @@ function(sourcemeta_googlebenchmark)
 
   add_executable("${TARGET_NAME}" ${SOURCEMETA_GOOGLEBENCHMARK_SOURCES})
   sourcemeta_add_default_options(PRIVATE ${TARGET_NAME})
+
+  # Measuring this project on an allocator that its programs do not ship with
+  # would report timings that no user of them can observe
+  if(SOURCEMETA_CORE_ALLOCATOR_TARGET)
+    target_link_libraries("${TARGET_NAME}" PRIVATE ${SOURCEMETA_CORE_ALLOCATOR_TARGET})
+  endif()
   if(SOURCEMETA_COMPILER_MSVC)
     target_link_options("${TARGET_NAME}" PRIVATE /guard:cf /CETCOMPAT)
   endif()
