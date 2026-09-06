@@ -7,7 +7,6 @@
 
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <cstddef> // std::size_t
 #include <map>     // std::map
 #include <sstream> // std::ostringstream
 #include <string>  // std::string
@@ -43,16 +42,11 @@ static auto collect(std::vector<StoredTrace> &traces)
   };
 }
 
-template <typename Traces>
-static auto has_trace_at(const Traces &traces, const std::size_t index)
-    -> bool {
-  return index < traces.size();
-}
-
 #define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
                       expected_instance_location, expected_evaluate_path,      \
                       expected_keyword_location, expected_annotation)          \
-  EXPECT_TRUE(has_trace_at(traces, index));                                    \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
+  EXPECT_TRUE(traces.size() > index);                                          \
   EXPECT_EQ(traces.at((index)).type,                                           \
             sourcemeta::blaze::TraceOutput::EntryType::expected_type);         \
   EXPECT_EQ(traces.at((index)).name, expected_name);                           \

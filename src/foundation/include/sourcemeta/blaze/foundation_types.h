@@ -211,13 +211,15 @@ struct SchemaWalkerResult {
   ~SchemaWalkerResult() = default;
 
   constexpr SchemaWalkerResult(
-      SchemaKeywordType type,
-      std::optional<SchemaVocabularies::URIView> vocabulary,
-      std::span<const std::string_view> dependencies,
-      std::span<const std::string_view> order_dependencies,
-      sourcemeta::core::JSON::TypeSet instances)
-      : type{type}, vocabulary{vocabulary}, dependencies{dependencies},
-        order_dependencies{order_dependencies}, instances{instances} {}
+      SchemaKeywordType keyword_type,
+      std::optional<SchemaVocabularies::URIView> keyword_vocabulary,
+      std::span<const std::string_view> keyword_dependencies,
+      std::span<const std::string_view> keyword_order_dependencies,
+      sourcemeta::core::JSON::TypeSet keyword_instances)
+      : type{keyword_type}, vocabulary{keyword_vocabulary},
+        dependencies{keyword_dependencies},
+        order_dependencies{keyword_order_dependencies},
+        instances{keyword_instances} {}
 };
 
 /// @ingroup foundation

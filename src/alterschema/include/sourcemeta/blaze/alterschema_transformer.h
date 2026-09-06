@@ -54,7 +54,7 @@ public:
 
   /// The result of evaluating a rule
   struct Result {
-    Result(const bool applies) : applies{applies} {}
+    Result(const bool outcome) : applies{outcome} {}
     Result(const sourcemeta::core::Pointer &pointer)
         : applies{true}, locations{pointer} {
       assert(this->locations.size() == 1);
@@ -76,10 +76,10 @@ public:
 #endif
     }
 
-    Result(std::vector<sourcemeta::core::Pointer> &&locations,
-           sourcemeta::core::JSON::String &&description)
-        : applies{true}, locations{std::move(locations)},
-          description{std::move(description)} {}
+    Result(std::vector<sourcemeta::core::Pointer> &&pointers,
+           sourcemeta::core::JSON::String &&message)
+        : applies{true}, locations{std::move(pointers)},
+          description{std::move(message)} {}
 
     bool applies;
     std::vector<sourcemeta::core::Pointer> locations;

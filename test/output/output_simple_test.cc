@@ -12,16 +12,11 @@
 #include <unordered_set> // std::unordered_set
 #include <vector>        // std::vector
 
-template <typename Traces>
-static auto has_trace_at(const Traces &traces, const std::size_t index)
-    -> bool {
-  return index < traces.size();
-}
-
 #define EXPECT_OUTPUT(traces, index, expected_instance_location,               \
                       expected_evaluate_path, expected_schema_location,        \
                       expected_message)                                        \
-  EXPECT_TRUE(has_trace_at(traces, index));                                    \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
+  EXPECT_TRUE(traces.size() > index);                                          \
   EXPECT_EQ(traces.at((index)).message, (expected_message));                   \
   EXPECT_EQ(sourcemeta::core::to_string(traces.at((index)).instance_location), \
             expected_instance_location);                                       \

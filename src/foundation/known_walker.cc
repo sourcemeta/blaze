@@ -52,14 +52,16 @@ constexpr auto KEYWORDS_PROPERTIES_PATTERNPROPERTIES_ADDITIONALPROPERTIES{
 // One row per way a keyword can be recognised. The first row whose
 // vocabularies are all in play wins, so rows stay in priority order
 struct Variant {
-  constexpr Variant(const Known vocabulary,
-                    const std::optional<Known> secondary,
-                    const SchemaKeywordType type,
-                    const std::span<const std::string_view> dependencies,
-                    const std::span<const std::string_view> order_dependencies,
-                    const sourcemeta::core::JSON::TypeSet instances)
-      : vocabulary{vocabulary}, secondary{secondary},
-        result{type, vocabulary, dependencies, order_dependencies, instances} {}
+  constexpr Variant(
+      const Known required_vocabulary,
+      const std::optional<Known> secondary_vocabulary,
+      const SchemaKeywordType keyword_type,
+      const std::span<const std::string_view> keyword_dependencies,
+      const std::span<const std::string_view> keyword_order_dependencies,
+      const sourcemeta::core::JSON::TypeSet keyword_instances)
+      : vocabulary{required_vocabulary}, secondary{secondary_vocabulary},
+        result{keyword_type, required_vocabulary, keyword_dependencies,
+               keyword_order_dependencies, keyword_instances} {}
 
   // Both vocabularies must be in play for this row to match
   Known vocabulary;
@@ -4253,9 +4255,12 @@ constexpr std::array<Variant, 700> VARIANTS{{
 }};
 
 struct Keyword {
-  constexpr Keyword(const std::string_view name, const std::uint16_t offset,
-                    const std::uint16_t count, const bool legacy_ref)
-      : name{name}, offset{offset}, count{count}, legacy_ref{legacy_ref} {}
+  constexpr Keyword(const std::string_view keyword_name,
+                    const std::uint16_t variant_offset,
+                    const std::uint16_t variant_count,
+                    const bool has_legacy_ref)
+      : name{keyword_name}, offset{variant_offset}, count{variant_count},
+        legacy_ref{has_legacy_ref} {}
 
   std::string_view name;
   std::uint16_t offset;

@@ -2,7 +2,6 @@
 #define SOURCEMETA_BLAZE_EVALUATOR_UTILS_H_
 
 #include <cassert>
-#include <cstddef>
 #include <tuple>
 #include <vector>
 
@@ -10,12 +9,6 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
                               const std::string &check) -> bool {
   assert(document.is_object());
   return document.as_object().cbegin()->first == check;
-}
-
-template <typename Traces>
-inline auto has_trace_at(const Traces &traces, const std::size_t index)
-    -> bool {
-  return index < traces.size();
 }
 
 #define EVALUATE_WITH_TRACE(schema_template, instance, count)                  \
@@ -188,7 +181,8 @@ inline auto has_trace_at(const Traces &traces, const std::size_t index)
 #define __EVALUATE_TRACE_PRE(index, instruction_type, evaluate_path,           \
                              expected_keyword_location,                        \
                              expected_instance_location)                       \
-  EXPECT_TRUE(has_trace_at(trace_pre, index));                                 \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
+  EXPECT_TRUE(index < trace_pre.size());                                       \
   EXPECT_TRUE(std::get<0>(trace_pre.at(index)));                               \
   EXPECT_EQ(sourcemeta::core::to_string(std::get<1>(trace_pre.at(index))),     \
             evaluate_path);                                                    \
@@ -226,7 +220,8 @@ inline auto has_trace_at(const Traces &traces, const std::size_t index)
 
 #define __EVALUATE_TRACE_POST_SUCCESS(index, instruction_type, evaluate_path,  \
                                       keyword_location, instance_location)     \
-  EXPECT_TRUE(has_trace_at(trace_post, index));                                \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
+  EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
   __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,                \
                         keyword_location, instance_location);                  \
@@ -260,7 +255,8 @@ inline auto has_trace_at(const Traces &traces, const std::size_t index)
 
 #define EVALUATE_TRACE_POST_ANNOTATION(index, evaluate_path, keyword_location, \
                                        instance_location, expected_annotation) \
-  EXPECT_TRUE(has_trace_at(trace_post, index));                                \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
+  EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
   if (std::get<3>(trace_post.at(index)).type ==                                \
       sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent) {       \
@@ -283,7 +279,8 @@ inline auto has_trace_at(const Traces &traces, const std::size_t index)
 
 #define __EVALUATE_TRACE_POST_FAILURE(index, instruction_type, evaluate_path,  \
                                       keyword_location, instance_location)     \
-  EXPECT_TRUE(has_trace_at(trace_post, index));                                \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
+  EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_FALSE(std::get<0>(trace_post.at(index)));                             \
   __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,                \
                         keyword_location, instance_location);                  \
