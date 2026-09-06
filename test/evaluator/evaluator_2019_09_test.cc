@@ -43,6 +43,7 @@ TEST(metaschema_hyper_self_exhaustive) {
                                          170, "");
 }
 
+// NOLINTNEXTLINE(google-readability-function-size,hicpp-function-size,readability-function-size)
 TEST(additionalProperties_1_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -52,7 +53,7 @@ TEST(additionalProperties_1_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"bar\": 2, \"foo\": 1 }")};
+      sourcemeta::core::parse_json(R"({ "bar": 2, "foo": 1 })")};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 5, "");
 
@@ -146,7 +147,7 @@ TEST(additionalProperties_3_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"bar\": \"baz\", \"foo\": 1 }")};
+      sourcemeta::core::parse_json(R"({ "bar": "baz", "foo": 1 })")};
 
   if (FIRST_PROPERTY_IS(instance, "foo")) {
     EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, 4, "");

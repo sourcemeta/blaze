@@ -8,6 +8,9 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
 static void Micro_Draft4_Meta_1_No_Callback(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -26,7 +29,7 @@ static void Micro_Draft4_Meta_1_No_Callback(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(metaschema_template, schema)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -106,7 +109,7 @@ static void Micro_Draft4_Required_Properties(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -157,7 +160,7 @@ Micro_Draft4_Many_Optional_Properties_Minimal_Match(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -208,7 +211,7 @@ Micro_Draft4_Few_Optional_Properties_Minimal_Match(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -286,7 +289,7 @@ static void Micro_Draft4_Items_Schema(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -422,7 +425,7 @@ static void Micro_Draft4_Nested_Object(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -464,7 +467,7 @@ static void Micro_Draft4_Properties_Triad_Optional(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -507,7 +510,7 @@ static void Micro_Draft4_Properties_Triad_Required(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -546,7 +549,7 @@ static void Micro_Draft4_Properties_Triad_Closed(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -592,7 +595,7 @@ static void Micro_Draft4_Properties_Closed(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -637,7 +640,7 @@ static void Micro_Draft4_Non_Recursive_Ref(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -677,7 +680,7 @@ static void Micro_Draft4_Pattern_Properties_Empty(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -735,7 +738,7 @@ static void Micro_Draft4_Ref_To_Single_Property(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -783,7 +786,7 @@ static void Micro_Draft4_Additional_Properties_Type(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -824,7 +827,7 @@ static void Micro_Draft4_Nested_Oneof(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -844,7 +847,7 @@ static void Micro_Draft4_Short_Enum(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -906,7 +909,7 @@ static void Micro_Draft4_Long_Enum(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -968,7 +971,7 @@ static void Micro_Draft4_Long_Enum_Short_Strings(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -988,7 +991,7 @@ static void Micro_Draft4_Type_Object(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -1106,7 +1109,7 @@ static void Micro_Draft4_Ref_Single_100(benchmark::State &state) {
     }
   })JSON")};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{
         sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                    sourcemeta::blaze::schema_resolver,
@@ -1149,7 +1152,7 @@ static void Micro_Draft4_Compile_Ref_Many_Nested(benchmark::State &state) {
     }
   })JSON")};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{
         sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                    sourcemeta::blaze::schema_resolver,
@@ -1199,7 +1202,7 @@ static void Micro_Draft4_Compile_Wrap(benchmark::State &state) {
     }
   })JSON")};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{
         sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                    sourcemeta::blaze::schema_resolver,
@@ -1230,3 +1233,4 @@ BENCHMARK(Micro_Draft4_Type_Object);
 BENCHMARK(Micro_Draft4_Ref_Single_100);
 BENCHMARK(Micro_Draft4_Compile_Ref_Many_Nested);
 BENCHMARK(Micro_Draft4_Compile_Wrap);
+// NOLINTEND(readability-identifier-naming)

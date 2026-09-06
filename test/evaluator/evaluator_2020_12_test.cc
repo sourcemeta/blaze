@@ -13,6 +13,7 @@
 
 #include "evaluator_utils.h"
 
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static const std::string FORMAT_ASSERTION_METASCHEMA_URI{
     "https://example.com/2020-12-format-assertion-meta"};
 
@@ -41,6 +42,7 @@ static auto test_resolver(std::string_view identifier)
   return sourcemeta::blaze::schema_resolver(identifier);
 }
 
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 TEST(metaschema_hyper_1) {
   const auto metaschema{sourcemeta::blaze::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};

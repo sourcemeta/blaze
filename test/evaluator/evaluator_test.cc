@@ -22,8 +22,9 @@ static auto test_resolver(std::string_view identifier)
         "https://example.com/vocab/custom": true
       }
     })JSON");
-  } else if (identifier ==
-             "https://example.com/metaschema-unsupported-required-vocab") {
+  }
+  if (identifier ==
+      "https://example.com/metaschema-unsupported-required-vocab") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/metaschema-unsupported-required-vocab",
@@ -32,25 +33,29 @@ static auto test_resolver(std::string_view identifier)
         "https://example.com/vocab/unsupported-fictional": true
       }
     })JSON");
-  } else if (identifier == "https://example.com/schema") {
+  }
+  if (identifier == "https://example.com/schema") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/schema",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://example.com/anonymous-draft4") {
+  }
+  if (identifier == "https://example.com/anonymous-draft4") {
     return sourcemeta::core::parse_json(R"JSON({
       "minimum": 2,
       "exclusiveMinimum": true
     })JSON");
-  } else if (identifier == "https://example.com/anonymous-draft7") {
+  }
+  if (identifier == "https://example.com/anonymous-draft7") {
     return sourcemeta::core::parse_json(R"JSON({
       "definitions": {
         "helper": { "type": "string" }
       },
       "allOf": [ { "$ref": "#/definitions/helper", "type": "integer" } ]
     })JSON");
-  } else if (identifier == "https://example.com/anonymous-embedded") {
+  }
+  if (identifier == "https://example.com/anonymous-embedded") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "id": "https://example.com/anonymous-embedded",
@@ -62,9 +67,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 TEST(unknown_vocabulary_required) {

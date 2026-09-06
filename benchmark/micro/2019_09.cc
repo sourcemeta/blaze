@@ -8,6 +8,9 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
 static void Micro_2019_09_Unevaluated_Properties(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -38,7 +41,7 @@ static void Micro_2019_09_Unevaluated_Properties(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -50,7 +53,7 @@ static void Micro_2019_09_Compile_Wrap(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2019_09_krakend_wrap.json")};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto schema_template{
         sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                    sourcemeta::blaze::schema_resolver,
@@ -61,3 +64,4 @@ static void Micro_2019_09_Compile_Wrap(benchmark::State &state) {
 
 BENCHMARK(Micro_2019_09_Unevaluated_Properties);
 BENCHMARK(Micro_2019_09_Compile_Wrap);
+// NOLINTEND(readability-identifier-naming)

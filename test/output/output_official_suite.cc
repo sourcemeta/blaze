@@ -153,6 +153,7 @@ auto main(int argc, char **argv) -> int {
                      "https://json-schema.org/draft/2019-09/schema");
     }
   } catch (const std::exception &error) {
+    // NOLINTNEXTLINE(modernize-use-std-print)
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
   }

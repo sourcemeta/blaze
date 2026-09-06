@@ -18,9 +18,11 @@ namespace {
 
 // Every key a fixture may declare. Anything else is a mistake that would
 // otherwise go unnoticed, as the runner would simply not read it
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 const std::vector<std::string> KNOWN_KEYS{
     "schema", "resolver",       "defaultDialect", "defaultId",    "paths",
     "root",   "identifierMode", "pointers",       "reachability", "standalone"};
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 
 auto make_resolver(const sourcemeta::core::JSON &test)
     -> sourcemeta::blaze::SchemaResolver {

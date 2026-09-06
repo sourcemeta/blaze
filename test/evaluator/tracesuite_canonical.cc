@@ -61,6 +61,7 @@ auto run_canonicalize_test(const sourcemeta::core::JSON &data,
 
 static auto register_tests(const std::filesystem::path &path,
                            const std::string &suite_name) -> void {
+  // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
   assert(suite.is_array());
@@ -113,6 +114,7 @@ auto main(int argc, char **argv) -> int {
                        "evaluator_draft3.json",
                    "Canonicalize_draft3");
   } catch (const std::exception &error) {
+    // NOLINTNEXTLINE(modernize-use-std-print)
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
   }

@@ -21,12 +21,12 @@
 enum class AnchorType : std::uint8_t { Static, Dynamic, All };
 
 // Static keyword strings for reference pointers
-// NOLINTBEGIN(bugprone-throwing-static-initialization)
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static const std::string KEYWORD_SCHEMA{"$schema"};
 static const std::string KEYWORD_REF{"$ref"};
 static const std::string KEYWORD_RECURSIVE_REF{"$recursiveRef"};
 static const std::string KEYWORD_DYNAMIC_REF{"$dynamicRef"};
-// NOLINTEND(bugprone-throwing-static-initialization)
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 
 namespace {
 
@@ -85,9 +85,9 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
   // 2020-12
   if (schema.is_object() &&
       vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                JSON_Schema_2020_12_Core)) {
+                                JSON_SCHEMA_2020_12_CORE)) {
     const auto *dynamic_anchor{schema.try_at("$dynamicAnchor")};
-    if (dynamic_anchor && dynamic_anchor->is_string()) {
+    if ((dynamic_anchor != nullptr) && dynamic_anchor->is_string()) {
       const std::string_view dynamic_anchor_view{dynamic_anchor->to_string()};
       if (!is_valid_anchor_2020_12(dynamic_anchor_view)) {
         throw sourcemeta::blaze::SchemaKeywordError(
@@ -99,7 +99,7 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
     }
 
     const auto *anchor_2020{schema.try_at("$anchor")};
-    if (anchor_2020 && anchor_2020->is_string()) {
+    if ((anchor_2020 != nullptr) && anchor_2020->is_string()) {
       const std::string_view anchor_view{anchor_2020->to_string()};
       if (!is_valid_anchor_2020_12(anchor_view)) {
         throw sourcemeta::blaze::SchemaKeywordError("$anchor", anchor_view,
@@ -123,9 +123,9 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
   // 2019-09
   if (schema.is_object() &&
       vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                JSON_Schema_2019_09_Core)) {
+                                JSON_SCHEMA_2019_09_CORE)) {
     const auto *recursive_anchor{schema.try_at("$recursiveAnchor")};
-    if (recursive_anchor) {
+    if (recursive_anchor != nullptr) {
       if (recursive_anchor->is_boolean()) {
         if (recursive_anchor->to_boolean()) {
           // We store a 2019-09 recursive anchor as an empty anchor
@@ -140,7 +140,7 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
     }
 
     const auto *anchor_2019{schema.try_at("$anchor")};
-    if (anchor_2019 && anchor_2019->is_string()) {
+    if ((anchor_2019 != nullptr) && anchor_2019->is_string()) {
       const std::string_view anchor_view{anchor_2019->to_string()};
       if (!is_valid_anchor(anchor_view)) {
         throw sourcemeta::blaze::SchemaKeywordError("$anchor", anchor_view,
@@ -165,11 +165,11 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
   // Old `$id` anchor form
   if (schema.is_object() &&
       (vocabularies.contains(
-           sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_Draft_7) ||
+           sourcemeta::blaze::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_7) ||
        vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                 JSON_Schema_Draft_6))) {
+                                 JSON_SCHEMA_DRAFT_6))) {
     const auto *id_value{schema.try_at("$id")};
-    if (id_value) {
+    if (id_value != nullptr) {
       assert(id_value->is_string());
       const std::string_view id_view{id_value->to_string()};
       // A bare "#" carries no anchor name, so we treat it as no anchor at
@@ -193,15 +193,15 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
   // Old `id` anchor form
   if (schema.is_object() &&
       (vocabularies.contains(
-           sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_Draft_4) ||
+           sourcemeta::blaze::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4) ||
        vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                 JSON_Schema_Draft_4_Hyper) ||
+                                 JSON_SCHEMA_DRAFT_4_HYPER) ||
        vocabularies.contains(
-           sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_Draft_3) ||
+           sourcemeta::blaze::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3) ||
        vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                 JSON_Schema_Draft_3_Hyper))) {
+                                 JSON_SCHEMA_DRAFT_3_HYPER))) {
     const auto *id_value{schema.try_at("id")};
-    if (id_value) {
+    if (id_value != nullptr) {
       assert(id_value->is_string());
       const std::string_view id_view{id_value->to_string()};
       // A bare "#" carries no anchor name, so we treat it as no anchor at
@@ -320,14 +320,14 @@ auto supports_id_anchors(
     const sourcemeta::blaze::SchemaBaseDialect base_dialect) -> bool {
   using sourcemeta::blaze::SchemaBaseDialect;
   switch (base_dialect) {
-    case SchemaBaseDialect::JSON_Schema_Draft_7:
-    case SchemaBaseDialect::JSON_Schema_Draft_7_Hyper:
-    case SchemaBaseDialect::JSON_Schema_Draft_6:
-    case SchemaBaseDialect::JSON_Schema_Draft_6_Hyper:
-    case SchemaBaseDialect::JSON_Schema_Draft_4:
-    case SchemaBaseDialect::JSON_Schema_Draft_4_Hyper:
-    case SchemaBaseDialect::JSON_Schema_Draft_3:
-    case SchemaBaseDialect::JSON_Schema_Draft_3_Hyper:
+    case SchemaBaseDialect::JSON_SCHEMA_DRAFT_7:
+    case SchemaBaseDialect::JSON_SCHEMA_DRAFT_7_HYPER:
+    case SchemaBaseDialect::JSON_SCHEMA_DRAFT_6:
+    case SchemaBaseDialect::JSON_SCHEMA_DRAFT_6_HYPER:
+    case SchemaBaseDialect::JSON_SCHEMA_DRAFT_4:
+    case SchemaBaseDialect::JSON_SCHEMA_DRAFT_4_HYPER:
+    case SchemaBaseDialect::JSON_SCHEMA_DRAFT_3:
+    case SchemaBaseDialect::JSON_SCHEMA_DRAFT_3_HYPER:
       return true;
     default:
       return false;
@@ -693,11 +693,11 @@ struct SchemaFrame::Cache {
   // the analysed document, which the frame must not outlive anyway
   std::unordered_map<sourcemeta::core::JSON::String,
                      const sourcemeta::core::JSON *>
-      probed_metaschemas_;
+      probed_metaschemas;
   // Meta-schemas that the resolver produced, which we must own to hand out
   // references to. A map, as handing out those references means they have to
   // survive later insertions
-  std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON> metaschemas_;
+  std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON> metaschemas;
   // SchemaVocabularies are a function of the base dialect and dialect alone,
   // and a schema only tends to make use of a handful of those. We own the
   // dialect that we key on, as the view that the location holds may point into
@@ -706,41 +706,41 @@ struct SchemaFrame::Cache {
   // vocabularies means they must survive later insertions
   std::deque<std::tuple<SchemaBaseDialect, sourcemeta::core::JSON::String,
                         SchemaVocabularies>>
-      vocabularies_;
+      vocabularies;
   std::unordered_map<
       std::reference_wrapper<const sourcemeta::core::WeakPointer>,
       std::vector<const Location *>, sourcemeta::core::WeakPointer::Hasher,
       sourcemeta::core::WeakPointer::Comparator>
-      pointer_to_location_;
+      pointer_to_location;
   std::unordered_map<ReachabilityKey, ReachabilityCache, ReachabilityKeyHasher>
-      reachability_;
+      reachability;
   std::unordered_map<
       std::reference_wrapper<const sourcemeta::core::WeakPointer>,
       std::vector<const sourcemeta::core::WeakPointer *>,
       sourcemeta::core::WeakPointer::Hasher,
       sourcemeta::core::WeakPointer::Comparator>
-      references_by_destination_;
+      references_by_destination;
   std::unordered_set<
       std::reference_wrapper<const sourcemeta::core::WeakPointer>,
       sourcemeta::core::WeakPointer::Hasher,
       sourcemeta::core::WeakPointer::Comparator>
-      location_members_children_;
+      location_members_children;
   std::unordered_map<const Location *, std::vector<ReachabilityEdge>>
-      reachability_graph_;
+      reachability_graph;
   std::unordered_map<
       std::reference_wrapper<const sourcemeta::core::WeakPointer>,
       const sourcemeta::core::WeakPointer *,
       sourcemeta::core::WeakPointer::Hasher,
       sourcemeta::core::WeakPointer::Comparator>
-      canonical_pointer_;
+      canonical_pointer;
   std::unordered_map<const Location *, const sourcemeta::core::WeakPointer *>
-      location_to_canonical_;
+      location_to_canonical;
   // The key that a location is stored under, so that reporting the URI of a
   // pointer does not have to search the locations for the entry it already has
   std::unordered_map<const Location *, const sourcemeta::core::JSON::String *>
-      location_to_uri_;
-  bool standalone_{false};
-  bool has_dynamic_references_{false};
+      location_to_uri;
+  bool standalone{false};
+  bool has_dynamic_references{false};
 
   auto populate_pointer_to_location(const SchemaFrame &frame) -> void;
   auto populate_reference_graph(const SchemaFrame &frame) -> void;
@@ -784,15 +784,15 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
       [&root, &resolver,
        this](const std::string_view identifier) -> SchemaResolverResult {
         const sourcemeta::core::JSON::String key{identifier};
-        const auto hit{this->cache_->probed_metaschemas_.find(key)};
-        if (hit != this->cache_->probed_metaschemas_.cend()) {
+        const auto hit{this->cache_->probed_metaschemas.find(key)};
+        if (hit != this->cache_->probed_metaschemas.cend()) {
           return *(hit->second);
         }
 
         const auto *match{
             sourcemeta::blaze::metaschema_try_embedded(root, key, resolver)};
         if (match) {
-          this->cache_->probed_metaschemas_.emplace(key, match);
+          this->cache_->probed_metaschemas.emplace(key, match);
           return *match;
         }
 
@@ -879,8 +879,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         const sourcemeta::core::JSON::String dialect_key{root_dialect};
         const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
             schema, root_dialect, resolver)};
-        if (embedded) {
-          this->cache_->probed_metaschemas_.emplace(dialect_key, embedded);
+        if (embedded != nullptr) {
+          this->cache_->probed_metaschemas.emplace(dialect_key, embedded);
         }
       }
 
@@ -934,10 +934,10 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         const sourcemeta::core::JSON::String dialect_key{entry.dialect};
         const auto *embedded{sourcemeta::blaze::metaschema_try_embedded(
             entry.subschema.get(), entry.dialect, resolver)};
-        if (embedded) {
-          const auto match{this->cache_->probed_metaschemas_.find(dialect_key)};
-          if (match == this->cache_->probed_metaschemas_.cend()) {
-            this->cache_->probed_metaschemas_.emplace(dialect_key, embedded);
+        if (embedded != nullptr) {
+          const auto match{this->cache_->probed_metaschemas.find(dialect_key)};
+          if (match == this->cache_->probed_metaschemas.cend()) {
+            this->cache_->probed_metaschemas.emplace(dialect_key, embedded);
           } else if (*(match->second) != *embedded) {
             throw_already_exists(dialect_key);
           }
@@ -953,7 +953,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
       const auto maybe_id{sourcemeta::blaze::identify(
           entry.subschema.get(), entry.base_dialect.value(),
           default_id_for_entry)};
-      std::optional<sourcemeta::core::JSON::String> id{
+      std::optional<sourcemeta::core::JSON::String> identifier{
           !maybe_id.empty()
               ? std::make_optional<sourcemeta::core::JSON::String>(maybe_id)
               : std::nullopt};
@@ -963,8 +963,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                          CacheSubschema{.orphan = entry.orphan,
                                         .property_name = entry.property_name,
                                         .parent = entry.parent});
-      subschema_entries.emplace_back(
-          InternalEntry{.common = std::move(entry), .id = std::move(id)});
+      subschema_entries.emplace_back(InternalEntry{
+          .common = std::move(entry), .id = std::move(identifier)});
       current_subschema_entries.emplace_back(subschema_entries.size() - 1);
     }
 
@@ -1097,13 +1097,14 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           assert(entry.common.subschema.get().defines("$schema"));
           auto schema_pointer{common_pointer_weak};
           schema_pointer.push_back(std::cref(KEYWORD_SCHEMA));
-          const auto [it, inserted] = this->references_.insert_or_assign(
-              {SchemaReferenceType::Static, std::move(schema_pointer)},
-              SchemaFrame::Reference{.original = maybe_metaschema,
-                                     .destination = metaschema.recompose(),
-                                     .base = std::string_view{},
-                                     .fragment = std::nullopt});
-          set_base_and_fragment(it->second);
+          const auto [entry_iterator, inserted] =
+              this->references_.insert_or_assign(
+                  {SchemaReferenceType::Static, std::move(schema_pointer)},
+                  SchemaFrame::Reference{.original = maybe_metaschema,
+                                         .destination = metaschema.recompose(),
+                                         .base = std::string_view{},
+                                         .fragment = std::nullopt});
+          set_base_and_fragment(entry_iterator->second);
         }
       }
 
@@ -1141,7 +1142,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
             // already registered it
             if (type == AnchorType::Dynamic &&
                 entry.common.vocabularies.contains(
-                    SchemaVocabularies::Known::JSON_Schema_2020_12_Core)) {
+                    SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE)) {
               store(this->locations_, max_locations,
                     SchemaReferenceType::Static,
                     SchemaFrame::LocationType::Anchor, relative_anchor_uri, "",
@@ -1193,7 +1194,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
 
               if (type == AnchorType::Dynamic &&
                   entry.common.vocabularies.contains(
-                      SchemaVocabularies::Known::JSON_Schema_2020_12_Core)) {
+                      SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE)) {
                 store(this->locations_, max_locations,
                       sourcemeta::blaze::SchemaReferenceType::Static,
                       SchemaFrame::LocationType::Anchor, anchor_uri, base_view,
@@ -1360,7 +1361,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
               entry.id ? std::optional<std::string_view>{*entry.id}
                        : std::nullopt)};
       const auto *ref_value{entry.common.subschema.get().try_at("$ref")};
-      if (ref_value) {
+      if (ref_value != nullptr) {
         if (!ref_value->is_string()) {
           std::ostringstream value;
           sourcemeta::core::stringify(*ref_value, value);
@@ -1385,21 +1386,22 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         canonicalize_pointer_fragment(ref);
         auto ref_pointer{common_pointer_weak};
         ref_pointer.push_back(std::cref(KEYWORD_REF));
-        const auto [it, inserted] = this->references_.insert_or_assign(
-            {SchemaReferenceType::Static, std::move(ref_pointer)},
-            SchemaFrame::Reference{.original = original,
-                                   .destination = ref.recompose(),
-                                   .base = std::string_view{},
-                                   .fragment = std::nullopt});
-        set_base_and_fragment(it->second);
+        const auto [entry_iterator, inserted] =
+            this->references_.insert_or_assign(
+                {SchemaReferenceType::Static, std::move(ref_pointer)},
+                SchemaFrame::Reference{.original = original,
+                                       .destination = ref.recompose(),
+                                       .base = std::string_view{},
+                                       .fragment = std::nullopt});
+        set_base_and_fragment(entry_iterator->second);
       }
 
       const auto *recursive_ref_value{
           entry.common.vocabularies.contains(
-              SchemaVocabularies::Known::JSON_Schema_2019_09_Core)
+              SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE)
               ? entry.common.subschema.get().try_at("$recursiveRef")
               : nullptr};
-      if (recursive_ref_value) {
+      if (recursive_ref_value != nullptr) {
         if (!recursive_ref_value->is_string()) {
           std::ostringstream value;
           sourcemeta::core::stringify(*recursive_ref_value, value);
@@ -1431,21 +1433,22 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         const sourcemeta::core::URI anchor_uri{anchor_uri_string};
         auto recursive_ref_pointer{common_pointer_weak};
         recursive_ref_pointer.push_back(std::cref(KEYWORD_RECURSIVE_REF));
-        const auto [it, inserted] = this->references_.insert_or_assign(
-            {reference_type, std::move(recursive_ref_pointer)},
-            SchemaFrame::Reference{.original = ref,
-                                   .destination = anchor_uri.recompose(),
-                                   .base = std::string_view{},
-                                   .fragment = std::nullopt});
-        set_base_and_fragment(it->second);
+        const auto [entry_iterator, inserted] =
+            this->references_.insert_or_assign(
+                {reference_type, std::move(recursive_ref_pointer)},
+                SchemaFrame::Reference{.original = ref,
+                                       .destination = anchor_uri.recompose(),
+                                       .base = std::string_view{},
+                                       .fragment = std::nullopt});
+        set_base_and_fragment(entry_iterator->second);
       }
 
       const auto *dynamic_ref_value{
           entry.common.vocabularies.contains(
-              SchemaVocabularies::Known::JSON_Schema_2020_12_Core)
+              SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE)
               ? entry.common.subschema.get().try_at("$dynamicRef")
               : nullptr};
-      if (dynamic_ref_value) {
+      if (dynamic_ref_value != nullptr) {
         if (!dynamic_ref_value->is_string()) {
           std::ostringstream value;
           sourcemeta::core::stringify(*dynamic_ref_value, value);
@@ -1486,15 +1489,16 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
              maybe_dynamic_frame == this->locations_.end())};
         auto dynamic_ref_pointer{common_pointer_weak};
         dynamic_ref_pointer.push_back(std::cref(KEYWORD_DYNAMIC_REF));
-        const auto [it, inserted] = this->references_.insert_or_assign(
-            {behaves_as_static ? SchemaReferenceType::Static
-                               : SchemaReferenceType::Dynamic,
-             std::move(dynamic_ref_pointer)},
-            SchemaFrame::Reference{.original = original,
-                                   .destination = std::move(ref_string),
-                                   .base = std::string_view{},
-                                   .fragment = std::nullopt});
-        set_base_and_fragment(it->second);
+        const auto [entry_iterator, inserted] =
+            this->references_.insert_or_assign(
+                {behaves_as_static ? SchemaReferenceType::Static
+                                   : SchemaReferenceType::Dynamic,
+                 std::move(dynamic_ref_pointer)},
+                SchemaFrame::Reference{.original = original,
+                                       .destination = std::move(ref_string),
+                                       .base = std::string_view{},
+                                       .fragment = std::nullopt});
+        set_base_and_fragment(entry_iterator->second);
       }
     }
   }
@@ -1587,7 +1591,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
   }
 
   // A schema is standalone if all references can be resolved within itself
-  this->cache_->standalone_ = std::ranges::all_of(
+  this->cache_->standalone = std::ranges::all_of(
       this->references_, [&](const auto &reference) -> bool {
         assert(!reference.first.second.empty());
         assert(reference.first.second.back().is_property());
@@ -1600,7 +1604,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                                           reference.second.destination});
       });
 
-  if (this->cache_->standalone_) {
+  if (this->cache_->standalone) {
     // Find all dynamic anchors
     // Values are pointers to full URIs in locations_
     std::unordered_map<sourcemeta::core::JSON::String,
@@ -1657,14 +1661,15 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
     }
 
     for (auto &&entry : to_insert) {
-      const auto [it, inserted] = this->references_.emplace(std::move(entry));
-      set_base_and_fragment(it->second);
+      const auto [entry_iterator, inserted] =
+          this->references_.emplace(std::move(entry));
+      set_base_and_fragment(entry_iterator->second);
     }
   }
 
   // Only meaningful once the rewrite above has settled, as that is what
   // decides whether a dynamic reference stays dynamic at all
-  this->cache_->has_dynamic_references_ =
+  this->cache_->has_dynamic_references =
       std::ranges::any_of(this->references_, [](const auto &reference) -> bool {
         return reference.first.first == SchemaReferenceType::Dynamic;
       });
@@ -1687,9 +1692,9 @@ auto SchemaFrame::metaschema(const SchemaResolver &resolver) const
     throw SchemaUnknownDialectError();
   }
 
-  const auto embedded{this->cache_->probed_metaschemas_.find(
+  const auto embedded{this->cache_->probed_metaschemas.find(
       sourcemeta::core::JSON::String{dialect})};
-  if (embedded != this->cache_->probed_metaschemas_.cend()) {
+  if (embedded != this->cache_->probed_metaschemas.cend()) {
     return *(embedded->second);
   }
 
@@ -1705,7 +1710,7 @@ auto SchemaFrame::metaschema(const SchemaResolver &resolver) const
                                 "schema");
   }
 
-  return this->cache_->metaschemas_
+  return this->cache_->metaschemas
       .emplace(sourcemeta::core::JSON::String{dialect},
                std::move(result).to_owned())
       .first->second;
@@ -1743,11 +1748,11 @@ auto SchemaFrame::reference_count() const noexcept -> std::size_t {
 }
 
 auto SchemaFrame::has_dynamic_references() const noexcept -> bool {
-  return this->cache_->has_dynamic_references_;
+  return this->cache_->has_dynamic_references;
 }
 
 auto SchemaFrame::standalone() const noexcept -> bool {
-  return this->cache_->standalone_;
+  return this->cache_->standalone;
 }
 
 auto SchemaFrame::root() const noexcept
@@ -1758,15 +1763,15 @@ auto SchemaFrame::root() const noexcept
 auto SchemaFrame::vocabularies(const Location &location,
                                const SchemaResolver &resolver) const
     -> const SchemaVocabularies & {
-  for (const auto &entry : this->cache_->vocabularies_) {
+  for (const auto &entry : this->cache_->vocabularies) {
     if (std::get<0>(entry) == location.base_dialect &&
         std::get<1>(entry) == location.dialect) {
       return std::get<2>(entry);
     }
   }
 
-  if (this->cache_->probed_metaschemas_.empty()) {
-    return std::get<2>(this->cache_->vocabularies_.emplace_back(
+  if (this->cache_->probed_metaschemas.empty()) {
+    return std::get<2>(this->cache_->vocabularies.emplace_back(
         location.base_dialect, location.dialect,
         sourcemeta::blaze::vocabularies(resolver, location.base_dialect,
                                         location.dialect)));
@@ -1774,14 +1779,14 @@ auto SchemaFrame::vocabularies(const Location &location,
 
   // Meta-schemas embedded in the analysed document take precedence
   // over what the caller's resolver knows about
-  return std::get<2>(this->cache_->vocabularies_.emplace_back(
+  return std::get<2>(this->cache_->vocabularies.emplace_back(
       location.base_dialect, location.dialect,
       sourcemeta::blaze::vocabularies(
           [this, &resolver](
               const std::string_view identifier) -> SchemaResolverResult {
-            const auto hit{this->cache_->probed_metaschemas_.find(
+            const auto hit{this->cache_->probed_metaschemas.find(
                 sourcemeta::core::JSON::String{identifier})};
-            if (hit != this->cache_->probed_metaschemas_.cend()) {
+            if (hit != this->cache_->probed_metaschemas.cend()) {
               return *(hit->second);
             }
 
@@ -1840,8 +1845,8 @@ auto SchemaFrame::traverse(const sourcemeta::core::WeakPointer &pointer) const
     -> std::optional<std::reference_wrapper<const Location>> {
   this->cache_->populate_pointer_to_location(*this);
   const auto iterator{
-      this->cache_->pointer_to_location_.find(std::cref(pointer))};
-  if (iterator == this->cache_->pointer_to_location_.cend() ||
+      this->cache_->pointer_to_location.find(std::cref(pointer))};
+  if (iterator == this->cache_->pointer_to_location.cend() ||
       iterator->second.empty()) {
     return std::nullopt;
   }
@@ -1854,8 +1859,8 @@ auto SchemaFrame::traverse(const sourcemeta::core::WeakPointer &pointer,
     -> std::optional<std::reference_wrapper<const Location>> {
   this->cache_->populate_pointer_to_location(*this);
   const auto iterator{
-      this->cache_->pointer_to_location_.find(std::cref(pointer))};
-  if (iterator == this->cache_->pointer_to_location_.cend()) {
+      this->cache_->pointer_to_location.find(std::cref(pointer))};
+  if (iterator == this->cache_->pointer_to_location.cend()) {
     return std::nullopt;
   }
 
@@ -1873,8 +1878,8 @@ auto SchemaFrame::uri(const sourcemeta::core::WeakPointer &pointer) const
         std::reference_wrapper<const sourcemeta::core::JSON::String>> {
   this->cache_->populate_pointer_to_location(*this);
   const auto iterator{
-      this->cache_->pointer_to_location_.find(std::cref(pointer))};
-  if (iterator == this->cache_->pointer_to_location_.cend()) {
+      this->cache_->pointer_to_location.find(std::cref(pointer))};
+  if (iterator == this->cache_->pointer_to_location.cend()) {
     return std::nullopt;
   }
 
@@ -1886,8 +1891,8 @@ auto SchemaFrame::uri(const sourcemeta::core::WeakPointer &pointer) const
   }
 
   if (best != nullptr) {
-    const auto match{this->cache_->location_to_uri_.find(best)};
-    if (match != this->cache_->location_to_uri_.cend()) {
+    const auto match{this->cache_->location_to_uri.find(best)};
+    if (match != this->cache_->location_to_uri.cend()) {
       return *(match->second);
     }
   }
@@ -2024,23 +2029,23 @@ auto SchemaFrame::relative_instance_location(const Location &location) const
 
 auto SchemaFrame::Cache::populate_pointer_to_location(const SchemaFrame &frame)
     -> void {
-  if (!this->pointer_to_location_.empty()) {
+  if (!this->pointer_to_location.empty()) {
     return;
   }
 
-  this->pointer_to_location_.reserve(frame.locations_.size());
-  this->location_to_uri_.reserve(frame.locations_.size());
+  this->pointer_to_location.reserve(frame.locations_.size());
+  this->location_to_uri.reserve(frame.locations_.size());
   for (const auto &entry : frame.locations_) {
-    this->pointer_to_location_[std::cref(entry.second.pointer)].push_back(
+    this->pointer_to_location[std::cref(entry.second.pointer)].push_back(
         &entry.second);
-    this->location_to_uri_.emplace(&entry.second, &entry.first.second);
+    this->location_to_uri.emplace(&entry.second, &entry.first.second);
   }
 }
 
 auto SchemaFrame::Cache::populate_location_members(
     const SchemaFrame &frame, const SchemaWalker &walker,
     const SchemaResolver &resolver) -> void {
-  if (!this->location_members_children_.empty()) {
+  if (!this->location_members_children.empty()) {
     return;
   }
 
@@ -2065,14 +2070,14 @@ auto SchemaFrame::Cache::populate_location_members(
     const auto &vocabs{frame.vocabularies(parent_location->get(), resolver)};
     const auto &keyword_result{walker(relative.at(0).to_property(), vocabs)};
     if (keyword_result.type == SchemaKeywordType::LocationMembers) {
-      this->location_members_children_.insert(std::cref(entry.second.pointer));
+      this->location_members_children.insert(std::cref(entry.second.pointer));
     }
   }
 }
 
 auto SchemaFrame::Cache::populate_reference_graph(const SchemaFrame &frame)
     -> void {
-  if (!this->references_by_destination_.empty()) {
+  if (!this->references_by_destination.empty()) {
     return;
   }
 
@@ -2127,14 +2132,14 @@ auto SchemaFrame::Cache::populate_reference_graph(const SchemaFrame &frame)
   }
 
   for (const auto &[source, destination] : reference_destinations) {
-    this->references_by_destination_[std::cref(*destination)].push_back(source);
+    this->references_by_destination[std::cref(*destination)].push_back(source);
   }
 }
 
 auto SchemaFrame::Cache::populate_reachability_graph(
     const SchemaFrame &frame, const SchemaWalker &walker,
     const SchemaResolver &resolver) -> void {
-  if (!this->reachability_graph_.empty()) {
+  if (!this->reachability_graph.empty()) {
     return;
   }
 
@@ -2151,14 +2156,14 @@ auto SchemaFrame::Cache::populate_reachability_graph(
       continue;
     }
 
-    const auto parent_iterator{this->pointer_to_location_.find(
-        std::cref(entry.second.parent.value()))};
-    if (parent_iterator == this->pointer_to_location_.end()) {
+    const auto parent_iterator{
+        this->pointer_to_location.find(std::cref(entry.second.parent.value()))};
+    if (parent_iterator == this->pointer_to_location.end()) {
       continue;
     }
 
     for (const Location *parent_location : parent_iterator->second) {
-      this->reachability_graph_[parent_location].push_back(
+      this->reachability_graph[parent_location].push_back(
           ReachabilityEdge{.target = &entry.second,
                            .orphan_context_only = entry.second.orphan,
                            .is_reference = false});
@@ -2166,10 +2171,10 @@ auto SchemaFrame::Cache::populate_reachability_graph(
   }
 
   for (const auto &[destination_reference, sources] :
-       this->references_by_destination_) {
+       this->references_by_destination) {
     auto destination_locations_iterator =
-        this->pointer_to_location_.find(destination_reference);
-    if (destination_locations_iterator == this->pointer_to_location_.end()) {
+        this->pointer_to_location.find(destination_reference);
+    if (destination_locations_iterator == this->pointer_to_location.end()) {
       continue;
     }
 
@@ -2181,12 +2186,12 @@ auto SchemaFrame::Cache::populate_reachability_graph(
       }
     }
 
-    if (!destination_location &&
+    if ((destination_location == nullptr) &&
         !destination_locations_iterator->second.empty()) {
       destination_location = destination_locations_iterator->second.front();
     }
 
-    if (!destination_location) {
+    if (destination_location == nullptr) {
       continue;
     }
 
@@ -2197,14 +2202,14 @@ auto SchemaFrame::Cache::populate_reachability_graph(
 
       const auto source_parent_pointer{source_pointer->initial()};
       auto source_parent_iterator =
-          this->pointer_to_location_.find(std::cref(source_parent_pointer));
-      if (source_parent_iterator == this->pointer_to_location_.end()) {
+          this->pointer_to_location.find(std::cref(source_parent_pointer));
+      if (source_parent_iterator == this->pointer_to_location.end()) {
         continue;
       }
 
       for (const Location *source_parent_location :
            source_parent_iterator->second) {
-        this->reachability_graph_[source_parent_location].push_back(
+        this->reachability_graph[source_parent_location].push_back(
             ReachabilityEdge{.target = destination_location,
                              .orphan_context_only = false,
                              .is_reference = true});
@@ -2213,9 +2218,9 @@ auto SchemaFrame::Cache::populate_reachability_graph(
   }
 
   for (const auto &entry : frame.locations_) {
-    auto result = this->canonical_pointer_.emplace(
+    auto result = this->canonical_pointer.emplace(
         std::cref(entry.second.pointer), &entry.second.pointer);
-    this->location_to_canonical_[&entry.second] =
+    this->location_to_canonical[&entry.second] =
         result.second ? &entry.second.pointer : result.first->second;
   }
 }
@@ -2226,12 +2231,12 @@ auto SchemaFrame::Cache::populate_reachability(const SchemaFrame &frame,
                                                const SchemaResolver &resolver)
     -> const ReachabilityCache & {
   const ReachabilityKey key{.pointer = &base.pointer, .orphan = base.orphan};
-  auto cache_iterator = this->reachability_.find(key);
-  if (cache_iterator != this->reachability_.end()) {
+  auto cache_iterator = this->reachability.find(key);
+  if (cache_iterator != this->reachability.end()) {
     return cache_iterator->second;
   }
 
-  auto &cache = this->reachability_[key];
+  auto &cache = this->reachability[key];
   this->populate_reachability_graph(frame, walker, resolver);
 
   const Location *base_location{&base};
@@ -2241,8 +2246,8 @@ auto SchemaFrame::Cache::populate_reachability(const SchemaFrame &frame,
   queue.push_back(base_location);
   visited.insert(base_location);
   auto base_canonical_iterator =
-      this->location_to_canonical_.find(base_location);
-  if (base_canonical_iterator != this->location_to_canonical_.end()) {
+      this->location_to_canonical.find(base_location);
+  if (base_canonical_iterator != this->location_to_canonical.end()) {
     cache.emplace(base_canonical_iterator->second, true);
   }
 
@@ -2250,8 +2255,8 @@ auto SchemaFrame::Cache::populate_reachability(const SchemaFrame &frame,
   while (queue_index < queue.size()) {
     const Location *current = queue[queue_index++];
 
-    auto edges_iterator = this->reachability_graph_.find(current);
-    if (edges_iterator == this->reachability_graph_.end()) {
+    auto edges_iterator = this->reachability_graph.find(current);
+    if (edges_iterator == this->reachability_graph.end()) {
       continue;
     }
 
@@ -2265,9 +2270,9 @@ auto SchemaFrame::Cache::populate_reachability(const SchemaFrame &frame,
       }
 
       if (!edge.is_reference && edge.orphan_context_only) {
-        auto target_iterator = this->location_members_children_.find(
+        auto target_iterator = this->location_members_children.find(
             std::cref(edge.target->pointer));
-        if (target_iterator != this->location_members_children_.end()) {
+        if (target_iterator != this->location_members_children.end()) {
           const auto keyword_path{edge.target->pointer.initial()};
           if (keyword_path.starts_with(current->pointer)) {
             continue;
@@ -2279,8 +2284,8 @@ auto SchemaFrame::Cache::populate_reachability(const SchemaFrame &frame,
       queue.push_back(edge.target);
 
       auto target_canonical_iterator =
-          this->location_to_canonical_.find(edge.target);
-      if (target_canonical_iterator != this->location_to_canonical_.end()) {
+          this->location_to_canonical.find(edge.target);
+      if (target_canonical_iterator != this->location_to_canonical.end()) {
         cache.emplace(target_canonical_iterator->second, true);
       }
     }
@@ -2295,9 +2300,8 @@ auto SchemaFrame::is_reachable(const Location &base, const Location &location,
   assert(location.type != LocationType::Pointer);
   const auto &cache{
       this->cache_->populate_reachability(*this, base, walker, resolver)};
-  auto canonical_iterator =
-      this->cache_->location_to_canonical_.find(&location);
-  if (canonical_iterator == this->cache_->location_to_canonical_.end()) {
+  auto canonical_iterator = this->cache_->location_to_canonical.find(&location);
+  if (canonical_iterator == this->cache_->location_to_canonical.end()) {
     return false;
   }
   const auto iterator{cache.find(canonical_iterator->second)};

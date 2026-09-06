@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <limits>
 
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static const sourcemeta::core::JSON DOCUMENT =
     sourcemeta::core::parse_json(R"JSON({
   "$id": "https://www.sourcemeta.com/schema",
@@ -205,3 +206,4 @@ TEST(nested_identifiers_cost_more_than_the_same_shape_without_them) {
       sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
   EXPECT_EQ(with_identifiers_frame.location_count(), 9);
 }
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)

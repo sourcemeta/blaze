@@ -29,7 +29,7 @@ TEST(prettify_annotations) {
       sourcemeta::blaze::standard(evaluator, schema_template, instance,
                                   sourcemeta::blaze::StandardOutput::Basic)};
 
-  const auto expected{R"JSON({
+  const auto *const expected{R"JSON({
   "valid": true,
   "annotations": [
     {
@@ -72,7 +72,7 @@ TEST(prettify_annotations_multiple) {
       sourcemeta::blaze::standard(evaluator, schema_template, instance,
                                   sourcemeta::blaze::StandardOutput::Basic)};
 
-  const auto expected{R"JSON({
+  const auto *const expected{R"JSON({
   "valid": true,
   "annotations": [
     {
@@ -116,7 +116,7 @@ TEST(prettify_annotations_with_instance_positions) {
       evaluator, schema_template, instance,
       sourcemeta::blaze::StandardOutput::Basic, tracker)};
 
-  const auto expected{R"JSON({
+  const auto *const expected{R"JSON({
   "valid": true,
   "annotations": [
     {
@@ -158,7 +158,7 @@ TEST(prettify_errors) {
       sourcemeta::blaze::standard(evaluator, schema_template, instance,
                                   sourcemeta::blaze::StandardOutput::Basic)};
 
-  const auto expected{R"JSON({
+  const auto *const expected{R"JSON({
   "valid": false,
   "errors": [
     {
@@ -202,7 +202,7 @@ TEST(prettify_errors_with_instance_positions) {
       evaluator, schema_template, instance,
       sourcemeta::blaze::StandardOutput::Basic, tracker)};
 
-  const auto expected{R"JSON({
+  const auto *const expected{R"JSON({
   "valid": false,
   "errors": [
     {
@@ -258,7 +258,7 @@ TEST(prettify_annotations_unknown_keyword_scalar_in_custom_dialect) {
       sourcemeta::blaze::standard(evaluator, schema_template, instance,
                                   sourcemeta::blaze::StandardOutput::Basic)};
 
-  const auto expected{R"JSON({
+  const auto *const expected{R"JSON({
   "valid": true,
   "annotations": [
     {
@@ -304,7 +304,7 @@ TEST(prettify_annotations_scalar_metadata) {
       sourcemeta::blaze::standard(evaluator, schema_template, instance,
                                   sourcemeta::blaze::StandardOutput::Basic)};
 
-  const auto expected{R"JSON({
+  const auto *const expected{R"JSON({
   "valid": true,
   "annotations": [
     {
