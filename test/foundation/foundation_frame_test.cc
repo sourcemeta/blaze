@@ -464,6 +464,7 @@ TEST(to_json_mode_references_with_tracking_empty) {
   EXPECT_EQ(result, expected);
 }
 
+// NOLINTNEXTLINE(google-readability-function-size,hicpp-function-size,readability-function-size)
 TEST(embedded_custom_metaschema_across_two_frames) {
   const sourcemeta::core::JSON document_a =
       sourcemeta::core::parse_json(R"JSON({

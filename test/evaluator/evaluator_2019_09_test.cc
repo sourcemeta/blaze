@@ -43,6 +43,7 @@ TEST(metaschema_hyper_self_exhaustive) {
                                          170, "");
 }
 
+// NOLINTNEXTLINE(google-readability-function-size,hicpp-function-size,readability-function-size)
 TEST(additionalProperties_1_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
