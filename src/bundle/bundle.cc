@@ -593,8 +593,8 @@ auto bundle(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
       schema.is_object() && schema.defines("$ref")) {
     if (schema.size() == 1) {
       const auto is_draft3{
-          schema_base_dialect == SchemaBaseDialect::JSON_Schema_Draft_3 ||
-          schema_base_dialect == SchemaBaseDialect::JSON_Schema_Draft_3_Hyper};
+          schema_base_dialect == SchemaBaseDialect::JSON_SCHEMA_DRAFT_3 ||
+          schema_base_dialect == SchemaBaseDialect::JSON_SCHEMA_DRAFT_3_HYPER};
       auto branches{sourcemeta::core::JSON::make_array()};
       branches.push_back(schema);
       schema.at("$ref").into(std::move(branches));

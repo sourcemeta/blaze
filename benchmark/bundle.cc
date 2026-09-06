@@ -6,7 +6,7 @@
 #include <map>    // std::map
 #include <string> // std::string, std::to_string
 
-static void Schema_Bundle_Meta_2020_12(benchmark::State &state) {
+static void schema_bundle_meta_2020_12(benchmark::State &state) {
   for (auto _ : state) {
     state.PauseTiming();
     auto schema{sourcemeta::blaze::schema_resolver(
@@ -23,7 +23,7 @@ static void Schema_Bundle_Meta_2020_12(benchmark::State &state) {
 
 // Bundling checks that the fragment of a reference names something the remote
 // actually has, once per distinct remote that a fragment reaches into
-static void Schema_Bundle_Many_Remotes_With_Fragments(benchmark::State &state) {
+static void schema_bundle_many_remotes_with_fragments(benchmark::State &state) {
   static constexpr auto REMOTES{10};
   static constexpr auto SUBSCHEMAS{200};
 
@@ -82,5 +82,5 @@ static void Schema_Bundle_Many_Remotes_With_Fragments(benchmark::State &state) {
   }
 }
 
-BENCHMARK(Schema_Bundle_Meta_2020_12);
-BENCHMARK(Schema_Bundle_Many_Remotes_With_Fragments);
+BENCHMARK(schema_bundle_meta_2020_12);
+BENCHMARK(schema_bundle_many_remotes_with_fragments);

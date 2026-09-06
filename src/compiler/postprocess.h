@@ -700,8 +700,9 @@ inline auto postprocess(std::vector<Instructions> &targets,
 
           if (transform_instruction(instruction, result, extra, targets,
                                     statistics, current_stats, tweaks,
-                                    uses_dynamic_scopes, positional))
+                                    uses_dynamic_scopes, positional)) {
             changed = true;
+          }
 
           if (positional) {
             if (result.size() == result_size) {

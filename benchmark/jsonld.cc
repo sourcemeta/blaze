@@ -17,8 +17,8 @@
 // The number of books in the catalog and how many authors each one carries.
 // Together they set how many annotations the run emits, so they are the knobs
 // to turn when using this benchmark as a basis for further research.
-static constexpr std::size_t catalog_member_count{256};
-static constexpr std::size_t authors_per_book{3};
+static constexpr std::size_t CATALOG_MEMBER_COUNT{256};
+static constexpr std::size_t AUTHORS_PER_BOOK{3};
 
 // A string value that never risks the const char* to bool constructor selection
 static auto string_value(std::string value) -> sourcemeta::core::JSON {
@@ -107,7 +107,7 @@ static auto make_book(const std::size_t index) -> sourcemeta::core::JSON {
   book.assign("datePublished", string_value("2020-05-15"));
 
   auto authors{sourcemeta::core::JSON::make_array()};
-  for (std::size_t offset = 0; offset < authors_per_book; offset += 1) {
+  for (std::size_t offset = 0; offset < AUTHORS_PER_BOOK; offset += 1) {
     authors.push_back(make_person(index * 10 + offset));
   }
   book.assign("authors", std::move(authors));
@@ -135,7 +135,7 @@ static auto make_catalog(const std::size_t count) -> sourcemeta::core::JSON {
 
 static auto run_catalog(benchmark::State &state,
                         const sourcemeta::core::JSON &schema) -> void {
-  const auto instance{make_catalog(catalog_member_count)};
+  const auto instance{make_catalog(CATALOG_MEMBER_COUNT)};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
@@ -157,7 +157,7 @@ static auto run_catalog(benchmark::State &state,
 }
 
 // The library alone, with no overrides anywhere
-static auto JSONLD_Catalog_Simple(benchmark::State &state) -> void {
+static auto jsonld_catalog_simple(benchmark::State &state) -> void {
   run_catalog(state, sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/catalog",
@@ -296,7 +296,7 @@ static auto JSONLD_Catalog_Simple(benchmark::State &state) -> void {
 // The dedupe idiom: the consumer wraps the book reference with an override
 // mark and values that agree with what the library declares, marking every
 // book location without ever diverging
-static auto JSONLD_Catalog_Override_Agreeing(benchmark::State &state) -> void {
+static auto jsonld_catalog_override_agreeing(benchmark::State &state) -> void {
   run_catalog(state, sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/catalog",
@@ -440,7 +440,7 @@ static auto JSONLD_Catalog_Override_Agreeing(benchmark::State &state) -> void {
 // The specialize idiom at scale: the consumer wrappers around every book and
 // every person diverge from what the library declares, so every one of those
 // locations resolves through override shadowing
-static auto JSONLD_Catalog_Override_Shadowing(benchmark::State &state) -> void {
+static auto jsonld_catalog_override_shadowing(benchmark::State &state) -> void {
   run_catalog(state, sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/catalog",
@@ -585,6 +585,6 @@ static auto JSONLD_Catalog_Override_Shadowing(benchmark::State &state) -> void {
   })JSON"));
 }
 
-BENCHMARK(JSONLD_Catalog_Simple);
-BENCHMARK(JSONLD_Catalog_Override_Agreeing);
-BENCHMARK(JSONLD_Catalog_Override_Shadowing);
+BENCHMARK(jsonld_catalog_simple);
+BENCHMARK(jsonld_catalog_override_agreeing);
+BENCHMARK(jsonld_catalog_override_shadowing);

@@ -12,7 +12,7 @@
 #include <sourcemeta/core/json.h>
 
 static void
-Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
+alterschema_check_readibility_iso_language_set_3(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "files" /
       "2020_12_iso_language_2023_set_3.json")};
@@ -31,7 +31,7 @@ Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
   }
 }
 
-static void Alterschema_Check_Readibility_OMC(benchmark::State &state) {
+static void alterschema_check_readibility_omc(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_omc_json_v2.json")};
@@ -49,7 +49,7 @@ static void Alterschema_Check_Readibility_OMC(benchmark::State &state) {
   }
 }
 
-static void Alterschema_Check_Readibility_KrakenD(benchmark::State &state) {
+static void alterschema_check_readibility_kraken_d(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_krakend.json")};
@@ -66,7 +66,7 @@ static void Alterschema_Check_Readibility_KrakenD(benchmark::State &state) {
   }
 }
 
-static void Alterschema_Apply_Readibility_KrakenD(benchmark::State &state) {
+static void alterschema_apply_readibility_kraken_d(benchmark::State &state) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
@@ -87,7 +87,7 @@ static void Alterschema_Apply_Readibility_KrakenD(benchmark::State &state) {
   }
 }
 
-static void Alterschema_Check_Invalid_External_Refs(benchmark::State &state) {
+static void alterschema_check_invalid_external_refs(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "files" /
       "2020_12_many_invalid_external_refs.json")};
@@ -114,7 +114,7 @@ static void Alterschema_Check_Invalid_External_Refs(benchmark::State &state) {
 // Every reference here resolves, so the linter reaches the check that a
 // fragment names something the remote actually has
 static void
-Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
+alterschema_check_resolvable_external_refs(benchmark::State &state) {
   static constexpr auto REMOTES{20};
   static constexpr auto SUBSCHEMAS{200};
 
@@ -180,9 +180,9 @@ Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
   }
 }
 
-BENCHMARK(Alterschema_Check_Readibility_ISO_Language_Set_3);
-BENCHMARK(Alterschema_Check_Readibility_OMC);
-BENCHMARK(Alterschema_Check_Readibility_KrakenD);
-BENCHMARK(Alterschema_Apply_Readibility_KrakenD);
-BENCHMARK(Alterschema_Check_Invalid_External_Refs);
-BENCHMARK(Alterschema_Check_Resolvable_External_Refs);
+BENCHMARK(alterschema_check_readibility_iso_language_set_3);
+BENCHMARK(alterschema_check_readibility_omc);
+BENCHMARK(alterschema_check_readibility_kraken_d);
+BENCHMARK(alterschema_apply_readibility_kraken_d);
+BENCHMARK(alterschema_check_invalid_external_refs);
+BENCHMARK(alterschema_check_resolvable_external_refs);

@@ -16,7 +16,7 @@
 static constexpr std::string_view WOT_IDENTIFIER{
     "https://schemas.sourcemeta.com/w3c/wot/v1.1/thing-description"};
 
-static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
+static auto test_suite_parse_wo_t(benchmark::State &state) -> void {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "draft7_w3c_wot_td_v1_1.json")};
@@ -50,4 +50,4 @@ static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
   }
 }
 
-BENCHMARK(TestSuite_Parse_WoT);
+BENCHMARK(test_suite_parse_wo_t);

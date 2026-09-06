@@ -37,8 +37,8 @@ auto booleans_are_schemas(
     const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   return !vocabularies.contains_any(
-      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper,
-       Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper});
+      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
+       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER});
 }
 
 // Draft 4 and earlier spell these as flags on a sibling bound rather than as
@@ -47,8 +47,8 @@ auto exclusive_bounds_need_a_sibling(
     const sourcemeta::blaze::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   return vocabularies.contains_any(
-      {Known::JSON_Schema_Draft_3, Known::JSON_Schema_Draft_3_Hyper,
-       Known::JSON_Schema_Draft_4, Known::JSON_Schema_Draft_4_Hyper});
+      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
+       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER});
 }
 
 auto is_schema(const sourcemeta::core::JSON &value, const bool allow_boolean)
@@ -95,31 +95,36 @@ auto keyword_shape_error(
         keyword == "$comment" || keyword == "format" ||
         keyword == "contentEncoding" || keyword == "contentMediaType") {
       return value.is_string() ? nullptr : EXPECTED_STRING;
-    } else if (keyword == "uniqueItems" || keyword == "deprecated" ||
-               keyword == "readOnly" || keyword == "writeOnly") {
+    }
+    if (keyword == "uniqueItems" || keyword == "deprecated" ||
+        keyword == "readOnly" || keyword == "writeOnly") {
       return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
-    } else if (keyword == "examples") {
+    }
+    if (keyword == "examples") {
       return value.is_array() ? nullptr : EXPECTED_ARRAY;
-    } else if (keyword == "maxContains" || keyword == "minContains") {
+    }
+    if (keyword == "maxContains" || keyword == "minContains") {
       // These only exist from 2019-09 onwards, where a number whose fractional
       // part is zero counts as an integer
       return (value.is_integral() && value.is_positive())
                  ? nullptr
                  : EXPECTED_NON_NEGATIVE_INTEGER;
-    } else if (keyword == "exclusiveMaximum" || keyword == "exclusiveMinimum") {
+    }
+    if (keyword == "exclusiveMaximum" || keyword == "exclusiveMinimum") {
       return (vocabularies.contains_any(
-                  {SchemaVocabularies::Known::JSON_Schema_Draft_3,
-                   SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper,
-                   SchemaVocabularies::Known::JSON_Schema_Draft_4,
-                   SchemaVocabularies::Known::JSON_Schema_Draft_4_Hyper})
+                  {SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
+                   SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3_HYPER,
+                   SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4,
+                   SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4_HYPER})
                   ? (value.is_boolean() ? nullptr : EXPECTED_BOOLEAN)
                   : (value.is_number() ? nullptr : EXPECTED_NUMBER));
-    } else if ((keyword == "$defs" || keyword == "definitions") &&
-               // The walker treats these as containers in every dialect, but
-               // no meta-schema before Draft 4 defines either of them
-               !vocabularies.contains_any(
-                   {SchemaVocabularies::Known::JSON_Schema_Draft_3,
-                    SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper})) {
+    }
+    if ((keyword == "$defs" || keyword == "definitions") &&
+        // The walker treats these as containers in every dialect, but
+        // no meta-schema before Draft 4 defines either of them
+        !vocabularies.contains_any(
+            {SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
+             SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3_HYPER})) {
       return (value.is_object() &&
               std::ranges::all_of(value.as_object(),
                                   [allow_boolean](const auto &entry) -> bool {
@@ -135,8 +140,8 @@ auto keyword_shape_error(
   // a list on the object, so the shape it asks for is a different one
   if (keyword == "required" &&
       vocabularies.contains_any(
-          {SchemaVocabularies::Known::JSON_Schema_Draft_3,
-           SchemaVocabularies::Known::JSON_Schema_Draft_3_Hyper})) {
+          {SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
+           SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3_HYPER})) {
     return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
   }
 
@@ -224,15 +229,14 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   if (schema_context.schema.is_boolean()) {
     if (schema_context.schema.to_boolean()) {
       return {};
-    } else {
-      return {make(
-          sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-          schema_context,
-          {.keyword = KEYWORD_EMPTY,
-           .base_schema_location = dynamic_context.base_schema_location,
-           .base_instance_location = dynamic_context.base_instance_location},
-          ValueNone{})};
     }
+    return {
+        make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+             schema_context,
+             {.keyword = KEYWORD_EMPTY,
+              .base_schema_location = dynamic_context.base_schema_location,
+              .base_instance_location = dynamic_context.base_instance_location},
+             ValueNone{})};
   }
 
   Instructions steps;
@@ -273,7 +277,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
           "This keyword was expected to accompany the bound it applies to");
     }
 
-    if (shape_error) [[unlikely]] {
+    if (shape_error != nullptr) [[unlikely]] {
       throw sourcemeta::blaze::CompilerError(
           schema_context.base,
           absolute_schema_location(
@@ -373,7 +377,7 @@ auto schema_frame_populate_target_types(
 
   std::unordered_map<std::string_view, const sourcemeta::core::WeakPointer *>
       destination_pointers;
-  for (const auto &[destination, _] : target_types) {
+  for (const auto &[destination, context] : target_types) {
     const auto destination_location{frame.traverse(destination)};
     if (destination_location.has_value()) {
       destination_pointers.emplace(destination,

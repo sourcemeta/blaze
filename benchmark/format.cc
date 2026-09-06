@@ -7,7 +7,7 @@
 
 #include <sourcemeta/core/json.h>
 
-static void Schema_Format_ISO_Language_To_JSON(benchmark::State &state) {
+static void schema_format_iso_language_to_json(benchmark::State &state) {
   for (auto _ : state) {
     state.PauseTiming();
     auto schema{sourcemeta::core::read_json(
@@ -20,4 +20,4 @@ static void Schema_Format_ISO_Language_To_JSON(benchmark::State &state) {
   }
 }
 
-BENCHMARK(Schema_Format_ISO_Language_To_JSON);
+BENCHMARK(schema_format_iso_language_to_json);

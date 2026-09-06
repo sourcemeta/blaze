@@ -35,7 +35,7 @@ static auto test_resolver(std::string_view identifier)
   }
 }
 
-static auto VOCABULARIES(const sourcemeta::core::JSON &document,
+static auto vocabularies(const sourcemeta::core::JSON &document,
                          const sourcemeta::blaze::SchemaResolver &resolver,
                          const std::string_view default_dialect = "")
     -> sourcemeta::blaze::SchemaVocabularies {
@@ -48,7 +48,7 @@ static auto VOCABULARIES(const sourcemeta::core::JSON &document,
 TEST(core_vocabularies_boolean_without_default) {
   const sourcemeta::core::JSON document{true};
   try {
-    VOCABULARIES(document, sourcemeta::blaze::schema_resolver);
+    vocabularies(document, sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -61,7 +61,7 @@ TEST(unresolvable_dialect) {
     "$schema": "https://non-existent.com/dialect"
   })JSON");
   try {
-    VOCABULARIES(document, sourcemeta::blaze::schema_resolver);
+    vocabularies(document, sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -76,7 +76,7 @@ TEST(override_unresolvable) {
       "https://non-existent.com/dialect"
   })JSON");
   try {
-    VOCABULARIES(document, sourcemeta::blaze::schema_resolver);
+    vocabularies(document, sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
@@ -94,80 +94,80 @@ TEST(known_vocabulary_to_string) {
     EXPECT_EQ(stream.str(), expected_uri);                                     \
   }
 
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_0,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_0,
                         "http://json-schema.org/draft-00/schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_0_Hyper,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_0_HYPER,
                         "http://json-schema.org/draft-00/hyper-schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_1,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_1,
                         "http://json-schema.org/draft-01/schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_1_Hyper,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_1_HYPER,
                         "http://json-schema.org/draft-01/hyper-schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_2,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_2,
                         "http://json-schema.org/draft-02/schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_2_Hyper,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_2_HYPER,
                         "http://json-schema.org/draft-02/hyper-schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_3,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_3,
                         "http://json-schema.org/draft-03/schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_3_Hyper,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_3_HYPER,
                         "http://json-schema.org/draft-03/hyper-schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_4,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_4,
                         "http://json-schema.org/draft-04/schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_4_Hyper,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_4_HYPER,
                         "http://json-schema.org/draft-04/hyper-schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_6,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_6,
                         "http://json-schema.org/draft-06/schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_6_Hyper,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_6_HYPER,
                         "http://json-schema.org/draft-06/hyper-schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_7,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_7,
                         "http://json-schema.org/draft-07/schema#");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_Draft_7_Hyper,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_DRAFT_7_HYPER,
                         "http://json-schema.org/draft-07/hyper-schema#");
 
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_2019_09_Core,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_2019_09_CORE,
                         "https://json-schema.org/draft/2019-09/vocab/core");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2019_09_Applicator,
+      Known::JSON_SCHEMA_2019_09_APPLICATOR,
       "https://json-schema.org/draft/2019-09/vocab/applicator");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2019_09_Validation,
+      Known::JSON_SCHEMA_2019_09_VALIDATION,
       "https://json-schema.org/draft/2019-09/vocab/validation");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2019_09_Meta_Data,
+      Known::JSON_SCHEMA_2019_09_META_DATA,
       "https://json-schema.org/draft/2019-09/vocab/meta-data");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_2019_09_Format,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_2019_09_FORMAT,
                         "https://json-schema.org/draft/2019-09/vocab/format");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_2019_09_Content,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_2019_09_CONTENT,
                         "https://json-schema.org/draft/2019-09/vocab/content");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2019_09_Hyper_Schema,
+      Known::JSON_SCHEMA_2019_09_HYPER_SCHEMA,
       "https://json-schema.org/draft/2019-09/vocab/hyper-schema");
 
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_2020_12_Core,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_2020_12_CORE,
                         "https://json-schema.org/draft/2020-12/vocab/core");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2020_12_Applicator,
+      Known::JSON_SCHEMA_2020_12_APPLICATOR,
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2020_12_Unevaluated,
+      Known::JSON_SCHEMA_2020_12_UNEVALUATED,
       "https://json-schema.org/draft/2020-12/vocab/unevaluated");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2020_12_Validation,
+      Known::JSON_SCHEMA_2020_12_VALIDATION,
       "https://json-schema.org/draft/2020-12/vocab/validation");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2020_12_Meta_Data,
+      Known::JSON_SCHEMA_2020_12_META_DATA,
       "https://json-schema.org/draft/2020-12/vocab/meta-data");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2020_12_Format_Annotation,
+      Known::JSON_SCHEMA_2020_12_FORMAT_ANNOTATION,
       "https://json-schema.org/draft/2020-12/vocab/format-annotation");
   EXPECT_VOCABULARY_URI(
-      Known::JSON_Schema_2020_12_Format_Assertion,
+      Known::JSON_SCHEMA_2020_12_FORMAT_ASSERTION,
       "https://json-schema.org/draft/2020-12/vocab/format-assertion");
-  EXPECT_VOCABULARY_URI(Known::JSON_Schema_2020_12_Content,
+  EXPECT_VOCABULARY_URI(Known::JSON_SCHEMA_2020_12_CONTENT,
                         "https://json-schema.org/draft/2020-12/vocab/content");
 
-  EXPECT_VOCABULARY_URI(Known::OpenAPI_3_1_Base,
+  EXPECT_VOCABULARY_URI(Known::OPENAPI_3_1_BASE,
                         "https://spec.openapis.org/oas/3.1/vocab/base");
-  EXPECT_VOCABULARY_URI(Known::OpenAPI_3_2_Base,
+  EXPECT_VOCABULARY_URI(Known::OPENAPI_3_2_BASE,
                         "https://spec.openapis.org/oas/3.2/vocab/base");
 
 #undef EXPECT_VOCABULARY_URI
@@ -177,13 +177,13 @@ TEST(throw_if_any_unsupported_all_supported_by_enum) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Applicator, true},
-      {Known::JSON_Schema_2020_12_Validation, false}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_APPLICATOR, true},
+      {Known::JSON_SCHEMA_2020_12_VALIDATION, false}};
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core,
-                Known::JSON_Schema_2020_12_Applicator};
+      supported{Known::JSON_SCHEMA_2020_12_CORE,
+                Known::JSON_SCHEMA_2020_12_APPLICATOR};
 
   vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
@@ -192,13 +192,13 @@ TEST(throw_if_any_unsupported_all_supported_custom_by_string) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
   vocabularies.insert("https://example.com/custom-vocab-1", true);
   vocabularies.insert("https://example.com/custom-vocab-2", true);
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
       supported{
-          Known::JSON_Schema_2020_12_Core,
+          Known::JSON_SCHEMA_2020_12_CORE,
           sourcemeta::core::JSON::String{"https://example.com/custom-vocab-1"},
           sourcemeta::core::JSON::String{"https://example.com/custom-vocab-2"}};
 
@@ -209,14 +209,14 @@ TEST(throw_if_any_unsupported_mixed_known_enum_and_custom_string) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Applicator, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_APPLICATOR, true}};
   vocabularies.insert("https://example.com/custom-vocab", true);
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
       supported{
-          Known::JSON_Schema_2020_12_Core,
-          Known::JSON_Schema_2020_12_Applicator,
+          Known::JSON_SCHEMA_2020_12_CORE,
+          Known::JSON_SCHEMA_2020_12_APPLICATOR,
           sourcemeta::core::JSON::String{"https://example.com/custom-vocab"}};
 
   vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
@@ -226,13 +226,13 @@ TEST(throw_if_any_unsupported_missing_required_known) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Applicator, true},
-      {Known::JSON_Schema_2020_12_Validation, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_APPLICATOR, true},
+      {Known::JSON_SCHEMA_2020_12_VALIDATION, true}};
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core,
-                Known::JSON_Schema_2020_12_Applicator};
+      supported{Known::JSON_SCHEMA_2020_12_CORE,
+                Known::JSON_SCHEMA_2020_12_APPLICATOR};
 
   try {
     vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
@@ -248,11 +248,11 @@ TEST(throw_if_any_unsupported_missing_required_custom) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
   vocabularies.insert("https://example.com/custom-vocab", true);
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core};
+      supported{Known::JSON_SCHEMA_2020_12_CORE};
 
   try {
     vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
@@ -267,11 +267,11 @@ TEST(throw_if_any_unsupported_optional_not_checked) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Validation, false}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_VALIDATION, false}};
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core};
+      supported{Known::JSON_SCHEMA_2020_12_CORE};
 
   vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
@@ -282,7 +282,7 @@ TEST(throw_if_any_unsupported_empty_vocabularies) {
   const sourcemeta::blaze::SchemaVocabularies vocabularies{};
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core};
+      supported{Known::JSON_SCHEMA_2020_12_CORE};
 
   vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
@@ -294,7 +294,7 @@ TEST(throw_if_any_unsupported_known_vocab_as_string_in_vocabularies) {
   vocabularies.insert("https://json-schema.org/draft/2020-12/vocab/core", true);
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core};
+      supported{Known::JSON_SCHEMA_2020_12_CORE};
 
   vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
@@ -303,12 +303,12 @@ TEST(throw_if_any_unsupported_custom_supported_by_string) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
   vocabularies.insert("https://example.com/custom-vocab", true);
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
       supported{
-          Known::JSON_Schema_2020_12_Core,
+          Known::JSON_SCHEMA_2020_12_CORE,
           sourcemeta::core::JSON::String{"https://example.com/custom-vocab"}};
 
   vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
@@ -319,63 +319,63 @@ TEST(contains_any_empty_vocabularies) {
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{};
 
-  EXPECT_FALSE(vocabularies.contains_any({Known::JSON_Schema_2020_12_Core}));
+  EXPECT_FALSE(vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_CORE}));
   EXPECT_FALSE(
-      vocabularies.contains_any({Known::JSON_Schema_2020_12_Core,
-                                 Known::JSON_Schema_2020_12_Applicator}));
+      vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_CORE,
+                                 Known::JSON_SCHEMA_2020_12_APPLICATOR}));
 }
 
 TEST(contains_any_single_match) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
 
-  EXPECT_TRUE(vocabularies.contains_any({Known::JSON_Schema_2020_12_Core}));
+  EXPECT_TRUE(vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_CORE}));
   EXPECT_TRUE(
-      vocabularies.contains_any({Known::JSON_Schema_2020_12_Core,
-                                 Known::JSON_Schema_2020_12_Applicator}));
-  EXPECT_TRUE(vocabularies.contains_any({Known::JSON_Schema_2020_12_Applicator,
-                                         Known::JSON_Schema_2020_12_Core}));
+      vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_CORE,
+                                 Known::JSON_SCHEMA_2020_12_APPLICATOR}));
+  EXPECT_TRUE(vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_APPLICATOR,
+                                         Known::JSON_SCHEMA_2020_12_CORE}));
 }
 
 TEST(contains_any_no_match) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
 
   EXPECT_FALSE(
-      vocabularies.contains_any({Known::JSON_Schema_2020_12_Applicator}));
-  EXPECT_FALSE(vocabularies.contains_any({Known::JSON_Schema_2020_12_Applicator,
-                                          Known::JSON_Schema_2020_12_Validation,
-                                          Known::JSON_Schema_2020_12_Content}));
+      vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_APPLICATOR}));
+  EXPECT_FALSE(vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_APPLICATOR,
+                                          Known::JSON_SCHEMA_2020_12_VALIDATION,
+                                          Known::JSON_SCHEMA_2020_12_CONTENT}));
 }
 
 TEST(contains_any_multiple_vocabularies) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Applicator, true},
-      {Known::JSON_Schema_2020_12_Validation, false}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_APPLICATOR, true},
+      {Known::JSON_SCHEMA_2020_12_VALIDATION, false}};
 
-  EXPECT_TRUE(vocabularies.contains_any({Known::JSON_Schema_2020_12_Core}));
+  EXPECT_TRUE(vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_CORE}));
   EXPECT_TRUE(
-      vocabularies.contains_any({Known::JSON_Schema_2020_12_Applicator}));
+      vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_APPLICATOR}));
   EXPECT_TRUE(
-      vocabularies.contains_any({Known::JSON_Schema_2020_12_Validation}));
+      vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_VALIDATION}));
   EXPECT_TRUE(vocabularies.contains_any(
-      {Known::JSON_Schema_2020_12_Content, Known::JSON_Schema_2020_12_Core}));
+      {Known::JSON_SCHEMA_2020_12_CONTENT, Known::JSON_SCHEMA_2020_12_CORE}));
   EXPECT_FALSE(vocabularies.contains_any(
-      {Known::JSON_Schema_2020_12_Content, Known::JSON_Schema_Draft_7}));
+      {Known::JSON_SCHEMA_2020_12_CONTENT, Known::JSON_SCHEMA_DRAFT_7}));
 }
 
 TEST(contains_any_empty_list) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
 
   EXPECT_FALSE(vocabularies.contains_any({}));
 }
@@ -384,19 +384,19 @@ TEST(contains_any_matches_both_required_and_optional) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Validation, false}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_VALIDATION, false}};
 
-  EXPECT_TRUE(vocabularies.contains_any({Known::JSON_Schema_2020_12_Core}));
+  EXPECT_TRUE(vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_CORE}));
   EXPECT_TRUE(
-      vocabularies.contains_any({Known::JSON_Schema_2020_12_Validation}));
+      vocabularies.contains_any({Known::JSON_SCHEMA_2020_12_VALIDATION}));
 }
 
 TEST(uri_to_string_known_variant) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   using URI = sourcemeta::blaze::SchemaVocabularies::URI;
 
-  const URI vocabulary{Known::JSON_Schema_2020_12_Core};
+  const URI vocabulary{Known::JSON_SCHEMA_2020_12_CORE};
   std::ostringstream stream;
   stream << vocabulary;
   EXPECT_EQ(stream.str(), "https://json-schema.org/draft/2020-12/vocab/core");
@@ -415,15 +415,15 @@ TEST(uri_to_string_custom_variant) {
 TEST(format_known) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
-  EXPECT_EQ(std::format("{}", Known::JSON_Schema_2020_12_Core),
+  EXPECT_EQ(std::format("{}", Known::JSON_SCHEMA_2020_12_CORE),
             "https://json-schema.org/draft/2020-12/vocab/core");
-  EXPECT_EQ(std::format("{}", Known::JSON_Schema_2019_09_Applicator),
+  EXPECT_EQ(std::format("{}", Known::JSON_SCHEMA_2019_09_APPLICATOR),
             "https://json-schema.org/draft/2019-09/vocab/applicator");
-  EXPECT_EQ(std::format("{}", Known::JSON_Schema_Draft_7),
+  EXPECT_EQ(std::format("{}", Known::JSON_SCHEMA_DRAFT_7),
             "http://json-schema.org/draft-07/schema#");
-  EXPECT_EQ(std::format("{}", Known::OpenAPI_3_1_Base),
+  EXPECT_EQ(std::format("{}", Known::OPENAPI_3_1_BASE),
             "https://spec.openapis.org/oas/3.1/vocab/base");
-  EXPECT_EQ(std::format("{}", Known::OpenAPI_3_2_Base),
+  EXPECT_EQ(std::format("{}", Known::OPENAPI_3_2_BASE),
             "https://spec.openapis.org/oas/3.2/vocab/base");
 }
 
@@ -431,7 +431,7 @@ TEST(format_uri_known_variant) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   using URI = sourcemeta::blaze::SchemaVocabularies::URI;
 
-  const URI vocabulary{Known::JSON_Schema_2020_12_Validation};
+  const URI vocabulary{Known::JSON_SCHEMA_2020_12_VALIDATION};
   EXPECT_EQ(std::format("{}", vocabulary),
             "https://json-schema.org/draft/2020-12/vocab/validation");
 }
@@ -453,8 +453,8 @@ TEST(has_unknown_only_known_required) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Applicator, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_APPLICATOR, true}};
 
   EXPECT_FALSE(vocabularies.has_unknown());
 }
@@ -463,8 +463,8 @@ TEST(has_unknown_only_known_optional) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::JSON_Schema_2020_12_Validation, false}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_VALIDATION, false}};
 
   EXPECT_FALSE(vocabularies.has_unknown());
 }
@@ -473,7 +473,7 @@ TEST(has_unknown_with_custom_required) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
   vocabularies.insert("https://example.com/custom-vocab", true);
 
   EXPECT_TRUE(vocabularies.has_unknown());
@@ -483,7 +483,7 @@ TEST(has_unknown_with_custom_optional) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
   vocabularies.insert("https://example.com/custom-vocab", false);
 
   EXPECT_TRUE(vocabularies.has_unknown());
@@ -493,7 +493,7 @@ TEST(has_unknown_with_multiple_custom) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
   vocabularies.insert("https://example.com/custom-vocab-1", true);
   vocabularies.insert("https://example.com/custom-vocab-2", false);
 
@@ -504,36 +504,36 @@ TEST(contains_any_openapi_3_1_base) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}, {Known::OpenAPI_3_1_Base, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}, {Known::OPENAPI_3_1_BASE, true}};
 
-  EXPECT_TRUE(vocabularies.contains_any({Known::OpenAPI_3_1_Base}));
+  EXPECT_TRUE(vocabularies.contains_any({Known::OPENAPI_3_1_BASE}));
   EXPECT_TRUE(vocabularies.contains_any(
-      {Known::OpenAPI_3_1_Base, Known::OpenAPI_3_2_Base}));
-  EXPECT_FALSE(vocabularies.contains_any({Known::OpenAPI_3_2_Base}));
+      {Known::OPENAPI_3_1_BASE, Known::OPENAPI_3_2_BASE}));
+  EXPECT_FALSE(vocabularies.contains_any({Known::OPENAPI_3_2_BASE}));
 }
 
 TEST(contains_any_openapi_3_2_base) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}, {Known::OpenAPI_3_2_Base, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}, {Known::OPENAPI_3_2_BASE, true}};
 
-  EXPECT_TRUE(vocabularies.contains_any({Known::OpenAPI_3_2_Base}));
+  EXPECT_TRUE(vocabularies.contains_any({Known::OPENAPI_3_2_BASE}));
   EXPECT_TRUE(vocabularies.contains_any(
-      {Known::OpenAPI_3_1_Base, Known::OpenAPI_3_2_Base}));
-  EXPECT_FALSE(vocabularies.contains_any({Known::OpenAPI_3_1_Base}));
+      {Known::OPENAPI_3_1_BASE, Known::OPENAPI_3_2_BASE}));
+  EXPECT_FALSE(vocabularies.contains_any({Known::OPENAPI_3_1_BASE}));
 }
 
 TEST(insert_openapi_3_1_base_by_string) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
   vocabularies.insert("https://spec.openapis.org/oas/3.1/vocab/base", true);
 
   EXPECT_EQ(vocabularies.size(), 2);
-  EXPECT_TRUE(vocabularies.contains(Known::OpenAPI_3_1_Base));
-  EXPECT_TRUE(vocabularies.get(Known::OpenAPI_3_1_Base).value());
+  EXPECT_TRUE(vocabularies.contains(Known::OPENAPI_3_1_BASE));
+  EXPECT_TRUE(vocabularies.get(Known::OPENAPI_3_1_BASE).value());
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
@@ -541,12 +541,12 @@ TEST(insert_openapi_3_2_base_by_string) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}};
   vocabularies.insert("https://spec.openapis.org/oas/3.2/vocab/base", false);
 
   EXPECT_EQ(vocabularies.size(), 2);
-  EXPECT_TRUE(vocabularies.contains(Known::OpenAPI_3_2_Base));
-  EXPECT_FALSE(vocabularies.get(Known::OpenAPI_3_2_Base).value());
+  EXPECT_TRUE(vocabularies.contains(Known::OPENAPI_3_2_BASE));
+  EXPECT_FALSE(vocabularies.get(Known::OPENAPI_3_2_BASE).value());
   EXPECT_FALSE(vocabularies.has_unknown());
 }
 
@@ -554,10 +554,10 @@ TEST(throw_if_any_unsupported_openapi_required_not_in_supported) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}, {Known::OpenAPI_3_1_Base, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}, {Known::OPENAPI_3_1_BASE, true}};
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core};
+      supported{Known::JSON_SCHEMA_2020_12_CORE};
 
   try {
     vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
@@ -572,11 +572,11 @@ TEST(throw_if_any_unsupported_openapi_optional_not_checked) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::OpenAPI_3_1_Base, false}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::OPENAPI_3_1_BASE, false}};
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core};
+      supported{Known::JSON_SCHEMA_2020_12_CORE};
 
   vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
@@ -585,10 +585,10 @@ TEST(throw_if_any_unsupported_openapi_in_supported) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true}, {Known::OpenAPI_3_1_Base, true}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true}, {Known::OPENAPI_3_1_BASE, true}};
 
   const std::unordered_set<sourcemeta::blaze::SchemaVocabularies::URI>
-      supported{Known::JSON_Schema_2020_12_Core, Known::OpenAPI_3_1_Base};
+      supported{Known::JSON_SCHEMA_2020_12_CORE, Known::OPENAPI_3_1_BASE};
 
   vocabularies.throw_if_any_unsupported(supported, "Unsupported vocabulary");
 }
@@ -597,9 +597,9 @@ TEST(has_unknown_with_openapi_vocabularies) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
 
   const sourcemeta::blaze::SchemaVocabularies vocabularies{
-      {Known::JSON_Schema_2020_12_Core, true},
-      {Known::OpenAPI_3_1_Base, true},
-      {Known::OpenAPI_3_2_Base, false}};
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::OPENAPI_3_1_BASE, true},
+      {Known::OPENAPI_3_2_BASE, false}};
 
   EXPECT_FALSE(vocabularies.has_unknown());
 }
@@ -618,7 +618,7 @@ TEST(embedded_custom_metaschema_wrong_container) {
   })JSON");
 
   try {
-    VOCABULARIES(document, sourcemeta::blaze::schema_resolver);
+    vocabularies(document, sourcemeta::blaze::schema_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
     EXPECT_EQ(error.identifier(), "https://example.com/meta");
@@ -642,8 +642,8 @@ TEST(for_each_empty) {
 TEST(for_each_known_required_and_optional) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   sourcemeta::blaze::SchemaVocabularies vocabularies;
-  vocabularies.insert(Known::JSON_Schema_2020_12_Core, true);
-  vocabularies.insert(Known::JSON_Schema_2020_12_Validation, false);
+  vocabularies.insert(Known::JSON_SCHEMA_2020_12_CORE, true);
+  vocabularies.insert(Known::JSON_SCHEMA_2020_12_VALIDATION, false);
 
   std::vector<std::pair<std::string, bool>> seen;
   vocabularies.for_each(
@@ -681,7 +681,7 @@ TEST(for_each_unknown) {
 TEST(for_each_known_and_unknown) {
   using Known = sourcemeta::blaze::SchemaVocabularies::Known;
   sourcemeta::blaze::SchemaVocabularies vocabularies;
-  vocabularies.insert(Known::JSON_Schema_2020_12_Core, true);
+  vocabularies.insert(Known::JSON_SCHEMA_2020_12_CORE, true);
   vocabularies.insert(sourcemeta::core::JSON::String{"https://example.com/one"},
                       false);
 
@@ -704,7 +704,7 @@ TEST(for_each_known_and_unknown) {
 
 TEST(vocabularies_known_2020_12_core) {
   const auto vocabulary{
-      sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_2020_12_Core};
+      sourcemeta::blaze::SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE};
   const auto result{sourcemeta::core::to_json(vocabulary)};
   EXPECT_TRUE(result.is_integer());
   EXPECT_EQ(result.to_integer(), 21);
@@ -717,7 +717,7 @@ TEST(vocabularies_known_2020_12_core) {
 
 TEST(vocabularies_known_2020_12_applicator) {
   const auto vocabulary{sourcemeta::blaze::SchemaVocabularies::Known::
-                            JSON_Schema_2020_12_Applicator};
+                            JSON_SCHEMA_2020_12_APPLICATOR};
   const auto result{sourcemeta::core::to_json(vocabulary)};
   EXPECT_TRUE(result.is_integer());
   EXPECT_EQ(result.to_integer(), 22);
@@ -730,7 +730,7 @@ TEST(vocabularies_known_2020_12_applicator) {
 
 TEST(vocabularies_known_draft_0) {
   const auto vocabulary{
-      sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_Draft_0};
+      sourcemeta::blaze::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_0};
   const auto result{sourcemeta::core::to_json(vocabulary)};
   EXPECT_TRUE(result.is_integer());
   EXPECT_EQ(result.to_integer(), 0);
@@ -751,7 +751,7 @@ TEST(vocabularies_known_from_json_invalid_type) {
 
 TEST(vocabularies_uri_with_known) {
   const sourcemeta::blaze::SchemaVocabularies::URI uri{
-      sourcemeta::blaze::SchemaVocabularies::Known::JSON_Schema_2020_12_Core};
+      sourcemeta::blaze::SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE};
   const auto result{sourcemeta::core::to_json(uri)};
   EXPECT_TRUE(result.is_array());
   EXPECT_EQ(result.size(), 2);
@@ -816,7 +816,7 @@ TEST(core_cannot_be_optional) {
   })JSON");
 
   try {
-    VOCABULARIES(document, test_resolver);
+    vocabularies(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaError &error) {
     EXPECT_STREQ(error.what(), "The core vocabulary must always be required");
@@ -829,7 +829,7 @@ TEST(core_must_be_declared) {
   })JSON");
 
   try {
-    VOCABULARIES(document, test_resolver);
+    vocabularies(document, test_resolver);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaError &error) {
     EXPECT_STREQ(error.what(), "The core vocabulary must always be present");

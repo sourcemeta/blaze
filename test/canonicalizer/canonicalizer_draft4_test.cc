@@ -13,13 +13,13 @@
 
 namespace {
 auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
-  static const sourcemeta::blaze::Template schema_template{
+  static const sourcemeta::blaze::Template SCHEMA_TEMPLATE{
       sourcemeta::blaze::compile(
           sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
                                       "canonical-draft4.json"),
           sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
           sourcemeta::blaze::default_schema_compiler)};
-  return schema_template;
+  return SCHEMA_TEMPLATE;
 }
 } // namespace
 

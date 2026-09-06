@@ -8,7 +8,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-static void Micro_2019_09_Unevaluated_Properties(benchmark::State &state) {
+static void micro_2019_09_unevaluated_properties(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "object",
@@ -45,7 +45,7 @@ static void Micro_2019_09_Unevaluated_Properties(benchmark::State &state) {
   }
 }
 
-static void Micro_2019_09_Compile_Wrap(benchmark::State &state) {
+static void micro_2019_09_compile_wrap(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2019_09_krakend_wrap.json")};
@@ -59,5 +59,5 @@ static void Micro_2019_09_Compile_Wrap(benchmark::State &state) {
   }
 }
 
-BENCHMARK(Micro_2019_09_Unevaluated_Properties);
-BENCHMARK(Micro_2019_09_Compile_Wrap);
+BENCHMARK(micro_2019_09_unevaluated_properties);
+BENCHMARK(micro_2019_09_compile_wrap);

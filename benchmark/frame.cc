@@ -10,7 +10,7 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-static void Schema_Frame_WoT_References(benchmark::State &state) {
+static void schema_frame_wo_t_references(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "draft7_w3c_wot_td_v1_1.json")};
@@ -23,7 +23,7 @@ static void Schema_Frame_WoT_References(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_OMC_References(benchmark::State &state) {
+static void schema_frame_omc_references(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_omc_json_v2.json")};
@@ -36,7 +36,7 @@ static void Schema_Frame_OMC_References(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_OMC_Pointers(benchmark::State &state) {
+static void schema_frame_omc_pointers(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_omc_json_v2.json")};
@@ -49,7 +49,7 @@ static void Schema_Frame_OMC_Pointers(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_OMC_Locations(benchmark::State &state) {
+static void schema_frame_omc_locations(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_omc_json_v2.json")};
@@ -62,7 +62,7 @@ static void Schema_Frame_OMC_Locations(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_ISO_Language_Locations(benchmark::State &state) {
+static void schema_frame_iso_language_locations(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "files" /
       "2020_12_iso_language_2023_set_3.json")};
@@ -75,7 +75,7 @@ static void Schema_Frame_ISO_Language_Locations(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_ISO_Language_Root(benchmark::State &state) {
+static void schema_frame_iso_language_root(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "files" /
       "2020_12_iso_language_2023_set_3.json")};
@@ -88,7 +88,7 @@ static void Schema_Frame_ISO_Language_Root(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_KrakenD_References(benchmark::State &state) {
+static void schema_frame_kraken_d_references(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_krakend.json")};
@@ -101,7 +101,7 @@ static void Schema_Frame_KrakenD_References(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_KrakenD_Reachable(benchmark::State &state) {
+static void schema_frame_kraken_d_reachable(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_krakend.json")};
@@ -141,7 +141,7 @@ static void Schema_Frame_KrakenD_Reachable(benchmark::State &state) {
 }
 
 static void
-Schema_Frame_ISO_Language_Locations_To_JSON(benchmark::State &state) {
+schema_frame_iso_language_locations_to_json(benchmark::State &state) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON schema{nullptr};
   sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
@@ -160,7 +160,7 @@ Schema_Frame_ISO_Language_Locations_To_JSON(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_Many_Resources_References(benchmark::State &state) {
+static void schema_frame_many_resources_references(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2020_12_many_resources.json")};
@@ -173,7 +173,7 @@ static void Schema_Frame_Many_Resources_References(benchmark::State &state) {
   }
 }
 
-static void Schema_Frame_Deeply_Nested_References(benchmark::State &state) {
+static void schema_frame_deeply_nested_references(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2020_12_deeply_nested.json")};
@@ -186,14 +186,14 @@ static void Schema_Frame_Deeply_Nested_References(benchmark::State &state) {
   }
 }
 
-BENCHMARK(Schema_Frame_WoT_References);
-BENCHMARK(Schema_Frame_OMC_References);
-BENCHMARK(Schema_Frame_OMC_Pointers);
-BENCHMARK(Schema_Frame_OMC_Locations);
-BENCHMARK(Schema_Frame_ISO_Language_Locations);
-BENCHMARK(Schema_Frame_ISO_Language_Root);
-BENCHMARK(Schema_Frame_KrakenD_References);
-BENCHMARK(Schema_Frame_KrakenD_Reachable);
-BENCHMARK(Schema_Frame_ISO_Language_Locations_To_JSON);
-BENCHMARK(Schema_Frame_Many_Resources_References);
-BENCHMARK(Schema_Frame_Deeply_Nested_References);
+BENCHMARK(schema_frame_wo_t_references);
+BENCHMARK(schema_frame_omc_references);
+BENCHMARK(schema_frame_omc_pointers);
+BENCHMARK(schema_frame_omc_locations);
+BENCHMARK(schema_frame_iso_language_locations);
+BENCHMARK(schema_frame_iso_language_root);
+BENCHMARK(schema_frame_kraken_d_references);
+BENCHMARK(schema_frame_kraken_d_reachable);
+BENCHMARK(schema_frame_iso_language_locations_to_json);
+BENCHMARK(schema_frame_many_resources_references);
+BENCHMARK(schema_frame_deeply_nested_references);

@@ -62,7 +62,7 @@ TEST(core_schema) {
   const auto &result{schema_walker("$schema", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -74,7 +74,7 @@ TEST(core_vocabulary) {
   const auto &result{schema_walker("$vocabulary", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -86,7 +86,7 @@ TEST(core_id) {
   const auto &result{schema_walker("$id", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -98,7 +98,7 @@ TEST(core_anchor) {
   const auto &result{schema_walker("$anchor", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -111,7 +111,7 @@ TEST(core_recursiveAnchor) {
       schema_walker("$recursiveAnchor", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -123,7 +123,7 @@ TEST(core_ref) {
   const auto &result{schema_walker("$ref", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::Reference);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -135,7 +135,7 @@ TEST(core_recursiveRef) {
   const auto &result{schema_walker("$recursiveRef", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::Reference);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -147,7 +147,7 @@ TEST(core_defs) {
   const auto &result{schema_walker("$defs", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::LocationMembers);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -159,7 +159,7 @@ TEST(core_comment) {
   const auto &result{schema_walker("$comment", VOCABULARIES_2019_09_CORE)};
   EXPECT_EQ(result.type, SchemaKeywordType::Comment);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_2019_09_Core);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_2019_09_CORE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -172,7 +172,7 @@ TEST(applicator_allOf) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorElementsInPlace);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -185,7 +185,7 @@ TEST(applicator_anyOf) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorElementsInPlaceSome);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -198,7 +198,7 @@ TEST(applicator_oneOf) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorElementsInPlaceSome);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -211,7 +211,7 @@ TEST(applicator_not) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceNegate);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -224,7 +224,7 @@ TEST(applicator_if) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceMaybe);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -237,7 +237,7 @@ TEST(applicator_then) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceMaybe);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"if"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -251,7 +251,7 @@ TEST(applicator_else) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceMaybe);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"if"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -266,7 +266,7 @@ TEST(applicator_dependentSchemas) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorMembersInPlaceSome);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -281,7 +281,7 @@ TEST(applicator_items) {
             SchemaKeywordType::ApplicatorValueOrElementsTraverseAnyItemOrItem);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -296,7 +296,7 @@ TEST(applicator_additionalItems) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueTraverseSomeItem);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"items"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -312,7 +312,7 @@ TEST(applicator_contains_only) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueTraverseAnyItem);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -327,7 +327,7 @@ TEST(applicator_contains_with_validation) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueTraverseAnyItem);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(std::ranges::equal(
       result.dependencies,
       std::to_array<std::string_view>({"minContains", "maxContains"})));
@@ -345,7 +345,7 @@ TEST(applicator_properties) {
             SchemaKeywordType::ApplicatorMembersTraversePropertyStatic);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -361,7 +361,7 @@ TEST(applicator_patternProperties) {
             SchemaKeywordType::ApplicatorMembersTraversePropertyRegex);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -377,7 +377,7 @@ TEST(applicator_additionalProperties) {
             SchemaKeywordType::ApplicatorValueTraverseSomeProperty);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(std::ranges::equal(
       result.dependencies,
       std::to_array<std::string_view>({"properties", "patternProperties"})));
@@ -395,7 +395,7 @@ TEST(applicator_propertyNames) {
             SchemaKeywordType::ApplicatorValueTraverseAnyPropertyKey);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -410,7 +410,7 @@ TEST(applicator_unevaluatedItems) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueTraverseSomeItem);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(std::ranges::equal(
       result.dependencies,
       std::to_array<std::string_view>({"items", "additionalItems"})));
@@ -428,7 +428,7 @@ TEST(applicator_unevaluatedProperties) {
             SchemaKeywordType::ApplicatorValueTraverseSomeProperty);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Applicator);
+                          JSON_SCHEMA_2019_09_APPLICATOR);
   EXPECT_TRUE(std::ranges::equal(
       result.dependencies,
       std::to_array<std::string_view>(
@@ -445,7 +445,7 @@ TEST(validation_type) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -458,7 +458,7 @@ TEST(validation_enum) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -471,7 +471,7 @@ TEST(validation_const) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -485,7 +485,7 @@ TEST(validation_multipleOf) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   const auto instances =
@@ -501,7 +501,7 @@ TEST(validation_maximum) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(std::ranges::equal(result.order_dependencies,
                                  std::to_array<std::string_view>({"type"})));
@@ -518,7 +518,7 @@ TEST(validation_minimum) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(std::ranges::equal(result.order_dependencies,
                                  std::to_array<std::string_view>({"type"})));
@@ -536,7 +536,7 @@ TEST(validation_exclusiveMaximum) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   const auto instances =
@@ -553,7 +553,7 @@ TEST(validation_exclusiveMinimum) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   const auto instances =
@@ -570,7 +570,7 @@ TEST(validation_maxLength) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -585,7 +585,7 @@ TEST(validation_minLength) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -599,7 +599,7 @@ TEST(validation_pattern) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -614,7 +614,7 @@ TEST(validation_maxItems) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -629,7 +629,7 @@ TEST(validation_minItems) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -644,7 +644,7 @@ TEST(validation_uniqueItems) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -659,7 +659,7 @@ TEST(validation_maxContains) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -674,7 +674,7 @@ TEST(validation_minContains) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -689,7 +689,7 @@ TEST(validation_maxProperties) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -704,7 +704,7 @@ TEST(validation_minProperties) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -719,7 +719,7 @@ TEST(validation_required) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -734,7 +734,7 @@ TEST(validation_dependentRequired) {
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Validation);
+                          JSON_SCHEMA_2019_09_VALIDATION);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -748,7 +748,7 @@ TEST(format_format) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Format);
+                          JSON_SCHEMA_2019_09_FORMAT);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -763,7 +763,7 @@ TEST(content_contentEncoding) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Content);
+                          JSON_SCHEMA_2019_09_CONTENT);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -778,7 +778,7 @@ TEST(content_contentMediaType) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Content);
+                          JSON_SCHEMA_2019_09_CONTENT);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -793,7 +793,7 @@ TEST(content_contentSchema) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceOther);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Content);
+                          JSON_SCHEMA_2019_09_CONTENT);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_EQ(result.instances,
@@ -807,7 +807,7 @@ TEST(metadata_title) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Meta_Data);
+                          JSON_SCHEMA_2019_09_META_DATA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -821,7 +821,7 @@ TEST(metadata_description) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Meta_Data);
+                          JSON_SCHEMA_2019_09_META_DATA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -834,7 +834,7 @@ TEST(metadata_default) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Meta_Data);
+                          JSON_SCHEMA_2019_09_META_DATA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -848,7 +848,7 @@ TEST(metadata_deprecated) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Meta_Data);
+                          JSON_SCHEMA_2019_09_META_DATA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -861,7 +861,7 @@ TEST(metadata_readOnly) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Meta_Data);
+                          JSON_SCHEMA_2019_09_META_DATA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -874,7 +874,7 @@ TEST(metadata_writeOnly) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Meta_Data);
+                          JSON_SCHEMA_2019_09_META_DATA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -887,7 +887,7 @@ TEST(metadata_examples) {
   EXPECT_EQ(result.type, SchemaKeywordType::Annotation);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Meta_Data);
+                          JSON_SCHEMA_2019_09_META_DATA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -900,7 +900,7 @@ TEST(hyperschema_base) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -913,7 +913,7 @@ TEST(hyperschema_links) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorElementsInPlace);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -926,7 +926,7 @@ TEST(hyperschema_href) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -939,7 +939,7 @@ TEST(hyperschema_anchor) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -953,7 +953,7 @@ TEST(hyperschema_anchorPointer) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -966,7 +966,7 @@ TEST(hyperschema_rel) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -980,7 +980,7 @@ TEST(hyperschema_templatePointers) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -994,7 +994,7 @@ TEST(hyperschema_templateRequired) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -1008,7 +1008,7 @@ TEST(hyperschema_targetMediaType) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -1022,7 +1022,7 @@ TEST(hyperschema_targetHints) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -1036,7 +1036,7 @@ TEST(hyperschema_submissionMediaType) {
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -1050,7 +1050,7 @@ TEST(hyperschema_hrefSchema) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceOther);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -1064,7 +1064,7 @@ TEST(hyperschema_targetSchema) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceOther);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -1078,7 +1078,7 @@ TEST(hyperschema_headerSchema) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceOther);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -1092,7 +1092,7 @@ TEST(hyperschema_submissionSchema) {
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceOther);
   EXPECT_TRUE(result.vocabulary.has_value());
   EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(),
-                          JSON_Schema_2019_09_Hyper_Schema);
+                          JSON_SCHEMA_2019_09_HYPER_SCHEMA);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());

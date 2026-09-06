@@ -29,7 +29,7 @@ TEST(openapi_3_1_discriminator) {
   const auto &result{schema_walker("discriminator", VOCABULARIES_OPENAPI_3_1)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OpenAPI_3_1_Base);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OPENAPI_3_1_BASE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -52,7 +52,7 @@ TEST(openapi_3_1_xml) {
   const auto &result{schema_walker("xml", VOCABULARIES_OPENAPI_3_1)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OpenAPI_3_1_Base);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OPENAPI_3_1_BASE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -75,7 +75,7 @@ TEST(openapi_3_1_externalDocs) {
   const auto &result{schema_walker("externalDocs", VOCABULARIES_OPENAPI_3_1)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OpenAPI_3_1_Base);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OPENAPI_3_1_BASE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -98,7 +98,7 @@ TEST(openapi_3_1_example) {
   const auto &result{schema_walker("example", VOCABULARIES_OPENAPI_3_1)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OpenAPI_3_1_Base);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OPENAPI_3_1_BASE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -121,7 +121,7 @@ TEST(openapi_3_2_discriminator) {
   const auto &result{schema_walker("discriminator", VOCABULARIES_OPENAPI_3_2)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OpenAPI_3_2_Base);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OPENAPI_3_2_BASE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -144,7 +144,7 @@ TEST(openapi_3_2_xml) {
   const auto &result{schema_walker("xml", VOCABULARIES_OPENAPI_3_2)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OpenAPI_3_2_Base);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OPENAPI_3_2_BASE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -167,7 +167,7 @@ TEST(openapi_3_2_externalDocs) {
   const auto &result{schema_walker("externalDocs", VOCABULARIES_OPENAPI_3_2)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OpenAPI_3_2_Base);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OPENAPI_3_2_BASE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -190,7 +190,7 @@ TEST(openapi_3_2_example) {
   const auto &result{schema_walker("example", VOCABULARIES_OPENAPI_3_2)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OpenAPI_3_2_Base);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), OPENAPI_3_2_BASE);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());

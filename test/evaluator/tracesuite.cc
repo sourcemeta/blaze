@@ -19,10 +19,10 @@
 
 static auto to_instruction_index(const std::string_view name)
     -> sourcemeta::blaze::InstructionIndex {
-  constexpr auto count{sizeof(sourcemeta::blaze::InstructionNames) /
+  constexpr auto COUNT{sizeof(sourcemeta::blaze::INSTRUCTION_NAMES) /
                        sizeof(std::string_view)};
-  for (std::uint8_t index = 0; index < count; index++) {
-    if (sourcemeta::blaze::InstructionNames[index] == name) {
+  for (std::uint8_t index = 0; index < COUNT; index++) {
+    if (sourcemeta::blaze::INSTRUCTION_NAMES[index] == name) {
       return static_cast<sourcemeta::blaze::InstructionIndex>(index);
     }
   }

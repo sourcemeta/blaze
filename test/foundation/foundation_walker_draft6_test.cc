@@ -28,7 +28,7 @@ TEST(schema) {
   const auto &result{schema_walker("$schema", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -41,7 +41,7 @@ TEST(id) {
   const auto &result{schema_walker("$id", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -54,7 +54,7 @@ TEST(ref) {
   const auto &result{schema_walker("$ref", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Reference);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -66,7 +66,7 @@ TEST(definitions) {
   const auto &result{schema_walker("definitions", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::LocationMembers);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -79,7 +79,7 @@ TEST(allOf) {
   const auto &result{schema_walker("allOf", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorElementsInPlace);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -92,7 +92,7 @@ TEST(anyOf) {
   const auto &result{schema_walker("anyOf", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorElementsInPlaceSome);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -105,7 +105,7 @@ TEST(oneOf) {
   const auto &result{schema_walker("oneOf", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorElementsInPlaceSome);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -118,7 +118,7 @@ TEST(not) {
   const auto &result{schema_walker("not", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceNegate);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -132,7 +132,7 @@ TEST(items) {
   EXPECT_EQ(result.type,
             SchemaKeywordType::ApplicatorValueOrElementsTraverseAnyItemOrItem);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -146,7 +146,7 @@ TEST(additionalItems) {
   const auto &result{schema_walker("additionalItems", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueTraverseSomeItem);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"items"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -160,7 +160,7 @@ TEST(contains) {
   const auto &result{schema_walker("contains", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueTraverseAnyItem);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -175,7 +175,7 @@ TEST(properties) {
   EXPECT_EQ(result.type,
             SchemaKeywordType::ApplicatorMembersTraversePropertyStatic);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(
@@ -192,7 +192,7 @@ TEST(patternProperties) {
   EXPECT_EQ(result.type,
             SchemaKeywordType::ApplicatorMembersTraversePropertyRegex);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -206,7 +206,7 @@ TEST(dependencies) {
   const auto &result{schema_walker("dependencies", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorMembersInPlaceSome);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -222,7 +222,7 @@ TEST(additionalProperties) {
   EXPECT_EQ(result.type,
             SchemaKeywordType::ApplicatorValueTraverseSomeProperty);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(
       result.dependencies,
       std::to_array<std::string_view>({"properties", "patternProperties"})));
@@ -238,7 +238,7 @@ TEST(propertyNames) {
   EXPECT_EQ(result.type,
             SchemaKeywordType::ApplicatorValueTraverseAnyPropertyKey);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -252,7 +252,7 @@ TEST(type) {
   const auto &result{schema_walker("type", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(
       std::ranges::equal(result.order_dependencies,
@@ -266,7 +266,7 @@ TEST(enum) {
   const auto &result{schema_walker("enum", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -279,7 +279,7 @@ TEST(const) {
   const auto &result{schema_walker("const", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -292,7 +292,7 @@ TEST(multipleOf) {
   const auto &result{schema_walker("multipleOf", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -308,7 +308,7 @@ TEST(maximum) {
   const auto &result{schema_walker("maximum", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -324,7 +324,7 @@ TEST(minimum) {
   const auto &result{schema_walker("minimum", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -340,7 +340,7 @@ TEST(exclusiveMaximum) {
   const auto &result{schema_walker("exclusiveMaximum", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -356,7 +356,7 @@ TEST(exclusiveMinimum) {
   const auto &result{schema_walker("exclusiveMinimum", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -372,7 +372,7 @@ TEST(maxLength) {
   const auto &result{schema_walker("maxLength", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -386,7 +386,7 @@ TEST(minLength) {
   const auto &result{schema_walker("minLength", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -400,7 +400,7 @@ TEST(pattern) {
   const auto &result{schema_walker("pattern", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -414,7 +414,7 @@ TEST(maxItems) {
   const auto &result{schema_walker("maxItems", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -428,7 +428,7 @@ TEST(minItems) {
   const auto &result{schema_walker("minItems", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -442,7 +442,7 @@ TEST(uniqueItems) {
   const auto &result{schema_walker("uniqueItems", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -456,7 +456,7 @@ TEST(maxProperties) {
   const auto &result{schema_walker("maxProperties", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -470,7 +470,7 @@ TEST(minProperties) {
   const auto &result{schema_walker("minProperties", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -484,7 +484,7 @@ TEST(required) {
   const auto &result{schema_walker("required", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Assertion);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -498,7 +498,7 @@ TEST(format) {
   const auto &result{schema_walker("format", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -512,7 +512,7 @@ TEST(title) {
   const auto &result{schema_walker("title", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Comment);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -525,7 +525,7 @@ TEST(description) {
   const auto &result{schema_walker("description", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Comment);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -538,7 +538,7 @@ TEST(default) {
   const auto &result{schema_walker("default", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Comment);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -551,7 +551,7 @@ TEST(examples) {
   const auto &result{schema_walker("examples", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Comment);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -563,7 +563,7 @@ TEST(hyperschema_links) {
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("links", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorElementsInPlace);
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -575,7 +575,7 @@ TEST(hyperschema_href) {
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("href", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -586,7 +586,7 @@ TEST(hyperschema_rel) {
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("rel", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -598,7 +598,7 @@ TEST(hyperschema_mediaType) {
   const auto &result{
       schema_walker("mediaType", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -610,7 +610,7 @@ TEST(hyperschema_submissionEncType) {
   const auto &result{
       schema_walker("submissionEncType", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -621,7 +621,7 @@ TEST(hyperschema_base) {
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("base", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -633,7 +633,7 @@ TEST(hyperschema_media) {
   using namespace sourcemeta::blaze;
   const auto &result{schema_walker("media", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::Other);
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -647,7 +647,7 @@ TEST(hyperschema_readOnly) {
       schema_walker("readOnly", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::Comment);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
@@ -661,7 +661,7 @@ TEST(hyperschema_hrefSchema) {
       schema_walker("hrefSchema", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceOther);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -674,7 +674,7 @@ TEST(hyperschema_targetSchema) {
       schema_walker("targetSchema", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceOther);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -687,7 +687,7 @@ TEST(hyperschema_submissionSchema) {
       schema_walker("submissionSchema", VOCABULARIES_DRAFT6_HYPERSCHEMA)};
   EXPECT_EQ(result.type, SchemaKeywordType::ApplicatorValueInPlaceOther);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6_Hyper);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6_HYPER);
   EXPECT_TRUE(result.dependencies.empty());
   EXPECT_TRUE(result.order_dependencies.empty());
   EXPECT_TRUE(result.instances.none());
@@ -783,7 +783,7 @@ TEST(hyperschema_readOnly_without_hyperschema) {
   const auto &result{schema_walker("readOnly", VOCABULARIES_DRAFT6)};
   EXPECT_EQ(result.type, SchemaKeywordType::Comment);
   EXPECT_TRUE(result.vocabulary.has_value());
-  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_Schema_Draft_6);
+  EXPECT_VOCABULARY_KNOWN(result.vocabulary.value(), JSON_SCHEMA_DRAFT_6);
   EXPECT_TRUE(std::ranges::equal(result.dependencies,
                                  std::to_array<std::string_view>({"$ref"})));
   EXPECT_TRUE(result.order_dependencies.empty());
