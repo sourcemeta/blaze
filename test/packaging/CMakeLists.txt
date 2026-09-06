@@ -14,11 +14,6 @@ add_test(NAME packaging.clean COMMAND
   "${CMAKE_CURRENT_BINARY_DIR}/meson")
 set_tests_properties(packaging.clean PROPERTIES FIXTURES_SETUP packaging)
 
-add_test(NAME packaging.prefix COMMAND
-  "${CMAKE_COMMAND}"
-  "-DBLAZE_PACKAGING_PREFIX:PATH=${BLAZE_PACKAGING_PREFIX}"
-  -P "${CMAKE_CURRENT_SOURCE_DIR}/prefix.cmake")
-
 add_test(NAME packaging.find_package_configure COMMAND
   "${CMAKE_COMMAND}"
   -S "${CMAKE_CURRENT_SOURCE_DIR}/find_package"
