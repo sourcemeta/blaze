@@ -8,7 +8,10 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-static void micro_draft4_meta_1_no_callback(benchmark::State &state) {
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
+static void Micro_Draft4_Meta_1_No_Callback(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -33,7 +36,7 @@ static void micro_draft4_meta_1_no_callback(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_required_properties(benchmark::State &state) {
+static void Micro_Draft4_Required_Properties(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "required": [
@@ -114,7 +117,7 @@ static void micro_draft4_required_properties(benchmark::State &state) {
 }
 
 static void
-micro_draft4_many_optional_properties_minimal_match(benchmark::State &state) {
+Micro_Draft4_Many_Optional_Properties_Minimal_Match(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -165,7 +168,7 @@ micro_draft4_many_optional_properties_minimal_match(benchmark::State &state) {
 }
 
 static void
-micro_draft4_few_optional_properties_minimal_match(benchmark::State &state) {
+Micro_Draft4_Few_Optional_Properties_Minimal_Match(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -215,7 +218,7 @@ micro_draft4_few_optional_properties_minimal_match(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_items_schema(benchmark::State &state) {
+static void Micro_Draft4_Items_Schema(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "items": {
@@ -293,7 +296,7 @@ static void micro_draft4_items_schema(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_nested_object(benchmark::State &state) {
+static void Micro_Draft4_Nested_Object(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON(
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
@@ -429,7 +432,7 @@ static void micro_draft4_nested_object(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_properties_triad_optional(benchmark::State &state) {
+static void Micro_Draft4_Properties_Triad_Optional(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -471,7 +474,7 @@ static void micro_draft4_properties_triad_optional(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_properties_triad_required(benchmark::State &state) {
+static void Micro_Draft4_Properties_Triad_Required(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "required": [ "a", "A", "d" ],
@@ -514,7 +517,7 @@ static void micro_draft4_properties_triad_required(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_properties_triad_closed(benchmark::State &state) {
+static void Micro_Draft4_Properties_Triad_Closed(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -553,7 +556,7 @@ static void micro_draft4_properties_triad_closed(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_properties_closed(benchmark::State &state) {
+static void Micro_Draft4_Properties_Closed(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
@@ -599,7 +602,7 @@ static void micro_draft4_properties_closed(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_non_recursive_ref(benchmark::State &state) {
+static void Micro_Draft4_Non_Recursive_Ref(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "additionalProperties": { "$ref": "#/definitions/one" },
@@ -644,7 +647,7 @@ static void micro_draft4_non_recursive_ref(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_pattern_properties_empty(benchmark::State &state) {
+static void Micro_Draft4_Pattern_Properties_Empty(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "patternProperties": { "^@": {} },
@@ -684,7 +687,7 @@ static void micro_draft4_pattern_properties_empty(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_ref_to_single_property(benchmark::State &state) {
+static void Micro_Draft4_Ref_To_Single_Property(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "allOf": [ { "$ref": "#/definitions/test" } ],
@@ -742,7 +745,7 @@ static void micro_draft4_ref_to_single_property(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_additional_properties_type(benchmark::State &state) {
+static void Micro_Draft4_Additional_Properties_Type(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "additionalProperties": { "type": "boolean" }
@@ -790,7 +793,7 @@ static void micro_draft4_additional_properties_type(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_nested_oneof(benchmark::State &state) {
+static void Micro_Draft4_Nested_Oneof(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "oneOf": [
@@ -831,7 +834,7 @@ static void micro_draft4_nested_oneof(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_short_enum(benchmark::State &state) {
+static void Micro_Draft4_Short_Enum(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "enum": [ "development", "production", "all" ]
@@ -851,7 +854,7 @@ static void micro_draft4_short_enum(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_long_enum(benchmark::State &state) {
+static void Micro_Draft4_Long_Enum(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "enum": [
@@ -913,7 +916,7 @@ static void micro_draft4_long_enum(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_long_enum_short_strings(benchmark::State &state) {
+static void Micro_Draft4_Long_Enum_Short_Strings(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "enum": [
@@ -975,7 +978,7 @@ static void micro_draft4_long_enum_short_strings(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_type_object(benchmark::State &state) {
+static void Micro_Draft4_Type_Object(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object"
@@ -996,7 +999,7 @@ static void micro_draft4_type_object(benchmark::State &state) {
 }
 
 // Pathological Case: OMC-like Pattern
-static void micro_draft4_ref_single_100(benchmark::State &state) {
+static void Micro_Draft4_Ref_Single_100(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
@@ -1115,7 +1118,7 @@ static void micro_draft4_ref_single_100(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_compile_ref_many_nested(benchmark::State &state) {
+static void Micro_Draft4_Compile_Ref_Many_Nested(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
@@ -1158,7 +1161,7 @@ static void micro_draft4_compile_ref_many_nested(benchmark::State &state) {
   }
 }
 
-static void micro_draft4_compile_wrap(benchmark::State &state) {
+static void Micro_Draft4_Compile_Wrap(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "allOf": [ { "$ref": "#/definitions/test/definitions/leaf" } ],
@@ -1208,25 +1211,26 @@ static void micro_draft4_compile_wrap(benchmark::State &state) {
   }
 }
 
-BENCHMARK(micro_draft4_meta_1_no_callback);
-BENCHMARK(micro_draft4_required_properties);
-BENCHMARK(micro_draft4_many_optional_properties_minimal_match);
-BENCHMARK(micro_draft4_few_optional_properties_minimal_match);
-BENCHMARK(micro_draft4_items_schema);
-BENCHMARK(micro_draft4_nested_object);
-BENCHMARK(micro_draft4_properties_triad_optional);
-BENCHMARK(micro_draft4_properties_triad_closed);
-BENCHMARK(micro_draft4_properties_triad_required);
-BENCHMARK(micro_draft4_properties_closed);
-BENCHMARK(micro_draft4_non_recursive_ref);
-BENCHMARK(micro_draft4_pattern_properties_empty);
-BENCHMARK(micro_draft4_ref_to_single_property);
-BENCHMARK(micro_draft4_additional_properties_type);
-BENCHMARK(micro_draft4_nested_oneof);
-BENCHMARK(micro_draft4_short_enum);
-BENCHMARK(micro_draft4_long_enum);
-BENCHMARK(micro_draft4_long_enum_short_strings);
-BENCHMARK(micro_draft4_type_object);
-BENCHMARK(micro_draft4_ref_single_100);
-BENCHMARK(micro_draft4_compile_ref_many_nested);
-BENCHMARK(micro_draft4_compile_wrap);
+BENCHMARK(Micro_Draft4_Meta_1_No_Callback);
+BENCHMARK(Micro_Draft4_Required_Properties);
+BENCHMARK(Micro_Draft4_Many_Optional_Properties_Minimal_Match);
+BENCHMARK(Micro_Draft4_Few_Optional_Properties_Minimal_Match);
+BENCHMARK(Micro_Draft4_Items_Schema);
+BENCHMARK(Micro_Draft4_Nested_Object);
+BENCHMARK(Micro_Draft4_Properties_Triad_Optional);
+BENCHMARK(Micro_Draft4_Properties_Triad_Closed);
+BENCHMARK(Micro_Draft4_Properties_Triad_Required);
+BENCHMARK(Micro_Draft4_Properties_Closed);
+BENCHMARK(Micro_Draft4_Non_Recursive_Ref);
+BENCHMARK(Micro_Draft4_Pattern_Properties_Empty);
+BENCHMARK(Micro_Draft4_Ref_To_Single_Property);
+BENCHMARK(Micro_Draft4_Additional_Properties_Type);
+BENCHMARK(Micro_Draft4_Nested_Oneof);
+BENCHMARK(Micro_Draft4_Short_Enum);
+BENCHMARK(Micro_Draft4_Long_Enum);
+BENCHMARK(Micro_Draft4_Long_Enum_Short_Strings);
+BENCHMARK(Micro_Draft4_Type_Object);
+BENCHMARK(Micro_Draft4_Ref_Single_100);
+BENCHMARK(Micro_Draft4_Compile_Ref_Many_Nested);
+BENCHMARK(Micro_Draft4_Compile_Wrap);
+// NOLINTEND(readability-identifier-naming)

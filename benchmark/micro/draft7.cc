@@ -8,7 +8,10 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-static void micro_draft7_if_then_else(benchmark::State &state) {
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
+static void Micro_Draft7_If_Then_Else(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "if": {
@@ -40,4 +43,5 @@ static void micro_draft7_if_then_else(benchmark::State &state) {
   }
 }
 
-BENCHMARK(micro_draft7_if_then_else);
+BENCHMARK(Micro_Draft7_If_Then_Else);
+// NOLINTEND(readability-identifier-naming)

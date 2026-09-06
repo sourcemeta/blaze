@@ -12,7 +12,10 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
-static void micro_2020_12_dynamic_ref(benchmark::State &state) {
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
+static void Micro_2020_12_Dynamic_Ref(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -73,7 +76,7 @@ static void micro_2020_12_dynamic_ref(benchmark::State &state) {
   }
 }
 
-static void micro_2020_12_dynamic_ref_single(benchmark::State &state) {
+static void Micro_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -100,7 +103,7 @@ static void micro_2020_12_dynamic_ref_single(benchmark::State &state) {
   }
 }
 
-static void micro_2020_12_simple_output_mask(benchmark::State &state) {
+static void Micro_2020_12_Simple_Output_Mask(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -172,7 +175,7 @@ static void micro_2020_12_simple_output_mask(benchmark::State &state) {
   }
 }
 
-static void micro_2020_12_simple_output_annotations(benchmark::State &state) {
+static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -217,7 +220,7 @@ static void micro_2020_12_simple_output_annotations(benchmark::State &state) {
 }
 
 static void
-micro_2020_12_simple_output_annotation_dropping(benchmark::State &state) {
+Micro_2020_12_Simple_Output_Annotation_Dropping(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -295,7 +298,7 @@ micro_2020_12_simple_output_annotation_dropping(benchmark::State &state) {
 }
 
 static void
-micro_2020_12_compile_non_circular_shared_refs(benchmark::State &state) {
+Micro_2020_12_Compile_NonCircular_Shared_Refs(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/pathological-extreme",
@@ -359,7 +362,7 @@ micro_2020_12_compile_non_circular_shared_refs(benchmark::State &state) {
   }
 }
 
-static void micro_2020_12_exhaustive_deep_numeric(benchmark::State &state) {
+static void Micro_2020_12_Exhaustive_Deep_Numeric(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -380,7 +383,7 @@ static void micro_2020_12_exhaustive_deep_numeric(benchmark::State &state) {
 }
 
 static void
-micro_2020_12_exhaustive_deep_numeric_simple_output(benchmark::State &state) {
+Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -403,7 +406,7 @@ micro_2020_12_exhaustive_deep_numeric_simple_output(benchmark::State &state) {
 }
 
 static void
-micro_2020_12_exhaustive_deep_numeric_trace_output(benchmark::State &state) {
+Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -430,7 +433,7 @@ micro_2020_12_exhaustive_deep_numeric_trace_output(benchmark::State &state) {
 }
 
 static void
-micro_2020_12_exhaustive_deep_numeric_fail(benchmark::State &state) {
+Micro_2020_12_Exhaustive_Deep_Numeric_Fail(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -450,7 +453,7 @@ micro_2020_12_exhaustive_deep_numeric_fail(benchmark::State &state) {
   }
 }
 
-static void micro_2020_12_exhaustive_deep_numeric_fail_simple_output(
+static void Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput(
     benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
@@ -473,14 +476,15 @@ static void micro_2020_12_exhaustive_deep_numeric_fail_simple_output(
   }
 }
 
-BENCHMARK(micro_2020_12_dynamic_ref);
-BENCHMARK(micro_2020_12_dynamic_ref_single);
-BENCHMARK(micro_2020_12_simple_output_mask);
-BENCHMARK(micro_2020_12_simple_output_annotations);
-BENCHMARK(micro_2020_12_simple_output_annotation_dropping);
-BENCHMARK(micro_2020_12_compile_non_circular_shared_refs);
-BENCHMARK(micro_2020_12_exhaustive_deep_numeric);
-BENCHMARK(micro_2020_12_exhaustive_deep_numeric_simple_output);
-BENCHMARK(micro_2020_12_exhaustive_deep_numeric_trace_output);
-BENCHMARK(micro_2020_12_exhaustive_deep_numeric_fail);
-BENCHMARK(micro_2020_12_exhaustive_deep_numeric_fail_simple_output);
+BENCHMARK(Micro_2020_12_Dynamic_Ref);
+BENCHMARK(Micro_2020_12_Dynamic_Ref_Single);
+BENCHMARK(Micro_2020_12_Simple_Output_Mask);
+BENCHMARK(Micro_2020_12_Simple_Output_Annotations);
+BENCHMARK(Micro_2020_12_Simple_Output_Annotation_Dropping);
+BENCHMARK(Micro_2020_12_Compile_NonCircular_Shared_Refs);
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric);
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput);
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput);
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail);
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput);
+// NOLINTEND(readability-identifier-naming)

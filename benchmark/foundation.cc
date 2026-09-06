@@ -9,7 +9,10 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-static void schema_tracker_iso_language(benchmark::State &state) {
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
+static void Schema_Tracker_ISO_Language(benchmark::State &state) {
   for (auto _ : state) {
     sourcemeta::core::PointerPositionTracker tracker;
     sourcemeta::core::JSON schema{nullptr};
@@ -22,7 +25,7 @@ static void schema_tracker_iso_language(benchmark::State &state) {
   }
 }
 
-static void schema_tracker_iso_language_to_json(benchmark::State &state) {
+static void Schema_Tracker_ISO_Language_To_JSON(benchmark::State &state) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON schema{nullptr};
   sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
@@ -37,5 +40,6 @@ static void schema_tracker_iso_language_to_json(benchmark::State &state) {
   }
 }
 
-BENCHMARK(schema_tracker_iso_language);
-BENCHMARK(schema_tracker_iso_language_to_json);
+BENCHMARK(Schema_Tracker_ISO_Language);
+BENCHMARK(Schema_Tracker_ISO_Language_To_JSON);
+// NOLINTEND(readability-identifier-naming)

@@ -7,7 +7,10 @@
 
 #include <sourcemeta/core/json.h>
 
-static void schema_format_iso_language_to_json(benchmark::State &state) {
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
+static void Schema_Format_ISO_Language_To_JSON(benchmark::State &state) {
   for (auto _ : state) {
     state.PauseTiming();
     auto schema{sourcemeta::core::read_json(
@@ -20,4 +23,5 @@ static void schema_format_iso_language_to_json(benchmark::State &state) {
   }
 }
 
-BENCHMARK(schema_format_iso_language_to_json);
+BENCHMARK(Schema_Format_ISO_Language_To_JSON);
+// NOLINTEND(readability-identifier-naming)

@@ -16,7 +16,10 @@
 static constexpr std::string_view WOT_IDENTIFIER{
     "https://schemas.sourcemeta.com/w3c/wot/v1.1/thing-description"};
 
-static auto test_suite_parse_wo_t(benchmark::State &state) -> void {
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
+static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "draft7_w3c_wot_td_v1_1.json")};
@@ -50,4 +53,5 @@ static auto test_suite_parse_wo_t(benchmark::State &state) -> void {
   }
 }
 
-BENCHMARK(test_suite_parse_wo_t);
+BENCHMARK(TestSuite_Parse_WoT);
+// NOLINTEND(readability-identifier-naming)
