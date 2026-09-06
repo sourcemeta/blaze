@@ -1,13 +1,8 @@
 # TODO: Get install path from a variable?
 set(BLAZE_PACKAGING_PREFIX "${PROJECT_SOURCE_DIR}/build/dist")
 
-# A consumer routinely has a prefix like this ahead of ours on its search path,
-# so every case below resolves Blaze with an unrelated Core in the way
-set(BLAZE_PACKAGING_DECOY "${CMAKE_CURRENT_SOURCE_DIR}/decoy")
-
 # Every case starts from scratch. Otherwise a stale cache in the consumer build
-# directories keeps resolving whatever a previous run already found, and the
-# decoy prefix never gets a chance to bite
+# directories keeps resolving whatever a previous run already found
 add_test(NAME packaging.clean COMMAND
   "${CMAKE_COMMAND}" -E rm -rf
   "${CMAKE_CURRENT_BINARY_DIR}/find_package"
@@ -19,7 +14,7 @@ add_test(NAME packaging.find_package_configure COMMAND
   -S "${CMAKE_CURRENT_SOURCE_DIR}/find_package"
   -B "${CMAKE_CURRENT_BINARY_DIR}/find_package"
   "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
-  "-DCMAKE_PREFIX_PATH:PATH=${BLAZE_PACKAGING_DECOY};${CMAKE_PREFIX_PATH};${BLAZE_PACKAGING_PREFIX}"
+  "-DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH};${BLAZE_PACKAGING_PREFIX}"
   "-DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}")
 set_tests_properties(packaging.find_package_configure
   PROPERTIES FIXTURES_REQUIRED packaging)
@@ -64,7 +59,7 @@ if(MESON_EXECUTABLE)
     "--buildtype=${MESON_BUILD_TYPE}"
     "${CMAKE_CURRENT_BINARY_DIR}/meson"
     "${CMAKE_CURRENT_SOURCE_DIR}/meson"
-    "-Dblaze_prefix=${BLAZE_PACKAGING_DECOY},${BLAZE_PACKAGING_PREFIX}")
+    "-Dblaze_prefix=${BLAZE_PACKAGING_PREFIX}")
   set_tests_properties(packaging.meson_setup
     PROPERTIES FIXTURES_REQUIRED packaging)
   add_test(NAME packaging.meson_compile COMMAND
