@@ -18,6 +18,16 @@ target_link_libraries(blaze_hello PRIVATE sourcemeta::blaze::foundation)
 target_link_libraries(blaze_hello PRIVATE sourcemeta::blaze::bundle)
 target_link_libraries(blaze_hello PRIVATE sourcemeta::blaze::format)
 
+# A shared build hands the consumer DLLs that the installation keeps in its own
+# binary directory, which is not somewhere Windows looks when starting a
+# program, so they have to travel next to this one
+if(WIN32)
+  add_custom_command(TARGET blaze_hello POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+      "$<TARGET_RUNTIME_DLLS:blaze_hello>" "$<TARGET_FILE_DIR:blaze_hello>"
+    COMMAND_EXPAND_LISTS)
+endif()
+
 # Linking is not enough to know that the consumer got a working library
 add_custom_command(TARGET blaze_hello POST_BUILD COMMAND blaze_hello)
 
