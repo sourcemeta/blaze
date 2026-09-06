@@ -116,8 +116,8 @@ auto SimpleOutput::operator()(
 #ifdef __cpp_lib_containers_ranges
         this->output_.append_range(std::move(mask_it->buffered_traces));
 #else
-        this->output.insert(
-            this->output.end(),
+        this->output_.insert(
+            this->output_.end(),
             std::make_move_iterator(mask_it->buffered_traces.begin()),
             std::make_move_iterator(mask_it->buffered_traces.end()));
 #endif
