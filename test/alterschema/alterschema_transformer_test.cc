@@ -423,10 +423,10 @@ TEST(walker_2020_12) {
   EXPECT_EQ(entries.size(), 4);
 
   // Verify each entry is for example_rule_4 and was mutated (order varies)
-  for (std::size_t index = 0; index < entries.size(); ++index) {
-    EXPECT_EQ(std::get<1>(entries.at(index)), "example_rule_4");
-    EXPECT_EQ(std::get<2>(entries.at(index)), "Example rule 4");
-    EXPECT_TRUE(std::get<4>(entries.at(index)));
+  for (const auto &entry : entries) {
+    EXPECT_EQ(std::get<1>(entry), "example_rule_4");
+    EXPECT_EQ(std::get<2>(entry), "Example rule 4");
+    EXPECT_TRUE(std::get<4>(entry));
   }
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -477,10 +477,10 @@ TEST(mismatch_default_dialect) {
   EXPECT_EQ(entries.size(), 4);
 
   // Verify each entry is for example_rule_4 and was mutated (order varies)
-  for (std::size_t index = 0; index < entries.size(); ++index) {
-    EXPECT_EQ(std::get<1>(entries.at(index)), "example_rule_4");
-    EXPECT_EQ(std::get<2>(entries.at(index)), "Example rule 4");
-    EXPECT_TRUE(std::get<4>(entries.at(index)));
+  for (const auto &entry : entries) {
+    EXPECT_EQ(std::get<1>(entry), "example_rule_4");
+    EXPECT_EQ(std::get<2>(entry), "Example rule 4");
+    EXPECT_TRUE(std::get<4>(entry));
   }
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -571,10 +571,10 @@ TEST(multi_dialect_rules) {
   EXPECT_EQ(entries.size(), 4);
 
   // Verify each entry is for example_rule_4 and was mutated (order varies)
-  for (std::size_t index = 0; index < entries.size(); ++index) {
-    EXPECT_EQ(std::get<1>(entries.at(index)), "example_rule_4");
-    EXPECT_EQ(std::get<2>(entries.at(index)), "Example rule 4");
-    EXPECT_TRUE(std::get<4>(entries.at(index)));
+  for (const auto &entry : entries) {
+    EXPECT_EQ(std::get<1>(entry), "example_rule_4");
+    EXPECT_EQ(std::get<2>(entry), "Example rule 4");
+    EXPECT_TRUE(std::get<4>(entry));
   }
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -1232,11 +1232,10 @@ TEST(rereference_not_fixed_id) {
   EXPECT_EQ(entries.size(), 2);
 
   // Verify each entry is for the rule and was mutated (order varies)
-  for (std::size_t index = 0; index < entries.size(); ++index) {
-    EXPECT_EQ(std::get<1>(entries.at(index)),
-              "example_rule_remove_identifiers");
-    EXPECT_EQ(std::get<2>(entries.at(index)), "Remove all identifiers");
-    EXPECT_TRUE(std::get<4>(entries.at(index)));
+  for (const auto &entry : entries) {
+    EXPECT_EQ(std::get<1>(entry), "example_rule_remove_identifiers");
+    EXPECT_EQ(std::get<2>(entry), "Remove all identifiers");
+    EXPECT_TRUE(std::get<4>(entry));
   }
 
   // The reference is now just treated as an external one

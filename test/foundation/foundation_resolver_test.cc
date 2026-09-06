@@ -14,9 +14,11 @@
     EXPECT_TRUE(result.has_value());                                           \
     const sourcemeta::core::JSON &document{result.value()};                    \
     EXPECT_TRUE((document.is_object() || document.is_boolean()));              \
-    const auto id{IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver)};  \
-    EXPECT_EQ(sourcemeta::core::URI{id}.canonicalize().recompose(),            \
-              sourcemeta::core::URI{identifier}.canonicalize().recompose());   \
+    const auto schema_identifier{                                              \
+        IDENTIFY_OF(document, sourcemeta::blaze::schema_resolver)};            \
+    EXPECT_EQ(                                                                 \
+        sourcemeta::core::URI{schema_identifier}.canonicalize().recompose(),   \
+        sourcemeta::core::URI{identifier}.canonicalize().recompose());         \
   }
 
 static auto IDENTIFY_OF(const sourcemeta::core::JSON &document,

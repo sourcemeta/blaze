@@ -15,6 +15,7 @@
                 (vocabulary_value)),                                           \
             sourcemeta::blaze::SchemaVocabularies::Known::expected_known)
 
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_DRAFT3{
     {"http://json-schema.org/draft-03/schema#", true}};
 
@@ -22,6 +23,7 @@ static const sourcemeta::blaze::SchemaVocabularies
     VOCABULARIES_DRAFT3_HYPERSCHEMA{
         {"http://json-schema.org/draft-03/hyper-schema#", true}};
 
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 TEST(schema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;

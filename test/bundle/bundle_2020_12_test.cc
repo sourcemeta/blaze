@@ -144,7 +144,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://www.example.com/schemas/bundled") {
+  }
+  if (identifier == "https://www.example.com/schemas/bundled") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/schemas/parent",
@@ -156,7 +157,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/dedup-conflict-a") {
+  }
+  if (identifier == "https://example.com/dedup-conflict-a") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/dedup-conflict-a",
@@ -169,7 +171,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/dedup-conflict-b") {
+  }
+  if (identifier == "https://example.com/dedup-conflict-b") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/dedup-conflict-b",
@@ -182,7 +185,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/elevate-single") {
+  }
+  if (identifier == "https://example.com/elevate-single") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/elevate-single",
@@ -195,13 +199,15 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/shared-direct") {
+  }
+  if (identifier == "https://example.com/shared-direct") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/shared-direct",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://example.com/cross-dialect-host") {
+  }
+  if (identifier == "https://example.com/cross-dialect-host") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/cross-dialect-host",
@@ -214,7 +220,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/host-with-relative-nested") {
+  }
+  if (identifier == "https://example.com/host-with-relative-nested") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/host-with-relative-nested",
@@ -226,7 +233,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/collision-a") {
+  }
+  if (identifier == "https://example.com/collision-a") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/collision-a",
@@ -239,7 +247,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/collision-b") {
+  }
+  if (identifier == "https://example.com/collision-b") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/collision-b",
@@ -252,7 +261,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/prebundled-with-shared") {
+  }
+  if (identifier == "https://example.com/prebundled-with-shared") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/prebundled-with-shared",
@@ -265,15 +275,15 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/with-custom-metaschema") {
+  }
+  if (identifier == "https://example.com/with-custom-metaschema") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/1.json",
       "$id": "https://example.com/with-custom-metaschema",
       "type": "integer"
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 TEST(no_references_no_id) {

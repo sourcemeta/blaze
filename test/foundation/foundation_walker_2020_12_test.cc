@@ -17,6 +17,7 @@
                 (vocabulary_value)),                                           \
             sourcemeta::blaze::SchemaVocabularies::Known::expected_known)
 
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2020_12_CORE{
     {"https://json-schema.org/draft/2020-12/vocab/core", true}};
 
@@ -79,6 +80,7 @@ static const sourcemeta::blaze::SchemaVocabularies
         {"https://json-schema.org/draft/2020-12/vocab/core", true},
         {"https://json-schema.org/draft/2019-09/vocab/hyper-schema", true}};
 
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 TEST(core_schema) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;

@@ -32,8 +32,8 @@ TEST(schema_rule_pass_when_all_subschemas_conform) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_TRUE(result.first);
@@ -74,8 +74,8 @@ TEST(schema_rule_fail_root_and_nested_subschema) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -129,8 +129,8 @@ TEST(schema_rule_no_description_in_rule_schema) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_TRUE(result.first);
@@ -163,8 +163,8 @@ TEST(schema_rule_no_description_fails) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -216,8 +216,8 @@ TEST(schema_rule_nested_property_fails) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -271,8 +271,8 @@ TEST(schema_rule_all_subschemas_pass) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_TRUE(result.first);
@@ -415,8 +415,8 @@ TEST(schema_rule_valid_title_with_digits_and_underscores) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_TRUE(result.first);
@@ -541,8 +541,8 @@ TEST(schema_rule_title_only_digits) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_TRUE(result.first);
@@ -575,8 +575,8 @@ TEST(schema_rule_title_only_underscores) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_TRUE(result.first);
@@ -698,8 +698,8 @@ TEST(schema_rule_with_default_dialect_no_schema_keyword) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       },
       "https://json-schema.org/draft/2020-12/schema");
 
@@ -751,8 +751,8 @@ TEST(schema_rule_with_default_dialect_and_schema_keyword) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -816,8 +816,8 @@ TEST(schema_rule_multiple_rules_in_bundle) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -864,8 +864,8 @@ TEST(schema_rule_boolean_true_schema_conforms) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -1015,8 +1015,8 @@ TEST(schema_rule_property_names_pattern_fail) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -1064,8 +1064,8 @@ TEST(schema_rule_top_level_root_violates) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -1118,8 +1118,8 @@ TEST(schema_rule_top_level_subschemas_skipped) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_TRUE(result.first);
@@ -1161,8 +1161,8 @@ TEST(schema_rule_top_level_root_and_subschema_violate) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -1214,8 +1214,8 @@ TEST(schema_rule_explicit_all_scope_root_and_nested_subschema) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);
@@ -1277,8 +1277,8 @@ TEST(schema_rule_top_level_embedded_resource_skipped) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_TRUE(result.first);
@@ -1316,8 +1316,8 @@ TEST(schema_rule_top_level_with_default_dialect) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       },
       "https://json-schema.org/draft/2020-12/schema");
 
@@ -1369,8 +1369,8 @@ TEST(schema_rule_non_empty_instance_location) {
       schema, sourcemeta::blaze::schema_walker,
       sourcemeta::blaze::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
-                 const auto &outcome, const auto mutable_) {
-        entries.emplace_back(pointer, name, message, outcome, mutable_);
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
       });
 
   EXPECT_FALSE(result.first);

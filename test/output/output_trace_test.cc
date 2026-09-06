@@ -7,6 +7,7 @@
 
 #include <sourcemeta/core/jsonpointer.h>
 
+#include <cstddef> // std::size_t
 #include <map>     // std::map
 #include <sstream> // std::ostringstream
 #include <string>  // std::string
@@ -26,21 +27,32 @@ static auto collect(std::vector<StoredTrace> &traces)
     -> sourcemeta::blaze::TraceOutput::Callback {
   return [&traces](const sourcemeta::blaze::TraceOutput::Entry &entry) {
     traces.push_back(
-        {entry.type, std::string{entry.name}, entry.instance_location,
-         entry.evaluate_path, std::string{entry.keyword_location},
-         entry.type == sourcemeta::blaze::TraceOutput::EntryType::Annotation
-             ? std::optional<sourcemeta::core::JSON>{entry.annotation}
-             : std::nullopt,
-         entry.vocabulary.has_value()
-             ? std::optional<std::string>{std::string{entry.vocabulary.value()}}
-             : std::nullopt});
+        {.type = entry.type,
+         .name = std::string{entry.name},
+         .instance_location = entry.instance_location,
+         .evaluate_path = entry.evaluate_path,
+         .keyword_location = std::string{entry.keyword_location},
+         .annotation =
+             entry.type == sourcemeta::blaze::TraceOutput::EntryType::Annotation
+                 ? std::optional<sourcemeta::core::JSON>{entry.annotation}
+                 : std::nullopt,
+         .vocabulary = entry.vocabulary.has_value()
+                           ? std::optional<std::string>{std::string{
+                                 entry.vocabulary.value()}}
+                           : std::nullopt});
   };
+}
+
+template <typename Traces>
+static auto has_trace_at(const Traces &traces, const std::size_t index)
+    -> bool {
+  return index < traces.size();
 }
 
 #define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
                       expected_instance_location, expected_evaluate_path,      \
                       expected_keyword_location, expected_annotation)          \
-  EXPECT_TRUE(traces.size() > index);                                          \
+  EXPECT_TRUE(has_trace_at(traces, index));                                    \
   EXPECT_EQ(traces.at((index)).type,                                           \
             sourcemeta::blaze::TraceOutput::EntryType::expected_type);         \
   EXPECT_EQ(traces.at((index)).name, expected_name);                           \

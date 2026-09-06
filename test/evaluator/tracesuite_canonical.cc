@@ -10,8 +10,8 @@
 #include "evaluator_utils.h"
 
 #include <cassert>    // assert
-#include <cstdio>     // std::fprintf
 #include <filesystem> // std::filesystem::path
+#include <print>      // std::println
 #include <string>     // std::string
 #include <utility>    // std::move
 
@@ -61,7 +61,7 @@ auto run_canonicalize_test(const sourcemeta::core::JSON &data,
 
 static auto register_tests(const std::filesystem::path &path,
                            const std::string &suite_name) -> void {
-  std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
+  std::println(stderr, "-- Parsing: {}", path.string());
   auto suite{sourcemeta::core::read_json(path)};
   assert(suite.is_array());
 
@@ -113,7 +113,7 @@ auto main(int argc, char **argv) -> int {
                        "evaluator_draft3.json",
                    "Canonicalize_draft3");
   } catch (const std::exception &error) {
-    std::fprintf(stderr, "Error: %s\n", error.what());
+    std::println(stderr, "Error: {}", error.what());
     return EXIT_FAILURE;
   }
 

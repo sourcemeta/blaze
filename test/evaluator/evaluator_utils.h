@@ -2,6 +2,7 @@
 #define SOURCEMETA_BLAZE_EVALUATOR_UTILS_H_
 
 #include <cassert>
+#include <cstddef>
 #include <tuple>
 #include <vector>
 
@@ -9,6 +10,12 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
                               const std::string &check) -> bool {
   assert(document.is_object());
   return document.as_object().cbegin()->first == check;
+}
+
+template <typename Traces>
+inline auto has_trace_at(const Traces &traces, const std::size_t index)
+    -> bool {
+  return index < traces.size();
 }
 
 #define EVALUATE_WITH_TRACE(schema_template, instance, count)                  \
@@ -33,11 +40,11 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
           const sourcemeta::core::WeakPointer &instance_location,              \
           const sourcemeta::core::JSON &annotation) {                          \
         if (type == sourcemeta::blaze::EvaluationType::Pre) {                  \
-          trace_pre.push_back({valid, evaluate_path, instance_location, step,  \
-                               annotation, step_metadata});                    \
+          trace_pre.emplace_back(valid, evaluate_path, instance_location,      \
+                                 step, annotation, step_metadata);             \
         } else if (type == sourcemeta::blaze::EvaluationType::Post) {          \
-          trace_post.push_back({valid, evaluate_path, instance_location, step, \
-                                annotation, step_metadata});                   \
+          trace_post.emplace_back(valid, evaluate_path, instance_location,     \
+                                  step, annotation, step_metadata);            \
         }                                                                      \
       })};                                                                     \
   EXPECT_EQ(trace_pre.size(), count);                                          \
@@ -181,7 +188,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define __EVALUATE_TRACE_PRE(index, instruction_type, evaluate_path,           \
                              expected_keyword_location,                        \
                              expected_instance_location)                       \
-  EXPECT_TRUE(index < trace_pre.size());                                       \
+  EXPECT_TRUE(has_trace_at(trace_pre, index));                                 \
   EXPECT_TRUE(std::get<0>(trace_pre.at(index)));                               \
   EXPECT_EQ(sourcemeta::core::to_string(std::get<1>(trace_pre.at(index))),     \
             evaluate_path);                                                    \
@@ -219,7 +226,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define __EVALUATE_TRACE_POST_SUCCESS(index, instruction_type, evaluate_path,  \
                                       keyword_location, instance_location)     \
-  EXPECT_TRUE(index < trace_post.size());                                      \
+  EXPECT_TRUE(has_trace_at(trace_post, index));                                \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
   __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,                \
                         keyword_location, instance_location);                  \
@@ -253,7 +260,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_TRACE_POST_ANNOTATION(index, evaluate_path, keyword_location, \
                                        instance_location, expected_annotation) \
-  EXPECT_TRUE(index < trace_post.size());                                      \
+  EXPECT_TRUE(has_trace_at(trace_post, index));                                \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
   if (std::get<3>(trace_post.at(index)).type ==                                \
       sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent) {       \
@@ -276,7 +283,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define __EVALUATE_TRACE_POST_FAILURE(index, instruction_type, evaluate_path,  \
                                       keyword_location, instance_location)     \
-  EXPECT_TRUE(index < trace_post.size());                                      \
+  EXPECT_TRUE(has_trace_at(trace_post, index));                                \
   EXPECT_FALSE(std::get<0>(trace_post.at(index)));                             \
   __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,                \
                         keyword_location, instance_location);                  \

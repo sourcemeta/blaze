@@ -12,6 +12,7 @@
                 (vocabulary_value)),                                           \
             sourcemeta::blaze::SchemaVocabularies::Known::expected_known)
 
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_OPENAPI_3_1{
     {"https://json-schema.org/draft/2020-12/vocab/core", true},
     {"https://spec.openapis.org/oas/3.1/vocab/base", true}};
@@ -23,6 +24,7 @@ static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_OPENAPI_3_2{
 static const sourcemeta::blaze::SchemaVocabularies VOCABULARIES_2020_12_CORE{
     {"https://json-schema.org/draft/2020-12/vocab/core", true}};
 
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 TEST(openapi_3_1_discriminator) {
   using namespace sourcemeta::core;
   using namespace sourcemeta::blaze;

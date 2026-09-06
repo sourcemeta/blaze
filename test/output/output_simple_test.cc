@@ -12,10 +12,16 @@
 #include <unordered_set> // std::unordered_set
 #include <vector>        // std::vector
 
+template <typename Traces>
+static auto has_trace_at(const Traces &traces, const std::size_t index)
+    -> bool {
+  return index < traces.size();
+}
+
 #define EXPECT_OUTPUT(traces, index, expected_instance_location,               \
                       expected_evaluate_path, expected_schema_location,        \
                       expected_message)                                        \
-  EXPECT_TRUE(traces.size() > index);                                          \
+  EXPECT_TRUE(has_trace_at(traces, index));                                    \
   EXPECT_EQ(traces.at((index)).message, (expected_message));                   \
   EXPECT_EQ(sourcemeta::core::to_string(traces.at((index)).instance_location), \
             expected_instance_location);                                       \
@@ -291,6 +297,9 @@ TEST(release_yields_collected_errors_and_consumes_them) {
       entries, 0, "", "/type", "#/type",
       "The value was expected to be of type string but it was of type integer");
 
+  // Reading the moved-from output is the point here, as releasing its
+  // entries has to leave it empty
+  // NOLINTNEXTLINE(bugprone-use-after-move)
   EXPECT_TRUE(output.cbegin() == output.cend());
 }
 

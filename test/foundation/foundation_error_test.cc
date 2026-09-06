@@ -12,6 +12,9 @@ TEST(schema_error_throw) {
       "Must subclass std::exception");
   auto exception{sourcemeta::blaze::SchemaError("My error")};
   try {
+    // Thrown by name on purpose, so that the assertion after the catch can
+    // check the original object survived being thrown
+    // NOLINTNEXTLINE(cert-err09-cpp,cert-err61-cpp,misc-throw-by-value-catch-by-reference)
     throw exception;
     FAIL();
   } catch (const sourcemeta::blaze::SchemaError &error) {
@@ -27,6 +30,9 @@ TEST(resolution_error_throw) {
   auto exception{sourcemeta::blaze::SchemaResolutionError(
       "https://sourcemeta.com/test", "My error")};
   try {
+    // Thrown by name on purpose, so that the assertion after the catch can
+    // check the original object survived being thrown
+    // NOLINTNEXTLINE(cert-err09-cpp,cert-err61-cpp,misc-throw-by-value-catch-by-reference,bugprone-exception-copy-constructor-throws,cert-err60-cpp)
     throw exception;
     FAIL();
   } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
