@@ -33,7 +33,7 @@ static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
     return sourcemeta::blaze::schema_resolver(identifier);
   }};
 
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://schemas.sourcemeta.com/w3c/wot/v1.1/thing-description",
     "tests": [ { "data": {}, "valid": false } ]
   })JSON"};
@@ -42,7 +42,7 @@ static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto suite{sourcemeta::blaze::TestSuite::parse(
         document, tracker, std::filesystem::path{CURRENT_DIRECTORY}, resolver,
         sourcemeta::blaze::schema_walker,

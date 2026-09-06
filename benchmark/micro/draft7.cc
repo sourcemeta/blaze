@@ -36,7 +36,7 @@ static void Micro_Draft7_If_Then_Else(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);

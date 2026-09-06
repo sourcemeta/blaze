@@ -218,7 +218,7 @@ static auto test_resolver(std::string_view identifier)
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
   for (const auto character : input) {
-    output << (std::isalnum(character) ? character : '_');
+    output << ((std::isalnum(character) != 0) ? character : '_');
   }
 }
 

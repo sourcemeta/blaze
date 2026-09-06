@@ -11,7 +11,7 @@
 // have to stay comparable against previously recorded runs
 // NOLINTBEGIN(readability-identifier-naming)
 static void Schema_Format_ISO_Language_To_JSON(benchmark::State &state) {
-  for (auto _ : state) {
+  for (auto iteration : state) {
     state.PauseTiming();
     auto schema{sourcemeta::core::read_json(
         std::filesystem::path{CURRENT_DIRECTORY} / "files" /

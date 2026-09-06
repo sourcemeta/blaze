@@ -11,6 +11,9 @@
 #include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
 static void
 Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
   const auto schema{sourcemeta::core::read_json(
@@ -20,7 +23,7 @@ Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result = bundle.check(schema, sourcemeta::blaze::schema_walker,
                                sourcemeta::blaze::schema_resolver,
                                [](const auto &, const auto &, const auto &,
@@ -31,9 +34,6 @@ Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
   }
 }
 
-// Google Benchmark reports these names as the benchmark labels, so they
-// have to stay comparable against previously recorded runs
-// NOLINTBEGIN(readability-identifier-naming)
 static void Alterschema_Check_Readibility_OMC(benchmark::State &state) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
@@ -42,7 +42,7 @@ static void Alterschema_Check_Readibility_OMC(benchmark::State &state) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result = bundle.check(schema, sourcemeta::blaze::schema_walker,
                                sourcemeta::blaze::schema_resolver,
                                [](const auto &, const auto &, const auto &,
@@ -60,7 +60,7 @@ static void Alterschema_Check_Readibility_KrakenD(benchmark::State &state) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{bundle.check(schema, sourcemeta::blaze::schema_walker,
                              sourcemeta::blaze::schema_resolver,
                              [](const auto &, const auto &, const auto &,
@@ -77,7 +77,7 @@ static void Alterschema_Apply_Readibility_KrakenD(benchmark::State &state) {
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_krakend.json")};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     state.PauseTiming();
     auto copy = schema;
     state.ResumeTiming();
@@ -98,7 +98,7 @@ static void Alterschema_Check_Invalid_External_Refs(benchmark::State &state) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     std::size_t trace_count{0};
     auto result = bundle.check(
         schema, sourcemeta::blaze::schema_walker,
@@ -166,7 +166,7 @@ Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     std::size_t trace_count{0};
     auto result =
         bundle.check(schema, sourcemeta::blaze::schema_walker, resolver,

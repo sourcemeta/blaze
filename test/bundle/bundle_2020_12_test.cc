@@ -16,7 +16,8 @@ static auto test_resolver(std::string_view identifier)
       "$id": "https://example.com/foo/bar",
       "$anchor": "baz"
     })JSON");
-  } else if (identifier == "https://example.com/baz-anchor") {
+  }
+  if (identifier == "https://example.com/baz-anchor") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/baz-anchor",
@@ -27,31 +28,36 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/test-1") {
+  }
+  if (identifier == "https://www.sourcemeta.com/test-1") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/test-1",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/test-2") {
+  }
+  if (identifier == "https://www.sourcemeta.com/test-2") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/test-2",
       "$ref": "test-3"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/test-3") {
+  }
+  if (identifier == "https://www.sourcemeta.com/test-3") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/test-3",
       "$ref": "test-1"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/test-4") {
+  }
+  if (identifier == "https://www.sourcemeta.com/test-4") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/test-4",
       "type": "boolean"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/recursive") {
+  }
+  if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/recursive",
@@ -59,8 +65,8 @@ static auto test_resolver(std::string_view identifier)
         "foo": { "$ref": "#" }
       }
     })JSON");
-  } else if (identifier ==
-             "https://www.sourcemeta.com/recursive-empty-fragment") {
+  }
+  if (identifier == "https://www.sourcemeta.com/recursive-empty-fragment") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
@@ -68,33 +74,39 @@ static auto test_resolver(std::string_view identifier)
         "foo": { "$ref": "#" }
       }
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/anonymous") {
+  }
+  if (identifier == "https://www.sourcemeta.com/anonymous") {
     return sourcemeta::core::parse_json(R"JSON({
       "type": "integer"
     })JSON");
-  } else if (identifier == "https://example.com/nested/ref-string.json") {
+  }
+  if (identifier == "https://example.com/nested/ref-string.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$ref": "string.json"
     })JSON");
-  } else if (identifier == "https://example.com/nested/string.json") {
+  }
+  if (identifier == "https://example.com/nested/string.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://example.com/meta/1.json") {
+  }
+  if (identifier == "https://example.com/meta/1.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/2.json",
       "$id": "https://example.com/meta/1.json",
       "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
     })JSON");
-  } else if (identifier == "https://example.com/meta/2.json") {
+  }
+  if (identifier == "https://example.com/meta/2.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/meta/2.json",
       "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
     })JSON");
-  } else if (identifier == "https://cdn.example.com/schemas/foo") {
+  }
+  if (identifier == "https://cdn.example.com/schemas/foo") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/foo",
@@ -104,7 +116,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/dedup-a") {
+  }
+  if (identifier == "https://example.com/dedup-a") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/dedup-a",
@@ -117,7 +130,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://example.com/dedup-b") {
+  }
+  if (identifier == "https://example.com/dedup-b") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/dedup-b",

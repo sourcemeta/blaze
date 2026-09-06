@@ -2303,7 +2303,8 @@ TEST(indirect_metaschema_cycle) {
       -> sourcemeta::blaze::SchemaResolverResult {
     if (identifier == "https://example.com/a") {
       return document;
-    } else if (identifier == "https://example.com/b") {
+    }
+    if (identifier == "https://example.com/b") {
       return other;
     }
 

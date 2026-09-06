@@ -41,7 +41,7 @@ static void Micro_2019_09_Unevaluated_Properties(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -53,7 +53,7 @@ static void Micro_2019_09_Compile_Wrap(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2019_09_krakend_wrap.json")};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto schema_template{
         sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                    sourcemeta::blaze::schema_resolver,

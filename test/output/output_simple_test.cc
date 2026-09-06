@@ -828,7 +828,7 @@ TEST(success_contains_mincontains_1) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("[ 1, \"foo\", 2, \"bar\" ]")};
+      sourcemeta::core::parse_json(R"([ 1, "foo", 2, "bar" ])")};
 
   sourcemeta::blaze::SimpleOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -924,7 +924,7 @@ TEST(fail_contains_maxcontains_1) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("[ \"foo\", \"bar\" ]")};
+      sourcemeta::core::parse_json(R"([ "foo", "bar" ])")};
 
   sourcemeta::blaze::SimpleOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;

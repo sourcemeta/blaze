@@ -186,7 +186,7 @@ static auto rdf_trace_callback(std::vector<RDFTrace> &traces)
 }
 
 TEST(empty_tests) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": []
   })JSON"};
@@ -218,7 +218,7 @@ TEST(empty_tests) {
 }
 
 TEST(all_passing) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
       {
@@ -289,7 +289,7 @@ TEST(all_passing) {
 }
 
 TEST(all_failing) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
       {
@@ -357,7 +357,7 @@ TEST(all_failing) {
 }
 
 TEST(mixed_results) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
       {
@@ -442,7 +442,7 @@ TEST(mixed_results) {
 }
 
 TEST(file_path_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema.json",
     "tests": [
       {
@@ -537,7 +537,7 @@ TEST(file_path_target) {
 }
 
 TEST(default_dialect) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema_no_dialect.json",
     "tests": [
       {
@@ -633,7 +633,7 @@ TEST(default_dialect) {
 }
 
 TEST(timestamps_ordering) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
       {
@@ -712,7 +712,7 @@ TEST(timestamps_ordering) {
 }
 
 TEST(multiple_targets_all_passing) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema"
@@ -791,7 +791,7 @@ TEST(multiple_targets_all_passing) {
 }
 
 TEST(multiple_targets_all_failing) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema"
@@ -869,7 +869,7 @@ TEST(multiple_targets_all_failing) {
 }
 
 TEST(multiple_targets_mixed_results) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema"
@@ -947,7 +947,7 @@ TEST(multiple_targets_mixed_results) {
 }
 
 TEST(multiple_targets_with_no_tests) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema"
@@ -982,7 +982,7 @@ TEST(multiple_targets_with_no_tests) {
 }
 
 TEST(multiple_targets_single_element_matches_string_form) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [ "https://json-schema.org/draft/2020-12/schema" ],
     "tests": [
       {
@@ -1027,7 +1027,7 @@ TEST(multiple_targets_single_element_matches_string_form) {
 }
 
 TEST(multiple_targets_with_file_path_targets) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "schema.json",
       "https://json-schema.org/draft/2020-12/schema"
@@ -1096,7 +1096,7 @@ TEST(multiple_targets_with_file_path_targets) {
 }
 
 TEST(multiple_targets_with_default_dialect) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "schema_no_dialect.json",
       "schema.json"
@@ -1186,7 +1186,7 @@ TEST(multiple_targets_with_default_dialect) {
 }
 
 TEST(multiple_targets_with_data_path) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema"
@@ -1243,7 +1243,7 @@ TEST(multiple_targets_with_data_path) {
 }
 
 TEST(multiple_targets_timestamps_ordering) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema"
@@ -1306,7 +1306,7 @@ TEST(multiple_targets_timestamps_ordering) {
 }
 
 TEST(multiple_targets_three_targets) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema",
@@ -1371,7 +1371,7 @@ TEST(multiple_targets_three_targets) {
 }
 
 TEST(multiple_targets_per_target_validation_differs) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "schema.json",
       "schema_no_dialect.json"
@@ -1444,7 +1444,7 @@ TEST(multiple_targets_per_target_validation_differs) {
 }
 
 TEST(embedded_custom_metaschema) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/schema",
     "tests": [
       {
@@ -1520,7 +1520,7 @@ TEST(embedded_custom_metaschema) {
 }
 
 TEST(rdf_passing_inline) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/person",
     "tests": [
       {
@@ -1571,7 +1571,7 @@ TEST(rdf_passing_inline) {
 }
 
 TEST(rdf_failing_expansion_mismatch) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/person",
     "tests": [
       {
@@ -1622,7 +1622,7 @@ TEST(rdf_failing_expansion_mismatch) {
 }
 
 TEST(rdf_validity_mismatch_skips_comparison) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/person",
     "tests": [
       {
@@ -1661,7 +1661,7 @@ TEST(rdf_validity_mismatch_skips_comparison) {
 }
 
 TEST(rdf_resolution_error_fails_case_and_later_cases_run) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/conflict",
     "tests": [
       {
@@ -1735,7 +1735,7 @@ TEST(rdf_resolution_error_fails_case_and_later_cases_run) {
 }
 
 TEST(rdf_with_rdfPath_json) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema_jsonld.json",
     "tests": [
       {
@@ -1791,7 +1791,7 @@ TEST(rdf_with_rdfPath_json) {
 }
 
 TEST(rdf_with_rdfPath_yaml) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema_jsonld.json",
     "tests": [
       {
@@ -1847,7 +1847,7 @@ TEST(rdf_with_rdfPath_yaml) {
 }
 
 TEST(rdf_anyof_annotations_collected) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/person-anyof",
     "tests": [
       {
@@ -1897,7 +1897,7 @@ TEST(rdf_anyof_annotations_collected) {
 }
 
 TEST(rdf_oneof_annotations_collected) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/person-oneof",
     "tests": [
       {
@@ -1947,7 +1947,7 @@ TEST(rdf_oneof_annotations_collected) {
 }
 
 TEST(rdf_numeric_expectation_cross_representation) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/number",
     "tests": [
       {
@@ -1995,7 +1995,7 @@ TEST(rdf_numeric_expectation_cross_representation) {
 }
 
 TEST(rdf_empty_expectation_without_jsonld_keywords) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/plain",
     "tests": [
       {
@@ -2035,7 +2035,7 @@ TEST(rdf_empty_expectation_without_jsonld_keywords) {
 }
 
 TEST(rdf_2019_09_schema) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/person-2019",
     "tests": [
       {
@@ -2085,7 +2085,7 @@ TEST(rdf_2019_09_schema) {
 }
 
 TEST(rdf_multi_target_same_expectation) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://example.com/person",
       "https://example.com/person-same"
@@ -2155,7 +2155,7 @@ TEST(rdf_multi_target_same_expectation) {
 }
 
 TEST(rdf_multi_target_divergent_expectation) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://example.com/person",
       "https://example.com/person-alt"
@@ -2225,7 +2225,7 @@ TEST(rdf_multi_target_divergent_expectation) {
 }
 
 TEST(rdf_fragment_target_subschema) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/person-defs#/$defs/person",
     "tests": [
       {
@@ -2276,7 +2276,7 @@ TEST(rdf_fragment_target_subschema) {
 }
 
 TEST(rdf_mixed_with_plain_cases) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/person",
     "tests": [
       {
@@ -2357,7 +2357,7 @@ TEST(rdf_mixed_with_plain_cases) {
 }
 
 TEST(rdf_draft7_target_empty_expansion) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "http://json-schema.org/draft-07/schema",
     "tests": [
       {
@@ -2397,7 +2397,7 @@ TEST(rdf_draft7_target_empty_expansion) {
 }
 
 TEST(rdf_draft7_target_expectation_never_matches) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "http://json-schema.org/draft-07/schema",
     "tests": [
       {

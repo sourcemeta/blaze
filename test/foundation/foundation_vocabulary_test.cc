@@ -22,7 +22,8 @@ static auto test_resolver(std::string_view identifier)
         "https://json-schema.org/draft/2020-12/vocab/core": false
       }
     })JSON");
-  } else if (identifier == "https://sourcemeta.com/no-core") {
+  }
+  if (identifier == "https://sourcemeta.com/no-core") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "https://sourcemeta.com/no-core",
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -30,9 +31,8 @@ static auto test_resolver(std::string_view identifier)
         "https://json-schema.org/draft/2020-12/vocab/validation": true
       }
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 static auto vocabularies(const sourcemeta::core::JSON &document,

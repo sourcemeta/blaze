@@ -10,7 +10,7 @@
 // have to stay comparable against previously recorded runs
 // NOLINTBEGIN(readability-identifier-naming)
 static void Schema_Bundle_Meta_2020_12(benchmark::State &state) {
-  for (auto _ : state) {
+  for (auto iteration : state) {
     state.PauseTiming();
     auto schema{sourcemeta::blaze::schema_resolver(
                     "https://json-schema.org/draft/2020-12/schema")
@@ -74,7 +74,7 @@ static void Schema_Bundle_Many_Remotes_With_Fragments(benchmark::State &state) {
     return sourcemeta::blaze::schema_resolver(identifier);
   }};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     state.PauseTiming();
     auto schema{document};
     state.ResumeTiming();

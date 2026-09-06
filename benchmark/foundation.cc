@@ -13,7 +13,7 @@
 // have to stay comparable against previously recorded runs
 // NOLINTBEGIN(readability-identifier-naming)
 static void Schema_Tracker_ISO_Language(benchmark::State &state) {
-  for (auto _ : state) {
+  for (auto iteration : state) {
     sourcemeta::core::PointerPositionTracker tracker;
     sourcemeta::core::JSON schema{nullptr};
     sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
@@ -33,7 +33,7 @@ static void Schema_Tracker_ISO_Language_To_JSON(benchmark::State &state) {
                                   "2020_12_iso_language_2023_set_3.json",
                               schema, std::ref(tracker));
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{sourcemeta::core::to_json(tracker)};
     assert(result.is_object());
     benchmark::DoNotOptimize(result);

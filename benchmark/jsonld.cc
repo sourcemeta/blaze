@@ -48,7 +48,9 @@ static auto make_organization(const std::size_t index)
 
 static auto make_price(const std::size_t index) -> sourcemeta::core::JSON {
   auto price{sourcemeta::core::JSON::make_object()};
-  const auto code{index % 3 == 0 ? "USD" : index % 3 == 1 ? "EUR" : "GBP"};
+  const auto *const code{index % 3 == 0   ? "USD"
+                         : index % 3 == 1 ? "EUR"
+                                          : "GBP"};
   price.assign("currency", string_value(code));
   price.assign("value",
                sourcemeta::core::JSON{static_cast<double>(index) + 0.99});
@@ -111,7 +113,7 @@ static auto make_book(const std::size_t index) -> sourcemeta::core::JSON {
 
   auto authors{sourcemeta::core::JSON::make_array()};
   for (std::size_t offset = 0; offset < AUTHORS_PER_BOOK; offset += 1) {
-    authors.push_back(make_person(index * 10 + offset));
+    authors.push_back(make_person((index * 10) + offset));
   }
   book.assign("authors", std::move(authors));
 
@@ -151,7 +153,7 @@ static auto run_catalog(benchmark::State &state,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto outcome{
         sourcemeta::blaze::jsonld(evaluator, schema_template, instance)};
     assert(std::holds_alternative<sourcemeta::core::JSON>(outcome));

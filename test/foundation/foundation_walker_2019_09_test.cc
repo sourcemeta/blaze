@@ -7,9 +7,7 @@
 #include <string_view> // std::string_view
 #include <variant>     // std::holds_alternative, std::get
 
-#include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
-#include <variant>       // std::holds_alternative, std::get
 
 #define EXPECT_VOCABULARY_KNOWN(vocabulary_value, expected_known)              \
   EXPECT_TRUE(                                                                 \

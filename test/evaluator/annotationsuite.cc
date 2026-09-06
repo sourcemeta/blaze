@@ -20,7 +20,7 @@
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
   for (const auto character : input) {
-    output << (std::isalnum(character) ? character : '_');
+    output << ((std::isalnum(character) != 0) ? character : '_');
   }
 }
 
@@ -67,7 +67,8 @@ has_annotation(const sourcemeta::blaze::SimpleOutput &output,
         !schema_location_matches(annotation.schema_location.get(),
                                  schema_location, frame)) {
       continue;
-    } else if (annotation.value == value) {
+    }
+    if (annotation.value == value) {
       return true;
     }
   }
