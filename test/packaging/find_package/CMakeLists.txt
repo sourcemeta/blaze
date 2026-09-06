@@ -20,8 +20,10 @@ target_link_libraries(blaze_hello PRIVATE sourcemeta::blaze::format)
 
 # A shared build hands the consumer DLLs that the installation keeps in its own
 # binary directory, which is not somewhere Windows looks when starting a
-# program, so they have to travel next to this one
-if(WIN32)
+# program, so they have to travel next to this one. A static installation has
+# none, and asking to copy an empty set of them is an error rather than a no-op
+get_target_property(BLAZE_EVALUATOR_TYPE sourcemeta::blaze::evaluator TYPE)
+if(WIN32 AND BLAZE_EVALUATOR_TYPE STREQUAL "SHARED_LIBRARY")
   add_custom_command(TARGET blaze_hello POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different
       "$<TARGET_RUNTIME_DLLS:blaze_hello>" "$<TARGET_FILE_DIR:blaze_hello>"
