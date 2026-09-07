@@ -205,6 +205,30 @@ auto keyword_shape_error(
   }
 }
 
+// Compiling a subschema recurses back into itself through the keyword
+// handlers, so what bounds that recursion has to survive across those calls.
+// A guard that throws never incremented, and so never decrements either
+class DepthGuard {
+public:
+  DepthGuard(std::uint64_t &depth, const std::uint64_t limit) : depth_{depth} {
+    if (this->depth_ >= limit) [[unlikely]] {
+      throw sourcemeta::blaze::CompilerDepthLimitError{limit};
+    }
+
+    this->depth_ += 1;
+  }
+
+  ~DepthGuard() { this->depth_ -= 1; }
+
+  DepthGuard(const DepthGuard &) = delete;
+  auto operator=(const DepthGuard &) -> DepthGuard & = delete;
+  DepthGuard(DepthGuard &&) = delete;
+  auto operator=(DepthGuard &&) -> DepthGuard & = delete;
+
+private:
+  std::uint64_t &depth_;
+};
+
 auto compile_subschema(const sourcemeta::blaze::Context &context,
                        const sourcemeta::blaze::SchemaContext &schema_context,
                        const sourcemeta::blaze::DynamicContext &dynamic_context)
@@ -212,6 +236,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   using namespace sourcemeta::blaze;
   assert((schema_context.schema.is_object() ||
           schema_context.schema.is_boolean()));
+  const DepthGuard depth_guard{context.depth, context.tweaks.max_depth};
 
   // A boolean in a keyword position is settled by the keyword's own contract,
   // which the shape check below applies. What is left is the root of a schema
@@ -623,7 +648,8 @@ auto compile(const sourcemeta::core::JSON &schema,
   auto unevaluated{
       sourcemeta::blaze::unevaluated(schema, frame, walker, resolver)};
 
-  std::vector<InstructionExtra> instruction_extra;
+  std::uint64_t compilation_depth{0};
+  InstructionExtras instruction_extra{effective_tweaks.max_instructions};
   std::vector<SchemaVocabularies::URI> instruction_vocabularies;
   const Context context{.root = schema,
                         .frame = frame,
@@ -637,6 +663,7 @@ auto compile(const sourcemeta::core::JSON &schema,
                         .unevaluated = std::move(unevaluated),
                         .tweaks = effective_tweaks,
                         .targets = std::move(targets_map),
+                        .depth = compilation_depth,
                         .extra = instruction_extra,
                         .vocabularies = instruction_vocabularies};
 
@@ -761,7 +788,7 @@ auto compile(const sourcemeta::core::JSON &schema,
           .track = track,
           .targets = std::move(compiled_targets),
           .labels = std::move(labels_map),
-          .extra = std::move(instruction_extra),
+          .extra = std::move(instruction_extra).release(),
           .vocabularies = std::move(template_vocabularies)};
 }
 
@@ -772,7 +799,8 @@ auto compile(const sourcemeta::core::JSON &schema,
              const std::string_view default_dialect,
              const std::string_view default_id,
              const std::string_view entrypoint,
-             const std::optional<Tweaks> &tweaks) -> Template {
+             const std::optional<Tweaks> &tweaks,
+             const std::uint64_t max_locations) -> Template {
   assert((schema.is_object() || schema.is_boolean()));
 
   // Make sure the input schema is bundled, otherwise we won't be able to
@@ -780,7 +808,8 @@ auto compile(const sourcemeta::core::JSON &schema,
   // can determine vocabularies through the resolver
   const sourcemeta::core::JSON result{sourcemeta::blaze::bundle(
       schema, walker, resolver, sourcemeta::blaze::BundleMode::References,
-      default_dialect, default_id)};
+      default_dialect, default_id, std::nullopt,
+      {sourcemeta::core::EMPTY_WEAK_POINTER}, max_locations)};
 
   sourcemeta::blaze::SchemaFrame frame{
       sourcemeta::blaze::SchemaFrame::Mode::References,
@@ -788,7 +817,10 @@ auto compile(const sourcemeta::core::JSON &schema,
       walker,
       resolver,
       default_dialect,
-      default_id};
+      default_id,
+      sourcemeta::blaze::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::EMPTY_WEAK_POINTER},
+      max_locations};
   return compile(result, walker, resolver, compiler, frame,
                  entrypoint.empty() ? frame.root() : entrypoint, mode, tweaks);
 }

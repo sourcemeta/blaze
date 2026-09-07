@@ -10,6 +10,7 @@
 #include <string_view> // std::string_view
 #include <vector>      // std::vector
 
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static auto chain_resolver(std::string_view identifier)
     -> sourcemeta::blaze::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/chain-1") {
@@ -18,21 +19,25 @@ static auto chain_resolver(std::string_view identifier)
       "$id": "https://www.sourcemeta.com/chain-1",
       "$ref": "chain-2"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/chain-2") {
+  }
+
+  if (identifier == "https://www.sourcemeta.com/chain-2") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/chain-2",
       "$ref": "chain-3"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/chain-3") {
+  }
+
+  if (identifier == "https://www.sourcemeta.com/chain-3") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/chain-3",
       "type": "string"
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 // Pulls in a single remote, and so costs a single remote's worth of framing
@@ -182,3 +187,4 @@ TEST(dependencies_one_below_the_required_limit_throws) {
     EXPECT_EQ(error.limit(), 6);
   }
 }
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
