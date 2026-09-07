@@ -18,23 +18,28 @@ static auto chain_resolver(std::string_view identifier)
       "$id": "https://www.sourcemeta.com/chain-1",
       "$ref": "chain-2"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/chain-2") {
+  }
+
+  if (identifier == "https://www.sourcemeta.com/chain-2") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/chain-2",
       "$ref": "chain-3"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/chain-3") {
+  }
+
+  if (identifier == "https://www.sourcemeta.com/chain-3") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/chain-3",
       "type": "string"
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 // Pulls in a single remote, and so costs a single remote's worth of framing
 static const sourcemeta::core::JSON SINGLE =
     sourcemeta::core::parse_json(R"JSON({
@@ -71,6 +76,11 @@ static const sourcemeta::core::JSON BUNDLED_CHAIN =
     }
   }
 })JSON");
+
+static const std::vector<std::string> CHAIN_DEPENDENCIES{
+    "https://www.sourcemeta.com/chain-1", "https://www.sourcemeta.com/chain-2",
+    "https://www.sourcemeta.com/chain-3"};
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 
 TEST(bundle_default_limit_is_unbounded) {
   const auto result{sourcemeta::blaze::bundle(
@@ -147,10 +157,6 @@ TEST(bundle_in_place_respects_the_limit) {
     EXPECT_EQ(error.limit(), 8);
   }
 }
-
-static const std::vector<std::string> CHAIN_DEPENDENCIES{
-    "https://www.sourcemeta.com/chain-1", "https://www.sourcemeta.com/chain-2",
-    "https://www.sourcemeta.com/chain-3"};
 
 TEST(dependencies_default_limit_is_unbounded) {
   std::vector<std::string> identifiers;
