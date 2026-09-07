@@ -7,6 +7,19 @@
 #include <optional>    // std::nullopt
 #include <string_view> // std::string_view
 
+static auto remote_resolver(std::string_view identifier)
+    -> sourcemeta::blaze::SchemaResolverResult {
+  if (identifier == "https://www.sourcemeta.com/remote") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/remote",
+      "type": "string"
+    })JSON");
+  }
+
+  return sourcemeta::blaze::schema_resolver(identifier);
+}
+
 // NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static const sourcemeta::core::JSON SCHEMA =
     sourcemeta::core::parse_json(R"JSON({
@@ -17,6 +30,24 @@ static const sourcemeta::core::JSON SCHEMA =
     "bar": { "type": "number" }
   }
 })JSON");
+
+// Compiling a subschema recurses back into itself through the keyword
+// handlers, so a schema deep enough would otherwise run the stack out rather
+// than report anything a caller could catch
+static const sourcemeta::core::JSON NESTED =
+    sourcemeta::core::parse_json(R"JSON({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "not": { "not": { "not": { "type": "string" } } }
+})JSON");
+
+// Compiling from a schema rather than from a frame bundles it and frames it
+// first, and neither of those is bounded by what compilation itself may spend
+static const sourcemeta::core::JSON WITH_REMOTE =
+    sourcemeta::core::parse_json(R"JSON({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "https://www.sourcemeta.com/remote"
+})JSON");
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 
 TEST(instructions_default_limit_is_unbounded) {
   const auto schema_template{
@@ -70,15 +101,6 @@ TEST(instruction_limit_of_zero_throws) {
   }
 }
 
-// Compiling a subschema recurses back into itself through the keyword
-// handlers, so a schema deep enough would otherwise run the stack out rather
-// than report anything a caller could catch
-static const sourcemeta::core::JSON NESTED =
-    sourcemeta::core::parse_json(R"JSON({
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "not": { "not": { "not": { "type": "string" } } }
-})JSON");
-
 TEST(depth_default_limit_is_unbounded) {
   [[maybe_unused]] const auto schema_template{
       sourcemeta::blaze::compile(NESTED, sourcemeta::blaze::schema_walker,
@@ -113,27 +135,6 @@ TEST(depth_limit_one_below_the_nesting_throws) {
   }
 }
 
-static auto remote_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
-  if (identifier == "https://www.sourcemeta.com/remote") {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://www.sourcemeta.com/remote",
-      "type": "string"
-    })JSON");
-  }
-
-  return sourcemeta::blaze::schema_resolver(identifier);
-}
-
-// Compiling from a schema rather than from a frame bundles it and frames it
-// first, and neither of those is bounded by what compilation itself may spend
-static const sourcemeta::core::JSON WITH_REMOTE =
-    sourcemeta::core::parse_json(R"JSON({
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$ref": "https://www.sourcemeta.com/remote"
-})JSON");
-
 TEST(locations_default_limit_is_unbounded) {
   [[maybe_unused]] const auto schema_template{sourcemeta::blaze::compile(
       WITH_REMOTE, sourcemeta::blaze::schema_walker, remote_resolver,
@@ -153,4 +154,3 @@ TEST(location_limit_bounds_the_bundling_and_framing_preamble) {
     EXPECT_EQ(error.limit(), 2);
   }
 }
-// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)

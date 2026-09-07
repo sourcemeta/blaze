@@ -97,8 +97,7 @@ class SOURCEMETA_BLAZE_COMPILER_EXPORT InstructionExtras {
 public:
   explicit InstructionExtras(const std::uint64_t limit) : limit_{limit} {}
 
-  /// Make room for another instruction, throwing
-  /// sourcemeta::blaze::CompilerInstructionLimitError once out of room
+  /// Make room for another instruction, throwing once out of room
   auto push_back(InstructionExtra &&entry) -> void {
     if (this->entries_.size() >= this->limit_) [[unlikely]] {
       throw CompilerInstructionLimitError{this->limit_};
@@ -156,17 +155,15 @@ struct Tweaks {
   /// mode and none in fast mode
   std::optional<std::unordered_set<sourcemeta::core::JSON::StringView>>
       annotations{};
-  /// How many instructions compilation may make before it gives up, throwing
-  /// sourcemeta::blaze::CompilerInstructionLimitError. A schema compiles every
-  /// target it can be entered through, and inlining copies what it inlines, so
-  /// what an untrusted schema costs to compile grows faster than the schema
-  /// itself does
+  /// How many instructions compilation may make before it gives up and
+  /// throws. A schema compiles every target it can be entered through, and
+  /// inlining copies what it inlines, so what an untrusted schema costs to
+  /// compile grows faster than the schema itself does
   std::uint64_t max_instructions{std::numeric_limits<std::uint64_t>::max()};
-  /// How deep compilation may descend into a schema before it gives up,
-  /// throwing sourcemeta::blaze::CompilerDepthLimitError. Compiling a
-  /// subschema recurses back into itself through the keyword handlers, so
-  /// without this a schema nested deeply enough runs the stack out rather than
-  /// reporting anything the caller can catch
+  /// How deep compilation may descend into a schema before it gives up and
+  /// throws. Compiling a subschema recurses back into itself through the
+  /// keyword handlers, so without this a schema nested deeply enough runs the
+  /// stack out rather than reporting anything the caller can catch
   std::uint64_t max_depth{std::numeric_limits<std::uint64_t>::max()};
 };
 
@@ -245,12 +242,10 @@ auto SOURCEMETA_BLAZE_COMPILER_EXPORT default_schema_compiler(
 /// ```
 ///
 /// This overload bundles and frames the schema before compiling it, and
-/// neither of those is bounded by sourcemeta::blaze::Tweaks. Pass
-/// `max_locations` to bound them, throwing
-/// sourcemeta::blaze::SchemaFrameLimitError. Bundling and framing each get
-/// this budget rather than sharing one, so the preamble costs at most twice
-/// it. The overload that takes a frame does neither, and so takes no such
-/// limit
+/// neither of those is bounded by the compiler tweaks. Pass `max_locations`
+/// to bound them instead. Bundling and framing each get this budget rather
+/// than sharing one, so the preamble costs at most twice it. The overload
+/// that takes a frame does neither, and so takes no such limit
 auto SOURCEMETA_BLAZE_COMPILER_EXPORT
 compile(const sourcemeta::core::JSON &schema,
         const sourcemeta::blaze::SchemaWalker &walker,
