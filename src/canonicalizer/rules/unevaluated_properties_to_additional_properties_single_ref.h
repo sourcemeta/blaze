@@ -17,8 +17,8 @@ public:
       -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
-            {SchemaVocabularies::Known::JSON_Schema_2020_12_Unevaluated,
-             SchemaVocabularies::Known::JSON_Schema_2019_09_Applicator}) &&
+            {SchemaVocabularies::Known::JSON_SCHEMA_2020_12_UNEVALUATED,
+             SchemaVocabularies::Known::JSON_SCHEMA_2019_09_APPLICATOR}) &&
         schema.is_object() && schema.defines("unevaluatedProperties"));
 
     // We are going to write into `additionalProperties`, and a sibling
@@ -46,7 +46,7 @@ public:
         continue;
       }
       const auto keyword_type{walker(entry.first, vocabularies).type};
-      if (IS_IN_PLACE_APPLICATOR(keyword_type) ||
+      if (is_in_place_applicator(keyword_type) ||
           keyword_type == sourcemeta::blaze::SchemaKeywordType::Reference) {
         return false;
       }
@@ -66,7 +66,7 @@ public:
                     const sourcemeta::core::WeakPointer &source,
                     const sourcemeta::blaze::SchemaFrame::Reference &entry_ref)
             -> void {
-          if (destination ||
+          if (destination != nullptr ||
               type != sourcemeta::blaze::SchemaReferenceType::Static) {
             return;
           }
@@ -106,12 +106,12 @@ public:
     const auto &target_vocabularies{
         frame.vocabularies(target_location, resolver)};
     ONLY_CONTINUE_IF(target_vocabularies.contains_any(
-        {SchemaVocabularies::Known::JSON_Schema_2019_09_Applicator,
-         SchemaVocabularies::Known::JSON_Schema_2020_12_Applicator}));
+        {SchemaVocabularies::Known::JSON_SCHEMA_2019_09_APPLICATOR,
+         SchemaVocabularies::Known::JSON_SCHEMA_2020_12_APPLICATOR}));
 
     for (const auto &entry : target_schema.as_object()) {
       const auto keyword_type{walker(entry.first, target_vocabularies).type};
-      if (IS_IN_PLACE_APPLICATOR(keyword_type) ||
+      if (is_in_place_applicator(keyword_type) ||
           keyword_type == sourcemeta::blaze::SchemaKeywordType::Reference) {
         return false;
       }
@@ -128,10 +128,10 @@ public:
     // check simply keeps us from being the rule that first depends on a name
     // whose evaluation status is still in flux
     const auto *target_required{target_schema.try_at("required")};
-    if (target_required && target_required->is_array()) {
+    if (target_required != nullptr && target_required->is_array()) {
       for (const auto &entry : target_required->as_array()) {
         if (entry.is_string() &&
-            !(target_properties &&
+            !(target_properties != nullptr &&
               target_properties->defines(entry.to_string()))) {
           return false;
         }
@@ -139,9 +139,9 @@ public:
     }
 
     this->properties_.clear();
-    if (target_properties) {
+    if (target_properties != nullptr) {
       for (const auto &entry : target_properties->as_object()) {
-        if (properties && properties->defines(entry.first)) {
+        if (properties != nullptr && properties->defines(entry.first)) {
           continue;
         }
         this->properties_.emplace_back(entry.first);

@@ -12169,5 +12169,330 @@
         "The object value was expected to validate against the single defined property subschema"
       ]
     }
+  },
+  {
+    "description": "unevaluated_properties_single_ref_property_through_ref",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/base" } ],
+      "properties": { "local": true },
+      "unevaluatedProperties": false,
+      "$defs": { "base": { "type": "object", "properties": { "shared": true } } }
+    },
+    "instance": { "shared": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ "Annotation", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/allOf/0/$ref/properties", "#/$defs/base/properties", "", "shared" ],
+        [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"shared\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the given subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluated_properties_single_ref_property_local",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/base" } ],
+      "properties": { "local": true },
+      "unevaluatedProperties": false,
+      "$defs": { "base": { "type": "object", "properties": { "shared": true } } }
+    },
+    "instance": { "local": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "local" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the given subschema",
+        "The object property \"local\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluated_properties_single_ref_property_unknown",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/base" } ],
+      "properties": { "local": true },
+      "unevaluatedProperties": false,
+      "$defs": { "base": { "type": "object", "properties": { "shared": true } } }
+    },
+    "instance": { "other": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/other" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/other" ],
+        [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be of type object",
+        "The object value was not expected to define the property \"other\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+        [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/other" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/other" ],
+        [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the given subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was not expected to define the property \"other\"",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluated_properties_single_ref_property_both",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/base" } ],
+      "properties": { "local": true },
+      "unevaluatedProperties": false,
+      "$defs": { "base": { "type": "object", "properties": { "shared": true } } }
+    },
+    "instance": { "local": 1, "shared": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ "Annotation", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/allOf/0/$ref/properties", "#/$defs/base/properties", "", "shared" ],
+        [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "local" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"shared\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the given subschema",
+        "The object property \"local\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
+  },
+  {
+    "description": "unevaluated_properties_single_ref_target_pattern_properties",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/base" } ],
+      "properties": { "local": true },
+      "unevaluatedProperties": false,
+      "$defs": {
+        "base": {
+          "type": "object",
+          "properties": { "shared": true },
+          "patternProperties": { "^x-": true }
+        }
+      }
+    },
+    "instance": { "x-extra": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ "LoopPropertiesStartsWith", "/allOf/0/$ref/patternProperties", "#/$defs/base/patternProperties", "" ],
+        [ "Annotation", "/allOf/0/$ref/patternProperties", "#/$defs/base/patternProperties", "" ],
+        [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/allOf/0/$ref/patternProperties", "#/$defs/base/patternProperties", "", "x-extra" ],
+        [ true, "LoopPropertiesStartsWith", "/allOf/0/$ref/patternProperties", "#/$defs/base/patternProperties", "" ],
+        [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/base/properties", "" ],
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/$defs/base/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+      ],
+      "descriptions": [
+        "The object property \"x-extra\" successfully validated against its pattern property subschema",
+        "The object properties that start with the string \"x-\" were expected to validate against the defined pattern property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the given subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was not expected to define unevaluated properties"
+      ]
+    }
   }
 ]

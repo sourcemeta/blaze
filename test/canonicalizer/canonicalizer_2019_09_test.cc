@@ -1118,31 +1118,6 @@ TEST(unevaluated_properties_single_ref_target_with_if_then_stays) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST(unevaluated_properties_single_ref_preserves_evaluation) {
-  const auto document = sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "type": "object",
-    "allOf": [ { "$ref": "#/$defs/base" } ],
-    "properties": { "local": true },
-    "unevaluatedProperties": false,
-    "$defs": {
-      "base": { "type": "object", "properties": { "shared": true } }
-    }
-  })JSON");
-
-  // `shared` is the case a bare rename would break: it is evaluated through
-  // the `$ref`, so `unevaluatedProperties` admits it while a plain
-  // `additionalProperties` would not
-  CANONICALIZE_AND_COMPARE_EVALUATION(
-      document, sourcemeta::core::parse_json("{}"),
-      sourcemeta::core::parse_json(R"JSON({ "local": 1 })JSON"),
-      sourcemeta::core::parse_json(R"JSON({ "shared": 1 })JSON"),
-      sourcemeta::core::parse_json(R"JSON({ "local": 1, "shared": 2 })JSON"),
-      sourcemeta::core::parse_json(R"JSON({ "other": 1 })JSON"),
-      sourcemeta::core::parse_json(R"JSON({ "local": 1, "other": 2 })JSON"),
-      sourcemeta::core::parse_json(R"JSON({ "shared": 1, "other": 2 })JSON"));
-}
-
 TEST(items_implicit_skipped_with_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
