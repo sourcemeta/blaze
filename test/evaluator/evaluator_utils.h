@@ -33,11 +33,11 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
           const sourcemeta::core::WeakPointer &instance_location,              \
           const sourcemeta::core::JSON &annotation) {                          \
         if (type == sourcemeta::blaze::EvaluationType::Pre) {                  \
-          trace_pre.push_back({valid, evaluate_path, instance_location, step,  \
-                               annotation, step_metadata});                    \
+          trace_pre.emplace_back(valid, evaluate_path, instance_location,      \
+                                 step, annotation, step_metadata);             \
         } else if (type == sourcemeta::blaze::EvaluationType::Post) {          \
-          trace_post.push_back({valid, evaluate_path, instance_location, step, \
-                                annotation, step_metadata});                   \
+          trace_post.emplace_back(valid, evaluate_path, instance_location,     \
+                                  step, annotation, step_metadata);            \
         }                                                                      \
       })};                                                                     \
   EXPECT_EQ(trace_pre.size(), count);                                          \
@@ -181,6 +181,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define __EVALUATE_TRACE_PRE(index, instruction_type, evaluate_path,           \
                              expected_keyword_location,                        \
                              expected_instance_location)                       \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
   EXPECT_TRUE(index < trace_pre.size());                                       \
   EXPECT_TRUE(std::get<0>(trace_pre.at(index)));                               \
   EXPECT_EQ(sourcemeta::core::to_string(std::get<1>(trace_pre.at(index))),     \
@@ -219,6 +220,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define __EVALUATE_TRACE_POST_SUCCESS(index, instruction_type, evaluate_path,  \
                                       keyword_location, instance_location)     \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
   EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
   __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,                \
@@ -241,6 +243,10 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
              sourcemeta::blaze::InstructionIndex::AnnotationToParent) {        \
     EVALUATE_TRACE_PRE(index, AnnotationToParent, evaluate_path,               \
                        keyword_location, instance_location);                   \
+  } else if (std::get<3>(trace_pre.at(index)).type ==                          \
+             sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped) {     \
+    EVALUATE_TRACE_PRE(index, AnnotationEmitWrapped, evaluate_path,            \
+                       keyword_location, instance_location);                   \
   } else {                                                                     \
     EVALUATE_TRACE_PRE(index, AnnotationEmit, evaluate_path, keyword_location, \
                        instance_location);                                     \
@@ -249,6 +255,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_TRACE_POST_ANNOTATION(index, evaluate_path, keyword_location, \
                                        instance_location, expected_annotation) \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
   EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_TRUE(std::get<0>(trace_post.at(index)));                              \
   if (std::get<3>(trace_post.at(index)).type ==                                \
@@ -259,6 +266,10 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
              sourcemeta::blaze::InstructionIndex::AnnotationToParent) {        \
     EVALUATE_TRACE_POST(index, AnnotationToParent, evaluate_path,              \
                         keyword_location, instance_location);                  \
+  } else if (std::get<3>(trace_post.at(index)).type ==                         \
+             sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped) {     \
+    EVALUATE_TRACE_POST(index, AnnotationEmitWrapped, evaluate_path,           \
+                        keyword_location, instance_location);                  \
   } else {                                                                     \
     EVALUATE_TRACE_POST(index, AnnotationEmit, evaluate_path,                  \
                         keyword_location, instance_location);                  \
@@ -268,6 +279,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define __EVALUATE_TRACE_POST_FAILURE(index, instruction_type, evaluate_path,  \
                                       keyword_location, instance_location)     \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
   EXPECT_TRUE(index < trace_post.size());                                      \
   EXPECT_FALSE(std::get<0>(trace_post.at(index)));                             \
   __EVALUATE_TRACE_POST(index, instruction_type, evaluate_path,                \

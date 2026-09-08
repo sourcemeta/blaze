@@ -28,63 +28,74 @@ static auto test_resolver(std::string_view identifier)
       "$id": "https://www.sourcemeta.com/test-1",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/test-2") {
+  }
+  if (identifier == "https://www.sourcemeta.com/test-2") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$id": "https://www.sourcemeta.com/test-2",
       "$ref": "test-3"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/test-3") {
+  }
+  if (identifier == "https://www.sourcemeta.com/test-3") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-06/schema#",
       "$id": "https://www.sourcemeta.com/test-3",
       "allOf": [ { "$ref": "test-4" } ]
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/test-3-top-level-ref") {
+  }
+  if (identifier == "https://www.sourcemeta.com/test-3-top-level-ref") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-06/schema#",
       "$id": "https://www.sourcemeta.com/test-3-top-level-ref",
       "$ref": "test-4"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/test-4") {
+  }
+  if (identifier == "https://www.sourcemeta.com/test-4") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "id": "https://www.sourcemeta.com/test-4",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/no-dialect") {
+  }
+  if (identifier == "https://www.sourcemeta.com/no-dialect") {
     return sourcemeta::core::parse_json(R"JSON({
       "foo": 1
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/array") {
+  }
+  if (identifier == "https://www.sourcemeta.com/array") {
     return sourcemeta::core::parse_json(R"JSON([
       "foo", "bar", "baz"
     ])JSON");
-  } else if (identifier == "https://www.sourcemeta.com/sibling-a") {
+  }
+  if (identifier == "https://www.sourcemeta.com/sibling-a") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/sibling-a",
       "$ref": "shared"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/sibling-b") {
+  }
+  if (identifier == "https://www.sourcemeta.com/sibling-b") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/sibling-b",
       "$ref": "shared"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/shared") {
+  }
+  if (identifier == "https://www.sourcemeta.com/shared") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/shared",
       "$ref": "deep"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/deep") {
+  }
+  if (identifier == "https://www.sourcemeta.com/deep") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/deep",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/custom-metaschema") {
+  }
+  if (identifier == "https://www.sourcemeta.com/custom-metaschema") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/custom-metaschema",
@@ -99,9 +110,8 @@ static auto test_resolver(std::string_view identifier)
         { "$ref": "https://json-schema.org/draft/2020-12/meta/validation" }
       ]
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 TEST(multiple_refs) {

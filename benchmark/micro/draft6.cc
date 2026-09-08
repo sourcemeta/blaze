@@ -8,6 +8,9 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
 static void Micro_Draft6_Property_Names(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
         "$schema": "http://json-schema.org/draft-06/schema#",
@@ -50,7 +53,7 @@ static void Micro_Draft6_Property_Names(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -62,7 +65,7 @@ static void Micro_Draft6_Compile_FHIR(benchmark::State &state) {
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "draft6_fhir_4_0.json")};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto schema_template{
         sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                    sourcemeta::blaze::schema_resolver,
@@ -73,3 +76,4 @@ static void Micro_Draft6_Compile_FHIR(benchmark::State &state) {
 
 BENCHMARK(Micro_Draft6_Property_Names);
 BENCHMARK(Micro_Draft6_Compile_FHIR);
+// NOLINTEND(readability-identifier-naming)

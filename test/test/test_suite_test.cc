@@ -17,7 +17,7 @@
 #include <vector>     // std::vector
 
 TEST(error_not_an_object) {
-  const auto input{"[]"};
+  const auto *const input{"[]"};
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
@@ -34,7 +34,7 @@ TEST(error_not_an_object) {
 }
 
 TEST(error_no_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "tests": []
   })JSON"};
 
@@ -55,7 +55,7 @@ TEST(error_no_target) {
 }
 
 TEST(error_target_neither_string_nor_array) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": 123,
     "tests": []
   })JSON"};
@@ -77,7 +77,7 @@ TEST(error_target_neither_string_nor_array) {
 }
 
 TEST(error_no_tests) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema"
   })JSON"};
 
@@ -98,7 +98,7 @@ TEST(error_no_tests) {
 }
 
 TEST(error_tests_not_array) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": {}
   })JSON"};
@@ -120,7 +120,7 @@ TEST(error_tests_not_array) {
 }
 
 TEST(error_unresolvable_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://example.com/non-existent-schema",
     "tests": []
   })JSON"};
@@ -142,7 +142,7 @@ TEST(error_unresolvable_target) {
 }
 
 TEST(valid_empty_tests) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": []
   })JSON"};
@@ -162,7 +162,7 @@ TEST(valid_empty_tests) {
 }
 
 TEST(valid_with_test_cases) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
       { "data": {}, "valid": true },
@@ -197,7 +197,7 @@ TEST(valid_with_test_cases) {
 }
 
 TEST(error_invalid_test_case) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
       { "data": {}, "valid": true },
@@ -223,7 +223,7 @@ TEST(error_invalid_test_case) {
 }
 
 TEST(valid_with_file_path_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema.json",
     "tests": [
       { "data": { "foo": "bar" }, "valid": true },
@@ -269,7 +269,7 @@ TEST(valid_with_file_path_target) {
 }
 
 TEST(error_no_dialect_without_default) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema_no_dialect.json",
     "tests": []
   })JSON"};
@@ -299,7 +299,7 @@ TEST(error_no_dialect_without_default) {
 }
 
 TEST(valid_with_default_dialect) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema_no_dialect.json",
     "tests": [
       { "data": { "name": "test" }, "valid": true },
@@ -345,7 +345,7 @@ TEST(valid_with_default_dialect) {
 }
 
 TEST(error_target_object) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": { "uri": "https://json-schema.org/draft/2020-12/schema" },
     "tests": []
   })JSON"};
@@ -371,7 +371,7 @@ TEST(error_target_object) {
 }
 
 TEST(error_target_null) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": null,
     "tests": []
   })JSON"};
@@ -397,7 +397,7 @@ TEST(error_target_null) {
 }
 
 TEST(error_target_empty_array) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [],
     "tests": []
   })JSON"};
@@ -423,7 +423,7 @@ TEST(error_target_empty_array) {
 }
 
 TEST(error_target_array_first_element_not_string) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       123,
       "https://json-schema.org/draft/2020-12/schema"
@@ -452,7 +452,7 @@ TEST(error_target_array_first_element_not_string) {
 }
 
 TEST(error_target_array_trailing_element_not_string) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       true
@@ -481,7 +481,7 @@ TEST(error_target_array_trailing_element_not_string) {
 }
 
 TEST(error_target_array_element_null) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       null
@@ -510,7 +510,7 @@ TEST(error_target_array_element_null) {
 }
 
 TEST(error_target_array_element_array) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       [ "https://json-schema.org/draft/2019-09/schema" ]
@@ -539,7 +539,7 @@ TEST(error_target_array_element_array) {
 }
 
 TEST(error_target_array_unresolvable_entry) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://example.com/non-existent-schema"
@@ -565,7 +565,7 @@ TEST(error_target_array_unresolvable_entry) {
 }
 
 TEST(valid_target_array_single_element) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [ "https://json-schema.org/draft/2020-12/schema" ],
     "tests": [
       { "data": {}, "valid": true }
@@ -587,7 +587,7 @@ TEST(valid_target_array_single_element) {
 }
 
 TEST(valid_target_array_multiple_uris) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema",
@@ -615,7 +615,7 @@ TEST(valid_target_array_multiple_uris) {
 }
 
 TEST(valid_target_array_with_file_paths) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [ "schema.json" ],
     "tests": [
       { "data": { "foo": "bar" }, "valid": true }
@@ -648,7 +648,7 @@ TEST(valid_target_array_with_file_paths) {
 }
 
 TEST(valid_target_array_mixed_uri_and_file_path) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "schema.json"
@@ -685,7 +685,7 @@ TEST(valid_target_array_mixed_uri_and_file_path) {
 }
 
 TEST(valid_target_array_with_default_dialect) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "schema_no_dialect.json",
       "https://json-schema.org/draft/2020-12/schema"
@@ -723,7 +723,7 @@ TEST(valid_target_array_with_default_dialect) {
 }
 
 TEST(valid_target_array_preserves_test_case_positions) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [
       "https://json-schema.org/draft/2020-12/schema",
       "https://json-schema.org/draft/2019-09/schema"
@@ -759,7 +759,7 @@ TEST(valid_target_array_preserves_test_case_positions) {
 }
 
 TEST(valid_rdf_2020_12_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2020-12/schema",
     "tests": [
       { "data": true, "valid": true, "rdf": [] },
@@ -788,7 +788,7 @@ TEST(valid_rdf_2020_12_target) {
 }
 
 TEST(valid_rdf_2019_09_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "https://json-schema.org/draft/2019-09/schema",
     "tests": [
       { "data": true, "valid": true, "rdf": [] }
@@ -813,7 +813,7 @@ TEST(valid_rdf_2019_09_target) {
 }
 
 TEST(valid_rdf_draft7_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "http://json-schema.org/draft-07/schema",
     "tests": [
       { "data": true, "valid": true, "rdf": [] }
@@ -837,7 +837,7 @@ TEST(valid_rdf_draft7_target) {
 }
 
 TEST(valid_draft7_target_without_rdf) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "http://json-schema.org/draft-07/schema",
     "tests": [
       { "data": true, "valid": true }
@@ -859,7 +859,7 @@ TEST(valid_draft7_target_without_rdf) {
 }
 
 TEST(valid_rdf_embedded_legacy_root_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema_embedded_legacy.json",
     "tests": [
       { "data": {}, "valid": true, "rdf": [] }
@@ -895,7 +895,7 @@ TEST(valid_rdf_embedded_legacy_root_target) {
 }
 
 TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema_no_dialect.json",
     "tests": [
       { "data": { "name": "Ada" }, "valid": true, "rdf": [] }
@@ -932,7 +932,7 @@ TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
 }
 
 TEST(fast_template_validates_the_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema.json",
     "tests": [
       { "data": { "foo": "bar" }, "valid": true }
@@ -970,7 +970,7 @@ TEST(fast_template_validates_the_target) {
 }
 
 TEST(exhaustive_template_emits_annotations) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema.json",
     "tests": [
       { "data": { "foo": "bar" }, "valid": true }
@@ -1020,7 +1020,7 @@ TEST(exhaustive_template_emits_annotations) {
 }
 
 TEST(exhaustive_template_is_compiled_once) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema.json",
     "tests": [
       { "data": {}, "valid": false }
@@ -1049,7 +1049,7 @@ TEST(exhaustive_template_is_compiled_once) {
 }
 
 TEST(exhaustive_template_is_only_compiled_on_request) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": "schema.json",
     "tests": [
       { "data": {}, "valid": false }
@@ -1082,7 +1082,7 @@ TEST(exhaustive_template_is_only_compiled_on_request) {
 }
 
 TEST(exhaustive_template_per_target) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "target": [ "schema.json", "schema_draft7.json" ],
     "tests": [
       { "data": {}, "valid": false }

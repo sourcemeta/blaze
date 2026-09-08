@@ -16,19 +16,20 @@ static auto test_resolver(std::string_view identifier)
       "id": "https://www.sourcemeta.com/test-1",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://example.com/meta/1.json") {
+  }
+  if (identifier == "https://example.com/meta/1.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/2.json",
       "id": "https://example.com/meta/1.json"
     })JSON");
-  } else if (identifier == "https://example.com/meta/2.json") {
+  }
+  if (identifier == "https://example.com/meta/2.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-01/schema#",
       "id": "https://example.com/meta/2.json"
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 TEST(no_references_no_id) {

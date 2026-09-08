@@ -17,7 +17,7 @@ auto main(int argc, char *argv[]) -> int {
                                 : sourcemeta::core::parse_json(std::cin)};
 
     sourcemeta::blaze::SchemaFrame frame{
-        sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+        sourcemeta::blaze::SchemaFrame::Mode::Pointers, schema,
         sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
 
     sourcemeta::core::prettify(

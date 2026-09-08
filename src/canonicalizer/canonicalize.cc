@@ -367,6 +367,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/unnecessary_allof_ref_wrapper_draft.h"
 #include "rules/unnecessary_extends_ref_wrapper.h"
 #include "rules/unsatisfiable_drop_validation.h"
+#include "rules/unsatisfiable_empty_enum.h"
 #include "rules/unsatisfiable_exclusive_equal_bounds.h"
 #include "rules/unsatisfiable_in_place_applicator_type.h"
 #include "rules/unsatisfiable_type_and_enum.h"
@@ -480,6 +481,7 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<DropAllOfEmptySchemas>());
   rules.push_back(make_rule<DropExtendsEmptySchemas>());
   rules.push_back(make_rule<EmptyObjectAsTrue>());
+  rules.push_back(make_rule<UnsatisfiableEmptyEnum>());
   rules.push_back(make_rule<UnsatisfiableTypeAndEnum>());
   rules.push_back(make_rule<EnumFilterByType>());
   rules.push_back(make_rule<TypeUnionToSchemas>());

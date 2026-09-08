@@ -467,11 +467,11 @@ public:
     }
 
     return vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                     JSON_Schema_Draft_7) ||
+                                     JSON_SCHEMA_DRAFT_7) ||
            vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                     JSON_Schema_Draft_6) ||
+                                     JSON_SCHEMA_DRAFT_6) ||
            vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                     JSON_Schema_Draft_4);
+                                     JSON_SCHEMA_DRAFT_4);
   }
 
   auto transform(sourcemeta::core::JSON &schema,
@@ -504,9 +504,9 @@ public:
     }
 
     return vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                     JSON_Schema_2020_12_Core) ||
+                                     JSON_SCHEMA_2020_12_CORE) ||
            vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
-                                     JSON_Schema_2019_09_Core);
+                                     JSON_SCHEMA_2019_09_CORE);
   }
 
   auto transform(sourcemeta::core::JSON &schema,

@@ -53,8 +53,9 @@ auto main(int argc, char **argv) -> int {
       }
 
       const auto case_name{case_entry.path().filename().string()};
-      const auto test_name{dialect_name + "/" + case_name};
-      const auto case_path{case_entry.path()};
+      auto test_name{dialect_name};
+      test_name.append("/").append(case_name);
+      const auto &case_path{case_entry.path()};
       sourcemeta::core::test_register(
           "Codegen_e2e_typescript", test_name, __FILE__, __LINE__,
           [case_path]() -> void { run_typescript_e2e(case_path); });

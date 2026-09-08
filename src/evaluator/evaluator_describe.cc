@@ -303,6 +303,7 @@ namespace sourcemeta::blaze {
 
 // TODO: What will unlock even better error messages is being able to
 // get the subschema being evaluated along with the keyword
+// NOLINTNEXTLINE(google-readability-function-size,hicpp-function-size,readability-function-size)
 auto describe(const bool valid, const Instruction &step,
               const sourcemeta::core::WeakPointer &evaluate_path,
               const sourcemeta::core::WeakPointer &instance_location,
@@ -483,7 +484,8 @@ auto describe(const bool valid, const Instruction &step,
     return message.str();
   }
 
-  if (step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmit) {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmit ||
+      step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped) {
     if (keyword == "properties") {
       assert(annotation.is_string());
       std::ostringstream message;
@@ -1245,7 +1247,7 @@ auto describe(const bool valid, const Instruction &step,
     assert(target.is_object());
     std::ostringstream message;
 
-    if (target.size() == 0) {
+    if (target.empty()) {
       assert(valid);
       message << "The object is empty and no properties were expected to "
                  "validate against the given subschema";
@@ -2010,7 +2012,7 @@ auto describe(const bool valid, const Instruction &step,
       }
 
       message << " it contained " << target.size();
-      if (target.size() == 0) {
+      if (target.empty()) {
         message << " properties";
       } else if (target.size() == 1) {
         message << " property: ";
@@ -2781,7 +2783,8 @@ auto describe(const bool valid, const Instruction &step,
       }
 
       return message.str();
-    } else if (present.size() == 1) {
+    }
+    if (present.size() == 1) {
       message << "Because the object value defined the";
       message << " property " << escape_string(*(present.cbegin()));
     } else {

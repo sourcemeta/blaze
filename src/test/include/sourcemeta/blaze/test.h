@@ -150,6 +150,8 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// #include <sourcemeta/core/jsonpointer.h>
   /// #include <sourcemeta/blaze/foundation.h>
   ///
+  /// #include <filesystem>
+  /// #include <functional>
   /// #include <iostream>
   ///
   /// const auto input{R"JSON({
@@ -166,8 +168,8 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// })JSON"};
   ///
   /// sourcemeta::core::PointerPositionTracker tracker;
-  /// const auto document{
-  ///     sourcemeta::core::parse_json(input, std::ref(tracker))};
+  /// sourcemeta::core::JSON document{nullptr};
+  /// sourcemeta::core::parse_json(input, document, std::ref(tracker));
   ///
   /// auto suite{sourcemeta::blaze::TestSuite::parse(
   ///     document, tracker, std::filesystem::current_path(),
@@ -203,6 +205,8 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// #include <sourcemeta/blaze/foundation.h>
   ///
   /// #include <cassert>
+  /// #include <filesystem>
+  /// #include <functional>
   ///
   /// const auto input{R"JSON({
   ///   "target": "https://json-schema.org/draft/2020-12/schema",
@@ -213,8 +217,8 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// })JSON"};
   ///
   /// sourcemeta::core::PointerPositionTracker tracker;
-  /// const auto document{
-  ///     sourcemeta::core::parse_json(input, std::ref(tracker))};
+  /// sourcemeta::core::JSON document{nullptr};
+  /// sourcemeta::core::parse_json(input, document, std::ref(tracker));
   ///
   /// const auto suite{sourcemeta::blaze::TestSuite::parse(
   ///     document, tracker, std::filesystem::current_path(),
@@ -243,15 +247,15 @@ private:
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  std::vector<Template> schemas_fast;
-  std::vector<std::optional<Template>> schemas_exhaustive;
-  SchemaResolver schema_resolver;
-  SchemaWalker walker;
-  Compiler compiler;
-  sourcemeta::core::JSON::String default_dialect;
-  sourcemeta::core::JSON::String default_id;
-  std::optional<Tweaks> tweaks_fast;
-  std::optional<Tweaks> tweaks_exhaustive;
+  std::vector<Template> schemas_fast_;
+  std::vector<std::optional<Template>> schemas_exhaustive_;
+  SchemaResolver schema_resolver_;
+  SchemaWalker walker_;
+  Compiler compiler_;
+  sourcemeta::core::JSON::String default_dialect_;
+  sourcemeta::core::JSON::String default_id_;
+  std::optional<Tweaks> tweaks_fast_;
+  std::optional<Tweaks> tweaks_exhaustive_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif

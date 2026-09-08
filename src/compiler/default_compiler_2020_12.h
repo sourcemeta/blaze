@@ -70,11 +70,11 @@ auto compiler_2020_12_core_dynamicref(const Context &context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &current)
     -> Instructions {
-  const auto &entry{static_frame_entry(context, schema_context)};
+  const auto entry_pointer{absolute_schema_pointer(context, schema_context)};
   // In this case, just behave as a normal static reference
   if (!context.frame
            .reference(sourcemeta::blaze::SchemaReferenceType::Dynamic,
-                      entry.pointer)
+                      entry_pointer)
            .has_value()) {
     return compiler_draft3_core_ref(context, schema_context, dynamic_context,
                                     current);
@@ -101,19 +101,18 @@ auto compiler_2020_12_core_dynamicref(const Context &context,
     return {make(sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump,
                  context, schema_context, dynamic_context,
                  std::string{reference.fragment().value()})};
-  } else {
-    const auto base_resource{reference.recompose_without_fragment()};
-    assert(base_resource.has_value());
-
-    // If the dynamic reference has a static component, we need to make sure we
-    // append such static part as a resource before we begin the lookup
-    return {make_with_resource(
-        sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump, context,
-        schema_context, dynamic_context,
-        // TODO: The amount of possible anchors is known at compile time.
-        // We could convert it into integers like we do for resources
-        std::string{reference.fragment().value()}, base_resource.value())};
   }
+  const auto base_resource{reference.recompose_without_fragment()};
+  assert(base_resource.has_value());
+
+  // If the dynamic reference has a static component, we need to make sure we
+  // append such static part as a resource before we begin the lookup
+  return {make_with_resource(
+      sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump, context,
+      schema_context, dynamic_context,
+      // TODO: The amount of possible anchors is known at compile time.
+      // We could convert it into integers like we do for resources
+      std::string{reference.fragment().value()}, base_resource.value())};
 }
 
 } // namespace internal

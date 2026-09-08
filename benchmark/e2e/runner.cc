@@ -18,7 +18,7 @@
                                           "/e2e/" directory_name};             \
     const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
                                                                                \
-    for (auto _ : state) {                                                     \
+    for (auto iteration : state) {                                             \
       auto schema_template{sourcemeta::blaze::compile(                         \
           schema, sourcemeta::blaze::schema_walker,                            \
           sourcemeta::blaze::schema_resolver,                                  \
@@ -47,7 +47,7 @@
     }                                                                          \
                                                                                \
     sourcemeta::blaze::Evaluator evaluator;                                    \
-    for (auto _ : state) {                                                     \
+    for (auto iteration : state) {                                             \
       for (const auto &instance : instances) {                                 \
         auto result{evaluator.validate(schema_template, instance)};            \
         assert(result);                                                        \

@@ -26,20 +26,26 @@ static auto collect(std::vector<StoredTrace> &traces)
     -> sourcemeta::blaze::TraceOutput::Callback {
   return [&traces](const sourcemeta::blaze::TraceOutput::Entry &entry) {
     traces.push_back(
-        {entry.type, std::string{entry.name}, entry.instance_location,
-         entry.evaluate_path, std::string{entry.keyword_location},
-         entry.type == sourcemeta::blaze::TraceOutput::EntryType::Annotation
-             ? std::optional<sourcemeta::core::JSON>{entry.annotation}
-             : std::nullopt,
-         entry.vocabulary.has_value()
-             ? std::optional<std::string>{std::string{entry.vocabulary.value()}}
-             : std::nullopt});
+        {.type = entry.type,
+         .name = std::string{entry.name},
+         .instance_location = entry.instance_location,
+         .evaluate_path = entry.evaluate_path,
+         .keyword_location = std::string{entry.keyword_location},
+         .annotation =
+             entry.type == sourcemeta::blaze::TraceOutput::EntryType::Annotation
+                 ? std::optional<sourcemeta::core::JSON>{entry.annotation}
+                 : std::nullopt,
+         .vocabulary = entry.vocabulary.has_value()
+                           ? std::optional<std::string>{std::string{
+                                 entry.vocabulary.value()}}
+                           : std::nullopt});
   };
 }
 
 #define EXPECT_OUTPUT(traces, index, expected_type, expected_name,             \
                       expected_instance_location, expected_evaluate_path,      \
                       expected_keyword_location, expected_annotation)          \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
   EXPECT_TRUE(traces.size() > index);                                          \
   EXPECT_EQ(traces.at((index)).type,                                           \
             sourcemeta::blaze::TraceOutput::EntryType::expected_type);         \
@@ -163,11 +169,11 @@ TEST(pass_annotations) {
       traces, 1, Push, "LoopPropertiesMatch", "", "/properties", "#/properties",
       std::nullopt, "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 2, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 2, Annotation, "AnnotationEmitWrapped", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"foo"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 3, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 3, Annotation, "AnnotationEmitWrapped", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"bar"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
@@ -285,11 +291,11 @@ TEST(pass_with_frame_exhaustive) {
                                    "#/properties/foo/unknown",
                                    sourcemeta::core::JSON{true});
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 3, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 3, Annotation, "AnnotationEmitWrapped", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"foo"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 4, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 4, Annotation, "AnnotationEmitWrapped", "", "/properties",
       "#/properties", sourcemeta::core::JSON{"bar"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
@@ -549,7 +555,7 @@ TEST(vocabulary_of_a_subschema_under_a_property_named_after_a_keyword) {
       "https://example.com#/properties/type/anyOf", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
-      traces, 5, Annotation, "AnnotationEmit", "", "/properties",
+      traces, 5, Annotation, "AnnotationEmitWrapped", "", "/properties",
       "https://example.com#/properties", sourcemeta::core::JSON{"type"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(

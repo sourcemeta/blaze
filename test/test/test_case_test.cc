@@ -11,7 +11,7 @@ static const sourcemeta::core::PointerPositionTracker::Position STUB_POSITION{
     0, 0, 0, 0};
 
 TEST(error_not_an_object) {
-  const auto input{"[]"};
+  const auto *const input{"[]"};
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
@@ -27,7 +27,7 @@ TEST(error_not_an_object) {
 }
 
 TEST(error_no_data_or_dataPath) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "valid": true
   })JSON"};
 
@@ -48,7 +48,7 @@ TEST(error_no_data_or_dataPath) {
 }
 
 TEST(error_both_data_and_dataPath) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "dataPath": "data.json",
     "valid": true
@@ -70,7 +70,7 @@ TEST(error_both_data_and_dataPath) {
 }
 
 TEST(error_dataPath_not_string) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "dataPath": 123,
     "valid": true
   })JSON"};
@@ -92,7 +92,7 @@ TEST(error_dataPath_not_string) {
 }
 
 TEST(error_description_not_string) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "description": 123,
     "valid": true
@@ -114,7 +114,7 @@ TEST(error_description_not_string) {
 }
 
 TEST(error_no_valid) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {}
   })JSON"};
 
@@ -134,7 +134,7 @@ TEST(error_no_valid) {
 }
 
 TEST(error_valid_not_boolean) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": "true"
   })JSON"};
@@ -155,7 +155,7 @@ TEST(error_valid_not_boolean) {
 }
 
 TEST(valid_with_inline_data_true) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": { "foo": 1 },
     "valid": true
   })JSON"};
@@ -175,7 +175,7 @@ TEST(valid_with_inline_data_true) {
 }
 
 TEST(valid_with_inline_data_false) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": { "foo": 1 },
     "valid": false
   })JSON"};
@@ -195,7 +195,7 @@ TEST(valid_with_inline_data_false) {
 }
 
 TEST(valid_with_description) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "description": "My test case",
     "valid": true
@@ -214,7 +214,7 @@ TEST(valid_with_description) {
 }
 
 TEST(valid_with_dataPath_json) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "dataPath": "data.json",
     "valid": true
   })JSON"};
@@ -234,7 +234,7 @@ TEST(valid_with_dataPath_json) {
 }
 
 TEST(valid_with_dataPath_yaml) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "dataPath": "data.yaml",
     "valid": true
   })JSON"};
@@ -254,7 +254,7 @@ TEST(valid_with_dataPath_yaml) {
 }
 
 TEST(valid_with_dataPath_and_description) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "dataPath": "data.json",
     "description": "External data test",
     "valid": false
@@ -275,7 +275,7 @@ TEST(valid_with_dataPath_and_description) {
 }
 
 TEST(error_both_rdf_and_rdfPath) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": true,
     "rdf": [],
@@ -301,7 +301,7 @@ TEST(error_both_rdf_and_rdfPath) {
 }
 
 TEST(error_rdfPath_not_string) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": true,
     "rdfPath": 123
@@ -327,7 +327,7 @@ TEST(error_rdfPath_not_string) {
 }
 
 TEST(error_rdf_with_valid_false) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": false,
     "rdf": []
@@ -353,7 +353,7 @@ TEST(error_rdf_with_valid_false) {
 }
 
 TEST(error_rdfPath_with_valid_false) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": false,
     "rdfPath": "rdf.json"
@@ -379,7 +379,7 @@ TEST(error_rdfPath_with_valid_false) {
 }
 
 TEST(error_rdf_not_array) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": true,
     "rdf": {}
@@ -404,7 +404,7 @@ TEST(error_rdf_not_array) {
 }
 
 TEST(error_rdfPath_document_not_array) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": true,
     "rdfPath": "data.json"
@@ -430,7 +430,7 @@ TEST(error_rdfPath_document_not_array) {
 }
 
 TEST(error_rdf_with_valid_false_takes_precedence_over_not_array) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": false,
     "rdf": {}
@@ -456,7 +456,7 @@ TEST(error_rdf_with_valid_false_takes_precedence_over_not_array) {
 }
 
 TEST(error_both_rdf_and_rdfPath_takes_precedence_over_valid_false) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "valid": false,
     "rdf": [],
@@ -482,7 +482,7 @@ TEST(error_both_rdf_and_rdfPath_takes_precedence_over_valid_false) {
 }
 
 TEST(error_rdf_without_valid) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": {},
     "rdf": []
   })JSON"};
@@ -506,7 +506,7 @@ TEST(error_rdf_without_valid) {
 }
 
 TEST(valid_without_rdf_exposes_no_expectation) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": { "name": "Ada" },
     "valid": true
   })JSON"};
@@ -527,7 +527,7 @@ TEST(valid_without_rdf_exposes_no_expectation) {
 }
 
 TEST(valid_with_inline_rdf) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": { "name": "Ada" },
     "valid": true,
     "rdf": [
@@ -560,7 +560,7 @@ TEST(valid_with_inline_rdf) {
 }
 
 TEST(valid_with_rdfPath_json) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": { "name": "Ada" },
     "valid": true,
     "rdfPath": "rdf.json"
@@ -588,7 +588,7 @@ TEST(valid_with_rdfPath_json) {
 }
 
 TEST(valid_with_rdfPath_yaml) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "data": { "name": "Ada" },
     "valid": true,
     "rdfPath": "rdf.yaml"
@@ -616,7 +616,7 @@ TEST(valid_with_rdfPath_yaml) {
 }
 
 TEST(valid_with_dataPath_and_inline_rdf) {
-  const auto input{R"JSON({
+  const auto *const input{R"JSON({
     "dataPath": "data.json",
     "valid": true,
     "rdf": []

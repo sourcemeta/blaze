@@ -17,10 +17,13 @@
 // The number of books in the catalog and how many authors each one carries.
 // Together they set how many annotations the run emits, so they are the knobs
 // to turn when using this benchmark as a basis for further research.
-static constexpr std::size_t catalog_member_count{256};
-static constexpr std::size_t authors_per_book{3};
+static constexpr std::size_t CATALOG_MEMBER_COUNT{256};
+static constexpr std::size_t AUTHORS_PER_BOOK{3};
 
 // A string value that never risks the const char* to bool constructor selection
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
 static auto string_value(std::string value) -> sourcemeta::core::JSON {
   return sourcemeta::core::JSON{std::move(value)};
 }
@@ -45,7 +48,9 @@ static auto make_organization(const std::size_t index)
 
 static auto make_price(const std::size_t index) -> sourcemeta::core::JSON {
   auto price{sourcemeta::core::JSON::make_object()};
-  const auto code{index % 3 == 0 ? "USD" : index % 3 == 1 ? "EUR" : "GBP"};
+  const auto *const code{index % 3 == 0   ? "USD"
+                         : index % 3 == 1 ? "EUR"
+                                          : "GBP"};
   price.assign("currency", string_value(code));
   price.assign("value",
                sourcemeta::core::JSON{static_cast<double>(index) + 0.99});
@@ -107,8 +112,8 @@ static auto make_book(const std::size_t index) -> sourcemeta::core::JSON {
   book.assign("datePublished", string_value("2020-05-15"));
 
   auto authors{sourcemeta::core::JSON::make_array()};
-  for (std::size_t offset = 0; offset < authors_per_book; offset += 1) {
-    authors.push_back(make_person(index * 10 + offset));
+  for (std::size_t offset = 0; offset < AUTHORS_PER_BOOK; offset += 1) {
+    authors.push_back(make_person((index * 10) + offset));
   }
   book.assign("authors", std::move(authors));
 
@@ -135,7 +140,7 @@ static auto make_catalog(const std::size_t count) -> sourcemeta::core::JSON {
 
 static auto run_catalog(benchmark::State &state,
                         const sourcemeta::core::JSON &schema) -> void {
-  const auto instance{make_catalog(catalog_member_count)};
+  const auto instance{make_catalog(CATALOG_MEMBER_COUNT)};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations = std::unordered_set<sourcemeta::core::JSON::StringView>{
@@ -148,7 +153,7 @@ static auto run_catalog(benchmark::State &state,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto outcome{
         sourcemeta::blaze::jsonld(evaluator, schema_template, instance)};
     assert(std::holds_alternative<sourcemeta::core::JSON>(outcome));
@@ -588,3 +593,4 @@ static auto JSONLD_Catalog_Override_Shadowing(benchmark::State &state) -> void {
 BENCHMARK(JSONLD_Catalog_Simple);
 BENCHMARK(JSONLD_Catalog_Override_Agreeing);
 BENCHMARK(JSONLD_Catalog_Override_Shadowing);
+// NOLINTEND(readability-identifier-naming)

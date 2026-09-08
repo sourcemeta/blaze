@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/empty-enum",
+  "type": "object",
+  "required": [ "name" ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "impossible": {
+      "enum": []
+    }
+  },
+  "additionalProperties": false
+}

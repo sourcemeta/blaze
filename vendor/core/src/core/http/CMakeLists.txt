@@ -15,6 +15,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME http
           negotiate_encoding.cc from_date.cc format_link.cc format_vary.cc
           field_list.cc
           accept_includes_all.cc content_type_matches.cc parse_bearer.cc
+          parse_media_type.cc match_media_range.cc
           cache_control_max_age.cc serialize_cookie.cc aws_sigv4.cc
           serialize_challenge.cc parse_challenges.cc
           serialize_cache_control.cc
@@ -38,7 +39,12 @@ if(SOURCEMETA_CORE_HTTP_USE_SYSTEM_CURL)
     PRIVATE SOURCEMETA_CORE_HTTP_USE_SYSTEM_CURL)
   target_link_libraries(sourcemeta_core_http PRIVATE CURL::libcurl)
 elseif(APPLE)
-  target_link_libraries(sourcemeta_core_http PRIVATE "-framework Foundation")
+  # Resolve the framework to an absolute bundle path rather than passing a raw
+  # linker flag, as the exported interface is also read by build systems that
+  # only understand a path to a library
+  find_library(HTTP_FOUNDATION_FRAMEWORK Foundation REQUIRED)
+  target_link_libraries(sourcemeta_core_http
+    PRIVATE "${HTTP_FOUNDATION_FRAMEWORK}")
 elseif(WIN32 AND NOT CMAKE_SYSTEM_NAME STREQUAL "MSYS")
   target_link_libraries(sourcemeta_core_http PRIVATE winhttp)
   target_link_libraries(sourcemeta_core_http PRIVATE sourcemeta::core::unicode)

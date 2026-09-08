@@ -22,8 +22,9 @@ static auto test_resolver(std::string_view identifier)
         "https://example.com/vocab/custom": true
       }
     })JSON");
-  } else if (identifier ==
-             "https://example.com/metaschema-unsupported-required-vocab") {
+  }
+  if (identifier ==
+      "https://example.com/metaschema-unsupported-required-vocab") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/metaschema-unsupported-required-vocab",
@@ -32,25 +33,29 @@ static auto test_resolver(std::string_view identifier)
         "https://example.com/vocab/unsupported-fictional": true
       }
     })JSON");
-  } else if (identifier == "https://example.com/schema") {
+  }
+  if (identifier == "https://example.com/schema") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/schema",
       "type": "string"
     })JSON");
-  } else if (identifier == "https://example.com/anonymous-draft4") {
+  }
+  if (identifier == "https://example.com/anonymous-draft4") {
     return sourcemeta::core::parse_json(R"JSON({
       "minimum": 2,
       "exclusiveMinimum": true
     })JSON");
-  } else if (identifier == "https://example.com/anonymous-draft7") {
+  }
+  if (identifier == "https://example.com/anonymous-draft7") {
     return sourcemeta::core::parse_json(R"JSON({
       "definitions": {
         "helper": { "type": "string" }
       },
       "allOf": [ { "$ref": "#/definitions/helper", "type": "integer" } ]
     })JSON");
-  } else if (identifier == "https://example.com/anonymous-embedded") {
+  }
+  if (identifier == "https://example.com/anonymous-embedded") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "id": "https://example.com/anonymous-embedded",
@@ -62,9 +67,8 @@ static auto test_resolver(std::string_view identifier)
         }
       }
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 TEST(unknown_vocabulary_required) {
@@ -389,7 +393,22 @@ TEST(is_annotation) {
       sourcemeta::blaze::InstructionIndex::AnnotationToParent));
   EXPECT_TRUE(sourcemeta::blaze::is_annotation(
       sourcemeta::blaze::InstructionIndex::AnnotationEmit));
+  EXPECT_TRUE(sourcemeta::blaze::is_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped));
   EXPECT_FALSE(sourcemeta::blaze::is_annotation(
+      sourcemeta::blaze::InstructionIndex::AssertionFail));
+}
+
+TEST(is_wrapped_annotation) {
+  EXPECT_TRUE(sourcemeta::blaze::is_wrapped_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent));
+  EXPECT_TRUE(sourcemeta::blaze::is_wrapped_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped));
+  EXPECT_FALSE(sourcemeta::blaze::is_wrapped_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationEmit));
+  EXPECT_FALSE(sourcemeta::blaze::is_wrapped_annotation(
+      sourcemeta::blaze::InstructionIndex::AnnotationToParent));
+  EXPECT_FALSE(sourcemeta::blaze::is_wrapped_annotation(
       sourcemeta::blaze::InstructionIndex::AssertionFail));
 }
 
@@ -407,6 +426,29 @@ TEST(instruction_move_constructible) {
 
 TEST(instruction_move_assignable) {
   EXPECT_TRUE(std::is_move_assignable_v<sourcemeta::blaze::Instruction>);
+}
+
+TEST(invalid_entrypoint_that_is_not_a_uri) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  sourcemeta::blaze::SchemaFrame frame{
+      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
+      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::blaze::default_schema_compiler,
+                               frame, "http://[");
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    EXPECT_EQ(error.identifier(), "http://[");
+    EXPECT_STREQ(error.what(),
+                 "The given entry point URI does not exist in the schema");
+  }
 }
 
 TEST(invalid_entrypoint_does_not_exist) {

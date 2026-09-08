@@ -1,3 +1,5 @@
 brew "cmake"
 brew "doxygen"
 brew "gcc@13"
+brew "meson"
+brew "ninja"

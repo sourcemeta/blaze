@@ -61,18 +61,9 @@ function(sourcemeta_library)
   else()
     add_library(${TARGET_NAME} INTERFACE
       ${PUBLIC_HEADER} ${ABSOLUTE_PRIVATE_HEADERS})
-    sourcemeta_add_default_options(INTERFACE ${TARGET_NAME})
   endif()
 
   add_library(${ALIAS_NAME} ALIAS ${TARGET_NAME})
-
-  if(Mimalloc_FOUND)
-    if(SOURCEMETA_LIBRARY_SOURCES)
-      target_link_libraries(${TARGET_NAME} PRIVATE Mimalloc::Mimalloc)
-    else()
-      target_link_libraries(${TARGET_NAME} INTERFACE Mimalloc::Mimalloc)
-    endif()
-  endif()
 
   if(NOT SOURCEMETA_LIBRARY_VARIANT)
     set(include_dir "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -133,6 +124,40 @@ function(sourcemeta_library)
   endif()
 endfunction()
 
+# A static library records its private dependencies as $<LINK_ONLY:...> in the
+# exported link interface. Build systems that read the export without evaluating
+# generator expressions drop those entries and lose the transitive link closure,
+# so unwrap them for the installed interface. The build interface keeps the
+# wrapper, so that consumers within this project do not start inheriting the
+# usage requirements that a private dependency is not meant to hand them
+function(sourcemeta_library_export_flatten TARGET_NAME)
+  get_target_property(SOURCEMETA_LIBRARY_INTERFACE
+    ${TARGET_NAME} INTERFACE_LINK_LIBRARIES)
+  if(SOURCEMETA_LIBRARY_INTERFACE)
+    set(SOURCEMETA_LIBRARY_FLATTENED)
+    foreach(entry IN LISTS SOURCEMETA_LIBRARY_INTERFACE)
+      string(REGEX REPLACE "^\\$<LINK_ONLY:(.*)>$" "\\1" unwrapped "${entry}")
+      set(dependency_type)
+      if(TARGET "${unwrapped}")
+        get_target_property(dependency_type "${unwrapped}" TYPE)
+      endif()
+      if(unwrapped STREQUAL entry)
+        list(APPEND SOURCEMETA_LIBRARY_FLATTENED "${entry}")
+      elseif(dependency_type STREQUAL "OBJECT_LIBRARY")
+        # The objects of such a dependency are already part of this library,
+        # so there is nothing left for an installed consumer to link against
+        list(APPEND SOURCEMETA_LIBRARY_FLATTENED "$<BUILD_INTERFACE:${entry}>")
+      else()
+        list(APPEND SOURCEMETA_LIBRARY_FLATTENED
+          "$<BUILD_INTERFACE:${entry}>"
+          "$<INSTALL_INTERFACE:${unwrapped}>")
+      endif()
+    endforeach()
+    set_property(TARGET ${TARGET_NAME}
+      PROPERTY INTERFACE_LINK_LIBRARIES ${SOURCEMETA_LIBRARY_FLATTENED})
+  endif()
+endfunction()
+
 function(sourcemeta_library_install)
   cmake_parse_arguments(SOURCEMETA_LIBRARY "" "NAMESPACE;PROJECT;NAME;VARIANT" "" ${ARGN})
 
@@ -173,6 +198,12 @@ function(sourcemeta_library_install)
       NAMELINK_COMPONENT ${COMPONENT_NAME}_dev
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     COMPONENT ${COMPONENT_NAME}_dev)
+  # Deferred, as callers link their dependencies after installing the target.
+  # The target name is expanded into the deferred call, as its arguments are
+  # not evaluated until the call runs, by which point the variable is gone
+  cmake_language(EVAL CODE
+    "cmake_language(DEFER CALL sourcemeta_library_export_flatten ${TARGET_NAME})")
+
   install(EXPORT ${TARGET_NAME}
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${SOURCEMETA_LIBRARY_PROJECT}"
     NAMESPACE ${NAMESPACE_PREFIX}

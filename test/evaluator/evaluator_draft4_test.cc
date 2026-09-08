@@ -185,7 +185,7 @@ TEST(properties_15) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"f\": \"foo\", \"extra\": 2 }")};
+      sourcemeta::core::parse_json(R"({ "f": "foo", "extra": 2 })")};
 
   if (FIRST_PROPERTY_IS(instance, "f")) {
     EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");
@@ -355,7 +355,7 @@ TEST(patternProperties_12) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"foo\": \"bar\", \"@bar\": \"baz\" }")};
+      sourcemeta::core::parse_json(R"({ "foo": "bar", "@bar": "baz" })")};
 
   if (FIRST_PROPERTY_IS(instance, "foo")) {
     EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");
@@ -407,7 +407,7 @@ TEST(additionalProperties_1_exhaustive) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"bar\": 2, \"foo\": 1 }")};
+      sourcemeta::core::parse_json(R"({ "bar": 2, "foo": 1 })")};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 3, "");
 
@@ -467,7 +467,7 @@ TEST(additionalProperties_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"bar\": 2, \"foo\": 1 }")};
+      sourcemeta::core::parse_json(R"({ "bar": 2, "foo": 1 })")};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
@@ -538,7 +538,7 @@ TEST(additionalProperties_5) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"foo\": true, \"bar\": 2 }")};
+      sourcemeta::core::parse_json(R"({ "foo": true, "bar": 2 })")};
 
   if (FIRST_PROPERTY_IS(instance, "foo")) {
     EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");

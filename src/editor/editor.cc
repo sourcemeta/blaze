@@ -6,7 +6,6 @@
 
 #include <cassert> // assert
 #include <format>  // std::format
-#include <map>     // std::map
 
 namespace {
 
@@ -22,9 +21,7 @@ auto top_dynamic_anchor_location(
     -> std::optional<
         std::reference_wrapper<const sourcemeta::core::WeakPointer>> {
   // Get the location object of where we are at the moment
-  const auto uri{frame.uri(current)};
-  assert(uri.has_value());
-  const auto match{frame.traverse(uri.value().get())};
+  const auto match{frame.traverse(current)};
   assert(match.has_value());
   const auto &location{match.value().get()};
 
@@ -44,16 +41,16 @@ auto top_dynamic_anchor_location(
 
     // If we are at the top of the schema and it declares the dynamic anchor, we
     // should use that
-  } else if (anchor.has_value()) {
+  }
+  if (anchor.has_value()) {
     return std::cref(anchor.value().get().pointer);
 
     // Otherwise, if we are at the top and the dynamic anchor is not there, use
     // the default we have so far
-  } else {
-    const auto default_location{frame.traverse(default_uri)};
-    assert(default_location.has_value());
-    return std::cref(default_location.value().get().pointer);
   }
+  const auto default_location{frame.traverse(default_uri)};
+  assert(default_location.has_value());
+  return std::cref(default_location.value().get().pointer);
 }
 
 } // namespace
@@ -93,17 +90,6 @@ auto for_editor(sourcemeta::core::JSON &schema,
     // Otherwise the input is not bundled
     assert(frame.standalone());
 
-    // Note that `std::unordered_map` is slower here due to high collision rates
-    // from the simple pointer hashes
-    std::map<sourcemeta::core::WeakPointer, std::string_view> pointer_to_uri;
-    frame.for_each_location(
-        [&pointer_to_uri](
-            const sourcemeta::blaze::SchemaReferenceType,
-            const std::string_view uri,
-            const sourcemeta::blaze::SchemaFrame::Location &location) -> void {
-          pointer_to_uri.emplace(location.pointer, uri);
-        });
-
     // Collect reference changes
     frame.for_each_reference(
         [&](const sourcemeta::blaze::SchemaReferenceType type,
@@ -116,8 +102,10 @@ auto for_editor(sourcemeta::core::JSON &schema,
 
           if (type == sourcemeta::blaze::SchemaReferenceType::Dynamic) {
             if (reference.fragment.has_value()) {
+              // A reference is a keyword of the subschema that declares it,
+              // which is the resource scope the search has to start from
               const auto destination{top_dynamic_anchor_location(
-                  frame, origin, reference.fragment.value(),
+                  frame, origin.initial(), reference.fragment.value(),
                   reference.destination)};
               if (!destination.has_value()) {
                 return;
@@ -139,10 +127,10 @@ auto for_editor(sourcemeta::core::JSON &schema,
             }
           } else {
             if (keyword == "$schema") {
-              // Use pre-built index instead of O(n) frame.uri() scan
-              const auto uri_it{pointer_to_uri.find(origin)};
-              assert(uri_it != pointer_to_uri.end());
-              const auto location{frame.traverse(uri_it->second)};
+              // A meta-schema reference is a keyword of the subschema that
+              // declares it, so the base dialect to report is the one in force
+              // at that subschema
+              const auto location{frame.traverse(origin.initial())};
               assert(location.has_value());
               reference_changes.push_back(
                   {.pointer = sourcemeta::core::to_pointer(origin),
@@ -194,10 +182,10 @@ auto for_editor(sourcemeta::core::JSON &schema,
                .add_schema_declaration = add_schema,
                .erase_2020_12_keywords =
                    vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::
-                                             Known::JSON_Schema_2020_12_Core),
+                                             Known::JSON_SCHEMA_2020_12_CORE),
                .erase_2019_09_keywords =
                    vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::
-                                             Known::JSON_Schema_2019_09_Core)});
+                                             Known::JSON_SCHEMA_2019_09_CORE)});
         });
   }
 

@@ -303,7 +303,8 @@ auto compiler_2019_09_applicator_unevaluateditems(
     if (keyword == "items" &&
         (subschema.is_object() || subschema.is_boolean())) {
       return {};
-    } else if (keyword == "additionalItems" || keyword == "unevaluatedItems") {
+    }
+    if (keyword == "additionalItems" || keyword == "unevaluatedItems") {
       return {};
     }
     // NOLINTEND(bugprone-branch-clone)
@@ -391,14 +392,14 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
           if (maybe_prefix.has_value()) {
             filter_prefixes.push_back(maybe_prefix.value());
           } else {
-            static const std::string pattern_properties_keyword{
+            static const std::string PATTERN_PROPERTIES_KEYWORD{
                 "patternProperties"};
             filter_regexes.push_back(
                 {.first = parse_regex(
                      property.first, context, schema_context.base,
                      schema_context.relative_pointer.initial().concat(
                          sourcemeta::blaze::make_weak_pointer(
-                             pattern_properties_keyword))),
+                             PATTERN_PROPERTIES_KEYWORD))),
                  .second = property.first});
           }
         }
@@ -413,19 +414,19 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
       !requires_evaluation(context, schema_context)) {
     if (children.empty()) {
       return {};
-    } else if (!filter_strings.empty() || !filter_prefixes.empty() ||
-               !filter_regexes.empty()) {
+    }
+    if (!filter_strings.empty() || !filter_prefixes.empty() ||
+        !filter_regexes.empty()) {
       return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept,
                    context, schema_context, dynamic_context,
                    ValuePropertyFilter{std::move(filter_strings),
                                        std::move(filter_prefixes),
                                        std::move(filter_regexes)},
                    std::move(children))};
-    } else {
-      return {make(sourcemeta::blaze::InstructionIndex::LoopProperties, context,
-                   schema_context, dynamic_context, ValueNone{},
-                   std::move(children))};
     }
+    return {make(sourcemeta::blaze::InstructionIndex::LoopProperties, context,
+                 schema_context, dynamic_context, ValueNone{},
+                 std::move(children))};
   }
 
   if (children.empty()) {
@@ -435,8 +436,9 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesEvaluate,
                  context, schema_context, dynamic_context, ValueNone{},
                  Instructions{})};
-  } else if (!filter_strings.empty() || !filter_prefixes.empty() ||
-             !filter_regexes.empty()) {
+  }
+  if (!filter_strings.empty() || !filter_prefixes.empty() ||
+      !filter_regexes.empty()) {
     return {make(
         sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluatedExcept,
         context, schema_context, dynamic_context,
@@ -444,11 +446,10 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
                             std::move(filter_prefixes),
                             std::move(filter_regexes)},
         std::move(children))};
-  } else {
-    return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated,
-                 context, schema_context, dynamic_context, ValueNone{},
-                 std::move(children))};
   }
+  return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated,
+               context, schema_context, dynamic_context, ValueNone{},
+               std::move(children))};
 }
 
 auto compiler_2019_09_core_recursiveref(const Context &context,
@@ -456,11 +457,11 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &current)
     -> Instructions {
-  const auto &entry{static_frame_entry(context, schema_context)};
+  const auto entry_pointer{absolute_schema_pointer(context, schema_context)};
   // In this case, just behave as a normal static reference
   if (!context.frame
            .reference(sourcemeta::blaze::SchemaReferenceType::Dynamic,
-                      entry.pointer)
+                      entry_pointer)
            .has_value()) {
     return compiler_draft3_core_ref(context, schema_context, dynamic_context,
                                     current);

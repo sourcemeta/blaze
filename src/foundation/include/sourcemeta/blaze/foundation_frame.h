@@ -15,7 +15,9 @@
 
 #include <concepts>   // std::invocable
 #include <cstdint>    // std::uint8_t
+#include <deque>      // std::deque
 #include <functional> // std::reference_wrapper
+#include <limits>     // std::numeric_limits
 #include <map>        // std::map
 #include <memory>     // std::unique_ptr
 #include <optional>   // std::optional
@@ -58,7 +60,15 @@ public:
   /// intensive. Each mode is a superset of the previous one. Note that
   /// sourcemeta::blaze::SchemaFrame::Mode::Root reports on a single schema,
   /// so framing a wrapper that holds more than one yields no locations
-  enum class Mode : std::uint8_t { Root, Locations, References };
+  ///
+  /// sourcemeta::blaze::SchemaFrame::Mode::Locations and
+  /// sourcemeta::blaze::SchemaFrame::Mode::References locate the schemas of
+  /// the document rather than each of its JSON Pointers, and the latter also
+  /// locates whatever place a reference names. Reach for
+  /// sourcemeta::blaze::SchemaFrame::Mode::Pointers only to address a keyword
+  /// or a value of the document by URI, as computing those locations tends to
+  /// dominate the cost of framing
+  enum class Mode : std::uint8_t { Root, Locations, References, Pointers };
 
   /// How a caller-provided default identifier relates to the one that the
   /// schema declares, if any
@@ -141,12 +151,24 @@ public:
   /// `default_dialect`, as a location that has no dialect of its own reports
   /// the default back as a view into what the caller passed. In contrast,
   /// `default_id` is copied, so it does not need to outlive this call
-  SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
-              const SchemaWalker &walker, const SchemaResolver &resolver,
-              std::string_view default_dialect = "",
-              std::string_view default_id = "",
-              IdentifierMode identifier_mode = IdentifierMode::Additional,
-              const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER});
+  ///
+  /// Framing a schema that declares nested identifiers registers a location
+  /// per enclosing base, so what an untrusted schema costs to analyse grows
+  /// faster than the schema itself does. Pass `max_locations` to bound that,
+  /// throwing sourcemeta::blaze::SchemaFrameLimitError rather than analysing
+  /// past it. What the limit buys depends on the mode, as
+  /// sourcemeta::blaze::SchemaFrame::Mode::Pointers locates every JSON Pointer
+  /// of the document rather than only the schemas of it. Note this bounds what
+  /// framing registers rather than every last thing it does, as walking the
+  /// document costs something even where nothing comes of it. Bounding the
+  /// size of the document remains the caller's to do
+  SchemaFrame(
+      const Mode mode, const sourcemeta::core::JSON &root,
+      const SchemaWalker &walker, const SchemaResolver &resolver,
+      std::string_view default_dialect = "", std::string_view default_id = "",
+      IdentifierMode identifier_mode = IdentifierMode::Additional,
+      const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER},
+      std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max());
 
   /// Get a specific reference entry by type and pointer
   [[nodiscard]] auto
@@ -529,6 +551,11 @@ private:
 #pragma warning(disable : 4251 4275)
 #endif
   sourcemeta::core::JSON::String root_;
+  // A reference may target a place that no schema location covers, in which
+  // case framing materialises one for it. Unlike every other location, the
+  // tokens of those pointers are not borrowed from the analysed document, so
+  // they have to be declared here to outlive the locations that borrow them
+  std::deque<sourcemeta::core::Pointer> reference_pointers_;
   Locations locations_;
   References references_;
   // What the frame derives rather than is, kept out of line so that this

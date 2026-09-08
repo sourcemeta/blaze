@@ -11,7 +11,8 @@ static auto test_resolver_2020_12(std::string_view identifier)
       "$id": "https://example.com/foo/bar",
       "$anchor": "baz"
     })JSON");
-  } else if (identifier == "https://example.com/baz-anchor") {
+  }
+  if (identifier == "https://example.com/baz-anchor") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/baz-anchor",
@@ -22,7 +23,8 @@ static auto test_resolver_2020_12(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/recursive") {
+  }
+  if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/recursive",
@@ -30,21 +32,22 @@ static auto test_resolver_2020_12(std::string_view identifier)
         "foo": { "$ref": "#" }
       }
     })JSON");
-  } else if (identifier == "https://example.com/meta/1.json") {
+  }
+  if (identifier == "https://example.com/meta/1.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/2.json",
       "$id": "https://example.com/meta/1.json",
       "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
     })JSON");
-  } else if (identifier == "https://example.com/meta/2.json") {
+  }
+  if (identifier == "https://example.com/meta/2.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/meta/2.json",
       "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 static auto test_resolver_2019_09(std::string_view identifier)
@@ -55,7 +58,8 @@ static auto test_resolver_2019_09(std::string_view identifier)
       "$id": "https://example.com/foo/bar",
       "$anchor": "baz"
     })JSON");
-  } else if (identifier == "https://example.com/baz-anchor") {
+  }
+  if (identifier == "https://example.com/baz-anchor") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$id": "https://example.com/baz-anchor",
@@ -66,7 +70,8 @@ static auto test_resolver_2019_09(std::string_view identifier)
         }
       }
     })JSON");
-  } else if (identifier == "https://www.sourcemeta.com/recursive") {
+  }
+  if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$id": "https://www.sourcemeta.com/recursive",
@@ -74,21 +79,22 @@ static auto test_resolver_2019_09(std::string_view identifier)
         "foo": { "$ref": "#" }
       }
     })JSON");
-  } else if (identifier == "https://example.com/meta/1.json") {
+  }
+  if (identifier == "https://example.com/meta/1.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/2.json",
       "$id": "https://example.com/meta/1.json",
       "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
     })JSON");
-  } else if (identifier == "https://example.com/meta/2.json") {
+  }
+  if (identifier == "https://example.com/meta/2.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$id": "https://example.com/meta/2.json",
       "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 static auto test_resolver_draft7(std::string_view identifier)
@@ -101,19 +107,20 @@ static auto test_resolver_draft7(std::string_view identifier)
         "foo": { "$ref": "#" }
       }
     })JSON");
-  } else if (identifier == "https://example.com/meta/1.json") {
+  }
+  if (identifier == "https://example.com/meta/1.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/2.json",
       "$id": "https://example.com/meta/1.json"
     })JSON");
-  } else if (identifier == "https://example.com/meta/2.json") {
+  }
+  if (identifier == "https://example.com/meta/2.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-07/schema#",
       "$id": "https://example.com/meta/2.json"
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 static auto test_resolver_draft6(std::string_view identifier)
@@ -126,19 +133,20 @@ static auto test_resolver_draft6(std::string_view identifier)
         "foo": { "$ref": "#" }
       }
     })JSON");
-  } else if (identifier == "https://example.com/meta/1.json") {
+  }
+  if (identifier == "https://example.com/meta/1.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/2.json",
       "$id": "https://example.com/meta/1.json"
     })JSON");
-  } else if (identifier == "https://example.com/meta/2.json") {
+  }
+  if (identifier == "https://example.com/meta/2.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-06/schema#",
       "$id": "https://example.com/meta/2.json"
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 static auto test_resolver_draft4(std::string_view identifier)
@@ -151,19 +159,20 @@ static auto test_resolver_draft4(std::string_view identifier)
         "foo": { "$ref": "#" }
       }
     })JSON");
-  } else if (identifier == "https://example.com/meta/1.json") {
+  }
+  if (identifier == "https://example.com/meta/1.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://example.com/meta/2.json",
       "id": "https://example.com/meta/1.json"
     })JSON");
-  } else if (identifier == "https://example.com/meta/2.json") {
+  }
+  if (identifier == "https://example.com/meta/2.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
       "id": "https://example.com/meta/2.json"
     })JSON");
-  } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
   }
+  return sourcemeta::blaze::schema_resolver(identifier);
 }
 
 TEST(2020_12_bundle) {

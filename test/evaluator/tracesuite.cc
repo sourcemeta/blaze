@@ -19,14 +19,17 @@
 
 static auto to_instruction_index(const std::string_view name)
     -> sourcemeta::blaze::InstructionIndex {
-  constexpr auto count{sizeof(sourcemeta::blaze::InstructionNames) /
+  constexpr auto COUNT{sizeof(sourcemeta::blaze::INSTRUCTION_NAMES) /
                        sizeof(std::string_view)};
-  for (std::uint8_t index = 0; index < count; index++) {
-    if (sourcemeta::blaze::InstructionNames[index] == name) {
+  for (std::uint8_t index = 0; index < COUNT; index++) {
+    if (sourcemeta::blaze::INSTRUCTION_NAMES[index] == name) {
       return static_cast<sourcemeta::blaze::InstructionIndex>(index);
     }
   }
 
+  // GCC 13, which this project still supports, ships no <print>, so these stay
+  // on the C stdio calls that every supported toolchain has
+  // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "Unknown instruction type: %.*s\n",
                static_cast<int>(name.size()), name.data());
   std::unreachable();
@@ -168,6 +171,7 @@ auto run_error_test(const sourcemeta::core::JSON &data,
   } catch (const std::exception &error) {
     // Any other failure is still a failure of this expectation, and reporting
     // it here beats letting it escape as an uncaught exception
+    // NOLINTNEXTLINE(modernize-use-std-print)
     std::fprintf(stderr, "Unexpected exception: %s\n", error.what());
     FAIL();
   }
@@ -179,6 +183,7 @@ auto run_error_test(const sourcemeta::core::JSON &data,
 static auto register_error_tests(const std::filesystem::path &path,
                                  const std::string &suite_name,
                                  const std::string &metaschema) -> void {
+  // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
   assert(suite.is_array());
@@ -198,6 +203,7 @@ static auto register_error_tests(const std::filesystem::path &path,
 static auto register_tests(const std::filesystem::path &path,
                            const std::string &suite_name,
                            const std::string &metaschema) -> void {
+  // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
   assert(suite.is_array());
@@ -285,6 +291,7 @@ auto main(int argc, char **argv) -> int {
                          "Evaluator_error_draft3",
                          "http://json-schema.org/draft-03/schema#");
   } catch (const std::exception &error) {
+    // NOLINTNEXTLINE(modernize-use-std-print)
     std::fprintf(stderr, "Error: %s\n", error.what());
     return EXIT_FAILURE;
   }

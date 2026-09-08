@@ -3,6 +3,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME compiler
     compiler_unevaluated_2019_09_test.cc
     compiler_unevaluated_2020_12_test.cc
     compiler_json_test.cc
+    compiler_limit_test.cc
     compiler_test_utils.h)
 
 target_link_libraries(sourcemeta_blaze_compiler_unit

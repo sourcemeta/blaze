@@ -13,13 +13,13 @@
 
 namespace {
 auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
-  static const sourcemeta::blaze::Template schema_template{
+  static const sourcemeta::blaze::Template SCHEMA_TEMPLATE{
       sourcemeta::blaze::compile(
           sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
                                       "canonical-draft3.json"),
           sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
           sourcemeta::blaze::default_schema_compiler)};
-  return schema_template;
+  return SCHEMA_TEMPLATE;
 }
 } // namespace
 
@@ -4251,6 +4251,20 @@ TEST(enum_split_deeply_nested_referenced_d3) {
     },
     "patternProperties": {},
     "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(unsatisfiable_empty_enum) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "enum": []
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [ {} ]
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());

@@ -1,5 +1,6 @@
 bin
-output-tests
+output-tests/README.md
+output-tests/v1
 .editorconfig
 CONTRIBUTING.md
 output-test-schema.json

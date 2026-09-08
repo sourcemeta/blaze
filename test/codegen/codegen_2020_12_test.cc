@@ -1752,3 +1752,62 @@ TEST(embedded_custom_metaschema) {
   EXPECT_IR_SCALAR(result, 1, String, "");
   EXPECT_SYMBOL(std::get<CodegenIRScalar>(result.at(1)).symbol);
 }
+
+TEST(enum_empty) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "enum": []
+  })JSON")};
+
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+
+  using namespace sourcemeta::blaze;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_IR_IMPOSSIBLE(result, 0, "");
+  EXPECT_SYMBOL(std::get<CodegenIRImpossible>(result.at(0)).symbol);
+}
+
+TEST(enum_empty_nested) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "foo": { "enum": [] } }
+  })JSON")};
+
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+
+  using namespace sourcemeta::blaze;
+
+  EXPECT_EQ(result.size(), 2);
+
+  EXPECT_IR_IMPOSSIBLE(result, 0, "/properties/foo");
+  EXPECT_SYMBOL(std::get<CodegenIRImpossible>(result.at(0)).symbol, "foo");
+
+  EXPECT_TRUE(std::holds_alternative<CodegenIRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<CodegenIRObject>(result.at(1)).pointer, "");
+}
+
+TEST(unsatisfiable_type_and_enum) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "enum": [ 1 ]
+  })JSON")};
+
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::blaze::schema_walker,
+      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+
+  using namespace sourcemeta::blaze;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_IR_IMPOSSIBLE(result, 0, "");
+  EXPECT_SYMBOL(std::get<CodegenIRImpossible>(result.at(0)).symbol);
+}

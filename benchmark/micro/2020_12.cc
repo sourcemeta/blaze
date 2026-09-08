@@ -12,6 +12,9 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
+// Google Benchmark reports these names as the benchmark labels, so they
+// have to stay comparable against previously recorded runs
+// NOLINTBEGIN(readability-identifier-naming)
 static void Micro_2020_12_Dynamic_Ref(benchmark::State &state) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
@@ -66,7 +69,7 @@ static void Micro_2020_12_Dynamic_Ref(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -93,7 +96,7 @@ static void Micro_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -163,7 +166,7 @@ static void Micro_2020_12_Simple_Output_Mask(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     sourcemeta::blaze::SimpleOutput output{instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
@@ -207,7 +210,7 @@ static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
                                  sourcemeta::blaze::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     sourcemeta::blaze::SimpleOutput output{instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
@@ -285,7 +288,7 @@ Micro_2020_12_Simple_Output_Annotation_Dropping(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     sourcemeta::blaze::SimpleOutput output{instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
@@ -350,7 +353,7 @@ Micro_2020_12_Compile_NonCircular_Shared_Refs(benchmark::State &state) {
     }
   })JSON")};
 
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto schema_template{
         sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
                                    sourcemeta::blaze::schema_resolver,
@@ -372,7 +375,7 @@ static void Micro_2020_12_Exhaustive_Deep_Numeric(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
     benchmark::DoNotOptimize(result);
@@ -393,7 +396,7 @@ Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     sourcemeta::blaze::SimpleOutput output{instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
@@ -416,7 +419,7 @@ Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     std::size_t count{0};
     sourcemeta::blaze::TraceOutput output{
         schema_template,
@@ -443,7 +446,7 @@ Micro_2020_12_Exhaustive_Deep_Numeric_Fail(benchmark::State &state) {
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(!result);
     benchmark::DoNotOptimize(result);
@@ -464,7 +467,7 @@ static void Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput(
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
-  for (auto _ : state) {
+  for (auto iteration : state) {
     sourcemeta::blaze::SimpleOutput output{instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
@@ -484,3 +487,4 @@ BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput);
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput);
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail);
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput);
+// NOLINTEND(readability-identifier-naming)

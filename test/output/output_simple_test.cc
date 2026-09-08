@@ -15,6 +15,7 @@
 #define EXPECT_OUTPUT(traces, index, expected_instance_location,               \
                       expected_evaluate_path, expected_schema_location,        \
                       expected_message)                                        \
+  /* NOLINTNEXTLINE(readability-container-size-empty) */                       \
   EXPECT_TRUE(traces.size() > index);                                          \
   EXPECT_EQ(traces.at((index)).message, (expected_message));                   \
   EXPECT_EQ(sourcemeta::core::to_string(traces.at((index)).instance_location), \
@@ -291,6 +292,9 @@ TEST(release_yields_collected_errors_and_consumes_them) {
       entries, 0, "", "/type", "#/type",
       "The value was expected to be of type string but it was of type integer");
 
+  // Reading the moved-from output is the point here, as releasing its
+  // entries has to leave it empty
+  // NOLINTNEXTLINE(bugprone-use-after-move)
   EXPECT_TRUE(output.cbegin() == output.cend());
 }
 
@@ -828,7 +832,7 @@ TEST(success_contains_mincontains_1) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("[ 1, \"foo\", 2, \"bar\" ]")};
+      sourcemeta::core::parse_json(R"([ 1, "foo", 2, "bar" ])")};
 
   sourcemeta::blaze::SimpleOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;
@@ -924,7 +928,7 @@ TEST(fail_contains_maxcontains_1) {
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("[ \"foo\", \"bar\" ]")};
+      sourcemeta::core::parse_json(R"([ "foo", "bar" ])")};
 
   sourcemeta::blaze::SimpleOutput output{instance};
   sourcemeta::blaze::Evaluator evaluator;

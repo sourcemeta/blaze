@@ -532,7 +532,7 @@ TEST(propertyNames_2) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"foo\": 1, \"bar\": 2 }")};
+      sourcemeta::core::parse_json(R"({ "foo": 1, "bar": 2 })")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
 
   if (FIRST_PROPERTY_IS(instance, "foo")) {
@@ -605,7 +605,7 @@ TEST(propertyNames_3) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"bar\": 2, \"fo\": 1 }")};
+      sourcemeta::core::parse_json(R"({ "bar": 2, "fo": 1 })")};
 
   if (FIRST_PROPERTY_IS(instance, "fo")) {
     EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");
@@ -672,7 +672,7 @@ TEST(propertyNames_5) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("{ \"foo\": 1, \"bar\": 2 }")};
+      sourcemeta::core::parse_json(R"({ "foo": 1, "bar": 2 })")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 4, "");
 
   if (FIRST_PROPERTY_IS(instance, "foo")) {

@@ -49,3 +49,19 @@ target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
   PRIVATE sourcemeta::blaze::evaluator)
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
   PRIVATE sourcemeta::blaze::compiler)
+
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze
+  NAME output_official_suite
+  SOURCES output_official_suite.cc)
+target_compile_definitions(sourcemeta_blaze_output_official_suite_unit
+  PRIVATE OFFICIAL_OUTPUT_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite/output-tests")
+target_link_libraries(sourcemeta_blaze_output_official_suite_unit
+  PRIVATE sourcemeta::core::json)
+target_link_libraries(sourcemeta_blaze_output_official_suite_unit
+  PRIVATE sourcemeta::blaze::foundation)
+target_link_libraries(sourcemeta_blaze_output_official_suite_unit
+  PRIVATE sourcemeta::blaze::output)
+target_link_libraries(sourcemeta_blaze_output_official_suite_unit
+  PRIVATE sourcemeta::blaze::evaluator)
+target_link_libraries(sourcemeta_blaze_output_official_suite_unit
+  PRIVATE sourcemeta::blaze::compiler)
