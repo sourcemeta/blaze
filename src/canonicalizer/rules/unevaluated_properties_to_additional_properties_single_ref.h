@@ -27,14 +27,25 @@ public:
     ONLY_CONTINUE_IF(!schema.defines("additionalProperties") &&
                      !schema.defines("unevaluatedItems"));
 
-    // The only in-place applicator we know how to statically account for is a
-    // single `allOf` branch that consists of nothing but one `$ref`
+    // The only in-place applicator we know how to statically account for is an
+    // `allOf` whose every branch consists of nothing but one `$ref`. Because
+    // `allOf` applies each branch and demands that all of them succeed, the
+    // property set it evaluates is exactly the union of what its targets
+    // spell out, with no intersection to compute. A branch of any other shape
+    // could contribute annotations we cannot enumerate, and rather than
+    // classify which of those shapes happen to be harmless we decline the
+    // parent outright and convert nothing
     const auto *all_of{schema.try_at("allOf")};
-    ONLY_CONTINUE_IF(all_of && all_of->is_array() && all_of->size() == 1);
-    const auto &branch{all_of->at(0)};
-    ONLY_CONTINUE_IF(branch.is_object() && branch.size() == 1);
-    const auto *reference{branch.try_at("$ref")};
-    ONLY_CONTINUE_IF(reference && reference->is_string());
+    ONLY_CONTINUE_IF(all_of && all_of->is_array() && !all_of->empty());
+    for (const auto &branch : all_of->as_array()) {
+      if (!branch.is_object() || branch.size() != 1) {
+        return false;
+      }
+      const auto *reference{branch.try_at("$ref")};
+      if (reference == nullptr || !reference->is_string()) {
+        return false;
+      }
+    }
 
     // Any other in-place applicator could contribute property annotations that
     // we cannot enumerate at compile time, and `properties` along with
@@ -55,33 +66,91 @@ public:
     const auto *properties{schema.try_at("properties")};
     ONLY_CONTINUE_IF(!properties || properties->is_object());
 
-    // Resolve the branch through the frame rather than through the raw
+    // Resolve each branch through the frame rather than through the raw
     // reference string, so that we honour whatever base the reference
-    // was written against
-    const sourcemeta::core::JSON::String *destination{nullptr};
+    // was written against. A branch whose reference the frame never hands
+    // us leaves its slot empty, which declines the parent below
+    std::vector<const sourcemeta::core::JSON::String *> destinations(
+        all_of->size(), nullptr);
     frame.for_each_reference_from(
         location.pointer,
-        [&destination,
+        [&destinations,
          &location](const sourcemeta::blaze::SchemaReferenceType type,
                     const sourcemeta::core::WeakPointer &source,
                     const sourcemeta::blaze::SchemaFrame::Reference &entry_ref)
             -> void {
-          if (destination != nullptr ||
-              type != sourcemeta::blaze::SchemaReferenceType::Static) {
+          if (type != sourcemeta::blaze::SchemaReferenceType::Static) {
             return;
           }
           const auto relative{source.resolve_from(location.pointer)};
           if (relative.size() == 3 && relative.at(0).is_property() &&
               relative.at(0).to_property() == "allOf" &&
-              relative.at(1).is_index() && relative.at(1).to_index() == 0 &&
+              relative.at(1).is_index() &&
+              relative.at(1).to_index() < destinations.size() &&
               relative.at(2).is_property() &&
               relative.at(2).to_property() == "$ref") {
-            destination = &entry_ref.destination;
+            auto *&slot{destinations.at(relative.at(1).to_index())};
+            if (slot == nullptr) {
+              slot = &entry_ref.destination;
+            }
           }
         });
 
-    ONLY_CONTINUE_IF(destination);
-    const auto target{frame.traverse(*destination)};
+    // Gather into a local rather than straight into the member, so that a
+    // target failing halfway through cannot leave the rule holding the names
+    // of the targets that came before it
+    std::vector<sourcemeta::core::JSON::String> collected;
+    for (const auto *destination : destinations) {
+      if (destination == nullptr) {
+        return false;
+      }
+
+      if (!collect_target_properties(root, frame, walker, resolver,
+                                     *destination, properties, collected)) {
+        return false;
+      }
+    }
+
+    this->properties_ = std::move(collected);
+    return true;
+  }
+
+  auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    if (!this->properties_.empty()) {
+      schema.assign_if_missing("properties",
+                               sourcemeta::core::JSON::make_object());
+      for (const auto &property : this->properties_) {
+        schema.at("properties").assign(property, sourcemeta::core::JSON{true});
+      }
+    }
+
+    schema.rename("unevaluatedProperties", "additionalProperties");
+  }
+
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    return target.rebase(current.concat("unevaluatedProperties"),
+                         current.concat("additionalProperties"));
+  }
+
+private:
+  // Whether the schema a branch points to evaluates a property set we can name
+  // upfront, appending the names it contributes when it does. Every target is
+  // judged on its own and against the same conditions, so that one target
+  // being opaque declines the whole parent rather than converting the branches
+  // that did pass
+  [[nodiscard]] static auto collect_target_properties(
+      const sourcemeta::core::JSON &root,
+      const sourcemeta::blaze::SchemaFrame &frame,
+      const sourcemeta::blaze::SchemaWalker &walker,
+      const sourcemeta::blaze::SchemaResolver &resolver,
+      const sourcemeta::core::JSON::String &destination,
+      const sourcemeta::core::JSON *const properties,
+      std::vector<sourcemeta::core::JSON::String> &collected) -> bool {
+    const auto target{frame.traverse(destination)};
     ONLY_CONTINUE_IF(target.has_value());
     const auto &target_location{target.value().get()};
     const auto &target_schema{
@@ -138,40 +207,25 @@ public:
       }
     }
 
-    this->properties_.clear();
     if (target_properties != nullptr) {
       for (const auto &entry : target_properties->as_object()) {
         if (properties != nullptr && properties->defines(entry.first)) {
           continue;
         }
-        this->properties_.emplace_back(entry.first);
+
+        // Targets may well spell out the same name, and the union counts it
+        // once
+        if (std::ranges::none_of(collected,
+                                 [&entry](const auto &name) -> bool {
+                                   return name == entry.first;
+                                 })) {
+          collected.emplace_back(entry.first);
+        }
       }
     }
 
     return true;
   }
 
-  auto transform(sourcemeta::core::JSON &schema) const -> void override {
-    if (!this->properties_.empty()) {
-      schema.assign_if_missing("properties",
-                               sourcemeta::core::JSON::make_object());
-      for (const auto &property : this->properties_) {
-        schema.at("properties").assign(property, sourcemeta::core::JSON{true});
-      }
-    }
-
-    schema.rename("unevaluatedProperties", "additionalProperties");
-  }
-
-  [[nodiscard]] auto rereference(const std::string_view,
-                                 const sourcemeta::core::Pointer &,
-                                 const sourcemeta::core::Pointer &target,
-                                 const sourcemeta::core::Pointer &current) const
-      -> std::optional<sourcemeta::core::Pointer> override {
-    return target.rebase(current.concat("unevaluatedProperties"),
-                         current.concat("additionalProperties"));
-  }
-
-private:
   mutable std::vector<sourcemeta::core::JSON::String> properties_;
 };
