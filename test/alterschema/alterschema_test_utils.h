@@ -270,6 +270,33 @@ static auto alterschema_test_resolver(std::string_view identifier)
     EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
   }
 
+#define UPGRADE_OPENAPI_3_2(document, expected)                                \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(                                                    \
+        _bundle, sourcemeta::blaze::AlterSchemaMode::UpgradeOpenAPI32);        \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {});                                                  \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
+#define UPGRADE_OPENAPI_3_2_WITH_DIALECT(document, expected, default_dialect)  \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(                                                    \
+        _bundle, sourcemeta::blaze::AlterSchemaMode::UpgradeOpenAPI32);        \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {},                                                   \
+        (default_dialect));                                                    \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
 #define UPGRADE_2019_09_AS_METASCHEMA(document, expected)                      \
   {                                                                            \
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
@@ -289,6 +316,20 @@ static auto alterschema_test_resolver(std::string_view identifier)
     sourcemeta::blaze::SchemaTransformer _bundle;                              \
     sourcemeta::blaze::add(_bundle,                                            \
                            sourcemeta::blaze::AlterSchemaMode::Upgrade202012); \
+    const auto _result = _bundle.apply(                                        \
+        document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
+        [](const auto &, const auto &, const auto &, const auto &,             \
+           const auto &) {},                                                   \
+        "", "", "", true);                                                     \
+    EXPECT_TRUE(_result.first);                                                \
+    EXPECT_JSON_EQ_WITH_ORDERING(document, expected);                          \
+  }
+
+#define UPGRADE_OPENAPI_3_2_AS_METASCHEMA(document, expected)                  \
+  {                                                                            \
+    sourcemeta::blaze::SchemaTransformer _bundle;                              \
+    sourcemeta::blaze::add(                                                    \
+        _bundle, sourcemeta::blaze::AlterSchemaMode::UpgradeOpenAPI32);        \
     const auto _result = _bundle.apply(                                        \
         document, sourcemeta::blaze::schema_walker, alterschema_test_resolver, \
         [](const auto &, const auto &, const auto &, const auto &,             \

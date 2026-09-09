@@ -55,6 +55,10 @@ enum class AlterSchemaMode : std::uint8_t {
 
   /// Rules that upgrade a JSON Schema document up to JSON Schema 2020-12
   Upgrade202012,
+
+  /// Rules that upgrade a JSON Schema document up to the OpenAPI v3.2 Schema
+  /// Object dialect
+  UpgradeOpenAPI32,
 };
 
 /// @ingroup alterschema

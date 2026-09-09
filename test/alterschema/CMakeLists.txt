@@ -25,6 +25,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     alterschema_upgrade_draft4_to_2020_12_test.cc
     alterschema_upgrade_draft6_to_2020_12_test.cc
     alterschema_upgrade_draft7_to_2020_12_test.cc
+    alterschema_upgrade_openapi_3_1_to_3_2_test.cc
     alterschema_schema_rule_test.cc
     alterschema_transform_rule_test.cc
     alterschema_transformer_test.cc

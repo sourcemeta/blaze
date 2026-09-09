@@ -249,6 +249,8 @@ auto walk_up_in_place_applicators(const JSON &root, const SchemaFrame &frame,
 
 // Upgrade
 #include "upgrade/helpers.h"
+#include "upgrade/openapi_example_to_examples.h"
+#include "upgrade/openapi_xml_node_type.h"
 #include "upgrade/prefix_promoted_2020_12_keywords.h"
 #include "upgrade/prefix_promoted_draft_2019_09_keywords.h"
 #include "upgrade/prefix_promoted_draft_4_keywords.h"
@@ -260,6 +262,7 @@ auto walk_up_in_place_applicators(const JSON &root, const SchemaFrame &frame,
 #include "upgrade/upgrade_draft_4_to_draft_6.h"
 #include "upgrade/upgrade_draft_6_to_draft_7.h"
 #include "upgrade/upgrade_draft_7_to_draft_2019_09.h"
+#include "upgrade/upgrade_openapi_3_1_to_3_2.h"
 
 #undef ONLY_CONTINUE_IF
 } // namespace sourcemeta::blaze
@@ -271,7 +274,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
       mode == AlterSchemaMode::UpgradeDraft6 ||
       mode == AlterSchemaMode::UpgradeDraft7 ||
       mode == AlterSchemaMode::Upgrade201909 ||
-      mode == AlterSchemaMode::Upgrade202012) {
+      mode == AlterSchemaMode::Upgrade202012 ||
+      mode == AlterSchemaMode::UpgradeOpenAPI32) {
     bundle.add<DraftOfficialDialectWithHttps>();
     bundle.add<DraftOfficialDialectWithoutEmptyFragment>();
     bundle.add<PrefixPromotedDraft4Keywords>();
@@ -280,7 +284,8 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
     if (mode == AlterSchemaMode::UpgradeDraft6 ||
         mode == AlterSchemaMode::UpgradeDraft7 ||
         mode == AlterSchemaMode::Upgrade201909 ||
-        mode == AlterSchemaMode::Upgrade202012) {
+        mode == AlterSchemaMode::Upgrade202012 ||
+        mode == AlterSchemaMode::UpgradeOpenAPI32) {
       bundle.add<PrefixPromotedDraft6Keywords>();
       bundle.add<UpgradeDraft4ToDraft6>();
       bundle.add<EmptyObjectAsTrue>();
@@ -288,22 +293,31 @@ auto add(SchemaTransformer &bundle, const AlterSchemaMode mode) -> void {
 
     if (mode == AlterSchemaMode::UpgradeDraft7 ||
         mode == AlterSchemaMode::Upgrade201909 ||
-        mode == AlterSchemaMode::Upgrade202012) {
+        mode == AlterSchemaMode::Upgrade202012 ||
+        mode == AlterSchemaMode::UpgradeOpenAPI32) {
       bundle.add<PrefixPromotedDraft7Keywords>();
       bundle.add<UpgradeDraft6ToDraft7>();
       bundle.add<EnumToConst>();
     }
 
     if (mode == AlterSchemaMode::Upgrade201909 ||
-        mode == AlterSchemaMode::Upgrade202012) {
+        mode == AlterSchemaMode::Upgrade202012 ||
+        mode == AlterSchemaMode::UpgradeOpenAPI32) {
       bundle.add<PrefixPromoted201909Keywords>();
       bundle.add<UpgradeDraft7To201909>();
       bundle.add<DefinitionsToDefs>();
     }
 
-    if (mode == AlterSchemaMode::Upgrade202012) {
+    if (mode == AlterSchemaMode::Upgrade202012 ||
+        mode == AlterSchemaMode::UpgradeOpenAPI32) {
       bundle.add<PrefixPromoted202012Keywords>();
       bundle.add<Upgrade201909To202012>();
+    }
+
+    if (mode == AlterSchemaMode::UpgradeOpenAPI32) {
+      bundle.add<UpgradeOpenAPI31To32>();
+      bundle.add<OpenAPIExampleToExamples>();
+      bundle.add<OpenAPIXmlNodeType>();
     }
 
     bundle.add<UpgradeDialectOverrideCleanup>();
