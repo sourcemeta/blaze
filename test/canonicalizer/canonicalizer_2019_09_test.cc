@@ -2096,6 +2096,40 @@ TEST(enum_split_in_pattern_properties) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
+TEST(not_with_boolean_false) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "not": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "anyOf": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0,
+        "properties": {}
+      },
+      {
+        "type": "array",
+        "uniqueItems": false,
+        "minItems": 0,
+        "contains": true,
+        "minContains": 0,
+        "items": true
+      },
+      { "type": "string", "minLength": 0 },
+      { "type": "number" }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
 TEST(enum_split_in_not) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
