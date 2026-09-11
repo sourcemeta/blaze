@@ -936,6 +936,39 @@ TEST(not_with_schema) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
+TEST(not_with_boolean_false) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "not": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "anyOf": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": true
+      },
+      {
+        "type": "array",
+        "uniqueItems": false,
+        "items": true,
+        "minItems": 0
+      },
+      { "type": "string", "minLength": 0 },
+      { "type": "number" }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
 TEST(allof_single_branch) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
