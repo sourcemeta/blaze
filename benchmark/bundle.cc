@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 
 #include <sourcemeta/blaze/bundle.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <map>    // std::map
 #include <string> // std::string, std::to_string
@@ -12,13 +12,13 @@
 static void Schema_Bundle_Meta_2020_12(benchmark::State &state) {
   for (auto iteration : state) {
     state.PauseTiming();
-    auto schema{sourcemeta::blaze::schema_resolver(
+    auto schema{sourcemeta::core::schema_resolver(
                     "https://json-schema.org/draft/2020-12/schema")
                     .value()};
     state.ResumeTiming();
     sourcemeta::blaze::bundle(
-        schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     benchmark::DoNotOptimize(schema);
   }
@@ -65,13 +65,13 @@ static void Schema_Bundle_Many_Remotes_With_Fragments(benchmark::State &state) {
   document.assign("properties", std::move(properties));
 
   const auto resolver{[&registry](const std::string_view identifier)
-                          -> sourcemeta::blaze::SchemaResolverResult {
+                          -> sourcemeta::core::SchemaResolverResult {
     const auto match{registry.find(std::string{identifier})};
     if (match != registry.cend()) {
       return match->second;
     }
 
-    return sourcemeta::blaze::schema_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   }};
 
   for (auto iteration : state) {
@@ -79,7 +79,7 @@ static void Schema_Bundle_Many_Remotes_With_Fragments(benchmark::State &state) {
     auto schema{document};
     state.ResumeTiming();
     sourcemeta::blaze::bundle(
-        schema, sourcemeta::blaze::schema_walker, resolver,
+        schema, sourcemeta::core::schema_walker, resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     benchmark::DoNotOptimize(schema);
   }

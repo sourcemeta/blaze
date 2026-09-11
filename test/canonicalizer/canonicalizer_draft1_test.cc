@@ -3,8 +3,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <filesystem> // std::filesystem::path
 #include <memory>     // std::unique_ptr
@@ -17,7 +17,7 @@ auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
       sourcemeta::blaze::compile(
           sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
                                       "canonical-draft1.json"),
-          sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+          sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
           sourcemeta::blaze::default_schema_compiler)};
   return SCHEMA_TEMPLATE;
 }

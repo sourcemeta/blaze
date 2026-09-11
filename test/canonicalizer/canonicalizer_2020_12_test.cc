@@ -3,8 +3,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <filesystem> // std::filesystem::path
 #include <memory>     // std::unique_ptr
@@ -17,7 +17,7 @@ auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
       sourcemeta::blaze::compile(
           sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
                                       "canonical-2020-12.json"),
-          sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+          sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
           sourcemeta::blaze::default_schema_compiler)};
   return SCHEMA_TEMPLATE;
 }
@@ -2764,10 +2764,10 @@ TEST(dependent_required_to_any_of_without_applicator) {
   })JSON");
 
   try {
-    sourcemeta::blaze::canonicalize(document, sourcemeta::blaze::schema_walker,
+    sourcemeta::blaze::canonicalize(document, sourcemeta::core::schema_walker,
                                     canonicalizer_test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &error) {
+  } catch (const sourcemeta::core::SchemaError &error) {
     EXPECT_STREQ(error.what(),
                  "Cannot canonicalise `dependentRequired` without the "
                  "Applicator vocabulary");
@@ -2785,10 +2785,10 @@ TEST(dependent_schemas_to_any_of_without_validation) {
   })JSON");
 
   try {
-    sourcemeta::blaze::canonicalize(document, sourcemeta::blaze::schema_walker,
+    sourcemeta::blaze::canonicalize(document, sourcemeta::core::schema_walker,
                                     canonicalizer_test_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &error) {
+  } catch (const sourcemeta::core::SchemaError &error) {
     EXPECT_STREQ(error.what(),
                  "Cannot canonicalise `dependentSchemas` without the "
                  "Validation vocabulary");

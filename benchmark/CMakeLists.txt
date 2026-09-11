@@ -1,9 +1,5 @@
 set(BENCHMARK_SOURCES)
 
-if(BLAZE_FOUNDATION)
-  list(APPEND BENCHMARK_SOURCES foundation.cc frame.cc)
-endif()
-
 if(BLAZE_BUNDLE)
   list(APPEND BENCHMARK_SOURCES bundle.cc)
 endif()
@@ -43,9 +39,6 @@ if(BENCHMARK_SOURCES)
     PRIVATE sourcemeta::core::json)
   target_link_libraries(sourcemeta_blaze_benchmark
     PRIVATE sourcemeta::core::jsonl)
-  target_link_libraries(sourcemeta_blaze_benchmark
-    PRIVATE sourcemeta::blaze::foundation)
-
   if(BLAZE_COMPILER)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::compiler)
@@ -65,10 +58,6 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_ALTERSCHEMA)
     target_link_libraries(sourcemeta_blaze_benchmark
       PRIVATE sourcemeta::blaze::alterschema)
-  endif()
-  if(BLAZE_FOUNDATION)
-    target_link_libraries(sourcemeta_blaze_benchmark
-      PRIVATE sourcemeta::blaze::foundation)
   endif()
   if(BLAZE_BUNDLE)
     target_link_libraries(sourcemeta_blaze_benchmark

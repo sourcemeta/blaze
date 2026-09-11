@@ -3,13 +3,13 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
 
 TEST(metaschema_1) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-03/schema#")};
   EXPECT_TRUE(metaschema.has_value());
 
@@ -18,7 +18,7 @@ TEST(metaschema_1) {
 }
 
 TEST(metaschema_2) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-03/schema#")};
   EXPECT_TRUE(metaschema.has_value());
 
@@ -34,7 +34,7 @@ TEST(metaschema_2) {
 }
 
 TEST(metaschema_self) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-03/schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 311,
@@ -42,7 +42,7 @@ TEST(metaschema_self) {
 }
 
 TEST(metaschema_self_exhaustive) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-03/schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
@@ -50,7 +50,7 @@ TEST(metaschema_self_exhaustive) {
 }
 
 TEST(metaschema_hyper_self) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-03/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 73,
@@ -58,7 +58,7 @@ TEST(metaschema_hyper_self) {
 }
 
 TEST(metaschema_hyper_self_exhaustive) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-03/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
@@ -1427,8 +1427,8 @@ TEST(format_keyword_value_integer_with_tweak_fast) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "", tweaks);
@@ -1454,8 +1454,8 @@ TEST(format_keyword_value_integer_with_tweak_exhaustive) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive, "", "", "",
                                tweaks);
@@ -1481,8 +1481,8 @@ TEST(format_keyword_value_null_with_tweak_fast) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "", tweaks);
@@ -1508,8 +1508,8 @@ TEST(format_keyword_value_null_with_tweak_exhaustive) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive, "", "", "",
                                tweaks);
@@ -2024,8 +2024,8 @@ TEST(format_utc_millisec_with_tweak_throws_fast) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "", tweaks);
@@ -2051,8 +2051,8 @@ TEST(format_utc_millisec_with_tweak_throws_exhaustive) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive, "", "", "",
                                tweaks);
@@ -2353,8 +2353,8 @@ TEST(format_style_with_tweak_throws_fast) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "", tweaks);
@@ -2379,8 +2379,8 @@ TEST(format_style_with_tweak_throws_exhaustive) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive, "", "", "",
                                tweaks);
@@ -2427,8 +2427,8 @@ TEST(format_phone_with_tweak_throws_fast) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "", tweaks);
@@ -2453,8 +2453,8 @@ TEST(format_phone_with_tweak_throws_exhaustive) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive, "", "", "",
                                tweaks);
@@ -2689,8 +2689,8 @@ TEST(boolean_subschema_entrypoint) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "#/properties/everything");

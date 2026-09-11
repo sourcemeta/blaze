@@ -4,8 +4,8 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <cassert>    // assert
 #include <cstdio>     // std::fprintf
@@ -23,8 +23,8 @@ auto run_standard_basic_test(const sourcemeta::core::JSON &data,
   const auto &expected{data.at(mode_key)};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, mode)};
 
   sourcemeta::blaze::Evaluator evaluator;

@@ -1,8 +1,8 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <utility> // std::pair
 
@@ -10,17 +10,17 @@ static auto wrap_schema(const sourcemeta::core::JSON &schema,
                         const sourcemeta::core::Pointer &pointer,
                         std::string_view default_dialect = "")
     -> std::pair<sourcemeta::core::JSON, sourcemeta::core::Pointer> {
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
       default_dialect};
   const auto location{
       frame.traverse(sourcemeta::core::to_weak_pointer(pointer))};
   assert(location.has_value());
   sourcemeta::core::WeakPointer base;
-  auto result{sourcemeta::blaze::wrap(
-      schema, frame, location.value().get(), sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver, base)};
+  auto result{sourcemeta::blaze::wrap(schema, frame, location.value().get(),
+                                      sourcemeta::core::schema_walker,
+                                      sourcemeta::core::schema_resolver, base)};
   return {std::move(result), sourcemeta::core::to_pointer(base)};
 }
 
@@ -145,7 +145,7 @@ TEST(schema_without_identifier_without_dialect) {
   try {
     wrap_schema(schema, {"items"});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+  } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not determine the base dialect of the schema");
   }
@@ -266,7 +266,7 @@ TEST(schema_with_identifier_no_dialect) {
   try {
     wrap_schema(schema, {"items"});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+  } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not determine the base dialect of the schema");
   }

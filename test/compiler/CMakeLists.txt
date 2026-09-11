@@ -9,7 +9,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME compiler
 target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_compiler_unit
-  PRIVATE sourcemeta::blaze::foundation)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_compiler_unit
   PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_compiler_unit

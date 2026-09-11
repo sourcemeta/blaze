@@ -8,8 +8,8 @@
 
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 // Google Benchmark reports these names as the benchmark labels, so they
 // have to stay comparable against previously recorded runs
@@ -24,8 +24,8 @@ Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
   for (auto iteration : state) {
-    auto result = bundle.check(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    auto result = bundle.check(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                [](const auto &, const auto &, const auto &,
                                   const auto &, const auto &) {});
     assert(result.first);
@@ -43,8 +43,8 @@ static void Alterschema_Check_Readibility_OMC(benchmark::State &state) {
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
   for (auto iteration : state) {
-    auto result = bundle.check(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    auto result = bundle.check(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                [](const auto &, const auto &, const auto &,
                                   const auto &, const auto &) {});
     assert(!result.first);
@@ -61,8 +61,8 @@ static void Alterschema_Check_Readibility_KrakenD(benchmark::State &state) {
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
   for (auto iteration : state) {
-    auto result{bundle.check(schema, sourcemeta::blaze::schema_walker,
-                             sourcemeta::blaze::schema_resolver,
+    auto result{bundle.check(schema, sourcemeta::core::schema_walker,
+                             sourcemeta::core::schema_resolver,
                              [](const auto &, const auto &, const auto &,
                                 const auto &, const auto &) {})};
     benchmark::DoNotOptimize(result);
@@ -81,8 +81,8 @@ static void Alterschema_Apply_Readibility_KrakenD(benchmark::State &state) {
     state.PauseTiming();
     auto copy = schema;
     state.ResumeTiming();
-    auto result = bundle.apply(copy, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    auto result = bundle.apply(copy, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                [](const auto &, const auto &, const auto &,
                                   const auto &, const auto &) {});
     assert(!result.first);
@@ -101,8 +101,8 @@ static void Alterschema_Check_Invalid_External_Refs(benchmark::State &state) {
   for (auto iteration : state) {
     std::size_t trace_count{0};
     auto result = bundle.check(
-        schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         [&trace_count](const auto &, [[maybe_unused]] const auto &name,
                        const auto &, const auto &, const auto &) {
           assert(name == "invalid_external_ref");
@@ -154,13 +154,13 @@ Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
   schema.assign("properties", std::move(properties));
 
   const auto resolver{[&registry](const std::string_view identifier)
-                          -> sourcemeta::blaze::SchemaResolverResult {
+                          -> sourcemeta::core::SchemaResolverResult {
     const auto match{registry.find(std::string{identifier})};
     if (match != registry.cend()) {
       return match->second;
     }
 
-    return sourcemeta::blaze::schema_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   }};
 
   sourcemeta::blaze::SchemaTransformer bundle;
@@ -169,7 +169,7 @@ Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
   for (auto iteration : state) {
     std::size_t trace_count{0};
     auto result =
-        bundle.check(schema, sourcemeta::blaze::schema_walker, resolver,
+        bundle.check(schema, sourcemeta::core::schema_walker, resolver,
                      [&trace_count](const auto &, const auto &name,
                                     const auto &, const auto &, const auto &) {
                        if (name == "invalid_external_ref") {

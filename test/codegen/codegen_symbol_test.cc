@@ -2,7 +2,7 @@
 
 #include <sourcemeta/blaze/codegen.h>
 
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 TEST(nested_additional_properties_items) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
@@ -21,9 +21,9 @@ TEST(nested_additional_properties_items) {
     }
   })JSON")};
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
       "https://json-schema.org/draft/2020-12/schema"};
 
   const auto location{
@@ -53,9 +53,9 @@ TEST(inside_defs) {
     }
   })JSON")};
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
       "https://json-schema.org/draft/2020-12/schema"};
 
   const auto location{frame.traverse("#/$defs/MyType/properties/name")};
@@ -79,9 +79,9 @@ TEST(property_named_properties) {
     }
   })JSON")};
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
       "https://json-schema.org/draft/2020-12/schema"};
 
   const auto location{frame.traverse("#/properties/properties")};
@@ -102,9 +102,9 @@ TEST(anyof_child) {
     ]
   })JSON")};
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
       "https://json-schema.org/draft/2020-12/schema"};
 
   const auto location{frame.traverse("#/anyOf/1")};

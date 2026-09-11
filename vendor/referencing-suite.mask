@@ -1,8 +1,0 @@
-.markdownlint.jsonc
-.pre-commit-config.yaml
-noxfile.py
-pyproject.toml
-README.md
-test-schema.json
-test_sanity.py
-tests/specifications.json

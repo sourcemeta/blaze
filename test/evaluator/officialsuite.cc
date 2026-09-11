@@ -16,11 +16,11 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 static auto test_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   const std::filesystem::path remotes_path{
       std::filesystem::path{OFFICIAL_SUITE_PATH} / "remotes"};
 
@@ -213,7 +213,7 @@ static auto test_resolver(std::string_view identifier)
 
 #undef READ_SCHEMA_FILE
 
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
@@ -273,7 +273,7 @@ static auto register_tests(
       for (const auto mode : {sourcemeta::blaze::Mode::FastValidation,
                               sourcemeta::blaze::Mode::Exhaustive}) {
         const auto schema_template{sourcemeta::blaze::compile(
-            test.at("schema"), sourcemeta::blaze::schema_walker, test_resolver,
+            test.at("schema"), sourcemeta::core::schema_walker, test_resolver,
             sourcemeta::blaze::default_schema_compiler, mode, default_dialect,
             "", "", tweaks)};
 
@@ -392,7 +392,7 @@ auto main(int argc, char **argv) -> int {
                    "JSONSchemaOfficialSuite_Draft3_Optional_Format",
                    "http://json-schema.org/draft-03/schema#", {},
                    sourcemeta::blaze::Tweaks{.format_assertion = true});
-  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+  } catch (const sourcemeta::core::SchemaResolutionError &error) {
     std::cerr << error.what() << ": " << error.identifier() << "\n";
     return EXIT_FAILURE;
   } catch (const std::exception &error) {

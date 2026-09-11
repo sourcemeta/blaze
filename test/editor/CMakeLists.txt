@@ -4,7 +4,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME editor
 target_link_libraries(sourcemeta_blaze_editor_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_editor_unit
-  PRIVATE sourcemeta::blaze::foundation)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_editor_unit
   PRIVATE sourcemeta::blaze::bundle)
 target_link_libraries(sourcemeta_blaze_editor_unit

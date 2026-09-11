@@ -15,7 +15,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
 target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
-  PRIVATE sourcemeta::blaze::foundation)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::blaze::bundle)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
@@ -35,7 +35,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_official_suite
 target_compile_definitions(sourcemeta_blaze_evaluator_official_suite_unit
   PRIVATE OFFICIAL_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite")
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::core::json)
-target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::blaze::foundation)
+target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::blaze::evaluator)
 
@@ -46,7 +46,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_annotation_sui
 target_compile_definitions(sourcemeta_blaze_evaluator_annotation_suite_unit
   PRIVATE ANNOTATION_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite/annotations/tests")
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::json)
-target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::foundation)
+target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::jsonpointer)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::blaze::evaluator)
@@ -58,7 +58,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite
 target_compile_definitions(sourcemeta_blaze_evaluator_trace_suite_unit
   PRIVATE TRACE_SUITE_PATH="${PROJECT_SOURCE_DIR}/test/evaluator")
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::core::json)
-target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::blaze::foundation)
+target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::blaze::evaluator)
 
@@ -68,7 +68,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite_ca
 target_compile_definitions(sourcemeta_blaze_evaluator_trace_suite_canonical_unit
   PRIVATE TRACE_SUITE_CANONICAL_PATH="${PROJECT_SOURCE_DIR}/test/evaluator")
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::core::json)
-target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::foundation)
+target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::evaluator)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::canonicalizer)
