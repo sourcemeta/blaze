@@ -151,8 +151,8 @@ private:
 /// ```cpp
 /// #include <sourcemeta/core/json.h>
 /// #include <sourcemeta/core/jsonpointer.h>
-/// #include <sourcemeta/blaze/alterschema.h>
 /// #include <sourcemeta/core/jsonschema.h>
+/// #include <sourcemeta/blaze/alterschema.h>
 /// #include <iostream>
 ///
 /// const sourcemeta::core::JSON document =

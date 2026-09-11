@@ -35,8 +35,8 @@ namespace sourcemeta::blaze {
 ///
 /// ```cpp
 /// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/bundle.h>
 /// #include <sourcemeta/core/jsonschema.h>
+/// #include <sourcemeta/blaze/bundle.h>
 /// #include <sourcemeta/blaze/editor.h>
 ///
 /// // A custom resolver that knows about the referenced schema

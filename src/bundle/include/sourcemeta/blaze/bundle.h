@@ -57,8 +57,8 @@ enum class BundleMode : std::uint8_t {
 ///
 /// ```cpp
 /// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/bundle.h>
 /// #include <sourcemeta/core/jsonschema.h>
+/// #include <sourcemeta/blaze/bundle.h>
 ///
 /// // A custom resolver that knows about an additional schema
 /// static auto test_resolver(std::string_view identifier)
@@ -116,8 +116,8 @@ auto dependencies(
 ///
 /// ```cpp
 /// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/bundle.h>
 /// #include <sourcemeta/core/jsonschema.h>
+/// #include <sourcemeta/blaze/bundle.h>
 /// #include <cassert>
 ///
 /// // A custom resolver that knows about an additional schema
@@ -190,8 +190,8 @@ auto bundle(
 ///
 /// ```cpp
 /// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/blaze/bundle.h>
 /// #include <sourcemeta/core/jsonschema.h>
+/// #include <sourcemeta/blaze/bundle.h>
 /// #include <cassert>
 ///
 /// // A custom resolver that knows about an additional schema
