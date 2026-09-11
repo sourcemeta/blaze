@@ -8,7 +8,7 @@
 #include <string_view> // std::string_view
 
 static auto remote_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/remote") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -17,7 +17,7 @@ static auto remote_resolver(std::string_view identifier)
     })JSON");
   }
 
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 // NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
@@ -51,8 +51,8 @@ static const sourcemeta::core::JSON WITH_REMOTE =
 
 TEST(instructions_default_limit_is_unbounded) {
   const auto schema_template{
-      sourcemeta::blaze::compile(SCHEMA, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(SCHEMA, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
   EXPECT_EQ(schema_template.extra.size(), 8);
 }
@@ -61,8 +61,8 @@ TEST(instruction_limit_equal_to_the_count_succeeds) {
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.max_instructions = 8;
   const auto schema_template{sourcemeta::blaze::compile(
-      SCHEMA, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      SCHEMA, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
   EXPECT_EQ(schema_template.extra.size(), 8);
@@ -73,8 +73,8 @@ TEST(instruction_limit_one_below_the_count_throws) {
   tweaks.max_instructions = 7;
   try {
     [[maybe_unused]] const auto schema_template{sourcemeta::blaze::compile(
-        SCHEMA, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        SCHEMA, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler,
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
     FAIL();
@@ -91,8 +91,8 @@ TEST(instruction_limit_of_zero_throws) {
   tweaks.max_instructions = 0;
   try {
     [[maybe_unused]] const auto schema_template{sourcemeta::blaze::compile(
-        SCHEMA, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        SCHEMA, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler,
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
     FAIL();
@@ -103,8 +103,8 @@ TEST(instruction_limit_of_zero_throws) {
 
 TEST(depth_default_limit_is_unbounded) {
   [[maybe_unused]] const auto schema_template{
-      sourcemeta::blaze::compile(NESTED, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(NESTED, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 }
 
@@ -112,8 +112,8 @@ TEST(depth_limit_equal_to_the_nesting_succeeds) {
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.max_depth = 4;
   [[maybe_unused]] const auto schema_template{sourcemeta::blaze::compile(
-      NESTED, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      NESTED, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 }
@@ -123,8 +123,8 @@ TEST(depth_limit_one_below_the_nesting_throws) {
   tweaks.max_depth = 3;
   try {
     [[maybe_unused]] const auto schema_template{sourcemeta::blaze::compile(
-        NESTED, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        NESTED, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler,
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
     FAIL();
@@ -137,18 +137,18 @@ TEST(depth_limit_one_below_the_nesting_throws) {
 
 TEST(locations_default_limit_is_unbounded) {
   [[maybe_unused]] const auto schema_template{sourcemeta::blaze::compile(
-      WITH_REMOTE, sourcemeta::blaze::schema_walker, remote_resolver,
+      WITH_REMOTE, sourcemeta::core::schema_walker, remote_resolver,
       sourcemeta::blaze::default_schema_compiler)};
 }
 
 TEST(location_limit_bounds_the_bundling_and_framing_preamble) {
   try {
     [[maybe_unused]] const auto schema_template{sourcemeta::blaze::compile(
-        WITH_REMOTE, sourcemeta::blaze::schema_walker, remote_resolver,
+        WITH_REMOTE, sourcemeta::core::schema_walker, remote_resolver,
         sourcemeta::blaze::default_schema_compiler,
         sourcemeta::blaze::Mode::FastValidation, "", "", "", std::nullopt, 2)};
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaFrameLimitError &error) {
+  } catch (const sourcemeta::core::SchemaFrameLimitError &error) {
     EXPECT_STREQ(error.what(),
                  "The schema exceeds the maximum number of frame locations");
     EXPECT_EQ(error.limit(), 2);

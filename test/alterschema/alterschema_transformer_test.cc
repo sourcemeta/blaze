@@ -1,8 +1,8 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/alterschema.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <set>
 #include <string>
@@ -41,8 +41,8 @@ TEST(flat_document_no_applicators) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -85,8 +85,8 @@ TEST(embedded_resource_match_check) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -117,8 +117,8 @@ TEST(embedded_resource_match_check_with_default_id) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries), "",
                                    "https://sourcemeta.com");
 
@@ -152,8 +152,8 @@ TEST(embedded_resource_vocabularies_check) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -193,8 +193,8 @@ TEST(embedded_resource_vocabularies_apply) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -238,12 +238,12 @@ TEST(throw_if_no_dialect_invalid_default) {
   })JSON");
 
   try {
-    static_cast<void>(bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+    static_cast<void>(bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_noop,
                                    "https://example.com/invalid"));
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+  } catch (const sourcemeta::core::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not resolve the metaschema of the schema");
   }
@@ -271,8 +271,8 @@ TEST(with_default_dialect) {
 
   TestTransformTraces entries;
   const auto result = bundle.apply(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver, transformer_callback_trace(entries),
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, transformer_callback_trace(entries),
       "https://json-schema.org/draft/2020-12/schema");
 
   EXPECT_TRUE(result.first);
@@ -310,8 +310,8 @@ TEST(with_explicit_default_dialect_same) {
 
   TestTransformTraces entries;
   const auto result = bundle.apply(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver, transformer_callback_trace(entries),
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, transformer_callback_trace(entries),
       "https://json-schema.org/draft/2020-12/schema");
 
   EXPECT_TRUE(result.first);
@@ -349,8 +349,8 @@ TEST(throw_on_rules_called_twice) {
 
   try {
     [[maybe_unused]] const auto result = bundle.apply(
-        document, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver, transformer_callback_noop);
+        document, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver, transformer_callback_noop);
     FAIL();
   } catch (
       const sourcemeta::blaze::SchemaTransformRuleProcessedTwiceError &error) {
@@ -373,8 +373,8 @@ TEST(top_level_rule) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -414,8 +414,8 @@ TEST(walker_2020_12) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -467,8 +467,8 @@ TEST(mismatch_default_dialect) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries),
                                    "http://json-schema.org/draft-04/schema#");
 
@@ -518,8 +518,8 @@ TEST(rule_pointers) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -562,8 +562,8 @@ TEST(multi_dialect_rules) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -622,8 +622,8 @@ TEST(dialect_specific_rules) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -676,8 +676,8 @@ TEST(dialect_specific_rules_without_ids) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -712,8 +712,8 @@ TEST(check_top_level) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -751,8 +751,8 @@ TEST(check_top_level_with_id) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -779,8 +779,8 @@ TEST(check_top_level_with_id_and_default_id) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries), "",
                                    "https://other.com");
 
@@ -809,8 +809,8 @@ TEST(check_multiple_pointers) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -842,8 +842,8 @@ TEST(check_with_description) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -879,8 +879,8 @@ TEST(check_no_match) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -910,8 +910,8 @@ TEST(check_partial_match) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -936,8 +936,8 @@ TEST(check_empty) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -958,11 +958,11 @@ TEST(check_throw_if_no_dialect_invalid_default) {
   })JSON");
 
   try {
-    (void)bundle.check(document, sourcemeta::blaze::schema_walker,
-                       sourcemeta::blaze::schema_resolver, nullptr,
+    (void)bundle.check(document, sourcemeta::core::schema_walker,
+                       sourcemeta::core::schema_resolver, nullptr,
                        "https://example.com/invalid");
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+  } catch (const sourcemeta::core::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not resolve the metaschema of the schema");
   }
@@ -984,8 +984,8 @@ TEST(check_with_default_dialect) {
 
   TestTransformTraces entries;
   const auto result = bundle.check(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver, transformer_callback_trace(entries),
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, transformer_callback_trace(entries),
       "https://json-schema.org/draft/2020-12/schema");
 
   EXPECT_FALSE(result.first);
@@ -1026,8 +1026,8 @@ TEST(remove_rule_by_name) {
   EXPECT_FALSE(bundle.remove("i_dont_exist"));
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1060,8 +1060,8 @@ TEST(unfixable_apply) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -1097,8 +1097,8 @@ TEST(unfixable_check) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -1127,8 +1127,8 @@ TEST(rereference_not_hit) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1171,10 +1171,9 @@ TEST(rereference_not_fixed_ref) {
   TestTransformTraces entries;
 
   try {
-    [[maybe_unused]] const auto result =
-        bundle.apply(document, sourcemeta::blaze::schema_walker,
-                     sourcemeta::blaze::schema_resolver,
-                     transformer_callback_trace(entries));
+    [[maybe_unused]] const auto result = bundle.apply(
+        document, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver, transformer_callback_trace(entries));
     FAIL();
   } catch (const sourcemeta::blaze::SchemaBrokenReferenceError &error) {
     EXPECT_EQ(error.identifier(), "#/definitions/foo");
@@ -1223,8 +1222,8 @@ TEST(rereference_not_fixed_id) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1267,8 +1266,8 @@ TEST(rereference_not_fixed_anchor) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1310,8 +1309,8 @@ TEST(rereference_fixed_1) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1354,8 +1353,8 @@ TEST(rereference_fixed_2) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1400,8 +1399,8 @@ TEST(rereference_fixed_3) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1447,8 +1446,8 @@ TEST(rereference_fixed_4) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1498,8 +1497,8 @@ TEST(rereference_fixed_5) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1556,8 +1555,8 @@ TEST(rereference_fixed_6) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1625,8 +1624,8 @@ TEST(rereference_fixed_7) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);
@@ -1698,8 +1697,8 @@ TEST(check_exclude_keyword_string_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -1719,8 +1718,8 @@ TEST(check_exclude_keyword_string_no_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -1741,8 +1740,8 @@ TEST(check_exclude_keyword_array_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -1762,8 +1761,8 @@ TEST(check_exclude_keyword_array_multiple_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -1783,8 +1782,8 @@ TEST(check_exclude_keyword_array_no_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -1805,8 +1804,8 @@ TEST(check_exclude_keyword_wrong_type) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -1832,8 +1831,8 @@ TEST(check_exclude_keyword_nested_only) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -1857,8 +1856,8 @@ TEST(check_exclude_keyword_multiple_rules) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -1878,8 +1877,8 @@ TEST(check_exclude_keyword_no_keyword_set) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.check(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.check(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_FALSE(result.first);
@@ -1900,8 +1899,8 @@ TEST(apply_exclude_keyword_string_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.apply(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.apply(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -1922,8 +1921,8 @@ TEST(apply_exclude_keyword_string_no_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.apply(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.apply(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -1950,8 +1949,8 @@ TEST(apply_exclude_keyword_array_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.apply(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.apply(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -1974,8 +1973,8 @@ TEST(apply_exclude_keyword_array_multiple_match) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.apply(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.apply(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -2002,8 +2001,8 @@ TEST(apply_exclude_keyword_nested_selective) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.apply(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.apply(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -2030,8 +2029,8 @@ TEST(check_exclude_keyword_empty_string) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -2052,8 +2051,8 @@ TEST(check_exclude_keyword_empty_array) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -2074,8 +2073,8 @@ TEST(check_exclude_keyword_boolean) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -2096,8 +2095,8 @@ TEST(check_exclude_keyword_null) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -2118,8 +2117,8 @@ TEST(check_exclude_keyword_object) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_FALSE(result.first);
@@ -2140,8 +2139,8 @@ TEST(check_exclude_keyword_array_with_non_strings) {
 
   TestTransformTraces entries;
   const auto result =
-      bundle.check(document, sourcemeta::blaze::schema_walker,
-                   sourcemeta::blaze::schema_resolver,
+      bundle.check(document, sourcemeta::core::schema_walker,
+                   sourcemeta::core::schema_resolver,
                    transformer_callback_trace(entries), "", "", "x-exclude");
 
   EXPECT_TRUE(result.first);
@@ -2169,8 +2168,8 @@ TEST(rereference_fixed_through_subschema_with_id) {
   })JSON");
 
   TestTransformTraces entries;
-  const auto result = bundle.apply(document, sourcemeta::blaze::schema_walker,
-                                   sourcemeta::blaze::schema_resolver,
+  const auto result = bundle.apply(document, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
                                    transformer_callback_trace(entries));
 
   EXPECT_TRUE(result.first);

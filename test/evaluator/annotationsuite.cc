@@ -2,8 +2,8 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/output.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
@@ -26,7 +26,7 @@ static auto slugify(const std::string &input, std::ostream &output) -> void {
 
 static auto schema_location_matches(const std::string &actual,
                                     const std::string &expected,
-                                    const sourcemeta::blaze::SchemaFrame &frame)
+                                    const sourcemeta::core::SchemaFrame &frame)
     -> bool {
   if (actual == expected) {
     return true;
@@ -50,7 +50,7 @@ has_annotation(const sourcemeta::blaze::SimpleOutput &output,
                const sourcemeta::core::WeakPointer &instance_location,
                const std::string &schema_location,
                const sourcemeta::core::JSON &value,
-               const sourcemeta::blaze::SchemaFrame &frame) -> bool {
+               const sourcemeta::core::SchemaFrame &frame) -> bool {
   std::cerr << "Looking for ";
   sourcemeta::core::stringify(value, std::cerr);
   std::cerr << " at instance location \""
@@ -105,7 +105,7 @@ has_matching_annotations(const sourcemeta::blaze::SimpleOutput &output,
 namespace {
 auto check_assertions(const sourcemeta::blaze::SimpleOutput &output,
                       const sourcemeta::core::JSON::Array &assertions,
-                      const sourcemeta::blaze::SchemaFrame &frame) -> void {
+                      const sourcemeta::core::SchemaFrame &frame) -> void {
   for (const auto &assertion : assertions) {
     assert(assertion.is_object());
     assert(assertion.defines("location"));
@@ -142,13 +142,13 @@ auto run_annotation_test(const sourcemeta::core::JSON &schema_json,
                          const sourcemeta::core::JSON &instance,
                          const sourcemeta::core::JSON::Array &assertions)
     -> void {
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema_json,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema_json,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
       default_dialect};
   const auto exhaustive_schema{sourcemeta::blaze::compile(
-      schema_json, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema_json, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -168,8 +168,8 @@ auto run_annotation_test(const sourcemeta::core::JSON &schema_json,
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.annotations = std::move(whitelist);
   const auto fast_validation_schema{sourcemeta::blaze::compile(
-      schema_json, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema_json, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::FastValidation, tweaks)};
 

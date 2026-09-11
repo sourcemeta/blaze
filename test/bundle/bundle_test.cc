@@ -1,7 +1,7 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/bundle.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
 
@@ -9,7 +9,7 @@
 #include <string_view> // std::string_view
 
 static auto test_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/test-1") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -86,7 +86,7 @@ static auto test_resolver(std::string_view identifier)
       "foo", "bar", "baz"
     ])JSON");
   }
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 TEST(multiple_refs) {
@@ -104,7 +104,7 @@ TEST(multiple_refs) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -148,7 +148,7 @@ TEST(across_dialects) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -186,10 +186,10 @@ TEST(across_dialects_top_level_ref_draft) {
 
   try {
     sourcemeta::blaze::bundle(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceObjectResourceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceObjectResourceError &error) {
     EXPECT_EQ(error.identifier(),
               "https://www.sourcemeta.com/test-3-top-level-ref");
   } catch (...) {
@@ -206,10 +206,10 @@ TEST(across_dialects_from_top_level_ref_draft_absolute) {
 
   try {
     sourcemeta::blaze::bundle(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &error) {
+  } catch (const sourcemeta::core::SchemaError &error) {
     EXPECT_STREQ(error.what(),
                  "Cannot bundle a JSON Schema Draft 7 or older with a "
                  "top-level `$ref` (which overrides sibling keywords) without "
@@ -226,10 +226,10 @@ TEST(across_dialects_from_top_level_ref_draft_relative) {
 
   try {
     sourcemeta::blaze::bundle(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &error) {
+  } catch (const sourcemeta::core::SchemaError &error) {
     EXPECT_STREQ(error.what(),
                  "Cannot bundle a JSON Schema Draft 7 or older with a "
                  "top-level `$ref` (which overrides sibling keywords) without "
@@ -245,7 +245,7 @@ TEST(across_dialects_const) {
   })JSON");
 
   const auto result = sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -281,7 +281,7 @@ TEST(with_default_id) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas, "",
       "https://www.sourcemeta.com/default");
 
@@ -319,7 +319,7 @@ TEST(with_default_dialect) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
       "https://json-schema.org/draft/2020-12/schema");
 
@@ -348,10 +348,10 @@ TEST(without_default_dialect) {
 
   try {
     sourcemeta::blaze::bundle(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+  } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not determine the base dialect of the schema");
   }
@@ -364,7 +364,7 @@ TEST(anonymous_target_with_draft4_default_dialect) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
       "http://json-schema.org/draft-04/schema#");
 
@@ -390,7 +390,7 @@ TEST(anonymous_target_with_draft7_default_dialect) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
       "http://json-schema.org/draft-07/schema#");
 
@@ -416,7 +416,7 @@ TEST(elevate_anonymous_embedded_resource_across_dialects) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -451,7 +451,7 @@ TEST(elevate_anonymous_embedded_resource_deduplication) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -494,10 +494,10 @@ TEST(target_no_dialect) {
 
   try {
     sourcemeta::blaze::bundle(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
   }
 }
@@ -512,10 +512,10 @@ TEST(target_array) {
 
   try {
     sourcemeta::blaze::bundle(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
   }
 }
@@ -541,7 +541,7 @@ TEST(custom_paths_no_external) {
   const sourcemeta::core::Pointer path2{"common", "test"};
   const sourcemeta::core::Pointer path3{"common", "with-id"};
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
       "https://json-schema.org/draft/2020-12/schema", "",
       sourcemeta::core::Pointer{"components"},
@@ -591,7 +591,7 @@ TEST(custom_paths_with_externals) {
   const sourcemeta::core::Pointer path2{"common", "test"};
   const sourcemeta::core::Pointer path3{"common", "with-id"};
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
       "https://json-schema.org/draft/2020-12/schema", "",
       sourcemeta::core::Pointer{"components"},

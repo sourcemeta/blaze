@@ -1,7 +1,7 @@
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/io.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -42,8 +42,8 @@ static auto run(const char *schema_path, const char *instance_path) -> int {
       sourcemeta::blaze::JSONLD_KEYWORDS.begin(),
       sourcemeta::blaze::JSONLD_KEYWORDS.end()};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 

@@ -3,8 +3,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
 
@@ -47,12 +47,12 @@ auto metaschema_template(const std::string &uri)
     return match->second;
   }
 
-  const auto metaschema{sourcemeta::blaze::schema_resolver(uri)};
+  const auto metaschema{sourcemeta::core::schema_resolver(uri)};
   assert(metaschema.has_value());
   return cache
       .emplace(uri, sourcemeta::blaze::compile(
-                        metaschema.value(), sourcemeta::blaze::schema_walker,
-                        sourcemeta::blaze::schema_resolver,
+                        metaschema.value(), sourcemeta::core::schema_walker,
+                        sourcemeta::core::schema_resolver,
                         sourcemeta::blaze::default_schema_compiler,
                         sourcemeta::blaze::Mode::FastValidation))
       .first->second;
@@ -95,8 +95,8 @@ auto run_trace_test(const sourcemeta::core::JSON &data,
   const auto count{pre.size()};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, mode)};
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
   EVALUATE_WITH_TRACE(compiled_schema, instance, count);
@@ -159,8 +159,8 @@ auto run_error_test(const sourcemeta::core::JSON &data,
 
   try {
     sourcemeta::blaze::compile(data.at("schema"),
-                               sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+                               sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CompilerError &error) {

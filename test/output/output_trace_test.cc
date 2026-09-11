@@ -2,8 +2,8 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/output.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/jsonpointer.h>
 
@@ -95,8 +95,8 @@ TEST(pass_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
@@ -142,8 +142,8 @@ TEST(pass_annotations) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -206,8 +206,8 @@ TEST(pass_with_matching_prefix_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
@@ -255,13 +255,13 @@ TEST(pass_with_frame_exhaustive) {
     }
   })JSON")};
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -322,13 +322,13 @@ TEST(pass_with_frame_fast) {
     }
   })JSON")};
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::FastValidation)};
 
@@ -366,13 +366,13 @@ TEST(nested_vocabulary_correctness) {
     }
   })JSON")};
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
       sourcemeta::blaze::Mode::FastValidation)};
 
@@ -423,8 +423,8 @@ TEST(entry_carries_the_instruction_for_describing) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
@@ -469,16 +469,16 @@ TEST(vocabulary_across_schemas_through_a_reference) {
   })JSON")};
 
   const auto resolver{[&remote](const std::string_view identifier)
-                          -> sourcemeta::blaze::SchemaResolverResult {
+                          -> sourcemeta::core::SchemaResolverResult {
     if (identifier == "https://example.com/remote") {
       return remote;
     }
 
-    return sourcemeta::blaze::schema_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   }};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker, resolver,
+      schema, sourcemeta::core::schema_walker, resolver,
       sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
@@ -514,8 +514,8 @@ TEST(vocabulary_of_a_subschema_under_a_property_named_after_a_keyword) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 

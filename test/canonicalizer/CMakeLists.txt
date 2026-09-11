@@ -14,7 +14,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
 target_link_libraries(sourcemeta_blaze_canonicalizer_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_canonicalizer_unit
-  PRIVATE sourcemeta::blaze::foundation)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_canonicalizer_unit
   PRIVATE sourcemeta::blaze::canonicalizer)
 target_link_libraries(sourcemeta_blaze_canonicalizer_unit

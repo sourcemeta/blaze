@@ -1,12 +1,3 @@
-if(BLAZE_FOUNDATION)
-  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_frame
-    FOLDER "Blaze/Contrib" SOURCES frame.cc)
-  target_link_libraries(sourcemeta_blaze_contrib_frame
-    PRIVATE sourcemeta::core::json)
-  target_link_libraries(sourcemeta_blaze_contrib_frame
-    PRIVATE sourcemeta::blaze::foundation)
-endif()
-
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_compile
     FOLDER "Blaze/Contrib" SOURCES compile.cc)
@@ -17,7 +8,7 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   target_link_libraries(sourcemeta_blaze_contrib_compile
     PRIVATE sourcemeta::core::jsonpointer)
   target_link_libraries(sourcemeta_blaze_contrib_compile
-    PRIVATE sourcemeta::blaze::foundation)
+    PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_compile
     PRIVATE sourcemeta::core::options)
   target_link_libraries(sourcemeta_blaze_contrib_compile
@@ -32,7 +23,7 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   target_link_libraries(sourcemeta_blaze_contrib_validate
     PRIVATE sourcemeta::core::jsonl)
   target_link_libraries(sourcemeta_blaze_contrib_validate
-    PRIVATE sourcemeta::blaze::foundation)
+    PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_validate
     PRIVATE sourcemeta::blaze::compiler)
   target_link_libraries(sourcemeta_blaze_contrib_validate
@@ -43,7 +34,7 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   target_link_libraries(sourcemeta_blaze_contrib_trace
     PRIVATE sourcemeta::core::json)
   target_link_libraries(sourcemeta_blaze_contrib_trace
-    PRIVATE sourcemeta::blaze::foundation)
+    PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_trace
     PRIVATE sourcemeta::core::options)
   target_link_libraries(sourcemeta_blaze_contrib_trace
@@ -62,7 +53,7 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   target_link_libraries(sourcemeta_blaze_contrib_jsonld
     PRIVATE sourcemeta::core::jsonpointer)
   target_link_libraries(sourcemeta_blaze_contrib_jsonld
-    PRIVATE sourcemeta::blaze::foundation)
+    PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_jsonld
     PRIVATE sourcemeta::blaze::compiler)
   target_link_libraries(sourcemeta_blaze_contrib_jsonld
@@ -80,7 +71,7 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
     target_link_libraries(sourcemeta_blaze_contrib_perf
       PRIVATE sourcemeta::core::jsonl)
     target_link_libraries(sourcemeta_blaze_contrib_perf
-      PRIVATE sourcemeta::blaze::foundation)
+      PRIVATE sourcemeta::core::jsonschema)
     target_link_libraries(sourcemeta_blaze_contrib_perf
       PRIVATE sourcemeta::blaze::compiler)
     target_link_libraries(sourcemeta_blaze_contrib_perf
@@ -104,7 +95,7 @@ if(BLAZE_CANONICALIZER)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::core::json)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
-    PRIVATE sourcemeta::blaze::foundation)
+    PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::blaze::format)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
@@ -118,7 +109,7 @@ if(BLAZE_ALTERSCHEMA)
   target_link_libraries(sourcemeta_blaze_contrib_upgrade
     PRIVATE sourcemeta::core::json)
   target_link_libraries(sourcemeta_blaze_contrib_upgrade
-    PRIVATE sourcemeta::blaze::foundation)
+    PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_upgrade
     PRIVATE sourcemeta::core::options)
   target_link_libraries(sourcemeta_blaze_contrib_upgrade

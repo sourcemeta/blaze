@@ -7,8 +7,8 @@
 #include <utility>       // std::move
 #include <variant>       // std::holds_alternative
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -147,8 +147,8 @@ static auto run_catalog(benchmark::State &state,
       sourcemeta::blaze::JSONLD_KEYWORDS.begin(),
       sourcemeta::blaze::JSONLD_KEYWORDS.end()};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 

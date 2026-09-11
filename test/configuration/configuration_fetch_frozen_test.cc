@@ -1,8 +1,8 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/configuration.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "configuration_test_utils.h"
 
@@ -837,7 +837,7 @@ TEST(fetch_schema_without_schema_no_default_fails) {
   try {
     std::rethrow_exception(events[3].exception);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+  } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not determine the base dialect of the schema");
   }

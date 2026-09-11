@@ -6,8 +6,8 @@
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/output.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <array>         // std::array
 #include <optional>      // std::optional
@@ -26,18 +26,18 @@
     jump_tweaks.annotations = tweaks.annotations;                              \
     jump_tweaks.target_inline_threshold = 0;                                   \
     const auto schema_template{sourcemeta::blaze::compile(                     \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::core::schema_walker,                             \
+        sourcemeta::core::schema_resolver,                                     \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
     const auto jump_template{sourcemeta::blaze::compile(                       \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::core::schema_walker,                             \
+        sourcemeta::core::schema_resolver,                                     \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
     const auto exhaustive_template{sourcemeta::blaze::compile(                 \
-        (schema), sourcemeta::blaze::schema_walker,                            \
-        sourcemeta::blaze::schema_resolver,                                    \
+        (schema), sourcemeta::core::schema_walker,                             \
+        sourcemeta::core::schema_resolver,                                     \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
@@ -76,15 +76,15 @@
     jump_tweaks.annotations = tweaks.annotations;                              \
     jump_tweaks.target_inline_threshold = 0;                                   \
     const auto schema_template{sourcemeta::blaze::compile(                     \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
     const auto jump_template{sourcemeta::blaze::compile(                       \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
     const auto exhaustive_template{sourcemeta::blaze::compile(                 \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
@@ -113,7 +113,7 @@
     schema, instance, expected_instance_location, expected_facet,              \
     expected_message, expected_schema_location)                                \
   EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER(                               \
-      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      sourcemeta::core::schema_resolver, schema, instance,                     \
       expected_instance_location, expected_facet, expected_message,            \
       expected_schema_location)
 
@@ -131,15 +131,15 @@
     jump_tweaks.annotations = tweaks.annotations;                              \
     jump_tweaks.target_inline_threshold = 0;                                   \
     const auto schema_template{sourcemeta::blaze::compile(                     \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
     const auto jump_template{sourcemeta::blaze::compile(                       \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
     const auto exhaustive_template{sourcemeta::blaze::compile(                 \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
@@ -171,7 +171,7 @@
     expected_message, expected_schema_location,                                \
     expected_conflicting_schema_location)                                      \
   EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_CONFLICT(                  \
-      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      sourcemeta::core::schema_resolver, schema, instance,                     \
       expected_instance_location, expected_facet, expected_message,            \
       expected_schema_location, expected_conflicting_schema_location)
 
@@ -189,15 +189,15 @@
     jump_tweaks.annotations = tweaks.annotations;                              \
     jump_tweaks.target_inline_threshold = 0;                                   \
     const auto schema_template{sourcemeta::blaze::compile(                     \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};         \
     const auto jump_template{sourcemeta::blaze::compile(                       \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};    \
     const auto exhaustive_template{sourcemeta::blaze::compile(                 \
-        (schema), sourcemeta::blaze::schema_walker, (resolver),                \
+        (schema), sourcemeta::core::schema_walker, (resolver),                 \
         sourcemeta::blaze::default_schema_compiler,                            \
         sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};             \
     sourcemeta::blaze::Evaluator evaluator;                                    \
@@ -231,7 +231,7 @@
     expected_message, expected_schema_location,                                \
     expected_conflicting_schema_location, expected_inert_override_location)    \
   EXPECT_JSON_LD_RESOLUTION_ERROR_WITH_RESOLVER_AND_INERT_OVERRIDE(            \
-      sourcemeta::blaze::schema_resolver, schema, instance,                    \
+      sourcemeta::core::schema_resolver, schema, instance,                     \
       expected_instance_location, expected_facet, expected_message,            \
       expected_schema_location, expected_conflicting_schema_location,          \
       expected_inert_override_location)
@@ -245,18 +245,18 @@
   jump_tweaks.annotations = tweaks.annotations;                                \
   jump_tweaks.target_inline_threshold = 0;                                     \
   const auto schema_template{sourcemeta::blaze::compile(                       \
-      (schema), sourcemeta::blaze::schema_walker,                              \
-      sourcemeta::blaze::schema_resolver,                                      \
+      (schema), sourcemeta::core::schema_walker,                               \
+      sourcemeta::core::schema_resolver,                                       \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};           \
   const auto jump_template{sourcemeta::blaze::compile(                         \
-      (schema), sourcemeta::blaze::schema_walker,                              \
-      sourcemeta::blaze::schema_resolver,                                      \
+      (schema), sourcemeta::core::schema_walker,                               \
+      sourcemeta::core::schema_resolver,                                       \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation, "", "", "", jump_tweaks)};      \
   const auto exhaustive_template{sourcemeta::blaze::compile(                   \
-      (schema), sourcemeta::blaze::schema_walker,                              \
-      sourcemeta::blaze::schema_resolver,                                      \
+      (schema), sourcemeta::core::schema_walker,                               \
+      sourcemeta::core::schema_resolver,                                       \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};               \
   sourcemeta::blaze::Evaluator evaluator;                                      \
@@ -287,7 +287,7 @@
             (expected_schema_location));
 
 static auto test_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://example.com/remote") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "https://example.com/remote",
@@ -296,7 +296,7 @@ static auto test_resolver(std::string_view identifier)
     })JSON");
   }
 
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 TEST(JSONLD_node_type_and_property_ids) {
@@ -1943,13 +1943,13 @@ TEST(JSONLD_evaluator_reused_across_calls) {
   })JSON")};
 
   const auto template_first{sourcemeta::blaze::compile(
-      schema_first, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema_first, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
   const auto template_second{sourcemeta::blaze::compile(
-      schema_second, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema_second, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 
@@ -12499,8 +12499,8 @@ TEST(JSONLD_override_evaluator_and_template_reuse) {
   })JSON")};
 
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 
@@ -12860,8 +12860,8 @@ TEST(JSONLD_exhaustive_without_whitelist_collects_standard_annotations) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 

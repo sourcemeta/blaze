@@ -7,8 +7,8 @@
 #include <string_view> // std::string_view
 
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/test.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
@@ -25,12 +25,12 @@ static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
                                   "files" / "draft7_w3c_wot_td_v1_1.json")};
 
   const auto resolver{[&schema](const std::string_view identifier)
-                          -> sourcemeta::blaze::SchemaResolverResult {
+                          -> sourcemeta::core::SchemaResolverResult {
     if (identifier == WOT_IDENTIFIER) {
       return schema;
     }
 
-    return sourcemeta::blaze::schema_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   }};
 
   const auto *const input{R"JSON({
@@ -45,7 +45,7 @@ static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
   for (auto iteration : state) {
     auto suite{sourcemeta::blaze::TestSuite::parse(
         document, tracker, std::filesystem::path{CURRENT_DIRECTORY}, resolver,
-        sourcemeta::blaze::schema_walker,
+        sourcemeta::core::schema_walker,
         sourcemeta::blaze::default_schema_compiler)};
     assert(suite.targets.size() == 1);
     assert(suite.tests.size() == 1);

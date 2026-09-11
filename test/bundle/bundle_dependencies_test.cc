@@ -1,7 +1,7 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/bundle.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
 
@@ -21,7 +21,7 @@
             (expected_target));
 
 static auto test_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/test-1") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -111,7 +111,7 @@ static auto test_resolver(std::string_view identifier)
       ]
     })JSON");
   }
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 TEST(multiple_refs) {
@@ -132,7 +132,7 @@ TEST(multiple_refs) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -162,7 +162,7 @@ TEST(across_dialects) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -190,7 +190,7 @@ TEST(across_dialects_top_level_ref_draft) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -217,7 +217,7 @@ TEST(across_dialects_from_top_level_ref_draft_absolute) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -242,14 +242,14 @@ TEST(across_dialects_from_top_level_ref_draft_relative) {
 
   try {
     sourcemeta::blaze::dependencies(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         [&traces](const auto &origin, const auto &pointer, const auto &target,
                   const auto &) {
           traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
                               target);
         });
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+  } catch (const sourcemeta::core::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not resolve the reference to an external schema");
   }
@@ -264,7 +264,7 @@ TEST(across_dialects_from_top_level_ref_draft_with_default_dialect) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -289,7 +289,7 @@ TEST(across_dialects_const) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -316,7 +316,7 @@ TEST(with_default_id) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -345,7 +345,7 @@ TEST(with_default_dialect) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -368,10 +368,10 @@ TEST(without_default_dialect) {
 
   try {
     sourcemeta::blaze::dependencies(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         [](const auto &, const auto &, const auto &, const auto &) {});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+  } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not determine the base dialect of the schema");
   }
@@ -387,10 +387,10 @@ TEST(target_no_dialect) {
 
   try {
     sourcemeta::blaze::dependencies(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         [](const auto &, const auto &, const auto &, const auto &) {});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
   }
 }
@@ -405,10 +405,10 @@ TEST(target_array) {
 
   try {
     sourcemeta::blaze::dependencies(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         [](const auto &, const auto &, const auto &, const auto &) {});
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_STREQ(error.what(), "The JSON document is not a valid JSON Schema");
   }
 }
@@ -437,7 +437,7 @@ TEST(custom_paths_no_external) {
   const sourcemeta::core::Pointer path2{"common", "test"};
   const sourcemeta::core::Pointer path3{"common", "with-id"};
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -477,7 +477,7 @@ TEST(custom_paths_with_externals) {
   const sourcemeta::core::Pointer path2{"common", "test"};
   const sourcemeta::core::Pointer path3{"common", "with-id"};
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -528,7 +528,7 @@ TEST(multiple_refs_to_same_target_within_schema) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -553,7 +553,7 @@ TEST(ref_to_official_schema_without_recursion) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -577,7 +577,7 @@ TEST(custom_metaschema_official_boundary) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -613,7 +613,7 @@ TEST(sibling_schemas_with_shared_dependency) {
       traces;
 
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(origin, sourcemeta::core::to_pointer(pointer),
@@ -656,8 +656,8 @@ TEST(embedded_custom_metaschema_offline) {
   // Note that we use a resolver that does not know about
   // the custom meta-schema embedded in the document
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(std::string{origin},
@@ -692,8 +692,8 @@ TEST(embedded_custom_metaschema_offline_2019_09) {
   // Note that we use a resolver that does not know about
   // the custom meta-schema embedded in the document
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(std::string{origin},
@@ -724,8 +724,8 @@ TEST(embedded_custom_metaschema_offline_draft7) {
   // Note that we use a resolver that does not know about
   // the custom meta-schema embedded in the document
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(std::string{origin},
@@ -756,8 +756,8 @@ TEST(embedded_custom_metaschema_offline_draft6) {
   // Note that we use a resolver that does not know about
   // the custom meta-schema embedded in the document
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(std::string{origin},
@@ -788,8 +788,8 @@ TEST(embedded_custom_metaschema_offline_draft4) {
   // Note that we use a resolver that does not know about
   // the custom meta-schema embedded in the document
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(std::string{origin},
@@ -820,8 +820,8 @@ TEST(embedded_custom_metaschema_offline_draft3) {
   // Note that we use a resolver that does not know about
   // the custom meta-schema embedded in the document
   sourcemeta::blaze::dependencies(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&traces](const auto &origin, const auto &pointer, const auto &target,
                 const auto &) {
         traces.emplace_back(std::string{origin},

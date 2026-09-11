@@ -4,8 +4,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
 
@@ -39,12 +39,12 @@ auto run_canonicalize_test(const sourcemeta::core::JSON &data,
   // that dialect for the compilation that follows
   const auto dialect{declared_dialect(schema)};
 
-  sourcemeta::blaze::canonicalize(schema, sourcemeta::blaze::schema_walker,
-                                  sourcemeta::blaze::schema_resolver, dialect);
+  sourcemeta::blaze::canonicalize(schema, sourcemeta::core::schema_walker,
+                                  sourcemeta::core::schema_resolver, dialect);
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, mode, dialect)};
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
 

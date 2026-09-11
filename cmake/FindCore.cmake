@@ -26,7 +26,9 @@ if(NOT Core_FOUND)
   set(SOURCEMETA_CORE_MCP OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_OAUTH OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_OIDC OFF CACHE BOOL "unused by Blaze")
+  set(SOURCEMETA_CORE_OPENAPI OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_SEMVER OFF CACHE BOOL "unused by Blaze")
+  set(SOURCEMETA_CORE_TERMINAL OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_LANG_PARALLEL OFF CACHE BOOL "unused by Blaze")
 
   # Only the test suite makes use of the Core testing library, which in turn

@@ -31,7 +31,7 @@ static auto parse_resolve_directory(const std::string_view value)
 
 static auto resolve_schema(const std::string_view identifier,
                            const ResolveDirectories &resolve_directories)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   for (const auto &[prefix, directory] : resolve_directories) {
     if (!identifier.starts_with(prefix)) {
       continue;
@@ -55,7 +55,7 @@ static auto resolve_schema(const std::string_view identifier,
     }
   }
 
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 auto main(int argc, char **argv) noexcept -> int {
@@ -124,7 +124,7 @@ auto main(int argc, char **argv) noexcept -> int {
 
     const auto resolver{
         [&resolve_directories](const std::string_view identifier)
-            -> sourcemeta::blaze::SchemaResolverResult {
+            -> sourcemeta::core::SchemaResolverResult {
           return resolve_schema(identifier, resolve_directories);
         }};
 
@@ -148,7 +148,7 @@ auto main(int argc, char **argv) noexcept -> int {
 
     const auto compile_start{std::chrono::high_resolution_clock::now()};
     const auto schema_template{sourcemeta::blaze::compile(
-        document, sourcemeta::blaze::schema_walker, resolver,
+        document, sourcemeta::core::schema_walker, resolver,
         sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
     const auto compile_end{std::chrono::high_resolution_clock::now()};
     const auto compile_duration{

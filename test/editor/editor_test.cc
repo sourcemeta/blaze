@@ -4,7 +4,7 @@
 #include <sourcemeta/blaze/editor.h>
 
 static auto test_resolver_2020_12(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://example.com/foo/bar") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -47,11 +47,11 @@ static auto test_resolver_2020_12(std::string_view identifier)
       "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
     })JSON");
   }
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 static auto test_resolver_2019_09(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://example.com/foo/bar") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -94,11 +94,11 @@ static auto test_resolver_2019_09(std::string_view identifier)
       "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
     })JSON");
   }
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 static auto test_resolver_draft7(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -120,11 +120,11 @@ static auto test_resolver_draft7(std::string_view identifier)
       "$id": "https://example.com/meta/2.json"
     })JSON");
   }
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 static auto test_resolver_draft6(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-06/schema#",
@@ -146,11 +146,11 @@ static auto test_resolver_draft6(std::string_view identifier)
       "$id": "https://example.com/meta/2.json"
     })JSON");
   }
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 static auto test_resolver_draft4(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://www.sourcemeta.com/recursive") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -172,7 +172,7 @@ static auto test_resolver_draft4(std::string_view identifier)
       "id": "https://example.com/meta/2.json"
     })JSON");
   }
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 TEST(2020_12_bundle) {
@@ -190,9 +190,9 @@ TEST(2020_12_bundle) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_2020_12,
+      document, sourcemeta::core::schema_walker, test_resolver_2020_12,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -240,9 +240,9 @@ TEST(2020_12_static_dynamic_reference) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_2020_12,
+      document, sourcemeta::core::schema_walker, test_resolver_2020_12,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -274,7 +274,7 @@ TEST(2020_12_dynamic_reference_to_static_anchor) {
     }
   })JSON");
 
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -313,7 +313,7 @@ TEST(2020_12_dynamic_anchors_1) {
     }
   })JSON");
 
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -346,7 +346,7 @@ TEST(2020_12_bundle_boolean_subschema) {
     }
   })JSON");
 
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -367,7 +367,7 @@ TEST(2020_12_default_base_dialect) {
     }
   })JSON");
 
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12,
                                 "https://json-schema.org/draft/2020-12/schema");
 
@@ -389,7 +389,7 @@ TEST(2020_12_default_dialect) {
     }
   })JSON");
 
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12,
                                 "https://example.com/meta/1.json");
 
@@ -410,9 +410,9 @@ TEST(2020_12_bundle_metaschema) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_2020_12,
+      document, sourcemeta::core::schema_walker, test_resolver_2020_12,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -446,9 +446,9 @@ TEST(2019_09_bundle) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_2019_09,
+      document, sourcemeta::core::schema_walker, test_resolver_2019_09,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2019_09);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -491,9 +491,9 @@ TEST(2019_09_bundle_metaschema) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_2019_09,
+      document, sourcemeta::core::schema_walker, test_resolver_2019_09,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2019_09);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -524,9 +524,9 @@ TEST(draft7_bundle) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_draft7,
+      document, sourcemeta::core::schema_walker, test_resolver_draft7,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft7);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -562,7 +562,7 @@ TEST(2019_09_static_recursive_reference) {
     }
   })JSON");
 
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -601,7 +601,7 @@ TEST(2019_09_recursive_anchors_1) {
     }
   })JSON");
 
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -632,9 +632,9 @@ TEST(draft7_bundle_metaschema) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_draft7,
+      document, sourcemeta::core::schema_walker, test_resolver_draft7,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft7);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -665,9 +665,9 @@ TEST(draft6_bundle) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_draft6,
+      document, sourcemeta::core::schema_walker, test_resolver_draft6,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft6);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -699,9 +699,9 @@ TEST(draft6_bundle_metaschema) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_draft6,
+      document, sourcemeta::core::schema_walker, test_resolver_draft6,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft6);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -732,9 +732,9 @@ TEST(draft4_bundle) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_draft4,
+      document, sourcemeta::core::schema_walker, test_resolver_draft4,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft4);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -766,9 +766,9 @@ TEST(draft4_bundle_metaschema) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver_draft4,
+      document, sourcemeta::core::schema_walker, test_resolver_draft4,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft4);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
@@ -807,8 +807,8 @@ TEST(2020_12_bundle_metaschema_offline) {
 
   // Note that we use a resolver that does not know about
   // the custom meta-schema embedded in the document
-  sourcemeta::blaze::for_editor(document, sourcemeta::blaze::schema_walker,
-                                sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                sourcemeta::core::schema_resolver);
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
