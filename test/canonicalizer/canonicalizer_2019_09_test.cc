@@ -1301,6 +1301,173 @@ TEST(unevaluated_properties_multi_ref_non_ref_branch_stays) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
+TEST(unevaluated_properties_single_ref_sibling_unevaluated_items_converts) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "unevaluatedItems": false,
+    "$defs": {
+      "base": { "type": "object", "properties": { "shared": true } }
+    }
+  })JSON");
+
+  // A sibling `unevaluatedItems` consumes the annotations that decide which
+  // items are evaluated, which the rewrite never touches, so it neither blocks
+  // the conversion nor changes meaning once `unevaluatedProperties` is gone
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "base": {
+        "type": "object",
+        "properties": {
+          "shared": true
+        },
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    },
+    "unevaluatedItems": false,
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "$ref": "#/$defs/base"
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "properties": {
+          "local": true,
+          "shared": true
+        },
+        "additionalProperties": false,
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(unevaluated_properties_single_ref_target_unevaluated_items_converts) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "allOf": [ { "$ref": "#/$defs/base" } ],
+    "properties": { "local": true },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "base": { "properties": { "shared": true }, "unevaluatedItems": false }
+    }
+  })JSON");
+
+  // What the target says about items does not bear on the property set it
+  // evaluates, so its own `unevaluatedItems` neither blocks the conversion nor
+  // is disturbed by it
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "base": {
+        "unevaluatedItems": false,
+        "anyOf": [
+          {
+            "enum": [
+              null
+            ]
+          },
+          {
+            "enum": [
+              false,
+              true
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "shared": true
+            },
+            "patternProperties": {},
+            "propertyNames": true,
+            "minProperties": 0
+          },
+          {
+            "type": "array",
+            "uniqueItems": false,
+            "minItems": 0,
+            "contains": true,
+            "minContains": 0
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ]
+      }
+    },
+    "allOf": [
+      {
+        "allOf": [
+          {
+            "$ref": "#/$defs/base"
+          }
+        ]
+      },
+      {
+        "type": "object",
+        "properties": {
+          "local": true,
+          "shared": true
+        },
+        "additionalProperties": false,
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(unevaluated_properties_with_properties_sibling) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": { "a": { "type": "string" } },
+    "unevaluatedProperties": false
+  })JSON");
+
+  // With no in-place applicator to account for, the properties this schema
+  // spells out are the whole of what it evaluates, so `additionalProperties`
+  // reaches exactly the same verdict with nothing to merge beforehand
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    "additionalProperties": false,
+    "patternProperties": {},
+    "propertyNames": true,
+    "minProperties": 0
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
 TEST(items_implicit_skipped_with_unevaluated_items) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
