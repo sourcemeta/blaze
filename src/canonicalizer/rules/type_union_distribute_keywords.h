@@ -8,8 +8,8 @@ public:
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
             const sourcemeta::core::SchemaVocabularies &vocabularies,
-            const sourcemeta::core::SchemaFrame &,
-            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaFrame &frame,
+            const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &walker,
             const sourcemeta::core::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
@@ -28,6 +28,10 @@ public:
     this->wrap_keywords_.clear();
     this->wrap_ = false;
     std::vector<sourcemeta::core::JSON::String> movable;
+    // Walking the frame is linear on the entire document, so only do it if a
+    // keyword really is about to be copied into more than one branch, and
+    // remember the outcome for the keywords that follow
+    std::optional<std::vector<std::string_view>> declaring;
     for (const auto &entry : schema.as_object()) {
       // `required` is a property-presence flag, not a value assertion, so it
       // is never pushed into a branch
@@ -69,7 +73,21 @@ public:
         targets.push_back(index);
       }
 
-      if (!has_match || conflict) {
+      // Copying a value that declares an identifier or an anchor into more
+      // than one branch would declare it more than once. Wrap instead so each
+      // declaration is only ever moved
+      bool duplicates_identifier{false};
+      if (targets.size() > 1) {
+        if (!declaring.has_value()) {
+          declaring = declaring_keywords(frame, location.pointer);
+        }
+
+        duplicates_identifier =
+            std::ranges::find(declaring.value(), entry.first) !=
+            declaring.value().cend();
+      }
+
+      if (!has_match || conflict || duplicates_identifier) {
         this->wrap_ = true;
       } else {
         this->moves_.emplace_back(entry.first, std::move(targets));
@@ -171,6 +189,29 @@ public:
   }
 
 private:
+  // The keywords of the given schema whose value declares an identifier or an
+  // anchor anywhere inside it
+  static auto declaring_keywords(const sourcemeta::core::SchemaFrame &frame,
+                                 const sourcemeta::core::WeakPointer &base)
+      -> std::vector<std::string_view> {
+    std::vector<std::string_view> result;
+    frame.for_each_location(
+        [&base, &result](
+            const sourcemeta::core::SchemaReferenceType, const std::string_view,
+            const sourcemeta::core::SchemaFrame::Location &candidate) -> void {
+          if ((candidate.type ==
+                   sourcemeta::core::SchemaFrame::LocationType::Resource ||
+               candidate.type ==
+                   sourcemeta::core::SchemaFrame::LocationType::Anchor) &&
+              candidate.pointer.size() > base.size() &&
+              candidate.pointer.starts_with(base) &&
+              candidate.pointer.at(base.size()).is_property()) {
+            result.push_back(candidate.pointer.at(base.size()).to_property());
+          }
+        });
+    return result;
+  }
+
   static auto branch_type_set(const sourcemeta::core::JSON &branch)
       -> sourcemeta::core::JSON::TypeSet {
     if (!branch.is_object()) {
