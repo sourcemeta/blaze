@@ -1,7 +1,7 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "compiler_test_utils.h"
 
@@ -14,12 +14,12 @@ TEST(unevaluatedProperties_1) {
     "unevaluatedProperties": false
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
   const auto result{sourcemeta::blaze::unevaluated(
-      schema, frame, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver)};
+      schema, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
 
   EXPECT_EQ(result.size(), 1);
 
@@ -46,12 +46,12 @@ TEST(unevaluatedProperties_2) {
     "unevaluatedProperties": false
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
   const auto result{sourcemeta::blaze::unevaluated(
-      schema, frame, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver)};
+      schema, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
 
   EXPECT_EQ(result.size(), 1);
 
@@ -94,12 +94,12 @@ TEST(unevaluatedProperties_3) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
   const auto result{sourcemeta::blaze::unevaluated(
-      schema, frame, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver)};
+      schema, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
 
   EXPECT_EQ(result.size(), 1);
 
@@ -133,12 +133,12 @@ TEST(unevaluatedProperties_4) {
     ]
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
   const auto result{sourcemeta::blaze::unevaluated(
-      schema, frame, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver)};
+      schema, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
 
   EXPECT_EQ(result.size(), 1);
 
@@ -164,12 +164,12 @@ TEST(unevaluatedItems_1) {
     "unevaluatedItems": false
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
   const auto result{sourcemeta::blaze::unevaluated(
-      schema, frame, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver)};
+      schema, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
 
   EXPECT_EQ(result.size(), 1);
 
@@ -199,12 +199,12 @@ TEST(unevaluatedItems_2) {
     }
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
   const auto result{sourcemeta::blaze::unevaluated(
-      schema, frame, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver)};
+      schema, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
 
   EXPECT_EQ(result.size(), 1);
 
@@ -224,12 +224,12 @@ TEST(unevaluatedItems_3) {
     "unevaluatedItems": {"type": "string"}
   })JSON");
 
-  sourcemeta::blaze::SchemaFrame frame{
-      sourcemeta::blaze::SchemaFrame::Mode::References, schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
   const auto result{sourcemeta::blaze::unevaluated(
-      schema, frame, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver)};
+      schema, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
 
   EXPECT_EQ(result.size(), 1);
 

@@ -4,9 +4,9 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <string>        // std::string
 #include <unordered_set> // std::unordered_set
@@ -49,8 +49,8 @@ TEST(success_string_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -85,8 +85,8 @@ TEST(fail_meaningless_if_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(R"JSON({
@@ -130,8 +130,8 @@ TEST(success_dynamic_anchor_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -159,8 +159,8 @@ TEST(success_oneof_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"fo"};
@@ -188,8 +188,8 @@ TEST(success_anyof_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{42};
@@ -216,8 +216,8 @@ TEST(success_not_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{42};
@@ -242,8 +242,8 @@ TEST(fail_string) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -272,8 +272,8 @@ TEST(release_yields_collected_errors_and_consumes_them) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -305,8 +305,8 @@ TEST(release_yields_no_errors_on_success) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -335,8 +335,8 @@ TEST(fail_string_over_ref) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -369,8 +369,8 @@ TEST(fail_string_with_matching_base) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -405,8 +405,8 @@ TEST(fail_string_with_non_matching_base) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{5};
@@ -438,8 +438,8 @@ TEST(fail_oneof_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -470,8 +470,8 @@ TEST(fail_oneof_2) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{true};
@@ -507,8 +507,8 @@ TEST(fail_not_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -540,8 +540,8 @@ TEST(fail_not_not_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{1};
@@ -577,8 +577,8 @@ TEST(fail_anyof_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({
@@ -611,8 +611,8 @@ TEST(fail_anyof_2) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({
@@ -647,8 +647,8 @@ TEST(success_if_then_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foobar"};
@@ -674,8 +674,8 @@ TEST(success_if_else_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{42};
@@ -701,8 +701,8 @@ TEST(fail_if_then_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -731,8 +731,8 @@ TEST(fail_if_else_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{42};
@@ -760,8 +760,8 @@ TEST(success_contains_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
@@ -787,8 +787,8 @@ TEST(fail_contains_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
@@ -827,8 +827,8 @@ TEST(success_contains_mincontains_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
@@ -855,8 +855,8 @@ TEST(success_contains_maxcontains_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
@@ -883,8 +883,8 @@ TEST(fail_contains_mincontains_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
@@ -923,8 +923,8 @@ TEST(fail_contains_maxcontains_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{
@@ -956,8 +956,8 @@ TEST(fail_nested_oneof_anyof_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::JSON{nullptr}};
@@ -1001,8 +1001,8 @@ TEST(annotations_failure_2) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1042,8 +1042,8 @@ TEST(annotations_success_oneof_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1082,8 +1082,8 @@ TEST(annotations_success_whitelist_oneof_within_object_property) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 
@@ -1114,8 +1114,8 @@ TEST(annotations_success_if_then_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1144,8 +1144,8 @@ TEST(annotations_success_if_else_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1176,8 +1176,8 @@ TEST(annotations_failure_oneof_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1214,8 +1214,8 @@ TEST(annotations_failure_anyof_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1250,8 +1250,8 @@ TEST(annotations_failure_if_then_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1292,8 +1292,8 @@ TEST(annotations_success_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1339,8 +1339,8 @@ TEST(annotations_success_2) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1373,8 +1373,8 @@ TEST(annotations_success_3) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1399,8 +1399,8 @@ TEST(annotations_success_4) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1431,8 +1431,8 @@ TEST(annotations_success_5) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1463,8 +1463,8 @@ TEST(annotations_success_6) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1495,8 +1495,8 @@ TEST(annotations_success_7) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1525,8 +1525,8 @@ TEST(annotations_success_8) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1562,8 +1562,8 @@ TEST(annotations_success_9) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1598,8 +1598,8 @@ TEST(annotations_success_10) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1631,8 +1631,8 @@ TEST(annotations_failure_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1681,8 +1681,8 @@ TEST(annotations_success_anyof_failed_branch_nested_property_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1735,8 +1735,8 @@ TEST(annotations_success_anyof_failed_branch_nested_property_2) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1797,8 +1797,8 @@ TEST(annotations_success_whitelist_anyof_failed_branch_nested_property) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 
@@ -1851,8 +1851,8 @@ TEST(annotations_success_oneof_failed_branch_nested_property_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1908,8 +1908,8 @@ TEST(annotations_success_if_else_failed_branch_nested_property_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1944,8 +1944,8 @@ TEST(annotations_failure_multiple_locations_1) {
   })JSON")};
 
   const auto schema_template{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
 
@@ -1972,8 +1972,8 @@ TEST(annotations_success_whitelist_disallow_1) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 
@@ -2005,8 +2005,8 @@ TEST(annotations_success_whitelist_disallow_cross_dialect_1) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 
@@ -2035,8 +2035,8 @@ TEST(annotations_failure_whitelist_disallow_1) {
   tweaks.annotations =
       std::unordered_set<sourcemeta::core::JSON::StringView>{"x-custom"};
   const auto schema_template{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       sourcemeta::blaze::Mode::FastValidation, "", "", "", tweaks)};
 

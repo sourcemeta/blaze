@@ -3,13 +3,13 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
 
 TEST(metaschema_1) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/schema#")};
   EXPECT_TRUE(metaschema.has_value());
 
@@ -18,7 +18,7 @@ TEST(metaschema_1) {
 }
 
 TEST(metaschema_2) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/schema#")};
   EXPECT_TRUE(metaschema.has_value());
 
@@ -35,7 +35,7 @@ TEST(metaschema_2) {
 }
 
 TEST(metaschema_hyper_self) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 768,
@@ -43,7 +43,7 @@ TEST(metaschema_hyper_self) {
 }
 
 TEST(metaschema_hyper_self_exhaustive) {
-  const auto metaschema{sourcemeta::blaze::schema_resolver(
+  const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/hyper-schema#")};
   EXPECT_TRUE(metaschema.has_value());
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(metaschema.value(), metaschema.value(),
@@ -57,11 +57,11 @@ TEST(ref_11) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_STREQ(error.what(), "Could not resolve schema reference");
   }
 }
@@ -73,7 +73,7 @@ TEST(ref_12) {
   })JSON")};
 
   auto test_resolver = [](const std::string_view identifier)
-      -> sourcemeta::blaze::SchemaResolverResult {
+      -> sourcemeta::core::SchemaResolverResult {
     if (identifier == "https://example.com") {
       return sourcemeta::core::parse_json(R"JSON({
                 "$schema": "http://json-schema.org/draft-04/schema#",
@@ -81,15 +81,15 @@ TEST(ref_12) {
               })JSON");
     }
 
-    return sourcemeta::blaze::schema_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   };
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                test_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_STREQ(error.what(), "Could not resolve schema reference");
   }
 }
@@ -101,7 +101,7 @@ TEST(ref_13) {
   })JSON")};
 
   auto test_resolver = [](const std::string_view identifier)
-      -> sourcemeta::blaze::SchemaResolverResult {
+      -> sourcemeta::core::SchemaResolverResult {
     if (identifier == "https://example.com") {
       return sourcemeta::core::parse_json(R"JSON({
                 "$schema": "http://json-schema.org/draft-04/schema#",
@@ -109,15 +109,15 @@ TEST(ref_13) {
               })JSON");
     }
 
-    return sourcemeta::blaze::schema_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   };
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                test_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_STREQ(error.what(), "Could not resolve schema reference");
   }
 }
@@ -133,8 +133,8 @@ TEST(ref_14) {
   })JSON")};
 
   const auto compiled_schema{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{true};
@@ -229,8 +229,8 @@ TEST(pattern_4) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
   } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
@@ -254,8 +254,8 @@ TEST(pattern_5) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
   } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
@@ -281,8 +281,8 @@ TEST(pattern_6) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
   } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
@@ -308,8 +308,8 @@ TEST(pattern_7) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
@@ -332,8 +332,8 @@ TEST(patternProperties_9) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     // The pattern might succeed in some standard library implementations
   } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
@@ -581,11 +581,11 @@ TEST(invalid_ref_top_level) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &error) {
+  } catch (const sourcemeta::core::SchemaError &error) {
     EXPECT_STREQ(error.what(),
                  "Cannot bundle a JSON Schema Draft 7 or older with a "
                  "top-level `$ref` (which overrides sibling keywords) without "
@@ -604,10 +604,10 @@ TEST(invalid_ref_nested) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.location(),
               sourcemeta::core::Pointer({"properties", "foo", "$ref"}));
   } catch (...) {
@@ -634,10 +634,10 @@ TEST(invalid_ref_embedded) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
-  } catch (const sourcemeta::blaze::SchemaReferenceError &error) {
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
     EXPECT_EQ(error.location(),
               sourcemeta::core::Pointer(
                   {"definitions", "bar", "additionalProperties", "$ref"}));
@@ -661,8 +661,8 @@ TEST(reference_from_unknown_keyword) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (
       const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
@@ -695,8 +695,8 @@ TEST(reference_to_nested_unknown_keyword) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
   } catch (
       const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
@@ -727,8 +727,8 @@ TEST(ref_to_non_schema) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (
@@ -752,12 +752,12 @@ TEST(top_level_ref_with_id) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &error) {
+  } catch (const sourcemeta::core::SchemaError &error) {
     EXPECT_STREQ(error.what(),
                  "Cannot bundle a JSON Schema Draft 7 or older with a "
                  "top-level `$ref` (which overrides sibling keywords) without "
@@ -776,12 +776,12 @@ TEST(top_level_ref_with_id_exhaustive) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaError &error) {
+  } catch (const sourcemeta::core::SchemaError &error) {
     EXPECT_STREQ(error.what(),
                  "Cannot bundle a JSON Schema Draft 7 or older with a "
                  "top-level `$ref` (which overrides sibling keywords) without "
@@ -3120,8 +3120,8 @@ TEST(format_keyword_value_integer_with_tweak_fast) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "", tweaks);
@@ -3139,8 +3139,8 @@ TEST(boolean_root_schema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json("true")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation,
                                "http://json-schema.org/draft-04/schema#");
@@ -3161,8 +3161,8 @@ TEST(boolean_subschema_entrypoint) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "#/definitions/everything");
@@ -3186,8 +3186,8 @@ TEST(format_keyword_value_integer_with_tweak_exhaustive) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive, "", "", "",
                                tweaks);
@@ -3213,8 +3213,8 @@ TEST(format_keyword_value_null_with_tweak_fast) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::FastValidation, "", "",
                                "", tweaks);
@@ -3240,8 +3240,8 @@ TEST(format_keyword_value_null_with_tweak_exhaustive) {
   tweaks.format_assertion = true;
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_schema_compiler,
                                sourcemeta::blaze::Mode::Exhaustive, "", "", "",
                                tweaks);

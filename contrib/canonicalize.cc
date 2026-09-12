@@ -1,6 +1,6 @@
 #include <sourcemeta/blaze/canonicalizer.h>
 #include <sourcemeta/blaze/format.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
 
@@ -15,11 +15,11 @@ auto main(int argc, char *argv[]) -> int {
 
   auto document{sourcemeta::core::read_json(argv[1])};
 
-  sourcemeta::blaze::canonicalize(document, sourcemeta::blaze::schema_walker,
-                                  sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::canonicalize(document, sourcemeta::core::schema_walker,
+                                  sourcemeta::core::schema_resolver);
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   sourcemeta::core::prettify(document, std::cout);
   std::cout << "\n";
 

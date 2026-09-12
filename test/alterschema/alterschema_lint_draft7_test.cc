@@ -4542,7 +4542,7 @@ TEST(valid_default_throws_on_invalid_ref_target) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   try {
-    static_cast<void>(bundle.check(document, sourcemeta::blaze::schema_walker,
+    static_cast<void>(bundle.check(document, sourcemeta::core::schema_walker,
                                    alterschema_test_resolver,
                                    [](const auto &, const auto &, const auto &,
                                       const auto &, const auto &) {}));
@@ -4570,7 +4570,7 @@ TEST(valid_examples_throws_on_invalid_ref_target) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   try {
-    static_cast<void>(bundle.check(document, sourcemeta::blaze::schema_walker,
+    static_cast<void>(bundle.check(document, sourcemeta::core::schema_walker,
                                    alterschema_test_resolver,
                                    [](const auto &, const auto &, const auto &,
                                       const auto &, const auto &) {}));

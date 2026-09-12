@@ -2,8 +2,8 @@
 
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/compiler.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "alterschema_test_utils.h"
 
@@ -1650,6 +1650,23 @@ TEST(dependent_required_tautology_2) {
       "bar": true,
       "baz": true
     }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(dependent_required_default_1) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "dependentRequired": {}
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
 
   EXPECT_EQ(document, expected);
@@ -11362,7 +11379,7 @@ TEST(valid_examples_11) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11392,7 +11409,7 @@ TEST(valid_examples_12) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11422,7 +11439,7 @@ TEST(valid_examples_17) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11475,7 +11492,7 @@ TEST(valid_default_10) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11505,7 +11522,7 @@ TEST(valid_default_11) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -11535,7 +11552,7 @@ TEST(valid_default_18) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   const auto result = bundle.apply(
-      document, sourcemeta::blaze::schema_walker, alterschema_test_resolver,
+      document, sourcemeta::core::schema_walker, alterschema_test_resolver,
       [&traces](const auto &pointer, const auto &name, const auto &message,
                 const auto &outcome, const auto &fixable) {
         traces.emplace_back(pointer, name, message, outcome, fixable);
@@ -12377,12 +12394,12 @@ TEST(valid_default_throws_on_unsupported_vocabulary) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   try {
-    static_cast<void>(bundle.check(document, sourcemeta::blaze::schema_walker,
+    static_cast<void>(bundle.check(document, sourcemeta::core::schema_walker,
                                    alterschema_test_resolver,
                                    [](const auto &, const auto &, const auto &,
                                       const auto &, const auto &) {}));
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
+  } catch (const sourcemeta::core::SchemaVocabularyError &error) {
     EXPECT_STREQ(error.what(), "Cannot compile unsupported vocabulary");
   }
 }
@@ -12397,12 +12414,12 @@ TEST(valid_examples_throws_on_unsupported_vocabulary) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
   try {
-    static_cast<void>(bundle.check(document, sourcemeta::blaze::schema_walker,
+    static_cast<void>(bundle.check(document, sourcemeta::core::schema_walker,
                                    alterschema_test_resolver,
                                    [](const auto &, const auto &, const auto &,
                                       const auto &, const auto &) {}));
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
+  } catch (const sourcemeta::core::SchemaVocabularyError &error) {
     EXPECT_STREQ(error.what(), "Cannot compile unsupported vocabulary");
   }
 }

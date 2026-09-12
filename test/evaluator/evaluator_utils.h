@@ -57,7 +57,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(schema, instance, count,     \
                                                   entrypoint, resolver)        \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::blaze::schema_walker, (resolver),                    \
+      schema, sourcemeta::core::schema_walker, (resolver),                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint))};         \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -67,7 +67,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_FAST_FAILURE_RESOLVER(schema, instance, count,     \
                                                   entrypoint, resolver)        \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::blaze::schema_walker, (resolver),                    \
+      schema, sourcemeta::core::schema_walker, (resolver),                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint))};         \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -77,7 +77,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(                       \
     schema, instance, count, entrypoint, resolver)                             \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::blaze::schema_walker, (resolver),                    \
+      schema, sourcemeta::core::schema_walker, (resolver),                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint))};             \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -87,7 +87,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_RESOLVER(                       \
     schema, instance, count, entrypoint, resolver)                             \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::blaze::schema_walker, (resolver),                    \
+      schema, sourcemeta::core::schema_walker, (resolver),                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint))};             \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -97,7 +97,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_RESOLVER(                     \
     schema, instance, count, entrypoint, tweaks, resolver)                     \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::blaze::schema_walker, (resolver),                    \
+      schema, sourcemeta::core::schema_walker, (resolver),                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint),           \
       (tweaks))};                                                              \
@@ -108,7 +108,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_RESOLVER(                     \
     schema, instance, count, entrypoint, tweaks, resolver)                     \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::blaze::schema_walker, (resolver),                    \
+      schema, sourcemeta::core::schema_walker, (resolver),                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint),           \
       (tweaks))};                                                              \
@@ -119,7 +119,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED_RESOLVER(               \
     schema, instance, count, entrypoint, tweaks, resolver)                     \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::blaze::schema_walker, (resolver),                    \
+      schema, sourcemeta::core::schema_walker, (resolver),                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint), (tweaks))};   \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -129,7 +129,7 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED_RESOLVER(               \
     schema, instance, count, entrypoint, tweaks, resolver)                     \
   const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::blaze::schema_walker, (resolver),                    \
+      schema, sourcemeta::core::schema_walker, (resolver),                     \
       sourcemeta::blaze::default_schema_compiler,                              \
       sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint), (tweaks))};   \
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
@@ -138,45 +138,45 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, count, entrypoint)  \
   EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(                                   \
-      schema, instance, count, entrypoint, sourcemeta::blaze::schema_resolver)
+      schema, instance, count, entrypoint, sourcemeta::core::schema_resolver)
 
 #define EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, count, entrypoint)  \
   EVALUATE_WITH_TRACE_FAST_FAILURE_RESOLVER(                                   \
-      schema, instance, count, entrypoint, sourcemeta::blaze::schema_resolver)
+      schema, instance, count, entrypoint, sourcemeta::core::schema_resolver)
 
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, count,        \
                                                entrypoint)                     \
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(                             \
-      schema, instance, count, entrypoint, sourcemeta::blaze::schema_resolver)
+      schema, instance, count, entrypoint, sourcemeta::core::schema_resolver)
 
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, count,        \
                                                entrypoint)                     \
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_RESOLVER(                             \
-      schema, instance, count, entrypoint, sourcemeta::blaze::schema_resolver)
+      schema, instance, count, entrypoint, sourcemeta::core::schema_resolver)
 
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, count,      \
                                                  entrypoint, tweaks)           \
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_RESOLVER(                           \
       schema, instance, count, entrypoint, tweaks,                             \
-      sourcemeta::blaze::schema_resolver)
+      sourcemeta::core::schema_resolver)
 
 #define EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, count,      \
                                                  entrypoint, tweaks)           \
   EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_RESOLVER(                           \
       schema, instance, count, entrypoint, tweaks,                             \
-      sourcemeta::blaze::schema_resolver)
+      sourcemeta::core::schema_resolver)
 
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(                        \
     schema, instance, count, entrypoint, tweaks)                               \
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED_RESOLVER(                     \
       schema, instance, count, entrypoint, tweaks,                             \
-      sourcemeta::blaze::schema_resolver)
+      sourcemeta::core::schema_resolver)
 
 #define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(                        \
     schema, instance, count, entrypoint, tweaks)                               \
   EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED_RESOLVER(                     \
       schema, instance, count, entrypoint, tweaks,                             \
-      sourcemeta::blaze::schema_resolver)
+      sourcemeta::core::schema_resolver)
 
 #define __EVALUATE_TRACE_PRE(index, instruction_type, evaluate_path,           \
                              expected_keyword_location,                        \

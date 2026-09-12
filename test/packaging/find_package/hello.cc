@@ -6,11 +6,11 @@
 #include <sourcemeta/blaze/editor.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/format.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/blaze/output.h>
 #include <sourcemeta/blaze/test.h>
 
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <cstdlib>  // EXIT_SUCCESS
 #include <iostream> // std::cerr
@@ -22,8 +22,8 @@ auto main() -> int {
   })JSON")};
 
   const auto compiled_schema{
-      sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                                 sourcemeta::blaze::schema_resolver,
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler)};
 
   const sourcemeta::core::JSON instance{"foo"};
@@ -37,32 +37,32 @@ auto main() -> int {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
-  sourcemeta::blaze::for_editor(editor_schema, sourcemeta::blaze::schema_walker,
-                                sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::for_editor(editor_schema, sourcemeta::core::schema_walker,
+                                sourcemeta::core::schema_resolver);
 
-  auto foundation_schema{sourcemeta::core::parse_json(R"JSON({
+  auto frame_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://example.com/foundation"
+    "$id": "https://example.com/frame"
   })JSON")};
-  sourcemeta::blaze::SchemaFrame foundation_frame{
-      sourcemeta::blaze::SchemaFrame::Mode::Locations, foundation_schema,
-      sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver};
+  sourcemeta::core::SchemaFrame schema_frame{
+      sourcemeta::core::SchemaFrame::Mode::Locations, frame_schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
 
   auto bundle_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
   sourcemeta::blaze::bundle(
-      bundle_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      bundle_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   auto format_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
-  sourcemeta::blaze::format(format_schema, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(format_schema, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
 
   return EXIT_SUCCESS;
 }

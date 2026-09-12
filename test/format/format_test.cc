@@ -1,7 +1,7 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/format.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sstream>
 
@@ -12,8 +12,8 @@ TEST(example_1) {
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -31,8 +31,8 @@ TEST(example_2) {
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -56,8 +56,8 @@ TEST(nested_objects) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -80,10 +80,10 @@ TEST(no_dialect) {
   })JSON");
 
   try {
-    sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                              sourcemeta::blaze::schema_resolver);
+    sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                              sourcemeta::core::schema_resolver);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaUnknownBaseDialectError &error) {
+  } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not determine the base dialect of the schema");
   }
@@ -95,8 +95,8 @@ TEST(no_dialect_with_default) {
     "description": "test"
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver,
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver,
                             "https://json-schema.org/draft/2020-12/schema");
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
@@ -116,8 +116,8 @@ TEST(properties_container_not_reordered) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -148,8 +148,8 @@ TEST(enum_objects_not_reordered) {
     ]
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -172,8 +172,8 @@ TEST(const_object_not_reordered) {
     "const": { "properties": 1, "description": 2, "$id": 3 }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -194,8 +194,8 @@ TEST(default_object_not_reordered) {
     "default": { "enum": 1, "const": 2, "type": 3 }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -218,8 +218,8 @@ TEST(examples_objects_not_reordered) {
     ]
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -245,8 +245,8 @@ TEST(typo_keyword_not_reordered) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -269,8 +269,8 @@ TEST(correct_keyword_is_reordered) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -301,8 +301,8 @@ TEST(nested_properties_subschemas_reordered) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -334,8 +334,8 @@ TEST(pattern_properties_container_not_reordered) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -368,8 +368,8 @@ TEST(definitions_container_not_reordered) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -407,8 +407,8 @@ TEST(embedded_resource_reordered) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -441,8 +441,8 @@ TEST(boolean_subschema_does_not_crash) {
     }
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
   EXPECT_EQ(stream.str(), R"JSON({
@@ -464,8 +464,8 @@ TEST(reorder_does_not_invalidate_child_pointers) {
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   })JSON");
 
-  sourcemeta::blaze::format(document, sourcemeta::blaze::schema_walker,
-                            sourcemeta::blaze::schema_resolver);
+  sourcemeta::blaze::format(document, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
 
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);

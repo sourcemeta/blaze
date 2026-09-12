@@ -1,5 +1,5 @@
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/options.h>
 
 #include <sourcemeta/blaze/compiler.h>
@@ -61,8 +61,8 @@ auto main(int argc, char **argv) noexcept -> int {
     const auto schema{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(0)})};
     const auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler, mode)};
     const auto instance{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};

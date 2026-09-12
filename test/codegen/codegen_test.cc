@@ -1,7 +1,7 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/codegen.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sstream> // std::ostringstream
 
@@ -14,11 +14,11 @@ TEST(unsupported_dialect_draft3) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaVocabularyError &error) {
+  } catch (const sourcemeta::core::SchemaVocabularyError &error) {
     EXPECT_STREQ(error.what(), "Unsupported required vocabulary");
   }
 }
@@ -30,8 +30,8 @@ TEST(unsupported_keyword_error_not) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &error) {
@@ -46,8 +46,8 @@ TEST(unsupported_keyword_value_error_type_not_string) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -63,8 +63,8 @@ TEST(unknown_type_value_ignored) {
   })JSON")};
 
   const auto result{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, sourcemeta::blaze::default_compiler)};
 
   std::ostringstream output;
   sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(output, result);
@@ -100,8 +100,8 @@ TEST(unsupported_keyword_value_error_properties_not_object) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -120,8 +120,8 @@ TEST(unsupported_keyword_value_error_properties_not_object_nested) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -141,8 +141,8 @@ TEST(unsupported_keyword_value_error_required_not_array) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -162,8 +162,8 @@ TEST(unsupported_keyword_value_error_required_item_not_string) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -182,8 +182,8 @@ TEST(unsupported_keyword_value_error_pattern_properties_not_object) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -202,8 +202,8 @@ TEST(unsupported_keyword_value_error_prefix_items_not_array) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -221,8 +221,8 @@ TEST(unsupported_keyword_value_error_enum_not_array) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -240,8 +240,8 @@ TEST(unsupported_keyword_value_error_any_of_not_array) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -259,8 +259,8 @@ TEST(unsupported_keyword_value_error_any_of_empty) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -278,8 +278,8 @@ TEST(unsupported_keyword_value_error_one_of_not_array) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -297,8 +297,8 @@ TEST(unsupported_keyword_value_error_one_of_empty) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -316,8 +316,8 @@ TEST(unsupported_keyword_value_error_all_of_not_array) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -335,8 +335,8 @@ TEST(unsupported_keyword_value_error_all_of_empty) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (
@@ -354,8 +354,8 @@ TEST(unsupported_keyword_error_draft4_empty_enum) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &error) {
@@ -372,8 +372,8 @@ TEST(draft7_empty_enum) {
   })JSON")};
 
   const auto result{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, sourcemeta::blaze::default_compiler)};
 
   std::ostringstream output;
   sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(output, result);
@@ -391,8 +391,8 @@ TEST(unexpected_schema_error_required_property_not_allowed) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CodegenUnexpectedSchemaError &error) {
@@ -417,8 +417,8 @@ TEST(unexpected_schema_error_required_property_not_allowed_nested) {
   })JSON")};
 
   try {
-    sourcemeta::blaze::compile(schema, sourcemeta::blaze::schema_walker,
-                               sourcemeta::blaze::schema_resolver,
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
                                sourcemeta::blaze::default_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CodegenUnexpectedSchemaError &error) {
@@ -437,8 +437,8 @@ TEST(required_property_not_in_properties_open) {
   })JSON")};
 
   const auto result{sourcemeta::blaze::compile(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver, sourcemeta::blaze::default_compiler)};
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, sourcemeta::blaze::default_compiler)};
 
   std::ostringstream output;
   sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(output, result);

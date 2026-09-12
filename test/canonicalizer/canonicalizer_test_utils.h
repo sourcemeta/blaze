@@ -3,14 +3,14 @@
 
 #include <sourcemeta/blaze/canonicalizer.h>
 #include <sourcemeta/blaze/evaluator.h>
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <optional>    // std::optional
 #include <string_view> // std::string_view
 
 static auto canonicalizer_test_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier ==
       "https://sourcemeta.com/2020-12-custom-vocabulary-optional") {
     return sourcemeta::core::parse_json(R"JSON({
@@ -86,14 +86,13 @@ static auto canonicalizer_test_resolver(std::string_view identifier)
       }
     })JSON");
   } else {
-    return sourcemeta::blaze::schema_resolver(identifier);
+    return sourcemeta::core::schema_resolver(identifier);
   }
 }
 
 #define CANONICALIZE_AND_VALIDATE(document, expected, compiled_template)       \
   {                                                                            \
-    sourcemeta::blaze::canonicalize(document,                                  \
-                                    sourcemeta::blaze::schema_walker,          \
+    sourcemeta::blaze::canonicalize(document, sourcemeta::core::schema_walker, \
                                     canonicalizer_test_resolver);              \
     EXPECT_EQ(document, expected);                                             \
     sourcemeta::blaze::Evaluator _evaluator;                                   \

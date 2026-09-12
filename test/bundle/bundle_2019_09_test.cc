@@ -1,7 +1,7 @@
 #include <sourcemeta/core/test.h>
 
 #include <sourcemeta/blaze/bundle.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
 
@@ -9,7 +9,7 @@
 #include <string_view> // std::string_view
 
 static auto test_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "https://example.com/foo/bar") {
     return sourcemeta::core::parse_json(R"JSON({
       "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -94,7 +94,7 @@ static auto test_resolver(std::string_view identifier)
       "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
     })JSON");
   }
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 TEST(no_references_no_id) {
@@ -103,7 +103,7 @@ TEST(no_references_no_id) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -119,7 +119,7 @@ TEST(const_no_references_no_id) {
   })JSON");
 
   const auto result = sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -142,7 +142,7 @@ TEST(simple_with_id) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -193,7 +193,7 @@ TEST(simple_without_id) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -242,10 +242,10 @@ TEST(schema_not_found) {
 
   try {
     sourcemeta::blaze::bundle(
-        document, sourcemeta::blaze::schema_walker, test_resolver,
+        document, sourcemeta::core::schema_walker, test_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
     FAIL();
-  } catch (const sourcemeta::blaze::SchemaResolutionError &error) {
+  } catch (const sourcemeta::core::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(),
                  "Could not resolve the reference to an external schema");
   }
@@ -261,13 +261,13 @@ TEST(idempotency) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -315,7 +315,7 @@ TEST(pre_embedded) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -363,7 +363,7 @@ TEST(taken_definitions_entry) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -401,7 +401,7 @@ TEST(recursive) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -428,7 +428,7 @@ TEST(recursive_empty_fragment) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -454,7 +454,7 @@ TEST(anonymous_no_dialect) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
       "https://json-schema.org/draft/2019-09/schema");
 
@@ -479,7 +479,7 @@ TEST(metaschema) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -508,7 +508,7 @@ TEST(metaschema_references_mode) {
     "type": "string"
   })JSON");
 
-  sourcemeta::blaze::bundle(document, sourcemeta::blaze::schema_walker,
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
                             test_resolver,
                             sourcemeta::blaze::BundleMode::References);
 
@@ -533,7 +533,7 @@ TEST(relative_base_uri_with_ref) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
@@ -557,7 +557,7 @@ TEST(hyperschema_smoke) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   EXPECT_TRUE(document.is_object());
@@ -573,7 +573,7 @@ TEST(hyperschema_1) {
   })JSON");
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   EXPECT_TRUE(document.defines("$defs"));
@@ -604,12 +604,12 @@ TEST(hyperschema_1) {
 
 TEST(hyperschema_2) {
   sourcemeta::core::JSON document =
-      sourcemeta::blaze::schema_resolver(
+      sourcemeta::core::schema_resolver(
           "https://json-schema.org/draft/2019-09/hyper-schema")
           .value();
 
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker, test_resolver,
+      document, sourcemeta::core::schema_walker, test_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   EXPECT_TRUE(document.defines("$defs"));
@@ -638,8 +638,8 @@ TEST(metaschema_offline_idempotent) {
   // Note that we bundle with a resolver that does not know about
   // the custom meta-schemas embedded in the document
   sourcemeta::blaze::bundle(
-      document, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      document, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({

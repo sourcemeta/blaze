@@ -4,8 +4,8 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <cassert>
 #include <cctype>
@@ -21,7 +21,7 @@
 namespace {
 
 auto output_schema_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   const std::filesystem::path suite_path{OFFICIAL_OUTPUT_SUITE_PATH};
 
   const auto hash_pos{identifier.find('#')};
@@ -41,7 +41,7 @@ auto output_schema_resolver(std::string_view identifier)
                                        "output-schema.json");
   }
 
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 auto run_official_output_test(const sourcemeta::core::JSON &input_schema,
@@ -50,7 +50,7 @@ auto run_official_output_test(const sourcemeta::core::JSON &input_schema,
                               const sourcemeta::blaze::Mode mode,
                               const std::string &default_dialect) -> void {
   const auto input_template{sourcemeta::blaze::compile(
-      input_schema, sourcemeta::blaze::schema_walker, output_schema_resolver,
+      input_schema, sourcemeta::core::schema_walker, output_schema_resolver,
       sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -59,7 +59,7 @@ auto run_official_output_test(const sourcemeta::core::JSON &input_schema,
                                   sourcemeta::blaze::StandardOutput::Basic)};
 
   const auto output_template{sourcemeta::blaze::compile(
-      output_basic_schema, sourcemeta::blaze::schema_walker,
+      output_basic_schema, sourcemeta::core::schema_walker,
       output_schema_resolver, sourcemeta::blaze::default_schema_compiler, mode,
       default_dialect)};
 

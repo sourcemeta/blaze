@@ -3,8 +3,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <filesystem> // std::filesystem::path
 #include <memory>     // std::unique_ptr
@@ -17,7 +17,7 @@ auto compiled_metaschema() -> const sourcemeta::blaze::Template & {
       sourcemeta::blaze::compile(
           sourcemeta::core::read_json(std::filesystem::path{SCHEMAS_PATH} /
                                       "canonical-draft6.json"),
-          sourcemeta::blaze::schema_walker, sourcemeta::blaze::schema_resolver,
+          sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
           sourcemeta::blaze::default_schema_compiler)};
   return SCHEMA_TEMPLATE;
 }
@@ -931,6 +931,39 @@ TEST(not_with_schema) {
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
     "not": { "type": "string", "minLength": 0 }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(not_with_boolean_false) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "not": false
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "anyOf": [
+      { "enum": [ null ] },
+      { "enum": [ false, true ] },
+      {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": true,
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": true
+      },
+      {
+        "type": "array",
+        "uniqueItems": false,
+        "items": true,
+        "minItems": 0
+      },
+      { "type": "string", "minLength": 0 },
+      { "type": "number" }
+    ]
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());

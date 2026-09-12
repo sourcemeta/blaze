@@ -3,8 +3,8 @@
 #include <sourcemeta/blaze/alterschema.h>
 #include <sourcemeta/blaze/compiler.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 TEST(schema_rule_pass_when_all_subschemas_conform) {
   const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
@@ -16,8 +16,8 @@ TEST(schema_rule_pass_when_all_subschemas_conform) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -29,8 +29,8 @@ TEST(schema_rule_pass_when_all_subschemas_conform) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -51,8 +51,8 @@ TEST(schema_rule_fail_root_and_nested_subschema) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -71,8 +71,8 @@ TEST(schema_rule_fail_root_and_nested_subschema) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -113,8 +113,8 @@ TEST(schema_rule_no_description_in_rule_schema) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -126,8 +126,8 @@ TEST(schema_rule_no_description_in_rule_schema) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -147,8 +147,8 @@ TEST(schema_rule_no_description_fails) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -160,8 +160,8 @@ TEST(schema_rule_no_description_fails) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -195,8 +195,8 @@ TEST(schema_rule_nested_property_fails) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -213,8 +213,8 @@ TEST(schema_rule_nested_property_fails) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -247,8 +247,8 @@ TEST(schema_rule_all_subschemas_pass) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -268,8 +268,8 @@ TEST(schema_rule_all_subschemas_pass) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -288,8 +288,8 @@ TEST(schema_rule_missing_title_throws) {
   sourcemeta::blaze::SchemaTransformer bundle;
   try {
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleMissingNameError &error) {
@@ -307,8 +307,8 @@ TEST(schema_rule_non_string_title_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNameError &error) {
@@ -329,8 +329,8 @@ TEST(schema_rule_uppercase_title_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNamePatternError &error) {
@@ -353,8 +353,8 @@ TEST(schema_rule_space_in_title_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNamePatternError &error) {
@@ -377,8 +377,8 @@ TEST(schema_rule_empty_title_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNameError &error) {
@@ -399,8 +399,8 @@ TEST(schema_rule_valid_title_with_digits_and_underscores) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -412,8 +412,8 @@ TEST(schema_rule_valid_title_with_digits_and_underscores) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -433,8 +433,8 @@ TEST(schema_rule_invalid_name_error_preserves_name) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNamePatternError &error) {
@@ -456,8 +456,8 @@ TEST(schema_rule_missing_title_error_message) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleMissingNameError &error) {
@@ -477,8 +477,8 @@ TEST(schema_rule_title_with_hyphen_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNamePatternError &error) {
@@ -501,8 +501,8 @@ TEST(schema_rule_title_with_dot_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNamePatternError &error) {
@@ -525,8 +525,8 @@ TEST(schema_rule_title_only_digits) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -538,8 +538,8 @@ TEST(schema_rule_title_only_digits) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -559,8 +559,8 @@ TEST(schema_rule_title_only_underscores) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -572,8 +572,8 @@ TEST(schema_rule_title_only_underscores) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -598,8 +598,8 @@ TEST(schema_rule_non_string_description_integer) {
 
   try {
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CompilerError &error) {
@@ -626,8 +626,8 @@ TEST(schema_rule_non_string_description_boolean) {
 
   try {
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CompilerError &error) {
@@ -654,8 +654,8 @@ TEST(schema_rule_non_string_description_null) {
 
   try {
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::CompilerError &error) {
@@ -677,8 +677,8 @@ TEST(schema_rule_with_default_dialect_no_schema_keyword) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       "https://json-schema.org/draft/2020-12/schema");
 
@@ -695,8 +695,8 @@ TEST(schema_rule_with_default_dialect_no_schema_keyword) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -729,8 +729,8 @@ TEST(schema_rule_with_default_dialect_and_schema_keyword) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       "https://json-schema.org/draft/2020-12/schema");
 
@@ -748,8 +748,8 @@ TEST(schema_rule_with_default_dialect_and_schema_keyword) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -788,12 +788,12 @@ TEST(schema_rule_multiple_rules_in_bundle) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema_1, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema_1, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema_2, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema_2, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -813,8 +813,8 @@ TEST(schema_rule_multiple_rules_in_bundle) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -845,8 +845,8 @@ TEST(schema_rule_boolean_true_schema_conforms) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -861,8 +861,8 @@ TEST(schema_rule_boolean_true_schema_conforms) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -893,8 +893,8 @@ TEST(schema_rule_title_with_special_chars_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNamePatternError &error) {
@@ -917,8 +917,8 @@ TEST(schema_rule_title_boolean_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNameError &error) {
@@ -939,8 +939,8 @@ TEST(schema_rule_title_null_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNameError &error) {
@@ -961,8 +961,8 @@ TEST(schema_rule_title_array_throws) {
   try {
     sourcemeta::blaze::SchemaTransformer bundle;
     bundle.add<sourcemeta::blaze::SchemaRule>(
-        rule_schema, sourcemeta::blaze::schema_walker,
-        sourcemeta::blaze::schema_resolver,
+        rule_schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
         sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::SchemaRuleInvalidNameError &error) {
@@ -989,8 +989,8 @@ TEST(schema_rule_property_names_pattern_fail) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -1012,8 +1012,8 @@ TEST(schema_rule_property_names_pattern_fail) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -1043,8 +1043,8 @@ TEST(schema_rule_top_level_root_violates) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
       sourcemeta::blaze::SchemaRule::Scope::TopLevel);
 
@@ -1061,8 +1061,8 @@ TEST(schema_rule_top_level_root_violates) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -1093,8 +1093,8 @@ TEST(schema_rule_top_level_subschemas_skipped) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
       sourcemeta::blaze::SchemaRule::Scope::TopLevel);
 
@@ -1115,8 +1115,8 @@ TEST(schema_rule_top_level_subschemas_skipped) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -1137,8 +1137,8 @@ TEST(schema_rule_top_level_root_and_subschema_violate) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
       sourcemeta::blaze::SchemaRule::Scope::TopLevel);
 
@@ -1158,8 +1158,8 @@ TEST(schema_rule_top_level_root_and_subschema_violate) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -1190,8 +1190,8 @@ TEST(schema_rule_explicit_all_scope_root_and_nested_subschema) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
       sourcemeta::blaze::SchemaRule::Scope::All);
 
@@ -1211,8 +1211,8 @@ TEST(schema_rule_explicit_all_scope_root_and_nested_subschema) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -1254,8 +1254,8 @@ TEST(schema_rule_top_level_embedded_resource_skipped) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
       sourcemeta::blaze::SchemaRule::Scope::TopLevel);
 
@@ -1274,8 +1274,8 @@ TEST(schema_rule_top_level_embedded_resource_skipped) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -1295,8 +1295,8 @@ TEST(schema_rule_top_level_with_default_dialect) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler,
       "https://json-schema.org/draft/2020-12/schema", std::nullopt,
       sourcemeta::blaze::SchemaRule::Scope::TopLevel);
@@ -1313,8 +1313,8 @@ TEST(schema_rule_top_level_with_default_dialect) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);
@@ -1348,8 +1348,8 @@ TEST(schema_rule_non_empty_instance_location) {
 
   sourcemeta::blaze::SchemaTransformer bundle;
   bundle.add<sourcemeta::blaze::SchemaRule>(
-      rule_schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       sourcemeta::blaze::default_schema_compiler);
 
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -1366,8 +1366,8 @@ TEST(schema_rule_non_empty_instance_location) {
                          sourcemeta::blaze::SchemaTransformRule::Result, bool>>
       entries;
   const auto result = bundle.check(
-      schema, sourcemeta::blaze::schema_walker,
-      sourcemeta::blaze::schema_resolver,
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
       [&entries](const auto &pointer, const auto &name, const auto &message,
                  const auto &outcome, const auto mutates) {
         entries.emplace_back(pointer, name, message, outcome, mutates);

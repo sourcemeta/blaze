@@ -10,7 +10,7 @@ target_link_libraries(sourcemeta_blaze_output_unit
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::core::jsonld)
 target_link_libraries(sourcemeta_blaze_output_unit
-  PRIVATE sourcemeta::blaze::foundation)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_output_unit
   PRIVATE sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_output_unit
@@ -26,7 +26,7 @@ target_compile_definitions(sourcemeta_blaze_output_standard_basic_suite_unit
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
-  PRIVATE sourcemeta::blaze::foundation)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
   PRIVATE sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_output_standard_basic_suite_unit
@@ -42,7 +42,7 @@ target_compile_definitions(sourcemeta_blaze_output_standard_flag_suite_unit
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
-  PRIVATE sourcemeta::blaze::foundation)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
   PRIVATE sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_output_standard_flag_suite_unit
@@ -58,7 +58,7 @@ target_compile_definitions(sourcemeta_blaze_output_official_suite_unit
 target_link_libraries(sourcemeta_blaze_output_official_suite_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_output_official_suite_unit
-  PRIVATE sourcemeta::blaze::foundation)
+  PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_output_official_suite_unit
   PRIVATE sourcemeta::blaze::output)
 target_link_libraries(sourcemeta_blaze_output_official_suite_unit

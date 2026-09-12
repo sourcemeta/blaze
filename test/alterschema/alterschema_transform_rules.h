@@ -2,7 +2,7 @@
 #define SOURCEMETA_BLAZE_ALTERSCHEMA_TEST_TRANSFORM_RULES_H_
 
 #include <sourcemeta/blaze/alterschema.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 class ExampleRule1 final : public sourcemeta::blaze::SchemaTransformRule {
 public:
@@ -14,11 +14,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("foo");
@@ -42,11 +42,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (schema.defines("foo")) {
@@ -74,11 +74,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (schema.defines("foo")) {
@@ -108,11 +108,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (schema.defines("foo") && schema.defines("bar")) {
@@ -142,11 +142,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("bar");
@@ -170,11 +170,11 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::SchemaVocabularies &,
-            const sourcemeta::blaze::SchemaFrame &,
-            const sourcemeta::blaze::SchemaFrame::Location &location,
-            const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaVocabularies &,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &location,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &, const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return !schema.defines("top") && location.pointer.empty();
   }
@@ -196,11 +196,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return !schema.defines("here");
@@ -224,11 +224,11 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::SchemaVocabularies &,
-            const sourcemeta::blaze::SchemaFrame &,
-            const sourcemeta::blaze::SchemaFrame::Location &location,
-            const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaVocabularies &,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &location,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &, const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     const sourcemeta::core::Pointer expected{"properties", "baz"};
     return !schema.defines("baz") &&
@@ -253,11 +253,11 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::SchemaVocabularies &,
-            const sourcemeta::blaze::SchemaFrame &,
-            const sourcemeta::blaze::SchemaFrame::Location &location,
-            const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaVocabularies &,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &location,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &, const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return !schema.defines("draft") &&
            location.dialect == "http://json-schema.org/draft-03/schema#";
@@ -280,11 +280,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("foo");
@@ -309,11 +309,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("$schema") && schema.size() == 1;
@@ -338,11 +338,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("foo");
@@ -361,11 +361,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("definitions") && !schema.defines("$defs");
@@ -390,11 +390,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("definitions") && !schema.defines("$defs");
@@ -427,11 +427,11 @@ public:
 
   [[nodiscard]] auto condition(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON &,
-                               const sourcemeta::blaze::SchemaVocabularies &,
-                               const sourcemeta::blaze::SchemaFrame &,
-                               const sourcemeta::blaze::SchemaFrame::Location &,
-                               const sourcemeta::blaze::SchemaWalker &,
-                               const sourcemeta::blaze::SchemaResolver &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &,
                                const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.is_object() &&
@@ -456,21 +456,21 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::SchemaVocabularies &vocabularies,
-            const sourcemeta::blaze::SchemaFrame &,
-            const sourcemeta::blaze::SchemaFrame::Location &,
-            const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaVocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &, const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (!schema.is_object() || schema.defines("x-dialect-type")) {
       return false;
     }
 
-    return vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+    return vocabularies.contains(sourcemeta::core::SchemaVocabularies::Known::
                                      JSON_SCHEMA_DRAFT_7) ||
-           vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+           vocabularies.contains(sourcemeta::core::SchemaVocabularies::Known::
                                      JSON_SCHEMA_DRAFT_6) ||
-           vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+           vocabularies.contains(sourcemeta::core::SchemaVocabularies::Known::
                                      JSON_SCHEMA_DRAFT_4);
   }
 
@@ -493,19 +493,19 @@ public:
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
-            const sourcemeta::blaze::SchemaVocabularies &vocabularies,
-            const sourcemeta::blaze::SchemaFrame &,
-            const sourcemeta::blaze::SchemaFrame::Location &,
-            const sourcemeta::blaze::SchemaWalker &,
-            const sourcemeta::blaze::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaVocabularies &vocabularies,
+            const sourcemeta::core::SchemaFrame &,
+            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaWalker &,
+            const sourcemeta::core::SchemaResolver &, const bool) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (!schema.is_object() || schema.defines("x-dialect-type")) {
       return false;
     }
 
-    return vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+    return vocabularies.contains(sourcemeta::core::SchemaVocabularies::Known::
                                      JSON_SCHEMA_2020_12_CORE) ||
-           vocabularies.contains(sourcemeta::blaze::SchemaVocabularies::Known::
+           vocabularies.contains(sourcemeta::core::SchemaVocabularies::Known::
                                      JSON_SCHEMA_2019_09_CORE);
   }
 

@@ -3,7 +3,7 @@
 #include <filesystem> // std::filesystem
 
 #include <sourcemeta/blaze/format.h>
-#include <sourcemeta/blaze/foundation.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
 
@@ -17,8 +17,8 @@ static void Schema_Format_ISO_Language_To_JSON(benchmark::State &state) {
         std::filesystem::path{CURRENT_DIRECTORY} / "files" /
         "2020_12_iso_language_2023_set_3.json")};
     state.ResumeTiming();
-    sourcemeta::blaze::format(schema, sourcemeta::blaze::schema_walker,
-                              sourcemeta::blaze::schema_resolver);
+    sourcemeta::blaze::format(schema, sourcemeta::core::schema_walker,
+                              sourcemeta::core::schema_resolver);
     benchmark::DoNotOptimize(schema);
   }
 }

@@ -6,15 +6,13 @@ public:
       : SchemaTransformRule{
             "unevaluated_properties_to_additional_properties_single_ref"} {};
 
-  [[nodiscard]] auto
-  condition(const sourcemeta::core::JSON &schema,
-            const sourcemeta::core::JSON &root,
-            const sourcemeta::blaze::SchemaVocabularies &vocabularies,
-            const sourcemeta::blaze::SchemaFrame &frame,
-            const sourcemeta::blaze::SchemaFrame::Location &location,
-            const sourcemeta::blaze::SchemaWalker &walker,
-            const sourcemeta::blaze::SchemaResolver &resolver) const
-      -> bool override {
+  [[nodiscard]] auto condition(
+      const sourcemeta::core::JSON &schema, const sourcemeta::core::JSON &root,
+      const sourcemeta::core::SchemaVocabularies &vocabularies,
+      const sourcemeta::core::SchemaFrame &frame,
+      const sourcemeta::core::SchemaFrame::Location &location,
+      const sourcemeta::core::SchemaWalker &walker,
+      const sourcemeta::core::SchemaResolver &resolver) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains_any(
             {SchemaVocabularies::Known::JSON_SCHEMA_2020_12_UNEVALUATED,
@@ -58,7 +56,7 @@ public:
       }
       const auto keyword_type{walker(entry.first, vocabularies).type};
       if (is_in_place_applicator(keyword_type) ||
-          keyword_type == sourcemeta::blaze::SchemaKeywordType::Reference) {
+          keyword_type == sourcemeta::core::SchemaKeywordType::Reference) {
         return false;
       }
     }
@@ -74,12 +72,11 @@ public:
         all_of->size(), nullptr);
     frame.for_each_reference_from(
         location.pointer,
-        [&destinations,
-         &location](const sourcemeta::blaze::SchemaReferenceType type,
-                    const sourcemeta::core::WeakPointer &source,
-                    const sourcemeta::blaze::SchemaFrame::Reference &entry_ref)
-            -> void {
-          if (type != sourcemeta::blaze::SchemaReferenceType::Static) {
+        [&destinations, &location](
+            const sourcemeta::core::SchemaReferenceType type,
+            const sourcemeta::core::WeakPointer &source,
+            const sourcemeta::core::SchemaFrame::Reference &entry_ref) -> void {
+          if (type != sourcemeta::core::SchemaReferenceType::Static) {
             return;
           }
           const auto relative{source.resolve_from(location.pointer)};
@@ -144,9 +141,9 @@ private:
   // that did pass
   [[nodiscard]] static auto collect_target_properties(
       const sourcemeta::core::JSON &root,
-      const sourcemeta::blaze::SchemaFrame &frame,
-      const sourcemeta::blaze::SchemaWalker &walker,
-      const sourcemeta::blaze::SchemaResolver &resolver,
+      const sourcemeta::core::SchemaFrame &frame,
+      const sourcemeta::core::SchemaWalker &walker,
+      const sourcemeta::core::SchemaResolver &resolver,
       const sourcemeta::core::JSON::String &destination,
       const sourcemeta::core::JSON *const properties,
       std::vector<sourcemeta::core::JSON::String> &collected) -> bool {
@@ -181,7 +178,7 @@ private:
     for (const auto &entry : target_schema.as_object()) {
       const auto keyword_type{walker(entry.first, target_vocabularies).type};
       if (is_in_place_applicator(keyword_type) ||
-          keyword_type == sourcemeta::blaze::SchemaKeywordType::Reference) {
+          keyword_type == sourcemeta::core::SchemaKeywordType::Reference) {
         return false;
       }
     }

@@ -7,13 +7,13 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <sourcemeta/blaze/foundation.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
 
 static auto test_resolver(std::string_view identifier)
-    -> sourcemeta::blaze::SchemaResolverResult {
+    -> sourcemeta::core::SchemaResolverResult {
   if (identifier == "tag:sourcemeta.com,2026:extension/v1/2019-09") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "tag:sourcemeta.com,2026:extension/v1/2019-09",
@@ -47,7 +47,7 @@ static auto test_resolver(std::string_view identifier)
     })JSON");
   }
 
-  return sourcemeta::blaze::schema_resolver(identifier);
+  return sourcemeta::core::schema_resolver(identifier);
 }
 
 TEST(x_jsonld_id_annotation_exhaustive_2020_12) {
