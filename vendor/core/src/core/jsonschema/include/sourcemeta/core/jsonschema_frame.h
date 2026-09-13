@@ -175,7 +175,16 @@ public:
   /// it, so the schema must outlive the frame. The same goes for
   /// `default_dialect`, as a location that has no dialect of its own reports
   /// the default back as a view into what the caller passed. In contrast,
-  /// `default_id` is copied, so it does not need to outlive this call
+  /// `default_id` and `default_base` are copied, so they do not need to
+  /// outlive this call
+  ///
+  /// Pass `default_base` to state the base URI that the document was
+  /// retrieved from, which anything that declares no identifier of its own
+  /// inherits, and which a relative identifier or reference resolves against.
+  /// Unlike `default_id`, this does not claim that the document declares an
+  /// identifier, so a pointer into it keeps being addressed from the top of
+  /// the document rather than from wherever a path begins, and a document
+  /// that declares no identifier still reports none
   ///
   /// Framing a schema that declares nested identifiers registers a location
   /// per enclosing base, so what an untrusted schema costs to analyse grows
@@ -193,6 +202,7 @@ public:
       std::string_view default_dialect = "", std::string_view default_id = "",
       IdentifierMode identifier_mode = IdentifierMode::Additional,
       const Paths &paths = {sourcemeta::core::EMPTY_WEAK_POINTER},
+      std::string_view default_base = "",
       std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max());
 
   /// Get a specific reference entry by type and pointer

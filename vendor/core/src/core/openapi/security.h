@@ -39,8 +39,6 @@ constexpr auto OPENAPI_HASH_DEVICE_URL{
     JSON::Object::hash("deviceAuthorizationUrl"sv)};
 constexpr auto OPENAPI_HASH_OAUTH2_METADATA_URL{
     JSON::Object::hash("oauth2MetadataUrl"sv)};
-constexpr auto OPENAPI_HASH_SCHEME_DEPRECATED{
-    JSON::Object::hash("deprecated"sv)};
 
 constexpr std::array<JSON::StringView, 4>
     OPENAPI_SECURITY_SCHEME_APIKEY_FIELDS_3_1{
@@ -194,13 +192,12 @@ inline auto openapi_check_oauth_flow(const JSON &value, const Pointer &base,
 
   // OpenAPI Specification 3.1.1, Section 4.8.29: "scopes | Map[string, string]
   // | REQUIRED. The available scopes for the OAuth2 security scheme"
-  const auto *scopes{value.try_at("scopes", OPENAPI_HASH_SCOPES)};
-  if (scopes == nullptr) {
-    throw OpenAPIError{base, "The OAuth Flow Object must declare its scopes"};
-  }
+  const auto &scopes{
+      openapi_require(value, "scopes"sv, OPENAPI_HASH_SCOPES, base,
+                      "The OAuth Flow Object must declare its scopes")};
 
   openapi_check_map_of_strings(
-      *scopes, openapi_child(base, "scopes"sv),
+      scopes, openapi_child(base, "scopes"sv),
       "The OAuth Flow Object scopes must be an object",
       "The OAuth Flow Object scopes must hold strings");
 }
@@ -267,34 +264,27 @@ inline auto openapi_check_security_scheme(const JSON &value,
 
   // OpenAPI Specification 3.1.1, Section 4.8.27: "type | string | Any |
   // REQUIRED. The type of the security scheme"
-  const auto *type{value.try_at("type", OPENAPI_HASH_TYPE)};
-  if (type == nullptr) {
-    throw OpenAPIError{base,
-                       "The Security Scheme Object must declare its type"};
-  }
+  const auto &type{
+      openapi_require(value, "type"sv, OPENAPI_HASH_TYPE, base,
+                      "The Security Scheme Object must declare its type")};
 
   const auto scheme_type{openapi_expect_enumeration(
-      *type, base, "type"sv,
+      type, base, "type"sv,
       {"apiKey"sv, "http"sv, "mutualTLS"sv, "oauth2"sv, "openIdConnect"sv},
       "The Security Scheme Object type must be a string",
       "The Security Scheme Object type is not one this specification "
       "defines")};
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(
-        *description, base, "description"sv,
-        "The Security Scheme Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Security Scheme Object description must be a string");
 
   // OpenAPI Specification 3.2.1, Section 4.27: "deprecated | boolean | Any".
   // Its "Applies To" column names every type, so it is read here rather than
   // under one of them, and each type's field table admits it in turn. Only
   // 3.2 defines the field, so under 3.1 the table below is what has something
   // to say about it rather than its type
-  const auto *deprecated{
-      value.try_at("deprecated", OPENAPI_HASH_SCHEME_DEPRECATED)};
+  const auto *deprecated{value.try_at("deprecated", OPENAPI_HASH_DEPRECATED)};
   if (deprecated != nullptr && walk.version == OpenAPIVersion::OPENAPI_3_2) {
     openapi_expect_boolean(
         *deprecated, base, "deprecated"sv,
@@ -307,23 +297,19 @@ inline auto openapi_check_security_scheme(const JSON &value,
         OPENAPI_SECURITY_SCHEME_APIKEY_FIELDS_3_2, base,
         "The Security Scheme Object does not define this field", walk);
 
-    const auto *name{value.try_at("name", OPENAPI_HASH_NAME)};
-    if (name == nullptr) {
-      throw OpenAPIError{
-          base, "An apiKey Security Scheme Object must declare a name"};
-    }
+    const auto &name{openapi_require(
+        value, "name"sv, OPENAPI_HASH_NAME, base,
+        "An apiKey Security Scheme Object must declare a name")};
 
-    openapi_expect_string(*name, base, "name"sv,
+    openapi_expect_string(name, base, "name"sv,
                           "The Security Scheme Object name must be a string");
 
-    const auto *location{value.try_at("in", OPENAPI_HASH_IN)};
-    if (location == nullptr) {
-      throw OpenAPIError{
-          base, "An apiKey Security Scheme Object must declare a location"};
-    }
+    const auto &location{openapi_require(
+        value, "in"sv, OPENAPI_HASH_IN, base,
+        "An apiKey Security Scheme Object must declare a location")};
 
     openapi_expect_enumeration(
-        *location, base, "in"sv, {"query"sv, "header"sv, "cookie"sv},
+        location, base, "in"sv, {"query"sv, "header"sv, "cookie"sv},
         "The Security Scheme Object location must be a string",
         "The Security Scheme Object location is not one an apiKey admits");
 
@@ -356,13 +342,9 @@ inline auto openapi_check_security_scheme(const JSON &value,
     openapi_expect_string(*scheme, base, "scheme"sv,
                           "The Security Scheme Object scheme must be a string");
 
-    const auto *bearer{
-        value.try_at("bearerFormat", OPENAPI_HASH_BEARER_FORMAT)};
-    if (bearer != nullptr) {
-      openapi_expect_string(
-          *bearer, base, "bearerFormat"sv,
-          "The Security Scheme Object bearer format must be a string");
-    }
+    openapi_check_optional_string(
+        value, base, "bearerFormat"sv, OPENAPI_HASH_BEARER_FORMAT,
+        "The Security Scheme Object bearer format must be a string");
 
     return;
   }
@@ -383,13 +365,11 @@ inline auto openapi_check_security_scheme(const JSON &value,
           "The Security Scheme Object metadata URI must be a URI reference");
     }
 
-    const auto *flows{value.try_at("flows", OPENAPI_HASH_FLOWS)};
-    if (flows == nullptr) {
-      throw OpenAPIError{
-          base, "An oauth2 Security Scheme Object must declare its flows"};
-    }
+    const auto &flows{openapi_require(
+        value, "flows"sv, OPENAPI_HASH_FLOWS, base,
+        "An oauth2 Security Scheme Object must declare its flows")};
 
-    openapi_check_oauth_flows(*flows, openapi_child(base, "flows"sv), walk);
+    openapi_check_oauth_flows(flows, openapi_child(base, "flows"sv), walk);
     return;
   }
 
@@ -399,15 +379,13 @@ inline auto openapi_check_security_scheme(const JSON &value,
         OPENAPI_SECURITY_SCHEME_OIDC_FIELDS_3_2, base,
         "The Security Scheme Object does not define this field", walk);
 
-    const auto *url{
-        value.try_at("openIdConnectUrl", OPENAPI_HASH_OPENID_CONNECT_URL)};
-    if (url == nullptr) {
-      throw OpenAPIError{base, "An openIdConnect Security Scheme Object must "
-                               "declare its discovery URI"};
-    }
+    const auto &url{openapi_require(
+        value, "openIdConnectUrl"sv, OPENAPI_HASH_OPENID_CONNECT_URL, base,
+        "An openIdConnect Security Scheme Object must "
+        "declare its discovery URI")};
 
     openapi_expect_uri_reference(
-        *url, base, "openIdConnectUrl"sv,
+        url, base, "openIdConnectUrl"sv,
         "The Security Scheme Object discovery URI must be a string",
         "The Security Scheme Object discovery URI must be a URI reference");
     return;
@@ -424,13 +402,8 @@ inline auto openapi_check_security_scheme_or_reference(const JSON &value,
                                                        const Pointer &base,
                                                        OpenAPIWalk &walk)
     -> void {
-  if (openapi_is_reference(value)) {
-    openapi_check_reference(value, base, OpenAPIObjectKind::SecurityScheme,
-                            walk);
-    return;
-  }
-
-  openapi_check_security_scheme(value, base, walk);
+  openapi_check_or_reference<OpenAPIObjectKind::SecurityScheme,
+                             openapi_check_security_scheme>(value, base, walk);
 }
 
 // A Security Requirement Object name that no component declares. 3.1 has

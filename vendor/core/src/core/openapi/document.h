@@ -108,12 +108,13 @@ inline auto openapi_is_document(const JSON &document) -> bool {
          document.try_at("openapi", OPENAPI_HASH_OPENAPI) != nullptr;
 }
 
-// Check a document whose root is the Object a reference expected to find
-// there, rather than a whole OpenAPI Description
-// The base pointer is where the Object sits in the document being read, which
-// is the root for a document a reference brought in, and the pointer a
-// reference names for one that stays within the document at hand. Getting that
-// right is what keeps reading the same Object twice from recording it twice
+// Check an Object that a reference expected to find where it landed, which is
+// somewhere in the document being read. The base pointer is where that Object
+// sits, which is what keeps reading the same one twice from recording it twice
+//
+// A reference that expects a whole Description can no longer land anywhere, as
+// only the document handed over is read, but the kind it would name is a kind
+// all the same and this stays exhaustive over them
 inline auto openapi_check_object(const OpenAPIObjectKind expected,
                                  const JSON &value, const Pointer &base,
                                  OpenAPIWalk &walk) -> void {
@@ -221,9 +222,9 @@ inline auto openapi_reference_target(const JSON::StringView reference,
       target.resolve_from(URI{walk.base});
     }
 
-    // Canonicalising here is what makes two spellings of one document one
-    // document, both to the resolver that is asked for it and to the set that
-    // remembers it was already read
+    // Canonicalising here is what makes two spellings of one place one place,
+    // both to the set that remembers where the walk has been and to a caller
+    // comparing a destination against a location
     target.canonicalize();
     return target;
   } catch (const URIParseError &) {
@@ -242,178 +243,23 @@ inline auto openapi_follow_target(const URI &target, const Pointer &origin,
   const auto identifier{target.recompose_without_fragment()};
   const auto names_a_fragment{target.fragment().has_value()};
 
-  // A reference that keeps the document it was written in needs no resolver,
-  // however it was spelled. Both a bare fragment and the document's own URI
-  // written out in full land here
-  if (!identifier.has_value() || identifier.value() == walk.base) {
-    if (demands_its_own_kind && !names_a_fragment && walk.document != nullptr &&
-        openapi_is_document(*walk.document)) {
-      throw OpenAPIError{walk.base, origin,
-                         "This reference must name a document that holds only "
-                         "what the reference expects"};
-    }
-
-    openapi_follow_internal_reference(target, names_a_fragment, expected, walk);
+  // A reference that leaves the document it was written in is recorded and
+  // left at that. Framing reads the document it was handed rather than
+  // fetching, so a description that spans more than one is one the frame does
+  // not stand alone for. Both a bare fragment and the document's own URI
+  // written out in full name the document being read
+  if (identifier.has_value() && identifier.value() != walk.base) {
     return;
   }
 
-  // Only a reference that leaves the document needs one, so this is the first
-  // point where a resolver that was never supplied matters. Going without one
-  // is the caller opting out of a description that spans more than one
-  if (!walk.resolver) {
-    return;
-  }
-
-  // Whether this document has been read already has to be settled before the
-  // resolver is asked for it, so that a reference coming back round to one we
-  // hold is not put to a resolver that has never heard of it. Which of the two
-  // keys it landed under is not known yet, so both are consulted
-  if (demands_its_own_kind && !names_a_fragment &&
-      walk.visited.contains(
-          {identifier.value(), OpenAPIObjectKind::Document})) {
+  if (demands_its_own_kind && !names_a_fragment && walk.document != nullptr &&
+      openapi_is_document(*walk.document)) {
     throw OpenAPIError{walk.base, origin,
                        "This reference must name a document that holds only "
                        "what the reference expects"};
   }
 
-  // A document is read once, but a second reference into it names a fragment
-  // of its own, and that fragment has been checked by nobody. Section 4.3.1
-  // has the whole document parsed rather than the fragment, which already
-  // happened, so what is left is the question an internal reference asks
-  if (names_a_fragment &&
-      walk.visited.contains(
-          {identifier.value(), OpenAPIObjectKind::Document})) {
-    const auto known{walk.documents_by_uri.find(identifier.value())};
-    if (known != walk.documents_by_uri.cend()) {
-      // What that document keys its locations by, and which revision its
-      // Objects are held to, are what it settled on when it was read rather
-      // than what is in force where this reference was written
-      auto base{known->second.base};
-      auto revision{known->second.version};
-      const auto *document{known->second.document};
-      bool entry{false};
-
-      // Section 4.8.24.1 scopes `jsonSchemaDialect` to "all Schema Objects
-      // contained within an OAS document", so a Schema Object inside this
-      // fragment hands on the dialect of the document it sits in rather than
-      // the one in force where the reference was written. Reading that
-      // document again would settle it, and it was read once already, so what
-      // it settled on is taken from the location of its root
-      const auto root{walk.locations.find(base)};
-      auto dialect{root == walk.locations.cend() ? walk.dialect
-                                                 : root->second.dialect};
-      std::swap(walk.dialect, dialect);
-      std::swap(walk.base, base);
-      std::swap(walk.version, revision);
-      std::swap(walk.document, document);
-      std::swap(walk.entry, entry);
-      openapi_follow_internal_reference(target, true, expected, walk);
-      std::swap(walk.base, base);
-      std::swap(walk.version, revision);
-      std::swap(walk.document, document);
-      std::swap(walk.entry, entry);
-      std::swap(walk.dialect, dialect);
-    }
-
-    return;
-  }
-
-  if (walk.visited.contains(
-          {identifier.value(), OpenAPIObjectKind::Document}) ||
-      walk.visited.contains({identifier.value(), expected})) {
-    return;
-  }
-
-  // A document nobody can hand us is not an error either, for the same reason.
-  // Going without part of a description is the caller's business, and the
-  // frame reports that it does not stand alone
-  auto resolved{walk.resolver(identifier.value())};
-  if (!resolved.has_value()) {
-    return;
-  }
-
-  // The resolver may have handed back a document it owns, which reading it
-  // would otherwise be the last thing to happen to
-  const auto &contents{
-      walk.documents.emplace_back(std::move(resolved)).value()};
-  walk.documents_by_uri.insert_or_assign(
-      identifier.value(), OpenAPIDocumentRecord{.document = &contents,
-                                                .base = identifier.value(),
-                                                .version = walk.version});
-
-  // Section 4.3.1 lists five ways to tell what a referenced document is. A root
-  // `openapi` field settles it whatever the reference expected, and otherwise
-  // the expected type stands in, which Section 4.3.1 also allows
-  const auto document_kind{
-      openapi_is_document(contents) ? OpenAPIObjectKind::Document : expected};
-
-  if (demands_its_own_kind && !names_a_fragment &&
-      document_kind == OpenAPIObjectKind::Document) {
-    throw OpenAPIError{walk.base, origin,
-                       "This reference must name a document that holds only "
-                       "what the reference expects"};
-  }
-
-  walk.visited.insert({identifier.value(), document_kind});
-
-  // Section 4.3.1 requires complete documents to be parsed rather than the
-  // fragment a reference points at, as "the result of parsing fragments in
-  // isolation is undefined". A reference naming a fragment of a document that
-  // is not an OpenAPI Description is asking for exactly that, so it is left
-  // alone rather than read as something it may not be
-  if (document_kind != OpenAPIObjectKind::Document && names_a_fragment) {
-    return;
-  }
-
-  auto base{identifier.value()};
-  const auto *document{&contents};
-  bool entry{false};
-
-  // Section 4.8.24.1 sets `jsonSchemaDialect` "within the OpenAPI Object", and
-  // "if this default is not set, then the OAS dialect schema id MUST be used".
-  // A document holding a referenceable Object rather than a Description has no
-  // OpenAPI Object and so sets none, which makes the OAS dialect the one in
-  // force for its Schema Objects rather than whatever the referring document
-  // happened to declare. Which revision's OAS dialect that is comes from the
-  // document that referenced it, as such a document declares no revision of
-  // its own either. A document that is a Description settles both below, when
-  // it is read
-  auto dialect{document_kind == OpenAPIObjectKind::Document
-                   ? walk.dialect
-                   : JSON::String{openapi_dialect(walk.version)}};
-  std::swap(walk.dialect, dialect);
-
-  // A document a reference brought in declares its own revision, and the one
-  // that referenced it goes back to its own once the walk returns
-  auto revision{walk.version};
-  std::swap(walk.base, base);
-  std::swap(walk.document, document);
-  std::swap(walk.entry, entry);
-  openapi_check_object(document_kind, contents, EMPTY_POINTER, walk);
-
-  // Reading it may have settled on a base of its own, which is what a later
-  // reference into it has to be read against, so what it answers to is
-  // written down again now that it is known
-  walk.documents_by_uri.insert_or_assign(
-      identifier.value(), OpenAPIDocumentRecord{.document = &contents,
-                                                .base = walk.base,
-                                                .version = walk.version});
-
-  // A reference into a document that turned out to be a whole Description has
-  // had that Description read, which is what Section 4.3.1 asks for, but
-  // nothing has yet asked whether the fragment lands on the Object the
-  // reference expected. That is the same question an internal reference
-  // answers, so it is answered the same way, now that the document being read
-  // is the one the fragment belongs to
-  if (names_a_fragment && document_kind == OpenAPIObjectKind::Document) {
-    openapi_follow_internal_reference(target, true, expected, walk);
-  }
-
-  std::swap(walk.base, base);
-  std::swap(walk.document, document);
-  std::swap(walk.entry, entry);
-  std::swap(walk.dialect, dialect);
-  std::swap(walk.version, revision);
+  openapi_follow_internal_reference(target, names_a_fragment, expected, walk);
 }
 
 inline auto openapi_follow_reference(const JSON::StringView reference,
@@ -422,8 +268,9 @@ inline auto openapi_follow_reference(const JSON::StringView reference,
                                      OpenAPIWalk &walk) -> void {
   const auto target{openapi_reference_target(reference, walk)};
   if (!target.has_value()) {
-    // A reference that does not parse was already turned down where it was
-    // read, so reaching here means it cannot name another document either
+    // The value was already held to the form of a URI reference where it was
+    // read, so what fails here is resolving it against the base, which leaves
+    // nothing to record and nothing to land on
     return;
   }
 
@@ -467,13 +314,11 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
     }
 
     // Section 4.8.1: "openapi | string | REQUIRED"
-    const auto *version{document.try_at("openapi", OPENAPI_HASH_OPENAPI)};
-    if (version == nullptr) {
-      throw OpenAPIError{EMPTY_POINTER,
-                         "The OpenAPI Description must declare its version"};
-    }
+    const auto &version{openapi_require(
+        document, "openapi"sv, OPENAPI_HASH_OPENAPI, EMPTY_POINTER,
+        "The OpenAPI Description must declare its version")};
 
-    if (!version->is_string()) {
+    if (!version.is_string()) {
       throw OpenAPIError{Pointer{"openapi"},
                          "The OpenAPI version must be a string"};
     }
@@ -507,6 +352,23 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
           *self, EMPTY_POINTER, "$self"sv,
           "The OpenAPI Description self identifier must be a string",
           "The OpenAPI Description self identifier must be a URI reference")};
+
+      // The specification's own published schema for this revision spells the
+      // field `{"format": "uri-reference", "pattern": "^[^#]*$"}` and says
+      // why in a comment of its own:
+      //
+      //   MUST NOT contain a fragment
+      //
+      // which RFC 3986 Section 5.1 agrees with, a base URI carrying none. The
+      // pattern turns down the character rather than a fragment component, so
+      // an empty one is refused here too
+      if (reference.find('#') != JSON::StringView::npos) {
+        throw OpenAPIError{
+            walk.base, openapi_child(EMPTY_POINTER, "$self"sv),
+            "The OpenAPI Description self identifier must not contain a "
+            "fragment"};
+      }
+
       auto established{openapi_document_base(reference, walk)};
       if (established.has_value()) {
         walk.base = std::move(established.value());
@@ -514,14 +376,8 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
         // Section 4.7.1: "To ensure interoperability, references MUST use the
         // target document's `$self` URI if the `$self` field is present". So
         // this is the URI the document answers to, and one that names it by
-        // where it was retrieved from instead is left to land nowhere rather
-        // than followed, which the same paragraph calls "not interoperable"
-        // and NOT RECOMMENDED
-        walk.visited.insert({walk.base, OpenAPIObjectKind::Document});
-        walk.documents_by_uri.insert_or_assign(
-            walk.base, OpenAPIDocumentRecord{.document = &document,
-                                             .base = walk.base,
-                                             .version = walk.version});
+        // where it was retrieved from instead names another document, which
+        // the same paragraph calls "not interoperable" and NOT RECOMMENDED
       }
     }
 
@@ -537,10 +393,8 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
     // Object", and Section 4.3.3 recommends the entry document for the same
     // reason it does for security schemes, so both sets of names come from
     // there and both come before anything else is read
-    if (walk.entry) {
-      openapi_collect_security_schemes(document, walk);
-      openapi_collect_tags(document, walk);
-    }
+    openapi_collect_security_schemes(document, walk);
+    openapi_collect_tags(document, walk);
 
     // Section 3.1: an OpenAPI Description "MUST contain at least one paths
     // field, components field, or webhooks field"
@@ -556,10 +410,7 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
     // document whose title and version are both the empty string is a legal
     // one, so which document this is has to be asked rather than inferred from
     // the values already held
-    const auto info{openapi_parse_info(document, walk)};
-    if (walk.entry) {
-      walk.info = info;
-    }
+    walk.info = openapi_parse_info(document, walk);
 
     // Section 4.8.1: "jsonSchemaDialect | string | The default value for the
     // `$schema` keyword within Schema Objects [...] This MUST be in the form
@@ -612,13 +463,11 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
       // Section 4.8.10 has an Operation Object override "any declared
       // top-level security", and Section 4.3.3 makes the entry document the one
       // that describes the API, so this is the declaration it overrides
-      if (walk.entry) {
-        walk.security = std::move(locations);
-      }
+      walk.security = std::move(locations);
     }
   } catch (const OpenAPIError &error) {
-    // Every check reports where in its own document the problem is, and this
-    // is the only place that knows which document that was
+    // Every check reports where in the document the problem is, and this is
+    // the only place that knows the base to name it by
     if (!error.base().empty() || walk.base.empty()) {
       throw;
     }

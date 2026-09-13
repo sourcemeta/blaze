@@ -8,6 +8,8 @@
 #include "link.h"
 #include "reference.h"
 
+#include <sourcemeta/core/http.h>
+
 #include <array>       // std::array
 #include <string_view> // std::string_view
 
@@ -51,22 +53,11 @@ inline auto openapi_check_response(const JSON &value, const Pointer &base,
   }
 
   // OpenAPI Specification 3.2.1, Section 4.17: "summary | string"
-  const auto *summary{value.try_at("summary", OPENAPI_HASH_SUMMARY)};
-  if (summary != nullptr) {
-    openapi_expect_string(*summary, base, "summary"sv,
-                          "The Response Object summary must be a string");
-  }
+  openapi_check_optional_string(value, base, "summary"sv, OPENAPI_HASH_SUMMARY,
+                                "The Response Object summary must be a string");
 
-  const auto *headers{value.try_at("headers", OPENAPI_HASH_HEADERS)};
-  if (headers != nullptr) {
-    const auto location{openapi_child(base, "headers"sv)};
-    openapi_expect_object(*headers, location,
-                          "The Response Object headers must be an object");
-    for (const auto &entry : headers->as_object()) {
-      openapi_check_header_or_reference(
-          entry.second, openapi_child(location, entry.first), walk);
-    }
-  }
+  openapi_check_headers(value, base,
+                        "The Response Object headers must be an object", walk);
 
   const auto *content{value.try_at("content", OPENAPI_HASH_CONTENT)};
   if (content != nullptr) {
@@ -90,12 +81,8 @@ inline auto openapi_check_response(const JSON &value, const Pointer &base,
 inline auto openapi_check_response_or_reference(const JSON &value,
                                                 const Pointer &base,
                                                 OpenAPIWalk &walk) -> void {
-  if (openapi_is_reference(value)) {
-    openapi_check_reference(value, base, OpenAPIObjectKind::Response, walk);
-    return;
-  }
-
-  openapi_check_response(value, base, walk);
+  openapi_check_or_reference<OpenAPIObjectKind::Response,
+                             openapi_check_response>(value, base, walk);
 }
 
 // OpenAPI Specification 3.1.1, Section 4.8.16 keys this map by HTTP status
@@ -103,15 +90,13 @@ inline auto openapi_check_response_or_reference(const JSON &value,
 // `100` through `599`, or a leading digit followed by `XX` for a whole range
 inline auto openapi_is_status_code(const JSON::StringView code) noexcept
     -> bool {
-  if (code.size() != 3 || code.front() < '1' || code.front() > '5') {
-    return false;
-  }
-
-  if (code[1] == 'X' && code[2] == 'X') {
+  // The range form is this specification's own, HTTP knowing nothing of it
+  if (code.size() == 3 && code.front() >= '1' && code.front() <= '5' &&
+      code[1] == 'X' && code[2] == 'X') {
     return true;
   }
 
-  return code[1] >= '0' && code[1] <= '9' && code[2] >= '0' && code[2] <= '9';
+  return http_is_status_code(code);
 }
 
 // OpenAPI Specification 3.1.1, Section 4.8.16: "A container for the expected

@@ -60,6 +60,7 @@ auto dependencies_internal(
       default_id,
       sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
       paths,
+      "",
       remaining};
   charge(remaining, frame);
   const auto &origin{frame.root()};
@@ -121,6 +122,7 @@ auto dependencies_internal(
           "",
           sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
           {sourcemeta::core::EMPTY_WEAK_POINTER},
+          "",
           remaining};
       charge(remaining, remote_frame);
     } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &) {
@@ -247,6 +249,7 @@ auto elevate_embedded_resources(
         "",
         sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
         {sourcemeta::core::EMPTY_WEAK_POINTER},
+        "",
         remaining};
     charge(remaining, entry_frame);
     const auto &identifier{entry_frame.root()};
@@ -290,6 +293,7 @@ auto elevate_embedded_resources(
               "",
               sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
               {sourcemeta::core::EMPTY_WEAK_POINTER},
+              "",
               remaining};
           charge(remaining, stored_frame);
           const auto &stored_id{stored_frame.root()};
@@ -373,7 +377,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
       resolver, default_dialect, default_id,
       sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
       // We only want to frame in "wrapper" mode for the top level object
-      depth == 0 ? paths : NESTED_PATHS, remaining};
+      depth == 0 ? paths : NESTED_PATHS, "", remaining};
   charge(remaining, frame);
 
   std::vector<std::tuple<sourcemeta::core::JSON, sourcemeta::core::JSON::String,
@@ -454,7 +458,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
           sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
           sourcemeta::core::SchemaFrame::Paths{
               sourcemeta::core::EMPTY_WEAK_POINTER},
-          remaining);
+          "", remaining);
       charge(remaining, remote_root_frame.value());
     } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &) {
       throw sourcemeta::core::SchemaReferenceError(
@@ -491,6 +495,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
             identifier,
             sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
             {sourcemeta::core::EMPTY_WEAK_POINTER},
+            "",
             remaining};
         charge(remaining, remote_frame);
         exists = remote_frame.traverse(reference.destination).has_value();
@@ -601,6 +606,7 @@ static auto bundle_internal(
       default_id,
       sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
       paths,
+      "",
       remaining};
   charge(remaining, initial_frame);
   initial_frame.for_each_resource_uri([&bundled](const auto &uri) -> void {
@@ -632,6 +638,7 @@ static auto bundle_internal(
         "",
         sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
         {sourcemeta::core::EMPTY_WEAK_POINTER},
+        "",
         remaining};
     charge(remaining, declared_frame);
     if (declared_frame.root().empty()) {
@@ -647,7 +654,7 @@ static auto bundle_internal(
         sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
         sourcemeta::core::SchemaFrame::Paths{
             sourcemeta::core::EMPTY_WEAK_POINTER},
-        remaining);
+        "", remaining);
     charge(remaining, schema_root_frame.value());
   } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &) {
     throw sourcemeta::core::SchemaError(
@@ -668,6 +675,7 @@ static auto bundle_internal(
         default_id,
         sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
         {sourcemeta::core::EMPTY_WEAK_POINTER},
+        "",
         remaining};
     charge(remaining, frame);
     if (frame.standalone()) {

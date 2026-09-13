@@ -22,7 +22,6 @@ constexpr auto OPENAPI_HASH_EXPLODE{JSON::Object::hash("explode"sv)};
 constexpr auto OPENAPI_HASH_ALLOW_RESERVED{
     JSON::Object::hash("allowReserved"sv)};
 constexpr auto OPENAPI_HASH_REQUIRED{JSON::Object::hash("required"sv)};
-constexpr auto OPENAPI_HASH_DEPRECATED{JSON::Object::hash("deprecated"sv)};
 constexpr auto OPENAPI_HASH_ITEM_SCHEMA{JSON::Object::hash("itemSchema"sv)};
 constexpr auto OPENAPI_HASH_ITEM_ENCODING{JSON::Object::hash("itemEncoding"sv)};
 constexpr auto OPENAPI_HASH_PREFIX_ENCODING{
@@ -66,6 +65,24 @@ constexpr std::array<JSON::StringView, 6> OPENAPI_HEADER_CONTENT_FIELDS_3_2{
 inline auto openapi_check_header_or_reference(const JSON &value,
                                               const Pointer &base,
                                               OpenAPIWalk &walk) -> void;
+
+// The Header Objects an Object may map names to, which the Response Object
+// and the Encoding Object each declare the same way
+inline auto openapi_check_headers(const JSON &value, const Pointer &base,
+                                  const char *message, OpenAPIWalk &walk)
+    -> void {
+  const auto *headers{value.try_at("headers", OPENAPI_HASH_HEADERS)};
+  if (headers == nullptr) {
+    return;
+  }
+
+  const auto location{openapi_child(base, "headers"sv)};
+  openapi_expect_object(*headers, location, message);
+  for (const auto &entry : headers->as_object()) {
+    openapi_check_header_or_reference(
+        entry.second, openapi_child(location, entry.first), walk);
+  }
+}
 
 // OpenAPI Specification 3.1.1, Section 4.8.15: "A single encoding definition
 // applied to a single schema property"
@@ -133,23 +150,12 @@ inline auto openapi_check_encoding(const JSON &value, const Pointer &base,
 
   // The specification says media type definitions "SHOULD be in compliance
   // with RFC6838", which is not a requirement, so only the type is checked
-  const auto *content_type{
-      value.try_at("contentType", OPENAPI_HASH_CONTENT_TYPE)};
-  if (content_type != nullptr) {
-    openapi_expect_string(*content_type, base, "contentType"sv,
-                          "The Encoding Object content type must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "contentType"sv, OPENAPI_HASH_CONTENT_TYPE,
+      "The Encoding Object content type must be a string");
 
-  const auto *headers{value.try_at("headers", OPENAPI_HASH_HEADERS)};
-  if (headers != nullptr) {
-    const auto location{openapi_child(base, "headers"sv)};
-    openapi_expect_object(*headers, location,
-                          "The Encoding Object headers must be an object");
-    for (const auto &entry : headers->as_object()) {
-      openapi_check_header_or_reference(
-          entry.second, openapi_child(location, entry.first), walk);
-    }
-  }
+  openapi_check_headers(value, base,
+                        "The Encoding Object headers must be an object", walk);
 
   const auto *style{value.try_at("style", OPENAPI_HASH_STYLE)};
   if (style != nullptr) {
@@ -221,12 +227,8 @@ inline auto openapi_check_media_type(const JSON &value, const Pointer &base,
 inline auto openapi_check_media_type_or_reference(const JSON &value,
                                                   const Pointer &base,
                                                   OpenAPIWalk &walk) -> void {
-  if (openapi_is_reference(value)) {
-    openapi_check_reference(value, base, OpenAPIObjectKind::MediaType, walk);
-    return;
-  }
-
-  openapi_check_media_type(value, base, walk);
+  openapi_check_or_reference<OpenAPIObjectKind::MediaType,
+                             openapi_check_media_type>(value, base, walk);
 }
 
 // The map that the Request Body, Response, Parameter and Header Objects all
@@ -283,12 +285,9 @@ inline auto openapi_check_header(const JSON &value, const Pointer &base,
         "The Header Object does not define this field");
   }
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(*description, base, "description"sv,
-                          "The Header Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Header Object description must be a string");
 
   const auto *required{value.try_at("required", OPENAPI_HASH_REQUIRED)};
   if (required != nullptr) {
@@ -345,12 +344,8 @@ inline auto openapi_check_header(const JSON &value, const Pointer &base,
 inline auto openapi_check_header_or_reference(const JSON &value,
                                               const Pointer &base,
                                               OpenAPIWalk &walk) -> void {
-  if (openapi_is_reference(value)) {
-    openapi_check_reference(value, base, OpenAPIObjectKind::Header, walk);
-    return;
-  }
-
-  openapi_check_header(value, base, walk);
+  openapi_check_or_reference<OpenAPIObjectKind::Header, openapi_check_header>(
+      value, base, walk);
 }
 
 } // namespace sourcemeta::core

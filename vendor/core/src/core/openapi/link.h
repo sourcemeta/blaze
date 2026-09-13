@@ -72,12 +72,9 @@ inline auto openapi_check_link(const JSON &value, const Pointer &base,
                           "The Link Object parameters must be an object");
   }
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(*description, base, "description"sv,
-                          "The Link Object description must be a string");
-  }
+  openapi_check_optional_string(value, base, "description"sv,
+                                OPENAPI_HASH_DESCRIPTION,
+                                "The Link Object description must be a string");
 
   const auto *server{value.try_at("server", OPENAPI_HASH_SERVER)};
   if (server != nullptr) {
@@ -104,12 +101,8 @@ inline auto openapi_check_link(const JSON &value, const Pointer &base,
 inline auto openapi_check_link_or_reference(const JSON &value,
                                             const Pointer &base,
                                             OpenAPIWalk &walk) -> void {
-  if (openapi_is_reference(value)) {
-    openapi_check_reference(value, base, OpenAPIObjectKind::Link, walk);
-    return;
-  }
-
-  openapi_check_link(value, base, walk);
+  openapi_check_or_reference<OpenAPIObjectKind::Link, openapi_check_link>(
+      value, base, walk);
 }
 
 } // namespace sourcemeta::core

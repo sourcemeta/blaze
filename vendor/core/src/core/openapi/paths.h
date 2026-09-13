@@ -7,11 +7,11 @@
 #include "path_item.h"
 
 #include <sourcemeta/core/text.h>
+#include <sourcemeta/core/uri.h>
 
 #include <cstddef>     // std::size_t
 #include <set>         // std::set
 #include <string_view> // std::string_view
-#include <vector>      // std::vector
 
 namespace sourcemeta::core {
 
@@ -45,48 +45,6 @@ inline auto openapi_path_shape(const JSON::StringView path) -> JSON::String {
 
   result.append(path.substr(cursor));
   return result;
-}
-
-// The template expressions a path declares. OpenAPI Specification 3.1.1,
-// Section 3.5: "Path templating refers to the usage of template expressions,
-// delimited by curly braces (`{}`), to mark a section of a URL path as
-// replaceable using path parameters". Nothing there says what an unbalanced
-// brace means, so a run that never closes is no expression
-inline auto openapi_path_templates(const JSON::StringView path)
-    -> std::vector<JSON::StringView> {
-  std::vector<JSON::StringView> result;
-  std::size_t cursor{0};
-  while (cursor < path.size()) {
-    const auto open{path.find('{', cursor)};
-    if (open == JSON::StringView::npos) {
-      break;
-    }
-
-    const auto close{path.find('}', open)};
-    if (close == JSON::StringView::npos) {
-      break;
-    }
-
-    result.push_back(path.substr(open + 1, close - open - 1));
-    cursor = close + 1;
-  }
-
-  return result;
-}
-
-// The `pchar` a path literal is made of, which OpenAPI Specification 3.2.1,
-// Section 4.8.2 takes from RFC 3986: "unreserved / pct-encoded / sub-delims /
-// `:` / `@`", with `pct-encoded` handled where a run of them is read. The URI
-// parser in this repository classifies the same production for its own use and
-// admits a percent sign as one of these characters, leaving the triplet to the
-// scan around it, so the two sets are deliberately not the same one
-inline auto openapi_is_path_character(const char character) -> bool {
-  return is_alphanum(character) || character == '-' || character == '.' ||
-         character == '_' || character == '~' || character == '!' ||
-         character == '$' || character == '&' || character == '\'' ||
-         character == '(' || character == ')' || character == '*' ||
-         character == '+' || character == ',' || character == ';' ||
-         character == '=' || character == ':' || character == '@';
 }
 
 // OpenAPI Specification 3.2.1, Section 4.8.2 states the grammar 3.1 left
@@ -129,14 +87,15 @@ inline auto openapi_is_path_template(const JSON::StringView path) -> bool {
       segment_is_empty = false;
       cursor = close + 1;
     } else if (path[cursor] == '%') {
-      if (cursor + 2 >= path.size() || !is_hex_digit(path[cursor + 1]) ||
-          !is_hex_digit(path[cursor + 2])) {
+      if (!is_percent_triplet(path, cursor)) {
         return false;
       }
 
       segment_is_empty = false;
       cursor += 3;
-    } else if (openapi_is_path_character(path[cursor])) {
+      // A percent sign is a path character too, and the branch above is what
+      // holds it to introducing a triplet, so nothing reaches here with one
+    } else if (URI::is_pchar(path[cursor])) {
       segment_is_empty = false;
       cursor += 1;
     } else {
@@ -188,7 +147,7 @@ inline auto openapi_check_paths(const JSON &document, OpenAPIWalk &walk)
       }
 
       std::set<JSON::StringView> expressions;
-      for (const auto &expression : openapi_path_templates(entry.first)) {
+      for (const auto &expression : openapi_brace_expressions(entry.first)) {
         if (!expressions.insert(expression).second) {
           throw OpenAPIError{
               location,
@@ -209,14 +168,12 @@ inline auto openapi_check_paths(const JSON &document, OpenAPIWalk &walk)
     openapi_check_path_item(entry.second, location, walk);
 
     // Section 4.3.3: "only the entry document's Paths Object contributes URLs
-    // to the described API", so a Paths Object in a document a reference
-    // brought in describes nothing
-    if (walk.entry) {
-      walk.endpoints.push_back(
-          {.kind = OpenAPIOperationKind::Path,
-           .path = entry.first,
-           .path_item = openapi_location_uri(walk.base, location)});
-    }
+    // to the described API", and the document framed is that entry document,
+    // so every path it writes is an endpoint
+    walk.endpoints.push_back(
+        {.kind = OpenAPIOperationKind::Path,
+         .path = entry.first,
+         .path_item = openapi_location_uri(walk.base, location)});
   }
 }
 
@@ -238,12 +195,10 @@ inline auto openapi_check_webhooks(const JSON &document, OpenAPIWalk &walk)
   for (const auto &entry : webhooks->as_object()) {
     const auto location{openapi_child(base, entry.first)};
     openapi_check_path_item(entry.second, location, walk);
-    if (walk.entry) {
-      walk.endpoints.push_back(
-          {.kind = OpenAPIOperationKind::Webhook,
-           .path = entry.first,
-           .path_item = openapi_location_uri(walk.base, location)});
-    }
+    walk.endpoints.push_back(
+        {.kind = OpenAPIOperationKind::Webhook,
+         .path = entry.first,
+         .path_item = openapi_location_uri(walk.base, location)});
   }
 }
 

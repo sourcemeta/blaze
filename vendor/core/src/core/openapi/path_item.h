@@ -94,12 +94,8 @@ inline auto openapi_check_callbacks(const JSON &value, const Pointer &base,
 inline auto openapi_check_callbacks_or_reference(const JSON &value,
                                                  const Pointer &base,
                                                  OpenAPIWalk &walk) -> void {
-  if (openapi_is_reference(value)) {
-    openapi_check_reference(value, base, OpenAPIObjectKind::Callbacks, walk);
-    return;
-  }
-
-  openapi_check_callbacks(value, base, walk);
+  openapi_check_or_reference<OpenAPIObjectKind::Callbacks,
+                             openapi_check_callbacks>(value, base, walk);
 }
 
 // OpenAPI Specification 3.1.1, Section 4.8.10: "Describes a single API
@@ -126,18 +122,13 @@ inline auto openapi_check_operation(const JSON &value, const Pointer &base,
     }
   }
 
-  const auto *summary{value.try_at("summary", OPENAPI_HASH_SUMMARY)};
-  if (summary != nullptr) {
-    openapi_expect_string(*summary, base, "summary"sv,
-                          "The Operation Object summary must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "summary"sv, OPENAPI_HASH_SUMMARY,
+      "The Operation Object summary must be a string");
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(*description, base, "description"sv,
-                          "The Operation Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Operation Object description must be a string");
 
   const auto *external_documentation{
       value.try_at("externalDocs", OPENAPI_HASH_EXTERNAL_DOCS)};
@@ -251,18 +242,13 @@ inline auto openapi_check_path_item(const JSON &value, const Pointer &base,
                              OpenAPIObjectKind::PathItem, walk);
   }
 
-  const auto *summary{value.try_at("summary", OPENAPI_HASH_SUMMARY)};
-  if (summary != nullptr) {
-    openapi_expect_string(*summary, base, "summary"sv,
-                          "The Path Item Object summary must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "summary"sv, OPENAPI_HASH_SUMMARY,
+      "The Path Item Object summary must be a string");
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(*description, base, "description"sv,
-                          "The Path Item Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Path Item Object description must be a string");
 
   OpenAPIPathItemRecord record;
 

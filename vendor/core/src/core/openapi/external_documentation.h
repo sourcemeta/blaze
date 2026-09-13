@@ -34,24 +34,18 @@ inline auto openapi_check_external_documentation(const JSON &value,
   // URI for the target documentation. This MUST be in the form of a URI".
   // Unlike the Server Object, this one does state a requirement on its form,
   // and it names no template variables, so it is checked
-  const auto *url{value.try_at("url", OPENAPI_HASH_URL)};
-  if (url == nullptr) {
-    throw OpenAPIError{base,
-                       "The External Documentation Object must declare a URI"};
-  }
+  const auto &url{
+      openapi_require(value, "url"sv, OPENAPI_HASH_URL, base,
+                      "The External Documentation Object must declare a URI")};
 
   openapi_expect_uri_reference(
-      *url, base, "url"sv,
+      url, base, "url"sv,
       "The External Documentation Object URI must be a string",
       "The External Documentation Object URI must be a URI reference");
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(
-        *description, base, "description"sv,
-        "The External Documentation Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The External Documentation Object description must be a string");
 }
 
 // OpenAPI Specification 3.1.1, Section 4.8.1: "externalDocs | External

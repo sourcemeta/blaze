@@ -26,13 +26,9 @@ inline auto openapi_check_request_body(const JSON &value, const Pointer &base,
       value, OPENAPI_REQUEST_BODY_FIELDS, base,
       "The Request Body Object does not define this field");
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(
-        *description, base, "description"sv,
-        "The Request Body Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Request Body Object description must be a string");
 
   const auto *required{value.try_at("required", OPENAPI_HASH_REQUIRED)};
   if (required != nullptr) {
@@ -43,12 +39,11 @@ inline auto openapi_check_request_body(const JSON &value, const Pointer &base,
 
   // OpenAPI Specification 3.1.1, Section 4.8.13: "content | Map[string, Media
   // Type Object] | REQUIRED. The content of the request body"
-  const auto *content{value.try_at("content", OPENAPI_HASH_CONTENT)};
-  if (content == nullptr) {
-    throw OpenAPIError{base, "The Request Body Object must declare a content"};
-  }
+  const auto &content{
+      openapi_require(value, "content"sv, OPENAPI_HASH_CONTENT, base,
+                      "The Request Body Object must declare a content")};
 
-  openapi_check_content(*content, openapi_child(base, "content"sv),
+  openapi_check_content(content, openapi_child(base, "content"sv),
                         "The Request Body Object content must be an object",
                         walk);
 }
@@ -56,12 +51,8 @@ inline auto openapi_check_request_body(const JSON &value, const Pointer &base,
 inline auto openapi_check_request_body_or_reference(const JSON &value,
                                                     const Pointer &base,
                                                     OpenAPIWalk &walk) -> void {
-  if (openapi_is_reference(value)) {
-    openapi_check_reference(value, base, OpenAPIObjectKind::RequestBody, walk);
-    return;
-  }
-
-  openapi_check_request_body(value, base, walk);
+  openapi_check_or_reference<OpenAPIObjectKind::RequestBody,
+                             openapi_check_request_body>(value, base, walk);
 }
 
 } // namespace sourcemeta::core

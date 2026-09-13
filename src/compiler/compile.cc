@@ -831,6 +831,7 @@ auto compile(const sourcemeta::core::JSON &schema,
       default_id,
       sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
       {sourcemeta::core::EMPTY_WEAK_POINTER},
+      "",
       max_locations};
   return compile(result, walker, resolver, compiler, frame,
                  entrypoint.empty() ? frame.root() : entrypoint, mode, tweaks);

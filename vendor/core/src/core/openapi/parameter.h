@@ -99,21 +99,18 @@ inline auto openapi_check_parameter(const JSON &value, const Pointer &base,
 
   // OpenAPI Specification 3.1.1, Section 4.8.12: "name | string | REQUIRED.
   // The name of the parameter"
-  const auto *name{value.try_at("name", OPENAPI_HASH_NAME)};
-  if (name == nullptr) {
-    throw OpenAPIError{base, "The Parameter Object must declare a name"};
-  }
+  const auto &name{openapi_require(value, "name"sv, OPENAPI_HASH_NAME, base,
+                                   "The Parameter Object must declare a name")};
 
   const auto parameter_name{openapi_expect_string(
-      *name, base, "name"sv, "The Parameter Object name must be a string")};
+      name, base, "name"sv, "The Parameter Object name must be a string")};
 
   // OpenAPI Specification 3.1.1, Section 4.8.12: "in | string | REQUIRED. The
   // location of the parameter. Possible values are `"query"`, `"header"`,
   // `"path"` or `"cookie"`"
-  const auto *location_field{value.try_at("in", OPENAPI_HASH_IN)};
-  if (location_field == nullptr) {
-    throw OpenAPIError{base, "The Parameter Object must declare a location"};
-  }
+  const auto &location_field{
+      openapi_require(value, "in"sv, OPENAPI_HASH_IN, base,
+                      "The Parameter Object must declare a location")};
 
   // OpenAPI Specification 3.2.1, Section 4.12 adds a fifth location,
   // `querystring`, "a parameter that treats the entire URL query string as a
@@ -122,13 +119,13 @@ inline auto openapi_check_parameter(const JSON &value, const Pointer &base,
   const auto parameter_location{
       walk.version == OpenAPIVersion::OPENAPI_3_2
           ? openapi_expect_enumeration(
-                *location_field, base, "in"sv,
+                location_field, base, "in"sv,
                 {"query"sv, "header"sv, "path"sv, "cookie"sv, "querystring"sv},
                 "The Parameter Object location must be a string",
                 "The Parameter Object location is not one this specification "
                 "defines")
           : openapi_expect_enumeration(
-                *location_field, base, "in"sv,
+                location_field, base, "in"sv,
                 {"query"sv, "header"sv, "path"sv, "cookie"sv},
                 "The Parameter Object location must be a string",
                 "The Parameter Object location is not one this specification "
@@ -182,12 +179,9 @@ inline auto openapi_check_parameter(const JSON &value, const Pointer &base,
         "The Parameter Object does not define this field");
   }
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(*description, base, "description"sv,
-                          "The Parameter Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Parameter Object description must be a string");
 
   const auto *deprecated{value.try_at("deprecated", OPENAPI_HASH_DEPRECATED)};
   if (deprecated != nullptr) {

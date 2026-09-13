@@ -34,11 +34,12 @@ constexpr std::array<JSON::StringView, 11> OPENAPI_COMPONENTS_FIELDS_3_2{
      "requestBodies"sv, "headers"sv, "securitySchemes"sv, "links"sv,
      "callbacks"sv, "pathItems"sv, "mediaTypes"sv}};
 
-// The names the entry document declares as security schemes, read before the
-// walk goes anywhere so that the order documents are read in cannot decide
-// what a Security Requirement Object may name. This runs before the Components
-// Object has been checked, so it takes what is there and leaves being strict
-// about the shape to that check
+// The names the document declares as security schemes, read before the walk
+// goes anywhere because the Components Object may hold a Path Item Object
+// whose operations declare a requirement, and the order that Object writes its
+// own members must not decide what a requirement may name. This runs before
+// the Components Object has been checked, so it takes what is there and leaves
+// being strict about the shape to that check
 inline auto openapi_collect_security_schemes(const JSON &document,
                                              OpenAPIWalk &walk) -> void {
   const auto *components{
