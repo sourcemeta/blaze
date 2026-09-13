@@ -45,8 +45,8 @@ public:
   OpenAPIError(Pointer location, std::string &&message) = delete;
   OpenAPIError(Pointer location, std::string_view message) = delete;
 
-  /// Construct an error that names the document the problem is in, for a
-  /// description that spans more than one document
+  /// Construct an error that names the document the problem is in, which is
+  /// what a caller that framed more than one of them tells them apart by
   OpenAPIError(JSON::String base, Pointer location, const char *message)
       : base_{std::move(base)}, location_{std::move(location)},
         message_{message} {}

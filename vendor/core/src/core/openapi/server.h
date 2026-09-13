@@ -7,6 +7,7 @@
 
 #include <sourcemeta/core/text.h>
 #include <sourcemeta/core/unicode.h>
+#include <sourcemeta/core/uritemplate.h>
 
 #include <algorithm>   // std::ranges::any_of
 #include <array>       // std::array
@@ -78,23 +79,17 @@ inline auto openapi_check_server_variable(const JSON &value,
 
   // OpenAPI Specification 3.1.1, Section 4.8.6: "default | string | REQUIRED.
   // The default value to use for substitution"
-  const auto *fallback{value.try_at("default", OPENAPI_HASH_SERVER_DEFAULT)};
-  if (fallback == nullptr) {
-    throw OpenAPIError{base,
-                       "The Server Variable Object must declare a default"};
-  }
+  const auto &fallback{
+      openapi_require(value, "default"sv, OPENAPI_HASH_SERVER_DEFAULT, base,
+                      "The Server Variable Object must declare a default")};
 
   const auto default_value{openapi_expect_string(
-      *fallback, base, "default"sv,
+      fallback, base, "default"sv,
       "The Server Variable Object default must be a string")};
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(
-        *description, base, "description"sv,
-        "The Server Variable Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Server Variable Object description must be a string");
 
   // OpenAPI Specification 3.1.1, Section 4.8.6: "If the `enum` is defined, the
   // value MUST exist in the enum's values". The published meta-schema does not
@@ -109,28 +104,6 @@ inline auto openapi_check_server_variable(const JSON &value,
         openapi_child(base, "default"sv),
         "The Server Variable Object default must exist in its enumeration"};
   }
-}
-
-// The `literals` of a server URL template, which OpenAPI Specification 3.2.1,
-// Section 4.6 takes from RFC 6570 "incorporating the corrections specified in
-// Errata 6937":
-//
-//     literals = 1*( %x21 / %x23-24 / %x26-3B / %x3D / %x3F-5B
-//                / %x5D / %x5F / %x61-7A / %x7E / ucschar / iprivate
-//                / pct-encoded)
-//
-// The two productions it names beyond that range are the ones RFC 3987
-// Section 2.2 defines, and a `pct-encoded` triplet is read where a run of them
-// is
-inline auto openapi_is_server_url_literal(const char32_t point) -> bool {
-  if (point < 0x80) {
-    return point == 0x21 || (point >= 0x23 && point <= 0x24) ||
-           (point >= 0x26 && point <= 0x3B) || point == 0x3D ||
-           (point >= 0x3F && point <= 0x5B) || point == 0x5D || point == 0x5F ||
-           (point >= 0x61 && point <= 0x7A) || point == 0x7E;
-  }
-
-  return is_ucschar(point) || is_iprivate(point);
 }
 
 // OpenAPI Specification 3.2.1, Section 4.6 states the grammar 3.1 left
@@ -161,8 +134,7 @@ inline auto openapi_is_server_url_template(const JSON::StringView address)
 
       cursor = close + 1;
     } else if (address[cursor] == '%') {
-      if (cursor + 2 >= address.size() || !is_hex_digit(address[cursor + 1]) ||
-          !is_hex_digit(address[cursor + 2])) {
+      if (!is_percent_triplet(address, cursor)) {
         return false;
       }
 
@@ -170,7 +142,7 @@ inline auto openapi_is_server_url_template(const JSON::StringView address)
     } else {
       const auto character{utf8_decode(address, cursor)};
       if (!character.has_value() ||
-          !openapi_is_server_url_literal(character.value().first)) {
+          !URITemplate::is_literal(character.value().first)) {
         return false;
       }
 
@@ -179,30 +151,6 @@ inline auto openapi_is_server_url_template(const JSON::StringView address)
   }
 
   return true;
-}
-
-// The variables a server URL template names, which are unambiguous once the
-// grammar above has held
-inline auto openapi_server_url_variables(const JSON::StringView address)
-    -> std::vector<JSON::StringView> {
-  std::vector<JSON::StringView> result;
-  std::size_t cursor{0};
-  while (cursor < address.size()) {
-    const auto open{address.find('{', cursor)};
-    if (open == JSON::StringView::npos) {
-      break;
-    }
-
-    const auto close{address.find('}', open)};
-    if (close == JSON::StringView::npos) {
-      break;
-    }
-
-    result.push_back(address.substr(open + 1, close - open - 1));
-    cursor = close + 1;
-  }
-
-  return result;
 }
 
 // OpenAPI Specification 3.1.1, Section 4.8.5: "An object representing a Server"
@@ -221,13 +169,11 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
   // URL to the target host. This URL supports Server Variables and MAY be
   // relative". Beyond its type there is little to check, as it is a template
   // rather than a URL once a variable is named in braces
-  const auto *url{value.try_at("url", OPENAPI_HASH_URL)};
-  if (url == nullptr) {
-    throw OpenAPIError{base, "The Server Object must declare a URL"};
-  }
+  const auto &url{openapi_require(value, "url"sv, OPENAPI_HASH_URL, base,
+                                  "The Server Object must declare a URL")};
 
   const auto address{openapi_expect_string(
-      *url, base, "url"sv, "The Server Object URL must be a string")};
+      url, base, "url"sv, "The Server Object URL must be a string")};
 
   // OpenAPI Specification 3.1.2, Section 4.8.5 adds to that row: "Query and
   // fragment MUST NOT be part of this URL". A query begins at the first `?`
@@ -254,7 +200,7 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
     }
 
     std::set<JSON::StringView> names;
-    for (const auto &variable : openapi_server_url_variables(address)) {
+    for (const auto &variable : openapi_brace_expressions(address)) {
       if (!names.insert(variable).second) {
         throw OpenAPIError{openapi_child(base, "url"sv),
                            "A server URL template must not repeat a variable"};
@@ -262,19 +208,13 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
     }
   }
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(*description, base, "description"sv,
-                          "The Server Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Server Object description must be a string");
 
   // OpenAPI Specification 3.2.1, Section 4.5: "name | string"
-  const auto *name{value.try_at("name", OPENAPI_HASH_NAME)};
-  if (name != nullptr) {
-    openapi_expect_string(*name, base, "name"sv,
-                          "The Server Object name must be a string");
-  }
+  openapi_check_optional_string(value, base, "name"sv, OPENAPI_HASH_NAME,
+                                "The Server Object name must be a string");
 
   // OpenAPI Specification 3.1.1, Section 4.8.5: "variables | Map[string,
   // Server Variable Object] | A map between a variable name and its value"
@@ -332,9 +272,7 @@ inline auto openapi_check_servers(const JSON &document, OpenAPIWalk &walk)
   // Section 4.3.3: "only the entry document's Paths Object contributes URLs to
   // the described API", which makes the entry document's servers the deployment
   // information that every operation falls back on
-  if (walk.entry) {
-    walk.servers = std::move(locations);
-  }
+  walk.servers = std::move(locations);
 }
 
 } // namespace sourcemeta::core

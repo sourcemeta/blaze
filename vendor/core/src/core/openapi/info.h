@@ -94,13 +94,11 @@ inline auto openapi_parse_license(const JSON &value, const Pointer &base,
 
   // OpenAPI Specification 3.1.1, Section 4.8.4: "name | string | REQUIRED. The
   // license name used for the API"
-  const auto *name{value.try_at("name", OPENAPI_HASH_NAME)};
-  if (name == nullptr) {
-    throw OpenAPIError{base, "The License Object must declare a name"};
-  }
+  const auto &name{openapi_require(value, "name"sv, OPENAPI_HASH_NAME, base,
+                                   "The License Object must declare a name")};
 
   result.name = openapi_expect_string(
-      *name, base, "name"sv, "The License Object name must be a string");
+      name, base, "name"sv, "The License Object name must be a string");
 
   // The specification states no requirement on the syntax of this field, only
   // that it is "An SPDX license expression for the API", so it is recorded as
@@ -135,44 +133,39 @@ inline auto openapi_parse_info(const JSON &document, OpenAPIWalk &walk)
     -> OpenAPIInfo {
   // OpenAPI Specification 3.1.1, Section 4.8.1: "info | Info Object |
   // REQUIRED. Provides metadata about the API"
-  const auto *value{document.try_at("info", OPENAPI_HASH_INFO)};
-  if (value == nullptr) {
-    throw OpenAPIError{EMPTY_POINTER,
-                       "The OpenAPI Description must provide an Info Object"};
-  }
+  const auto &value{
+      openapi_require(document, "info"sv, OPENAPI_HASH_INFO, EMPTY_POINTER,
+                      "The OpenAPI Description must provide an Info Object")};
 
   const Pointer base{"info"};
   openapi_record(walk, base, OpenAPIObjectKind::Info);
-  if (!value->is_object()) {
+  if (!value.is_object()) {
     throw OpenAPIError{base, "The Info Object must be an object"};
   }
 
-  openapi_reject_unknown_fields(*value, OPENAPI_INFO_FIELDS, base,
+  openapi_reject_unknown_fields(value, OPENAPI_INFO_FIELDS, base,
                                 "The Info Object does not define this field");
 
   OpenAPIInfo result;
 
   // OpenAPI Specification 3.1.1, Section 4.8.2: "title | string | REQUIRED.
   // The title of the API"
-  const auto *title{value->try_at("title", OPENAPI_HASH_TITLE)};
-  if (title == nullptr) {
-    throw OpenAPIError{base, "The Info Object must declare a title"};
-  }
+  const auto &title{openapi_require(value, "title"sv, OPENAPI_HASH_TITLE, base,
+                                    "The Info Object must declare a title")};
 
   result.title = openapi_expect_string(
-      *title, base, "title"sv, "The Info Object title must be a string");
+      title, base, "title"sv, "The Info Object title must be a string");
 
   // OpenAPI Specification 3.1.1, Section 4.8.2: "version | string | REQUIRED.
   // The version of the OpenAPI Document"
-  const auto *version{value->try_at("version", OPENAPI_HASH_VERSION)};
-  if (version == nullptr) {
-    throw OpenAPIError{base, "The Info Object must declare a version"};
-  }
+  const auto &version{
+      openapi_require(value, "version"sv, OPENAPI_HASH_VERSION, base,
+                      "The Info Object must declare a version")};
 
   result.version = openapi_expect_string(
-      *version, base, "version"sv, "The Info Object version must be a string");
+      version, base, "version"sv, "The Info Object version must be a string");
 
-  const auto *summary{value->try_at("summary", OPENAPI_HASH_SUMMARY)};
+  const auto *summary{value.try_at("summary", OPENAPI_HASH_SUMMARY)};
   if (summary != nullptr) {
     result.summary =
         openapi_expect_string(*summary, base, "summary"sv,
@@ -182,7 +175,7 @@ inline auto openapi_parse_info(const JSON &document, OpenAPIWalk &walk)
   // The specification permits CommonMark here but does not require it, so
   // there is nothing to check beyond the type
   const auto *description{
-      value->try_at("description", OPENAPI_HASH_DESCRIPTION)};
+      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
   if (description != nullptr) {
     result.description =
         openapi_expect_string(*description, base, "description"sv,
@@ -192,7 +185,7 @@ inline auto openapi_parse_info(const JSON &document, OpenAPIWalk &walk)
   // OpenAPI Specification 3.1.1, Section 4.8.2: "A URI for the Terms of
   // Service for the API. This MUST be in the form of a URI"
   const auto *terms{
-      value->try_at("termsOfService", OPENAPI_HASH_TERMS_OF_SERVICE)};
+      value.try_at("termsOfService", OPENAPI_HASH_TERMS_OF_SERVICE)};
   if (terms != nullptr) {
     result.terms_of_service = openapi_expect_uri_reference(
         *terms, base, "termsOfService"sv,
@@ -200,13 +193,13 @@ inline auto openapi_parse_info(const JSON &document, OpenAPIWalk &walk)
         "The Info Object terms of service must be a URI reference");
   }
 
-  const auto *contact{value->try_at("contact", OPENAPI_HASH_CONTACT)};
+  const auto *contact{value.try_at("contact", OPENAPI_HASH_CONTACT)};
   if (contact != nullptr) {
     result.contact =
         openapi_parse_contact(*contact, openapi_child(base, "contact"sv), walk);
   }
 
-  const auto *license{value->try_at("license", OPENAPI_HASH_LICENSE)};
+  const auto *license{value.try_at("license", OPENAPI_HASH_LICENSE)};
   if (license != nullptr) {
     result.license =
         openapi_parse_license(*license, openapi_child(base, "license"sv), walk);

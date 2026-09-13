@@ -68,6 +68,11 @@ if(PROJECT_IS_TOP_LEVEL)
   sourcemeta_enable_simd()
 endif()
 
+# The compiler cache has to be in place before we declare any target
+if(PROJECT_IS_TOP_LEVEL)
+  sourcemeta_ccache_attempt_enable(DIRECTORY "${PROJECT_SOURCE_DIR}/.ccache")
+endif()
+
 # Enable the sanitizers before defining any target
 if(SOURCEMETA_CORE_ADDRESS_SANITIZER)
   sourcemeta_sanitizer(TYPE address)

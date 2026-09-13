@@ -40,18 +40,12 @@ inline auto openapi_check_example(const JSON &value, const Pointer &base,
       value, OPENAPI_EXAMPLE_FIELDS_3_1, OPENAPI_EXAMPLE_FIELDS_3_2, base,
       "The Example Object does not define this field", walk);
 
-  const auto *summary{value.try_at("summary", OPENAPI_HASH_SUMMARY)};
-  if (summary != nullptr) {
-    openapi_expect_string(*summary, base, "summary"sv,
-                          "The Example Object summary must be a string");
-  }
+  openapi_check_optional_string(value, base, "summary"sv, OPENAPI_HASH_SUMMARY,
+                                "The Example Object summary must be a string");
 
-  const auto *description{
-      value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
-  if (description != nullptr) {
-    openapi_expect_string(*description, base, "description"sv,
-                          "The Example Object description must be a string");
-  }
+  openapi_check_optional_string(
+      value, base, "description"sv, OPENAPI_HASH_DESCRIPTION,
+      "The Example Object description must be a string");
 
   // OpenAPI Specification 3.2.1, Section 4.19: "dataValue | Any | An example
   // of the data structure [...] If this field is present, `value` MUST be
@@ -111,12 +105,8 @@ inline auto openapi_check_example(const JSON &value, const Pointer &base,
 inline auto openapi_check_example_or_reference(const JSON &value,
                                                const Pointer &base,
                                                OpenAPIWalk &walk) -> void {
-  if (openapi_is_reference(value)) {
-    openapi_check_reference(value, base, OpenAPIObjectKind::Example, walk);
-    return;
-  }
-
-  openapi_check_example(value, base, walk);
+  openapi_check_or_reference<OpenAPIObjectKind::Example, openapi_check_example>(
+      value, base, walk);
 }
 
 // The Parameter, Media Type and Header Objects all carry this pair, and all
