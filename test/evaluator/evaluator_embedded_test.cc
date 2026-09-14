@@ -555,7 +555,7 @@ TEST(embedded_schema_with_default_dialect_vocabulary_keyword) {
   const auto schema_template{compile_embedded(
       document, {sourcemeta::core::to_weak_pointer(pet)},
       "https://example.com/openapi.json#/components/schemas/Pet",
-      sourcemeta::blaze::Mode::FastValidation)};
+      sourcemeta::blaze::Mode::Exhaustive)};
 
   const sourcemeta::core::JSON instance{sourcemeta::core::JSON::make_object()};
   EVALUATE_WITH_TRACE(schema_template, instance, 1);

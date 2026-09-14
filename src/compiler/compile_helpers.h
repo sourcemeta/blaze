@@ -5,7 +5,7 @@
 #include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/uri.h>
 
-#include <algorithm> // std::ranges::find, std::ranges::any_of, std::ranges::contains
+#include <algorithm>  // std::ranges::find, std::ranges::any_of
 #include <cassert>    // assert
 #include <functional> // std::cref
 #include <iterator>   // std::distance
@@ -328,6 +328,17 @@ unsigned_integer_property(const sourcemeta::core::JSON &document,
   return unsigned_integer_property(document, property).value_or(otherwise);
 }
 
+// Whether the frame addresses the document from its top under the given base,
+// which is what the base that the caller framed a wrapper document with does
+inline auto addresses_document_top(const sourcemeta::core::SchemaFrame &frame,
+                                   const sourcemeta::core::JSON::String &base)
+    -> bool {
+  return frame.any_subschema(
+      [&base](const sourcemeta::core::SchemaFrame::Location &location) -> bool {
+        return location.base == base && location.relative_pointer == 0;
+      });
+}
+
 // A schema context only knows where it sits within the schema resource that
 // encloses it, while an error must report where the problem is within the
 // document that the schema came from. Prepending the pointer of that resource
@@ -342,12 +353,11 @@ absolute_schema_location(const Context &context,
   const auto resource{context.frame.location(
       sourcemeta::core::SchemaReferenceType::Static, base_string)};
   // A base with no location of its own is the one the caller framed a wrapper
-  // document with, which addresses that document from its top. Any other base
-  // comes from framing, so missing its resource would silently report a
-  // pointer that means something else, so catch that drift here
+  // document with, under which every relative pointer starts at the top of
+  // that document. Missing the resource of any other base would silently
+  // report a pointer that means something else, so catch that drift here
   if (!resource.has_value()) {
-    assert(std::ranges::contains(
-        context.resources, sourcemeta::core::URI::canonicalize(base_string)));
+    assert(addresses_document_top(context.frame, base_string));
     return to_pointer(relative_pointer);
   }
 
@@ -372,8 +382,7 @@ absolute_schema_pointer(const Context &context,
   const auto resource{context.frame.location(
       sourcemeta::core::SchemaReferenceType::Static, base_string)};
   if (!resource.has_value()) {
-    assert(std::ranges::contains(
-        context.resources, sourcemeta::core::URI::canonicalize(base_string)));
+    assert(addresses_document_top(context.frame, base_string));
     return relative_pointer;
   }
 
