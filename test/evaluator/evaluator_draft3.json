@@ -1499,6 +1499,436 @@
     }
   },
   {
+    "description": "type_subschema_two_objects_additional_properties_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        { "type": "object", "patternProperties": { "^a": {} } },
+        { "type": "object", "patternProperties": { "^b": {} } }
+      ],
+      "additionalProperties": { "type": "integer" }
+    },
+    "instance": { "a1": 5 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ],
+        [ true, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The object properties were expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/a1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ],
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/a1" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The value was expected to be of type integer",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "type_subschema_two_objects_additional_properties_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        { "type": "object", "patternProperties": { "^a": {} } },
+        { "type": "object", "patternProperties": { "^b": {} } }
+      ],
+      "additionalProperties": { "type": "integer" }
+    },
+    "instance": { "a1": "x" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ],
+        [ false, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The object properties were expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/a1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ],
+        [ false, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/a1" ],
+        [ false, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to validate against at least one of the 2 given subschemas",
+        "The value was expected to be of type integer but it was of type string",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "type_subschema_two_objects_properties_with_additional_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        { "type": "object", "additionalProperties": { "type": "integer" } },
+        {
+          "type": "object",
+          "patternProperties": { "^a": { "type": "integer" } }
+        }
+      ],
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": { "b": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "LoopPropertiesTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LoopPropertiesTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object properties were expected to be of type integer",
+        "The object value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "LoopProperties", "/type/0/additionalProperties", "#/type/0/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "/b" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "AssertionTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "/b" ],
+        [ true, "LoopProperties", "/type/0/additionalProperties", "#/type/0/additionalProperties", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The value was expected to be of type integer",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The object value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "type_subschema_two_objects_properties_with_additional_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        { "type": "object", "additionalProperties": { "type": "integer" } },
+        {
+          "type": "object",
+          "patternProperties": { "^a": { "type": "integer" } }
+        }
+      ],
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": { "a": "s" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "LoopPropertiesTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "" ],
+        [ "LoopPropertiesStartsWith", "/type/1/patternProperties", "#/type/1/patternProperties", "" ],
+        [ "AssertionTypeStrict", "/type/1/patternProperties/^a/type", "#/type/1/patternProperties/%5Ea/type", "/a" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ false, "LoopPropertiesTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "" ],
+        [ false, "AssertionTypeStrict", "/type/1/patternProperties/^a/type", "#/type/1/patternProperties/%5Ea/type", "/a" ],
+        [ false, "LoopPropertiesStartsWith", "/type/1/patternProperties", "#/type/1/patternProperties", "" ],
+        [ false, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type object",
+        "The object properties were expected to be of type integer",
+        "The value was expected to be of type integer but it was of type string",
+        "The object properties that start with the string \"a\" were expected to validate against the defined pattern property subschema",
+        "The object value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "LoopProperties", "/type/0/additionalProperties", "#/type/0/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "/a" ],
+        [ "LoopPropertiesStartsWith", "/type/1/patternProperties", "#/type/1/patternProperties", "" ],
+        [ "AssertionTypeStrict", "/type/1/patternProperties/^a/type", "#/type/1/patternProperties/%5Ea/type", "/a" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "/a" ],
+        [ false, "LoopProperties", "/type/0/additionalProperties", "#/type/0/additionalProperties", "" ],
+        [ false, "AssertionTypeStrict", "/type/1/patternProperties/^a/type", "#/type/1/patternProperties/%5Ea/type", "/a" ],
+        [ false, "LoopPropertiesStartsWith", "/type/1/patternProperties", "#/type/1/patternProperties", "" ],
+        [ false, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The value was expected to be of type integer but it was of type string",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The value was expected to be of type integer but it was of type string",
+        "The object properties that start with the string \"a\" were expected to validate against the defined pattern property subschema",
+        "The object value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "type_subschema_tuple_items_with_additional_items_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        { "type": "array", "additionalItems": { "type": "string" } },
+        { "type": "array", "minItems": 3 }
+      ],
+      "items": [ { "type": "integer" } ]
+    },
+    "instance": [ 1, 5 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type array",
+        "The array value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type array",
+        "The array value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "type_subschema_tuple_items_with_additional_items_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        { "type": "array", "additionalItems": { "type": "string" } },
+        { "type": "array", "minItems": 3 }
+      ],
+      "items": [ { "type": "integer" } ]
+    },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "AssertionTypeArrayBounded", "/type/1/type", "#/type/1/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ false, "AssertionTypeArrayBounded", "/type/1/type", "#/type/1/type", "" ],
+        [ false, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type string",
+        "The value was expected to consist of an array of at least 3 items",
+        "The string value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "AssertionTypeStrict", "/type/1/type", "#/type/1/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/type/1/type", "#/type/1/type", "" ],
+        [ false, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type string",
+        "The value was expected to be of type array but it was of type string",
+        "The string value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "type_subschema_referenced_additional_items_valid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        { "type": "array", "items": [ { "type": "integer" } ] },
+        { "type": "array", "items": [ { "$ref": "#/additionalItems" } ] }
+      ],
+      "additionalItems": { "type": "integer" }
+    },
+    "instance": [ 1, "x" ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionArrayPrefix", "/type/0/items", "#/type/0/items", "" ],
+        [ "AssertionTypeStrict", "/type/0/items/0/type", "#/type/0/items/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type/0/items/0/type", "#/type/0/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefix", "/type/0/items", "#/type/0/items", "" ],
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type array",
+        "The array value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionArrayPrefix", "/type/0/items", "#/type/0/items", "" ],
+        [ "AssertionTypeStrict", "/type/0/items/0/type", "#/type/0/items/0/type", "/0" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type/0/items/0/type", "#/type/0/items/0/type", "/0" ],
+        [ true, "AssertionArrayPrefix", "/type/0/items", "#/type/0/items", "" ],
+        [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ true, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The first item of the array value was expected to validate against the corresponding subschemas",
+        "The value was expected to be of type array",
+        "The array value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "type_subschema_referenced_additional_items_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        { "type": "array", "items": [ { "type": "integer" } ] },
+        { "type": "array", "items": [ { "$ref": "#/additionalItems" } ] }
+      ],
+      "additionalItems": { "type": "integer" }
+    },
+    "instance": "s",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "AssertionTypeStrict", "/type/1/type", "#/type/1/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/type/1/type", "#/type/1/type", "" ],
+        [ false, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type string",
+        "The value was expected to be of type array but it was of type string",
+        "The string value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/type", "#/type", "" ],
+        [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ "AssertionTypeStrict", "/type/1/type", "#/type/1/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/type/1/type", "#/type/1/type", "" ],
+        [ false, "LogicalOr", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type string",
+        "The value was expected to be of type array but it was of type string",
+        "The string value was expected to validate against at least one of the 2 given subschemas"
+      ]
+    }
+  },
+  {
     "description": "type_subschema_string_plus_object_via_string",
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",

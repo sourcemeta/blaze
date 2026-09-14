@@ -666,6 +666,344 @@ TEST(draft3_type_union_schema_variant_with_extends) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
+TEST(draft3_type_union_additional_properties_not_narrowed_by_branches) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        {
+          "type": "object",
+          "patternProperties": {
+            "^a": {}
+          }
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^b": {}
+          }
+        }
+      ],
+      "additionalProperties": {
+        "type": "integer"
+      }
+    })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [
+        {
+          "type": [
+            {
+              "type": "object",
+              "properties": {},
+              "patternProperties": {
+                "^a": {}
+              },
+              "additionalProperties": {}
+            },
+            {
+              "type": "object",
+              "properties": {},
+              "patternProperties": {
+                "^b": {}
+              },
+              "additionalProperties": {}
+            }
+          ]
+        },
+        {
+          "type": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {},
+              "patternProperties": {},
+              "additionalProperties": {
+                "type": "integer",
+                "divisibleBy": 1
+              }
+            },
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": {}
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(draft3_type_union_properties_do_not_narrow_branch_additional_properties) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^a": {
+              "type": "integer"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "a": {
+          "type": "string"
+        }
+      }
+    })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [
+        {
+          "type": [
+            {
+              "type": "object",
+              "properties": {},
+              "patternProperties": {},
+              "additionalProperties": {
+                "type": "integer",
+                "divisibleBy": 1
+              }
+            },
+            {
+              "type": "object",
+              "properties": {},
+              "patternProperties": {
+                "^a": {
+                  "type": "integer",
+                  "divisibleBy": 1
+                }
+              },
+              "additionalProperties": {}
+            }
+          ]
+        },
+        {
+          "type": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "a": {
+                  "extends": [
+                    {
+                      "type": "string",
+                      "minLength": 0
+                    }
+                  ],
+                  "required": false
+                }
+              },
+              "patternProperties": {},
+              "additionalProperties": {}
+            },
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": {}
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(draft3_type_union_items_do_not_activate_branch_additional_items) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        {
+          "type": "array",
+          "additionalItems": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "array",
+          "minItems": 3
+        }
+      ],
+      "items": [
+        {
+          "type": "integer"
+        }
+      ]
+    })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [
+        {
+          "type": [
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": {}
+            },
+            {
+              "type": "array",
+              "minItems": 3,
+              "uniqueItems": false,
+              "items": {}
+            }
+          ]
+        },
+        {
+          "type": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {},
+              "patternProperties": {},
+              "additionalProperties": {}
+            },
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": [
+                {
+                  "type": "integer",
+                  "divisibleBy": 1
+                }
+              ],
+              "additionalItems": {}
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(draft3_type_union_vacuous_additional_properties_still_distributes) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        {
+          "type": "object",
+          "properties": {
+            "a": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^b": {
+              "type": "integer"
+            }
+          }
+        }
+      ],
+      "additionalProperties": {}
+    })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        {
+          "type": "object",
+          "properties": {
+            "a": {
+              "extends": [
+                {
+                  "type": "integer",
+                  "divisibleBy": 1
+                }
+              ],
+              "required": false
+            }
+          },
+          "patternProperties": {},
+          "additionalProperties": {}
+        },
+        {
+          "type": "object",
+          "properties": {},
+          "patternProperties": {
+            "^b": {
+              "type": "integer",
+              "divisibleBy": 1
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
 TEST(draft3_type_any_as_string_collapses) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
