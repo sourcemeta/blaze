@@ -12658,5 +12658,83 @@
         "The object value was not expected to define additional properties"
       ]
     }
+  },
+  {
+    "description": "closed_all_required_hash_reordered_type_invalid",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "a": { "type": "string", "required": true },
+        "b": { "type": "string", "required": true }
+      }
+    },
+    "instance": { "b": "x", "a": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The required object properties were expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/properties", "#/properties", "" ],
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/properties", "#/properties", "" ],
+        [ false, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"a\", and \"b\"",
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "closed_exact_type_hash_collision",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "a": { "type": "string", "required": true },
+        "bb": { "type": "string", "required": true }
+      }
+    },
+    "instance": { "a\u0000": "x", "bb": "y" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The required object properties were expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"a\", and \"bb\", but it also defines the property \"a\u0000\""
+      ]
+    }
   }
 ]

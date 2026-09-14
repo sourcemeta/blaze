@@ -135,6 +135,19 @@ for (const file of suiteFiles) {
               `Description[${index}]: expected ${JSON.stringify(expectedDescriptions[index])}, got ${JSON.stringify(actual)}`);
           }
         });
+
+        if (mode === 'fast') {
+          it(`${testName}_callbackless`, () => {
+            const template = compileSchema(filePath, {
+              mode,
+              path: `/${testIndex}/schema`
+            });
+
+            const evaluator = new Blaze(template);
+            const result = evaluator.validate(testCase.instance);
+            assert.equal(result, testCase.valid, `Callbackless validation result mismatch`);
+          });
+        }
       }
     }
   });
