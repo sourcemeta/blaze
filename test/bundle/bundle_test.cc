@@ -570,6 +570,68 @@ TEST(custom_paths_no_external) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(custom_paths_with_relative_external_without_default_base) {
+  auto document{sourcemeta::core::parse_json(R"JSON({
+    "components": {
+      "schemas": {
+        "Pet": { "$ref": "test-1" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+
+  try {
+    sourcemeta::blaze::bundle(
+        document, sourcemeta::core::schema_walker, test_resolver,
+        sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
+        "https://json-schema.org/draft/2020-12/schema", "",
+        sourcemeta::core::Pointer{"x-bundled"},
+        {sourcemeta::core::to_weak_pointer(pet)});
+    FAIL();
+  } catch (const sourcemeta::core::SchemaResolutionError &error) {
+    EXPECT_EQ(error.identifier(), "test-1");
+    EXPECT_STREQ(error.what(),
+                 "Could not resolve the reference to an external schema");
+  }
+}
+
+TEST(custom_paths_with_relative_external_and_default_base) {
+  auto document{sourcemeta::core::parse_json(R"JSON({
+    "components": {
+      "schemas": {
+        "Pet": { "$ref": "test-1" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::core::schema_walker, test_resolver,
+      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas,
+      "https://json-schema.org/draft/2020-12/schema", "",
+      sourcemeta::core::Pointer{"x-bundled"},
+      {sourcemeta::core::to_weak_pointer(pet)},
+      "https://www.sourcemeta.com/openapi.json");
+
+  const auto expected{sourcemeta::core::parse_json(R"JSON({
+    "components": {
+      "schemas": {
+        "Pet": { "$ref": "test-1" }
+      }
+    },
+    "x-bundled": {
+      "https://www.sourcemeta.com/test-1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://www.sourcemeta.com/test-1",
+        "type": "string"
+      }
+    }
+  })JSON")};
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(custom_paths_with_externals) {
   auto document{sourcemeta::core::parse_json(R"JSON({
     "wrapper": {

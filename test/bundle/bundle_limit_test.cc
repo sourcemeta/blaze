@@ -93,7 +93,7 @@ TEST(bundle_at_exactly_the_required_limit_succeeds) {
   const auto result{sourcemeta::blaze::bundle(
       CHAIN, sourcemeta::core::schema_walker, chain_resolver,
       sourcemeta::blaze::BundleMode::References, "", "", std::nullopt,
-      {sourcemeta::core::EMPTY_WEAK_POINTER}, 9)};
+      {sourcemeta::core::EMPTY_WEAK_POINTER}, "", 9)};
   EXPECT_EQ(result, BUNDLED_CHAIN);
 }
 
@@ -102,7 +102,7 @@ TEST(bundle_one_below_the_required_limit_throws) {
     [[maybe_unused]] const auto result{sourcemeta::blaze::bundle(
         CHAIN, sourcemeta::core::schema_walker, chain_resolver,
         sourcemeta::blaze::BundleMode::References, "", "", std::nullopt,
-        {sourcemeta::core::EMPTY_WEAK_POINTER}, 8)};
+        {sourcemeta::core::EMPTY_WEAK_POINTER}, "", 8)};
     FAIL();
   } catch (const sourcemeta::core::SchemaFrameLimitError &error) {
     EXPECT_STREQ(error.what(),
@@ -118,13 +118,13 @@ TEST(bundle_limit_accumulates_across_remotes) {
   [[maybe_unused]] const auto single{sourcemeta::blaze::bundle(
       SINGLE, sourcemeta::core::schema_walker, chain_resolver,
       sourcemeta::blaze::BundleMode::References, "", "", std::nullopt,
-      {sourcemeta::core::EMPTY_WEAK_POINTER}, 5)};
+      {sourcemeta::core::EMPTY_WEAK_POINTER}, "", 5)};
 
   try {
     [[maybe_unused]] const auto chained{sourcemeta::blaze::bundle(
         CHAIN, sourcemeta::core::schema_walker, chain_resolver,
         sourcemeta::blaze::BundleMode::References, "", "", std::nullopt,
-        {sourcemeta::core::EMPTY_WEAK_POINTER}, 5)};
+        {sourcemeta::core::EMPTY_WEAK_POINTER}, "", 5)};
     FAIL();
   } catch (const sourcemeta::core::SchemaFrameLimitError &error) {
     EXPECT_EQ(error.limit(), 5);
@@ -138,7 +138,7 @@ TEST(bundle_reports_the_limit_the_caller_set) {
     [[maybe_unused]] const auto result{sourcemeta::blaze::bundle(
         CHAIN, sourcemeta::core::schema_walker, chain_resolver,
         sourcemeta::blaze::BundleMode::References, "", "", std::nullopt,
-        {sourcemeta::core::EMPTY_WEAK_POINTER}, 2)};
+        {sourcemeta::core::EMPTY_WEAK_POINTER}, "", 2)};
     FAIL();
   } catch (const sourcemeta::core::SchemaFrameLimitError &error) {
     EXPECT_EQ(error.limit(), 2);
@@ -151,7 +151,7 @@ TEST(bundle_in_place_respects_the_limit) {
     sourcemeta::blaze::bundle(
         schema, sourcemeta::core::schema_walker, chain_resolver,
         sourcemeta::blaze::BundleMode::References, "", "", std::nullopt,
-        {sourcemeta::core::EMPTY_WEAK_POINTER}, 8);
+        {sourcemeta::core::EMPTY_WEAK_POINTER}, "", 8);
     FAIL();
   } catch (const sourcemeta::core::SchemaFrameLimitError &error) {
     EXPECT_EQ(error.limit(), 8);

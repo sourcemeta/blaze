@@ -5,7 +5,7 @@
 #include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/uri.h>
 
-#include <algorithm>  // std::ranges::find, std::ranges::any_of
+#include <algorithm> // std::ranges::find, std::ranges::any_of, std::ranges::contains
 #include <cassert>    // assert
 #include <functional> // std::cref
 #include <iterator>   // std::distance
@@ -338,13 +338,16 @@ absolute_schema_location(const Context &context,
                          const sourcemeta::core::URI &base,
                          const sourcemeta::core::WeakPointer &relative_pointer)
     -> sourcemeta::core::Pointer {
+  const auto base_string{base.recompose()};
   const auto resource{context.frame.location(
-      sourcemeta::core::SchemaReferenceType::Static, base.recompose())};
-  // Framing is where this base came from, so the resource it names is there.
-  // Were that to stop holding, the relative pointer is all we could report,
-  // and it would silently mean something else, so catch the drift here
-  assert(resource.has_value());
-  if (!resource.has_value()) [[unlikely]] {
+      sourcemeta::core::SchemaReferenceType::Static, base_string)};
+  // A base with no location of its own is the one the caller framed a wrapper
+  // document with, which addresses that document from its top. Any other base
+  // comes from framing, so missing its resource would silently report a
+  // pointer that means something else, so catch that drift here
+  if (!resource.has_value()) {
+    assert(std::ranges::contains(
+        context.resources, sourcemeta::core::URI::canonicalize(base_string)));
     return to_pointer(relative_pointer);
   }
 
@@ -365,10 +368,12 @@ absolute_schema_pointer(const Context &context,
                         const sourcemeta::core::URI &base,
                         const sourcemeta::core::WeakPointer &relative_pointer)
     -> sourcemeta::core::WeakPointer {
+  const auto base_string{base.recompose()};
   const auto resource{context.frame.location(
-      sourcemeta::core::SchemaReferenceType::Static, base.recompose())};
-  assert(resource.has_value());
-  if (!resource.has_value()) [[unlikely]] {
+      sourcemeta::core::SchemaReferenceType::Static, base_string)};
+  if (!resource.has_value()) {
+    assert(std::ranges::contains(
+        context.resources, sourcemeta::core::URI::canonicalize(base_string)));
     return relative_pointer;
   }
 
