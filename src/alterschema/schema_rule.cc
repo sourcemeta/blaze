@@ -82,7 +82,7 @@ auto SchemaRule::condition(
     const sourcemeta::core::SchemaWalker &,
     const sourcemeta::core::SchemaResolver &) const
     -> SchemaTransformRule::Result {
-  if (this->scope_ == Scope::TopLevel && !location.pointer.empty()) {
+  if (this->scope_ == Scope::TopLevel && location.parent.has_value()) {
     return false;
   }
 
