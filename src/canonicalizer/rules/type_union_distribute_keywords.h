@@ -66,6 +66,15 @@ public:
           break;
         }
 
+        // `additionalProperties` and `additionalItems` only apply to what
+        // their siblings do not already cover, so moving one of them next to
+        // different siblings, or a sibling next to one of them, would change
+        // what it covers
+        if (changes_leftovers(entry.first, entry.second, type->at(index))) {
+          conflict = true;
+          break;
+        }
+
         targets.push_back(index);
       }
 
@@ -171,6 +180,54 @@ public:
   }
 
 private:
+  // Whether the given keyword takes properties away from
+  // `additionalProperties`. An empty one takes nothing away
+  static auto narrows(const sourcemeta::core::JSON &schema,
+                      const sourcemeta::core::JSON::String &keyword) -> bool {
+    const auto *value{schema.try_at(keyword)};
+    return (value != nullptr) && value->is_object() && !value->empty();
+  }
+
+  // Whether the given keyword of the given schema still constrains anything
+  static auto constrains(const sourcemeta::core::JSON &schema,
+                         const sourcemeta::core::JSON::String &keyword)
+      -> bool {
+    const auto *value{schema.try_at(keyword)};
+    return (value != nullptr) && !is_empty_schema(*value);
+  }
+
+  // `additionalProperties` and `additionalItems` constrain whatever their
+  // siblings leave over, so what they cover depends on the company they keep.
+  // Vacuous siblings leave everything over, and a vacuous leftovers keyword
+  // accepts whatever reaches it, so neither of those changes anything
+  static auto changes_leftovers(const sourcemeta::core::JSON::String &keyword,
+                                const sourcemeta::core::JSON &value,
+                                const sourcemeta::core::JSON &branch) -> bool {
+    if (keyword == "additionalProperties") {
+      return !is_empty_schema(value) && (narrows(branch, "properties") ||
+                                         narrows(branch, "patternProperties"));
+    }
+
+    if (keyword == "properties" || keyword == "patternProperties") {
+      return value.is_object() && !value.empty() &&
+             constrains(branch, "additionalProperties");
+    }
+
+    // A dormant `additionalItems` normally gets dropped when its schema has
+    // no tuple `items`, but not while a reference points through it. Moving
+    // such a one next to a tuple `items` would wake it up
+    if (keyword == "additionalItems") {
+      const auto *items{branch.try_at("items")};
+      return !is_empty_schema(value) && (items != nullptr) && items->is_array();
+    }
+
+    if (keyword == "items") {
+      return value.is_array() && constrains(branch, "additionalItems");
+    }
+
+    return false;
+  }
+
   static auto branch_type_set(const sourcemeta::core::JSON &branch)
       -> sourcemeta::core::JSON::TypeSet {
     if (!branch.is_object()) {
