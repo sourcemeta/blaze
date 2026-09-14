@@ -386,6 +386,42 @@ TEST(explicit_frame_unaddressable_static_reference_target) {
   }
 }
 
+TEST(explicit_frame_with_default_base) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      "",
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::EMPTY_WEAK_POINTER},
+      "https://example.com/schema"};
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame,
+      "https://example.com/schema", sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type",
+                     "https://example.com/schema#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type",
+                              "https://example.com/schema#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
 TEST(is_annotation) {
   EXPECT_TRUE(sourcemeta::blaze::is_annotation(
       sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent));
