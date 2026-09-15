@@ -102,7 +102,7 @@ if(BLAZE_CANONICALIZER)
     PRIVATE sourcemeta::blaze::canonicalizer)
 endif()
 
-if(BLAZE_ALTERSCHEMA)
+if(BLAZE_CONVERT)
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze
     NAME contrib_upgrade
     FOLDER "Blaze/Contrib" SOURCES upgrade.cc)
@@ -113,5 +113,5 @@ if(BLAZE_ALTERSCHEMA)
   target_link_libraries(sourcemeta_blaze_contrib_upgrade
     PRIVATE sourcemeta::core::options)
   target_link_libraries(sourcemeta_blaze_contrib_upgrade
-    PRIVATE sourcemeta::blaze::alterschema)
+    PRIVATE sourcemeta::blaze::convert)
 endif()

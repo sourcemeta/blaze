@@ -18,8 +18,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("foo");
   }
@@ -46,8 +45,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (schema.defines("foo")) {
       return sourcemeta::core::Pointer{"foo"};
@@ -78,8 +76,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (schema.defines("foo")) {
       std::ostringstream message;
@@ -112,8 +109,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (schema.defines("foo") && schema.defines("bar")) {
       std::vector<sourcemeta::core::Pointer> locations;
@@ -146,8 +142,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("bar");
   }
@@ -174,7 +169,7 @@ public:
             const sourcemeta::core::SchemaFrame &,
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return !schema.defines("top") && location.pointer.empty();
   }
@@ -200,8 +195,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return !schema.defines("here");
   }
@@ -228,7 +222,7 @@ public:
             const sourcemeta::core::SchemaFrame &,
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     const sourcemeta::core::Pointer expected{"properties", "baz"};
     return !schema.defines("baz") &&
@@ -257,7 +251,7 @@ public:
             const sourcemeta::core::SchemaFrame &,
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return !schema.defines("draft") &&
            location.dialect == "http://json-schema.org/draft-03/schema#";
@@ -284,8 +278,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("foo");
   }
@@ -313,8 +306,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("$schema") && schema.size() == 1;
   }
@@ -342,8 +334,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("foo");
   }
@@ -365,8 +356,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("definitions") && !schema.defines("$defs");
   }
@@ -394,8 +384,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.defines("definitions") && !schema.defines("$defs");
   }
@@ -431,8 +420,7 @@ public:
                                const sourcemeta::core::SchemaFrame &,
                                const sourcemeta::core::SchemaFrame::Location &,
                                const sourcemeta::core::SchemaWalker &,
-                               const sourcemeta::core::SchemaResolver &,
-                               const bool) const
+                               const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     return schema.is_object() &&
            (schema.defines("$id") || schema.defines("$anchor"));
@@ -460,7 +448,7 @@ public:
             const sourcemeta::core::SchemaFrame &,
             const sourcemeta::core::SchemaFrame::Location &,
             const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (!schema.is_object() || schema.defines("x-dialect-type")) {
       return false;
@@ -497,7 +485,7 @@ public:
             const sourcemeta::core::SchemaFrame &,
             const sourcemeta::core::SchemaFrame::Location &,
             const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &, const bool) const
+            const sourcemeta::core::SchemaResolver &) const
       -> sourcemeta::blaze::SchemaTransformRule::Result override {
     if (!schema.is_object() || schema.defines("x-dialect-type")) {
       return false;

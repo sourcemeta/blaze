@@ -14,7 +14,7 @@ public:
             const sourcemeta::core::SchemaFrame &frame,
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &walker,
-            const sourcemeta::core::SchemaResolver &resolver, const bool) const
+            const sourcemeta::core::SchemaResolver &resolver) const
       -> SchemaTransformRule::Result override {
     using Known = SchemaVocabularies::Known;
     // Technically, the `default` keyword goes back to Draft 1, but Blaze

@@ -10,21 +10,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     alterschema_lint_draft1_test.cc
     alterschema_lint_draft0_test.cc
     alterschema_lint_openapi_test.cc
-    alterschema_upgrade_draft3_to_draft4_test.cc
-    alterschema_upgrade_draft3_to_draft6_test.cc
-    alterschema_upgrade_draft3_to_draft7_test.cc
-    alterschema_upgrade_draft3_to_2019_09_test.cc
-    alterschema_upgrade_draft3_to_2020_12_test.cc
-    alterschema_upgrade_draft4_to_draft6_test.cc
-    alterschema_upgrade_draft4_to_draft7_test.cc
-    alterschema_upgrade_draft4_to_2019_09_test.cc
-    alterschema_upgrade_draft6_to_draft7_test.cc
-    alterschema_upgrade_draft6_to_2019_09_test.cc
-    alterschema_upgrade_draft7_to_2019_09_test.cc
-    alterschema_upgrade_2019_09_to_2020_12_test.cc
-    alterschema_upgrade_draft4_to_2020_12_test.cc
-    alterschema_upgrade_draft6_to_2020_12_test.cc
-    alterschema_upgrade_draft7_to_2020_12_test.cc
     alterschema_schema_rule_test.cc
     alterschema_transform_rule_test.cc
     alterschema_transformer_test.cc
