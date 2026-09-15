@@ -109,13 +109,13 @@ public:
              const std::string_view default_dialect = "",
              const std::optional<Tweaks> &tweaks = std::nullopt,
              const Scope scope = Scope::All);
-  [[nodiscard]] auto
-  condition(const sourcemeta::core::JSON &, const sourcemeta::core::JSON &,
-            const sourcemeta::core::SchemaVocabularies &,
-            const sourcemeta::core::SchemaFrame &,
-            const sourcemeta::core::SchemaFrame::Location &,
-            const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &, const bool) const
+  [[nodiscard]] auto condition(const sourcemeta::core::JSON &,
+                               const sourcemeta::core::JSON &,
+                               const sourcemeta::core::SchemaVocabularies &,
+                               const sourcemeta::core::SchemaFrame &,
+                               const sourcemeta::core::SchemaFrame::Location &,
+                               const sourcemeta::core::SchemaWalker &,
+                               const sourcemeta::core::SchemaResolver &) const
       -> SchemaTransformRule::Result override;
 
 private:
