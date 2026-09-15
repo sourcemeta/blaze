@@ -1389,3 +1389,75 @@ TEST(schema_rule_non_empty_instance_location) {
             sourcemeta::core::Pointer({"foo"}));
   EXPECT_FALSE(std::get<4>(entries.at(0)));
 }
+
+TEST(schema_rule_top_level_every_embedded_root) {
+  const auto rule_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "test/require_type",
+    "description": "The document root must define a type",
+    "type": "object",
+    "required": [ "type" ]
+  })JSON")};
+
+  sourcemeta::blaze::SchemaTransformer bundle;
+  bundle.add<sourcemeta::blaze::SchemaRule>(
+      rule_schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, "", std::nullopt,
+      sourcemeta::blaze::SchemaRule::Scope::TopLevel);
+
+  const auto document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "properties": {
+            "name": { "type": "string" }
+          }
+        },
+        "Order": { "type": "object" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      document,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      "https://spec.openapis.org/oas/3.1/dialect/base",
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(order)},
+      "https://example.com/openapi.json"};
+
+  std::vector<std::tuple<sourcemeta::core::Pointer, std::string, std::string,
+                         sourcemeta::blaze::SchemaTransformRule::Result, bool>>
+      entries;
+  const auto result = bundle.check(
+      document, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      [&entries](const auto &pointer, const auto &name, const auto &message,
+                 const auto &outcome, const auto mutates) {
+        entries.emplace_back(pointer, name, message, outcome, mutates);
+      });
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(result.second, 67);
+  EXPECT_EQ(entries.size(), 1);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)),
+            sourcemeta::core::Pointer({"components", "schemas", "Pet"}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "test/require_type");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "The document root must define a type");
+  EXPECT_TRUE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_EQ(std::get<3>(entries.at(0)).description.value(),
+            "The value was expected to be an object that defines the property "
+            "\"type\"");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
+  EXPECT_FALSE(std::get<4>(entries.at(0)));
+}

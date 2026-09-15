@@ -4,6 +4,8 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
+#include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <tuple>
@@ -2192,6 +2194,246 @@ TEST(rereference_fixed_through_subschema_with_id) {
         "$defs": {
           "foo": { "type": "string" }
         }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(check_embedded_schemas_with_frame) {
+  sourcemeta::blaze::SchemaTransformer bundle;
+  EXPECT_EQ(bundle.add<ExampleRule1WithPointer>(), "example_rule_1");
+  EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
+
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0", "bar": true },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "foo": 1,
+          "properties": {
+            "name": { "bar": 2 }
+          }
+        },
+        "Order": { "type": "object" }
+      }
+    }
+  })JSON");
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      document,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      "https://spec.openapis.org/oas/3.1/dialect/base",
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(order)},
+      "https://example.com/openapi.json"};
+
+  TestTransformTraces entries;
+  const auto result = bundle.check(
+      document, frame, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, transformer_callback_trace(entries));
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(result.second, 34);
+
+  EXPECT_EQ(entries.size(), 2);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)),
+            sourcemeta::core::Pointer({"components", "schemas", "Pet"}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "example_rule_1");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "Keyword foo is not permitted");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 1);
+  EXPECT_EQ(
+      sourcemeta::core::to_string(std::get<3>(entries.at(0)).locations.at(0)),
+      "/foo");
+  EXPECT_FALSE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
+
+  EXPECT_EQ(std::get<0>(entries.at(1)),
+            sourcemeta::core::Pointer(
+                {"components", "schemas", "Pet", "properties", "name"}));
+  EXPECT_EQ(std::get<1>(entries.at(1)), "example_rule_2");
+  EXPECT_EQ(std::get<2>(entries.at(1)), "Keyword bar is not permitted");
+  EXPECT_EQ(std::get<3>(entries.at(1)).locations.size(), 0);
+  EXPECT_FALSE(std::get<3>(entries.at(1)).description.has_value());
+  EXPECT_TRUE(std::get<4>(entries.at(1)));
+}
+
+TEST(apply_embedded_schemas_with_framer) {
+  sourcemeta::blaze::SchemaTransformer bundle;
+  EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
+  EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
+
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0", "bar": true },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "foo": 1,
+          "properties": {
+            "name": { "bar": 2 }
+          }
+        },
+        "Order": { "type": "object" }
+      }
+    }
+  })JSON");
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const sourcemeta::core::SchemaFrame::Paths paths{
+      sourcemeta::core::to_weak_pointer(pet),
+      sourcemeta::core::to_weak_pointer(order)};
+
+  std::optional<sourcemeta::core::SchemaFrame> frame;
+  std::size_t framer_calls{0};
+  TestTransformTraces entries;
+  const auto result = bundle.apply(
+      document,
+      [&frame, &framer_calls, &paths](const sourcemeta::core::JSON &current)
+          -> const sourcemeta::core::SchemaFrame & {
+        framer_calls += 1;
+        frame.emplace(sourcemeta::core::SchemaFrame::Mode::References, current,
+                      sourcemeta::core::schema_walker,
+                      sourcemeta::core::schema_resolver,
+                      "https://spec.openapis.org/oas/3.1/dialect/base", "",
+                      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+                      paths, "https://example.com/openapi.json");
+        return frame.value();
+      },
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+      transformer_callback_trace(entries));
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(result.second, 100);
+  EXPECT_EQ(framer_calls, 3);
+
+  EXPECT_EQ(entries.size(), 2);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)),
+            sourcemeta::core::Pointer({"components", "schemas", "Pet"}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "example_rule_1");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "Keyword foo is not permitted");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
+  EXPECT_FALSE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
+
+  EXPECT_EQ(std::get<0>(entries.at(1)),
+            sourcemeta::core::Pointer(
+                {"components", "schemas", "Pet", "properties", "name"}));
+  EXPECT_EQ(std::get<1>(entries.at(1)), "example_rule_2");
+  EXPECT_EQ(std::get<2>(entries.at(1)), "Keyword bar is not permitted");
+  EXPECT_EQ(std::get<3>(entries.at(1)).locations.size(), 0);
+  EXPECT_FALSE(std::get<3>(entries.at(1)).description.has_value());
+  EXPECT_TRUE(std::get<4>(entries.at(1)));
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0", "bar": true },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "properties": {
+            "name": {}
+          }
+        },
+        "Order": { "type": "object" }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(apply_embedded_schemas_with_heap_allocated_framer) {
+  sourcemeta::blaze::SchemaTransformer bundle;
+  EXPECT_EQ(bundle.add<ExampleRule1>(), "example_rule_1");
+  EXPECT_EQ(bundle.add<ExampleRule2>(), "example_rule_2");
+
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0", "bar": true },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "foo": 1,
+          "properties": {
+            "name": { "bar": 2 }
+          }
+        },
+        "Order": { "type": "object" }
+      }
+    }
+  })JSON");
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const sourcemeta::core::SchemaFrame::Paths paths{
+      sourcemeta::core::to_weak_pointer(pet),
+      sourcemeta::core::to_weak_pointer(order)};
+
+  std::unique_ptr<sourcemeta::core::SchemaFrame> frame;
+  std::size_t framer_calls{0};
+  TestTransformTraces entries;
+  const auto result = bundle.apply(
+      document,
+      [&frame, &framer_calls, &paths](const sourcemeta::core::JSON &current)
+          -> const sourcemeta::core::SchemaFrame & {
+        framer_calls += 1;
+        frame = std::make_unique<sourcemeta::core::SchemaFrame>(
+            sourcemeta::core::SchemaFrame::Mode::References, current,
+            sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+            "https://spec.openapis.org/oas/3.1/dialect/base", "",
+            sourcemeta::core::SchemaFrame::IdentifierMode::Additional, paths,
+            "https://example.com/openapi.json");
+        return *frame;
+      },
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+      transformer_callback_trace(entries));
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(result.second, 100);
+  EXPECT_EQ(framer_calls, 3);
+
+  EXPECT_EQ(entries.size(), 2);
+
+  EXPECT_EQ(std::get<0>(entries.at(0)),
+            sourcemeta::core::Pointer({"components", "schemas", "Pet"}));
+  EXPECT_EQ(std::get<1>(entries.at(0)), "example_rule_1");
+  EXPECT_EQ(std::get<2>(entries.at(0)), "Keyword foo is not permitted");
+  EXPECT_EQ(std::get<3>(entries.at(0)).locations.size(), 0);
+  EXPECT_FALSE(std::get<3>(entries.at(0)).description.has_value());
+  EXPECT_TRUE(std::get<4>(entries.at(0)));
+
+  EXPECT_EQ(std::get<0>(entries.at(1)),
+            sourcemeta::core::Pointer(
+                {"components", "schemas", "Pet", "properties", "name"}));
+  EXPECT_EQ(std::get<1>(entries.at(1)), "example_rule_2");
+  EXPECT_EQ(std::get<2>(entries.at(1)), "Keyword bar is not permitted");
+  EXPECT_EQ(std::get<3>(entries.at(1)).locations.size(), 0);
+  EXPECT_FALSE(std::get<3>(entries.at(1)).description.has_value());
+  EXPECT_TRUE(std::get<4>(entries.at(1)));
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0", "bar": true },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "properties": {
+            "name": {}
+          }
+        },
+        "Order": { "type": "object" }
       }
     }
   })JSON");
