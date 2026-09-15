@@ -3,6 +3,7 @@
 #include <sourcemeta/blaze/codegen.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/configuration.h>
+#include <sourcemeta/blaze/convert.h>
 #include <sourcemeta/blaze/editor.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/format.h>
@@ -63,6 +64,14 @@ auto main() -> int {
   })JSON")};
   sourcemeta::blaze::format(format_schema, sourcemeta::core::schema_walker,
                             sourcemeta::core::schema_resolver);
+
+  auto convert_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string"
+  })JSON")};
+  sourcemeta::blaze::convert(convert_schema, sourcemeta::core::schema_walker,
+                             sourcemeta::core::schema_resolver,
+                             sourcemeta::blaze::ConvertTarget::Draft202012);
 
   return EXIT_SUCCESS;
 }
