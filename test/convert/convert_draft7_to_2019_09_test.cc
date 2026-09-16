@@ -1505,3 +1505,235 @@ TEST(metaschema_embedded_resource_does_not_get_vocabulary) {
 
   UPGRADE_2019_09_AS_METASCHEMA(document, expected);
 }
+
+TEST(embedded_metaschema_synthesizes_vocabulary) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/my-dialect",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "$defs": {
+      "meta": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/my-dialect",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": true,
+          "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+          "https://json-schema.org/draft/2019-09/vocab/format": false,
+          "https://json-schema.org/draft/2019-09/vocab/content": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  UPGRADE_2019_09(document, expected);
+}
+
+TEST(embedded_metaschema_untargeted_definition_gets_no_vocabulary) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/my-dialect",
+        "type": "object"
+      },
+      "helper": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/helper",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "$defs": {
+      "meta": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/my-dialect",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": true,
+          "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+          "https://json-schema.org/draft/2019-09/vocab/format": false,
+          "https://json-schema.org/draft/2019-09/vocab/content": true
+        },
+        "type": "object"
+      },
+      "helper": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/helper",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  UPGRADE_2019_09(document, expected);
+}
+
+TEST(embedded_metaschema_invalid_pre_existing_vocabulary_is_prefixed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/my-dialect",
+        "$vocabulary": {
+          "https://example.com/vocab/custom-annotation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "$defs": {
+      "meta": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/my-dialect",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": true,
+          "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+          "https://json-schema.org/draft/2019-09/vocab/format": false,
+          "https://json-schema.org/draft/2019-09/vocab/content": true
+        },
+        "x-$vocabulary": {
+          "https://example.com/vocab/custom-annotation": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  UPGRADE_2019_09(document, expected);
+}
+
+TEST(embedded_metaschema_chain_synthesizes_vocabulary_on_every_link) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/dialect-outer",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "definitions": {
+      "outer": {
+        "$schema": "https://example.com/dialect-inner",
+        "$id": "https://example.com/dialect-outer",
+        "type": "object"
+      },
+      "inner": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/dialect-inner",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/dialect-outer",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "$defs": {
+      "outer": {
+        "$schema": "https://example.com/dialect-inner",
+        "$id": "https://example.com/dialect-outer",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": true,
+          "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+          "https://json-schema.org/draft/2019-09/vocab/format": false,
+          "https://json-schema.org/draft/2019-09/vocab/content": true
+        },
+        "type": "object"
+      },
+      "inner": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/dialect-inner",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": true,
+          "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+          "https://json-schema.org/draft/2019-09/vocab/format": false,
+          "https://json-schema.org/draft/2019-09/vocab/content": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  UPGRADE_2019_09(document, expected);
+}
+
+TEST(embedded_metaschema_of_a_metaschema_document) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-metaschema",
+    "type": "object",
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/my-dialect",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-metaschema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true,
+      "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+      "https://json-schema.org/draft/2019-09/vocab/validation": true,
+      "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+      "https://json-schema.org/draft/2019-09/vocab/format": false,
+      "https://json-schema.org/draft/2019-09/vocab/content": true
+    },
+    "type": "object",
+    "$defs": {
+      "meta": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/my-dialect",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+          "https://json-schema.org/draft/2019-09/vocab/validation": true,
+          "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+          "https://json-schema.org/draft/2019-09/vocab/format": false,
+          "https://json-schema.org/draft/2019-09/vocab/content": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  UPGRADE_2019_09_AS_METASCHEMA(document, expected);
+}
