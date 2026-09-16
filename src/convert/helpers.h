@@ -75,11 +75,43 @@ subschema_at_dialect(const sourcemeta::core::JSON &schema,
   return schema.is_object() && location.pointer.empty();
 }
 
+// The official dialects the upgrade walks through, oldest first, so that a
+// marker recording a newer one can be told apart from a stale one
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+constexpr std::array<std::string_view, 6> LADDER_DIALECTS{
+    {"http://json-schema.org/draft-03/schema#",
+     "http://json-schema.org/draft-04/schema#",
+     "http://json-schema.org/draft-06/schema#",
+     "http://json-schema.org/draft-07/schema#",
+     "https://json-schema.org/draft/2019-09/schema",
+     "https://json-schema.org/draft/2020-12/schema"}};
+
+// How far along the ladder a dialect sits, counting from one so that anything
+// the ladder does not name sits before all of them
+inline auto dialect_position(const std::string_view dialect) -> std::size_t {
+  for (std::size_t index = 0; index < LADDER_DIALECTS.size(); index += 1) {
+    if (LADDER_DIALECTS[index] == dialect) {
+      return index + 1;
+    }
+  }
+
+  return 0;
+}
+
+inline auto moved_past(const sourcemeta::core::JSON &schema,
+                       const std::string_view dialect) -> bool {
+  const auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+  return override_value != nullptr && override_value->is_string() &&
+         dialect_position(override_value->to_string()) >
+             dialect_position(dialect);
+}
+
 inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
-                                   const bool is_root) -> void {
+                                   const bool is_root,
+                                   const std::string_view dialect) -> void {
   if (schema.is_array()) {
     for (auto &item : schema.as_array()) {
-      drop_dialect_overrides(item, false);
+      drop_dialect_overrides(item, false, dialect);
     }
     return;
   }
@@ -93,7 +125,13 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
     return;
   }
 
-  schema.erase(DIALECT_OVERRIDE_KEYWORD);
+  // A subschema that already moved past the dialect being established keeps
+  // its marker. Dropping it would leave the keywords that move brought in
+  // looking like keywords of the dialect it has left behind, and the rules
+  // that reserve those names would prefix them away
+  if (is_root || !moved_past(schema, dialect)) {
+    schema.erase(DIALECT_OVERRIDE_KEYWORD);
+  }
 
   std::vector<std::string> keys;
   keys.reserve(schema.size());
@@ -101,7 +139,7 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
     keys.push_back(entry.first);
   }
   for (const auto &key : keys) {
-    drop_dialect_overrides(schema.at(key), false);
+    drop_dialect_overrides(schema.at(key), false, dialect);
   }
 }
 

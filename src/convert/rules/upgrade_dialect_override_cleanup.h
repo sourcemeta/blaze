@@ -22,6 +22,8 @@ public:
   }
 
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    const sourcemeta::core::JSON::String dialect{
+        schema.at(DIALECT_OVERRIDE_KEYWORD).to_string()};
     if (!schema.defines("$schema")) {
       sourcemeta::core::JSON dialect_value{
           schema.at(DIALECT_OVERRIDE_KEYWORD).to_string()};
@@ -40,6 +42,6 @@ public:
       }
     }
 
-    drop_dialect_overrides(schema, true);
+    drop_dialect_overrides(schema, true, dialect);
   }
 };
