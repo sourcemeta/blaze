@@ -12,32 +12,54 @@ public:
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &,
             const bool is_metaschema) const -> bool override {
-    ONLY_CONTINUE_IF(vocabularies.contains(
-                         SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE) &&
-                     schema.is_object() && !schema.defines("$vocabulary"));
+    ONLY_CONTINUE_IF(schema.is_object() && !schema.defines("$vocabulary"));
+
+    // Whichever dialect the meta-schema ends up on is the one whose
+    // vocabularies it has to declare, rather than the one the caller asked to
+    // convert to
+    this->emits_2020_12_ = vocabularies.contains(
+        SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE);
+    ONLY_CONTINUE_IF(this->emits_2020_12_ ||
+                     vocabularies.contains(
+                         SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE));
+
     return (is_metaschema && location.pointer.empty()) ||
            is_metaschema_target(schema, frame, location.pointer);
   }
 
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
-    synthesize_2019_09_vocabulary(schema);
+    if (this->emits_2020_12_) {
+      synthesize_vocabulary(schema, VOCABULARIES_2020_12);
+    } else {
+      synthesize_vocabulary(schema, VOCABULARIES_2019_09);
+    }
   }
 
 private:
-  static constexpr std::string_view VOCAB_2019_09_CORE_URL{
-      "https://json-schema.org/draft/2019-09/vocab/core"};
-  static constexpr std::string_view VOCAB_2019_09_APPLICATOR_URL{
-      "https://json-schema.org/draft/2019-09/vocab/applicator"};
-  static constexpr std::string_view VOCAB_2019_09_VALIDATION_URL{
-      "https://json-schema.org/draft/2019-09/vocab/validation"};
-  static constexpr std::string_view VOCAB_2019_09_META_DATA_URL{
-      "https://json-schema.org/draft/2019-09/vocab/meta-data"};
-  static constexpr std::string_view VOCAB_2019_09_FORMAT_URL{
-      "https://json-schema.org/draft/2019-09/vocab/format"};
-  static constexpr std::string_view VOCAB_2019_09_CONTENT_URL{
-      "https://json-schema.org/draft/2019-09/vocab/content"};
+  using Vocabulary = std::pair<std::string_view, bool>;
 
-  static auto synthesize_2019_09_vocabulary(sourcemeta::core::JSON &schema)
+  static constexpr std::array<Vocabulary, 6> VOCABULARIES_2019_09{
+      {{"https://json-schema.org/draft/2019-09/vocab/core", true},
+       {"https://json-schema.org/draft/2019-09/vocab/applicator", true},
+       {"https://json-schema.org/draft/2019-09/vocab/validation", true},
+       {"https://json-schema.org/draft/2019-09/vocab/meta-data", true},
+       {"https://json-schema.org/draft/2019-09/vocab/format", false},
+       {"https://json-schema.org/draft/2019-09/vocab/content", true}}};
+
+  static constexpr std::array<Vocabulary, 7> VOCABULARIES_2020_12{
+      {{"https://json-schema.org/draft/2020-12/vocab/core", true},
+       {"https://json-schema.org/draft/2020-12/vocab/applicator", true},
+       {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true},
+       {"https://json-schema.org/draft/2020-12/vocab/validation", true},
+       {"https://json-schema.org/draft/2020-12/vocab/meta-data", true},
+       {"https://json-schema.org/draft/2020-12/vocab/format-annotation", false},
+       {"https://json-schema.org/draft/2020-12/vocab/content", true}}};
+
+  mutable bool emits_2020_12_{false};
+
+  template <std::size_t Size>
+  static auto synthesize_vocabulary(sourcemeta::core::JSON &schema,
+                                    const std::array<Vocabulary, Size> &entries)
       -> void {
     std::string_view anchor;
     if (schema.defines("$id")) {
@@ -69,17 +91,9 @@ private:
     }
 
     auto &vocabularies{schema.at("$vocabulary")};
-    vocabularies.assign_assume_new(std::string{VOCAB_2019_09_CORE_URL},
-                                   sourcemeta::core::JSON{true});
-    vocabularies.assign_assume_new(std::string{VOCAB_2019_09_APPLICATOR_URL},
-                                   sourcemeta::core::JSON{true});
-    vocabularies.assign_assume_new(std::string{VOCAB_2019_09_VALIDATION_URL},
-                                   sourcemeta::core::JSON{true});
-    vocabularies.assign_assume_new(std::string{VOCAB_2019_09_META_DATA_URL},
-                                   sourcemeta::core::JSON{true});
-    vocabularies.assign_assume_new(std::string{VOCAB_2019_09_FORMAT_URL},
-                                   sourcemeta::core::JSON{false});
-    vocabularies.assign_assume_new(std::string{VOCAB_2019_09_CONTENT_URL},
-                                   sourcemeta::core::JSON{true});
+    for (const auto &[uri, required] : entries) {
+      vocabularies.assign_assume_new(std::string{uri},
+                                     sourcemeta::core::JSON{required});
+    }
   }
 };

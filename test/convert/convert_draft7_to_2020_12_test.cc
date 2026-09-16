@@ -282,3 +282,109 @@ TEST(embedded_metaschema_cascade_emits_2020_12_vocabulary) {
 
   UPGRADE_2020_12(document, expected);
 }
+
+TEST(embedded_metaschema_chain_emits_2020_12_vocabulary_on_every_link) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/dialect-outer",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "definitions": {
+      "outer": {
+        "$schema": "https://example.com/dialect-inner",
+        "$id": "https://example.com/dialect-outer",
+        "type": "object"
+      },
+      "inner": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/dialect-inner",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/dialect-outer",
+    "$id": "https://example.com/my-schema",
+    "type": "object",
+    "$defs": {
+      "outer": {
+        "$schema": "https://example.com/dialect-inner",
+        "$id": "https://example.com/dialect-outer",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true,
+          "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+          "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+          "https://json-schema.org/draft/2020-12/vocab/content": true
+        },
+        "type": "object"
+      },
+      "inner": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/dialect-inner",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true,
+          "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+          "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+          "https://json-schema.org/draft/2020-12/vocab/content": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12(document, expected);
+}
+
+TEST(embedded_metaschema_of_a_metaschema_document_emits_2020_12_vocabulary) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-metaschema",
+    "type": "object",
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/my-dialect",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "$id": "https://example.com/my-metaschema",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+      "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+      "https://json-schema.org/draft/2020-12/vocab/validation": true,
+      "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+      "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+      "https://json-schema.org/draft/2020-12/vocab/content": true
+    },
+    "type": "object",
+    "$defs": {
+      "meta": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/my-dialect",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+          "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+          "https://json-schema.org/draft/2020-12/vocab/validation": true,
+          "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+          "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+          "https://json-schema.org/draft/2020-12/vocab/content": true
+        },
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  UPGRADE_2020_12_AS_METASCHEMA(document, expected);
+}
