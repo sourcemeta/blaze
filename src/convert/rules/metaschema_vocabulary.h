@@ -16,7 +16,7 @@ public:
                          SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE) &&
                      schema.is_object() && !schema.defines("$vocabulary"));
     return (is_metaschema && location.pointer.empty()) ||
-           is_metaschema_target(frame, location.pointer);
+           is_metaschema_target(schema, frame, location.pointer);
   }
 
   auto transform(sourcemeta::core::JSON &schema) const -> void override {

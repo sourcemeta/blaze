@@ -37,10 +37,17 @@ inline auto current_dialect_or_override(const sourcemeta::core::JSON &schema)
 }
 
 // A subschema that a `$schema` of the document resolves to is a meta-schema of
-// that document, no matter where within the document it sits
-inline auto is_metaschema_target(const sourcemeta::core::SchemaFrame &frame,
+// that document, no matter where within the document it sits. Every base
+// dialect asks such a subschema to declare an identifier, which is what keeps
+// the scan off the subschemas that could never be named that way
+inline auto is_metaschema_target(const sourcemeta::core::JSON &schema,
+                                 const sourcemeta::core::SchemaFrame &frame,
                                  const sourcemeta::core::WeakPointer &pointer)
     -> bool {
+  if (!schema.defines_any({"$id", "id"})) {
+    return false;
+  }
+
   return frame.any_reference(
       [&frame, &pointer](
           const sourcemeta::core::SchemaReferenceType,
