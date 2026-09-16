@@ -91,7 +91,33 @@ auto has_pending_metaschema_referrer(
         }
 
         const auto referrer{sourcemeta::core::to_pointer(origin).initial()};
-        return pending(sourcemeta::core::get(root, referrer));
+        const auto referrer_pointer{
+            sourcemeta::core::to_weak_pointer(referrer)};
+
+        // A meta-schema that describes itself is its own referrer, and waiting
+        // on itself would leave it on the dialect it came in with for good
+        if (referrer_pointer == pointer) {
+          return false;
+        }
+
+        if (pending(sourcemeta::core::get(root, referrer))) {
+          return true;
+        }
+
+        // Everything under the referrer is read under the dialect this
+        // subschema defines too, so work down there counts just as much as
+        // work on the referrer itself. Another meta-schema is governed by its
+        // own referrers rather than by this one
+        return frame.any_subschema_under(
+            referrer_pointer,
+            [&root, &frame, &pending](
+                const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
+              const auto &entry_schema{sourcemeta::core::get(
+                  root, sourcemeta::core::to_pointer(entry.pointer))};
+              return !is_metaschema_target(entry_schema, frame,
+                                           entry.pointer) &&
+                     pending(entry_schema);
+            });
       });
 }
 
