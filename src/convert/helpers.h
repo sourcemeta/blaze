@@ -44,7 +44,7 @@ inline auto is_metaschema_target(const sourcemeta::core::JSON &schema,
                                  const sourcemeta::core::SchemaFrame &frame,
                                  const sourcemeta::core::WeakPointer &pointer)
     -> bool {
-  if (!schema.defines_any({"$id", "id"})) {
+  if (!schema.is_object() || !schema.defines_any({"$id", "id"})) {
     return false;
   }
 
@@ -61,6 +61,37 @@ inline auto is_metaschema_target(const sourcemeta::core::JSON &schema,
         const auto destination{frame.traverse(reference.destination)};
         return destination.has_value() &&
                destination.value().get().pointer == pointer;
+      });
+}
+
+// Whether any subschema that names this one through `$schema` still has work
+// of its own left. Such a referrer is read under the dialect this subschema
+// defines, so moving this one first would take the referrer off the dialect
+// the caller is acting on before its turn ever comes
+template <typename Predicate>
+auto has_pending_metaschema_referrer(
+    const sourcemeta::core::JSON &root,
+    const sourcemeta::core::SchemaFrame &frame,
+    const sourcemeta::core::WeakPointer &pointer, const Predicate &pending)
+    -> bool {
+  return frame.any_reference(
+      [&root, &frame, &pointer, &pending](
+          const sourcemeta::core::SchemaReferenceType,
+          const sourcemeta::core::WeakPointer &origin,
+          const sourcemeta::core::SchemaFrame::Reference &reference) -> bool {
+        if (origin.empty() || !origin.back().is_property() ||
+            origin.back().to_property() != "$schema") {
+          return false;
+        }
+
+        const auto destination{frame.traverse(reference.destination)};
+        if (!destination.has_value() ||
+            destination.value().get().pointer != pointer) {
+          return false;
+        }
+
+        const auto referrer{sourcemeta::core::to_pointer(origin).initial()};
+        return pending(sourcemeta::core::get(root, referrer));
       });
 }
 
