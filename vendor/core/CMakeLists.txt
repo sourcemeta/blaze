@@ -285,7 +285,6 @@ if(SOURCEMETA_CORE_CSS)
 endif()
 
 if(SOURCEMETA_CORE_MARKDOWN)
-  find_package(CMarkGFM REQUIRED)
   add_subdirectory(src/core/markdown)
 endif()
 
