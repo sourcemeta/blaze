@@ -19,10 +19,18 @@ if(NOT BLAZE_COMPONENTS)
 endif()
 
 include(CMakeFindDependencyMacro)
+
+# This installation ships its own copy of Core, and CMake never searches the
+# prefix of the package it is currently resolving, so a consumer that doesn't
+# explicitly name our prefix, like on Windows, where the default install
+# location nests as `C:/Program Files (x86)/blaze`, finds Blaze but not the
+# Core next to it. Qt does the same for its sibling packages in
+# `Qt6GuiDependencies.cmake`, while leaving external ones to `find_dependency`
 find_dependency(Core COMPONENTS
   unicode punycode idna regex uri uritemplate json
   jsonpointer jsonschema jsonld io yaml crypto email ip dns time css
-  memory)
+  memory
+  PATHS "${CMAKE_CURRENT_LIST_DIR}/../core" NO_DEFAULT_PATH)
 
 foreach(component ${BLAZE_COMPONENTS})
   if(component STREQUAL "compiler")

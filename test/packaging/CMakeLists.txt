@@ -13,6 +13,24 @@ add_test(NAME packaging.find_package_build COMMAND
 set_tests_properties(packaging.find_package_build
   PROPERTIES DEPENDS packaging.find_package_configure)
 
+# CMake gives a package configuration file no say over how its own dependencies
+# get searched for, so pointing a consumer straight at our configuration file,
+# without any prefix path, is what proves that an installation can still
+# resolve the Core that it shipped itself
+add_test(NAME packaging.find_package_direct_configure COMMAND
+  "${CMAKE_COMMAND}" --fresh
+  -S "${CMAKE_CURRENT_SOURCE_DIR}/find_package"
+  -B "${CMAKE_CURRENT_BINARY_DIR}/find_package_direct"
+  "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
+  "-DBlaze_DIR:PATH=${PROJECT_SOURCE_DIR}/build/dist/lib/cmake/blaze"
+  "-DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}")
+add_test(NAME packaging.find_package_direct_build COMMAND
+  "${CMAKE_COMMAND}"
+  --build "${CMAKE_CURRENT_BINARY_DIR}/find_package_direct"
+  --config "${CMAKE_BUILD_TYPE}")
+set_tests_properties(packaging.find_package_direct_build
+  PROPERTIES DEPENDS packaging.find_package_direct_configure)
+
 find_program(MESON_EXECUTABLE NAMES meson)
 if(MESON_EXECUTABLE)
   # Meson defaults to a debug build, which on MSVC selects the debug runtime
