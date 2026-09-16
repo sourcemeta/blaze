@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "$defs": {
+      "x": { "$anchor": "ns:thing", "type": "string" },
+      "y": { "$ref": "https://example.com/root#ns:thing" }
+    },
+    "type": "object"
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "$defs": {
+        "x": { "$anchor": "ns-thing", "type": "string" },
+        "y": { "$ref": "https://example.com/root#ns-thing" }
+      },
+      "type": "object"
+    }
+  },
+  "examples": [ {} ],
+  "counterExamples": [ "x" ]
+}

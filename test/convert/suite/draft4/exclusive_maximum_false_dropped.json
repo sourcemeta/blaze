@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "maximum": 10,
+    "exclusiveMaximum": false
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "number",
+      "maximum": 10
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "number",
+      "maximum": 10
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "number",
+      "maximum": 10
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "number",
+      "maximum": 10
+    }
+  },
+  "examples": [ 10, 9 ],
+  "counterExamples": [ 10.1, "9" ]
+}

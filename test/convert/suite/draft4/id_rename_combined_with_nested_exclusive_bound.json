@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "amount": { "type": "number", "maximum": 100, "exclusiveMaximum": true }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "amount": { "type": "number", "exclusiveMaximum": 100 } }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "amount": { "type": "number", "exclusiveMaximum": 100 } }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "amount": { "type": "number", "exclusiveMaximum": 100 } }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "amount": { "type": "number", "exclusiveMaximum": 100 } }
+    }
+  },
+  "examples": [ {}, { "amount": 99 } ],
+  "counterExamples": [ "x", { "amount": 100 } ]
+}

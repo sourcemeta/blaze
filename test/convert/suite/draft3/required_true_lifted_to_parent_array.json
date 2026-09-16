@@ -1,0 +1,65 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string", "required": true },
+      "age": { "type": "number" },
+      "email": { "type": "string", "required": true }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "required": [ "name", "email" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number" },
+        "email": { "type": "string" }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "object",
+      "required": [ "name", "email" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number" },
+        "email": { "type": "string" }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [ "name", "email" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number" },
+        "email": { "type": "string" }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "required": [ "name", "email" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number" },
+        "email": { "type": "string" }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": [ "name", "email" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number" },
+        "email": { "type": "string" }
+      }
+    }
+  },
+  "examples": [ { "name": "a", "email": "b" }, { "name": "a", "email": "b", "age": 1 } ],
+  "counterExamples": [ {}, { "name": "a" }, { "name": 1, "email": "b" } ]
+}

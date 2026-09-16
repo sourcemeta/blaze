@@ -1,0 +1,21 @@
+{
+  "schema": { "type": "object", "dependencies": { "a": [ "b" ] } },
+  "defaultDialect": "http://json-schema.org/draft-07/schema#",
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "dependentRequired": { "a": [ "b" ] }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "dependentRequired": { "a": [ "b" ] }
+    }
+  },
+  "examples": [ {}, { "a": 1, "b": 2 } ],
+  "counterExamples": [ { "a": 1 }, "x" ]
+}

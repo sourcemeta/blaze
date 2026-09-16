@@ -1,0 +1,57 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "$anchor": "my-anchor",
+    "$recursiveAnchor": true,
+    "$recursiveRef": "#",
+    "$vocabulary": { "https://example.com/vocab": true },
+    "dependentSchemas": "custom-value",
+    "dependentRequired": "custom-value",
+    "unevaluatedItems": "custom-value",
+    "unevaluatedProperties": "custom-value",
+    "maxContains": "custom-value",
+    "minContains": "custom-value",
+    "contentSchema": "custom-value",
+    "deprecated": "string explanation"
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "string",
+      "x-$anchor": "my-anchor",
+      "x-$recursiveAnchor": true,
+      "x-$recursiveRef": "#",
+      "x-$vocabulary": { "https://example.com/vocab": true },
+      "x-dependentSchemas": "custom-value",
+      "x-dependentRequired": "custom-value",
+      "x-unevaluatedItems": "custom-value",
+      "x-unevaluatedProperties": "custom-value",
+      "x-maxContains": "custom-value",
+      "x-minContains": "custom-value",
+      "x-contentSchema": "custom-value",
+      "x-deprecated": "string explanation"
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "x-$anchor": "my-anchor",
+      "x-$recursiveAnchor": true,
+      "x-$recursiveRef": "#",
+      "x-$vocabulary": { "https://example.com/vocab": true },
+      "x-dependentSchemas": "custom-value",
+      "x-dependentRequired": "custom-value",
+      "x-unevaluatedItems": "custom-value",
+      "x-unevaluatedProperties": "custom-value",
+      "x-maxContains": "custom-value",
+      "x-minContains": "custom-value",
+      "x-contentSchema": "custom-value",
+      "x-deprecated": "string explanation"
+    }
+  },
+  "examples": [ "x" ],
+  "counterExamples": [ 1 ]
+}

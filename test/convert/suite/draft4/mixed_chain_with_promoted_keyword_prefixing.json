@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "const": "draft6-promoted",
+    "if": "draft7-promoted",
+    "$anchor": "twentynineteen-promoted"
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "string",
+      "x-const": "draft6-promoted",
+      "if": "draft7-promoted",
+      "$anchor": "twentynineteen-promoted"
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "string",
+      "x-const": "draft6-promoted",
+      "x-if": "draft7-promoted",
+      "$anchor": "twentynineteen-promoted"
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "string",
+      "x-const": "draft6-promoted",
+      "x-if": "draft7-promoted",
+      "x-$anchor": "twentynineteen-promoted"
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "x-const": "draft6-promoted",
+      "x-if": "draft7-promoted",
+      "x-$anchor": "twentynineteen-promoted"
+    }
+  },
+  "examples": [ "foo" ],
+  "counterExamples": [ 1 ]
+}

@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/outer",
+    "type": "object",
+    "additionalProperties": { "$recursiveRef": "#" },
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner",
+        "$recursiveAnchor": true,
+        "type": "object",
+        "additionalProperties": { "$recursiveRef": "#" }
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "additionalProperties": { "$dynamicRef": "#" },
+      "$defs": {
+        "inner": {
+          "$id": "https://example.com/inner",
+          "$dynamicAnchor": "meta",
+          "type": "object",
+          "additionalProperties": { "$dynamicRef": "#meta" }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "a": {} } ],
+  "counterExamples": [ "x", { "a": 1 } ]
+}

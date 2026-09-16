@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "host": { "type": "string", "format": "host-name" },
+      "ip": { "type": "string", "format": "ip-address" },
+      "custom": { "type": "string", "format": "my-acme-format" }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "properties": {
+        "host": { "type": "string", "format": "hostname" },
+        "ip": { "type": "string", "format": "ipv4" },
+        "custom": { "type": "string", "format": "my-acme-format" }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "object",
+      "properties": {
+        "host": { "type": "string", "format": "hostname" },
+        "ip": { "type": "string", "format": "ipv4" },
+        "custom": { "type": "string", "format": "my-acme-format" }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "host": { "type": "string", "format": "hostname" },
+        "ip": { "type": "string", "format": "ipv4" },
+        "custom": { "type": "string", "format": "my-acme-format" }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "properties": {
+        "host": { "type": "string", "format": "hostname" },
+        "ip": { "type": "string", "format": "ipv4" },
+        "custom": { "type": "string", "format": "my-acme-format" }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "host": { "type": "string", "format": "hostname" },
+        "ip": { "type": "string", "format": "ipv4" },
+        "custom": { "type": "string", "format": "my-acme-format" }
+      }
+    }
+  },
+  "examples": [ {}, { "host": "example.com", "ip": "1.2.3.4" } ],
+  "counterExamples": [ "x", { "host": 1 } ]
+}

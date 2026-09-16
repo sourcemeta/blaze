@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+      "status": { "enum": [ "active" ] },
+      "kind": { "enum": [ "alpha", "beta" ] }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "status": { "const": "active" },
+        "kind": { "enum": [ "alpha", "beta" ] }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "properties": {
+        "status": { "const": "active" },
+        "kind": { "enum": [ "alpha", "beta" ] }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "status": { "const": "active" },
+        "kind": { "enum": [ "alpha", "beta" ] }
+      }
+    }
+  },
+  "examples": [ {}, { "status": "active" }, { "status": "active", "kind": "alpha" } ],
+  "counterExamples": [ { "status": "inactive" }, { "kind": "gamma" } ]
+}

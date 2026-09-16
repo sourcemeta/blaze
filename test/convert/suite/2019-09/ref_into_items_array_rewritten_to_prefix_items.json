@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "string" } ],
+    "$defs": { "alias": { "$ref": "#/items/0" } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "string" } ],
+      "$defs": { "alias": { "$ref": "#/prefixItems/0" } }
+    }
+  },
+  "examples": [ [], [ "a" ] ],
+  "counterExamples": [ [ 1 ] ]
+}

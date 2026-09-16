@@ -1,0 +1,21 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "enum": [ "foo", "bar" ]
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "foo", "bar" ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [ "foo", "bar" ]
+    }
+  },
+  "examples": [ "foo", "bar" ],
+  "counterExamples": [ "baz", 1 ]
+}

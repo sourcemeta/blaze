@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "unevaluatedItems": true,
+    "anyOf": [
+      { "type": "array", "contains": { "type": "string" } },
+      { "type": "array", "contains": { "type": "integer" } }
+    ]
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "unevaluatedItems": true,
+      "anyOf": [
+        {
+          "type": "array",
+          "not": { "not": { "contains": { "type": "string" } } }
+        },
+        {
+          "type": "array",
+          "not": { "not": { "contains": { "type": "integer" } } }
+        }
+      ]
+    }
+  },
+  "examples": [ [ "a" ], [ 1 ] ],
+  "counterExamples": [ [], "x" ]
+}

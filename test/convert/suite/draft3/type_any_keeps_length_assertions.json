@@ -1,0 +1,22 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "minLength": 2
+  },
+  "result": {
+    "draft4": { "$schema": "http://json-schema.org/draft-04/schema#", "minLength": 2 },
+    "draft6": { "$schema": "http://json-schema.org/draft-06/schema#", "minLength": 2 },
+    "draft7": { "$schema": "http://json-schema.org/draft-07/schema#", "minLength": 2 },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minLength": 2
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minLength": 2
+    }
+  },
+  "examples": [ "abc", 5, {} ],
+  "counterExamples": [ "a" ]
+}

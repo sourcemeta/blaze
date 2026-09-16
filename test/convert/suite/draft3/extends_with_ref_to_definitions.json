@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "definitions": { "Reusable": { "type": "string" } },
+    "extends": { "$ref": "#/definitions/Reusable" }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "definitions": { "Reusable": { "type": "string" } },
+      "allOf": [ { "$ref": "#/definitions/Reusable" } ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "definitions": { "Reusable": { "type": "string" } },
+      "allOf": [ { "$ref": "#/definitions/Reusable" } ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": { "Reusable": { "type": "string" } },
+      "allOf": [ { "$ref": "#/definitions/Reusable" } ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$defs": { "Reusable": { "type": "string" } },
+      "allOf": [ { "$ref": "#/$defs/Reusable" } ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": { "Reusable": { "type": "string" } },
+      "allOf": [ { "$ref": "#/$defs/Reusable" } ]
+    }
+  },
+  "examples": [ "a" ],
+  "counterExamples": [ 1 ]
+}

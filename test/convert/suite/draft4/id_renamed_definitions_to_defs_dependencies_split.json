@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com",
+    "definitions": { "foo": { "type": "string" } },
+    "properties": { "ref-to-foo": { "$ref": "#/definitions/foo" } },
+    "dependencies": { "alpha": { "type": "object" }, "beta": [ "gamma" ] }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com",
+      "definitions": { "foo": { "type": "string" } },
+      "properties": { "ref-to-foo": { "$ref": "#/definitions/foo" } },
+      "dependencies": { "alpha": { "type": "object" }, "beta": [ "gamma" ] }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com",
+      "definitions": { "foo": { "type": "string" } },
+      "properties": { "ref-to-foo": { "$ref": "#/definitions/foo" } },
+      "dependencies": { "alpha": { "type": "object" }, "beta": [ "gamma" ] }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com",
+      "$defs": { "foo": { "type": "string" } },
+      "properties": { "ref-to-foo": { "$ref": "#/$defs/foo" } },
+      "dependentSchemas": { "alpha": { "type": "object" } },
+      "dependentRequired": { "beta": [ "gamma" ] }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com",
+      "$defs": { "foo": { "type": "string" } },
+      "properties": { "ref-to-foo": { "$ref": "#/$defs/foo" } },
+      "dependentSchemas": { "alpha": { "type": "object" } },
+      "dependentRequired": { "beta": [ "gamma" ] }
+    }
+  },
+  "examples": [ {}, { "ref-to-foo": "s" }, { "alpha": 1 } ],
+  "counterExamples": [ { "ref-to-foo": 1 }, { "beta": 1 } ]
+}

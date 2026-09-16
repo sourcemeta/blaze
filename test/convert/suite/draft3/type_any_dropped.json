@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "enum": [ "alpha", 1 ]
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "enum": [ "alpha", 1 ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "enum": [ "alpha", 1 ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "enum": [ "alpha", 1 ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "alpha", 1 ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [ "alpha", 1 ]
+    }
+  },
+  "examples": [ "alpha", 1 ],
+  "counterExamples": [ "beta", 2, {} ]
+}

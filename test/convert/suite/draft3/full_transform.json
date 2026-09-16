@@ -1,0 +1,82 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string", "required": true },
+      "tag": { "disallow": "null", "divisibleBy": 1 }
+    },
+    "extends": { "type": "object" },
+    "dependencies": { "name": "tag" }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "tag": { "multipleOf": 1, "not": { "type": "null" } }
+      },
+      "dependencies": { "name": [ "tag" ] },
+      "allOf": [ { "type": "object" } ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "tag": { "multipleOf": 1, "not": { "type": "null" } }
+      },
+      "dependencies": { "name": [ "tag" ] },
+      "allOf": [ { "type": "object" } ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "tag": { "multipleOf": 1, "not": { "type": "null" } }
+      },
+      "dependencies": { "name": [ "tag" ] },
+      "allOf": [ { "type": "object" } ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "tag": { "multipleOf": 1, "not": { "type": "null" } }
+      },
+      "dependentRequired": { "name": [ "tag" ] },
+      "allOf": [ { "type": "object" } ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "tag": { "multipleOf": 1, "not": { "type": "null" } }
+      },
+      "dependentRequired": { "name": [ "tag" ] },
+      "allOf": [ { "type": "object" } ]
+    }
+  },
+  "examples": [ { "name": "x", "tag": 1 } ],
+  "counterExamples": [
+    {},
+    { "name": "x" },
+    { "name": 1, "tag": 1 },
+    { "name": "x", "tag": null }
+  ]
+}

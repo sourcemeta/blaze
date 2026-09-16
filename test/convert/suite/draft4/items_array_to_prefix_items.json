@@ -1,0 +1,27 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": [ { "type": "string" } ]
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "items": [ { "type": "string" } ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "items": [ { "type": "string" } ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": [ { "type": "string" } ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "prefixItems": [ { "type": "string" } ]
+    }
+  },
+  "examples": [ [], [ "a" ], [ "a", 1 ] ],
+  "counterExamples": [ [ 1 ] ]
+}

@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "type": "string", "format": "hostname" },
+      "b": { "type": "string", "format": "ipv4" },
+      "c": { "type": "string", "format": "ipv6" },
+      "d": { "type": "string", "format": "email" },
+      "e": { "type": "string", "format": "uri" },
+      "f": { "type": "string", "format": "date-time" },
+      "g": { "type": "string", "format": "uri-reference" },
+      "h": { "type": "string", "format": "uri-template" },
+      "i": { "type": "string", "format": "json-pointer" },
+      "z": { "type": "string", "format": "my-acme-format" }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "a": { "type": "string", "format": "hostname" },
+        "b": { "type": "string", "format": "ipv4" },
+        "c": { "type": "string", "format": "ipv6" },
+        "d": { "type": "string", "format": "email" },
+        "e": { "type": "string", "format": "uri" },
+        "f": { "type": "string", "format": "date-time" },
+        "g": { "type": "string", "format": "uri-reference" },
+        "h": { "type": "string", "format": "uri-template" },
+        "i": { "type": "string", "format": "json-pointer" },
+        "z": { "type": "string", "format": "my-acme-format" }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "properties": {
+        "a": { "type": "string", "format": "hostname" },
+        "b": { "type": "string", "format": "ipv4" },
+        "c": { "type": "string", "format": "ipv6" },
+        "d": { "type": "string", "format": "email" },
+        "e": { "type": "string", "format": "uri" },
+        "f": { "type": "string", "format": "date-time" },
+        "g": { "type": "string", "format": "uri-reference" },
+        "h": { "type": "string", "format": "uri-template" },
+        "i": { "type": "string", "format": "json-pointer" },
+        "z": { "type": "string", "format": "my-acme-format" }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "a": { "type": "string", "format": "hostname" },
+        "b": { "type": "string", "format": "ipv4" },
+        "c": { "type": "string", "format": "ipv6" },
+        "d": { "type": "string", "format": "email" },
+        "e": { "type": "string", "format": "uri" },
+        "f": { "type": "string", "format": "date-time" },
+        "g": { "type": "string", "format": "uri-reference" },
+        "h": { "type": "string", "format": "uri-template" },
+        "i": { "type": "string", "format": "json-pointer" },
+        "z": { "type": "string", "format": "my-acme-format" }
+      }
+    }
+  },
+  "examples": [ {}, { "a": "example.com", "d": "x@example.com" } ],
+  "counterExamples": [ "x", { "a": 1 } ]
+}

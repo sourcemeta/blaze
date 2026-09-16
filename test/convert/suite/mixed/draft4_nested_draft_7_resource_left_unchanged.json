@@ -1,0 +1,67 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/outer",
+    "type": "object",
+    "definitions": {
+      "newer": {
+        "$id": "https://example.com/newer",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "string"
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "definitions": {
+        "newer": {
+          "$id": "https://example.com/newer",
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "string"
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "definitions": {
+        "newer": {
+          "$id": "https://example.com/newer",
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "string"
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "$defs": {
+        "newer": {
+          "$id": "https://example.com/newer",
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "type": "string"
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "$defs": {
+        "newer": {
+          "$id": "https://example.com/newer",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "foo": 1 } ],
+  "counterExamples": [ "x" ]
+}

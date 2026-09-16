@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ { "type": "string" }, { "type": "number" } ]
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "anyOf": [ { "type": "string" }, { "type": "number" } ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "anyOf": [ { "type": "string" }, { "type": "number" } ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "anyOf": [ { "type": "string" }, { "type": "number" } ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "anyOf": [ { "type": "string" }, { "type": "number" } ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [ { "type": "string" }, { "type": "number" } ]
+    }
+  },
+  "examples": [ "a", 1 ],
+  "counterExamples": [ true, {} ]
+}
