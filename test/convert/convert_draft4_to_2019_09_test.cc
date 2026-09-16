@@ -506,3 +506,59 @@ TEST(embedded_metaschema_synthesizes_vocabulary) {
 
   UPGRADE_2019_09(document, expected);
 }
+
+TEST(anchor_collision_iterates_x_prefix_through_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "definitions": {
+      "first": { "id": "#1foo", "type": "string" },
+      "second": { "id": "#x-1foo", "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "$defs": {
+      "first": { "$anchor": "x-x-1foo", "type": "string" },
+      "second": { "$anchor": "x-1foo", "type": "string" }
+    }
+  })JSON");
+
+  UPGRADE_2019_09(document, expected);
+}
+
+TEST(cross_resource_anchor_isolation_through_chain) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://outer.example.com/schema",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "definitions": {
+      "outer": { "id": "#1outer", "type": "string" },
+      "inner": {
+        "id": "https://inner.example.com/schema",
+        "definitions": {
+          "x": { "id": "#1inner", "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://outer.example.com/schema",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "$defs": {
+      "outer": { "$anchor": "x-1outer", "type": "string" },
+      "inner": {
+        "$id": "https://inner.example.com/schema",
+        "$defs": {
+          "x": { "$anchor": "x-1inner", "type": "string" }
+        }
+      }
+    }
+  })JSON");
+
+  UPGRADE_2019_09(document, expected);
+}

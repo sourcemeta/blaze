@@ -159,7 +159,7 @@ public:
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == DRAFT_2019_09_URL) {
       schema.assign("$schema", sourcemeta::core::JSON{DRAFT_2020_12_URL});
-      drop_dialect_overrides(schema, true);
+      drop_dialect_overrides(schema, true, DRAFT_2020_12_URL);
     } else {
       mark_dialect_override(schema, DRAFT_2020_12_URL);
     }

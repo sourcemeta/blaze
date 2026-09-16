@@ -108,7 +108,7 @@ public:
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == DRAFT_4_URL) {
       schema.assign("$schema", sourcemeta::core::JSON{DRAFT_6_URL});
-      drop_dialect_overrides(schema, true);
+      drop_dialect_overrides(schema, true, DRAFT_6_URL);
     } else {
       mark_dialect_override(schema, DRAFT_6_URL);
     }
