@@ -36,6 +36,27 @@ inline auto current_dialect_or_override(const sourcemeta::core::JSON &schema)
   return declared_dialect(schema);
 }
 
+// A subschema that a `$schema` of the document resolves to is a meta-schema of
+// that document, no matter where within the document it sits
+inline auto is_metaschema_target(const sourcemeta::core::SchemaFrame &frame,
+                                 const sourcemeta::core::WeakPointer &pointer)
+    -> bool {
+  return frame.any_reference(
+      [&frame, &pointer](
+          const sourcemeta::core::SchemaReferenceType,
+          const sourcemeta::core::WeakPointer &origin,
+          const sourcemeta::core::SchemaFrame::Reference &reference) -> bool {
+        if (origin.empty() || !origin.back().is_property() ||
+            origin.back().to_property() != "$schema") {
+          return false;
+        }
+
+        const auto destination{frame.traverse(reference.destination)};
+        return destination.has_value() &&
+               destination.value().get().pointer == pointer;
+      });
+}
+
 inline auto
 subschema_at_dialect(const sourcemeta::core::JSON &schema,
                      const sourcemeta::core::SchemaFrame::Location &location,
