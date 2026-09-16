@@ -2701,3 +2701,63 @@ TEST(boolean_subschema_entrypoint) {
     FAIL();
   }
 }
+
+TEST(type_any_keeps_min_length_success) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "minLength": 2
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"abc"};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+}
+
+TEST(type_any_keeps_min_length_failure) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "minLength": 2
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"a"};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+}
+
+TEST(type_any_keeps_min_length_ignores_other_types) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "minLength": 2
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
+}
+
+TEST(type_any_keeps_properties_success) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+}
+
+TEST(type_any_keeps_properties_failure) {
+  const auto schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({ "foo": 1 })JSON")};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+}
