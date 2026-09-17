@@ -22,7 +22,7 @@ add_test(NAME packaging.find_package_direct_configure COMMAND
   -S "${CMAKE_CURRENT_SOURCE_DIR}/find_package"
   -B "${CMAKE_CURRENT_BINARY_DIR}/find_package_direct"
   "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
-  "-DBlaze_DIR:PATH=${PROJECT_SOURCE_DIR}/build/dist/lib/cmake/blaze"
+  "-DBlaze_DIR:PATH=${PROJECT_SOURCE_DIR}/build/dist/${CMAKE_INSTALL_LIBDIR}/cmake/blaze"
   "-DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_TOOLCHAIN_FILE}")
 add_test(NAME packaging.find_package_direct_build COMMAND
   "${CMAKE_COMMAND}"
