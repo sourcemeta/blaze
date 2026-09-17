@@ -4764,3 +4764,164 @@ TEST(unsatisfiable_empty_enum) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
+
+TEST(definitions_preserved_on_a_leaf) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "definitions": { "x": { "type": "string" } }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "divisibleBy": 1,
+    "definitions": {
+      "x": {
+        "type": "string",
+        "minLength": 0
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(definitions_with_identifier_and_reference) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "definitions": { "x": { "id": "https://example.com/x", "type": "integer" } },
+    "properties": { "r": { "$ref": "https://example.com/x" } },
+    "type": "object"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "r": {
+        "$ref": "https://example.com/x"
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {},
+    "definitions": {
+      "x": {
+        "id": "https://example.com/x",
+        "type": "integer",
+        "divisibleBy": 1
+      }
+    }
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(required_survives_applicator_rewrite) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "extends": [ { "minLength": 2 } ],
+        "type": "string",
+        "required": true
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "extends": [
+          {
+            "type": [
+              { "enum": [ null ] },
+              { "enum": [ false, true ] },
+              {
+                "type": "object",
+                "properties": {},
+                "patternProperties": {},
+                "additionalProperties": {}
+              },
+              {
+                "type": "array",
+                "minItems": 0,
+                "uniqueItems": false,
+                "items": {}
+              },
+              { "type": "string", "minLength": 2 },
+              { "type": "number" }
+            ]
+          },
+          { "type": "string", "minLength": 0 }
+        ],
+        "required": true
+      }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(assertion_beside_extends_is_wrapped) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "minLength": 1 } ],
+    "maxLength": 5
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [
+      {
+        "type": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": {}
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {}
+          },
+          { "type": "string", "minLength": 1 },
+          { "type": "number" }
+        ]
+      },
+      {
+        "type": [
+          { "enum": [ null ] },
+          { "enum": [ false, true ] },
+          {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": {}
+          },
+          {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {}
+          },
+          { "type": "string", "maxLength": 5, "minLength": 0 },
+          { "type": "number" }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}

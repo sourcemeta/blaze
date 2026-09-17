@@ -2718,6 +2718,76 @@
       "data": {
         "enum": [ 1, "two", true, null ]
       }
+    },
+    {
+      "description": "Definitions alongside a leaf is canonical",
+      "valid": true,
+      "data": {
+        "type": "integer",
+        "divisibleBy": 1,
+        "definitions": {
+          "x": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Definitions alongside a type union is canonical",
+      "valid": true,
+      "data": {
+        "type": [
+          {
+            "type": "string",
+            "minLength": 0
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "definitions": {
+          "x": {
+            "$ref": "#/definitions/y"
+          }
+        }
+      }
+    },
+    {
+      "description": "Definitions alongside extends is canonical",
+      "valid": true,
+      "data": {
+        "extends": [
+          {
+            "type": "number"
+          }
+        ],
+        "definitions": {
+          "x": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "Definitions holding a non-canonical subschema is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "definitions": {
+          "x": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "description": "Definitions that is not an object is rejected",
+      "valid": false,
+      "data": {
+        "type": "number",
+        "definitions": []
+      }
     }
   ]
 }
