@@ -32,6 +32,8 @@ public:
             any_descendant_has_pending_pattern(root, frame, location);
         this->resource_has_recursive_anchor_ =
             compute_resource_has_recursive_anchor(root, frame, location);
+        this->anchor_at_resource_root_ =
+            location.pointer.empty() || schema.defines("$id");
         this->document_has_unevaluated_items_ =
             compute_document_has_unevaluated_items(root, frame, walker,
                                                    resolver);
@@ -54,6 +56,8 @@ public:
 
     this->resource_has_recursive_anchor_ =
         compute_resource_has_recursive_anchor(root, frame, location);
+    this->anchor_at_resource_root_ =
+        location.pointer.empty() || schema.defines("$id");
     this->document_has_unevaluated_items_ =
         compute_document_has_unevaluated_items(root, frame, walker, resolver);
     return true;
@@ -71,7 +75,11 @@ public:
 
     if (schema.defines("$recursiveAnchor") &&
         schema.at("$recursiveAnchor").is_boolean()) {
-      if (schema.at("$recursiveAnchor").to_boolean()) {
+      // Only the root of a schema resource can carry a recursive anchor.
+      // Anywhere else the keyword says nothing, so turning it into a dynamic
+      // anchor would invent a target that nothing was ever pointed at
+      if (schema.at("$recursiveAnchor").to_boolean() &&
+          this->anchor_at_resource_root_) {
         schema.rename("$recursiveAnchor", "$dynamicAnchor");
         schema.at("$dynamicAnchor").into(sourcemeta::core::JSON{"meta"});
       } else {
@@ -285,6 +293,7 @@ private:
       std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>
       renames_;
   mutable bool resource_has_recursive_anchor_{false};
+  mutable bool anchor_at_resource_root_{false};
   mutable bool is_inside_contains_wrapper_{false};
   mutable bool descendant_has_pending_pattern_{false};
   mutable bool document_has_unevaluated_items_{false};
@@ -623,36 +632,12 @@ private:
       return false;
     }
 
-    const auto &resource_pointer{closest.value().get().pointer};
-    std::set<std::string> seen;
-    return frame.any_subschema(
-        [&](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
-          if (!entry.pointer.starts_with(resource_pointer)) {
-            return false;
-          }
-          if (entry.type ==
-                  sourcemeta::core::SchemaFrame::LocationType::Resource &&
-              entry.pointer.size() > resource_pointer.size()) {
-            return false;
-          }
-          const auto pointer_str{sourcemeta::core::to_string(entry.pointer)};
-          if (seen.contains(pointer_str)) {
-            return false;
-          }
-          seen.insert(pointer_str);
-
-          const auto absolute{sourcemeta::core::to_pointer(entry.pointer)};
-          const auto &subschema{sourcemeta::core::get(root, absolute)};
-          if (!subschema.is_object()) {
-            return false;
-          }
-          if (subschema.defines("$recursiveAnchor") &&
-              subschema.at("$recursiveAnchor").is_boolean() &&
-              subschema.at("$recursiveAnchor").to_boolean()) {
-            return true;
-          }
-
-          return false;
-        });
+    // A recursive reference binds to the anchor of the resource it sits in,
+    // and only that resource's root can declare one
+    const auto &resource{sourcemeta::core::get(
+        root, sourcemeta::core::to_pointer(closest.value().get().pointer))};
+    return resource.is_object() && resource.defines("$recursiveAnchor") &&
+           resource.at("$recursiveAnchor").is_boolean() &&
+           resource.at("$recursiveAnchor").to_boolean();
   }
 };

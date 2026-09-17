@@ -61,5 +61,10 @@
     }
   },
   "examples": [ { "name": "a", "email": "b" }, { "name": "a", "email": "b", "age": 1 } ],
-  "counterExamples": [ {}, { "name": "a" }, { "name": 1, "email": "b" } ]
+  "counterExamples": [
+    {},
+    { "name": "a" },
+    { "name": 1, "email": "b" },
+    { "name": "a", "email": 1 }
+  ]
 }

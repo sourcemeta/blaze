@@ -1,7 +1,11 @@
 {
   "schema": {
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "dependencies": { "foo": "bar", "qux": [ "a", "b" ], "schemaForm": { "type": "object" } }
+    "dependencies": {
+      "foo": "bar",
+      "qux": [ "a", "b" ],
+      "schemaForm": { "properties": { "other": { "type": "string" } } }
+    }
   },
   "result": {
     "draft4": {
@@ -9,7 +13,7 @@
       "dependencies": {
         "foo": [ "bar" ],
         "qux": [ "a", "b" ],
-        "schemaForm": { "type": "object" }
+        "schemaForm": { "properties": { "other": { "type": "string" } } }
       }
     },
     "draft6": {
@@ -17,7 +21,7 @@
       "dependencies": {
         "foo": [ "bar" ],
         "qux": [ "a", "b" ],
-        "schemaForm": { "type": "object" }
+        "schemaForm": { "properties": { "other": { "type": "string" } } }
       }
     },
     "draft7": {
@@ -25,20 +29,20 @@
       "dependencies": {
         "foo": [ "bar" ],
         "qux": [ "a", "b" ],
-        "schemaForm": { "type": "object" }
+        "schemaForm": { "properties": { "other": { "type": "string" } } }
       }
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "dependentSchemas": { "schemaForm": { "type": "object" } },
+      "dependentSchemas": { "schemaForm": { "properties": { "other": { "type": "string" } } } },
       "dependentRequired": { "foo": [ "bar" ], "qux": [ "a", "b" ] }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "dependentSchemas": { "schemaForm": { "type": "object" } },
+      "dependentSchemas": { "schemaForm": { "properties": { "other": { "type": "string" } } } },
       "dependentRequired": { "foo": [ "bar" ], "qux": [ "a", "b" ] }
     }
   },
-  "examples": [ {}, { "foo": 1, "bar": 2 } ],
-  "counterExamples": [ { "foo": 1 }, { "qux": 1, "a": 2 } ]
+  "examples": [ {}, { "foo": 1, "bar": 2 }, { "schemaForm": 1, "other": "s" } ],
+  "counterExamples": [ { "foo": 1 }, { "qux": 1, "a": 2 }, { "schemaForm": 1, "other": 1 } ]
 }

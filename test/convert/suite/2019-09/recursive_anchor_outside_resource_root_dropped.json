@@ -13,10 +13,10 @@
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "properties": { "child": { "$dynamicAnchor": "meta", "type": "string" } },
-      "additionalProperties": { "$dynamicRef": "#meta" }
+      "properties": { "child": { "type": "string" } },
+      "additionalProperties": { "$dynamicRef": "#" }
     }
   },
-  "examples": [ {}, { "child": "s" } ],
-  "counterExamples": [ "x", { "child": 1 } ]
+  "examples": [ {}, { "child": "s" }, { "extra": {} } ],
+  "counterExamples": [ "x", { "child": 1 }, { "extra": "s" } ]
 }

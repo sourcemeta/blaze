@@ -26,5 +26,5 @@
     }
   },
   "examples": [ [ "a", "b" ], [ "a", "b", "c" ] ],
-  "counterExamples": [ [ "a" ], [], "x" ]
+  "counterExamples": [ [ "a" ], [], "x", [ "a", "b", "c", "d", "e", "f" ] ]
 }

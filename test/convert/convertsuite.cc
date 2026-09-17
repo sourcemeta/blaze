@@ -172,6 +172,9 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
 
   if (test.defines("errors")) {
     for (const auto &entry : test.at("errors").as_object()) {
+      EXPECT_TRUE(std::ranges::any_of(TARGETS, [&entry](const auto &target) {
+        return target.name == entry.first;
+      }));
       EXPECT_FALSE(results.defines(entry.first));
       for (const auto &detail : entry.second.as_object()) {
         EXPECT_TRUE(std::ranges::find(KNOWN_ERROR_KEYS, detail.first) !=
