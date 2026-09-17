@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": { "foo": { "type": "string", "contains": "i-was-custom-in-draft-4" } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "foo": { "type": "string", "x-contains": "i-was-custom-in-draft-4" } }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "foo": { "type": "string", "x-contains": "i-was-custom-in-draft-4" } }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "foo": { "type": "string", "x-contains": "i-was-custom-in-draft-4" } }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "foo": { "type": "string", "x-contains": "i-was-custom-in-draft-4" } }
+    }
+  },
+  "examples": [ {}, { "foo": "s" } ],
+  "counterExamples": [ "x", { "foo": 1 } ]
+}

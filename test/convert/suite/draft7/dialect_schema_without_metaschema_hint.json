@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/my-dialect",
+    "type": "object"
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/my-dialect",
+      "type": "object"
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/my-dialect",
+      "type": "object"
+    }
+  },
+  "examples": [ {}, { "type": "string" } ],
+  "counterExamples": [ "x", 1 ]
+}

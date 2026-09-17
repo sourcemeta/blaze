@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "dependencies": {
+      "foo": { "type": "string" },
+      "bar": false,
+      "baz": true,
+      "qux": [ "foo" ]
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentSchemas": { "foo": { "type": "string" }, "bar": false, "baz": true },
+      "dependentRequired": { "qux": [ "foo" ] }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentSchemas": { "foo": { "type": "string" }, "bar": false, "baz": true },
+      "dependentRequired": { "qux": [ "foo" ] }
+    }
+  },
+  "examples": [ {}, "hello", { "baz": 1 } ],
+  "counterExamples": [ { "foo": 1 }, { "bar": 1 }, { "qux": 1 } ]
+}

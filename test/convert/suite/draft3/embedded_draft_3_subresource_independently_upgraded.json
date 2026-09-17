@@ -1,0 +1,79 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/outer",
+    "type": "object",
+    "properties": {
+      "embedded": {
+        "id": "https://example.com/inner",
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "type": "any",
+        "disallow": "null"
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "embedded": {
+          "id": "https://example.com/inner",
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "not": { "type": "null" }
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "embedded": {
+          "$id": "https://example.com/inner",
+          "$schema": "http://json-schema.org/draft-06/schema#",
+          "not": { "type": "null" }
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "embedded": {
+          "$id": "https://example.com/inner",
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "not": { "type": "null" }
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "embedded": {
+          "$id": "https://example.com/inner",
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "not": { "type": "null" }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "embedded": {
+          "$id": "https://example.com/inner",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "not": { "type": "null" }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "embedded": "s" } ],
+  "counterExamples": [ "x", { "embedded": null } ]
+}

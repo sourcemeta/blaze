@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": { "value": { "$ref": "#/definitions/foo" } },
+    "definitions": { "foo": { "$ref": "#/definitions/bar" }, "bar": { "type": "string" } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": { "value": { "$ref": "#/$defs/foo" } },
+      "$defs": { "foo": { "$ref": "#/$defs/bar" }, "bar": { "type": "string" } }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "value": { "$ref": "#/$defs/foo" } },
+      "$defs": { "foo": { "$ref": "#/$defs/bar" }, "bar": { "type": "string" } }
+    }
+  },
+  "examples": [ {}, { "value": "x" } ],
+  "counterExamples": [ { "value": 1 } ]
+}

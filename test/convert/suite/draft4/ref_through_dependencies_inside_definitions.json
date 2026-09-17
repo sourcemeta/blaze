@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": { "Outer": { "dependencies": { "foo": { "type": "string" } } } },
+    "properties": { "x": { "$ref": "#/definitions/Outer/dependencies/foo" } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "definitions": { "Outer": { "dependencies": { "foo": { "type": "string" } } } },
+      "properties": { "x": { "$ref": "#/definitions/Outer/dependencies/foo" } }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": { "Outer": { "dependencies": { "foo": { "type": "string" } } } },
+      "properties": { "x": { "$ref": "#/definitions/Outer/dependencies/foo" } }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$defs": { "Outer": { "dependentSchemas": { "foo": { "type": "string" } } } },
+      "properties": { "x": { "$ref": "#/$defs/Outer/dependentSchemas/foo" } }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": { "Outer": { "dependentSchemas": { "foo": { "type": "string" } } } },
+      "properties": { "x": { "$ref": "#/$defs/Outer/dependentSchemas/foo" } }
+    }
+  },
+  "examples": [ {}, { "x": "s" } ],
+  "counterExamples": [ { "x": 1 } ]
+}

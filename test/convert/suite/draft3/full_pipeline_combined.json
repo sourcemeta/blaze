@@ -1,0 +1,83 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string", "required": true },
+      "age": { "type": "number", "minimum": 0, "exclusiveMinimum": true }
+    },
+    "extends": { "type": "object" },
+    "divisibleBy": 1,
+    "dependencies": { "name": "age" }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number", "minimum": 0, "exclusiveMinimum": true }
+      },
+      "multipleOf": 1,
+      "dependencies": { "name": [ "age" ] },
+      "allOf": [ { "type": "object" } ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "multipleOf": 1,
+      "dependencies": { "name": [ "age" ] },
+      "allOf": [ { "type": "object" } ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "multipleOf": 1,
+      "dependencies": { "name": [ "age" ] },
+      "allOf": [ { "type": "object" } ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "multipleOf": 1,
+      "dependentRequired": { "name": [ "age" ] },
+      "allOf": [ { "type": "object" } ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "required": [ "name" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "multipleOf": 1,
+      "dependentRequired": { "name": [ "age" ] },
+      "allOf": [ { "type": "object" } ]
+    }
+  },
+  "examples": [ { "name": "a", "age": 1 } ],
+  "counterExamples": [ {}, { "name": "a" }, { "name": "a", "age": 0 }, { "name": 1, "age": 1 } ]
+}

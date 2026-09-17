@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "array",
+    "items": { "type": "string", "format": "ip-address" }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "array",
+      "items": { "type": "string", "format": "ipv4" }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "array",
+      "items": { "type": "string", "format": "ipv4" }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": { "type": "string", "format": "ipv4" }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "array",
+      "items": { "type": "string", "format": "ipv4" }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": { "type": "string", "format": "ipv4" }
+    }
+  },
+  "examples": [ [], [ "1.2.3.4" ] ],
+  "counterExamples": [ "x", [ 1 ] ]
+}

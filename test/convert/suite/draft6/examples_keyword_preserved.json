@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "examples": [ "alpha", "beta" ],
+    "properties": { "nested": { "type": "integer", "examples": [ 1, 2, 3 ] } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "string",
+      "examples": [ "alpha", "beta" ],
+      "properties": { "nested": { "type": "integer", "examples": [ 1, 2, 3 ] } }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "string",
+      "examples": [ "alpha", "beta" ],
+      "properties": { "nested": { "type": "integer", "examples": [ 1, 2, 3 ] } }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "examples": [ "alpha", "beta" ],
+      "properties": { "nested": { "type": "integer", "examples": [ 1, 2, 3 ] } }
+    }
+  },
+  "examples": [ "alpha", "anything" ],
+  "counterExamples": [ 1, null, {} ]
+}

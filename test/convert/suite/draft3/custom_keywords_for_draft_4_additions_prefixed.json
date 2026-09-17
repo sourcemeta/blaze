@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "multipleOf": 1,
+    "maxProperties": 1,
+    "minProperties": 1,
+    "allOf": "x",
+    "anyOf": "x",
+    "oneOf": "x",
+    "not": "x"
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "x-multipleOf": 1,
+      "x-maxProperties": 1,
+      "x-minProperties": 1,
+      "x-allOf": "x",
+      "x-anyOf": "x",
+      "x-oneOf": "x",
+      "x-not": "x"
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "object",
+      "x-multipleOf": 1,
+      "x-maxProperties": 1,
+      "x-minProperties": 1,
+      "x-allOf": "x",
+      "x-anyOf": "x",
+      "x-oneOf": "x",
+      "x-not": "x"
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "x-multipleOf": 1,
+      "x-maxProperties": 1,
+      "x-minProperties": 1,
+      "x-allOf": "x",
+      "x-anyOf": "x",
+      "x-oneOf": "x",
+      "x-not": "x"
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "x-multipleOf": 1,
+      "x-maxProperties": 1,
+      "x-minProperties": 1,
+      "x-allOf": "x",
+      "x-anyOf": "x",
+      "x-oneOf": "x",
+      "x-not": "x"
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "x-multipleOf": 1,
+      "x-maxProperties": 1,
+      "x-minProperties": 1,
+      "x-allOf": "x",
+      "x-anyOf": "x",
+      "x-oneOf": "x",
+      "x-not": "x"
+    }
+  },
+  "examples": [ {}, { "foo": 1 } ],
+  "counterExamples": [ "x", 1 ]
+}

@@ -1,0 +1,84 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/outer",
+    "type": "object",
+    "properties": {
+      "inner": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "id": "https://example.com/inner",
+        "type": "string",
+        "format": "ip-address"
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "inner": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/inner",
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "inner": {
+          "$schema": "http://json-schema.org/draft-06/schema#",
+          "$id": "https://example.com/inner",
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "inner": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/inner",
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "inner": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://example.com/inner",
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "properties": {
+        "inner": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/inner",
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "inner": "1.2.3.4" } ],
+  "counterExamples": [ "x", { "inner": 1 } ]
+}

@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [
+      "string",
+      { "type": "object", "properties": { "foo": { "type": "string" } } }
+    ]
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "not": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object", "properties": { "foo": { "type": "string" } } }
+        ]
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "not": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object", "properties": { "foo": { "type": "string" } } }
+        ]
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "not": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object", "properties": { "foo": { "type": "string" } } }
+        ]
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "not": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object", "properties": { "foo": { "type": "string" } } }
+        ]
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "not": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object", "properties": { "foo": { "type": "string" } } }
+        ]
+      }
+    }
+  },
+  "examples": [ 1, true, { "foo": 1 } ],
+  "counterExamples": [ "a", { "foo": "s" } ]
+}

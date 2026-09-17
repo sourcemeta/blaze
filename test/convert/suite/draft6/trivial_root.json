@@ -1,0 +1,18 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "type": "string" },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": { "$schema": "http://json-schema.org/draft-07/schema#", "type": "string" },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "string"
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string"
+    }
+  },
+  "examples": [ "foo", "" ],
+  "counterExamples": [ 1, null, true, [], {} ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema": { "id": "https://example.com/test", "type": "integer" },
+  "defaultDialect": "http://json-schema.org/draft-04/schema#",
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/test",
+      "type": "integer"
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/test",
+      "type": "integer"
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/test",
+      "type": "integer"
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/test",
+      "type": "integer"
+    }
+  },
+  "examples": [ 1, -5 ],
+  "counterExamples": [ "1", 1.5 ]
+}

@@ -1,0 +1,47 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "definitions": {
+      "first": { "id": "#1foo", "type": "string" },
+      "second": { "id": "#x-1foo", "type": "string" }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "string",
+      "definitions": {
+        "first": { "$id": "#x-x-1foo", "type": "string" },
+        "second": { "$id": "#x-1foo", "type": "string" }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "string",
+      "definitions": {
+        "first": { "$id": "#x-x-1foo", "type": "string" },
+        "second": { "$id": "#x-1foo", "type": "string" }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "string",
+      "$defs": {
+        "first": { "$anchor": "x-x-1foo", "type": "string" },
+        "second": { "$anchor": "x-1foo", "type": "string" }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "$defs": {
+        "first": { "$anchor": "x-x-1foo", "type": "string" },
+        "second": { "$anchor": "x-1foo", "type": "string" }
+      }
+    }
+  },
+  "examples": [ "foo" ],
+  "counterExamples": [ 1 ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://example.com/root",
+    "type": "number",
+    "exclusiveMinimum": 5
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "type": "number",
+      "exclusiveMinimum": 5
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "type": "number",
+      "exclusiveMinimum": 5
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "type": "number",
+      "exclusiveMinimum": 5
+    }
+  },
+  "examples": [ 6, 5.5 ],
+  "counterExamples": [ 5, "6" ]
+}

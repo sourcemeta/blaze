@@ -1,0 +1,13 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": "any" },
+  "result": {
+    "draft4": { "$schema": "http://json-schema.org/draft-04/schema#", "not": {} },
+    "draft6": { "$schema": "http://json-schema.org/draft-06/schema#", "not": true },
+    "draft7": { "$schema": "http://json-schema.org/draft-07/schema#", "not": true },
+    "2019-09": { "$schema": "https://json-schema.org/draft/2019-09/schema", "not": true },
+    "2020-12": { "$schema": "https://json-schema.org/draft/2020-12/schema", "not": true }
+  },
+  "evaluation": "nothing-valid",
+  "examples": [],
+  "counterExamples": [ "x", 1, {}, [], null, true ]
+}

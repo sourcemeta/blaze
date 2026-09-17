@@ -1,0 +1,17 @@
+{
+  "schema": { "id": "https://example.com/test", "type": "integer" },
+  "defaultDialect": "https://json-schema.org/draft/2019-09/schema",
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "id": "https://example.com/test",
+      "type": "integer"
+    }
+  },
+  "examples": [ 1 ],
+  "counterExamples": [ "1", 1.5 ]
+}

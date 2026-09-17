@@ -1,0 +1,22 @@
+{
+  "schema": { "type": "integer" },
+  "defaultDialect": "http://json-schema.org/draft-06/schema#",
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "integer"
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "integer"
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "integer"
+    }
+  },
+  "examples": [ 1, -5 ],
+  "counterExamples": [ "1", 1.5 ]
+}
