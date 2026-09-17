@@ -33,7 +33,9 @@ public:
         this->resource_has_recursive_anchor_ =
             compute_resource_has_recursive_anchor(root, frame, location);
         this->anchor_at_resource_root_ =
-            location.pointer.empty() || schema.defines("$id");
+            location.pointer.empty() ||
+            location.type ==
+                sourcemeta::core::SchemaFrame::LocationType::Resource;
         this->document_has_unevaluated_items_ =
             compute_document_has_unevaluated_items(root, frame, walker,
                                                    resolver);
@@ -57,7 +59,8 @@ public:
     this->resource_has_recursive_anchor_ =
         compute_resource_has_recursive_anchor(root, frame, location);
     this->anchor_at_resource_root_ =
-        location.pointer.empty() || schema.defines("$id");
+        location.pointer.empty() ||
+        location.type == sourcemeta::core::SchemaFrame::LocationType::Resource;
     this->document_has_unevaluated_items_ =
         compute_document_has_unevaluated_items(root, frame, walker, resolver);
     return true;
