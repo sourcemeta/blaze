@@ -918,3 +918,53 @@ TEST(format_values_preserved) {
 
   UPGRADE_DRAFT_6(document, expected);
 }
+
+TEST(nested_pending_work_under_embedded_metaschema_referrer) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "type": "object",
+    "properties": {
+      "amount": { "type": "number", "minimum": 0, "exclusiveMinimum": true }
+    },
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://example.com/my-dialect",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/my-dialect",
+    "type": "object",
+    "properties": {
+      "amount": { "type": "number", "exclusiveMinimum": 0 }
+    },
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "$id": "https://example.com/my-dialect",
+        "type": "object"
+      }
+    }
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
+
+TEST(self_descriptive_metaschema_still_upgraded) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://json-schema.org/draft-04/schema#",
+    "type": "object"
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://json-schema.org/draft-04/schema#",
+    "type": "object"
+  })JSON");
+
+  UPGRADE_DRAFT_6(document, expected);
+}
