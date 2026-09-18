@@ -823,3 +823,84 @@ TEST(2020_12_bundle_metaschema_offline) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(draft3_nested_id_and_ref) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "value": { "type": "integer" },
+      "child": { "$ref": "https://example.com/inner" }
+    },
+    "definitions": {
+      "i": {
+        "id": "https://example.com/inner",
+        "properties": { "name": { "type": "string" } }
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                sourcemeta::core::schema_resolver);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "value": { "type": "integer" },
+      "child": { "$ref": "#/definitions/i" }
+    },
+    "definitions": {
+      "i": {
+        "properties": { "name": { "type": "string" } }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(draft3_colliding_anchors_across_scopes) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "s1": {
+        "id": "https://example.com/one",
+        "properties": {
+          "a": { "id": "#tag", "type": "integer" },
+          "r": { "$ref": "#tag" }
+        }
+      },
+      "s2": {
+        "id": "https://example.com/two",
+        "properties": {
+          "a": { "id": "#tag", "type": "string" },
+          "r": { "$ref": "#tag" }
+        }
+      }
+    }
+  })JSON");
+
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                sourcemeta::core::schema_resolver);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "s1": {
+        "properties": {
+          "a": { "type": "integer" },
+          "r": { "$ref": "#/properties/s1/properties/a" }
+        }
+      },
+      "s2": {
+        "properties": {
+          "a": { "type": "string" },
+          "r": { "$ref": "#/properties/s2/properties/a" }
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}

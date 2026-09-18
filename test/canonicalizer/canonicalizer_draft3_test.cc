@@ -1033,7 +1033,6 @@ TEST(draft3_type_union_schema_variants_with_embedded_id_wrap) {
             "type": "object",
             "properties": {
               "foo": {
-                "id": "https://example.com/dup",
                 "extends": [ { "type": "integer", "divisibleBy": 1 } ],
                 "required": false
               }
@@ -1082,11 +1081,10 @@ TEST(draft3_type_union_schema_variants_with_id_anchor_wrap) {
             "type": "object",
             "properties": {
               "foo": {
-                "id": "#anchor",
                 "extends": [ { "type": "integer", "divisibleBy": 1 } ],
                 "required": false
               },
-              "bar": { "$ref": "#anchor" }
+              "bar": { "$ref": "#/extends/1/type/2/properties/foo" }
             },
             "patternProperties": {},
             "additionalProperties": {}
@@ -1444,7 +1442,6 @@ TEST(embedded_id_typed_property) {
     "type": "object",
     "properties": {
       "foo": {
-        "id": "https://example.com/embedded",
         "extends": [
           {
             "type": "string",
@@ -1481,13 +1478,12 @@ TEST(embedded_id_self_recursive_ref) {
     "type": "object",
     "properties": {
       "foo": {
-        "id": "https://example.com/embedded",
         "extends": [
           {
             "type": "object",
             "properties": {
               "bar": {
-                "$ref": "#"
+                "$ref": "#/properties/foo"
               }
             },
             "patternProperties": {},
@@ -1519,11 +1515,9 @@ TEST(nested_embedded_ids) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "id": "https://example.com/a",
     "type": "object",
     "properties": {
       "foo": {
-        "id": "https://example.com/a/b",
         "extends": [
           {
             "type": "string",
@@ -1561,7 +1555,6 @@ TEST(ref_into_embedded_resource_pointer) {
     "type": "object",
     "properties": {
       "a": {
-        "id": "https://example.com/embedded",
         "extends": [
           {
             "type": "object",
@@ -1583,7 +1576,7 @@ TEST(ref_into_embedded_resource_pointer) {
         "required": false
       },
       "b": {
-        "$ref": "https://example.com/embedded#/extends/0/properties/x"
+        "$ref": "#/properties/a/extends/0/properties/x"
       }
     },
     "patternProperties": {},
@@ -1717,7 +1710,6 @@ TEST(fragment_id_anchor_with_ref) {
     "type": "object",
     "properties": {
       "a": {
-        "id": "#target",
         "extends": [
           {
             "type": "string",
@@ -1727,7 +1719,7 @@ TEST(fragment_id_anchor_with_ref) {
         "required": false
       },
       "b": {
-        "$ref": "#target"
+        "$ref": "#/properties/a"
       }
     },
     "patternProperties": {},
@@ -4366,7 +4358,6 @@ TEST(enum_split_with_id_d3) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "id": "https://example.com/x",
     "type": [
       {
         "enum": [ 1 ]
@@ -4403,7 +4394,6 @@ TEST(enum_split_with_id_anchor_d3) {
     "type": "object",
     "properties": {
       "a": {
-        "id": "#foo",
         "extends": [
           {
             "type": [
@@ -4419,7 +4409,7 @@ TEST(enum_split_with_id_anchor_d3) {
         "required": false
       },
       "b": {
-        "$ref": "#foo"
+        "$ref": "#/properties/a"
       }
     },
     "patternProperties": {},
@@ -4589,7 +4579,6 @@ TEST(enum_split_id_anchor_referenced_twice) {
     "type": "object",
     "properties": {
       "a": {
-        "id": "#foo",
         "extends": [
           {
             "type": [
@@ -4605,10 +4594,10 @@ TEST(enum_split_id_anchor_referenced_twice) {
         "required": false
       },
       "b": {
-        "$ref": "#foo"
+        "$ref": "#/properties/a"
       },
       "c": {
-        "$ref": "#foo"
+        "$ref": "#/properties/a"
       }
     },
     "patternProperties": {},
@@ -4641,7 +4630,6 @@ TEST(enum_split_id_uri_referenced) {
     "type": "object",
     "properties": {
       "a": {
-        "id": "https://e.com/x",
         "extends": [
           {
             "type": [
@@ -4657,7 +4645,7 @@ TEST(enum_split_id_uri_referenced) {
         "required": false
       },
       "b": {
-        "$ref": "https://e.com/x"
+        "$ref": "#/properties/a"
       }
     },
     "patternProperties": {},
@@ -4798,18 +4786,16 @@ TEST(definitions_with_identifier_and_reference) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "id": "https://example.com/root",
     "type": "object",
     "properties": {
       "r": {
-        "$ref": "https://example.com/x"
+        "$ref": "#/definitions/x"
       }
     },
     "patternProperties": {},
     "additionalProperties": {},
     "definitions": {
       "x": {
-        "id": "https://example.com/x",
         "type": "integer",
         "divisibleBy": 1
       }
@@ -4921,6 +4907,29 @@ TEST(assertion_beside_extends_is_wrapped) {
         ]
       }
     ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(external_reference_made_absolute_when_root_id_removed) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/dir/root.json",
+    "type": "object",
+    "properties": {
+      "a": { "$ref": "other.json" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "$ref": "https://example.com/dir/other.json" }
+    },
+    "patternProperties": {},
+    "additionalProperties": {}
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
