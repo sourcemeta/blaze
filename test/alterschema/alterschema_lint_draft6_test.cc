@@ -1631,6 +1631,23 @@ TEST(draft_official_dialect_without_empty_fragment_1) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(dependencies_default_1) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "dependencies": {}
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(additional_items_with_schema_items_1) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
