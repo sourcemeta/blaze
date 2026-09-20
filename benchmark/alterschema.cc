@@ -1,4 +1,4 @@
-#include <benchmark/benchmark.h>
+#include <sourcemeta/core/benchmark.h>
 
 #include <cassert>    // assert
 #include <cstddef>    // std::size_t
@@ -11,11 +11,7 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-// Google Benchmark reports these names as the benchmark labels, so they
-// have to stay comparable against previously recorded runs
-// NOLINTBEGIN(readability-identifier-naming)
-static void
-Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
+BENCHMARK(Alterschema_Check_Readibility_ISO_Language_Set_3) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "files" /
       "2020_12_iso_language_2023_set_3.json")};
@@ -30,11 +26,11 @@ Alterschema_Check_Readibility_ISO_Language_Set_3(benchmark::State &state) {
                                   const auto &, const auto &) {});
     assert(result.first);
     assert(result.second == 100);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void Alterschema_Check_Readibility_OMC(benchmark::State &state) {
+BENCHMARK(Alterschema_Check_Readibility_OMC) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_omc_json_v2.json")};
@@ -48,11 +44,11 @@ static void Alterschema_Check_Readibility_OMC(benchmark::State &state) {
                                [](const auto &, const auto &, const auto &,
                                   const auto &, const auto &) {});
     assert(!result.first);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void Alterschema_Check_Readibility_KrakenD(benchmark::State &state) {
+BENCHMARK(Alterschema_Check_Readibility_KrakenD) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "2019_09_krakend.json")};
@@ -65,11 +61,11 @@ static void Alterschema_Check_Readibility_KrakenD(benchmark::State &state) {
                              sourcemeta::core::schema_resolver,
                              [](const auto &, const auto &, const auto &,
                                 const auto &, const auto &) {})};
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void Alterschema_Apply_Readibility_KrakenD(benchmark::State &state) {
+BENCHMARK(Alterschema_Apply_Readibility_KrakenD) {
   sourcemeta::blaze::SchemaTransformer bundle;
   sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);
 
@@ -78,19 +74,17 @@ static void Alterschema_Apply_Readibility_KrakenD(benchmark::State &state) {
                                   "files" / "2019_09_krakend.json")};
 
   for (auto iteration : state) {
-    state.PauseTiming();
     auto copy = schema;
-    state.ResumeTiming();
     auto result = bundle.apply(copy, sourcemeta::core::schema_walker,
                                sourcemeta::core::schema_resolver,
                                [](const auto &, const auto &, const auto &,
                                   const auto &, const auto &) {});
     assert(!result.first);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void Alterschema_Check_Invalid_External_Refs(benchmark::State &state) {
+BENCHMARK(Alterschema_Check_Invalid_External_Refs) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "files" /
       "2020_12_many_invalid_external_refs.json")};
@@ -110,14 +104,13 @@ static void Alterschema_Check_Invalid_External_Refs(benchmark::State &state) {
         });
     assert(!result.first);
     assert(trace_count == 1024);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
 // Every reference here resolves, so the linter reaches the check that a
 // fragment names something the remote actually has
-static void
-Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
+BENCHMARK(Alterschema_Check_Resolvable_External_Refs) {
   static constexpr auto REMOTES{20};
   static constexpr auto SUBSCHEMAS{200};
 
@@ -179,14 +172,6 @@ Alterschema_Check_Resolvable_External_Refs(benchmark::State &state) {
     // Otherwise a remote or a fragment that stops resolving would quietly turn
     // this into a measurement of the invalid reference path instead
     assert(trace_count == 0);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
-
-BENCHMARK(Alterschema_Check_Readibility_ISO_Language_Set_3);
-BENCHMARK(Alterschema_Check_Readibility_OMC);
-BENCHMARK(Alterschema_Check_Readibility_KrakenD);
-BENCHMARK(Alterschema_Apply_Readibility_KrakenD);
-BENCHMARK(Alterschema_Check_Invalid_External_Refs);
-BENCHMARK(Alterschema_Check_Resolvable_External_Refs);
-// NOLINTEND(readability-identifier-naming)

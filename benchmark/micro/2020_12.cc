@@ -1,4 +1,4 @@
-#include <benchmark/benchmark.h>
+#include <sourcemeta/core/benchmark.h>
 
 #include <cassert>    // assert
 #include <cstddef>    // std::size_t
@@ -12,10 +12,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
-// Google Benchmark reports these names as the benchmark labels, so they
-// have to stay comparable against previously recorded runs
-// NOLINTBEGIN(readability-identifier-naming)
-static void Micro_2020_12_Dynamic_Ref(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Dynamic_Ref) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -72,11 +69,11 @@ static void Micro_2020_12_Dynamic_Ref(benchmark::State &state) {
   for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void Micro_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Dynamic_Ref_Single) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -99,11 +96,11 @@ static void Micro_2020_12_Dynamic_Ref_Single(benchmark::State &state) {
   for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void Micro_2020_12_Simple_Output_Mask(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Simple_Output_Mask) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
@@ -171,11 +168,11 @@ static void Micro_2020_12_Simple_Output_Mask(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Simple_Output_Annotations) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -215,12 +212,11 @@ static void Micro_2020_12_Simple_Output_Annotations(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void
-Micro_2020_12_Simple_Output_Annotation_Dropping(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Simple_Output_Annotation_Dropping) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "array",
@@ -293,12 +289,11 @@ Micro_2020_12_Simple_Output_Annotation_Dropping(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void
-Micro_2020_12_Compile_NonCircular_Shared_Refs(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Compile_NonCircular_Shared_Refs) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/pathological-extreme",
@@ -358,11 +353,11 @@ Micro_2020_12_Compile_NonCircular_Shared_Refs(benchmark::State &state) {
         sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
                                    sourcemeta::core::schema_resolver,
                                    sourcemeta::blaze::default_schema_compiler)};
-    benchmark::DoNotOptimize(schema_template);
+    sourcemeta::core::benchmark_do_not_optimize(schema_template);
   }
 }
 
-static void Micro_2020_12_Exhaustive_Deep_Numeric(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -378,12 +373,11 @@ static void Micro_2020_12_Exhaustive_Deep_Numeric(benchmark::State &state) {
   for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void
-Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -401,12 +395,11 @@ Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void
-Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -427,13 +420,12 @@ Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput(benchmark::State &state) {
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
-    benchmark::DoNotOptimize(result);
-    benchmark::DoNotOptimize(count);
+    sourcemeta::core::benchmark_do_not_optimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(count);
   }
 }
 
-static void
-Micro_2020_12_Exhaustive_Deep_Numeric_Fail(benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -449,12 +441,11 @@ Micro_2020_12_Exhaustive_Deep_Numeric_Fail(benchmark::State &state) {
   for (auto iteration : state) {
     auto result{evaluator.validate(schema_template, instance)};
     assert(!result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
 
-static void Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput(
-    benchmark::State &state) {
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
       "2020_12_trace_deep_numeric.json")};
@@ -472,19 +463,6 @@ static void Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput(
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(!result);
-    benchmark::DoNotOptimize(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
   }
 }
-
-BENCHMARK(Micro_2020_12_Dynamic_Ref);
-BENCHMARK(Micro_2020_12_Dynamic_Ref_Single);
-BENCHMARK(Micro_2020_12_Simple_Output_Mask);
-BENCHMARK(Micro_2020_12_Simple_Output_Annotations);
-BENCHMARK(Micro_2020_12_Simple_Output_Annotation_Dropping);
-BENCHMARK(Micro_2020_12_Compile_NonCircular_Shared_Refs);
-BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric);
-BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput);
-BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput);
-BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail);
-BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput);
-// NOLINTEND(readability-identifier-naming)

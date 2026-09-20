@@ -1,4 +1,4 @@
-#include <benchmark/benchmark.h>
+#include <sourcemeta/core/benchmark.h>
 
 #include <cassert>       // assert
 #include <cstddef>       // std::size_t
@@ -21,9 +21,6 @@ static constexpr std::size_t CATALOG_MEMBER_COUNT{256};
 static constexpr std::size_t AUTHORS_PER_BOOK{3};
 
 // A string value that never risks the const char* to bool constructor selection
-// Google Benchmark reports these names as the benchmark labels, so they
-// have to stay comparable against previously recorded runs
-// NOLINTBEGIN(readability-identifier-naming)
 static auto string_value(std::string value) -> sourcemeta::core::JSON {
   return sourcemeta::core::JSON{std::move(value)};
 }
@@ -138,7 +135,7 @@ static auto make_catalog(const std::size_t count) -> sourcemeta::core::JSON {
   return catalog;
 }
 
-static auto run_catalog(benchmark::State &state,
+static auto run_catalog(sourcemeta::core::BenchmarkState &state,
                         const sourcemeta::core::JSON &schema) -> void {
   const auto instance{make_catalog(CATALOG_MEMBER_COUNT)};
 
@@ -157,12 +154,12 @@ static auto run_catalog(benchmark::State &state,
     auto outcome{
         sourcemeta::blaze::jsonld(evaluator, schema_template, instance)};
     assert(std::holds_alternative<sourcemeta::core::JSON>(outcome));
-    benchmark::DoNotOptimize(outcome);
+    sourcemeta::core::benchmark_do_not_optimize(outcome);
   }
 }
 
 // The library alone, with no overrides anywhere
-static auto JSONLD_Catalog_Simple(benchmark::State &state) -> void {
+BENCHMARK(JSONLD_Catalog_Simple) {
   run_catalog(state, sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/catalog",
@@ -301,7 +298,7 @@ static auto JSONLD_Catalog_Simple(benchmark::State &state) -> void {
 // The dedupe idiom: the consumer wraps the book reference with an override
 // mark and values that agree with what the library declares, marking every
 // book location without ever diverging
-static auto JSONLD_Catalog_Override_Agreeing(benchmark::State &state) -> void {
+BENCHMARK(JSONLD_Catalog_Override_Agreeing) {
   run_catalog(state, sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/catalog",
@@ -445,7 +442,7 @@ static auto JSONLD_Catalog_Override_Agreeing(benchmark::State &state) -> void {
 // The specialize idiom at scale: the consumer wrappers around every book and
 // every person diverge from what the library declares, so every one of those
 // locations resolves through override shadowing
-static auto JSONLD_Catalog_Override_Shadowing(benchmark::State &state) -> void {
+BENCHMARK(JSONLD_Catalog_Override_Shadowing) {
   run_catalog(state, sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/catalog",
@@ -589,8 +586,3 @@ static auto JSONLD_Catalog_Override_Shadowing(benchmark::State &state) -> void {
     }
   })JSON"));
 }
-
-BENCHMARK(JSONLD_Catalog_Simple);
-BENCHMARK(JSONLD_Catalog_Override_Agreeing);
-BENCHMARK(JSONLD_Catalog_Override_Shadowing);
-// NOLINTEND(readability-identifier-naming)

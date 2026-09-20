@@ -28,61 +28,55 @@ if(BLAZE_ALTERSCHEMA)
 endif()
 
 if(BENCHMARK_SOURCES)
-  sourcemeta_googlebenchmark(NAMESPACE sourcemeta PROJECT blaze
-    FOLDER "Blaze" SOURCES ${BENCHMARK_SOURCES})
-  target_compile_definitions(sourcemeta_blaze_benchmark
+  sourcemeta_benchmark(NAMESPACE sourcemeta PROJECT blaze
+    SOURCES ${BENCHMARK_SOURCES})
+  target_compile_definitions(sourcemeta_blaze_benchmarks
     PRIVATE CURRENT_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 
-  target_link_libraries(sourcemeta_blaze_benchmark
+  target_link_libraries(sourcemeta_blaze_benchmarks
     PRIVATE sourcemeta::core::io)
-  target_link_libraries(sourcemeta_blaze_benchmark
+  target_link_libraries(sourcemeta_blaze_benchmarks
     PRIVATE sourcemeta::core::json)
-  target_link_libraries(sourcemeta_blaze_benchmark
+  target_link_libraries(sourcemeta_blaze_benchmarks
     PRIVATE sourcemeta::core::jsonl)
   if(BLAZE_COMPILER)
-    target_link_libraries(sourcemeta_blaze_benchmark
+    target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::compiler)
   endif()
   if(BLAZE_EVALUATOR)
-    target_link_libraries(sourcemeta_blaze_benchmark
+    target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::evaluator)
   endif()
   if(BLAZE_OUTPUT)
-    target_link_libraries(sourcemeta_blaze_benchmark
+    target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::output)
   endif()
   if(BLAZE_TEST)
-    target_link_libraries(sourcemeta_blaze_benchmark
+    target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::test)
   endif()
   if(BLAZE_ALTERSCHEMA)
-    target_link_libraries(sourcemeta_blaze_benchmark
+    target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::alterschema)
   endif()
   if(BLAZE_BUNDLE)
-    target_link_libraries(sourcemeta_blaze_benchmark
+    target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::bundle)
   endif()
   if(BLAZE_FORMAT)
-    target_link_libraries(sourcemeta_blaze_benchmark
+    target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::format)
   endif()
 
-  add_custom_target(benchmark_all
-    COMMAND sourcemeta_blaze_benchmark
-    DEPENDS sourcemeta_blaze_benchmark
-    COMMENT "Running benchmark...")
-  add_custom_target(benchmark_json
-    COMMAND sourcemeta_blaze_benchmark
-      --benchmark_format=json
-      --benchmark_out="${PROJECT_BINARY_DIR}/benchmark.json"
-    DEPENDS sourcemeta_blaze_benchmark
+  # A single run prints the human readable report and writes the JSON file, so
+  # that recording results for later comparison costs nothing extra
+  add_custom_target(benchmark
+    COMMAND sourcemeta_blaze_benchmarks
+      --output "${PROJECT_BINARY_DIR}/benchmark.json"
+    DEPENDS sourcemeta_blaze_benchmarks
     COMMENT "Running benchmark...")
 else()
-  add_custom_target(benchmark_all VERBATIM
-    COMMAND "${CMAKE_COMMAND}" -E echo "Nothing to benchmark"
-    COMMAND "${CMAKE_COMMAND}" -E false)
-  add_custom_target(benchmark_json VERBATIM
+  add_custom_target(benchmark VERBATIM
     COMMAND "${CMAKE_COMMAND}" -E echo "Nothing to benchmark"
     COMMAND "${CMAKE_COMMAND}" -E false)
 endif()

@@ -1,4 +1,4 @@
-#include <benchmark/benchmark.h>
+#include <sourcemeta/core/benchmark.h>
 
 #include <cassert>     // assert
 #include <filesystem>  // std::filesystem
@@ -16,10 +16,7 @@
 static constexpr std::string_view WOT_IDENTIFIER{
     "https://schemas.sourcemeta.com/w3c/wot/v1.1/thing-description"};
 
-// Google Benchmark reports these names as the benchmark labels, so they
-// have to stay comparable against previously recorded runs
-// NOLINTBEGIN(readability-identifier-naming)
-static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
+BENCHMARK(TestSuite_Parse_WoT) {
   const auto schema{
       sourcemeta::core::read_json(std::filesystem::path{CURRENT_DIRECTORY} /
                                   "files" / "draft7_w3c_wot_td_v1_1.json")};
@@ -49,9 +46,6 @@ static auto TestSuite_Parse_WoT(benchmark::State &state) -> void {
         sourcemeta::blaze::default_schema_compiler)};
     assert(suite.targets.size() == 1);
     assert(suite.tests.size() == 1);
-    benchmark::DoNotOptimize(suite);
+    sourcemeta::core::benchmark_do_not_optimize(suite);
   }
 }
-
-BENCHMARK(TestSuite_Parse_WoT);
-// NOLINTEND(readability-identifier-naming)

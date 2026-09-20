@@ -1,4 +1,4 @@
-#include <benchmark/benchmark.h>
+#include <sourcemeta/core/benchmark.h>
 
 #include <cassert>    // assert
 #include <filesystem> // std::filesystem
@@ -13,7 +13,7 @@
 #include <sourcemeta/blaze/evaluator.h>
 
 #define REGISTER_E2E_COMPILER(name, directory_name)                            \
-  static auto E2E_Compiler_##name(benchmark::State &state)->void {             \
+  BENCHMARK(E2E_Compiler_##name) {                                             \
     const std::filesystem::path directory{CURRENT_DIRECTORY                    \
                                           "/e2e/" directory_name};             \
     const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
@@ -24,13 +24,12 @@
           sourcemeta::core::schema_resolver,                                   \
           sourcemeta::blaze::default_schema_compiler,                          \
           sourcemeta::blaze::Mode::FastValidation)};                           \
-      benchmark::DoNotOptimize(schema_template);                               \
+      sourcemeta::core::benchmark_do_not_optimize(schema_template);            \
     }                                                                          \
-  }                                                                            \
-  BENCHMARK(E2E_Compiler_##name)
+  }
 
 #define REGISTER_E2E_EVALUATOR(name, directory_name)                           \
-  static auto E2E_Evaluator_##name(benchmark::State &state)->void {            \
+  BENCHMARK(E2E_Evaluator_##name) {                                            \
     const std::filesystem::path directory{CURRENT_DIRECTORY                    \
                                           "/e2e/" directory_name};             \
     const auto schema{sourcemeta::core::read_json(directory / "schema.json")}; \
@@ -51,11 +50,10 @@
       for (const auto &instance : instances) {                                 \
         auto result{evaluator.validate(schema_template, instance)};            \
         assert(result);                                                        \
-        benchmark::DoNotOptimize(result);                                      \
+        sourcemeta::core::benchmark_do_not_optimize(result);                   \
       }                                                                        \
     }                                                                          \
-  }                                                                            \
-  BENCHMARK(E2E_Evaluator_##name)
+  }
 
 REGISTER_E2E_COMPILER(adaptivecard, "adaptivecard");
 REGISTER_E2E_COMPILER(ansible_meta, "ansible-meta");
