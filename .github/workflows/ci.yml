@@ -144,7 +144,9 @@ jobs:
           # See https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
           UBSAN_OPTIONS: print_stacktrace=1
 
-      - run: cmake --build ./build --config Release --verbose --target benchmark_json
+      - run: cmake --build ./build --config Release --verbose --target benchmark
+        if: matrix.platform.benchmark
+      - run: python3 contrib/convert_benchmark_json.py build/benchmark.json > build/benchmark-github.json
         if: matrix.platform.benchmark
 
       - uses: actions/setup-node@v4
@@ -161,8 +163,8 @@ jobs:
         if: matrix.platform.benchmark && github.event.pull_request.head.repo.fork == false
         with:
           name: Benchmark (${{ matrix.platform.benchmark }})
-          tool: googlecpp
-          output-file-path: build/benchmark.json
+          tool: customSmallerIsBetter
+          output-file-path: build/benchmark-github.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: ${{ github.event_name != 'pull_request' }}
           benchmark-data-dir-path: benchmark/${{ matrix.platform.benchmark }}

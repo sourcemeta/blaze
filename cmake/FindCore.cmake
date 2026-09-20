@@ -11,7 +11,7 @@ if(NOT Core_FOUND)
     CACHE BOOL "address sanitizer")
 
   set(SOURCEMETA_CORE_CONTRIB_GOOGLETEST ${BLAZE_TESTS} CACHE BOOL "GoogleTest")
-  set(SOURCEMETA_CORE_CONTRIB_GOOGLEBENCHMARK ${BLAZE_BENCHMARK} CACHE BOOL "GoogleBenchmark")
+  set(SOURCEMETA_CORE_LANG_BENCHMARK ${BLAZE_BENCHMARK} CACHE BOOL "Core benchmark library")
 
   # Core builds every one of its libraries by default. Blaze only needs a
   # subset of them, and consumers otherwise end up with a pile of libraries

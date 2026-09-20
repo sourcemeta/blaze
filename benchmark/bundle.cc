@@ -1,4 +1,4 @@
-#include <benchmark/benchmark.h>
+#include <sourcemeta/core/benchmark.h>
 
 #include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/core/jsonschema.h>
@@ -6,27 +6,24 @@
 #include <map>    // std::map
 #include <string> // std::string, std::to_string
 
-// Google Benchmark reports these names as the benchmark labels, so they
-// have to stay comparable against previously recorded runs
-// NOLINTBEGIN(readability-identifier-naming)
-static void Schema_Bundle_Meta_2020_12(benchmark::State &state) {
+BENCHMARK(Schema_Bundle_Meta_2020_12) {
+  const auto document{sourcemeta::core::schema_resolver(
+                          "https://json-schema.org/draft/2020-12/schema")
+                          .value()};
+
   for (auto iteration : state) {
-    state.PauseTiming();
-    auto schema{sourcemeta::core::schema_resolver(
-                    "https://json-schema.org/draft/2020-12/schema")
-                    .value()};
-    state.ResumeTiming();
+    auto schema{document};
     sourcemeta::blaze::bundle(
         schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-    benchmark::DoNotOptimize(schema);
+    sourcemeta::core::benchmark_do_not_optimize(schema);
   }
 }
 
 // Bundling checks that the fragment of a reference names something the remote
 // actually has, once per distinct remote that a fragment reaches into
-static void Schema_Bundle_Many_Remotes_With_Fragments(benchmark::State &state) {
+BENCHMARK(Schema_Bundle_Many_Remotes_With_Fragments) {
   static constexpr auto REMOTES{10};
   static constexpr auto SUBSCHEMAS{200};
 
@@ -75,16 +72,10 @@ static void Schema_Bundle_Many_Remotes_With_Fragments(benchmark::State &state) {
   }};
 
   for (auto iteration : state) {
-    state.PauseTiming();
     auto schema{document};
-    state.ResumeTiming();
     sourcemeta::blaze::bundle(
         schema, sourcemeta::core::schema_walker, resolver,
         sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-    benchmark::DoNotOptimize(schema);
+    sourcemeta::core::benchmark_do_not_optimize(schema);
   }
 }
-
-BENCHMARK(Schema_Bundle_Meta_2020_12);
-BENCHMARK(Schema_Bundle_Many_Remotes_With_Fragments);
-// NOLINTEND(readability-identifier-naming)

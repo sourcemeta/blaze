@@ -1,4 +1,4 @@
-#include <benchmark/benchmark.h>
+#include <sourcemeta/core/benchmark.h>
 
 #include <filesystem> // std::filesystem
 
@@ -7,21 +7,15 @@
 
 #include <sourcemeta/core/json.h>
 
-// Google Benchmark reports these names as the benchmark labels, so they
-// have to stay comparable against previously recorded runs
-// NOLINTBEGIN(readability-identifier-naming)
-static void Schema_Format_ISO_Language_To_JSON(benchmark::State &state) {
+BENCHMARK(Schema_Format_ISO_Language_To_JSON) {
+  const auto document{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "files" /
+      "2020_12_iso_language_2023_set_3.json")};
+
   for (auto iteration : state) {
-    state.PauseTiming();
-    auto schema{sourcemeta::core::read_json(
-        std::filesystem::path{CURRENT_DIRECTORY} / "files" /
-        "2020_12_iso_language_2023_set_3.json")};
-    state.ResumeTiming();
+    auto schema{document};
     sourcemeta::blaze::format(schema, sourcemeta::core::schema_walker,
                               sourcemeta::core::schema_resolver);
-    benchmark::DoNotOptimize(schema);
+    sourcemeta::core::benchmark_do_not_optimize(schema);
   }
 }
-
-BENCHMARK(Schema_Format_ISO_Language_To_JSON);
-// NOLINTEND(readability-identifier-naming)

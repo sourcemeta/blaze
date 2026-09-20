@@ -41,7 +41,7 @@ test: .always
 			--output-on-failure --parallel
 
 benchmark: .always
-	$(CMAKE) --build ./build --config $(PRESET) --target benchmark_all
+	$(CMAKE) --build ./build --config $(PRESET) --target benchmark
 
 doxygen: .always
 	$(CMAKE) --build ./build --config $(PRESET) --target doxygen
