@@ -152,6 +152,20 @@ auto make_inputs(const sourcemeta::core::JSON &test) -> Inputs {
   return inputs;
 }
 
+// The views and paths that the options carry point into what the fixture owns,
+// so the result never outlives the inputs it came from
+auto make_options(const Inputs &inputs, const Mode &mode,
+                  const std::uint64_t max_locations)
+    -> sourcemeta::blaze::BundleOptions {
+  sourcemeta::blaze::BundleOptions options;
+  options.mode = mode.value;
+  options.default_container = inputs.container;
+  options.paths = inputs.paths;
+  options.default_base = inputs.default_base;
+  options.max_locations = max_locations;
+  return options;
+}
+
 auto bundle_schema(const sourcemeta::core::JSON &schema,
                    const sourcemeta::core::SchemaResolver &resolver,
                    const Inputs &inputs, const Mode &mode,
@@ -159,13 +173,13 @@ auto bundle_schema(const sourcemeta::core::JSON &schema,
                    std::vector<sourcemeta::core::Pointer> &insertions)
     -> sourcemeta::core::JSON {
   auto document{schema};
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, resolver, mode.value,
-      inputs.default_dialect, inputs.default_id, inputs.container, inputs.paths,
-      inputs.default_base, max_locations,
+  auto options{make_options(inputs, mode, max_locations)};
+  options.callback =
       [&insertions](const sourcemeta::core::WeakPointer &location) -> void {
-        insertions.push_back(sourcemeta::core::to_pointer(location));
-      });
+    insertions.push_back(sourcemeta::core::to_pointer(location));
+  };
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker, resolver,
+                            inputs.default_dialect, inputs.default_id, options);
   return document;
 }
 
@@ -389,9 +403,8 @@ auto run_bundle_test(const sourcemeta::core::JSON &test) -> void {
     expect_equal(mode.name,
                  sourcemeta::blaze::bundle(
                      test.at("schema"), sourcemeta::core::schema_walker,
-                     resolver, mode.value, inputs.default_dialect,
-                     inputs.default_id, inputs.container, inputs.paths,
-                     inputs.default_base, inputs.max_locations),
+                     resolver, inputs.default_dialect, inputs.default_id,
+                     make_options(inputs, mode, inputs.max_locations)),
                  expected);
 
     // Bundling that keeps finding work to do on its own output never settles.

@@ -52,10 +52,8 @@ auto main() -> int {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "string"
   })JSON")};
-  sourcemeta::blaze::bundle(
-      bundle_schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(bundle_schema, sourcemeta::core::schema_walker,
+                            sourcemeta::core::schema_resolver);
 
   auto convert_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",

@@ -78,9 +78,10 @@ auto compile(const sourcemeta::core::JSON &input,
   // (1) Bundle the schema to resolve external references
   // --------------------------------------------------------------------------
 
+  sourcemeta::blaze::BundleOptions bundle_options;
+  bundle_options.mode = sourcemeta::blaze::BundleMode::References;
   auto schema{sourcemeta::blaze::bundle(
-      input, walker, resolver, sourcemeta::blaze::BundleMode::References,
-      default_dialect, default_id)};
+      input, walker, resolver, default_dialect, default_id, bundle_options)};
 
   // --------------------------------------------------------------------------
   // (2) Canonicalize the schema for easier analysis

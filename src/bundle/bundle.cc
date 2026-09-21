@@ -762,37 +762,28 @@ static auto bundle_internal(
 auto bundle(sourcemeta::core::JSON &schema,
             const sourcemeta::core::SchemaWalker &walker,
             const sourcemeta::core::SchemaResolver &resolver,
-            const BundleMode mode, std::string_view default_dialect,
-            std::string_view default_id,
-            const std::optional<sourcemeta::core::Pointer> &default_container,
-            const sourcemeta::core::SchemaFrame::Paths &paths,
-            std::string_view default_base, const std::uint64_t max_locations,
-            const BundleEmbedCallback &callback) -> void {
-  auto remaining{max_locations};
+            std::string_view default_dialect, std::string_view default_id,
+            const BundleOptions &options) -> void {
+  auto remaining{options.max_locations};
   try {
-    bundle_internal(schema, walker, resolver, mode, default_dialect, default_id,
-                    default_container, paths, default_base, remaining,
-                    callback);
+    bundle_internal(schema, walker, resolver, options.mode, default_dialect,
+                    default_id, options.default_container, options.paths,
+                    options.default_base, remaining, options.callback);
   } catch (const sourcemeta::core::SchemaFrameLimitError &) {
     // Every frame spends from what is left rather than from the whole, so the
     // one that ran out reports what it was handed. The caller set the limit
     // for the operation, so that is what the operation reports back
-    throw sourcemeta::core::SchemaFrameLimitError{max_locations};
+    throw sourcemeta::core::SchemaFrameLimitError{options.max_locations};
   }
 }
 
 auto bundle(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::SchemaWalker &walker,
             const sourcemeta::core::SchemaResolver &resolver,
-            const BundleMode mode, std::string_view default_dialect,
-            std::string_view default_id,
-            const std::optional<sourcemeta::core::Pointer> &default_container,
-            const sourcemeta::core::SchemaFrame::Paths &paths,
-            std::string_view default_base, const std::uint64_t max_locations,
-            const BundleEmbedCallback &callback) -> sourcemeta::core::JSON {
+            std::string_view default_dialect, std::string_view default_id,
+            const BundleOptions &options) -> sourcemeta::core::JSON {
   sourcemeta::core::JSON copy = schema;
-  bundle(copy, walker, resolver, mode, default_dialect, default_id,
-         default_container, paths, default_base, max_locations, callback);
+  bundle(copy, walker, resolver, default_dialect, default_id, options);
   return copy;
 }
 

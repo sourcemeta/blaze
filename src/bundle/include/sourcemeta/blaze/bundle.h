@@ -56,6 +56,24 @@ enum class BundleMode : std::uint8_t {
 };
 
 /// @ingroup bundle
+/// Everything bundling takes beyond the schema and how to read it
+struct BundleOptions {
+  /// The strategy to follow
+  BundleMode mode{BundleMode::NonOfficialMetaschemas};
+  /// Where to embed what bundling pulls in
+  std::optional<sourcemeta::core::Pointer> default_container;
+  /// The paths to bundle within a schema wrapper
+  sourcemeta::core::SchemaFrame::Paths paths{
+      sourcemeta::core::EMPTY_WEAK_POINTER};
+  /// The base URI that the document was retrieved from
+  std::string_view default_base;
+  /// The maximum number of frame locations that analysis may register
+  std::uint64_t max_locations{std::numeric_limits<std::uint64_t>::max()};
+  /// A callback to report where each schema got embedded
+  BundleEmbedCallback callback;
+};
+
+/// @ingroup bundle
 ///
 /// This function recursively traverses and reports the external references in a
 /// schema. References to official schemas are reported but not traversed into,
@@ -147,8 +165,7 @@ auto dependencies(
 /// })JSON");
 ///
 /// sourcemeta::blaze::bundle(document,
-///   sourcemeta::core::schema_walker, test_resolver,
-///   sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+///   sourcemeta::core::schema_walker, test_resolver);
 ///
 /// const sourcemeta::core::JSON expected =
 ///     sourcemeta::core::parse_json(R"JSON({
@@ -184,18 +201,12 @@ auto dependencies(
 /// to know what a later call has to frame when bundling into a container that
 /// the dialect does not otherwise traverse
 SOURCEMETA_BLAZE_BUNDLE_EXPORT
-auto bundle(
-    sourcemeta::core::JSON &schema,
-    const sourcemeta::core::SchemaWalker &walker,
-    const sourcemeta::core::SchemaResolver &resolver, const BundleMode mode,
-    std::string_view default_dialect = "", std::string_view default_id = "",
-    const std::optional<sourcemeta::core::Pointer> &default_container =
-        std::nullopt,
-    const sourcemeta::core::SchemaFrame::Paths &paths =
-        {sourcemeta::core::EMPTY_WEAK_POINTER},
-    std::string_view default_base = "",
-    std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max(),
-    const BundleEmbedCallback &callback = nullptr) -> void;
+auto bundle(sourcemeta::core::JSON &schema,
+            const sourcemeta::core::SchemaWalker &walker,
+            const sourcemeta::core::SchemaResolver &resolver,
+            std::string_view default_dialect = "",
+            std::string_view default_id = "", const BundleOptions &options = {})
+    -> void;
 
 /// @ingroup bundle
 ///
@@ -232,8 +243,7 @@ auto bundle(
 ///
 /// const sourcemeta::core::JSON result =
 ///   sourcemeta::blaze::bundle(document,
-///     sourcemeta::core::schema_walker, test_resolver,
-///     sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+///     sourcemeta::core::schema_walker, test_resolver);
 ///
 /// const sourcemeta::core::JSON expected =
 ///     sourcemeta::core::parse_json(R"JSON({
@@ -258,18 +268,12 @@ auto bundle(
 /// As with the mutating overload, pass `callback` to learn where each schema
 /// ends up
 SOURCEMETA_BLAZE_BUNDLE_EXPORT
-auto bundle(
-    const sourcemeta::core::JSON &schema,
-    const sourcemeta::core::SchemaWalker &walker,
-    const sourcemeta::core::SchemaResolver &resolver, const BundleMode mode,
-    std::string_view default_dialect = "", std::string_view default_id = "",
-    const std::optional<sourcemeta::core::Pointer> &default_container =
-        std::nullopt,
-    const sourcemeta::core::SchemaFrame::Paths &paths =
-        {sourcemeta::core::EMPTY_WEAK_POINTER},
-    std::string_view default_base = "",
-    std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max(),
-    const BundleEmbedCallback &callback = nullptr) -> sourcemeta::core::JSON;
+auto bundle(const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::SchemaWalker &walker,
+            const sourcemeta::core::SchemaResolver &resolver,
+            std::string_view default_dialect = "",
+            std::string_view default_id = "", const BundleOptions &options = {})
+    -> sourcemeta::core::JSON;
 
 } // namespace sourcemeta::blaze
 
