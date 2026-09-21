@@ -1,7 +1,0 @@
-{
-  "schema": false,
-  "defaultDialect": "https://json-schema.org/draft/2020-12/schema",
-  "defaultId": "https://www.example.com/entry",
-  "result": { "nonOfficialMetaschemas": false, "references": false },
-  "inserted": { "nonOfficialMetaschemas": [], "references": [] }
-}

@@ -26,7 +26,7 @@ jobs:
           -DBLAZE_CANONICALIZER:BOOL=OFF
           -DBLAZE_CONVERT:BOOL=OFF
           -DBLAZE_EDITOR:BOOL=OFF
-          -DBLAZE_BUNDLE:BOOL=OFF
+          -DBLAZE_DEPENDENCIES:BOOL=OFF
           -DBLAZE_TESTS:BOOL=OFF
           -DBLAZE_DOCS:BOOL=ON
       - run: cmake --build ./build --config Release --target doxygen

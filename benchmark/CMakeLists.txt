@@ -1,9 +1,5 @@
 set(BENCHMARK_SOURCES)
 
-if(BLAZE_BUNDLE)
-  list(APPEND BENCHMARK_SOURCES bundle.cc)
-endif()
-
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR AND BLAZE_OUTPUT)
   list(APPEND BENCHMARK_SOURCES
     e2e/runner.cc
@@ -54,10 +50,6 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_ALTERSCHEMA)
     target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::alterschema)
-  endif()
-  if(BLAZE_BUNDLE)
-    target_link_libraries(sourcemeta_blaze_benchmarks
-      PRIVATE sourcemeta::blaze::bundle)
   endif()
 
   # A single run prints the human readable report and writes the JSON file, so

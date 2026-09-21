@@ -18,8 +18,6 @@ target_link_libraries(sourcemeta_blaze_evaluator_unit
 target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
-  PRIVATE sourcemeta::blaze::bundle)
-target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::blaze::evaluator)

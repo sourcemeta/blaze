@@ -1,6 +1,5 @@
 #include <sourcemeta/core/test.h>
 
-#include <sourcemeta/blaze/bundle.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/core/jsonschema.h>
@@ -312,8 +311,8 @@ TEST(explicit_frame) {
   })JSON")};
 
   const sourcemeta::core::JSON result{
-      sourcemeta::blaze::bundle(schema, sourcemeta::core::schema_walker,
-                                sourcemeta::core::schema_resolver)};
+      sourcemeta::core::schema_bundle(schema, sourcemeta::core::schema_walker,
+                                      sourcemeta::core::schema_resolver)};
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References, result,
       sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
@@ -335,8 +334,8 @@ TEST(explicit_frame_locations_only) {
   })JSON")};
 
   const sourcemeta::core::JSON result{
-      sourcemeta::blaze::bundle(schema, sourcemeta::core::schema_walker,
-                                sourcemeta::core::schema_resolver)};
+      sourcemeta::core::schema_bundle(schema, sourcemeta::core::schema_walker,
+                                      sourcemeta::core::schema_resolver)};
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::Locations, result,
       sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
@@ -558,7 +557,7 @@ TEST(unevaluated_properties_with_root_dynamic_anchor_and_default_id) {
     "unevaluatedProperties": false
   })JSON")};
 
-  const auto bundled{sourcemeta::blaze::bundle(
+  const auto bundled{sourcemeta::core::schema_bundle(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver, "", "https://example.com/default")};
 
@@ -591,7 +590,7 @@ TEST(unevaluated_items_with_root_dynamic_anchor_and_default_id) {
     "unevaluatedItems": false
   })JSON")};
 
-  const auto bundled{sourcemeta::blaze::bundle(
+  const auto bundled{sourcemeta::core::schema_bundle(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver, "", "https://example.com/default")};
 
@@ -624,7 +623,7 @@ TEST(unevaluated_properties_with_root_recursive_anchor_and_default_id_2019_09) {
     "unevaluatedProperties": false
   })JSON")};
 
-  const auto bundled{sourcemeta::blaze::bundle(
+  const auto bundled{sourcemeta::core::schema_bundle(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver, "", "https://example.com/default")};
 
@@ -657,7 +656,7 @@ TEST(unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
     "unevaluatedProperties": { "type": "string" }
   })JSON")};
 
-  const auto bundled{sourcemeta::blaze::bundle(
+  const auto bundled{sourcemeta::core::schema_bundle(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver, "", "https://example.com/default")};
 

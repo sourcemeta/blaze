@@ -6,6 +6,4 @@ target_link_libraries(sourcemeta_blaze_editor_unit
 target_link_libraries(sourcemeta_blaze_editor_unit
   PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_editor_unit
-  PRIVATE sourcemeta::blaze::bundle)
-target_link_libraries(sourcemeta_blaze_editor_unit
   PRIVATE sourcemeta::blaze::editor)
