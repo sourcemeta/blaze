@@ -97,8 +97,6 @@ if(BLAZE_CANONICALIZER)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::core::jsonschema)
   target_link_libraries(sourcemeta_blaze_contrib_canonicalize
-    PRIVATE sourcemeta::blaze::format)
-  target_link_libraries(sourcemeta_blaze_contrib_canonicalize
     PRIVATE sourcemeta::blaze::canonicalizer)
 endif()
 

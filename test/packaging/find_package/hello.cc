@@ -6,7 +6,6 @@
 #include <sourcemeta/blaze/convert.h>
 #include <sourcemeta/blaze/editor.h>
 #include <sourcemeta/blaze/evaluator.h>
-#include <sourcemeta/blaze/format.h>
 #include <sourcemeta/blaze/output.h>
 #include <sourcemeta/blaze/test.h>
 
@@ -57,13 +56,6 @@ auto main() -> int {
       bundle_schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
       sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
-
-  auto format_schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "string"
-  })JSON")};
-  sourcemeta::blaze::format(format_schema, sourcemeta::core::schema_walker,
-                            sourcemeta::core::schema_resolver);
 
   auto convert_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
