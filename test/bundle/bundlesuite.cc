@@ -195,9 +195,14 @@ auto expect_insertions(const std::string_view mode,
 
 // Bundling into a container that the dialect does not otherwise traverse
 // leaves its own output invisible to the next pass, so the idempotency pass
-// frames where the first pass actually put things. Framing rejects a path
-// that contains another, so a fixture that frames from the root cannot say
-// this at all, and such a schema never settles
+// frames where the first pass actually put things.
+//
+// Framing rejects a path that contains another, so a fixture that frames from
+// the root cannot name those locations at all. Dropping them is safe rather
+// than merely necessary: framing from the root already reaches every container
+// the dialect traverses, and one it does not traverse never settles no matter
+// what this returns. Handing back fewer paths can only make the next pass
+// embed more and fail louder, never pass when it should not
 auto with_insertions(const Inputs &inputs,
                      const std::vector<sourcemeta::core::Pointer> &insertions)
     -> Inputs {
