@@ -3,9 +3,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "properties": {
       "foo": { "$ref": "https://www.sourcemeta.com/anonymous-embedded" },
-      "bar": {
-        "$ref": "https://www.sourcemeta.com/anonymous-embedded-sibling"
-      }
+      "bar": { "$ref": "https://www.sourcemeta.com/anonymous-embedded-sibling" }
     }
   },
   "resolver": {
@@ -85,5 +83,17 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1www.sourcemeta.com~1shared",
+      "/$defs/https:~1~1www.sourcemeta.com~1anonymous-embedded-sibling",
+      "/$defs/https:~1~1www.sourcemeta.com~1anonymous-embedded"
+    ],
+    "references": [
+      "/$defs/https:~1~1www.sourcemeta.com~1shared",
+      "/$defs/https:~1~1www.sourcemeta.com~1anonymous-embedded-sibling",
+      "/$defs/https:~1~1www.sourcemeta.com~1anonymous-embedded"
+    ]
   }
 }

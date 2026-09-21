@@ -10,12 +10,7 @@
     "https://example.com/baz-anchor": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/baz-anchor",
-      "$defs": {
-        "baz": {
-          "$anchor": "baz",
-          "type": "string"
-        }
-      }
+      "$defs": { "baz": { "$anchor": "baz", "type": "string" } }
     }
   },
   "result": {
@@ -29,12 +24,7 @@
         "https://example.com/baz-anchor": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://example.com/baz-anchor",
-          "$defs": {
-            "baz": {
-              "$anchor": "baz",
-              "type": "string"
-            }
-          }
+          "$defs": { "baz": { "$anchor": "baz", "type": "string" } }
         }
       }
     },
@@ -48,14 +38,13 @@
         "https://example.com/baz-anchor": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://example.com/baz-anchor",
-          "$defs": {
-            "baz": {
-              "$anchor": "baz",
-              "type": "string"
-            }
-          }
+          "$defs": { "baz": { "$anchor": "baz", "type": "string" } }
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [ "/$defs/https:~1~1example.com~1baz-anchor" ],
+    "references": [ "/$defs/https:~1~1example.com~1baz-anchor" ]
   }
 }

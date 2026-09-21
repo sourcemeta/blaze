@@ -64,5 +64,17 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1www.sourcemeta.com~1chain-3",
+      "/$defs/https:~1~1www.sourcemeta.com~1chain-2",
+      "/$defs/https:~1~1www.sourcemeta.com~1chain-1"
+    ],
+    "references": [
+      "/$defs/https:~1~1www.sourcemeta.com~1chain-3",
+      "/$defs/https:~1~1www.sourcemeta.com~1chain-2",
+      "/$defs/https:~1~1www.sourcemeta.com~1chain-1"
+    ]
   }
 }

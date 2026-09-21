@@ -84,5 +84,17 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/definitions/https:~1~1www.sourcemeta.com~1test-3",
+      "/definitions/https:~1~1www.sourcemeta.com~1test-2",
+      "/definitions/https:~1~1www.sourcemeta.com~1test-1"
+    ],
+    "references": [
+      "/definitions/https:~1~1www.sourcemeta.com~1test-3",
+      "/definitions/https:~1~1www.sourcemeta.com~1test-2",
+      "/definitions/https:~1~1www.sourcemeta.com~1test-1"
+    ]
   }
 }

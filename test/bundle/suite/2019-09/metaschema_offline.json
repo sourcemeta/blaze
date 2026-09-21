@@ -6,12 +6,16 @@
       "https://example.com/meta/1.json": {
         "$schema": "https://example.com/meta/2.json",
         "$id": "https://example.com/meta/1.json",
-        "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true
+        }
       },
       "https://example.com/meta/2.json": {
         "$schema": "https://json-schema.org/draft/2019-09/schema",
         "$id": "https://example.com/meta/2.json",
-        "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true
+        }
       }
     }
   },
@@ -23,12 +27,16 @@
         "https://example.com/meta/1.json": {
           "$schema": "https://example.com/meta/2.json",
           "$id": "https://example.com/meta/1.json",
-          "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+          "$vocabulary": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true
+          }
         },
         "https://example.com/meta/2.json": {
           "$schema": "https://json-schema.org/draft/2019-09/schema",
           "$id": "https://example.com/meta/2.json",
-          "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+          "$vocabulary": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true
+          }
         }
       }
     },
@@ -39,14 +47,19 @@
         "https://example.com/meta/1.json": {
           "$schema": "https://example.com/meta/2.json",
           "$id": "https://example.com/meta/1.json",
-          "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+          "$vocabulary": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true
+          }
         },
         "https://example.com/meta/2.json": {
           "$schema": "https://json-schema.org/draft/2019-09/schema",
           "$id": "https://example.com/meta/2.json",
-          "$vocabulary": { "https://json-schema.org/draft/2019-09/vocab/core": true }
+          "$vocabulary": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true
+          }
         }
       }
     }
-  }
+  },
+  "inserted": { "nonOfficialMetaschemas": [], "references": [] }
 }

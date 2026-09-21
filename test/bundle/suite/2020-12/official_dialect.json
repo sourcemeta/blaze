@@ -33,5 +33,9 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [ "/$defs/https:~1~1www.sourcemeta.com~1test-1" ],
+    "references": [ "/$defs/https:~1~1www.sourcemeta.com~1test-1" ]
   }
 }

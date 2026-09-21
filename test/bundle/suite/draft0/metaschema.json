@@ -1,8 +1,5 @@
 {
-  "schema": {
-    "$schema": "https://example.com/meta/1.json",
-    "type": "string"
-  },
+  "schema": { "$schema": "https://example.com/meta/1.json", "type": "string" },
   "resolver": {
     "https://example.com/meta/1.json": {
       "$schema": "https://example.com/meta/2.json",
@@ -22,5 +19,6 @@
       "$schema": "https://example.com/meta/1.json",
       "type": "string"
     }
-  }
+  },
+  "inserted": { "nonOfficialMetaschemas": [], "references": [] }
 }

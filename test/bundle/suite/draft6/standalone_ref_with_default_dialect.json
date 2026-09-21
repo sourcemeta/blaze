@@ -1,7 +1,5 @@
 {
-  "schema": {
-    "$ref": "https://www.sourcemeta.com/test-1"
-  },
+  "schema": { "$ref": "https://www.sourcemeta.com/test-1" },
   "resolver": {
     "https://www.sourcemeta.com/test-1": {
       "$schema": "http://json-schema.org/draft-06/schema#",
@@ -31,5 +29,11 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/definitions/https:~1~1www.sourcemeta.com~1test-1"
+    ],
+    "references": [ "/definitions/https:~1~1www.sourcemeta.com~1test-1" ]
   }
 }

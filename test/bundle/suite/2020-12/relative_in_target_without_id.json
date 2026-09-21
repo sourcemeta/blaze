@@ -49,5 +49,15 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1example.com~1nested~1string.json",
+      "/$defs/https:~1~1example.com~1nested~1ref-string.json"
+    ],
+    "references": [
+      "/$defs/https:~1~1example.com~1nested~1string.json",
+      "/$defs/https:~1~1example.com~1nested~1ref-string.json"
+    ]
   }
 }

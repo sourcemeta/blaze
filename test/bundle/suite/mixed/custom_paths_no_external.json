@@ -1,12 +1,8 @@
 {
   "schema": {
-    "wrapper": {
-      "$ref": "#/common/test"
-    },
+    "wrapper": { "$ref": "#/common/test" },
     "common": {
-      "test": {
-        "$ref": "#/common/with-id"
-      },
+      "test": { "$ref": "#/common/with-id" },
       "with-id": {
         "$id": "https://www.sourcemeta.com/schema",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -19,13 +15,9 @@
   "paths": [ "/wrapper", "/common/test", "/common/with-id" ],
   "result": {
     "nonOfficialMetaschemas": {
-      "wrapper": {
-        "$ref": "#/common/test"
-      },
+      "wrapper": { "$ref": "#/common/test" },
       "common": {
-        "test": {
-          "$ref": "#/common/with-id"
-        },
+        "test": { "$ref": "#/common/with-id" },
         "with-id": {
           "$id": "https://www.sourcemeta.com/schema",
           "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -34,13 +26,9 @@
       }
     },
     "references": {
-      "wrapper": {
-        "$ref": "#/common/test"
-      },
+      "wrapper": { "$ref": "#/common/test" },
       "common": {
-        "test": {
-          "$ref": "#/common/with-id"
-        },
+        "test": { "$ref": "#/common/with-id" },
         "with-id": {
           "$id": "https://www.sourcemeta.com/schema",
           "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -48,5 +36,6 @@
         }
       }
     }
-  }
+  },
+  "inserted": { "nonOfficialMetaschemas": [], "references": [] }
 }

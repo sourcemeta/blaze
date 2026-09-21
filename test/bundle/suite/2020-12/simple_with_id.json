@@ -46,7 +46,7 @@
         "bar": { "$id": "https://www.sourcemeta.com", "$ref": "test-2" },
         "baz": { "$ref": "https://example.com/foo/bar#baz" },
         "qux": { "$ref": "https://example.com/foo/bar" },
-      "dyn": { "$dynamicRef": "https://www.sourcemeta.com/test-4" }
+        "dyn": { "$dynamicRef": "https://www.sourcemeta.com/test-4" }
       },
       "$defs": {
         "https://www.sourcemeta.com/test-1": {
@@ -84,7 +84,7 @@
         "bar": { "$id": "https://www.sourcemeta.com", "$ref": "test-2" },
         "baz": { "$ref": "https://example.com/foo/bar#baz" },
         "qux": { "$ref": "https://example.com/foo/bar" },
-      "dyn": { "$dynamicRef": "https://www.sourcemeta.com/test-4" }
+        "dyn": { "$dynamicRef": "https://www.sourcemeta.com/test-4" }
       },
       "$defs": {
         "https://www.sourcemeta.com/test-1": {
@@ -114,5 +114,21 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1www.sourcemeta.com~1test-3",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-2",
+      "/$defs/https:~1~1example.com~1foo~1bar",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-4",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-1"
+    ],
+    "references": [
+      "/$defs/https:~1~1www.sourcemeta.com~1test-3",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-2",
+      "/$defs/https:~1~1example.com~1foo~1bar",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-4",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-1"
+    ]
   }
 }

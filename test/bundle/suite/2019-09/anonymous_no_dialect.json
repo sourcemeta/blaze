@@ -1,10 +1,6 @@
 {
-  "schema": {
-    "$ref": "https://www.sourcemeta.com/anonymous"
-  },
-  "resolver": {
-    "https://www.sourcemeta.com/anonymous": { "type": "integer" }
-  },
+  "schema": { "$ref": "https://www.sourcemeta.com/anonymous" },
+  "resolver": { "https://www.sourcemeta.com/anonymous": { "type": "integer" } },
   "defaultDialect": "https://json-schema.org/draft/2019-09/schema",
   "result": {
     "nonOfficialMetaschemas": {
@@ -27,5 +23,11 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1www.sourcemeta.com~1anonymous"
+    ],
+    "references": [ "/$defs/https:~1~1www.sourcemeta.com~1anonymous" ]
   }
 }

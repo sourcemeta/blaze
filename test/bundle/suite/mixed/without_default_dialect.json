@@ -1,8 +1,6 @@
 {
   "schema": {
-    "properties": {
-      "foo": { "$ref": "https://www.sourcemeta.com/test-1" }
-    }
+    "properties": { "foo": { "$ref": "https://www.sourcemeta.com/test-1" } }
   },
   "resolver": {
     "https://www.sourcemeta.com/test-1": {
@@ -21,5 +19,6 @@
       "type": "SchemaUnknownBaseDialectError",
       "message": "Could not determine the base dialect of the schema"
     }
-  }
+  },
+  "inserted": {}
 }

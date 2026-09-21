@@ -1,13 +1,9 @@
 {
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "properties": {
-      "foo": { "$ref": "https://www.sourcemeta.com/array" }
-    }
+    "properties": { "foo": { "$ref": "https://www.sourcemeta.com/array" } }
   },
-  "resolver": {
-    "https://www.sourcemeta.com/array": [ "foo", "bar", "baz" ]
-  },
+  "resolver": { "https://www.sourcemeta.com/array": [ "foo", "bar", "baz" ] },
   "result": {},
   "errors": {
     "nonOfficialMetaschemas": {
@@ -22,5 +18,6 @@
       "identifier": "https://www.sourcemeta.com/array",
       "location": "/properties/foo/$ref"
     }
-  }
+  },
+  "inserted": {}
 }

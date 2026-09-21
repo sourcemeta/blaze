@@ -7,9 +7,7 @@
     "https://www.sourcemeta.com/recursive-empty-fragment": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
-      "properties": {
-        "foo": { "$ref": "#" }
-      }
+      "properties": { "foo": { "$ref": "#" } }
     }
   },
   "result": {
@@ -20,9 +18,7 @@
         "https://www.sourcemeta.com/recursive-empty-fragment": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
-          "properties": {
-            "foo": { "$ref": "#" }
-          }
+          "properties": { "foo": { "$ref": "#" } }
         }
       }
     },
@@ -33,11 +29,17 @@
         "https://www.sourcemeta.com/recursive-empty-fragment": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://www.sourcemeta.com/recursive-empty-fragment",
-          "properties": {
-            "foo": { "$ref": "#" }
-          }
+          "properties": { "foo": { "$ref": "#" } }
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1www.sourcemeta.com~1recursive-empty-fragment"
+    ],
+    "references": [
+      "/$defs/https:~1~1www.sourcemeta.com~1recursive-empty-fragment"
+    ]
   }
 }

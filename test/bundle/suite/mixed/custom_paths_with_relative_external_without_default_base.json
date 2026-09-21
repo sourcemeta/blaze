@@ -1,11 +1,5 @@
 {
-  "schema": {
-    "components": {
-      "schemas": {
-        "Pet": { "$ref": "test-1" }
-      }
-    }
-  },
+  "schema": { "components": { "schemas": { "Pet": { "$ref": "test-1" } } } },
   "resolver": {
     "https://www.sourcemeta.com/test-1": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -28,5 +22,6 @@
       "message": "Could not resolve the reference to an external schema",
       "identifier": "test-1"
     }
-  }
+  },
+  "inserted": {}
 }

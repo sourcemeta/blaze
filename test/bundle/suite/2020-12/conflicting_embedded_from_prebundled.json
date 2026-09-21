@@ -2,10 +2,7 @@
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/dedup-conflict-entry",
-    "allOf": [
-      { "$ref": "dedup-conflict-a" },
-      { "$ref": "dedup-conflict-b" }
-    ]
+    "allOf": [ { "$ref": "dedup-conflict-a" }, { "$ref": "dedup-conflict-b" } ]
   },
   "resolver": {
     "https://example.com/dedup-conflict-a": {
@@ -43,5 +40,6 @@
       "type": "SchemaError",
       "message": "Conflicting embedded resources with the same identifier"
     }
-  }
+  },
+  "inserted": {}
 }

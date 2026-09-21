@@ -53,5 +53,15 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1example.com~1cross-dialect-nested",
+      "/$defs/https:~1~1example.com~1cross-dialect-host"
+    ],
+    "references": [
+      "/$defs/https:~1~1example.com~1cross-dialect-nested",
+      "/$defs/https:~1~1example.com~1cross-dialect-host"
+    ]
   }
 }

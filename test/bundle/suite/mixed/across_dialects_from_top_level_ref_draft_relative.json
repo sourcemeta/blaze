@@ -21,5 +21,6 @@
       "type": "SchemaError",
       "message": "Cannot bundle a JSON Schema Draft 7 or older with a top-level `$ref` (which overrides sibling keywords) without introducing undefined behavior"
     }
-  }
+  },
+  "inserted": {}
 }

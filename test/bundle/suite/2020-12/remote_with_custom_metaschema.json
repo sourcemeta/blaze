@@ -12,12 +12,16 @@
     "https://example.com/meta/1.json": {
       "$schema": "https://example.com/meta/2.json",
       "$id": "https://example.com/meta/1.json",
-      "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true
+      }
     },
     "https://example.com/meta/2.json": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/meta/2.json",
-      "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true
+      }
     }
   },
   "result": {
@@ -33,12 +37,16 @@
         "https://example.com/meta/1.json": {
           "$schema": "https://example.com/meta/2.json",
           "$id": "https://example.com/meta/1.json",
-          "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true
+          }
         },
         "https://example.com/meta/2.json": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://example.com/meta/2.json",
-          "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true
+          }
         }
       }
     },
@@ -53,5 +61,13 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1example.com~1meta~12.json",
+      "/$defs/https:~1~1example.com~1meta~11.json",
+      "/$defs/https:~1~1example.com~1with-custom-metaschema"
+    ],
+    "references": [ "/$defs/https:~1~1example.com~1with-custom-metaschema" ]
   }
 }

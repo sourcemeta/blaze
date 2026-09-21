@@ -53,5 +53,15 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/definitions/https:~1~1example.com~1draft7-elevate-nested",
+      "/definitions/https:~1~1example.com~1draft7-elevate-single"
+    ],
+    "references": [
+      "/definitions/https:~1~1example.com~1draft7-elevate-nested",
+      "/definitions/https:~1~1example.com~1draft7-elevate-single"
+    ]
   }
 }
