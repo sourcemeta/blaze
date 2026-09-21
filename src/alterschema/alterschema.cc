@@ -189,8 +189,12 @@ inline auto compile_embedded_subschema(const JSON &root,
 
   const Pointer container{container_name};
   auto document{root};
-  bundle(document, walker, resolver, BundleMode::References, default_dialect,
-         "", container, paths, default_base);
+  BundleOptions options;
+  options.mode = BundleMode::References;
+  options.default_container = container;
+  options.paths = paths;
+  options.default_base = default_base;
+  bundle(document, walker, resolver, default_dialect, "", options);
 
   // Bundling embeds every remote schema into the container, outside of every
   // schema that the frame located, so each of them is framed as a schema too

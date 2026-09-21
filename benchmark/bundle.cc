@@ -13,10 +13,8 @@ BENCHMARK(Schema_Bundle_Meta_2020_12) {
 
   for (auto iteration : state) {
     auto schema{document};
-    sourcemeta::blaze::bundle(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+    sourcemeta::blaze::bundle(schema, sourcemeta::core::schema_walker,
+                              sourcemeta::core::schema_resolver);
     sourcemeta::core::benchmark_do_not_optimize(schema);
   }
 }
@@ -73,9 +71,8 @@ BENCHMARK(Schema_Bundle_Many_Remotes_With_Fragments) {
 
   for (auto iteration : state) {
     auto schema{document};
-    sourcemeta::blaze::bundle(
-        schema, sourcemeta::core::schema_walker, resolver,
-        sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+    sourcemeta::blaze::bundle(schema, sourcemeta::core::schema_walker,
+                              resolver);
     sourcemeta::core::benchmark_do_not_optimize(schema);
   }
 }

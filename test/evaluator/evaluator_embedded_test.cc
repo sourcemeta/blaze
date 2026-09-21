@@ -649,13 +649,14 @@ TEST(entrypoint_at_embedded_root_with_bundled_external_reference) {
   })JSON")};
 
   const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  sourcemeta::blaze::BundleOptions options;
+  options.mode = sourcemeta::blaze::BundleMode::References;
+  options.default_container = sourcemeta::core::Pointer{"x-bundled"};
+  options.paths = {sourcemeta::core::to_weak_pointer(pet)};
+  options.default_base = "https://example.com/openapi.json";
   const sourcemeta::core::JSON bundled{sourcemeta::blaze::bundle(
       document, sourcemeta::core::schema_walker, test_resolver,
-      sourcemeta::blaze::BundleMode::References,
-      "https://spec.openapis.org/oas/3.1/dialect/base", "",
-      sourcemeta::core::Pointer{"x-bundled"},
-      {sourcemeta::core::to_weak_pointer(pet)},
-      "https://example.com/openapi.json")};
+      "https://spec.openapis.org/oas/3.1/dialect/base", "", options)};
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON({
     "openapi": "3.1.1",

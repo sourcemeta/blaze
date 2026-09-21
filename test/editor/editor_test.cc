@@ -189,9 +189,8 @@ TEST(2020_12_bundle) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_2020_12,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_2020_12);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
@@ -239,9 +238,8 @@ TEST(2020_12_static_dynamic_reference) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_2020_12,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_2020_12);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
@@ -409,9 +407,8 @@ TEST(2020_12_bundle_metaschema) {
     "type": "string"
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_2020_12,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_2020_12);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2020_12);
 
@@ -445,9 +442,8 @@ TEST(2019_09_bundle) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_2019_09,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_2019_09);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2019_09);
 
@@ -490,9 +486,8 @@ TEST(2019_09_bundle_metaschema) {
     "type": "string"
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_2019_09,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_2019_09);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_2019_09);
 
@@ -523,9 +518,8 @@ TEST(draft7_bundle) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_draft7,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_draft7);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft7);
 
@@ -631,9 +625,8 @@ TEST(draft7_bundle_metaschema) {
     "type": "string"
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_draft7,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_draft7);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft7);
 
@@ -664,9 +657,8 @@ TEST(draft6_bundle) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_draft6,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_draft6);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft6);
 
@@ -698,9 +690,8 @@ TEST(draft6_bundle_metaschema) {
     "type": "string"
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_draft6,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_draft6);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft6);
 
@@ -731,9 +722,8 @@ TEST(draft4_bundle) {
     }
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_draft4,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_draft4);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft4);
 
@@ -765,9 +755,8 @@ TEST(draft4_bundle_metaschema) {
     "type": "string"
   })JSON");
 
-  sourcemeta::blaze::bundle(
-      document, sourcemeta::core::schema_walker, test_resolver_draft4,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas);
+  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker,
+                            test_resolver_draft4);
   sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
                                 test_resolver_draft4);
 

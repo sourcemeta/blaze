@@ -311,10 +311,9 @@ TEST(explicit_frame) {
     "allOf": [ { "$ref": "https://json-schema.org/draft/2020-12/schema" } ]
   })JSON")};
 
-  const sourcemeta::core::JSON result{sourcemeta::blaze::bundle(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas)};
+  const sourcemeta::core::JSON result{
+      sourcemeta::blaze::bundle(schema, sourcemeta::core::schema_walker,
+                                sourcemeta::core::schema_resolver)};
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References, result,
       sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
@@ -335,10 +334,9 @@ TEST(explicit_frame_locations_only) {
     "allOf": [ { "$ref": "https://json-schema.org/draft/2020-12/schema" } ]
   })JSON")};
 
-  const sourcemeta::core::JSON result{sourcemeta::blaze::bundle(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas)};
+  const sourcemeta::core::JSON result{
+      sourcemeta::blaze::bundle(schema, sourcemeta::core::schema_walker,
+                                sourcemeta::core::schema_resolver)};
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::Locations, result,
       sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
@@ -562,9 +560,7 @@ TEST(unevaluated_properties_with_root_dynamic_anchor_and_default_id) {
 
   const auto bundled{sourcemeta::blaze::bundle(
       schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas, "",
-      "https://example.com/default")};
+      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
 
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References,
@@ -597,9 +593,7 @@ TEST(unevaluated_items_with_root_dynamic_anchor_and_default_id) {
 
   const auto bundled{sourcemeta::blaze::bundle(
       schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas, "",
-      "https://example.com/default")};
+      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
 
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References,
@@ -632,9 +626,7 @@ TEST(unevaluated_properties_with_root_recursive_anchor_and_default_id_2019_09) {
 
   const auto bundled{sourcemeta::blaze::bundle(
       schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas, "",
-      "https://example.com/default")};
+      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
 
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References,
@@ -667,9 +659,7 @@ TEST(unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
 
   const auto bundled{sourcemeta::blaze::bundle(
       schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::BundleMode::NonOfficialMetaschemas, "",
-      "https://example.com/default")};
+      sourcemeta::core::schema_resolver, "", "https://example.com/default")};
 
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References,
