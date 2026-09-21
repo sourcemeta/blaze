@@ -156,7 +156,8 @@ auto embed_schema(sourcemeta::core::JSON &root,
                   const sourcemeta::core::Pointer &container,
                   const std::string_view identifier,
                   sourcemeta::core::JSON &&target,
-                  const sourcemeta::blaze::EmbedCallback &callback) -> void {
+                  const sourcemeta::blaze::BundleEmbedCallback &callback)
+    -> void {
   auto *current{&root};
   for (const auto &token : container) {
     if (token.is_property()) {
@@ -198,8 +199,8 @@ auto elevate_embedded_resources(
     std::string_view default_dialect,
     std::unordered_map<sourcemeta::core::JSON::String,
                        sourcemeta::core::JSON::String> &bundled,
-    std::uint64_t &remaining, const sourcemeta::blaze::EmbedCallback &callback)
-    -> void {
+    std::uint64_t &remaining,
+    const sourcemeta::blaze::BundleEmbedCallback &callback) -> void {
   const auto keyword{sourcemeta::blaze::definitions_keyword(remote_dialect)};
   const sourcemeta::core::JSON::String keyword_string{keyword};
   if (keyword.empty() || !remote.is_object() ||
@@ -376,7 +377,7 @@ auto bundle_schema(sourcemeta::core::JSON &root,
                    std::unordered_map<sourcemeta::core::JSON::String,
                                       sourcemeta::core::JSON::String> &bundled,
                    std::uint64_t &remaining,
-                   const sourcemeta::blaze::EmbedCallback &callback,
+                   const sourcemeta::blaze::BundleEmbedCallback &callback,
                    const std::size_t depth = 0) -> void {
   // Create a fresh frame for each schema we analyze to avoid key collisions
   // between different schemas that have references at the same pointer paths
@@ -605,7 +606,7 @@ static auto bundle_internal(
     const std::optional<sourcemeta::core::Pointer> &default_container,
     const sourcemeta::core::SchemaFrame::Paths &paths,
     std::string_view default_base, std::uint64_t &remaining,
-    const EmbedCallback &callback) -> void {
+    const BundleEmbedCallback &callback) -> void {
   // Pre-scan the schema to find any already-embedded schemas and mark them
   // as bundled to avoid re-embedding them. This includes the root schema itself
   // and any schemas already embedded within it
@@ -735,7 +736,7 @@ auto bundle(sourcemeta::core::JSON &schema,
             const std::optional<sourcemeta::core::Pointer> &default_container,
             const sourcemeta::core::SchemaFrame::Paths &paths,
             std::string_view default_base, const std::uint64_t max_locations,
-            const EmbedCallback &callback) -> void {
+            const BundleEmbedCallback &callback) -> void {
   auto remaining{max_locations};
   try {
     bundle_internal(schema, walker, resolver, mode, default_dialect, default_id,
@@ -757,7 +758,7 @@ auto bundle(const sourcemeta::core::JSON &schema,
             const std::optional<sourcemeta::core::Pointer> &default_container,
             const sourcemeta::core::SchemaFrame::Paths &paths,
             std::string_view default_base, const std::uint64_t max_locations,
-            const EmbedCallback &callback) -> sourcemeta::core::JSON {
+            const BundleEmbedCallback &callback) -> sourcemeta::core::JSON {
   sourcemeta::core::JSON copy = schema;
   bundle(copy, walker, resolver, mode, default_dialect, default_id,
          default_container, paths, default_base, max_locations, callback);

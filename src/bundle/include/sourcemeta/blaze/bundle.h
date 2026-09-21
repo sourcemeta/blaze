@@ -40,7 +40,7 @@ using DependencyCallback =
 /// @ingroup bundle
 /// A callback to report where a schema got embedded, as a pointer from the
 /// root of the schema being bundled
-using EmbedCallback =
+using BundleEmbedCallback =
     std::function<void(const sourcemeta::core::WeakPointer &)>;
 
 /// @ingroup bundle
@@ -195,7 +195,7 @@ auto bundle(
         {sourcemeta::core::EMPTY_WEAK_POINTER},
     std::string_view default_base = "",
     std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max(),
-    const EmbedCallback &callback = nullptr) -> void;
+    const BundleEmbedCallback &callback = nullptr) -> void;
 
 /// @ingroup bundle
 ///
@@ -269,7 +269,7 @@ auto bundle(
         {sourcemeta::core::EMPTY_WEAK_POINTER},
     std::string_view default_base = "",
     std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max(),
-    const EmbedCallback &callback = nullptr) -> sourcemeta::core::JSON;
+    const BundleEmbedCallback &callback = nullptr) -> sourcemeta::core::JSON;
 
 } // namespace sourcemeta::blaze
 
