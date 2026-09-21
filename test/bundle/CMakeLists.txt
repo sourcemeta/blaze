@@ -1,17 +1,7 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME bundle
   SOURCES
-    bundle_2020_12_test.cc
-    bundle_2019_09_test.cc
-    bundle_draft7_test.cc
-    bundle_draft6_test.cc
-    bundle_draft4_test.cc
-    bundle_draft3_test.cc
-    bundle_draft2_test.cc
-    bundle_draft1_test.cc
-    bundle_draft0_test.cc
-    bundle_test.cc
-    bundle_dependencies_test.cc
-    bundle_limit_test.cc)
+    bundle_container_test.cc
+    bundle_dependencies_test.cc)
 
 target_link_libraries(sourcemeta_blaze_bundle_unit
   PRIVATE sourcemeta::core::json)
@@ -21,3 +11,19 @@ target_link_libraries(sourcemeta_blaze_bundle_unit
   PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_bundle_unit
   PRIVATE sourcemeta::blaze::bundle)
+
+# Complete bundling tests, expressed as JSON fixtures
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME bundle_suite
+  SOURCES bundlesuite.cc)
+target_compile_definitions(sourcemeta_blaze_bundle_suite_unit
+  PRIVATE BUNDLE_SUITE_PATH="${PROJECT_SOURCE_DIR}/test/bundle/suite")
+target_link_libraries(sourcemeta_blaze_bundle_suite_unit
+  PRIVATE sourcemeta::core::json)
+target_link_libraries(sourcemeta_blaze_bundle_suite_unit
+  PRIVATE sourcemeta::core::jsonpointer)
+target_link_libraries(sourcemeta_blaze_bundle_suite_unit
+  PRIVATE sourcemeta::core::jsonschema)
+target_link_libraries(sourcemeta_blaze_bundle_suite_unit
+  PRIVATE sourcemeta::blaze::bundle)
+
+set_tests_properties(blaze.bundle_suite PROPERTIES TIMEOUT 60)

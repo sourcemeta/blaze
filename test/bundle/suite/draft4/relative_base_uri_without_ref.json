@@ -1,0 +1,16 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "foo"
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "foo"
+    },
+    "references": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "foo"
+    }
+  }
+}

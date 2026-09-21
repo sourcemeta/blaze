@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://www.sourcemeta.com/main",
+    "properties": {
+      "foo": { "$ref": "https://www.sourcemeta.com/pointer-shaped-id#/foo" }
+    }
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/pointer-shaped-id": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://www.sourcemeta.com/pointer-shaped-id",
+      "definitions": {
+        "bar": { "id": "#/foo", "type": "string" }
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://www.sourcemeta.com/main",
+      "properties": {
+        "foo": { "$ref": "https://www.sourcemeta.com/pointer-shaped-id#/foo" }
+      },
+      "definitions": {
+        "https://www.sourcemeta.com/pointer-shaped-id": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://www.sourcemeta.com/pointer-shaped-id",
+          "definitions": {
+            "bar": { "id": "#/foo", "type": "string" }
+          }
+        }
+      }
+    },
+    "references": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://www.sourcemeta.com/main",
+      "properties": {
+        "foo": { "$ref": "https://www.sourcemeta.com/pointer-shaped-id#/foo" }
+      },
+      "definitions": {
+        "https://www.sourcemeta.com/pointer-shaped-id": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://www.sourcemeta.com/pointer-shaped-id",
+          "definitions": {
+            "bar": { "id": "#/foo", "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

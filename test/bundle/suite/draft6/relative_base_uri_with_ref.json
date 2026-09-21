@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "common",
+    "allOf": [ { "$ref": "#reference" } ],
+    "definitions": {
+      "reference": {
+        "$id": "#reference"
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "common",
+      "allOf": [ { "$ref": "#reference" } ],
+      "definitions": {
+        "reference": {
+          "$id": "#reference"
+        }
+      }
+    },
+    "references": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "common",
+      "allOf": [ { "$ref": "#reference" } ],
+      "definitions": {
+        "reference": {
+          "$id": "#reference"
+        }
+      }
+    }
+  }
+}

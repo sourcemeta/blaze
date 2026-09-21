@@ -114,6 +114,48 @@ static auto test_resolver(std::string_view identifier)
   return sourcemeta::core::schema_resolver(identifier);
 }
 
+static auto chain_resolver(std::string_view identifier)
+    -> sourcemeta::core::SchemaResolverResult {
+  if (identifier == "https://www.sourcemeta.com/chain-1") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/chain-1",
+      "$ref": "chain-2"
+    })JSON");
+  }
+
+  if (identifier == "https://www.sourcemeta.com/chain-2") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/chain-2",
+      "$ref": "chain-3"
+    })JSON");
+  }
+
+  if (identifier == "https://www.sourcemeta.com/chain-3") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/chain-3",
+      "type": "string"
+    })JSON");
+  }
+
+  return sourcemeta::core::schema_resolver(identifier);
+}
+
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
+// Pulls in three remotes, one reference deep at a time
+static const sourcemeta::core::JSON CHAIN =
+    sourcemeta::core::parse_json(R"JSON({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "https://www.sourcemeta.com/chain-1"
+})JSON");
+
+static const std::vector<std::string> CHAIN_DEPENDENCIES{
+    "https://www.sourcemeta.com/chain-1", "https://www.sourcemeta.com/chain-2",
+    "https://www.sourcemeta.com/chain-3"};
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
+
 TEST(multiple_refs) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
@@ -830,4 +872,35 @@ TEST(embedded_custom_metaschema_offline_draft3) {
       });
 
   EXPECT_TRUE(traces.empty());
+}
+
+TEST(default_limit_is_unbounded) {
+  std::vector<std::string> identifiers;
+  sourcemeta::blaze::dependencies(
+      CHAIN, sourcemeta::core::schema_walker, chain_resolver,
+      [&identifiers](const auto &, const auto &, const auto &target,
+                     const auto &) { identifiers.emplace_back(target); });
+  EXPECT_EQ(identifiers, CHAIN_DEPENDENCIES);
+}
+
+TEST(at_exactly_the_required_limit_succeeds) {
+  std::vector<std::string> identifiers;
+  sourcemeta::blaze::dependencies(
+      CHAIN, sourcemeta::core::schema_walker, chain_resolver,
+      [&identifiers](const auto &, const auto &, const auto &target,
+                     const auto &) { identifiers.emplace_back(target); },
+      "", "", {sourcemeta::core::EMPTY_WEAK_POINTER}, 7);
+  EXPECT_EQ(identifiers, CHAIN_DEPENDENCIES);
+}
+
+TEST(one_below_the_required_limit_throws) {
+  try {
+    sourcemeta::blaze::dependencies(
+        CHAIN, sourcemeta::core::schema_walker, chain_resolver,
+        [](const auto &, const auto &, const auto &, const auto &) {}, "", "",
+        {sourcemeta::core::EMPTY_WEAK_POINTER}, 6);
+    FAIL();
+  } catch (const sourcemeta::core::SchemaFrameLimitError &error) {
+    EXPECT_EQ(error.limit(), 6);
+  }
 }

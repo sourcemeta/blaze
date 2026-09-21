@@ -1,0 +1,25 @@
+{
+  "schema": {
+    "properties": {
+      "foo": { "$ref": "https://www.sourcemeta.com/test-1" }
+    }
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/test-1": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/test-1",
+      "type": "string"
+    }
+  },
+  "result": {},
+  "errors": {
+    "nonOfficialMetaschemas": {
+      "type": "SchemaUnknownBaseDialectError",
+      "message": "Could not determine the base dialect of the schema"
+    },
+    "references": {
+      "type": "SchemaUnknownBaseDialectError",
+      "message": "Could not determine the base dialect of the schema"
+    }
+  }
+}

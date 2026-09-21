@@ -1,0 +1,26 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "$ref": "https://www.sourcemeta.com/no-dialect" }
+    }
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/no-dialect": { "foo": 1 }
+  },
+  "result": {},
+  "errors": {
+    "nonOfficialMetaschemas": {
+      "type": "SchemaReferenceError",
+      "message": "The JSON document is not a valid JSON Schema",
+      "identifier": "https://www.sourcemeta.com/no-dialect",
+      "location": "/properties/foo/$ref"
+    },
+    "references": {
+      "type": "SchemaReferenceError",
+      "message": "The JSON document is not a valid JSON Schema",
+      "identifier": "https://www.sourcemeta.com/no-dialect",
+      "location": "/properties/foo/$ref"
+    }
+  }
+}

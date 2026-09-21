@@ -1,0 +1,88 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/dedup-entry",
+    "allOf": [
+      { "$ref": "dedup-a" },
+      { "$ref": "dedup-b" }
+    ]
+  },
+  "resolver": {
+    "https://example.com/dedup-a": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/dedup-a",
+      "$ref": "dedup-common",
+      "$defs": {
+        "https://example.com/dedup-common": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/dedup-common",
+          "type": "string"
+        }
+      }
+    },
+    "https://example.com/dedup-b": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/dedup-b",
+      "$ref": "dedup-common",
+      "$defs": {
+        "https://example.com/dedup-common": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/dedup-common",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/dedup-entry",
+      "allOf": [
+        { "$ref": "dedup-a" },
+        { "$ref": "dedup-b" }
+      ],
+      "$defs": {
+        "https://example.com/dedup-a": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/dedup-a",
+          "$ref": "dedup-common"
+        },
+        "https://example.com/dedup-b": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/dedup-b",
+          "$ref": "dedup-common"
+        },
+        "https://example.com/dedup-common": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/dedup-common",
+          "type": "string"
+        }
+      }
+    },
+    "references": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/dedup-entry",
+      "allOf": [
+        { "$ref": "dedup-a" },
+        { "$ref": "dedup-b" }
+      ],
+      "$defs": {
+        "https://example.com/dedup-a": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/dedup-a",
+          "$ref": "dedup-common"
+        },
+        "https://example.com/dedup-b": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/dedup-b",
+          "$ref": "dedup-common"
+        },
+        "https://example.com/dedup-common": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/dedup-common",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

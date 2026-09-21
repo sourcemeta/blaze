@@ -1,0 +1,78 @@
+{
+  "schema": {
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": {
+      "test": { "$ref": "https://www.sourcemeta.com/test-1" },
+      "extra": { "$ref": "https://www.sourcemeta.com/test-4" }
+    },
+    "$defs": {
+      "https://www.sourcemeta.com/test-1": { "foo": 1 },
+      "https://www.sourcemeta.com/test-4": { "foo": 1 },
+      "https://www.sourcemeta.com/test-4/x": { "foo": 1 },
+      "https://www.sourcemeta.com/test-4/x/x": { "foo": 1 }
+    }
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/test-1": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://www.sourcemeta.com/test-1",
+      "type": "string"
+    },
+    "https://www.sourcemeta.com/test-4": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://www.sourcemeta.com/test-4",
+      "type": "boolean"
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$id": "https://example.com",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "test": { "$ref": "https://www.sourcemeta.com/test-1" },
+        "extra": { "$ref": "https://www.sourcemeta.com/test-4" }
+      },
+      "$defs": {
+        "https://www.sourcemeta.com/test-1": { "foo": 1 },
+        "https://www.sourcemeta.com/test-1/x": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://www.sourcemeta.com/test-1",
+          "type": "string"
+        },
+        "https://www.sourcemeta.com/test-4": { "foo": 1 },
+        "https://www.sourcemeta.com/test-4/x": { "foo": 1 },
+        "https://www.sourcemeta.com/test-4/x/x": { "foo": 1 },
+        "https://www.sourcemeta.com/test-4/x/x/x": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://www.sourcemeta.com/test-4",
+          "type": "boolean"
+        }
+      }
+    },
+    "references": {
+      "$id": "https://example.com",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "test": { "$ref": "https://www.sourcemeta.com/test-1" },
+        "extra": { "$ref": "https://www.sourcemeta.com/test-4" }
+      },
+      "$defs": {
+        "https://www.sourcemeta.com/test-1": { "foo": 1 },
+        "https://www.sourcemeta.com/test-1/x": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://www.sourcemeta.com/test-1",
+          "type": "string"
+        },
+        "https://www.sourcemeta.com/test-4": { "foo": 1 },
+        "https://www.sourcemeta.com/test-4/x": { "foo": 1 },
+        "https://www.sourcemeta.com/test-4/x/x": { "foo": 1 },
+        "https://www.sourcemeta.com/test-4/x/x/x": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://www.sourcemeta.com/test-4",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

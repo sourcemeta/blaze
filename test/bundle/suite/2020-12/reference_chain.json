@@ -1,0 +1,76 @@
+{
+  "schema": {
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "test": { "$ref": "https://www.sourcemeta.com/test-2" }
+    }
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/test-1": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/test-1",
+      "type": "string"
+    },
+    "https://www.sourcemeta.com/test-2": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/test-2",
+      "$ref": "test-3"
+    },
+    "https://www.sourcemeta.com/test-3": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/test-3",
+      "$ref": "test-1"
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$id": "https://example.com",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "test": { "$ref": "https://www.sourcemeta.com/test-2" }
+      },
+      "$defs": {
+        "https://www.sourcemeta.com/test-1": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.sourcemeta.com/test-1",
+          "type": "string"
+        },
+        "https://www.sourcemeta.com/test-2": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.sourcemeta.com/test-2",
+          "$ref": "test-3"
+        },
+        "https://www.sourcemeta.com/test-3": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.sourcemeta.com/test-3",
+          "$ref": "test-1"
+        }
+      }
+    },
+    "references": {
+      "$id": "https://example.com",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "test": { "$ref": "https://www.sourcemeta.com/test-2" }
+      },
+      "$defs": {
+        "https://www.sourcemeta.com/test-1": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.sourcemeta.com/test-1",
+          "type": "string"
+        },
+        "https://www.sourcemeta.com/test-2": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.sourcemeta.com/test-2",
+          "$ref": "test-3"
+        },
+        "https://www.sourcemeta.com/test-3": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://www.sourcemeta.com/test-3",
+          "$ref": "test-1"
+        }
+      }
+    }
+  }
+}

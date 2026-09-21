@@ -1,0 +1,7 @@
+{
+  "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema" },
+  "result": {
+    "nonOfficialMetaschemas": { "$schema": "https://json-schema.org/draft/2020-12/schema" },
+    "references": { "$schema": "https://json-schema.org/draft/2020-12/schema" }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": { "$ref": "https://example.com/baz-anchor#/$defs/qux" }
+    }
+  },
+  "resolver": {
+    "https://example.com/baz-anchor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/baz-anchor",
+      "$defs": {
+        "baz": {
+          "$anchor": "baz",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "result": {},
+  "errors": {
+    "nonOfficialMetaschemas": {
+      "type": "SchemaReferenceError",
+      "message": "Could not resolve schema reference",
+      "identifier": "https://example.com/baz-anchor#/$defs/qux",
+      "location": "/properties/foo/$ref"
+    },
+    "references": {
+      "type": "SchemaReferenceError",
+      "message": "Could not resolve schema reference",
+      "identifier": "https://example.com/baz-anchor#/$defs/qux",
+      "location": "/properties/foo/$ref"
+    }
+  }
+}
