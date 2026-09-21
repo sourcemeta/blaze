@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": {
+      "foo": {
+        "$ref": "https://www.sourcemeta.com/trailing-hash#/definitions/string"
+      }
+    }
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/trailing-hash": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://www.sourcemeta.com/trailing-hash",
+      "definitions": {
+        "string": { "type": "string" }
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$id": "https://example.com",
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": {
+        "foo": {
+          "$ref": "https://www.sourcemeta.com/trailing-hash#/definitions/string"
+        }
+      },
+      "definitions": {
+        "https://www.sourcemeta.com/trailing-hash": {
+          "$schema": "http://json-schema.org/draft-06/schema#",
+          "$id": "https://www.sourcemeta.com/trailing-hash",
+          "definitions": {
+            "string": { "type": "string" }
+          }
+        }
+      }
+    },
+    "references": {
+      "$id": "https://example.com",
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": {
+        "foo": {
+          "$ref": "https://www.sourcemeta.com/trailing-hash#/definitions/string"
+        }
+      },
+      "definitions": {
+        "https://www.sourcemeta.com/trailing-hash": {
+          "$schema": "http://json-schema.org/draft-06/schema#",
+          "$id": "https://www.sourcemeta.com/trailing-hash",
+          "definitions": {
+            "string": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

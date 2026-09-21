@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$id": "https://example.com/test",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "nested/ref-string.json"
+  },
+  "resolver": {
+    "https://example.com/nested/ref-string.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "string.json"
+    },
+    "https://example.com/nested/string.json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string"
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$id": "https://example.com/test",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "nested/ref-string.json",
+      "$defs": {
+        "https://example.com/nested/ref-string.json": {
+          "$id": "https://example.com/nested/ref-string.json",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$ref": "string.json"
+        },
+        "https://example.com/nested/string.json": {
+          "$id": "https://example.com/nested/string.json",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    },
+    "references": {
+      "$id": "https://example.com/test",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "nested/ref-string.json",
+      "$defs": {
+        "https://example.com/nested/ref-string.json": {
+          "$id": "https://example.com/nested/ref-string.json",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$ref": "string.json"
+        },
+        "https://example.com/nested/string.json": {
+          "$id": "https://example.com/nested/string.json",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

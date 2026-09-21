@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$id": "https://www.example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "$ref": "https://www.sourcemeta.com/test-3-top-level-ref" }
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/test-3-top-level-ref": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://www.sourcemeta.com/test-3-top-level-ref",
+      "$ref": "test-4"
+    },
+    "https://www.sourcemeta.com/test-4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://www.sourcemeta.com/test-4",
+      "type": "string"
+    }
+  },
+  "result": {},
+  "errors": {
+    "nonOfficialMetaschemas": {
+      "type": "SchemaReferenceObjectResourceError",
+      "message": "A schema with a top-level `$ref` in JSON Schema Draft 7 and older dialects ignores every sibling keywords (like identifiers and meta-schema declarations) and therefore many operations, like bundling, are not possible without undefined behavior",
+      "identifier": "https://www.sourcemeta.com/test-3-top-level-ref"
+    },
+    "references": {
+      "type": "SchemaReferenceObjectResourceError",
+      "message": "A schema with a top-level `$ref` in JSON Schema Draft 7 and older dialects ignores every sibling keywords (like identifiers and meta-schema declarations) and therefore many operations, like bundling, are not possible without undefined behavior",
+      "identifier": "https://www.sourcemeta.com/test-3-top-level-ref"
+    }
+  }
+}

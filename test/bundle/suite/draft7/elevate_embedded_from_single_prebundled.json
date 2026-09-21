@@ -1,0 +1,57 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/draft7-elevate-entry",
+    "allOf": [ { "$ref": "draft7-elevate-single" } ]
+  },
+  "resolver": {
+    "https://example.com/draft7-elevate-single": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/draft7-elevate-single",
+      "allOf": [ { "$ref": "draft7-elevate-nested" } ],
+      "definitions": {
+        "https://example.com/draft7-elevate-nested": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/draft7-elevate-nested",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/draft7-elevate-entry",
+      "allOf": [ { "$ref": "draft7-elevate-single" } ],
+      "definitions": {
+        "https://example.com/draft7-elevate-single": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/draft7-elevate-single",
+          "allOf": [ { "$ref": "draft7-elevate-nested" } ]
+        },
+        "https://example.com/draft7-elevate-nested": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/draft7-elevate-nested",
+          "type": "string"
+        }
+      }
+    },
+    "references": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/draft7-elevate-entry",
+      "allOf": [ { "$ref": "draft7-elevate-single" } ],
+      "definitions": {
+        "https://example.com/draft7-elevate-single": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/draft7-elevate-single",
+          "allOf": [ { "$ref": "draft7-elevate-nested" } ]
+        },
+        "https://example.com/draft7-elevate-nested": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/draft7-elevate-nested",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

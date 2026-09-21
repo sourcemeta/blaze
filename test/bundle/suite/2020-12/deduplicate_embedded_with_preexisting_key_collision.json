@@ -1,0 +1,99 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/collision-entry",
+    "$defs": {
+      "https://example.com/collision-common": {
+        "type": "boolean"
+      }
+    },
+    "allOf": [
+      { "$ref": "collision-a" },
+      { "$ref": "collision-b" }
+    ]
+  },
+  "resolver": {
+    "https://example.com/collision-a": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/collision-a",
+      "$ref": "collision-common",
+      "$defs": {
+        "https://example.com/collision-common": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/collision-common",
+          "type": "string"
+        }
+      }
+    },
+    "https://example.com/collision-b": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/collision-b",
+      "$ref": "collision-common",
+      "$defs": {
+        "https://example.com/collision-common": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/collision-common",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/collision-entry",
+      "allOf": [
+        { "$ref": "collision-a" },
+        { "$ref": "collision-b" }
+      ],
+      "$defs": {
+        "https://example.com/collision-common": {
+          "type": "boolean"
+        },
+        "https://example.com/collision-a": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/collision-a",
+          "$ref": "collision-common"
+        },
+        "https://example.com/collision-b": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/collision-b",
+          "$ref": "collision-common"
+        },
+        "https://example.com/collision-common/x": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/collision-common",
+          "type": "string"
+        }
+      }
+    },
+    "references": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/collision-entry",
+      "allOf": [
+        { "$ref": "collision-a" },
+        { "$ref": "collision-b" }
+      ],
+      "$defs": {
+        "https://example.com/collision-common": {
+          "type": "boolean"
+        },
+        "https://example.com/collision-a": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/collision-a",
+          "$ref": "collision-common"
+        },
+        "https://example.com/collision-b": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/collision-b",
+          "$ref": "collision-common"
+        },
+        "https://example.com/collision-common/x": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/collision-common",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

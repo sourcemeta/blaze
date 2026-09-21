@@ -1,0 +1,71 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/direct-and-embedded-entry",
+    "allOf": [
+      { "$ref": "prebundled-with-shared" },
+      { "$ref": "shared-direct" }
+    ]
+  },
+  "resolver": {
+    "https://example.com/prebundled-with-shared": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/prebundled-with-shared",
+      "$ref": "shared-direct",
+      "$defs": {
+        "https://example.com/shared-direct": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/shared-direct",
+          "type": "string"
+        }
+      }
+    },
+    "https://example.com/shared-direct": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/shared-direct",
+      "type": "string"
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/direct-and-embedded-entry",
+      "allOf": [
+        { "$ref": "prebundled-with-shared" },
+        { "$ref": "shared-direct" }
+      ],
+      "$defs": {
+        "https://example.com/prebundled-with-shared": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/prebundled-with-shared",
+          "$ref": "shared-direct"
+        },
+        "https://example.com/shared-direct": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/shared-direct",
+          "type": "string"
+        }
+      }
+    },
+    "references": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/direct-and-embedded-entry",
+      "allOf": [
+        { "$ref": "prebundled-with-shared" },
+        { "$ref": "shared-direct" }
+      ],
+      "$defs": {
+        "https://example.com/prebundled-with-shared": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/prebundled-with-shared",
+          "$ref": "shared-direct"
+        },
+        "https://example.com/shared-direct": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/shared-direct",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

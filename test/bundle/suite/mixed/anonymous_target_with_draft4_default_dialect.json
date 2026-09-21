@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/anonymous"
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/anonymous": { "type": "integer" }
+  },
+  "defaultDialect": "http://json-schema.org/draft-04/schema#",
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "https://www.sourcemeta.com/anonymous",
+      "$defs": {
+        "https://www.sourcemeta.com/anonymous": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://www.sourcemeta.com/anonymous",
+          "type": "integer"
+        }
+      }
+    },
+    "references": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$ref": "https://www.sourcemeta.com/anonymous",
+      "$defs": {
+        "https://www.sourcemeta.com/anonymous": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://www.sourcemeta.com/anonymous",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

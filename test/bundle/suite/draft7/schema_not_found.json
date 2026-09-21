@@ -1,0 +1,22 @@
+{
+  "schema": {
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": { "$ref": "https://www.sourcemeta.com/xxx" }
+    }
+  },
+  "result": {},
+  "errors": {
+    "nonOfficialMetaschemas": {
+      "type": "SchemaResolutionError",
+      "message": "Could not resolve the reference to an external schema",
+      "identifier": "https://www.sourcemeta.com/xxx"
+    },
+    "references": {
+      "type": "SchemaResolutionError",
+      "message": "Could not resolve the reference to an external schema",
+      "identifier": "https://www.sourcemeta.com/xxx"
+    }
+  }
+}

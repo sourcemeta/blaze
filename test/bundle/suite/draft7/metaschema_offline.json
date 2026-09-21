@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string",
+    "definitions": {
+      "https://example.com/meta/1.json": {
+        "$schema": "https://example.com/meta/2.json",
+        "$id": "https://example.com/meta/1.json"
+      },
+      "https://example.com/meta/2.json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/meta/2.json"
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "https://example.com/meta/1.json",
+      "type": "string",
+      "definitions": {
+        "https://example.com/meta/1.json": {
+          "$schema": "https://example.com/meta/2.json",
+          "$id": "https://example.com/meta/1.json"
+        },
+        "https://example.com/meta/2.json": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/meta/2.json"
+        }
+      }
+    },
+    "references": {
+      "$schema": "https://example.com/meta/1.json",
+      "type": "string",
+      "definitions": {
+        "https://example.com/meta/1.json": {
+          "$schema": "https://example.com/meta/2.json",
+          "$id": "https://example.com/meta/1.json"
+        },
+        "https://example.com/meta/2.json": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/meta/2.json"
+        }
+      }
+    }
+  }
+}

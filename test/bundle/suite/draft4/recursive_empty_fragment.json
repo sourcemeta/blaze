@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ]
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/recursive-empty-fragment": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://www.sourcemeta.com/recursive-empty-fragment",
+      "properties": {
+        "foo": { "$ref": "#" }
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ],
+      "definitions": {
+        "https://www.sourcemeta.com/recursive-empty-fragment": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://www.sourcemeta.com/recursive-empty-fragment",
+          "properties": {
+            "foo": { "$ref": "#" }
+          }
+        }
+      }
+    },
+    "references": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "allOf": [ { "$ref": "https://www.sourcemeta.com/recursive-empty-fragment#" } ],
+      "definitions": {
+        "https://www.sourcemeta.com/recursive-empty-fragment": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://www.sourcemeta.com/recursive-empty-fragment",
+          "properties": {
+            "foo": { "$ref": "#" }
+          }
+        }
+      }
+    }
+  }
+}

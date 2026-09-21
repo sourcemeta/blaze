@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/recursive",
+    "x-definitions": { "foo": { "bar": [] } }
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/recursive": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/recursive",
+      "properties": {
+        "foo": { "$ref": "#" }
+      }
+    }
+  },
+  "container": "/x-definitions/foo/bar",
+  "result": {},
+  "errors": {
+    "nonOfficialMetaschemas": {
+      "type": "SchemaError",
+      "message": "Could not bundle to a container path that is not an object"
+    },
+    "references": {
+      "type": "SchemaError",
+      "message": "Could not bundle to a container path that is not an object"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/relative-entry",
+    "$ref": "host-with-relative-nested"
+  },
+  "resolver": {
+    "https://example.com/host-with-relative-nested": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/host-with-relative-nested",
+      "$ref": "relative-nested",
+      "$defs": {
+        "relative-nested": {
+          "$id": "relative-nested",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/relative-entry",
+      "$ref": "host-with-relative-nested",
+      "$defs": {
+        "https://example.com/host-with-relative-nested": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/host-with-relative-nested",
+          "$ref": "relative-nested",
+          "$defs": {
+            "relative-nested": {
+              "$id": "relative-nested",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "references": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/relative-entry",
+      "$ref": "host-with-relative-nested",
+      "$defs": {
+        "https://example.com/host-with-relative-nested": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/host-with-relative-nested",
+          "$ref": "relative-nested",
+          "$defs": {
+            "relative-nested": {
+              "$id": "relative-nested",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

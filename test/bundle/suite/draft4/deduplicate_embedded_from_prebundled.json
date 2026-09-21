@@ -1,0 +1,88 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/draft4-dedup-entry",
+    "allOf": [
+      { "$ref": "draft4-dedup-a" },
+      { "$ref": "draft4-dedup-b" }
+    ]
+  },
+  "resolver": {
+    "https://example.com/draft4-dedup-a": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/draft4-dedup-a",
+      "allOf": [ { "$ref": "draft4-dedup-common" } ],
+      "definitions": {
+        "https://example.com/draft4-dedup-common": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/draft4-dedup-common",
+          "type": "string"
+        }
+      }
+    },
+    "https://example.com/draft4-dedup-b": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/draft4-dedup-b",
+      "allOf": [ { "$ref": "draft4-dedup-common" } ],
+      "definitions": {
+        "https://example.com/draft4-dedup-common": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/draft4-dedup-common",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "result": {
+    "nonOfficialMetaschemas": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/draft4-dedup-entry",
+      "allOf": [
+        { "$ref": "draft4-dedup-a" },
+        { "$ref": "draft4-dedup-b" }
+      ],
+      "definitions": {
+        "https://example.com/draft4-dedup-a": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/draft4-dedup-a",
+          "allOf": [ { "$ref": "draft4-dedup-common" } ]
+        },
+        "https://example.com/draft4-dedup-b": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/draft4-dedup-b",
+          "allOf": [ { "$ref": "draft4-dedup-common" } ]
+        },
+        "https://example.com/draft4-dedup-common": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/draft4-dedup-common",
+          "type": "string"
+        }
+      }
+    },
+    "references": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/draft4-dedup-entry",
+      "allOf": [
+        { "$ref": "draft4-dedup-a" },
+        { "$ref": "draft4-dedup-b" }
+      ],
+      "definitions": {
+        "https://example.com/draft4-dedup-a": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/draft4-dedup-a",
+          "allOf": [ { "$ref": "draft4-dedup-common" } ]
+        },
+        "https://example.com/draft4-dedup-b": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/draft4-dedup-b",
+          "allOf": [ { "$ref": "draft4-dedup-common" } ]
+        },
+        "https://example.com/draft4-dedup-common": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/draft4-dedup-common",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
