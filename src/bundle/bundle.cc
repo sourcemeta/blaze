@@ -632,6 +632,28 @@ static auto bundle_internal(
   if (default_container.has_value()) {
     // This is undefined behavior
     assert(!default_container.value().empty());
+    // Framing from the root means the document is a JSON Schema all the way
+    // down, so a container has to be a keyword that the dialect reserves for
+    // schema definitions. Anywhere else is a location that neither framing nor
+    // evaluation would look at again, leaving what we embed unreachable. A
+    // wrapper format frames from its own paths instead, where the container
+    // sits outside JSON Schema to begin with
+    if (paths.size() == 1 && paths.front().empty()) {
+      const auto root{
+          initial_frame.traverse(sourcemeta::core::EMPTY_WEAK_POINTER)};
+      if (root.has_value() &&
+          (default_container.value().size() != 1 ||
+           !default_container.value().at(0).is_property() ||
+           walker(default_container.value().at(0).to_property(),
+                  initial_frame.vocabularies(root.value().get(), resolver))
+                   .type !=
+               sourcemeta::core::SchemaKeywordType::LocationMembers)) {
+        throw sourcemeta::core::SchemaError(
+            "Could not bundle to a container that the dialect does not "
+            "reserve for schema definitions");
+      }
+    }
+
     bundle_schema(schema, default_container.value(), schema, walker, resolver,
                   mode, default_dialect, default_id, paths, default_base,
                   bundled, remaining, callback);

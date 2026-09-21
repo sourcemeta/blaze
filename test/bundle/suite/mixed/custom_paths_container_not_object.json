@@ -1,17 +1,20 @@
 {
   "schema": {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$ref": "https://www.sourcemeta.com/recursive",
-    "x-definitions": { "foo": { "bar": [] } }
+    "components": {
+      "schemas": { "Pet": { "$ref": "https://www.sourcemeta.com/test-1" } }
+    },
+    "x-bundled": []
   },
   "resolver": {
-    "https://www.sourcemeta.com/recursive": {
+    "https://www.sourcemeta.com/test-1": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://www.sourcemeta.com/recursive",
-      "properties": { "foo": { "$ref": "#" } }
+      "$id": "https://www.sourcemeta.com/test-1",
+      "type": "string"
     }
   },
-  "container": "/x-definitions/foo/bar",
+  "defaultDialect": "https://json-schema.org/draft/2020-12/schema",
+  "container": "/x-bundled",
+  "paths": [ "/components/schemas/Pet" ],
   "result": {},
   "errors": {
     "nonOfficialMetaschemas": {
