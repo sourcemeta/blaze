@@ -4,6 +4,7 @@
 
 #include "helpers.h"
 
+#include <algorithm>     // std::ranges::any_of
 #include <cassert>       // assert
 #include <cstdint>       // std::uint64_t
 #include <functional>    // std::cref, std::reference_wrapper
@@ -632,22 +633,30 @@ static auto bundle_internal(
   if (default_container.has_value()) {
     // This is undefined behavior
     assert(!default_container.value().empty());
-    // Framing from the root means the document is a JSON Schema all the way
-    // down, so a container has to be a keyword that the dialect reserves for
-    // schema definitions. Anywhere else is a location that neither framing nor
-    // evaluation would look at again, leaving what we embed unreachable. A
-    // wrapper format frames from its own paths instead, where the container
-    // sits outside JSON Schema to begin with
-    if (paths.size() == 1 && paths.front().empty()) {
-      const auto root{
-          initial_frame.traverse(sourcemeta::core::EMPTY_WEAK_POINTER)};
-      if (root.has_value() &&
-          (default_container.value().size() != 1 ||
-           !default_container.value().at(0).is_property() ||
-           walker(default_container.value().at(0).to_property(),
-                  initial_frame.vocabularies(root.value().get(), resolver))
-                   .type !=
-               sourcemeta::core::SchemaKeywordType::LocationMembers)) {
+    // Whatever bundling embeds has to land somewhere that framing reaches
+    // again, or a later pass cannot see it and embeds a second copy. So a
+    // container has to be a keyword that the dialect reserves for schema
+    // definitions, declared on a schema that the given paths cover. A wrapper
+    // format keeps its container outside every schema it frames, where JSON
+    // Schema has nothing to say about where things may go
+    const auto container{
+        sourcemeta::core::to_weak_pointer(default_container.value())};
+    if (std::ranges::any_of(paths, [&container](const auto &path) -> bool {
+          return container.starts_with(path);
+        })) {
+      const auto parent_pointer{default_container.value().initial()};
+      const auto parent{initial_frame.traverse(
+          sourcemeta::core::to_weak_pointer(parent_pointer))};
+      if (!parent.has_value() ||
+          (parent.value().get().type !=
+               sourcemeta::core::SchemaFrame::LocationType::Resource &&
+           parent.value().get().type !=
+               sourcemeta::core::SchemaFrame::LocationType::Subschema) ||
+          !default_container.value().back().is_property() ||
+          walker(default_container.value().back().to_property(),
+                 initial_frame.vocabularies(parent.value().get(), resolver))
+                  .type !=
+              sourcemeta::core::SchemaKeywordType::LocationMembers) {
         throw sourcemeta::core::SchemaError(
             "Could not bundle to a container that the dialect does not "
             "reserve for schema definitions");
