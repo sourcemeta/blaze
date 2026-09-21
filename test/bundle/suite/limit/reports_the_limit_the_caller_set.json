@@ -33,5 +33,6 @@
       "message": "The schema exceeds the maximum number of frame locations",
       "limit": 2
     }
-  }
+  },
+  "inserted": {}
 }

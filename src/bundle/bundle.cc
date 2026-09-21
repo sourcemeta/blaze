@@ -6,7 +6,7 @@
 
 #include <cassert>       // assert
 #include <cstdint>       // std::uint64_t
-#include <functional>    // std::reference_wrapper
+#include <functional>    // std::cref, std::reference_wrapper
 #include <optional>      // std::optional
 #include <string>        // std::string
 #include <tuple>         // std::tuple
@@ -155,7 +155,9 @@ auto dependencies_internal(
 auto embed_schema(sourcemeta::core::JSON &root,
                   const sourcemeta::core::Pointer &container,
                   const std::string_view identifier,
-                  sourcemeta::core::JSON &&target) -> void {
+                  sourcemeta::core::JSON &&target,
+                  const sourcemeta::blaze::BundleEmbedCallback &callback)
+    -> void {
   auto *current{&root};
   for (const auto &token : container) {
     if (token.is_property()) {
@@ -180,6 +182,12 @@ auto embed_schema(sourcemeta::core::JSON &root,
   }
 
   current->assign(key, std::move(target));
+
+  if (callback) {
+    auto location{sourcemeta::core::to_weak_pointer(container)};
+    location.push_back(std::cref(key));
+    callback(location);
+  }
 }
 
 auto elevate_embedded_resources(
@@ -191,7 +199,8 @@ auto elevate_embedded_resources(
     std::string_view default_dialect,
     std::unordered_map<sourcemeta::core::JSON::String,
                        sourcemeta::core::JSON::String> &bundled,
-    std::uint64_t &remaining) -> void {
+    std::uint64_t &remaining,
+    const sourcemeta::blaze::BundleEmbedCallback &callback) -> void {
   const auto keyword{sourcemeta::blaze::definitions_keyword(remote_dialect)};
   const sourcemeta::core::JSON::String keyword_string{keyword};
   if (keyword.empty() || !remote.is_object() ||
@@ -343,7 +352,7 @@ auto elevate_embedded_resources(
                        value, remote_dialect_uri)});
     }
 
-    embed_schema(root, container, key, std::move(value));
+    embed_schema(root, container, key, std::move(value), callback);
   }
 
   for (const auto &key : to_remove) {
@@ -367,8 +376,9 @@ auto bundle_schema(sourcemeta::core::JSON &root,
                    std::string_view default_base,
                    std::unordered_map<sourcemeta::core::JSON::String,
                                       sourcemeta::core::JSON::String> &bundled,
-                   std::uint64_t &remaining, const std::size_t depth = 0)
-    -> void {
+                   std::uint64_t &remaining,
+                   const sourcemeta::blaze::BundleEmbedCallback &callback,
+                   const std::size_t depth = 0) -> void {
   // Create a fresh frame for each schema we analyze to avoid key collisions
   // between different schemas that have references at the same pointer paths
   static const sourcemeta::core::SchemaFrame::Paths NESTED_PATHS{
@@ -554,10 +564,11 @@ auto bundle_schema(sourcemeta::core::JSON &root,
   for (auto &[remote, effective_id, remote_dialect] : deferred) {
     bundle_schema(root, container, remote, walker, resolver, mode,
                   default_dialect, effective_id, paths, default_base, bundled,
-                  remaining, depth + 1);
+                  remaining, callback, depth + 1);
     elevate_embedded_resources(remote, root, container, remote_dialect, walker,
-                               resolver, default_dialect, bundled, remaining);
-    embed_schema(root, container, effective_id, std::move(remote));
+                               resolver, default_dialect, bundled, remaining,
+                               callback);
+    embed_schema(root, container, effective_id, std::move(remote), callback);
   }
 }
 
@@ -594,7 +605,8 @@ static auto bundle_internal(
     std::string_view default_dialect, std::string_view default_id,
     const std::optional<sourcemeta::core::Pointer> &default_container,
     const sourcemeta::core::SchemaFrame::Paths &paths,
-    std::string_view default_base, std::uint64_t &remaining) -> void {
+    std::string_view default_base, std::uint64_t &remaining,
+    const BundleEmbedCallback &callback) -> void {
   // Pre-scan the schema to find any already-embedded schemas and mark them
   // as bundled to avoid re-embedding them. This includes the root schema itself
   // and any schemas already embedded within it
@@ -622,7 +634,7 @@ static auto bundle_internal(
     assert(!default_container.value().empty());
     bundle_schema(schema, default_container.value(), schema, walker, resolver,
                   mode, default_dialect, default_id, paths, default_base,
-                  bundled, remaining);
+                  bundled, remaining, callback);
     return;
   }
 
@@ -713,7 +725,7 @@ static auto bundle_internal(
 
   bundle_schema(schema, {sourcemeta::core::JSON::String{container_keyword}},
                 schema, walker, resolver, mode, default_dialect, default_id,
-                paths, default_base, bundled, remaining);
+                paths, default_base, bundled, remaining, callback);
 }
 
 auto bundle(sourcemeta::core::JSON &schema,
@@ -723,12 +735,13 @@ auto bundle(sourcemeta::core::JSON &schema,
             std::string_view default_id,
             const std::optional<sourcemeta::core::Pointer> &default_container,
             const sourcemeta::core::SchemaFrame::Paths &paths,
-            std::string_view default_base, const std::uint64_t max_locations)
-    -> void {
+            std::string_view default_base, const std::uint64_t max_locations,
+            const BundleEmbedCallback &callback) -> void {
   auto remaining{max_locations};
   try {
     bundle_internal(schema, walker, resolver, mode, default_dialect, default_id,
-                    default_container, paths, default_base, remaining);
+                    default_container, paths, default_base, remaining,
+                    callback);
   } catch (const sourcemeta::core::SchemaFrameLimitError &) {
     // Every frame spends from what is left rather than from the whole, so the
     // one that ran out reports what it was handed. The caller set the limit
@@ -744,11 +757,11 @@ auto bundle(const sourcemeta::core::JSON &schema,
             std::string_view default_id,
             const std::optional<sourcemeta::core::Pointer> &default_container,
             const sourcemeta::core::SchemaFrame::Paths &paths,
-            std::string_view default_base, const std::uint64_t max_locations)
-    -> sourcemeta::core::JSON {
+            std::string_view default_base, const std::uint64_t max_locations,
+            const BundleEmbedCallback &callback) -> sourcemeta::core::JSON {
   sourcemeta::core::JSON copy = schema;
   bundle(copy, walker, resolver, mode, default_dialect, default_id,
-         default_container, paths, default_base, max_locations);
+         default_container, paths, default_base, max_locations, callback);
   return copy;
 }
 

@@ -96,5 +96,19 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1www.sourcemeta.com~1test-3",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-2",
+      "/$defs/https:~1~1example.com~1foo~1bar",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-1"
+    ],
+    "references": [
+      "/$defs/https:~1~1www.sourcemeta.com~1test-3",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-2",
+      "/$defs/https:~1~1example.com~1foo~1bar",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-1"
+    ]
   }
 }

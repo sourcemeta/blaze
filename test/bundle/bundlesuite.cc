@@ -25,8 +25,9 @@ namespace {
 // otherwise go unnoticed, as the runner would simply not read it
 // NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 const std::vector<std::string> KNOWN_KEYS{
-    "schema",    "resolver", "defaultDialect", "defaultId", "defaultBase",
-    "container", "paths",    "maxLocations",   "result",    "errors"};
+    "schema",      "resolver",  "defaultDialect", "defaultId",
+    "defaultBase", "container", "paths",          "maxLocations",
+    "result",      "errors",    "inserted"};
 
 // Every exception that bundling throws, named after the class itself so that
 // a fixture states which one it means rather than leaving the runner to guess
@@ -154,14 +155,79 @@ auto make_inputs(const sourcemeta::core::JSON &test) -> Inputs {
 auto bundle_schema(const sourcemeta::core::JSON &schema,
                    const sourcemeta::core::SchemaResolver &resolver,
                    const Inputs &inputs, const Mode &mode,
-                   const std::uint64_t max_locations)
+                   const std::uint64_t max_locations,
+                   std::vector<sourcemeta::core::Pointer> &insertions)
     -> sourcemeta::core::JSON {
   auto document{schema};
-  sourcemeta::blaze::bundle(document, sourcemeta::core::schema_walker, resolver,
-                            mode.value, inputs.default_dialect,
-                            inputs.default_id, inputs.container, inputs.paths,
-                            inputs.default_base, max_locations);
+  sourcemeta::blaze::bundle(
+      document, sourcemeta::core::schema_walker, resolver, mode.value,
+      inputs.default_dialect, inputs.default_id, inputs.container, inputs.paths,
+      inputs.default_base, max_locations,
+      [&insertions](const sourcemeta::core::WeakPointer &location) -> void {
+        insertions.push_back(sourcemeta::core::to_pointer(location));
+      });
   return document;
+}
+
+auto to_json(const std::vector<sourcemeta::core::Pointer> &insertions)
+    -> sourcemeta::core::JSON {
+  auto result{sourcemeta::core::JSON::make_array()};
+  for (const auto &location : insertions) {
+    result.push_back(
+        sourcemeta::core::JSON{sourcemeta::core::to_string(location)});
+  }
+
+  return result;
+}
+
+auto expect_insertions(const std::string_view mode,
+                       const std::vector<sourcemeta::core::Pointer> &actual,
+                       const sourcemeta::core::JSON &expected) -> void {
+  auto actual_entry{sourcemeta::core::JSON::make_object()};
+  actual_entry.assign("mode", sourcemeta::core::JSON{mode});
+  actual_entry.assign("inserted", to_json(actual));
+  auto expected_entry{sourcemeta::core::JSON::make_object()};
+  expected_entry.assign("mode", sourcemeta::core::JSON{mode});
+  expected_entry.assign("inserted", expected);
+
+  EXPECT_EQ(actual_entry, expected_entry);
+}
+
+// Bundling into a container that the dialect does not otherwise traverse
+// leaves its own output invisible to the next pass, so the idempotency pass
+// frames where the first pass actually put things.
+//
+// Framing rejects a path that contains another, so a fixture that frames from
+// the root cannot name those locations at all. Dropping them is safe rather
+// than merely necessary: framing from the root already reaches every container
+// the dialect traverses, and one it does not traverse never settles no matter
+// what this returns. Handing back fewer paths can only make the next pass
+// embed more and fail louder, never pass when it should not
+auto with_insertions(const Inputs &inputs,
+                     const std::vector<sourcemeta::core::Pointer> &insertions)
+    -> Inputs {
+  Inputs result;
+  result.default_dialect = inputs.default_dialect;
+  result.default_id = inputs.default_id;
+  result.default_base = inputs.default_base;
+  result.container = inputs.container;
+  if (inputs.path_storage.empty()) {
+    result.paths.push_back(sourcemeta::core::EMPTY_WEAK_POINTER);
+    return result;
+  }
+
+  result.path_storage.reserve(inputs.path_storage.size() + insertions.size());
+  result.path_storage.insert(result.path_storage.cend(),
+                             inputs.path_storage.cbegin(),
+                             inputs.path_storage.cend());
+  result.path_storage.insert(result.path_storage.cend(), insertions.cbegin(),
+                             insertions.cend());
+  result.paths.reserve(result.path_storage.size());
+  for (const auto &path : result.path_storage) {
+    result.paths.push_back(sourcemeta::core::to_weak_pointer(path));
+  }
+
+  return result;
 }
 
 // Every key a fixture declares has to be one the runner reads, every mode has
@@ -209,10 +275,18 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
     }
   }
 
+  EXPECT_TRUE(test.defines("inserted"));
+  const auto &insertions{test.at("inserted")};
+  EXPECT_TRUE(insertions.is_object());
+
   for (const auto &mode : MODES) {
     const sourcemeta::core::JSON::String name{mode.name};
     EXPECT_TRUE(results.defines(name) ||
                 (test.defines("errors") && test.at("errors").defines(name)));
+    EXPECT_EQ(insertions.defines(name), results.defines(name));
+    if (insertions.defines(name)) {
+      EXPECT_TRUE(insertions.at(name).is_array());
+    }
   }
 }
 
@@ -225,16 +299,18 @@ auto check_error(const sourcemeta::core::JSON &schema,
 
   if (type == "SchemaError") {
     try {
-      [[maybe_unused]] const auto document{
-          bundle_schema(schema, resolver, inputs, mode, inputs.max_locations)};
+      std::vector<sourcemeta::core::Pointer> insertions;
+      [[maybe_unused]] const auto document{bundle_schema(
+          schema, resolver, inputs, mode, inputs.max_locations, insertions)};
       FAIL();
     } catch (const sourcemeta::core::SchemaError &error) {
       EXPECT_STREQ(error.what(), message.c_str());
     }
   } else if (type == "SchemaResolutionError") {
     try {
-      [[maybe_unused]] const auto document{
-          bundle_schema(schema, resolver, inputs, mode, inputs.max_locations)};
+      std::vector<sourcemeta::core::Pointer> insertions;
+      [[maybe_unused]] const auto document{bundle_schema(
+          schema, resolver, inputs, mode, inputs.max_locations, insertions)};
       FAIL();
     } catch (const sourcemeta::core::SchemaResolutionError &error) {
       EXPECT_STREQ(error.what(), message.c_str());
@@ -242,8 +318,9 @@ auto check_error(const sourcemeta::core::JSON &schema,
     }
   } else if (type == "SchemaReferenceError") {
     try {
-      [[maybe_unused]] const auto document{
-          bundle_schema(schema, resolver, inputs, mode, inputs.max_locations)};
+      std::vector<sourcemeta::core::Pointer> insertions;
+      [[maybe_unused]] const auto document{bundle_schema(
+          schema, resolver, inputs, mode, inputs.max_locations, insertions)};
       FAIL();
     } catch (const sourcemeta::core::SchemaReferenceError &error) {
       EXPECT_STREQ(error.what(), message.c_str());
@@ -253,8 +330,9 @@ auto check_error(const sourcemeta::core::JSON &schema,
     }
   } else if (type == "SchemaReferenceObjectResourceError") {
     try {
-      [[maybe_unused]] const auto document{
-          bundle_schema(schema, resolver, inputs, mode, inputs.max_locations)};
+      std::vector<sourcemeta::core::Pointer> insertions;
+      [[maybe_unused]] const auto document{bundle_schema(
+          schema, resolver, inputs, mode, inputs.max_locations, insertions)};
       FAIL();
     } catch (
         const sourcemeta::core::SchemaReferenceObjectResourceError &error) {
@@ -263,16 +341,18 @@ auto check_error(const sourcemeta::core::JSON &schema,
     }
   } else if (type == "SchemaUnknownBaseDialectError") {
     try {
-      [[maybe_unused]] const auto document{
-          bundle_schema(schema, resolver, inputs, mode, inputs.max_locations)};
+      std::vector<sourcemeta::core::Pointer> insertions;
+      [[maybe_unused]] const auto document{bundle_schema(
+          schema, resolver, inputs, mode, inputs.max_locations, insertions)};
       FAIL();
     } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &error) {
       EXPECT_STREQ(error.what(), message.c_str());
     }
   } else {
     try {
-      [[maybe_unused]] const auto document{
-          bundle_schema(schema, resolver, inputs, mode, inputs.max_locations)};
+      std::vector<sourcemeta::core::Pointer> insertions;
+      [[maybe_unused]] const auto document{bundle_schema(
+          schema, resolver, inputs, mode, inputs.max_locations, insertions)};
       FAIL();
     } catch (const sourcemeta::core::SchemaFrameLimitError &error) {
       EXPECT_STREQ(error.what(), message.c_str());
@@ -298,9 +378,11 @@ auto run_bundle_test(const sourcemeta::core::JSON &test) -> void {
     }
 
     const auto &expected{results.at(name)};
+    std::vector<sourcemeta::core::Pointer> insertions;
     const auto document{bundle_schema(test.at("schema"), resolver, inputs, mode,
-                                      inputs.max_locations)};
+                                      inputs.max_locations, insertions)};
     expect_equal(mode.name, document, expected);
+    expect_insertions(mode.name, insertions, test.at("inserted").at(name));
 
     // A caller picks between the overload that mutates and the one that
     // returns for reasons that have nothing to do with what bundling produces
@@ -315,9 +397,12 @@ auto run_bundle_test(const sourcemeta::core::JSON &test) -> void {
     // Bundling that keeps finding work to do on its own output never settles.
     // The limit is a budget rather than semantics, and the output is larger
     // than the input it came from, so this pass spends whatever it needs
+    const auto settled{with_insertions(inputs, insertions)};
+    std::vector<sourcemeta::core::Pointer> repeated;
     expect_equal(mode.name,
-                 bundle_schema(document, resolver, inputs, mode,
-                               std::numeric_limits<std::uint64_t>::max()),
+                 bundle_schema(document, resolver, settled, mode,
+                               std::numeric_limits<std::uint64_t>::max(),
+                               repeated),
                  document);
   }
 }

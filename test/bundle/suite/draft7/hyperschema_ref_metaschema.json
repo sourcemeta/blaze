@@ -276,5 +276,11 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/definitions/http:~1~1json-schema.org~1draft-07~1schema"
+    ],
+    "references": [ "/definitions/http:~1~1json-schema.org~1draft-07~1schema" ]
   }
 }

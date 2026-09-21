@@ -67,5 +67,15 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1example.com~1prebundled-with-shared",
+      "/$defs/https:~1~1example.com~1shared-direct"
+    ],
+    "references": [
+      "/$defs/https:~1~1example.com~1prebundled-with-shared",
+      "/$defs/https:~1~1example.com~1shared-direct"
+    ]
   }
 }

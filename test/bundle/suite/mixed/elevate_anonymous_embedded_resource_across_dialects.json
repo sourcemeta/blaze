@@ -49,5 +49,15 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1www.sourcemeta.com~1shared",
+      "/$defs/https:~1~1www.sourcemeta.com~1anonymous-embedded"
+    ],
+    "references": [
+      "/$defs/https:~1~1www.sourcemeta.com~1shared",
+      "/$defs/https:~1~1www.sourcemeta.com~1anonymous-embedded"
+    ]
   }
 }

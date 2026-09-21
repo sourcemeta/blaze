@@ -38,6 +38,12 @@ using DependencyCallback =
                        std::string_view, const sourcemeta::core::JSON &)>;
 
 /// @ingroup bundle
+/// A callback to report where a schema got embedded, as a pointer from the
+/// root of the schema being bundled
+using BundleEmbedCallback =
+    std::function<void(const sourcemeta::core::WeakPointer &)>;
+
+/// @ingroup bundle
 /// The strategies that the bundling process can follow
 enum class BundleMode : std::uint8_t {
   /// Embed every external reference, including any non-official
@@ -174,6 +180,9 @@ auto dependencies(
 /// it recurses along with how much framing it does. Note that a remote is
 /// copied out of the resolver before anything charges for it, so the limit
 /// bounds how many oversized schemas get copied rather than whether one does
+/// Pass `callback` to learn where each schema ends up, which is the only way
+/// to know what a later call has to frame when bundling into a container that
+/// the dialect does not otherwise traverse
 SOURCEMETA_BLAZE_BUNDLE_EXPORT
 auto bundle(
     sourcemeta::core::JSON &schema,
@@ -185,8 +194,8 @@ auto bundle(
     const sourcemeta::core::SchemaFrame::Paths &paths =
         {sourcemeta::core::EMPTY_WEAK_POINTER},
     std::string_view default_base = "",
-    std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max())
-    -> void;
+    std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max(),
+    const BundleEmbedCallback &callback = nullptr) -> void;
 
 /// @ingroup bundle
 ///
@@ -245,6 +254,9 @@ auto bundle(
 /// As with the mutating overload, pass `max_locations` to bound how much
 /// analysis an untrusted schema and whatever the resolver hands back for it
 /// may cost
+///
+/// As with the mutating overload, pass `callback` to learn where each schema
+/// ends up
 SOURCEMETA_BLAZE_BUNDLE_EXPORT
 auto bundle(
     const sourcemeta::core::JSON &schema,
@@ -256,8 +268,8 @@ auto bundle(
     const sourcemeta::core::SchemaFrame::Paths &paths =
         {sourcemeta::core::EMPTY_WEAK_POINTER},
     std::string_view default_base = "",
-    std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max())
-    -> sourcemeta::core::JSON;
+    std::uint64_t max_locations = std::numeric_limits<std::uint64_t>::max(),
+    const BundleEmbedCallback &callback = nullptr) -> sourcemeta::core::JSON;
 
 } // namespace sourcemeta::blaze
 

@@ -2,15 +2,8 @@
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/collision-entry",
-    "$defs": {
-      "https://example.com/collision-common": {
-        "type": "boolean"
-      }
-    },
-    "allOf": [
-      { "$ref": "collision-a" },
-      { "$ref": "collision-b" }
-    ]
+    "$defs": { "https://example.com/collision-common": { "type": "boolean" } },
+    "allOf": [ { "$ref": "collision-a" }, { "$ref": "collision-b" } ]
   },
   "resolver": {
     "https://example.com/collision-a": {
@@ -42,14 +35,9 @@
     "nonOfficialMetaschemas": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/collision-entry",
-      "allOf": [
-        { "$ref": "collision-a" },
-        { "$ref": "collision-b" }
-      ],
+      "allOf": [ { "$ref": "collision-a" }, { "$ref": "collision-b" } ],
       "$defs": {
-        "https://example.com/collision-common": {
-          "type": "boolean"
-        },
+        "https://example.com/collision-common": { "type": "boolean" },
         "https://example.com/collision-a": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://example.com/collision-a",
@@ -70,14 +58,9 @@
     "references": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/collision-entry",
-      "allOf": [
-        { "$ref": "collision-a" },
-        { "$ref": "collision-b" }
-      ],
+      "allOf": [ { "$ref": "collision-a" }, { "$ref": "collision-b" } ],
       "$defs": {
-        "https://example.com/collision-common": {
-          "type": "boolean"
-        },
+        "https://example.com/collision-common": { "type": "boolean" },
         "https://example.com/collision-a": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://example.com/collision-a",
@@ -95,5 +78,17 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1example.com~1collision-common~1x",
+      "/$defs/https:~1~1example.com~1collision-a",
+      "/$defs/https:~1~1example.com~1collision-b"
+    ],
+    "references": [
+      "/$defs/https:~1~1example.com~1collision-common~1x",
+      "/$defs/https:~1~1example.com~1collision-a",
+      "/$defs/https:~1~1example.com~1collision-b"
+    ]
   }
 }

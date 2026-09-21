@@ -28,5 +28,6 @@
       "message": "A schema with a top-level `$ref` in JSON Schema Draft 7 and older dialects ignores every sibling keywords (like identifiers and meta-schema declarations) and therefore many operations, like bundling, are not possible without undefined behavior",
       "identifier": "https://www.sourcemeta.com/test-3-top-level-ref"
     }
-  }
+  },
+  "inserted": {}
 }

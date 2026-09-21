@@ -2,9 +2,7 @@
   "schema": {
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "properties": {
-      "foo": { "$ref": "https://www.sourcemeta.com/xxx" }
-    }
+    "properties": { "foo": { "$ref": "https://www.sourcemeta.com/xxx" } }
   },
   "result": {},
   "errors": {
@@ -18,5 +16,6 @@
       "message": "Could not resolve the reference to an external schema",
       "identifier": "https://www.sourcemeta.com/xxx"
     }
-  }
+  },
+  "inserted": {}
 }

@@ -32,7 +32,7 @@
   },
   "result": {
     "nonOfficialMetaschemas": {
-        "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
       "properties": {
         "foo": { "$ref": "https://www.sourcemeta.com/test-1" },
         "bar": { "$id": "https://www.sourcemeta.com", "$ref": "test-2" },
@@ -63,7 +63,7 @@
       }
     },
     "references": {
-        "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
       "properties": {
         "foo": { "$ref": "https://www.sourcemeta.com/test-1" },
         "bar": { "$id": "https://www.sourcemeta.com", "$ref": "test-2" },
@@ -93,5 +93,19 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1www.sourcemeta.com~1test-3",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-2",
+      "/$defs/https:~1~1example.com~1foo~1bar",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-1"
+    ],
+    "references": [
+      "/$defs/https:~1~1www.sourcemeta.com~1test-3",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-2",
+      "/$defs/https:~1~1example.com~1foo~1bar",
+      "/$defs/https:~1~1www.sourcemeta.com~1test-1"
+    ]
   }
 }

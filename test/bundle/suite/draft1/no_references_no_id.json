@@ -1,7 +1,10 @@
 {
   "schema": { "$schema": "http://json-schema.org/draft-01/schema#" },
   "result": {
-    "nonOfficialMetaschemas": { "$schema": "http://json-schema.org/draft-01/schema#" },
+    "nonOfficialMetaschemas": {
+      "$schema": "http://json-schema.org/draft-01/schema#"
+    },
     "references": { "$schema": "http://json-schema.org/draft-01/schema#" }
-  }
+  },
+  "inserted": { "nonOfficialMetaschemas": [], "references": [] }
 }

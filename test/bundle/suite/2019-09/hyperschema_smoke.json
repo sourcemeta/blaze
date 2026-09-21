@@ -742,5 +742,31 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1core",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1applicator",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1validation",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1meta-data",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1format",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1content",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1schema",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1links",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1hyper-schema",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1hyper-schema"
+    ],
+    "references": [
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1core",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1applicator",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1validation",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1meta-data",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1format",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1content",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1schema",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1links",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1meta~1hyper-schema",
+      "/$defs/https:~1~1json-schema.org~1draft~12019-09~1hyper-schema"
+    ]
   }
 }

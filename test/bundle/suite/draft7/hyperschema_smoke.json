@@ -498,5 +498,17 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/definitions/http:~1~1json-schema.org~1draft-07~1schema",
+      "/definitions/http:~1~1json-schema.org~1draft-07~1links",
+      "/definitions/http:~1~1json-schema.org~1draft-07~1hyper-schema"
+    ],
+    "references": [
+      "/definitions/http:~1~1json-schema.org~1draft-07~1schema",
+      "/definitions/http:~1~1json-schema.org~1draft-07~1links",
+      "/definitions/http:~1~1json-schema.org~1draft-07~1hyper-schema"
+    ]
   }
 }

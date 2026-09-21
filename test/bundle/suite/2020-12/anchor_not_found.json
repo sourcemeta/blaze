@@ -2,9 +2,7 @@
   "schema": {
     "$id": "https://example.com",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "properties": {
-      "foo": { "$ref": "https://example.com/foo/bar#xxxxxxxx" }
-    }
+    "properties": { "foo": { "$ref": "https://example.com/foo/bar#xxxxxxxx" } }
   },
   "resolver": {
     "https://example.com/foo/bar": {
@@ -27,5 +25,6 @@
       "identifier": "https://example.com/foo/bar#xxxxxxxx",
       "location": "/properties/foo/$ref"
     }
-  }
+  },
+  "inserted": {}
 }

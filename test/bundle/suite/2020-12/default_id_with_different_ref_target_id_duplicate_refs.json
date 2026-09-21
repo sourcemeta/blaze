@@ -10,11 +10,7 @@
     "https://cdn.example.com/schemas/foo": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://example.com/foo",
-      "$defs": {
-        "bar": {
-          "type": "string"
-        }
-      }
+      "$defs": { "bar": { "type": "string" } }
     }
   },
   "defaultId": "https://www.example.com/entry",
@@ -30,11 +26,7 @@
         "https://example.com/foo": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://example.com/foo",
-          "$defs": {
-            "bar": {
-              "type": "string"
-            }
-          }
+          "$defs": { "bar": { "type": "string" } }
         }
       }
     },
@@ -49,13 +41,13 @@
         "https://example.com/foo": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://example.com/foo",
-          "$defs": {
-            "bar": {
-              "type": "string"
-            }
-          }
+          "$defs": { "bar": { "type": "string" } }
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [ "/$defs/https:~1~1example.com~1foo" ],
+    "references": [ "/$defs/https:~1~1example.com~1foo" ]
   }
 }

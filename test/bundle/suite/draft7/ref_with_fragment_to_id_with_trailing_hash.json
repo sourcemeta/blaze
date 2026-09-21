@@ -12,9 +12,7 @@
     "https://www.sourcemeta.com/trailing-hash": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "$id": "https://www.sourcemeta.com/trailing-hash",
-      "definitions": {
-        "string": { "type": "string" }
-      }
+      "definitions": { "string": { "type": "string" } }
     }
   },
   "result": {
@@ -30,9 +28,7 @@
         "https://www.sourcemeta.com/trailing-hash": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "$id": "https://www.sourcemeta.com/trailing-hash",
-          "definitions": {
-            "string": { "type": "string" }
-          }
+          "definitions": { "string": { "type": "string" } }
         }
       }
     },
@@ -48,11 +44,15 @@
         "https://www.sourcemeta.com/trailing-hash": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "$id": "https://www.sourcemeta.com/trailing-hash",
-          "definitions": {
-            "string": { "type": "string" }
-          }
+          "definitions": { "string": { "type": "string" } }
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/definitions/https:~1~1www.sourcemeta.com~1trailing-hash"
+    ],
+    "references": [ "/definitions/https:~1~1www.sourcemeta.com~1trailing-hash" ]
   }
 }

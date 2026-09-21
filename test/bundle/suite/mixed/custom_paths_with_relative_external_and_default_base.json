@@ -1,7 +1,5 @@
 {
-  "schema": {
-    "properties": { "foo": { "$ref": "https://www.sourcemeta.com/test-1" } }
-  },
+  "schema": { "components": { "schemas": { "Pet": { "$ref": "test-1" } } } },
   "resolver": {
     "https://www.sourcemeta.com/test-1": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -10,10 +8,13 @@
     }
   },
   "defaultDialect": "https://json-schema.org/draft/2020-12/schema",
+  "container": "/x-bundled",
+  "paths": [ "/components/schemas/Pet" ],
+  "defaultBase": "https://www.sourcemeta.com/openapi.json",
   "result": {
     "nonOfficialMetaschemas": {
-      "properties": { "foo": { "$ref": "https://www.sourcemeta.com/test-1" } },
-      "$defs": {
+      "components": { "schemas": { "Pet": { "$ref": "test-1" } } },
+      "x-bundled": {
         "https://www.sourcemeta.com/test-1": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://www.sourcemeta.com/test-1",
@@ -22,8 +23,8 @@
       }
     },
     "references": {
-      "properties": { "foo": { "$ref": "https://www.sourcemeta.com/test-1" } },
-      "$defs": {
+      "components": { "schemas": { "Pet": { "$ref": "test-1" } } },
+      "x-bundled": {
         "https://www.sourcemeta.com/test-1": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$id": "https://www.sourcemeta.com/test-1",
@@ -33,7 +34,9 @@
     }
   },
   "inserted": {
-    "nonOfficialMetaschemas": [ "/$defs/https:~1~1www.sourcemeta.com~1test-1" ],
-    "references": [ "/$defs/https:~1~1www.sourcemeta.com~1test-1" ]
+    "nonOfficialMetaschemas": [
+      "/x-bundled/https:~1~1www.sourcemeta.com~1test-1"
+    ],
+    "references": [ "/x-bundled/https:~1~1www.sourcemeta.com~1test-1" ]
   }
 }

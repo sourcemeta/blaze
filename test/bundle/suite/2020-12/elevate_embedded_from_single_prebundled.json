@@ -53,5 +53,15 @@
         }
       }
     }
+  },
+  "inserted": {
+    "nonOfficialMetaschemas": [
+      "/$defs/https:~1~1example.com~1elevate-single-nested",
+      "/$defs/https:~1~1example.com~1elevate-single"
+    ],
+    "references": [
+      "/$defs/https:~1~1example.com~1elevate-single-nested",
+      "/$defs/https:~1~1example.com~1elevate-single"
+    ]
   }
 }

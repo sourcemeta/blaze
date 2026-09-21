@@ -2,9 +2,7 @@
   "schema": {
     "id": "https://example.com",
     "$schema": "http://json-schema.org/draft-02/schema#",
-    "properties": {
-      "test": { "$ref": "https://www.sourcemeta.com/test-1" }
-    }
+    "properties": { "test": { "$ref": "https://www.sourcemeta.com/test-1" } }
   },
   "resolver": {
     "https://www.sourcemeta.com/test-1": {
@@ -23,5 +21,6 @@
       "type": "SchemaError",
       "message": "Could not determine how to perform bundling in this dialect"
     }
-  }
+  },
+  "inserted": {}
 }
