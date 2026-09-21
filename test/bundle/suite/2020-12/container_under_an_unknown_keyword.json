@@ -1,0 +1,27 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "https://www.sourcemeta.com/test-1",
+    "i-am-invalid": {}
+  },
+  "resolver": {
+    "https://www.sourcemeta.com/test-1": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://www.sourcemeta.com/test-1",
+      "type": "string"
+    }
+  },
+  "container": "/i-am-invalid/$defs",
+  "result": {},
+  "inserted": {},
+  "errors": {
+    "nonOfficialMetaschemas": {
+      "type": "SchemaError",
+      "message": "Could not bundle to a container that the dialect does not reserve for schema definitions"
+    },
+    "references": {
+      "type": "SchemaError",
+      "message": "Could not bundle to a container that the dialect does not reserve for schema definitions"
+    }
+  }
+}
