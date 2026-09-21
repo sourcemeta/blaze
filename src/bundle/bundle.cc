@@ -4,6 +4,7 @@
 
 #include "helpers.h"
 
+#include <algorithm>     // std::ranges::any_of
 #include <cassert>       // assert
 #include <cstdint>       // std::uint64_t
 #include <functional>    // std::cref, std::reference_wrapper
@@ -632,6 +633,36 @@ static auto bundle_internal(
   if (default_container.has_value()) {
     // This is undefined behavior
     assert(!default_container.value().empty());
+    // Whatever bundling embeds has to land somewhere that framing reaches
+    // again, or a later pass cannot see it and embeds a second copy. So a
+    // container has to be a keyword that the dialect reserves for schema
+    // definitions, declared on a schema that the given paths cover. A wrapper
+    // format keeps its container outside every schema it frames, where JSON
+    // Schema has nothing to say about where things may go
+    const auto container{
+        sourcemeta::core::to_weak_pointer(default_container.value())};
+    if (std::ranges::any_of(paths, [&container](const auto &path) -> bool {
+          return container.starts_with(path);
+        })) {
+      const auto parent_pointer{default_container.value().initial()};
+      const auto parent{initial_frame.traverse(
+          sourcemeta::core::to_weak_pointer(parent_pointer))};
+      if (!parent.has_value() ||
+          (parent.value().get().type !=
+               sourcemeta::core::SchemaFrame::LocationType::Resource &&
+           parent.value().get().type !=
+               sourcemeta::core::SchemaFrame::LocationType::Subschema) ||
+          !default_container.value().back().is_property() ||
+          walker(default_container.value().back().to_property(),
+                 initial_frame.vocabularies(parent.value().get(), resolver))
+                  .type !=
+              sourcemeta::core::SchemaKeywordType::LocationMembers) {
+        throw sourcemeta::core::SchemaError(
+            "Could not bundle to a container that the dialect does not "
+            "reserve for schema definitions");
+      }
+    }
+
     bundle_schema(schema, default_container.value(), schema, walker, resolver,
                   mode, default_dialect, default_id, paths, default_base,
                   bundled, remaining, callback);

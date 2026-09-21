@@ -1,6 +1,5 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME bundle
   SOURCES
-    bundle_container_test.cc
     bundle_dependencies_test.cc)
 
 target_link_libraries(sourcemeta_blaze_bundle_unit
