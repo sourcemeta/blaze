@@ -183,23 +183,30 @@ auto dependencies(
 /// assert(document == expected);
 /// ```
 ///
-/// Pass `default_base` to state the base URI that the document was retrieved
-/// from, which a relative reference within any of the given `paths` resolves
-/// against. As with sourcemeta::core::SchemaFrame, this does not claim that the
-/// document declares an identifier, so bundling never writes it into the
-/// document
+/// Everything beyond the schema and how to read it comes from
+/// sourcemeta::blaze::BundleOptions, whose defaults embed every external
+/// reference along with any non-official meta-schemas, from the root of the
+/// document, without bound.
+///
+/// Set sourcemeta::blaze::BundleOptions::default_base to state the base URI
+/// that the document was retrieved from, which a relative reference within any
+/// of the given paths resolves against. As with sourcemeta::core::SchemaFrame,
+/// this does not claim that the document declares an identifier, so bundling
+/// never writes it into the document
 ///
 /// How many schemas this ends up embedding follows from what the resolver
-/// hands back rather than from the schema the caller passed in, so pass
-/// `max_locations` to bound it. Every frame that bundling constructs spends
-/// from that one limit, throwing sourcemeta::core::SchemaFrameLimitError once
-/// it runs out, which bounds how many remote schemas this embeds and how deep
-/// it recurses along with how much framing it does. Note that a remote is
-/// copied out of the resolver before anything charges for it, so the limit
-/// bounds how many oversized schemas get copied rather than whether one does
-/// Pass `callback` to learn where each schema ends up, which is the only way
-/// to know what a later call has to frame when bundling into a container that
-/// the dialect does not otherwise traverse
+/// hands back rather than from the schema the caller passed in, so set
+/// sourcemeta::blaze::BundleOptions::max_locations to bound it. Every frame
+/// that bundling constructs spends from that one limit, throwing
+/// sourcemeta::core::SchemaFrameLimitError once it runs out, which bounds how
+/// many remote schemas this embeds and how deep it recurses along with how
+/// much framing it does. Note that a remote is copied out of the resolver
+/// before anything charges for it, so the limit bounds how many oversized
+/// schemas get copied rather than whether one does
+///
+/// Set sourcemeta::blaze::BundleOptions::callback to learn where each schema
+/// ends up, which is the only way to know what a later call has to frame when
+/// bundling into a container that the dialect does not otherwise traverse
 SOURCEMETA_BLAZE_BUNDLE_EXPORT
 auto bundle(sourcemeta::core::JSON &schema,
             const sourcemeta::core::SchemaWalker &walker,
@@ -261,11 +268,10 @@ auto bundle(sourcemeta::core::JSON &schema,
 /// assert(result == expected);
 /// ```
 ///
-/// As with the mutating overload, pass `max_locations` to bound how much
-/// analysis an untrusted schema and whatever the resolver hands back for it
-/// may cost
-///
-/// As with the mutating overload, pass `callback` to learn where each schema
+/// As with the mutating overload, set
+/// sourcemeta::blaze::BundleOptions::max_locations to bound how much analysis
+/// an untrusted schema and whatever the resolver hands back for it may cost,
+/// and sourcemeta::blaze::BundleOptions::callback to learn where each schema
 /// ends up
 SOURCEMETA_BLAZE_BUNDLE_EXPORT
 auto bundle(const sourcemeta::core::JSON &schema,
