@@ -15,9 +15,14 @@ public:
       -> bool override {
     this->sanitize_pending_ = false;
 
+    ONLY_CONTINUE_IF(owns_dialect(frame, location));
+
     ONLY_CONTINUE_IF(vocabularies.contains(
                          SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE) &&
                      schema.is_object());
+
+    this->metaschema_target_ =
+        is_metaschema_target(schema, frame, location.pointer);
 
     const bool is_resource_scope{
         location.type ==
@@ -170,6 +175,10 @@ public:
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == DRAFT_2019_09_URL) {
       schema.assign("$schema", sourcemeta::core::JSON{DRAFT_2020_12_URL});
+      if (this->metaschema_target_ && !schema.defines("$vocabulary")) {
+        synthesize_vocabulary(schema, VOCABULARIES_2020_12);
+      }
+
       drop_dialect_overrides(schema, true, DRAFT_2020_12_URL);
     } else {
       mark_dialect_override(schema, DRAFT_2020_12_URL);
@@ -295,6 +304,8 @@ private:
   mutable std::vector<
       std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>
       renames_;
+
+  mutable bool metaschema_target_{false};
   mutable bool resource_has_recursive_anchor_{false};
   mutable bool anchor_at_resource_root_{false};
   mutable bool is_inside_contains_wrapper_{false};
@@ -311,6 +322,10 @@ private:
       const sourcemeta::core::SchemaResolver &resolver) -> bool {
     if (frame.any_subschema(
             [&](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
+              if (!owns_dialect(frame, entry)) {
+                return false;
+              }
+
               const auto absolute{sourcemeta::core::to_pointer(entry.pointer)};
               const auto &subschema{sourcemeta::core::get(root, absolute)};
               if (!subschema.is_object() ||

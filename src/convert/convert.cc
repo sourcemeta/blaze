@@ -165,7 +165,11 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                 new_location.value().get().relative_pointer};
             const auto current_slice{entry_pointer.slice(resource_offset)};
             for (const auto &saved_reference : potentially_broken_references) {
-              if (core::try_get(schema, saved_reference.target_pointer)) {
+              // A reference only breaks when its destination stops resolving.
+              // The target sitting at a different pointer than before is not
+              // enough, as a resource that moved as a whole keeps resolving
+              // the fragments that its own identifier is the base of
+              if (frame->traverse(saved_reference.destination).has_value()) {
                 continue;
               }
 
@@ -249,6 +253,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/empty_object_as_true.h"
 #include "rules/enum_to_const.h"
 #include "rules/metaschema_vocabulary.h"
+#include "rules/modern_official_dialect_with_empty_fragment.h"
 #include "rules/prefix_promoted_2020_12_keywords.h"
 #include "rules/prefix_promoted_draft_2019_09_keywords.h"
 #include "rules/prefix_promoted_draft_4_keywords.h"
@@ -272,9 +277,10 @@ auto convert(sourcemeta::core::JSON &schema,
              const std::string_view default_id, const bool is_metaschema)
     -> void {
   std::vector<Rule> rules;
-  rules.reserve(18);
+  rules.reserve(19);
   rules.push_back(make_rule<DraftOfficialDialectWithHttps>());
   rules.push_back(make_rule<DraftOfficialDialectWithoutEmptyFragment>());
+  rules.push_back(make_rule<ModernOfficialDialectWithEmptyFragment>());
   rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
   rules.push_back(make_rule<UpgradeDraft3ToDraft4>());
 
@@ -309,6 +315,7 @@ auto convert(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<UpgradeDialectOverrideCleanup>());
   apply(rules, schema, walker, resolver, default_dialect, default_id,
         is_metaschema);
+  erase_dialect_overrides(schema);
 }
 
 } // namespace sourcemeta::blaze

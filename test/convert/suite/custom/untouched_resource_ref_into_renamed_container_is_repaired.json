@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "properties": { "primary": { "$ref": "https://example.com/contact" } },
+    "definitions": {
+      "label": { "type": "string" },
+      "contact": {
+        "$schema": "https://example.com/meta",
+        "$id": "https://example.com/contact",
+        "properties": { "kind": { "$ref": "https://example.com/root#/definitions/label" } }
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "properties": { "primary": { "$ref": "https://example.com/contact" } },
+      "$defs": {
+        "label": { "type": "string" },
+        "contact": {
+          "$schema": "https://example.com/meta",
+          "$id": "https://example.com/contact",
+          "properties": { "kind": { "$ref": "https://example.com/root#/$defs/label" } }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": { "primary": { "$ref": "https://example.com/contact" } },
+      "$defs": {
+        "label": { "type": "string" },
+        "contact": {
+          "$schema": "https://example.com/meta",
+          "$id": "https://example.com/contact",
+          "properties": { "kind": { "$ref": "https://example.com/root#/$defs/label" } }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "primary": { "kind": "x" } } ],
+  "counterExamples": [ { "primary": { "kind": 1 } } ]
+}

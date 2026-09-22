@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema#",
+    "$id": "https://example.com/x",
+    "items": [ { "type": "string" } ]
+  },
+  "result": {
+    "draft4": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/x",
+      "items": [ { "type": "string" } ]
+    },
+    "draft6": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/x",
+      "items": [ { "type": "string" } ]
+    },
+    "draft7": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/x",
+      "items": [ { "type": "string" } ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/x",
+      "items": [ { "type": "string" } ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/x",
+      "prefixItems": [ { "type": "string" } ]
+    }
+  },
+  "examples": [ [], [ "a" ] ],
+  "counterExamples": [ [ 1 ] ]
+}

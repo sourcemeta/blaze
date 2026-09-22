@@ -13,6 +13,7 @@ public:
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &, const bool) const
       -> bool override {
+    ONLY_CONTINUE_IF(owns_dialect(frame, location));
     ONLY_CONTINUE_IF(
         vocabularies.contains(SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3) &&
         schema.is_object());
@@ -25,8 +26,12 @@ public:
 
     if (frame.any_subschema_under(
             location.pointer,
-            [&root](
+            [&root, &frame](
                 const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
+              if (!owns_dialect(frame, entry)) {
+                return false;
+              }
+
               const auto entry_pointer{
                   sourcemeta::core::to_pointer(entry.pointer)};
               const auto &entry_schema{

@@ -19,7 +19,12 @@ public:
 
     return !frame.any_subschema_under(
         location.pointer,
-        [&root](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
+        [&root,
+         &frame](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
+          if (!owns_dialect(frame, entry)) {
+            return false;
+          }
+
           const auto entry_pointer{sourcemeta::core::to_pointer(entry.pointer)};
           const auto &entry_schema{sourcemeta::core::get(root, entry_pointer)};
           if (entry_schema.is_object() && entry_schema.defines("$ref")) {

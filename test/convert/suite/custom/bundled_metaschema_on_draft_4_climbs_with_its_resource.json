@@ -1,0 +1,119 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/a",
+    "properties": { "primary": { "$ref": "https://example.com/b" } },
+    "definitions": {
+      "c": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://example.com/c",
+        "type": "object"
+      },
+      "b": {
+        "$schema": "https://example.com/c",
+        "$id": "https://example.com/b",
+        "dependencies": {
+          "token": { "properties": { "address": { "type": "string" } } }
+        }
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/a",
+      "properties": { "primary": { "$ref": "https://example.com/b" } },
+      "definitions": {
+        "c": {
+          "$schema": "http://json-schema.org/draft-06/schema#",
+          "$id": "https://example.com/c",
+          "type": "object"
+        },
+        "b": {
+          "$schema": "https://example.com/c",
+          "$id": "https://example.com/b",
+          "dependencies": {
+            "token": { "properties": { "address": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/a",
+      "properties": { "primary": { "$ref": "https://example.com/b" } },
+      "definitions": {
+        "c": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/c",
+          "type": "object"
+        },
+        "b": {
+          "$schema": "https://example.com/c",
+          "$id": "https://example.com/b",
+          "dependencies": {
+            "token": { "properties": { "address": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/a",
+      "properties": { "primary": { "$ref": "https://example.com/b" } },
+      "$defs": {
+        "c": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://example.com/c",
+          "$vocabulary": {
+            "https://json-schema.org/draft/2019-09/vocab/core": true,
+            "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+            "https://json-schema.org/draft/2019-09/vocab/validation": true,
+            "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+            "https://json-schema.org/draft/2019-09/vocab/format": false,
+            "https://json-schema.org/draft/2019-09/vocab/content": true
+          },
+          "type": "object"
+        },
+        "b": {
+          "$schema": "https://example.com/c",
+          "$id": "https://example.com/b",
+          "dependentSchemas": {
+            "token": { "properties": { "address": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/a",
+      "properties": { "primary": { "$ref": "https://example.com/b" } },
+      "$defs": {
+        "c": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/c",
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+            "https://json-schema.org/draft/2020-12/vocab/validation": true,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+            "https://json-schema.org/draft/2020-12/vocab/content": true
+          },
+          "type": "object"
+        },
+        "b": {
+          "$schema": "https://example.com/c",
+          "$id": "https://example.com/b",
+          "dependentSchemas": {
+            "token": { "properties": { "address": { "type": "string" } } }
+          }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "primary": { "token": 1, "address": "x" } } ],
+  "counterExamples": [ { "primary": { "token": 1, "address": 1 } } ]
+}

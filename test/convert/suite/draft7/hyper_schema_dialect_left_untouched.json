@@ -1,0 +1,16 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/hyper-schema#",
+    "$id": "https://example.com/x",
+    "dependencies": { "t": { "properties": { "p": { "type": "string" } } } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": null
+  },
+  "examples": [ {}, { "t": 1, "p": "x" } ],
+  "counterExamples": [ { "t": 1, "p": 1 } ]
+}

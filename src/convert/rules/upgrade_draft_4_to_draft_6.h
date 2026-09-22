@@ -15,6 +15,8 @@ public:
       -> bool override {
     this->sanitize_pending_ = false;
 
+    ONLY_CONTINUE_IF(owns_dialect(frame, location));
+
     ONLY_CONTINUE_IF(
         vocabularies.contains(SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4) &&
         schema.is_object());
@@ -59,7 +61,8 @@ public:
                     sourcemeta::core::to_pointer(entry.pointer)};
                 const auto &entry_schema{
                     sourcemeta::core::get(root, entry_pointer)};
-                if (is_metaschema_target(entry_schema, frame, entry.pointer)) {
+                if (!owns_dialect(frame, entry) ||
+                    is_metaschema_target(entry_schema, frame, entry.pointer)) {
                   return false;
                 }
 
