@@ -77,7 +77,10 @@ public:
       }
     }
 
-    return target;
+    // Splitting a container in two leaves nowhere for a reference to the
+    // container itself to land, and neither does dropping an empty one. The
+    // caller hears about it rather than receiving a reference that dangles
+    return std::nullopt;
   }
 
 private:

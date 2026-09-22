@@ -8,11 +8,12 @@ public:
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
             const sourcemeta::core::SchemaVocabularies &vocabularies,
-            const sourcemeta::core::SchemaFrame &,
-            const sourcemeta::core::SchemaFrame::Location &,
+            const sourcemeta::core::SchemaFrame &frame,
+            const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &, const bool) const
       -> bool override {
+    ONLY_CONTINUE_IF(owns_dialect(frame, location));
     ONLY_CONTINUE_IF(
         vocabularies.contains(SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4) &&
         schema.is_object());

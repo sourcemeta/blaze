@@ -166,6 +166,14 @@ inline auto dialect_position(const std::string_view dialect) -> std::size_t {
   return 0;
 }
 
+// Core reads this keyword as a dialect too, so it may well be a keyword the
+// caller wrote. The ladder only ever records one of the dialects it walks
+// through, so anything else is not ours to clear
+inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
+    -> bool {
+  return value.is_string() && dialect_position(value.to_string()) > 0;
+}
+
 // The empty fragment does not change which dialect a URI names, and only some
 // of the official spellings have a rule of their own to settle them
 inline auto without_empty_fragment(const std::string_view uri)
@@ -187,7 +195,7 @@ owns_dialect(const sourcemeta::core::SchemaFrame &frame,
                                return without_empty_fragment(candidate) ==
                                       dialect;
                              }) ||
-         frame.traverse(location.dialect).has_value();
+         frame.traverse(dialect).has_value();
 }
 
 inline auto moved_past(const sourcemeta::core::JSON &schema,
@@ -215,7 +223,10 @@ inline auto erase_dialect_overrides(sourcemeta::core::JSON &schema) -> void {
     return;
   }
 
-  schema.erase(DIALECT_OVERRIDE_KEYWORD);
+  const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+  if (marker != nullptr && is_own_dialect_override(*marker)) {
+    schema.erase(DIALECT_OVERRIDE_KEYWORD);
+  }
 
   std::vector<std::string> keys;
   keys.reserve(schema.size());
@@ -250,7 +261,9 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
   // its marker. Dropping it would leave the keywords that move brought in
   // looking like keywords of the dialect it has left behind, and the rules
   // that reserve those names would prefix them away
-  if (is_root || !moved_past(schema, dialect)) {
+  const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+  if (marker != nullptr && is_own_dialect_override(*marker) &&
+      (is_root || !moved_past(schema, dialect))) {
     schema.erase(DIALECT_OVERRIDE_KEYWORD);
   }
 

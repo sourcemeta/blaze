@@ -355,6 +355,10 @@ private:
     if (frame.any_subschema_under(
             location.pointer,
             [&](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
+              if (!owns_dialect(frame, entry)) {
+                return false;
+              }
+
               const auto absolute{sourcemeta::core::to_pointer(entry.pointer)};
               const auto &descendant{sourcemeta::core::get(root, absolute)};
               if (has_pending_pattern(descendant, entry)) {

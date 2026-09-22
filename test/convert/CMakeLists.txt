@@ -1,6 +1,7 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME convert
   SOURCES
-    convert_boolean_test.cc)
+    convert_boolean_test.cc
+    convert_broken_reference_test.cc)
 
 target_link_libraries(sourcemeta_blaze_convert_unit
   PRIVATE sourcemeta::core::json)

@@ -13,6 +13,7 @@ public:
             const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &, const bool) const
       -> bool override {
+    ONLY_CONTINUE_IF(owns_dialect(frame, location));
     ONLY_CONTINUE_IF(
         vocabularies.contains(SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_6) &&
         subschema_at_dialect(schema, location, DRAFT_6_URL));
