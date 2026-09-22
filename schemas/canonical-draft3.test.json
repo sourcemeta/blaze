@@ -257,8 +257,8 @@
       }
     },
     {
-      "description": "Enum with id is canonical",
-      "valid": true,
+      "description": "Enum with id is rejected",
+      "valid": false,
       "data": {
         "enum": [ 1 ],
         "id": "https://example.com/e"
@@ -401,8 +401,8 @@
       }
     },
     {
-      "description": "String with id is canonical",
-      "valid": true,
+      "description": "String with id is rejected",
+      "valid": false,
       "data": {
         "type": "string",
         "minLength": 0,
@@ -572,8 +572,8 @@
       }
     },
     {
-      "description": "Integer with id is canonical",
-      "valid": true,
+      "description": "Integer with id is rejected",
+      "valid": false,
       "data": {
         "type": "integer",
         "divisibleBy": 1,
@@ -764,8 +764,8 @@
       }
     },
     {
-      "description": "Number with id is canonical",
-      "valid": true,
+      "description": "Number with id is rejected",
+      "valid": false,
       "data": {
         "type": "number",
         "id": "https://example.com/n"
@@ -1029,8 +1029,8 @@
       }
     },
     {
-      "description": "Object with id is canonical",
-      "valid": true,
+      "description": "Object with id is rejected",
+      "valid": false,
       "data": {
         "type": "object",
         "properties": {},
@@ -1407,8 +1407,8 @@
       }
     },
     {
-      "description": "Array schema items with id is canonical",
-      "valid": true,
+      "description": "Array schema items with id is rejected",
+      "valid": false,
       "data": {
         "type": "array",
         "minItems": 0,
@@ -1890,8 +1890,8 @@
       }
     },
     {
-      "description": "Type array with id is canonical",
-      "valid": true,
+      "description": "Type array with id is rejected",
+      "valid": false,
       "data": {
         "type": [
           {
@@ -2148,8 +2148,8 @@
       }
     },
     {
-      "description": "Extends with id is canonical",
-      "valid": true,
+      "description": "Extends with id is rejected",
+      "valid": false,
       "data": {
         "extends": [
           {
@@ -2437,8 +2437,8 @@
       }
     },
     {
-      "description": "Disallow with id is canonical",
-      "valid": true,
+      "description": "Disallow with id is rejected",
+      "valid": false,
       "data": {
         "disallow": [
           {
@@ -2646,7 +2646,6 @@
       "valid": true,
       "data": {
         "$schema": "http://json-schema.org/draft-03/schema#",
-        "id": "https://example.com/person",
         "type": "object",
         "title": "Person",
         "properties": {
