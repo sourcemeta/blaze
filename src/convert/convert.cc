@@ -338,7 +338,7 @@ auto convert(sourcemeta::core::JSON &schema,
 
   rules.push_back(make_rule<UpgradeDialectOverrideCleanup>());
   apply(rules, schema, walker, resolver, default_dialect, default_id,
-        is_metaschema || describes_itself(schema));
+        is_metaschema || describes_itself(schema, default_id));
   erase_dialect_overrides(schema);
 }
 

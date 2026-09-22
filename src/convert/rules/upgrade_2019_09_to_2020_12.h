@@ -11,8 +11,8 @@ public:
             const sourcemeta::core::SchemaFrame &frame,
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &walker,
-            const sourcemeta::core::SchemaResolver &resolver, const bool) const
-      -> bool override {
+            const sourcemeta::core::SchemaResolver &resolver,
+            const bool is_metaschema) const -> bool override {
     this->sanitize_pending_ = false;
 
     ONLY_CONTINUE_IF(owns_dialect(frame, location));
@@ -21,7 +21,10 @@ public:
                          SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE) &&
                      schema.is_object());
 
+    // A document can be a meta-schema because something in it says so, or
+    // because the caller does
     this->metaschema_target_ =
+        (is_metaschema && location.pointer.empty()) ||
         is_metaschema_target(schema, frame, location.pointer);
 
     const bool is_resource_scope{
@@ -38,7 +41,10 @@ public:
         this->resource_has_recursive_anchor_ =
             compute_resource_has_recursive_anchor(root, frame, location);
         this->anchor_at_resource_root_ = is_resource_root(frame, location);
-        this->dynamic_anchor_name_ = compute_dynamic_anchor_name(root);
+        if (needs_dynamic_anchor_name(schema)) {
+          this->dynamic_anchor_name_ = compute_dynamic_anchor_name(root);
+        }
+
         this->document_has_unevaluated_items_ =
             compute_document_has_unevaluated_items(root, frame, walker,
                                                    resolver);
@@ -62,7 +68,10 @@ public:
     this->resource_has_recursive_anchor_ =
         compute_resource_has_recursive_anchor(root, frame, location);
     this->anchor_at_resource_root_ = is_resource_root(frame, location);
-    this->dynamic_anchor_name_ = compute_dynamic_anchor_name(root);
+    if (needs_dynamic_anchor_name(schema)) {
+      this->dynamic_anchor_name_ = compute_dynamic_anchor_name(root);
+    }
+
     this->document_has_unevaluated_items_ =
         compute_document_has_unevaluated_items(root, frame, walker, resolver);
     return true;
@@ -169,7 +178,7 @@ public:
       }
     }
 
-    rewrite_vocabulary(schema);
+    rewrite_vocabulary(schema, this->metaschema_target_);
 
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == DRAFT_2019_09_URL) {
@@ -260,7 +269,8 @@ private:
     return true;
   }
 
-  static auto rewrite_vocabulary(sourcemeta::core::JSON &schema) -> void {
+  static auto rewrite_vocabulary(sourcemeta::core::JSON &schema,
+                                 const bool describes_a_dialect) -> void {
     if (!schema.is_object() || !schema.defines("$vocabulary") ||
         !schema.at("$vocabulary").is_object()) {
       return;
@@ -270,7 +280,8 @@ private:
     // be the standard dialect, so on 2020-12 it becomes exactly that one.
     // Carrying the booleans across instead would keep 2019-09's answer to a
     // question 2020-12 answers differently, and `format` is one of those
-    if (declares_official_2019_09_vocabulary(schema.at("$vocabulary"))) {
+    if (describes_a_dialect &&
+        declares_official_2019_09_vocabulary(schema.at("$vocabulary"))) {
       schema.erase("$vocabulary");
       synthesize_vocabulary(schema, VOCABULARIES_2020_12);
       return;
@@ -718,6 +729,14 @@ private:
     for (const auto &entry : node.as_object()) {
       collect_static_anchors(entry.second, names);
     }
+  }
+
+  // Naming a dynamic anchor means reading the whole document, so only a
+  // subschema that is about to carry one or point at one pays for it
+  static auto needs_dynamic_anchor_name(const sourcemeta::core::JSON &schema)
+      -> bool {
+    return schema.is_object() &&
+           schema.defines_any({"$recursiveAnchor", "$recursiveRef"});
   }
 
   static auto compute_dynamic_anchor_name(const sourcemeta::core::JSON &root)

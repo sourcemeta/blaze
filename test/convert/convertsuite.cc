@@ -309,6 +309,7 @@ auto names_one_dialect(const sourcemeta::core::JSON &document) -> bool {
 // Whether a document is a schema of the dialect it claims to be
 auto meets_metaschema(const sourcemeta::core::JSON &document,
                       const sourcemeta::core::SchemaResolver &resolver,
+                      const sourcemeta::core::JSON &registry,
                       const Inputs &inputs) -> bool {
   const sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References,
@@ -321,23 +322,28 @@ auto meets_metaschema(const sourcemeta::core::JSON &document,
 
   // Compiling a meta-schema is far more expensive than evaluating one, and a
   // suite of this size names only a handful of distinct ones
+  // What the meta-schema compiles to depends on the registry that resolves
+  // whatever it points at, so both belong in the key
   static std::vector<
-      std::pair<sourcemeta::core::JSON, sourcemeta::blaze::Template>>
+      std::pair<std::pair<sourcemeta::core::JSON, sourcemeta::core::JSON>,
+                sourcemeta::blaze::Template>>
       compiled_metaschemas;
 
   const auto &metaschema{frame.metaschema(resolver)};
   std::size_t index{0};
   while (index < compiled_metaschemas.size() &&
-         compiled_metaschemas.at(index).first != metaschema) {
+         (compiled_metaschemas.at(index).first.first != metaschema ||
+          compiled_metaschemas.at(index).first.second != registry)) {
     index += 1;
   }
 
   if (index == compiled_metaschemas.size()) {
     compiled_metaschemas.emplace_back(
-        metaschema, sourcemeta::blaze::compile(
-                        metaschema, sourcemeta::core::schema_walker, resolver,
-                        sourcemeta::blaze::default_schema_compiler,
-                        sourcemeta::blaze::Mode::FastValidation));
+        std::make_pair(metaschema, registry),
+        sourcemeta::blaze::compile(metaschema, sourcemeta::core::schema_walker,
+                                   resolver,
+                                   sourcemeta::blaze::default_schema_compiler,
+                                   sourcemeta::blaze::Mode::FastValidation));
   }
 
   const auto &compiled{compiled_metaschemas.at(index).second};
@@ -354,16 +360,17 @@ auto check_metaschema(const std::string_view target,
                       const sourcemeta::core::JSON &document,
                       const sourcemeta::core::JSON &input,
                       const sourcemeta::core::SchemaResolver &resolver,
+                      const sourcemeta::core::JSON &registry,
                       const Inputs &inputs) -> void {
   if (!names_one_dialect(document) || !names_one_dialect(input) ||
-      !meets_metaschema(input, resolver, inputs)) {
+      !meets_metaschema(input, resolver, registry, inputs)) {
     return;
   }
 
   auto entry{sourcemeta::core::JSON::make_object()};
   entry.assign("target", sourcemeta::core::JSON{target});
   entry.assign("meetsMetaschema", sourcemeta::core::JSON{meets_metaschema(
-                                      document, resolver, inputs)});
+                                      document, resolver, registry, inputs)});
   auto expected{sourcemeta::core::JSON::make_object()};
   expected.assign("target", sourcemeta::core::JSON{target});
   expected.assign("meetsMetaschema", sourcemeta::core::JSON{true});
@@ -401,7 +408,10 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
     }
 
     expect_equal_with_ordering(target.name, document, expected);
+    const auto *registry{test.try_at("resolver")};
     check_metaschema(target.name, document, test.at("schema"), resolver,
+                     registry == nullptr ? sourcemeta::core::JSON{nullptr}
+                                         : *registry,
                      inputs);
 
     // A target that leaves the schema alone has to say so with `null`, rather

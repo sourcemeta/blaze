@@ -43,32 +43,6 @@ inline auto without_empty_fragment(const std::string_view uri)
   return uri.ends_with('#') ? uri.substr(0, uri.size() - 1) : uri;
 }
 
-// A document whose identifier is the very dialect it declares describes
-// itself, so it is a meta-schema on the strongest evidence there is. The
-// ladder rewrites that `$schema` on the first bump, taking the evidence with
-// it, so the question has to be asked before any rule runs
-inline auto describes_itself(const sourcemeta::core::JSON &schema) -> bool {
-  if (!schema.is_object()) {
-    return false;
-  }
-
-  const auto *dialect{schema.try_at("$schema")};
-  if (dialect == nullptr || !dialect->is_string()) {
-    return false;
-  }
-
-  for (const auto *keyword : {"$id", "id"}) {
-    const auto *identifier{schema.try_at(keyword)};
-    if (identifier != nullptr && identifier->is_string() &&
-        without_empty_fragment(identifier->to_string()) ==
-            without_empty_fragment(dialect->to_string())) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 // A subschema that a `$schema` of the document resolves to is a meta-schema of
 // that document, no matter where within the document it sits. Every base
 // dialect asks such a subschema to declare an identifier, which is what keeps
@@ -222,6 +196,58 @@ owns_dialect(const sourcemeta::core::SchemaFrame &frame,
                                       dialect;
                              }) ||
          frame.traverse(dialect).has_value();
+}
+
+// Whether an identifier and a dialect name the same thing once both are
+// resolved against what the caller said the document is called
+inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
+                               const char *keyword,
+                               const std::string_view dialect,
+                               const std::string_view default_id) -> bool {
+  const auto *identifier{schema.try_at(keyword)};
+  if (identifier == nullptr || !identifier->is_string()) {
+    return false;
+  }
+
+  sourcemeta::core::URI left{identifier->to_string()};
+  sourcemeta::core::URI right{std::string{dialect}};
+  if (!default_id.empty()) {
+    const sourcemeta::core::URI base{std::string{default_id}};
+    left.resolve_from(base);
+    right.resolve_from(base);
+  }
+
+  left.canonicalize();
+  right.canonicalize();
+  return left.recompose() == right.recompose();
+}
+
+// A document whose identifier is the very dialect it declares describes
+// itself, so it is a meta-schema on the strongest evidence there is. The
+// ladder rewrites that `$schema` on the first bump, taking the evidence with
+// it, so the question has to be asked before any rule runs
+inline auto describes_itself(const sourcemeta::core::JSON &schema,
+                             const std::string_view default_id) -> bool {
+  if (!schema.is_object()) {
+    return false;
+  }
+
+  const auto *dialect{schema.try_at("$schema")};
+  if (dialect == nullptr || !dialect->is_string()) {
+    return false;
+  }
+
+  // Draft 3 and Draft 4 carry the identifier in `id` and everything the ladder
+  // names after them in `$id`, so the other keyword is ordinary data there. A
+  // dialect the ladder does not name leaves the question open
+  const auto position{dialect_position(dialect->to_string())};
+  const auto &value{dialect->to_string()};
+  if (position != 1 && position != 2 &&
+      names_the_same_uri(schema, "$id", value, default_id)) {
+    return true;
+  }
+
+  return position <= 2 && names_the_same_uri(schema, "id", value, default_id);
 }
 
 inline auto moved_past(const sourcemeta::core::JSON &schema,
