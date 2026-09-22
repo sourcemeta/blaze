@@ -48,6 +48,17 @@ inline auto is_metaschema_target(const sourcemeta::core::JSON &schema,
     return false;
   }
 
+  // A document that takes its dialect from the caller rather than from a
+  // `$schema` of its own names no meta-schema anywhere, so what the document
+  // reads as is the only thing left to ask
+  const auto document{frame.traverse(sourcemeta::core::EMPTY_WEAK_POINTER)};
+  if (document.has_value()) {
+    const auto target{frame.traverse(document.value().get().dialect)};
+    if (target.has_value() && target.value().get().pointer == pointer) {
+      return true;
+    }
+  }
+
   return frame.any_reference(
       [&frame, &pointer](
           const sourcemeta::core::SchemaReferenceType,
@@ -155,12 +166,76 @@ inline auto dialect_position(const std::string_view dialect) -> std::size_t {
   return 0;
 }
 
+// Core reads this keyword as a dialect too, so it may well be a keyword the
+// caller wrote. The ladder only ever records one of the dialects it walks
+// through, so anything else is not ours to clear
+inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
+    -> bool {
+  return value.is_string() && dialect_position(value.to_string()) > 0;
+}
+
+// The empty fragment does not change which dialect a URI names, and only some
+// of the official spellings have a rule of their own to settle them
+inline auto without_empty_fragment(const std::string_view uri)
+    -> std::string_view {
+  return uri.ends_with('#') ? uri.substr(0, uri.size() - 1) : uri;
+}
+
+// A `$schema` the conversion did not write stays as it is, so a dialect the
+// ladder does not name is only ours to move when the meta-schema defining it
+// travels in the same document, where it moves along with everything that
+// names it. Bundling is what hands a dialect over, the same way it is what
+// hands over a reference to somewhere else
+inline auto
+owns_dialect(const sourcemeta::core::SchemaFrame &frame,
+             const sourcemeta::core::SchemaFrame::Location &location) -> bool {
+  const auto dialect{without_empty_fragment(location.dialect)};
+  return std::ranges::any_of(LADDER_DIALECTS,
+                             [&dialect](const auto &candidate) -> bool {
+                               return without_empty_fragment(candidate) ==
+                                      dialect;
+                             }) ||
+         frame.traverse(dialect).has_value();
+}
+
 inline auto moved_past(const sourcemeta::core::JSON &schema,
                        const std::string_view dialect) -> bool {
   const auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
   return override_value != nullptr && override_value->is_string() &&
          dialect_position(override_value->to_string()) >
              dialect_position(dialect);
+}
+
+// The marker is state of the ladder rather than of the schema. A resource that
+// declares a dialect the conversion does not own can never materialise it into
+// a `$schema`, so whatever survives the ladder has to come off before the
+// caller ever sees it
+inline auto erase_dialect_overrides(sourcemeta::core::JSON &schema) -> void {
+  if (schema.is_array()) {
+    for (auto &item : schema.as_array()) {
+      erase_dialect_overrides(item);
+    }
+
+    return;
+  }
+
+  if (!schema.is_object()) {
+    return;
+  }
+
+  const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+  if (marker != nullptr && is_own_dialect_override(*marker)) {
+    schema.erase(DIALECT_OVERRIDE_KEYWORD);
+  }
+
+  std::vector<std::string> keys;
+  keys.reserve(schema.size());
+  for (const auto &entry : schema.as_object()) {
+    keys.push_back(entry.first);
+  }
+  for (const auto &key : keys) {
+    erase_dialect_overrides(schema.at(key));
+  }
 }
 
 inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
@@ -186,7 +261,9 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
   // its marker. Dropping it would leave the keywords that move brought in
   // looking like keywords of the dialect it has left behind, and the rules
   // that reserve those names would prefix them away
-  if (is_root || !moved_past(schema, dialect)) {
+  const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+  if (marker != nullptr && is_own_dialect_override(*marker) &&
+      (is_root || !moved_past(schema, dialect))) {
     schema.erase(DIALECT_OVERRIDE_KEYWORD);
   }
 
@@ -197,6 +274,70 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
   }
   for (const auto &key : keys) {
     drop_dialect_overrides(schema.at(key), false, dialect);
+  }
+}
+
+using Vocabulary = std::pair<std::string_view, bool>;
+
+constexpr std::array<Vocabulary, 6> VOCABULARIES_2019_09{
+    {{"https://json-schema.org/draft/2019-09/vocab/core", true},
+     {"https://json-schema.org/draft/2019-09/vocab/applicator", true},
+     {"https://json-schema.org/draft/2019-09/vocab/validation", true},
+     {"https://json-schema.org/draft/2019-09/vocab/meta-data", true},
+     {"https://json-schema.org/draft/2019-09/vocab/format", false},
+     {"https://json-schema.org/draft/2019-09/vocab/content", true}}};
+
+constexpr std::array<Vocabulary, 7> VOCABULARIES_2020_12{
+    {{"https://json-schema.org/draft/2020-12/vocab/core", true},
+     {"https://json-schema.org/draft/2020-12/vocab/applicator", true},
+     {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true},
+     {"https://json-schema.org/draft/2020-12/vocab/validation", true},
+     {"https://json-schema.org/draft/2020-12/vocab/meta-data", true},
+     {"https://json-schema.org/draft/2020-12/vocab/format-annotation", false},
+     {"https://json-schema.org/draft/2020-12/vocab/content", true}}};
+
+// A meta-schema on 2019-09 or newer that does not declare its vocabularies
+// leaves every schema naming it unreadable, down to whether a `$ref` counts as
+// a reference at all. Whatever moves a meta-schema onto one of those dialects
+// has to say what they are in the same breath, as a document the conversion
+// cannot read is a document whose references it cannot keep whole
+template <std::size_t Size>
+auto synthesize_vocabulary(sourcemeta::core::JSON &schema,
+                           const std::array<Vocabulary, Size> &entries)
+    -> void {
+  std::string_view anchor;
+  if (schema.defines("$id")) {
+    anchor = "$id";
+  } else if (schema.defines("$schema")) {
+    anchor = "$schema";
+  }
+
+  const std::string *next_key{nullptr};
+  if (!anchor.empty()) {
+    bool found_anchor{false};
+    for (const auto &entry : schema.as_object()) {
+      if (found_anchor) {
+        next_key = &entry.first;
+        break;
+      }
+      if (entry.first == anchor) {
+        found_anchor = true;
+      }
+    }
+  }
+
+  if (next_key != nullptr) {
+    schema.try_assign_before("$vocabulary",
+                             sourcemeta::core::JSON::make_object(), *next_key);
+  } else {
+    schema.assign_assume_new("$vocabulary",
+                             sourcemeta::core::JSON::make_object());
+  }
+
+  auto &vocabularies{schema.at("$vocabulary")};
+  for (const auto &[uri, required] : entries) {
+    vocabularies.assign_assume_new(std::string{uri},
+                                   sourcemeta::core::JSON{required});
   }
 }
 

@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "items": [
+      {
+        "$schema": "https://example.com/meta",
+        "$id": "https://example.com/contact",
+        "properties": { "address": { "$ref": "#/definitions/email" } },
+        "definitions": { "email": { "type": "string" } }
+      }
+    ]
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "prefixItems": [
+        {
+          "$schema": "https://example.com/meta",
+          "$id": "https://example.com/contact",
+          "properties": { "address": { "$ref": "#/definitions/email" } },
+          "definitions": { "email": { "type": "string" } }
+        }
+      ]
+    }
+  },
+  "examples": [ [], [ { "address": "x" } ] ],
+  "counterExamples": [ [ { "address": 1 } ] ]
+}

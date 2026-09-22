@@ -1,0 +1,61 @@
+{
+  "schema": {
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/root",
+    "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
+    "properties": { "g": { "$ref": "https://example.com/inner" } },
+    "definitions": {
+      "inner": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/inner",
+        "dependencies": {
+          "u": { "properties": { "q": { "type": "string" } } }
+        }
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://example.com/meta",
+      "$id": "https://example.com/root",
+      "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
+      "properties": { "g": { "$ref": "https://example.com/inner" } },
+      "definitions": {
+        "inner": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://example.com/inner",
+          "dependentSchemas": {
+            "u": { "properties": { "q": { "type": "string" } } }
+          }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://example.com/meta",
+      "$id": "https://example.com/root",
+      "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
+      "properties": { "g": { "$ref": "https://example.com/inner" } },
+      "definitions": {
+        "inner": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/inner",
+          "dependentSchemas": {
+            "u": { "properties": { "q": { "type": "string" } } }
+          }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "t": 1, "p": "x", "g": { "u": 1, "q": "y" } } ],
+  "counterExamples": [ { "t": 1, "p": 1 }, { "g": { "u": 1, "q": 1 } } ]
+}

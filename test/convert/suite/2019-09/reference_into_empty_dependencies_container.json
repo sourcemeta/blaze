@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/x",
+    "properties": { "v": { "$ref": "#/dependencies" } },
+    "dependencies": {}
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "invalid-reference",
+      "identifier": "https://example.com/x#/dependencies",
+      "location": "/properties/v/$ref"
+    },
+    "draft6": {
+      "type": "invalid-reference",
+      "identifier": "https://example.com/x#/dependencies",
+      "location": "/properties/v/$ref"
+    },
+    "draft7": {
+      "type": "invalid-reference",
+      "identifier": "https://example.com/x#/dependencies",
+      "location": "/properties/v/$ref"
+    },
+    "2019-09": {
+      "type": "invalid-reference",
+      "identifier": "https://example.com/x#/dependencies",
+      "location": "/properties/v/$ref"
+    },
+    "2020-12": {
+      "type": "invalid-reference",
+      "identifier": "https://example.com/x#/dependencies",
+      "location": "/properties/v/$ref"
+    }
+  },
+  "evaluation": "not-evaluatable",
+  "examples": [],
+  "counterExamples": []
+}

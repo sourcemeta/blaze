@@ -1,0 +1,23 @@
+{
+  "schema": {
+    "$id": "https://example.com/root",
+    "dependencies": { "t": { "properties": { "p": { "type": "string" } } } }
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "defaultDialect": "https://example.com/meta",
+  "examples": [ {}, { "t": 1, "p": "x" } ],
+  "counterExamples": [ { "t": 1, "p": 1 } ],
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": null
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/x",
+    "properties": {
+      "a": { "const": { "x-sourcemeta-dialect-override-subschema": "data" } },
+      "b": {
+        "enum": [ { "x-sourcemeta-dialect-override-subschema": "data" }, 1 ]
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/x",
+      "properties": {
+        "a": {
+          "const": { "x-sourcemeta-dialect-override-subschema": "data" }
+        },
+        "b": {
+          "enum": [ { "x-sourcemeta-dialect-override-subschema": "data" }, 1 ]
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/x",
+      "properties": {
+        "a": {
+          "const": { "x-sourcemeta-dialect-override-subschema": "data" }
+        },
+        "b": {
+          "enum": [ { "x-sourcemeta-dialect-override-subschema": "data" }, 1 ]
+        }
+      }
+    }
+  },
+  "examples": [
+    {},
+    { "a": { "x-sourcemeta-dialect-override-subschema": "data" }, "b": 1 }
+  ],
+  "counterExamples": [ { "a": {} }, { "b": 2 } ]
+}

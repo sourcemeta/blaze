@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/x",
+    "dependencies": {
+      "a": [ "b" ],
+      "c": { "properties": { "d": { "type": "string" } } }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/x",
+      "dependentSchemas": {
+        "c": { "properties": { "d": { "type": "string" } } }
+      },
+      "dependentRequired": { "a": [ "b" ] }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/x",
+      "dependentSchemas": {
+        "c": { "properties": { "d": { "type": "string" } } }
+      },
+      "dependentRequired": { "a": [ "b" ] }
+    }
+  },
+  "examples": [ {}, { "a": 1, "b": 1 }, { "c": 1, "d": "s" } ],
+  "counterExamples": [ { "a": 1 }, { "c": 1, "d": 1 } ]
+}

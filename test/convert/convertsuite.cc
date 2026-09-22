@@ -30,10 +30,23 @@ const std::vector<std::string> KNOWN_KEYS{
 
 // What a fixture may say about evaluating its schema at all. Leaving it out
 // means every schema the fixture names accepts and rejects something
-const std::vector<std::string> KNOWN_EVALUATIONS{"nothing-valid"};
+const std::vector<std::string> KNOWN_EVALUATIONS{"nothing-valid",
+                                                 "not-evaluatable"};
 
-const std::vector<std::string> KNOWN_ERROR_KEYS{"identifier", "location"};
+const std::vector<std::string> KNOWN_ERROR_KEYS{"type", "identifier",
+                                                "location"};
+
+// Which error a fixture expects conversion to raise. Leaving it out means the
+// reference was one the conversion had to carry and could not
+const std::vector<std::string> KNOWN_ERROR_TYPES{"invalid-reference"};
 // NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
+
+// A schema that no evaluator can take, such as one whose reference does not
+// point at a schema, cannot be asked about instances at all
+auto is_evaluatable(const sourcemeta::core::JSON &test) -> bool {
+  const auto *evaluation{test.try_at("evaluation")};
+  return evaluation == nullptr || evaluation->to_string() != "not-evaluatable";
+}
 
 struct Target {
   std::string_view name;
@@ -156,11 +169,13 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
 
   EXPECT_TRUE(test.at("examples").is_array());
   EXPECT_TRUE(test.at("counterExamples").is_array());
-  EXPECT_FALSE(test.at("counterExamples").empty());
 
   // A schema that accepts nothing has to say so and then carry no example,
   // and a schema that says nothing about it has to carry one
   EXPECT_EQ(test.at("examples").empty(), evaluation != nullptr);
+
+  // Only a schema that cannot be evaluated at all gets to reject nothing
+  EXPECT_EQ(test.at("counterExamples").empty(), !is_evaluatable(test));
 
   const auto &results{test.at("result")};
   EXPECT_TRUE(results.is_object());
@@ -180,6 +195,12 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
         EXPECT_TRUE(std::ranges::find(KNOWN_ERROR_KEYS, detail.first) !=
                     KNOWN_ERROR_KEYS.cend());
       }
+
+      const auto *type{entry.second.try_at("type")};
+      if (type != nullptr) {
+        EXPECT_TRUE(std::ranges::find(KNOWN_ERROR_TYPES, type->to_string()) !=
+                    KNOWN_ERROR_TYPES.cend());
+      }
     }
   }
 
@@ -194,11 +215,22 @@ auto check_error(const sourcemeta::core::JSON &test,
                  const sourcemeta::core::SchemaResolver &resolver,
                  const Inputs &inputs, const Target &target,
                  const sourcemeta::core::JSON &expected) -> void {
+  const auto *type{expected.try_at("type")};
+  const auto invalid{type != nullptr &&
+                     type->to_string() == "invalid-reference"};
+
   try {
     [[maybe_unused]] const auto document{
         convert_schema(test.at("schema"), resolver, inputs, target)};
     FAIL();
+  } catch (const sourcemeta::blaze::ConvertInvalidReferenceError &error) {
+    EXPECT_TRUE(invalid);
+    EXPECT_STREQ(error.what(), "The reference does not point to a schema");
+    EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
+              expected.at("location").to_string());
   } catch (const sourcemeta::blaze::ConvertBrokenReferenceError &error) {
+    EXPECT_FALSE(invalid);
     EXPECT_STREQ(error.what(), "The reference broke after transformation");
     EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
     EXPECT_EQ(sourcemeta::core::to_string(error.location()),
@@ -251,9 +283,12 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   const auto inputs{make_inputs(test)};
   const auto &results{test.at("result")};
 
+  const auto evaluatable{is_evaluatable(test)};
   auto disagreements{sourcemeta::core::JSON::make_array()};
-  check_instances(test.at("schema"), "input", test, resolver, inputs,
-                  disagreements);
+  if (evaluatable) {
+    check_instances(test.at("schema"), "input", test, resolver, inputs,
+                    disagreements);
+  }
 
   std::vector<sourcemeta::core::JSON> evaluated;
   for (const auto &target : TARGETS) {
@@ -283,7 +318,8 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
         target.name, convert_schema(document, resolver, inputs, target),
         document);
 
-    if (std::ranges::find(evaluated, document) != evaluated.cend()) {
+    if (!evaluatable ||
+        std::ranges::find(evaluated, document) != evaluated.cend()) {
       continue;
     }
 
