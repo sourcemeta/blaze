@@ -42,6 +42,22 @@ template <std::derived_from<SchemaTransformRule> T>
           std::is_same_v<typename T::reframe_after_transform, std::true_type>};
 }
 
+/// A reference that lands on something other than a schema is not a reference
+/// the conversion can carry across dialects, as the document never had one
+auto assert_schema_references(const core::SchemaFrame &frame) -> void {
+  frame.for_each_reference(
+      [&frame](const core::SchemaReferenceType, const core::WeakPointer &origin,
+               const core::SchemaFrame::Reference &reference) -> void {
+        const auto destination{frame.traverse(reference.destination)};
+        if (destination.has_value() &&
+            destination.value().get().type ==
+                core::SchemaFrame::LocationType::Pointer) {
+          throw ConvertInvalidReferenceError{reference.destination,
+                                             core::to_pointer(origin)};
+        }
+      });
+}
+
 /// Apply the given rules top-down to every subschema until none of them applies
 auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
            const sourcemeta::core::SchemaWalker &walker,
@@ -77,6 +93,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
   };
 
   std::vector<PotentiallyBrokenReference> potentially_broken_references;
+  bool asserted{false};
 
   while (true) {
     if (!frame.has_value()) {
@@ -87,6 +104,11 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
       frame.emplace(core::SchemaFrame::Mode::References, schema, walker,
                     resolver, default_dialect, default_id,
                     sourcemeta::core::SchemaFrame::IdentifierMode::Fallback);
+
+      if (!asserted) {
+        assert_schema_references(frame.value());
+        asserted = true;
+      }
     }
 
     std::unordered_set<core::Pointer, core::Pointer::Hasher> visited;

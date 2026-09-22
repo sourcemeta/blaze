@@ -22,6 +22,33 @@ namespace sourcemeta::blaze {
 #endif
 
 /// @ingroup convert
+/// An error that represents a schema reference that does not point to a schema
+class SOURCEMETA_BLAZE_CONVERT_EXPORT ConvertInvalidReferenceError
+    : public std::exception {
+public:
+  ConvertInvalidReferenceError(const std::string_view identifier,
+                               sourcemeta::core::Pointer location)
+      : identifier_{identifier}, location_{std::move(location)} {}
+
+  [[nodiscard]] auto what() const noexcept -> const char * override {
+    return "The reference does not point to a schema";
+  }
+
+  [[nodiscard]] auto identifier() const noexcept -> std::string_view {
+    return this->identifier_;
+  }
+
+  [[nodiscard]] auto location() const noexcept
+      -> const sourcemeta::core::Pointer & {
+    return this->location_;
+  }
+
+private:
+  std::string identifier_;
+  sourcemeta::core::Pointer location_;
+};
+
+/// @ingroup convert
 /// An error that represents a broken schema reference after conversion
 class SOURCEMETA_BLAZE_CONVERT_EXPORT ConvertBrokenReferenceError
     : public std::exception {
