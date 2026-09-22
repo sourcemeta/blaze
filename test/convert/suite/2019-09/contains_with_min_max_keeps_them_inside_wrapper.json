@@ -5,7 +5,7 @@
     "contains": { "type": "string" },
     "minContains": 2,
     "maxContains": 5,
-    "unevaluatedItems": true
+    "unevaluatedItems": false
   },
   "result": {
     "draft4": null,
@@ -22,9 +22,10 @@
           "maxContains": 5
         }
       },
-      "unevaluatedItems": true
+      "unevaluatedItems": false
     }
   },
-  "examples": [ [ "a", "b" ], [ "a", "b", "c" ] ],
-  "counterExamples": [ [ "a" ], [], "x", [ "a", "b", "c", "d", "e", "f" ] ]
+  "evaluation": "nothing-valid",
+  "examples": [],
+  "counterExamples": [ [], [ "a" ], [ "a", "b" ], [ 1 ], "x" ]
 }

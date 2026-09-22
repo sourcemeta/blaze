@@ -1,9 +1,18 @@
 {
-  "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "enum": [ "only" ] },
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "enum": [ "only" ]
+  },
   "result": {
     "draft4": null,
-    "draft6": null,
-    "draft7": { "$schema": "http://json-schema.org/draft-07/schema#", "const": "only" },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "const": "only"
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "const": "only"
+    },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "const": "only"

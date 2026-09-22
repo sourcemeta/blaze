@@ -1,17 +1,32 @@
 {
   "schema": {
     "$schema": "http://json-schema.org/draft-03/schema#",
-    "extends": { "type": "string" },
+    "extends": { "properties": { "bar": { "type": "string" } } },
     "properties": { "foo": { "$ref": "#/extends" } }
   },
   "result": {},
   "errors": {
-    "draft4": { "identifier": "#/extends", "location": "/properties/foo/$ref" },
-    "draft6": { "identifier": "#/extends", "location": "/properties/foo/$ref" },
-    "draft7": { "identifier": "#/extends", "location": "/properties/foo/$ref" },
-    "2019-09": { "identifier": "#/extends", "location": "/properties/foo/$ref" },
-    "2020-12": { "identifier": "#/extends", "location": "/properties/foo/$ref" }
+    "draft4": {
+      "identifier": "#/extends",
+      "location": "/properties/foo/$ref"
+    },
+    "draft6": {
+      "identifier": "#/extends",
+      "location": "/properties/foo/$ref"
+    },
+    "draft7": {
+      "identifier": "#/extends",
+      "location": "/properties/foo/$ref"
+    },
+    "2019-09": {
+      "identifier": "#/extends",
+      "location": "/properties/foo/$ref"
+    },
+    "2020-12": {
+      "identifier": "#/extends",
+      "location": "/properties/foo/$ref"
+    }
   },
-  "examples": [ "a" ],
-  "counterExamples": [ 1 ]
+  "examples": [ {}, { "foo": { "bar": "s" } } ],
+  "counterExamples": [ { "foo": { "bar": 1 } }, { "bar": 1 } ]
 }

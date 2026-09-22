@@ -1,7 +1,7 @@
 {
   "schema": {
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "unevaluatedItems": true,
+    "unevaluatedItems": false,
     "anyOf": [
       { "type": "array", "contains": { "type": "string" } },
       { "type": "array", "contains": { "type": "integer" } }
@@ -14,7 +14,7 @@
     "2019-09": null,
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "unevaluatedItems": true,
+      "unevaluatedItems": false,
       "anyOf": [
         {
           "type": "array",
@@ -27,6 +27,7 @@
       ]
     }
   },
-  "examples": [ [ "a" ], [ 1 ] ],
-  "counterExamples": [ [], "x" ]
+  "evaluation": "nothing-valid",
+  "examples": [],
+  "counterExamples": [ [], [ "a" ], [ 1 ], "x" ]
 }

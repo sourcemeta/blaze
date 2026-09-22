@@ -30,5 +30,5 @@
     }
   },
   "examples": [ {}, { "x": "s" } ],
-  "counterExamples": [ { "x": 1 }, { "qux": 1 } ]
+  "counterExamples": [ { "x": 1 }, { "qux": 1 }, { "foo": 1 } ]
 }

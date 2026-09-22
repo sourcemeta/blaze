@@ -1,7 +1,9 @@
 {
   "schema": {
     "$id": "https://example.com/root",
-    "properties": { "a": { "const": 1 } }
+    "properties": { "a": { "const": 1 } },
+    "if": { "type": "string" },
+    "then": { "maxLength": 1 }
   },
   "resolver": {
     "https://example.com/meta": {
@@ -18,6 +20,6 @@
     "2019-09": null,
     "2020-12": null
   },
-  "examples": [ {}, { "a": 1 } ],
+  "examples": [ {}, { "a": 1 }, "abc" ],
   "counterExamples": [ { "a": 2 } ]
 }

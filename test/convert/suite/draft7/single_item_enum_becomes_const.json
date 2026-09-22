@@ -5,7 +5,10 @@
   },
   "result": {
     "draft4": null,
-    "draft6": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "const": "single-value"
+    },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "const": "single-value"

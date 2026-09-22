@@ -1,7 +1,8 @@
 {
   "schema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "string",
+    "type": "object",
+    "properties": { "a": { "$ref": "#/definitions/foo" } },
     "$defs": "old-defs-value",
     "definitions": { "foo": { "type": "string" } }
   },
@@ -11,17 +12,19 @@
     "draft7": null,
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "type": "string",
+      "type": "object",
+      "properties": { "a": { "$ref": "#/$defs/foo" } },
       "x-$defs": "old-defs-value",
       "$defs": { "foo": { "type": "string" } }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "string",
+      "type": "object",
+      "properties": { "a": { "$ref": "#/$defs/foo" } },
       "x-$defs": "old-defs-value",
       "$defs": { "foo": { "type": "string" } }
     }
   },
-  "examples": [ "x" ],
-  "counterExamples": [ 1 ]
+  "examples": [ {}, { "a": "s" } ],
+  "counterExamples": [ { "a": 1 } ]
 }

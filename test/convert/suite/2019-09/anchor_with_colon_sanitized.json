@@ -5,7 +5,8 @@
       "x": { "$anchor": "ns:thing", "type": "string" },
       "y": { "$ref": "#ns:thing" }
     },
-    "type": "object"
+    "type": "object",
+    "properties": { "v": { "$ref": "#/$defs/y" } }
   },
   "result": {
     "draft4": null,
@@ -18,9 +19,10 @@
         "x": { "$anchor": "ns-thing", "type": "string" },
         "y": { "$ref": "#ns-thing" }
       },
-      "type": "object"
+      "type": "object",
+      "properties": { "v": { "$ref": "#/$defs/y" } }
     }
   },
-  "examples": [ {} ],
-  "counterExamples": [ "x" ]
+  "examples": [ {}, { "v": "s" } ],
+  "counterExamples": [ "x", { "v": 1 } ]
 }

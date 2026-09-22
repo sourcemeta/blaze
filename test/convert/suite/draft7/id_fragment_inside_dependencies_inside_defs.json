@@ -1,8 +1,13 @@
 {
   "schema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "string",
-    "definitions": { "Outer": { "dependencies": { "foo": { "$id": "#tag" } } } }
+    "type": "object",
+    "properties": { "a": { "$ref": "#tag" } },
+    "definitions": {
+      "Outer": {
+        "dependencies": { "foo": { "$id": "#tag", "type": "string" } }
+      }
+    }
   },
   "result": {
     "draft4": null,
@@ -10,15 +15,29 @@
     "draft7": null,
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "type": "string",
-      "$defs": { "Outer": { "dependentSchemas": { "foo": { "$anchor": "tag" } } } }
+      "type": "object",
+      "properties": { "a": { "$ref": "#tag" } },
+      "$defs": {
+        "Outer": {
+          "dependentSchemas": {
+            "foo": { "$anchor": "tag", "type": "string" }
+          }
+        }
+      }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "string",
-      "$defs": { "Outer": { "dependentSchemas": { "foo": { "$anchor": "tag" } } } }
+      "type": "object",
+      "properties": { "a": { "$ref": "#tag" } },
+      "$defs": {
+        "Outer": {
+          "dependentSchemas": {
+            "foo": { "$anchor": "tag", "type": "string" }
+          }
+        }
+      }
     }
   },
-  "examples": [ "x" ],
-  "counterExamples": [ 1 ]
+  "examples": [ {}, { "a": "s" } ],
+  "counterExamples": [ { "a": 1 } ]
 }

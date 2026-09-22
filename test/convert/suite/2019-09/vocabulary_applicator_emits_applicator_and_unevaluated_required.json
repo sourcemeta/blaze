@@ -1,11 +1,19 @@
 {
   "schema": {
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "$vocabulary": {
-      "https://json-schema.org/draft/2019-09/vocab/core": true,
-      "https://json-schema.org/draft/2019-09/vocab/applicator": true
-    },
-    "type": "object"
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/root",
+    "properties": { "a": false },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "meta": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/meta",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true
+        }
+      }
+    }
   },
   "result": {
     "draft4": null,
@@ -13,15 +21,23 @@
     "draft7": null,
     "2019-09": null,
     "2020-12": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$vocabulary": {
-        "https://json-schema.org/draft/2020-12/vocab/core": true,
-        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
-        "https://json-schema.org/draft/2020-12/vocab/unevaluated": true
-      },
-      "type": "object"
+      "$schema": "https://example.com/meta",
+      "$id": "https://example.com/root",
+      "properties": { "a": false },
+      "unevaluatedProperties": false,
+      "$defs": {
+        "meta": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/meta",
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true
+          }
+        }
+      }
     }
   },
   "examples": [ {} ],
-  "counterExamples": [ "x" ]
+  "counterExamples": [ { "a": 1 }, { "b": 1 } ]
 }

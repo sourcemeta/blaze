@@ -38,5 +38,5 @@
     }
   },
   "examples": [ {}, { "embedded": {} } ],
-  "counterExamples": [ "x" ]
+  "counterExamples": [ "x", { "embedded": { "foo": 1 } } ]
 }

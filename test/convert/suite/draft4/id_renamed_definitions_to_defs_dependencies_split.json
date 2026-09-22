@@ -4,7 +4,10 @@
     "id": "https://example.com",
     "definitions": { "foo": { "type": "string" } },
     "properties": { "ref-to-foo": { "$ref": "#/definitions/foo" } },
-    "dependencies": { "alpha": { "type": "object" }, "beta": [ "gamma" ] }
+    "dependencies": {
+      "alpha": { "required": [ "gamma" ] },
+      "beta": [ "gamma" ]
+    }
   },
   "result": {
     "draft4": null,
@@ -13,21 +16,27 @@
       "$id": "https://example.com",
       "definitions": { "foo": { "type": "string" } },
       "properties": { "ref-to-foo": { "$ref": "#/definitions/foo" } },
-      "dependencies": { "alpha": { "type": "object" }, "beta": [ "gamma" ] }
+      "dependencies": {
+        "alpha": { "required": [ "gamma" ] },
+        "beta": [ "gamma" ]
+      }
     },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "$id": "https://example.com",
       "definitions": { "foo": { "type": "string" } },
       "properties": { "ref-to-foo": { "$ref": "#/definitions/foo" } },
-      "dependencies": { "alpha": { "type": "object" }, "beta": [ "gamma" ] }
+      "dependencies": {
+        "alpha": { "required": [ "gamma" ] },
+        "beta": [ "gamma" ]
+      }
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "$id": "https://example.com",
       "$defs": { "foo": { "type": "string" } },
       "properties": { "ref-to-foo": { "$ref": "#/$defs/foo" } },
-      "dependentSchemas": { "alpha": { "type": "object" } },
+      "dependentSchemas": { "alpha": { "required": [ "gamma" ] } },
       "dependentRequired": { "beta": [ "gamma" ] }
     },
     "2020-12": {
@@ -35,10 +44,10 @@
       "$id": "https://example.com",
       "$defs": { "foo": { "type": "string" } },
       "properties": { "ref-to-foo": { "$ref": "#/$defs/foo" } },
-      "dependentSchemas": { "alpha": { "type": "object" } },
+      "dependentSchemas": { "alpha": { "required": [ "gamma" ] } },
       "dependentRequired": { "beta": [ "gamma" ] }
     }
   },
-  "examples": [ {}, { "ref-to-foo": "s" }, { "alpha": 1 } ],
-  "counterExamples": [ { "ref-to-foo": 1 }, { "beta": 1 } ]
+  "examples": [ {}, { "ref-to-foo": "s" }, { "alpha": 1, "gamma": 2 } ],
+  "counterExamples": [ { "ref-to-foo": 1 }, { "beta": 1 }, { "alpha": 1 } ]
 }

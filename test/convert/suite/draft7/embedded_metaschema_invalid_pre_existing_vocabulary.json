@@ -32,7 +32,9 @@
             "https://json-schema.org/draft/2019-09/vocab/format": false,
             "https://json-schema.org/draft/2019-09/vocab/content": true
           },
-          "x-$vocabulary": { "https://example.com/vocab/custom-annotation": true },
+          "x-$vocabulary": {
+            "https://example.com/vocab/custom-annotation": true
+          },
           "type": "object"
         }
       }
@@ -51,10 +53,12 @@
             "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
             "https://json-schema.org/draft/2020-12/vocab/validation": true,
             "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
-            "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
             "https://json-schema.org/draft/2020-12/vocab/content": true
           },
-          "x-$vocabulary": { "https://example.com/vocab/custom-annotation": true },
+          "x-$vocabulary": {
+            "https://example.com/vocab/custom-annotation": true
+          },
           "type": "object"
         }
       }

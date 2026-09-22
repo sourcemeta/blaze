@@ -1,47 +1,64 @@
 {
   "schema": {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "string",
+    "type": "object",
+    "properties": { "a": { "$ref": "#1foo" }, "b": { "$ref": "#x-1foo" } },
     "definitions": {
       "first": { "id": "#1foo", "type": "string" },
-      "second": { "id": "#x-1foo", "type": "string" }
+      "second": { "id": "#x-1foo", "type": "number" }
     }
   },
   "result": {
     "draft4": null,
     "draft6": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "string",
+      "type": "object",
+      "properties": {
+        "a": { "$ref": "#x-x-1foo" },
+        "b": { "$ref": "#x-1foo" }
+      },
       "definitions": {
         "first": { "$id": "#x-x-1foo", "type": "string" },
-        "second": { "$id": "#x-1foo", "type": "string" }
+        "second": { "$id": "#x-1foo", "type": "number" }
       }
     },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "type": "string",
+      "type": "object",
+      "properties": {
+        "a": { "$ref": "#x-x-1foo" },
+        "b": { "$ref": "#x-1foo" }
+      },
       "definitions": {
         "first": { "$id": "#x-x-1foo", "type": "string" },
-        "second": { "$id": "#x-1foo", "type": "string" }
+        "second": { "$id": "#x-1foo", "type": "number" }
       }
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "type": "string",
+      "type": "object",
+      "properties": {
+        "a": { "$ref": "#x-x-1foo" },
+        "b": { "$ref": "#x-1foo" }
+      },
       "$defs": {
         "first": { "$anchor": "x-x-1foo", "type": "string" },
-        "second": { "$anchor": "x-1foo", "type": "string" }
+        "second": { "$anchor": "x-1foo", "type": "number" }
       }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "string",
+      "type": "object",
+      "properties": {
+        "a": { "$ref": "#x-x-1foo" },
+        "b": { "$ref": "#x-1foo" }
+      },
       "$defs": {
         "first": { "$anchor": "x-x-1foo", "type": "string" },
-        "second": { "$anchor": "x-1foo", "type": "string" }
+        "second": { "$anchor": "x-1foo", "type": "number" }
       }
     }
   },
-  "examples": [ "foo" ],
-  "counterExamples": [ 1 ]
+  "examples": [ {}, { "a": "s", "b": 1 } ],
+  "counterExamples": [ { "a": 1 }, { "b": "s" } ]
 }

@@ -3,7 +3,7 @@
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "type": "array",
     "contains": { "type": "string" },
-    "unevaluatedItems": true,
+    "unevaluatedItems": false,
     "not": { "type": "null" }
   },
   "result": {
@@ -14,11 +14,12 @@
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "array",
-      "unevaluatedItems": true,
+      "unevaluatedItems": false,
       "not": { "type": "null" },
       "allOf": [ { "not": { "not": { "contains": { "type": "string" } } } } ]
     }
   },
-  "examples": [ [ "a" ], [ 1, "a" ] ],
-  "counterExamples": [ [], [ 1 ], "x" ]
+  "evaluation": "nothing-valid",
+  "examples": [],
+  "counterExamples": [ [], [ "a" ], [ 1 ], "x" ]
 }

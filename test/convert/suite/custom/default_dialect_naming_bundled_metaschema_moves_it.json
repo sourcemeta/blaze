@@ -1,15 +1,7 @@
 {
   "schema": {
     "$id": "https://example.com/root",
-    "dependencies": {
-      "t": {
-        "properties": {
-          "p": {
-            "type": "string"
-          }
-        }
-      }
-    },
+    "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
     "definitions": {
       "c": {
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -19,19 +11,8 @@
     }
   },
   "defaultDialect": "https://example.com/c",
-  "examples": [
-    {},
-    {
-      "t": 1,
-      "p": "x"
-    }
-  ],
-  "counterExamples": [
-    {
-      "t": 1,
-      "p": 1
-    }
-  ],
+  "examples": [ {}, { "t": 1, "p": "x" } ],
+  "counterExamples": [ { "t": 1, "p": 1 } ],
   "result": {
     "draft4": null,
     "draft6": null,
@@ -39,13 +20,7 @@
     "2019-09": {
       "$id": "https://example.com/root",
       "dependentSchemas": {
-        "t": {
-          "properties": {
-            "p": {
-              "type": "string"
-            }
-          }
-        }
+        "t": { "properties": { "p": { "type": "string" } } }
       },
       "$defs": {
         "c": {
@@ -66,13 +41,7 @@
     "2020-12": {
       "$id": "https://example.com/root",
       "dependentSchemas": {
-        "t": {
-          "properties": {
-            "p": {
-              "type": "string"
-            }
-          }
-        }
+        "t": { "properties": { "p": { "type": "string" } } }
       },
       "$defs": {
         "c": {
@@ -84,7 +53,7 @@
             "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
             "https://json-schema.org/draft/2020-12/vocab/validation": true,
             "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
-            "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
             "https://json-schema.org/draft/2020-12/vocab/content": true
           },
           "type": "object"

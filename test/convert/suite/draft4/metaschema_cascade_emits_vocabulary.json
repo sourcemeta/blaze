@@ -39,7 +39,7 @@
         "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
         "https://json-schema.org/draft/2020-12/vocab/validation": true,
         "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
-        "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+        "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
         "https://json-schema.org/draft/2020-12/vocab/content": true
       },
       "type": "object"

@@ -1,6 +1,8 @@
 {
   "schema": {
     "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "properties": { "alias": { "$ref": "#/$defs/alias" } },
     "items": [ { "type": "string" } ],
     "$defs": { "alias": { "$ref": "#/items/0" } }
   },
@@ -11,10 +13,12 @@
     "2019-09": null,
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": { "alias": { "$ref": "#/$defs/alias" } },
       "prefixItems": [ { "type": "string" } ],
       "$defs": { "alias": { "$ref": "#/prefixItems/0" } }
     }
   },
-  "examples": [ [], [ "a" ] ],
-  "counterExamples": [ [ 1 ] ]
+  "examples": [ {}, { "alias": "s" } ],
+  "counterExamples": [ { "alias": 1 } ]
 }

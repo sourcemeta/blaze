@@ -46,6 +46,10 @@ public:
       }
     }
 
+    // An empty container has nothing to sort into the two keywords that
+    // replaced this one, and picking either would invent a claim the document
+    // never made. A `definitions` has a single successor, which is why that
+    // one is renamed rather than dropped
     if (dependent_required.empty() && dependent_schemas.empty()) {
       schema.erase("dependencies");
       return;
