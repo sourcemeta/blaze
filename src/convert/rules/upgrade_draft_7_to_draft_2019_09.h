@@ -38,6 +38,7 @@ public:
                   sourcemeta::core::to_pointer(entry.pointer)};
               const auto &entry_schema{
                   sourcemeta::core::get(root, entry_pointer)};
+
               return has_descendant_pending_pattern(entry_schema,
                                                     entry.dialect);
             })) {

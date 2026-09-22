@@ -248,6 +248,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "helpers.h"
 
 #include "rules/definitions_to_defs.h"
+#include "rules/dependencies_to_dependent.h"
 #include "rules/draft_official_dialect_with_https.h"
 #include "rules/draft_official_dialect_without_empty_fragment.h"
 #include "rules/empty_object_as_true.h"
@@ -277,7 +278,7 @@ auto convert(sourcemeta::core::JSON &schema,
              const std::string_view default_id, const bool is_metaschema)
     -> void {
   std::vector<Rule> rules;
-  rules.reserve(19);
+  rules.reserve(20);
   rules.push_back(make_rule<DraftOfficialDialectWithHttps>());
   rules.push_back(make_rule<DraftOfficialDialectWithoutEmptyFragment>());
   rules.push_back(make_rule<ModernOfficialDialectWithEmptyFragment>());
@@ -305,6 +306,7 @@ auto convert(sourcemeta::core::JSON &schema,
     rules.push_back(make_rule<UpgradeDraft7To201909>());
     rules.push_back(make_rule<MetaschemaVocabulary>());
     rules.push_back(make_rule<DefinitionsToDefs>());
+    rules.push_back(make_rule<DependenciesToDependent>());
   }
 
   if (target == ConvertTarget::Draft202012) {

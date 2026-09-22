@@ -1,7 +1,15 @@
 {
   "schema": {
     "$id": "https://example.com/root",
-    "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
+    "dependencies": {
+      "t": {
+        "properties": {
+          "p": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "definitions": {
       "c": {
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -11,15 +19,34 @@
     }
   },
   "defaultDialect": "https://example.com/c",
-  "examples": [ {}, { "t": 1, "p": "x" } ],
-  "counterExamples": [ { "t": 1, "p": 1 } ],
+  "examples": [
+    {},
+    {
+      "t": 1,
+      "p": "x"
+    }
+  ],
+  "counterExamples": [
+    {
+      "t": 1,
+      "p": 1
+    }
+  ],
   "result": {
     "draft4": null,
     "draft6": null,
     "draft7": null,
     "2019-09": {
       "$id": "https://example.com/root",
-      "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
+      "dependentSchemas": {
+        "t": {
+          "properties": {
+            "p": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "$defs": {
         "c": {
           "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -38,7 +65,15 @@
     },
     "2020-12": {
       "$id": "https://example.com/root",
-      "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
+      "dependentSchemas": {
+        "t": {
+          "properties": {
+            "p": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "$defs": {
         "c": {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
