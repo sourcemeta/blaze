@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "id": "https://json-schema.org/draft-07/schema#",
+    "definitions": { "a": { "type": "string" } },
+    "properties": { "v": { "$ref": "#/definitions/a" } }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "id": "https://json-schema.org/draft-07/schema#",
+      "definitions": { "a": { "type": "string" } },
+      "properties": { "v": { "$ref": "#/definitions/a" } }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "id": "https://json-schema.org/draft-07/schema#",
+      "definitions": { "a": { "type": "string" } },
+      "properties": { "v": { "$ref": "#/definitions/a" } }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "id": "https://json-schema.org/draft-07/schema#",
+      "definitions": { "a": { "type": "string" } },
+      "properties": { "v": { "$ref": "#/definitions/a" } }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "id": "https://json-schema.org/draft-07/schema#",
+      "$defs": { "a": { "type": "string" } },
+      "properties": { "v": { "$ref": "#/$defs/a" } }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "id": "https://json-schema.org/draft-07/schema#",
+      "$defs": { "a": { "type": "string" } },
+      "properties": { "v": { "$ref": "#/$defs/a" } }
+    }
+  },
+  "examples": [ {}, { "v": "x" } ],
+  "counterExamples": [ { "v": 1 } ]
+}
