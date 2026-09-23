@@ -97,6 +97,24 @@ auto schema_reidentify(sourcemeta::core::JSON &schema,
 
 /// @ingroup jsonschema
 ///
+/// The keyword that carries a schema identifier in the given base dialect.
+/// For example:
+///
+/// ```cpp
+/// #include <sourcemeta/core/jsonschema.h>
+/// #include <cassert>
+///
+/// assert(sourcemeta::core::schema_identifier_keyword(
+///     sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12) == "$id");
+/// assert(sourcemeta::core::schema_identifier_keyword(
+///     sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4) == "id");
+/// ```
+SOURCEMETA_CORE_JSONSCHEMA_EXPORT
+auto schema_identifier_keyword(const SchemaBaseDialect base_dialect)
+    -> std::string_view;
+
+/// @ingroup jsonschema
+///
 /// A shortcut to sourcemeta::core::schema_reidentify if you know the base
 /// dialect of the schema.
 SOURCEMETA_CORE_JSONSCHEMA_EXPORT
@@ -143,9 +161,15 @@ auto schema_format(sourcemeta::core::JSON &schema, const SchemaFrame &frame)
 /// @ingroup jsonschema
 /// Everything bundling takes beyond the schema and how to read it
 struct SchemaBundleOptions {
-  /// A callback to report where a schema got embedded, as a pointer from the
-  /// root of the schema being bundled
-  using Callback = std::function<void(const sourcemeta::core::WeakPointer &)>;
+  /// A callback to report which schema got embedded and where, as the
+  /// identifier that schema answers to and a pointer from the root of the
+  /// schema being bundled. A schema that declares one of its own answers to
+  /// that rather than to whichever URI it was resolved by, which are not
+  /// always the same. The two are given separately because bundling picks a
+  /// key that is free rather than one that matches, so the last token of that
+  /// pointer is not always the identifier either
+  using Callback = std::function<void(std::string_view,
+                                      const sourcemeta::core::WeakPointer &)>;
 
   /// The strategies that the bundling process can follow
   enum class Mode : std::uint8_t {
