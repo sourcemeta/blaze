@@ -82,63 +82,6 @@ inline auto is_metaschema_target(const sourcemeta::core::JSON &schema,
       });
 }
 
-// Whether any subschema that names this one through `$schema` still has work
-// of its own left. Such a referrer is read under the dialect this subschema
-// defines, so moving this one first would take the referrer off the dialect
-// the caller is acting on before its turn ever comes
-template <typename Predicate>
-auto has_pending_metaschema_referrer(
-    const sourcemeta::core::JSON &root,
-    const sourcemeta::core::SchemaFrame &frame,
-    const sourcemeta::core::WeakPointer &pointer, const Predicate &pending)
-    -> bool {
-  return frame.any_reference(
-      [&root, &frame, &pointer, &pending](
-          const sourcemeta::core::SchemaReferenceType,
-          const sourcemeta::core::WeakPointer &origin,
-          const sourcemeta::core::SchemaFrame::Reference &reference) -> bool {
-        if (origin.empty() || !origin.back().is_property() ||
-            origin.back().to_property() != "$schema") {
-          return false;
-        }
-
-        const auto destination{frame.traverse(reference.destination)};
-        if (!destination.has_value() ||
-            destination.value().get().pointer != pointer) {
-          return false;
-        }
-
-        const auto referrer{sourcemeta::core::to_pointer(origin).initial()};
-        const auto referrer_pointer{
-            sourcemeta::core::to_weak_pointer(referrer)};
-
-        // A meta-schema that describes itself is its own referrer, and waiting
-        // on itself would leave it on the dialect it came in with for good
-        if (referrer_pointer == pointer) {
-          return false;
-        }
-
-        if (pending(sourcemeta::core::get(root, referrer))) {
-          return true;
-        }
-
-        // Everything under the referrer is read under the dialect this
-        // subschema defines too, so work down there counts just as much as
-        // work on the referrer itself. Another meta-schema is governed by its
-        // own referrers rather than by this one
-        return frame.any_subschema_under(
-            referrer_pointer,
-            [&root, &frame, &pending](
-                const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
-              const auto &entry_schema{sourcemeta::core::get(
-                  root, sourcemeta::core::to_pointer(entry.pointer))};
-              return !is_metaschema_target(entry_schema, frame,
-                                           entry.pointer) &&
-                     pending(entry_schema);
-            });
-      });
-}
-
 inline auto
 subschema_at_dialect(const sourcemeta::core::JSON &schema,
                      const sourcemeta::core::SchemaFrame::Location &location,
@@ -181,21 +124,28 @@ inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
   return value.is_string() && dialect_position(value.to_string()) > 0;
 }
 
-// A `$schema` the conversion did not write stays as it is, so a dialect the
-// ladder does not name is only ours to move when the meta-schema defining it
-// travels in the same document, where it moves along with everything that
-// names it. Bundling is what hands a dialect over, the same way it is what
-// hands over a reference to somewhere else
-inline auto
-owns_dialect(const sourcemeta::core::SchemaFrame &frame,
-             const sourcemeta::core::SchemaFrame::Location &location) -> bool {
-  const auto dialect{without_empty_fragment(location.dialect)};
-  return std::ranges::any_of(LADDER_DIALECTS,
-                             [&dialect](const auto &candidate) -> bool {
-                               return without_empty_fragment(candidate) ==
-                                      dialect;
-                             }) ||
-         frame.traverse(dialect).has_value();
+// The spellings the normalising rules settle on all name the same dialect, so
+// whether the ladder names one has to be asked of the spelling those rules
+// would produce rather than of what the document happens to say
+inline auto normalized_official_dialect(const std::string_view dialect)
+    -> std::string {
+  std::string result{without_empty_fragment(dialect)};
+  if (result.starts_with("https://json-schema.org/draft-")) {
+    result.erase(4, 1);
+  }
+
+  return result;
+}
+
+// A dialect the ladder does not name is one the conversion has no rules for,
+// whether it belongs to a draft older than the ladder starts at or to a
+// meta-schema of the caller's own
+inline auto names_ladder_dialect(const std::string_view dialect) -> bool {
+  const auto candidate{normalized_official_dialect(dialect)};
+  return std::ranges::any_of(
+      LADDER_DIALECTS, [&candidate](const auto &entry) -> bool {
+        return without_empty_fragment(entry) == candidate;
+      });
 }
 
 // Whether an identifier and a dialect name the same thing once both are
@@ -341,70 +291,6 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
   }
   for (const auto &key : keys) {
     drop_dialect_overrides(schema.at(key), false, dialect);
-  }
-}
-
-using Vocabulary = std::pair<std::string_view, bool>;
-
-constexpr std::array<Vocabulary, 6> VOCABULARIES_2019_09{
-    {{"https://json-schema.org/draft/2019-09/vocab/core", true},
-     {"https://json-schema.org/draft/2019-09/vocab/applicator", true},
-     {"https://json-schema.org/draft/2019-09/vocab/validation", true},
-     {"https://json-schema.org/draft/2019-09/vocab/meta-data", true},
-     {"https://json-schema.org/draft/2019-09/vocab/format", false},
-     {"https://json-schema.org/draft/2019-09/vocab/content", true}}};
-
-constexpr std::array<Vocabulary, 7> VOCABULARIES_2020_12{
-    {{"https://json-schema.org/draft/2020-12/vocab/core", true},
-     {"https://json-schema.org/draft/2020-12/vocab/applicator", true},
-     {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true},
-     {"https://json-schema.org/draft/2020-12/vocab/validation", true},
-     {"https://json-schema.org/draft/2020-12/vocab/meta-data", true},
-     {"https://json-schema.org/draft/2020-12/vocab/format-annotation", true},
-     {"https://json-schema.org/draft/2020-12/vocab/content", true}}};
-
-// A meta-schema on 2019-09 or newer that does not declare its vocabularies
-// leaves every schema naming it unreadable, down to whether a `$ref` counts as
-// a reference at all. Whatever moves a meta-schema onto one of those dialects
-// has to say what they are in the same breath, as a document the conversion
-// cannot read is a document whose references it cannot keep whole
-template <std::size_t Size>
-auto synthesize_vocabulary(sourcemeta::core::JSON &schema,
-                           const std::array<Vocabulary, Size> &entries)
-    -> void {
-  std::string_view anchor;
-  if (schema.defines("$id")) {
-    anchor = "$id";
-  } else if (schema.defines("$schema")) {
-    anchor = "$schema";
-  }
-
-  const std::string *next_key{nullptr};
-  if (!anchor.empty()) {
-    bool found_anchor{false};
-    for (const auto &entry : schema.as_object()) {
-      if (found_anchor) {
-        next_key = &entry.first;
-        break;
-      }
-      if (entry.first == anchor) {
-        found_anchor = true;
-      }
-    }
-  }
-
-  if (next_key != nullptr) {
-    schema.try_assign_before("$vocabulary",
-                             sourcemeta::core::JSON::make_object(), *next_key);
-  } else {
-    schema.assign_assume_new("$vocabulary",
-                             sourcemeta::core::JSON::make_object());
-  }
-
-  auto &vocabularies{schema.at("$vocabulary")};
-  for (const auto &[uri, required] : entries) {
-    vocabularies.assign_assume_new(std::string{uri},
-                                   sourcemeta::core::JSON{required});
   }
 }
 

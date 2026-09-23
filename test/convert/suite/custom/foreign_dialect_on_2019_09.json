@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/root",
+    "items": [ { "type": "string" } ]
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/meta",
+      "type": "object",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2019-09/vocab/core": true,
+        "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+        "https://json-schema.org/draft/2019-09/vocab/validation": true
+      }
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    }
+  },
+  "examples": [ [], [ "x" ] ],
+  "counterExamples": [ [ 1 ] ]
+}

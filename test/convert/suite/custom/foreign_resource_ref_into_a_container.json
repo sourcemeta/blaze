@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "properties": { "primary": { "$ref": "https://example.com/contact" } },
+    "definitions": {
+      "label": { "type": "string" },
+      "contact": {
+        "$schema": "https://example.com/meta",
+        "$id": "https://example.com/contact",
+        "properties": { "kind": { "$ref": "https://example.com/root#/definitions/label" } }
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/contact"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/contact"
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/contact"
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/contact"
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/contact"
+    }
+  },
+  "examples": [ {}, { "primary": { "kind": "x" } } ],
+  "counterExamples": [ { "primary": { "kind": 1 } } ]
+}

@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "properties": { "value": { "$ref": "https://example.com/child" } },
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/meta",
+        "type": "object"
+      },
+      "child": {
+        "$schema": "https://example.com/meta",
+        "$id": "https://example.com/child",
+        "type": "string"
+      }
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/child"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/child"
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/child"
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/child"
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/child"
+    }
+  },
+  "examples": [ {}, { "value": "x" } ],
+  "counterExamples": [ { "value": 1 } ]
+}

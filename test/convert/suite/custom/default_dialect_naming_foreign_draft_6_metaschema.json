@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$id": "https://example.com/root",
+    "properties": { "a": { "const": 1 } },
+    "if": { "type": "string" },
+    "then": { "maxLength": 1 }
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "defaultDialect": "https://example.com/meta",
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    }
+  },
+  "examples": [ {}, { "a": 1 }, "abc" ],
+  "counterExamples": [ { "a": 2 } ]
+}

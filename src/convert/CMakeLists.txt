@@ -12,7 +12,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME convert
     rules/draft_official_dialect_without_empty_fragment.h
     rules/empty_object_as_true.h
     rules/enum_to_const.h
-    rules/metaschema_vocabulary.h
     rules/modern_official_dialect_with_empty_fragment.h
     rules/prefix_promoted_2020_12_keywords.h
     rules/prefix_promoted_draft_2019_09_keywords.h

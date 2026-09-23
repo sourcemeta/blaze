@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "https://example.com/my-dialect",
+    "id": "https://example.com/my-schema",
+    "type": "object",
+    "definitions": {
+      "meta": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "id": "https://example.com/my-dialect",
+        "type": "object"
+      }
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-03/schema#",
+      "location": "/definitions/meta"
+    },
+    "draft6": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-03/schema#",
+      "location": "/definitions/meta"
+    },
+    "draft7": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-03/schema#",
+      "location": "/definitions/meta"
+    },
+    "2019-09": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-03/schema#",
+      "location": "/definitions/meta"
+    },
+    "2020-12": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-03/schema#",
+      "location": "/definitions/meta"
+    }
+  },
+  "examples": [ {}, { "foo": 1 } ],
+  "counterExamples": [ "x", 1 ]
+}

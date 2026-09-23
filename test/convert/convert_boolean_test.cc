@@ -15,17 +15,6 @@
     EXPECT_EQ(schema, expected);                                               \
   }
 
-#define UPGRADE_BOOLEAN_AS_METASCHEMA(document, target)                        \
-  {                                                                            \
-    auto schema = sourcemeta::core::parse_json(document);                      \
-    const auto expected = sourcemeta::core::parse_json(document);              \
-    sourcemeta::blaze::convert(schema, sourcemeta::core::schema_walker,        \
-                               sourcemeta::core::schema_resolver,              \
-                               sourcemeta::blaze::ConvertTarget::target, "",   \
-                               "", true);                                      \
-    EXPECT_EQ(schema, expected);                                               \
-  }
-
 #define UPGRADE_BOOLEAN_WITH_DIALECT(document, target, default_dialect)        \
   {                                                                            \
     auto schema = sourcemeta::core::parse_json(document);                      \
@@ -75,14 +64,6 @@ TEST(true_to_2020_12_with_default_dialect_draft7) {
 TEST(false_to_2020_12_with_default_dialect_draft7) {
   UPGRADE_BOOLEAN_WITH_DIALECT("false", Draft202012,
                                "http://json-schema.org/draft-07/schema#");
-}
-
-TEST(true_to_2019_09_as_metaschema) {
-  UPGRADE_BOOLEAN_AS_METASCHEMA("true", Draft201909);
-}
-
-TEST(false_to_2019_09_as_metaschema) {
-  UPGRADE_BOOLEAN_AS_METASCHEMA("false", Draft201909);
 }
 
 TEST(true_to_2020_12_with_default_dialect_draft4) {

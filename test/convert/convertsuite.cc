@@ -12,7 +12,6 @@
 #include <array>       // std::array
 #include <cstddef>     // std::size_t
 #include <filesystem>  // std::filesystem
-#include <iostream>    // std::cerr
 #include <sstream>     // std::ostringstream
 #include <string>      // std::string
 #include <string_view> // std::string_view
@@ -25,9 +24,8 @@ namespace {
 // otherwise go unnoticed, as the runner would simply not read it
 // NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 const std::vector<std::string> KNOWN_KEYS{
-    "schema",          "result",     "errors",         "examples",
-    "counterExamples", "evaluation", "defaultDialect", "defaultId",
-    "isMetaschema",    "resolver"};
+    "schema",     "result",         "errors",    "examples", "counterExamples",
+    "evaluation", "defaultDialect", "defaultId", "resolver"};
 
 // What a fixture may say about evaluating its schema at all. Leaving it out
 // means every schema the fixture names accepts and rejects something
@@ -39,7 +37,8 @@ const std::vector<std::string> KNOWN_ERROR_KEYS{"type", "identifier",
 
 // Which error a fixture expects conversion to raise. Leaving it out means the
 // reference was one the conversion had to carry and could not
-const std::vector<std::string> KNOWN_ERROR_TYPES{"invalid-reference"};
+const std::vector<std::string> KNOWN_ERROR_TYPES{
+    "invalid-reference", "unsupported-metaschema", "unsupported-dialect"};
 // NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 
 // A schema that no evaluator can take, such as one whose reference does not
@@ -112,7 +111,6 @@ auto make_resolver(const sourcemeta::core::JSON &test)
 struct Inputs {
   sourcemeta::core::JSON::String default_dialect;
   sourcemeta::core::JSON::String default_id;
-  bool is_metaschema;
 };
 
 auto make_inputs(const sourcemeta::core::JSON &test) -> Inputs {
@@ -127,9 +125,6 @@ auto make_inputs(const sourcemeta::core::JSON &test) -> Inputs {
     inputs.default_id = raw_id->to_string();
   }
 
-  const auto *raw_metaschema{test.try_at("isMetaschema")};
-  inputs.is_metaschema =
-      raw_metaschema != nullptr && raw_metaschema->to_boolean();
   return inputs;
 }
 
@@ -140,7 +135,7 @@ auto convert_schema(const sourcemeta::core::JSON &schema,
   auto document{schema};
   sourcemeta::blaze::convert(document, sourcemeta::core::schema_walker,
                              resolver, target.value, inputs.default_dialect,
-                             inputs.default_id, inputs.is_metaschema);
+                             inputs.default_id);
   return document;
 }
 
@@ -217,21 +212,33 @@ auto check_error(const sourcemeta::core::JSON &test,
                  const Inputs &inputs, const Target &target,
                  const sourcemeta::core::JSON &expected) -> void {
   const auto *type{expected.try_at("type")};
-  const auto invalid{type != nullptr &&
-                     type->to_string() == "invalid-reference"};
+  const sourcemeta::core::JSON::String expected_type{
+      type == nullptr ? "broken-reference" : type->to_string()};
 
   try {
     [[maybe_unused]] const auto document{
         convert_schema(test.at("schema"), resolver, inputs, target)};
     FAIL();
+  } catch (const sourcemeta::blaze::ConvertUnsupportedMetaschemaError &error) {
+    EXPECT_EQ(expected_type, "unsupported-metaschema");
+    EXPECT_STREQ(error.what(), "The conversion does not support meta-schemas");
+    EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
+              expected.at("location").to_string());
+  } catch (const sourcemeta::blaze::ConvertUnsupportedDialectError &error) {
+    EXPECT_EQ(expected_type, "unsupported-dialect");
+    EXPECT_STREQ(error.what(), "The conversion does not support this dialect");
+    EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
+              expected.at("location").to_string());
   } catch (const sourcemeta::blaze::ConvertInvalidReferenceError &error) {
-    EXPECT_TRUE(invalid);
+    EXPECT_EQ(expected_type, "invalid-reference");
     EXPECT_STREQ(error.what(), "The reference does not point to a schema");
     EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
     EXPECT_EQ(sourcemeta::core::to_string(error.location()),
               expected.at("location").to_string());
   } catch (const sourcemeta::blaze::ConvertBrokenReferenceError &error) {
-    EXPECT_FALSE(invalid);
+    EXPECT_EQ(expected_type, "broken-reference");
     EXPECT_STREQ(error.what(), "The reference broke after transformation");
     EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
     EXPECT_EQ(sourcemeta::core::to_string(error.location()),
