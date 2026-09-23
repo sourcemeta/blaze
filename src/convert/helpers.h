@@ -203,8 +203,9 @@ inline auto describes_itself(const sourcemeta::core::JSON &schema,
   }
 
   // Draft 3 and Draft 4 carry the identifier in `id` and everything the ladder
-  // names after them in `$id`, so the other keyword is ordinary data there. A
-  // dialect the ladder does not name leaves the question open
+  // names after them in `$id`, so the other keyword is ordinary data there.
+  // Anything the ladder does not name outright, which includes every alias of
+  // a dialect it does name, has to be asked of both
   const auto position{dialect_position(dialect->to_string())};
   const auto &value{dialect->to_string()};
   if (position != 1 && position != 2 &&
