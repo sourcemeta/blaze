@@ -9,7 +9,14 @@
   },
   "result": {
     "draft4": null,
-    "draft6": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "object",
+      "properties": {
+        "status": { "const": "active" },
+        "kind": { "enum": [ "alpha", "beta" ] }
+      }
+    },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "type": "object",
@@ -35,6 +42,10 @@
       }
     }
   },
-  "examples": [ {}, { "status": "active" }, { "status": "active", "kind": "alpha" } ],
+  "examples": [
+    {},
+    { "status": "active" },
+    { "status": "active", "kind": "alpha" }
+  ],
   "counterExamples": [ { "status": "inactive" }, { "kind": "gamma" } ]
 }

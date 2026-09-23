@@ -313,13 +313,13 @@ auto convert(sourcemeta::core::JSON &schema,
     rules.push_back(make_rule<PrefixPromotedDraft6Keywords>());
     rules.push_back(make_rule<UpgradeDraft4ToDraft6>());
     rules.push_back(make_rule<EmptyObjectAsTrue>());
+    rules.push_back(make_rule<EnumToConst>());
   }
 
   if (target == ConvertTarget::Draft7 || target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012) {
     rules.push_back(make_rule<PrefixPromotedDraft7Keywords>());
     rules.push_back(make_rule<UpgradeDraft6ToDraft7>());
-    rules.push_back(make_rule<EnumToConst>());
   }
 
   if (target == ConvertTarget::Draft201909 ||
@@ -338,7 +338,7 @@ auto convert(sourcemeta::core::JSON &schema,
 
   rules.push_back(make_rule<UpgradeDialectOverrideCleanup>());
   apply(rules, schema, walker, resolver, default_dialect, default_id,
-        is_metaschema);
+        is_metaschema || describes_itself(schema, default_id));
   erase_dialect_overrides(schema);
 }
 

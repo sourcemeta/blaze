@@ -9,7 +9,8 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "string"
       }
-    }
+    },
+    "properties": { "n": { "$ref": "https://example.com/newer" } }
   },
   "result": {
     "draft4": null,
@@ -23,7 +24,8 @@
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string"
         }
-      }
+      },
+      "properties": { "n": { "$ref": "https://example.com/newer" } }
     },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -35,7 +37,8 @@
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string"
         }
-      }
+      },
+      "properties": { "n": { "$ref": "https://example.com/newer" } }
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -47,7 +50,8 @@
           "$schema": "https://json-schema.org/draft/2019-09/schema",
           "type": "string"
         }
-      }
+      },
+      "properties": { "n": { "$ref": "https://example.com/newer" } }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -59,9 +63,10 @@
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "type": "string"
         }
-      }
+      },
+      "properties": { "n": { "$ref": "https://example.com/newer" } }
     }
   },
-  "examples": [ {}, { "foo": 1 } ],
-  "counterExamples": [ "x" ]
+  "examples": [ {}, { "n": "s" } ],
+  "counterExamples": [ "x", { "n": 1 } ]
 }

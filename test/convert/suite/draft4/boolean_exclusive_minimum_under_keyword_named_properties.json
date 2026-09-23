@@ -4,7 +4,11 @@
     "type": "object",
     "properties": {
       "$schema": { "type": "string" },
-      "multipleOf": { "type": "number", "minimum": 0, "exclusiveMinimum": true }
+      "multipleOf": {
+        "type": "number",
+        "minimum": 0,
+        "exclusiveMinimum": true
+      }
     }
   },
   "result": {

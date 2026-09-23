@@ -2,7 +2,7 @@
   "schema": {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "const": "only",
-    "enum": [ "only" ]
+    "enum": [ "other" ]
   },
   "result": {
     "draft4": null,
@@ -10,19 +10,20 @@
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "const": "only",
-      "enum": [ "only" ]
+      "enum": [ "other" ]
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "const": "only",
-      "enum": [ "only" ]
+      "enum": [ "other" ]
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "const": "only",
-      "enum": [ "only" ]
+      "enum": [ "other" ]
     }
   },
-  "examples": [ "only" ],
-  "counterExamples": [ "other", 1 ]
+  "examples": [],
+  "counterExamples": [ "only", "other", 1 ],
+  "evaluation": "nothing-valid"
 }

@@ -4,10 +4,10 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "definitions": {
-      "outer": { "id": "#1outer", "type": "string" },
+      "outer": { "id": "#1foo", "type": "string" },
       "inner": {
         "id": "https://inner.example.com/schema",
-        "definitions": { "x": { "id": "#1inner", "type": "string" } }
+        "definitions": { "x": { "id": "#1foo", "type": "string" } }
       }
     }
   },
@@ -18,10 +18,10 @@
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "object",
       "definitions": {
-        "outer": { "$id": "#x-1outer", "type": "string" },
+        "outer": { "$id": "#x-1foo", "type": "string" },
         "inner": {
           "$id": "https://inner.example.com/schema",
-          "definitions": { "x": { "$id": "#x-1inner", "type": "string" } }
+          "definitions": { "x": { "$id": "#x-1foo", "type": "string" } }
         }
       }
     },
@@ -30,10 +30,10 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "type": "object",
       "definitions": {
-        "outer": { "$id": "#x-1outer", "type": "string" },
+        "outer": { "$id": "#x-1foo", "type": "string" },
         "inner": {
           "$id": "https://inner.example.com/schema",
-          "definitions": { "x": { "$id": "#x-1inner", "type": "string" } }
+          "definitions": { "x": { "$id": "#x-1foo", "type": "string" } }
         }
       }
     },
@@ -42,10 +42,10 @@
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "type": "object",
       "$defs": {
-        "outer": { "$anchor": "x-1outer", "type": "string" },
+        "outer": { "$anchor": "x-1foo", "type": "string" },
         "inner": {
           "$id": "https://inner.example.com/schema",
-          "$defs": { "x": { "$anchor": "x-1inner", "type": "string" } }
+          "$defs": { "x": { "$anchor": "x-1foo", "type": "string" } }
         }
       }
     },
@@ -54,10 +54,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "$defs": {
-        "outer": { "$anchor": "x-1outer", "type": "string" },
+        "outer": { "$anchor": "x-1foo", "type": "string" },
         "inner": {
           "$id": "https://inner.example.com/schema",
-          "$defs": { "x": { "$anchor": "x-1inner", "type": "string" } }
+          "$defs": { "x": { "$anchor": "x-1foo", "type": "string" } }
         }
       }
     }

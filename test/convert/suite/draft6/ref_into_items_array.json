@@ -1,6 +1,8 @@
 {
   "schema": {
     "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://example.com/root",
+    "properties": { "alias": { "$ref": "#/definitions/alias" } },
     "items": [ { "type": "string" } ],
     "definitions": { "alias": { "$ref": "#/items/0" } }
   },
@@ -9,20 +11,26 @@
     "draft6": null,
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": { "alias": { "$ref": "#/definitions/alias" } },
       "items": [ { "type": "string" } ],
       "definitions": { "alias": { "$ref": "#/items/0" } }
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "properties": { "alias": { "$ref": "#/$defs/alias" } },
       "items": [ { "type": "string" } ],
       "$defs": { "alias": { "$ref": "#/items/0" } }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": { "alias": { "$ref": "#/$defs/alias" } },
       "prefixItems": [ { "type": "string" } ],
       "$defs": { "alias": { "$ref": "#/prefixItems/0" } }
     }
   },
-  "examples": [ [], [ "a" ], [ "a", 1 ] ],
-  "counterExamples": [ [ 1 ] ]
+  "examples": [ {}, { "alias": "s" } ],
+  "counterExamples": [ { "alias": 1 } ]
 }

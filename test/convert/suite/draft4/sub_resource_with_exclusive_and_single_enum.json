@@ -12,7 +12,10 @@
       },
       "kindType": { "enum": [ "alpha" ] }
     },
-    "properties": { "user": { "$ref": "https://example.com/userType" } }
+    "properties": {
+      "user": { "$ref": "https://example.com/userType" },
+      "kind": { "$ref": "#/definitions/kindType" }
+    }
   },
   "result": {
     "draft4": null,
@@ -26,9 +29,12 @@
           "type": "number",
           "exclusiveMinimum": 0
         },
-        "kindType": { "enum": [ "alpha" ] }
+        "kindType": { "const": "alpha" }
       },
-      "properties": { "user": { "$ref": "https://example.com/userType" } }
+      "properties": {
+        "user": { "$ref": "https://example.com/userType" },
+        "kind": { "$ref": "#/definitions/kindType" }
+      }
     },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -42,7 +48,10 @@
         },
         "kindType": { "const": "alpha" }
       },
-      "properties": { "user": { "$ref": "https://example.com/userType" } }
+      "properties": {
+        "user": { "$ref": "https://example.com/userType" },
+        "kind": { "$ref": "#/definitions/kindType" }
+      }
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -56,7 +65,10 @@
         },
         "kindType": { "const": "alpha" }
       },
-      "properties": { "user": { "$ref": "https://example.com/userType" } }
+      "properties": {
+        "user": { "$ref": "https://example.com/userType" },
+        "kind": { "$ref": "#/$defs/kindType" }
+      }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -70,9 +82,12 @@
         },
         "kindType": { "const": "alpha" }
       },
-      "properties": { "user": { "$ref": "https://example.com/userType" } }
+      "properties": {
+        "user": { "$ref": "https://example.com/userType" },
+        "kind": { "$ref": "#/$defs/kindType" }
+      }
     }
   },
-  "examples": [ {}, { "user": 1 } ],
-  "counterExamples": [ "x", { "user": 0 } ]
+  "examples": [ {}, { "user": 1, "kind": "alpha" } ],
+  "counterExamples": [ "x", { "user": 0 }, { "kind": "beta" } ]
 }

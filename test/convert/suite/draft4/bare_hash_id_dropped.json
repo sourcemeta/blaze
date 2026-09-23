@@ -1,32 +1,37 @@
 {
   "schema": {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "string",
+    "type": "object",
+    "properties": { "a": { "$ref": "#/definitions/foo" } },
     "definitions": { "foo": { "id": "#" } }
   },
   "result": {
     "draft4": null,
     "draft6": {
       "$schema": "http://json-schema.org/draft-06/schema#",
-      "type": "string",
+      "type": "object",
+      "properties": { "a": { "$ref": "#/definitions/foo" } },
       "definitions": { "foo": { "$id": "#" } }
     },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "type": "string",
+      "type": "object",
+      "properties": { "a": { "$ref": "#/definitions/foo" } },
       "definitions": { "foo": { "$id": "#" } }
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "type": "string",
+      "type": "object",
+      "properties": { "a": { "$ref": "#/$defs/foo" } },
       "$defs": { "foo": true }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "string",
+      "type": "object",
+      "properties": { "a": { "$ref": "#/$defs/foo" } },
       "$defs": { "foo": true }
     }
   },
-  "examples": [ "x" ],
-  "counterExamples": [ 1 ]
+  "examples": [ {}, { "a": 1 }, { "a": "anything" } ],
+  "counterExamples": [ "x" ]
 }

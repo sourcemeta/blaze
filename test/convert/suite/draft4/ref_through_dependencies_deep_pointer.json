@@ -11,32 +11,44 @@
     "draft6": {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "dependencies": {
-        "foo": { "type": "object", "properties": { "x": { "type": "string" } } }
+        "foo": {
+          "type": "object",
+          "properties": { "x": { "type": "string" } }
+        }
       },
       "properties": { "y": { "$ref": "#/dependencies/foo/properties/x" } }
     },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "dependencies": {
-        "foo": { "type": "object", "properties": { "x": { "type": "string" } } }
+        "foo": {
+          "type": "object",
+          "properties": { "x": { "type": "string" } }
+        }
       },
       "properties": { "y": { "$ref": "#/dependencies/foo/properties/x" } }
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
       "dependentSchemas": {
-        "foo": { "type": "object", "properties": { "x": { "type": "string" } } }
+        "foo": {
+          "type": "object",
+          "properties": { "x": { "type": "string" } }
+        }
       },
       "properties": { "y": { "$ref": "#/dependentSchemas/foo/properties/x" } }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "dependentSchemas": {
-        "foo": { "type": "object", "properties": { "x": { "type": "string" } } }
+        "foo": {
+          "type": "object",
+          "properties": { "x": { "type": "string" } }
+        }
       },
       "properties": { "y": { "$ref": "#/dependentSchemas/foo/properties/x" } }
     }
   },
-  "examples": [ {}, { "y": "s" } ],
-  "counterExamples": [ { "y": 1 } ]
+  "examples": [ {}, { "y": "s" }, { "foo": 1, "x": "s" } ],
+  "counterExamples": [ { "y": 1 }, { "foo": 1, "x": 1 } ]
 }

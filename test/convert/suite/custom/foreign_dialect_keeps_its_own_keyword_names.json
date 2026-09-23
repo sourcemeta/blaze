@@ -4,7 +4,11 @@
     "$id": "https://example.com/root",
     "$defs": { "note": "just data" },
     "deprecated": "also data",
-    "properties": { "a": { "type": "string" } }
+    "properties": {
+      "a": { "$ref": "#/definitions/short", "minLength": 5 },
+      "b": { "type": "string" }
+    },
+    "definitions": { "short": { "type": "string" } }
   },
   "resolver": {
     "https://example.com/meta": {
@@ -20,6 +24,6 @@
     "2019-09": null,
     "2020-12": null
   },
-  "examples": [ {}, { "a": "x" } ],
-  "counterExamples": [ { "a": 1 } ]
+  "examples": [ {}, { "a": "ab", "b": "x" } ],
+  "counterExamples": [ { "a": 1 }, { "b": 1 } ]
 }

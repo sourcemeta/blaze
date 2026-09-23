@@ -1,9 +1,21 @@
 {
   "schema": {
     "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/strict-tree",
     "$recursiveAnchor": true,
-    "type": "object",
-    "additionalProperties": { "$recursiveRef": "#" }
+    "$ref": "https://example.com/tree",
+    "unevaluatedProperties": false,
+    "$defs": {
+      "tree": {
+        "$id": "https://example.com/tree",
+        "type": "object",
+        "properties": {
+          "data": true,
+          "children": { "type": "array", "items": { "$recursiveRef": "#" } }
+        },
+        "$recursiveAnchor": true
+      }
+    }
   },
   "result": {
     "draft4": null,
@@ -12,11 +24,29 @@
     "2019-09": null,
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/strict-tree",
       "$dynamicAnchor": "meta",
-      "type": "object",
-      "additionalProperties": { "$dynamicRef": "#meta" }
+      "$ref": "https://example.com/tree",
+      "unevaluatedProperties": false,
+      "$defs": {
+        "tree": {
+          "$id": "https://example.com/tree",
+          "type": "object",
+          "properties": {
+            "data": true,
+            "children": {
+              "type": "array",
+              "items": { "$dynamicRef": "#meta" }
+            }
+          },
+          "$dynamicAnchor": "meta"
+        }
+      }
     }
   },
-  "examples": [ {}, { "a": {} } ],
-  "counterExamples": [ "x", { "a": 1 } ]
+  "examples": [ { "data": 1 }, { "data": 1, "children": [ { "data": 2 } ] } ],
+  "counterExamples": [
+    { "daat": 1 },
+    { "data": 1, "children": [ { "daat": 2 } ] }
+  ]
 }

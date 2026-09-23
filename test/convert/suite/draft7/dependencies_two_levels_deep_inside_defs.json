@@ -1,10 +1,13 @@
 {
   "schema": {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "string",
+    "type": "object",
+    "allOf": [ { "$ref": "#/definitions/Outer/definitions/Inner" } ],
     "definitions": {
       "Outer": {
-        "definitions": { "Inner": { "dependencies": { "foo": { "type": "string" } } } }
+        "definitions": {
+          "Inner": { "dependencies": { "foo": { "required": [ "bar" ] } } }
+        }
       }
     }
   },
@@ -14,23 +17,33 @@
     "draft7": null,
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "type": "string",
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/Outer/$defs/Inner" } ],
       "$defs": {
         "Outer": {
-          "$defs": { "Inner": { "dependentSchemas": { "foo": { "type": "string" } } } }
+          "$defs": {
+            "Inner": {
+              "dependentSchemas": { "foo": { "required": [ "bar" ] } }
+            }
+          }
         }
       }
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "string",
+      "type": "object",
+      "allOf": [ { "$ref": "#/$defs/Outer/$defs/Inner" } ],
       "$defs": {
         "Outer": {
-          "$defs": { "Inner": { "dependentSchemas": { "foo": { "type": "string" } } } }
+          "$defs": {
+            "Inner": {
+              "dependentSchemas": { "foo": { "required": [ "bar" ] } }
+            }
+          }
         }
       }
     }
   },
-  "examples": [ "x" ],
-  "counterExamples": [ 1 ]
+  "examples": [ {}, { "foo": 1, "bar": 2 } ],
+  "counterExamples": [ { "foo": 1 } ]
 }

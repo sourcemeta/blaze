@@ -1,5 +1,8 @@
 {
-  "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "type": "object" },
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object"
+  },
   "isMetaschema": true,
   "result": {
     "draft4": null,
@@ -25,7 +28,7 @@
         "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
         "https://json-schema.org/draft/2020-12/vocab/validation": true,
         "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
-        "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+        "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
         "https://json-schema.org/draft/2020-12/vocab/content": true
       },
       "type": "object"

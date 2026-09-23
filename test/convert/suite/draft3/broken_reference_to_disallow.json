@@ -6,12 +6,27 @@
   },
   "result": {},
   "errors": {
-    "draft4": { "identifier": "#/disallow/0", "location": "/properties/foo/$ref" },
-    "draft6": { "identifier": "#/disallow/0", "location": "/properties/foo/$ref" },
-    "draft7": { "identifier": "#/disallow/0", "location": "/properties/foo/$ref" },
-    "2019-09": { "identifier": "#/disallow/0", "location": "/properties/foo/$ref" },
-    "2020-12": { "identifier": "#/disallow/0", "location": "/properties/foo/$ref" }
+    "draft4": {
+      "identifier": "#/disallow/0",
+      "location": "/properties/foo/$ref"
+    },
+    "draft6": {
+      "identifier": "#/disallow/0",
+      "location": "/properties/foo/$ref"
+    },
+    "draft7": {
+      "identifier": "#/disallow/0",
+      "location": "/properties/foo/$ref"
+    },
+    "2019-09": {
+      "identifier": "#/disallow/0",
+      "location": "/properties/foo/$ref"
+    },
+    "2020-12": {
+      "identifier": "#/disallow/0",
+      "location": "/properties/foo/$ref"
+    }
   },
-  "examples": [ 1, {} ],
-  "counterExamples": [ "a" ]
+  "examples": [ 1, {}, { "foo": "s" } ],
+  "counterExamples": [ "a", { "foo": 1 } ]
 }

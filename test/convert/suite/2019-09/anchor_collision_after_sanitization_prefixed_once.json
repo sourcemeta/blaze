@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "viaColon": { "$ref": "#ns:foo" },
+      "viaDash": { "$ref": "#ns-foo" }
+    },
+    "$defs": {
+      "a": { "$anchor": "ns:foo", "type": "string" },
+      "b": { "$anchor": "ns-foo", "type": "number" }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "viaColon": { "$ref": "#x-ns-foo" },
+        "viaDash": { "$ref": "#ns-foo" }
+      },
+      "$defs": {
+        "a": { "$anchor": "x-ns-foo", "type": "string" },
+        "b": { "$anchor": "ns-foo", "type": "number" }
+      }
+    }
+  },
+  "examples": [ {}, { "viaColon": "s", "viaDash": 1 } ],
+  "counterExamples": [ "x", { "viaColon": 1 }, { "viaDash": "s" } ]
+}

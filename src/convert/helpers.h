@@ -36,6 +36,13 @@ inline auto current_dialect_or_override(const sourcemeta::core::JSON &schema)
   return declared_dialect(schema);
 }
 
+// The empty fragment does not change which dialect a URI names, and only some
+// of the official spellings have a rule of their own to settle them
+inline auto without_empty_fragment(const std::string_view uri)
+    -> std::string_view {
+  return uri.ends_with('#') ? uri.substr(0, uri.size() - 1) : uri;
+}
+
 // A subschema that a `$schema` of the document resolves to is a meta-schema of
 // that document, no matter where within the document it sits. Every base
 // dialect asks such a subschema to declare an identifier, which is what keeps
@@ -174,13 +181,6 @@ inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
   return value.is_string() && dialect_position(value.to_string()) > 0;
 }
 
-// The empty fragment does not change which dialect a URI names, and only some
-// of the official spellings have a rule of their own to settle them
-inline auto without_empty_fragment(const std::string_view uri)
-    -> std::string_view {
-  return uri.ends_with('#') ? uri.substr(0, uri.size() - 1) : uri;
-}
-
 // A `$schema` the conversion did not write stays as it is, so a dialect the
 // ladder does not name is only ours to move when the meta-schema defining it
 // travels in the same document, where it moves along with everything that
@@ -196,6 +196,73 @@ owns_dialect(const sourcemeta::core::SchemaFrame &frame,
                                       dialect;
                              }) ||
          frame.traverse(dialect).has_value();
+}
+
+// Whether an identifier and a dialect name the same thing once both are
+// resolved against what the caller said the document is called
+inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
+                               const char *keyword,
+                               const std::string_view dialect,
+                               const std::string_view default_id) -> bool {
+  const auto *identifier{schema.try_at(keyword)};
+  if (identifier == nullptr || !identifier->is_string()) {
+    return false;
+  }
+
+  if (without_empty_fragment(identifier->to_string()) ==
+      without_empty_fragment(dialect)) {
+    return true;
+  }
+
+  // Resolving is what lets an identifier written relative to whatever the
+  // caller named the document meet a dialect that is spelled out in full.
+  // A value that does not parse is not for this question to complain about,
+  // as framing says so in better words a moment later
+  try {
+    sourcemeta::core::URI left{identifier->to_string()};
+    sourcemeta::core::URI right{std::string{dialect}};
+    if (!default_id.empty()) {
+      const sourcemeta::core::URI base{std::string{default_id}};
+      left.resolve_from(base);
+      right.resolve_from(base);
+    }
+
+    left.canonicalize();
+    right.canonicalize();
+    return left.recompose() == right.recompose();
+  } catch (const sourcemeta::core::URIParseError &) {
+    return false;
+  } catch (const sourcemeta::core::URIError &) {
+    return false;
+  }
+}
+
+// A document whose identifier is the very dialect it declares describes
+// itself, so it is a meta-schema on the strongest evidence there is. The
+// ladder rewrites that `$schema` on the first bump, taking the evidence with
+// it, so the question has to be asked before any rule runs
+inline auto describes_itself(const sourcemeta::core::JSON &schema,
+                             const std::string_view default_id) -> bool {
+  if (!schema.is_object()) {
+    return false;
+  }
+
+  const auto *dialect{schema.try_at("$schema")};
+  if (dialect == nullptr || !dialect->is_string()) {
+    return false;
+  }
+
+  // Draft 3 and Draft 4 carry the identifier in `id` and everything the ladder
+  // names after them in `$id`, so the other keyword is ordinary data there. A
+  // dialect the ladder does not name leaves the question open
+  const auto position{dialect_position(dialect->to_string())};
+  const auto &value{dialect->to_string()};
+  if (position != 1 && position != 2 &&
+      names_the_same_uri(schema, "$id", value, default_id)) {
+    return true;
+  }
+
+  return position <= 2 && names_the_same_uri(schema, "id", value, default_id);
 }
 
 inline auto moved_past(const sourcemeta::core::JSON &schema,
@@ -293,7 +360,7 @@ constexpr std::array<Vocabulary, 7> VOCABULARIES_2020_12{
      {"https://json-schema.org/draft/2020-12/vocab/unevaluated", true},
      {"https://json-schema.org/draft/2020-12/vocab/validation", true},
      {"https://json-schema.org/draft/2020-12/vocab/meta-data", true},
-     {"https://json-schema.org/draft/2020-12/vocab/format-annotation", false},
+     {"https://json-schema.org/draft/2020-12/vocab/format-annotation", true},
      {"https://json-schema.org/draft/2020-12/vocab/content", true}}};
 
 // A meta-schema on 2019-09 or newer that does not declare its vocabularies

@@ -9,7 +9,8 @@
         "$id": "https://example.com/f",
         "items": [ { "type": "number" } ]
       }
-    }
+    },
+    "properties": { "deep": { "$ref": "https://example.com/f" } }
   },
   "resolver": {
     "https://example.com/meta": {
@@ -38,9 +39,10 @@
           "$id": "https://example.com/f",
           "items": [ { "type": "number" } ]
         }
-      }
+      },
+      "properties": { "deep": { "$ref": "https://example.com/f" } }
     }
   },
-  "examples": [ [], [ "a" ] ],
-  "counterExamples": [ [ 1 ] ]
+  "examples": [ [], [ "a" ], { "deep": [ 1 ] } ],
+  "counterExamples": [ [ 1 ], { "deep": [ "x" ] } ]
 }

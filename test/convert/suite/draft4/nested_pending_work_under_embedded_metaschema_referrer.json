@@ -2,7 +2,9 @@
   "schema": {
     "$schema": "https://example.com/my-dialect",
     "type": "object",
-    "properties": { "amount": { "type": "number", "minimum": 0, "exclusiveMinimum": true } },
+    "properties": {
+      "amount": { "type": "number", "minimum": 0, "exclusiveMinimum": true }
+    },
     "definitions": {
       "meta": {
         "$schema": "http://json-schema.org/draft-04/schema#",
@@ -71,7 +73,7 @@
             "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
             "https://json-schema.org/draft/2020-12/vocab/validation": true,
             "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
-            "https://json-schema.org/draft/2020-12/vocab/format-annotation": false,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
             "https://json-schema.org/draft/2020-12/vocab/content": true
           },
           "type": "object"
