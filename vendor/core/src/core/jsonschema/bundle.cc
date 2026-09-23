@@ -87,7 +87,7 @@ auto embed_schema(JSON &root, const Pointer &container,
   if (callback) {
     auto location{to_weak_pointer(container)};
     location.push_back(std::cref(key));
-    callback(location);
+    callback(identifier, location);
   }
 }
 
