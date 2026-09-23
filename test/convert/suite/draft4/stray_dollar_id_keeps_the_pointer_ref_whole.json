@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/mine",
+    "$id": "https://example.com/theirs",
+    "definitions": { "x": { "type": "string" } },
+    "allOf": [ { "$ref": "#/definitions/x" } ]
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/mine",
+      "x-$id": "https://example.com/theirs",
+      "definitions": { "x": { "type": "string" } },
+      "allOf": [ { "$ref": "#/definitions/x" } ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/mine",
+      "x-$id": "https://example.com/theirs",
+      "definitions": { "x": { "type": "string" } },
+      "allOf": [ { "$ref": "#/definitions/x" } ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/mine",
+      "x-$id": "https://example.com/theirs",
+      "$defs": { "x": { "type": "string" } },
+      "allOf": [ { "$ref": "#/$defs/x" } ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/mine",
+      "x-$id": "https://example.com/theirs",
+      "$defs": { "x": { "type": "string" } },
+      "allOf": [ { "$ref": "#/$defs/x" } ]
+    }
+  },
+  "examples": [ "x" ],
+  "counterExamples": [ 1 ]
+}

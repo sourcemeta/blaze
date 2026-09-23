@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://example.com/theirs",
+    "type": "string"
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "x-$id": "https://example.com/theirs",
+      "type": "string"
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "x-$id": "https://example.com/theirs",
+      "type": "string"
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "x-$id": "https://example.com/theirs",
+      "type": "string"
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "x-$id": "https://example.com/theirs",
+      "type": "string"
+    }
+  },
+  "examples": [ "x" ],
+  "counterExamples": [ 1 ]
+}
