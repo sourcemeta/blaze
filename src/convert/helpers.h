@@ -209,17 +209,32 @@ inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
     return false;
   }
 
-  sourcemeta::core::URI left{identifier->to_string()};
-  sourcemeta::core::URI right{std::string{dialect}};
-  if (!default_id.empty()) {
-    const sourcemeta::core::URI base{std::string{default_id}};
-    left.resolve_from(base);
-    right.resolve_from(base);
+  if (without_empty_fragment(identifier->to_string()) ==
+      without_empty_fragment(dialect)) {
+    return true;
   }
 
-  left.canonicalize();
-  right.canonicalize();
-  return left.recompose() == right.recompose();
+  // Resolving is what lets an identifier written relative to whatever the
+  // caller named the document meet a dialect that is spelled out in full.
+  // A value that does not parse is not for this question to complain about,
+  // as framing says so in better words a moment later
+  try {
+    sourcemeta::core::URI left{identifier->to_string()};
+    sourcemeta::core::URI right{std::string{dialect}};
+    if (!default_id.empty()) {
+      const sourcemeta::core::URI base{std::string{default_id}};
+      left.resolve_from(base);
+      right.resolve_from(base);
+    }
+
+    left.canonicalize();
+    right.canonicalize();
+    return left.recompose() == right.recompose();
+  } catch (const sourcemeta::core::URIParseError &) {
+    return false;
+  } catch (const sourcemeta::core::URIError &) {
+    return false;
+  }
 }
 
 // A document whose identifier is the very dialect it declares describes
