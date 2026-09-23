@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/a",
+    "properties": { "v": { "$ref": "https://example.com/b" } },
+    "definitions": {
+      "c": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/c",
+        "type": "object"
+      },
+      "b": {
+        "$schema": "https://example.com/c#",
+        "$id": "https://example.com/b",
+        "properties": { "p": { "$ref": "#tok" } },
+        "definitions": { "tok": { "$id": "#tok", "type": "string" } }
+      }
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/c#",
+      "location": "/definitions/b"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/c#",
+      "location": "/definitions/b"
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/c#",
+      "location": "/definitions/b"
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/c#",
+      "location": "/definitions/b"
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/c#",
+      "location": "/definitions/b"
+    }
+  },
+  "examples": [ {}, { "v": { "p": "x" } } ],
+  "counterExamples": [ { "v": { "p": 1 } } ]
+}

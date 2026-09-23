@@ -11,15 +11,10 @@ public:
             const sourcemeta::core::SchemaFrame &frame,
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &, const bool) const
-      -> bool override {
-    ONLY_CONTINUE_IF(owns_dialect(frame, location));
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains(SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_7) &&
         schema.is_object());
-
-    this->metaschema_target_ =
-        is_metaschema_target(schema, frame, location.pointer);
 
     ONLY_CONTINUE_IF(subschema_at_dialect(schema, location, DRAFT_7_URL) ||
                      has_actionable_id_fragment(schema) ||
@@ -28,12 +23,8 @@ public:
 
     if (frame.any_subschema_under(
             location.pointer,
-            [&root, &frame](
+            [&root](
                 const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
-              if (!owns_dialect(frame, entry)) {
-                return false;
-              }
-
               const auto entry_pointer{
                   sourcemeta::core::to_pointer(entry.pointer)};
               const auto &entry_schema{
@@ -54,10 +45,6 @@ public:
     this->split_id_fragment(schema);
     this->split_dependencies(schema);
     if (bump_schema(schema)) {
-      if (this->metaschema_target_ && !schema.defines("$vocabulary")) {
-        synthesize_vocabulary(schema, VOCABULARIES_2019_09);
-      }
-
       drop_dialect_overrides(schema, true, DRAFT_2019_09_URL);
     } else {
       mark_dialect_override(schema, DRAFT_2019_09_URL);
@@ -116,8 +103,6 @@ private:
   mutable std::vector<
       std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>
       renames_;
-
-  mutable bool metaschema_target_{false};
 
   static auto is_shadow_exempt(const std::string_view keyword) -> bool {
     return std::ranges::any_of(SHADOW_EXEMPT_KEYWORDS,

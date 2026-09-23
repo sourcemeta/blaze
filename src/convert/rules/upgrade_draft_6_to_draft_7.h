@@ -11,21 +11,14 @@ public:
             const sourcemeta::core::SchemaFrame &frame,
             const sourcemeta::core::SchemaFrame::Location &location,
             const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &, const bool) const
-      -> bool override {
-    ONLY_CONTINUE_IF(owns_dialect(frame, location));
+            const sourcemeta::core::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains(SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_6) &&
         subschema_at_dialect(schema, location, DRAFT_6_URL));
 
     return !frame.any_subschema_under(
         location.pointer,
-        [&root,
-         &frame](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
-          if (!owns_dialect(frame, entry)) {
-            return false;
-          }
-
+        [&root](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
           const auto entry_pointer{sourcemeta::core::to_pointer(entry.pointer)};
           const auto &entry_schema{sourcemeta::core::get(root, entry_pointer)};
           if (entry_schema.is_object() && entry_schema.defines("$ref")) {

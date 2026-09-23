@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/hyper-schema#",
+    "$id": "https://example.com/x",
+    "dependencies": { "t": { "properties": { "p": { "type": "string" } } } }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "http://json-schema.org/draft-07/hyper-schema#",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "http://json-schema.org/draft-07/hyper-schema#",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "http://json-schema.org/draft-07/hyper-schema#",
+      "location": ""
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "http://json-schema.org/draft-07/hyper-schema#",
+      "location": ""
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "http://json-schema.org/draft-07/hyper-schema#",
+      "location": ""
+    }
+  },
+  "examples": [ {}, { "t": 1, "p": "x" } ],
+  "counterExamples": [ { "t": 1, "p": 1 } ]
+}

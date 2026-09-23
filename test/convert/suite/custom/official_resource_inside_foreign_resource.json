@@ -1,0 +1,68 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "properties": {
+      "f": { "$ref": "https://example.com/foreign" },
+      "g": { "$ref": "https://example.com/inner" }
+    },
+    "definitions": {
+      "foreign": {
+        "$schema": "https://example.com/meta",
+        "$id": "https://example.com/foreign",
+        "dependencies": {
+          "t": { "properties": { "p": { "type": "string" } } }
+        },
+        "properties": {
+          "deep": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "$id": "https://example.com/inner",
+            "dependencies": {
+              "u": { "properties": { "q": { "type": "string" } } }
+            }
+          }
+        }
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/foreign"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/foreign"
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/foreign"
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/foreign"
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/foreign"
+    }
+  },
+  "examples": [ {}, { "f": { "t": 1, "p": "x" }, "g": { "u": 1, "q": "y" } } ],
+  "counterExamples": [
+    { "f": { "t": 1, "p": 1 } },
+    { "g": { "u": 1, "q": 1 } }
+  ]
+}

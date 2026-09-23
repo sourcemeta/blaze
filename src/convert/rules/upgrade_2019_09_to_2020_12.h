@@ -4,28 +4,18 @@ public:
   Upgrade201909To202012()
       : SchemaTransformRule{"upgrade_2019_09_to_2020_12"} {};
 
-  [[nodiscard]] auto
-  condition(const sourcemeta::core::JSON &schema,
-            const sourcemeta::core::JSON &root,
-            const sourcemeta::core::SchemaVocabularies &vocabularies,
-            const sourcemeta::core::SchemaFrame &frame,
-            const sourcemeta::core::SchemaFrame::Location &location,
-            const sourcemeta::core::SchemaWalker &walker,
-            const sourcemeta::core::SchemaResolver &resolver,
-            const bool is_metaschema) const -> bool override {
+  [[nodiscard]] auto condition(
+      const sourcemeta::core::JSON &schema, const sourcemeta::core::JSON &root,
+      const sourcemeta::core::SchemaVocabularies &vocabularies,
+      const sourcemeta::core::SchemaFrame &frame,
+      const sourcemeta::core::SchemaFrame::Location &location,
+      const sourcemeta::core::SchemaWalker &walker,
+      const sourcemeta::core::SchemaResolver &resolver) const -> bool override {
     this->sanitize_pending_ = false;
-
-    ONLY_CONTINUE_IF(owns_dialect(frame, location));
 
     ONLY_CONTINUE_IF(vocabularies.contains(
                          SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE) &&
                      schema.is_object());
-
-    // A document can be a meta-schema because something in it says so, or
-    // because the caller does
-    this->metaschema_target_ =
-        (is_metaschema && location.pointer.empty()) ||
-        is_metaschema_target(schema, frame, location.pointer);
 
     const bool is_resource_scope{
         location.type ==
@@ -178,15 +168,11 @@ public:
       }
     }
 
-    rewrite_vocabulary(schema, this->metaschema_target_);
+    rewrite_vocabulary(schema);
 
     if (schema.defines("$schema") && schema.at("$schema").is_string() &&
         schema.at("$schema").to_string() == DRAFT_2019_09_URL) {
       schema.assign("$schema", sourcemeta::core::JSON{DRAFT_2020_12_URL});
-      if (this->metaschema_target_ && !schema.defines("$vocabulary")) {
-        synthesize_vocabulary(schema, VOCABULARIES_2020_12);
-      }
-
       drop_dialect_overrides(schema, true, DRAFT_2020_12_URL);
     } else {
       mark_dialect_override(schema, DRAFT_2020_12_URL);
@@ -251,39 +237,9 @@ private:
     return false;
   }
 
-  static auto
-  declares_official_2019_09_vocabulary(const sourcemeta::core::JSON &vocabulary)
-      -> bool {
-    if (vocabulary.size() != VOCABULARIES_2019_09.size()) {
-      return false;
-    }
-
-    for (const auto &[uri, required] : VOCABULARIES_2019_09) {
-      const auto *entry{vocabulary.try_at(std::string{uri})};
-      if (entry == nullptr || !entry->is_boolean() ||
-          entry->to_boolean() != required) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  static auto rewrite_vocabulary(sourcemeta::core::JSON &schema,
-                                 const bool describes_a_dialect) -> void {
+  static auto rewrite_vocabulary(sourcemeta::core::JSON &schema) -> void {
     if (!schema.is_object() || !schema.defines("$vocabulary") ||
         !schema.at("$vocabulary").is_object()) {
-      return;
-    }
-
-    // A document declaring exactly the standard 2019-09 dialect is asking to
-    // be the standard dialect, so on 2020-12 it becomes exactly that one.
-    // Carrying the booleans across instead would keep 2019-09's answer to a
-    // question 2020-12 answers differently, and `format` is one of those
-    if (describes_a_dialect &&
-        declares_official_2019_09_vocabulary(schema.at("$vocabulary"))) {
-      schema.erase("$vocabulary");
-      synthesize_vocabulary(schema, VOCABULARIES_2020_12);
       return;
     }
 
@@ -345,7 +301,6 @@ private:
       std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>
       renames_;
 
-  mutable bool metaschema_target_{false};
   mutable bool resource_has_recursive_anchor_{false};
   mutable bool anchor_at_resource_root_{false};
   mutable std::string dynamic_anchor_name_{"meta"};
@@ -363,10 +318,6 @@ private:
       const sourcemeta::core::SchemaResolver &resolver) -> bool {
     if (frame.any_subschema(
             [&](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
-              if (!owns_dialect(frame, entry)) {
-                return false;
-              }
-
               const auto absolute{sourcemeta::core::to_pointer(entry.pointer)};
               const auto &subschema{sourcemeta::core::get(root, absolute)};
               if (!subschema.is_object() ||
@@ -396,10 +347,6 @@ private:
     if (frame.any_subschema_under(
             location.pointer,
             [&](const sourcemeta::core::SchemaFrame::Location &entry) -> bool {
-              if (!owns_dialect(frame, entry)) {
-                return false;
-              }
-
               const auto absolute{sourcemeta::core::to_pointer(entry.pointer)};
               const auto &descendant{sourcemeta::core::get(root, absolute)};
               if (has_pending_pattern(descendant, entry)) {

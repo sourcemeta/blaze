@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/root",
+    "properties": { "a": false },
+    "unevaluatedProperties": false,
+    "$defs": {
+      "meta": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$id": "https://example.com/meta",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true,
+          "https://json-schema.org/draft/2019-09/vocab/applicator": true
+        }
+      }
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": "/$defs/meta"
+    },
+    "draft6": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": "/$defs/meta"
+    },
+    "draft7": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": "/$defs/meta"
+    },
+    "2019-09": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": "/$defs/meta"
+    },
+    "2020-12": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": "/$defs/meta"
+    }
+  },
+  "examples": [ {} ],
+  "counterExamples": [ { "a": 1 }, { "b": 1 } ]
+}

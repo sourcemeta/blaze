@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/root",
+    "properties": {
+      "a": {
+        "properties": { "b": { "minimum": 2, "exclusiveMinimum": true } }
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    }
+  },
+  "examples": [ {}, { "a": { "b": 3 } } ],
+  "counterExamples": [ { "a": { "b": 2 } } ]
+}

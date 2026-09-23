@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$id": "https://example.com/root",
+    "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
+    "definitions": {
+      "c": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/c",
+        "type": "object"
+      }
+    }
+  },
+  "defaultDialect": "https://example.com/c",
+  "examples": [ {}, { "t": 1, "p": "x" } ],
+  "counterExamples": [ { "t": 1, "p": 1 } ],
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-07/schema#",
+      "location": "/definitions/c"
+    },
+    "draft6": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-07/schema#",
+      "location": "/definitions/c"
+    },
+    "draft7": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-07/schema#",
+      "location": "/definitions/c"
+    },
+    "2019-09": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-07/schema#",
+      "location": "/definitions/c"
+    },
+    "2020-12": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-07/schema#",
+      "location": "/definitions/c"
+    }
+  }
+}

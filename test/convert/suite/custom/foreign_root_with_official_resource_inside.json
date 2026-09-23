@@ -21,39 +21,32 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null,
-    "draft6": null,
-    "draft7": null,
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "2019-09": {
-      "$schema": "https://example.com/meta",
-      "$id": "https://example.com/root",
-      "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
-      "properties": { "g": { "$ref": "https://example.com/inner" } },
-      "definitions": {
-        "inner": {
-          "$schema": "https://json-schema.org/draft/2019-09/schema",
-          "$id": "https://example.com/inner",
-          "dependentSchemas": {
-            "u": { "properties": { "q": { "type": "string" } } }
-          }
-        }
-      }
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
     },
     "2020-12": {
-      "$schema": "https://example.com/meta",
-      "$id": "https://example.com/root",
-      "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
-      "properties": { "g": { "$ref": "https://example.com/inner" } },
-      "definitions": {
-        "inner": {
-          "$schema": "https://json-schema.org/draft/2020-12/schema",
-          "$id": "https://example.com/inner",
-          "dependentSchemas": {
-            "u": { "properties": { "q": { "type": "string" } } }
-          }
-        }
-      }
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
     }
   },
   "examples": [ {}, { "t": 1, "p": "x", "g": { "u": 1, "q": "y" } } ],
