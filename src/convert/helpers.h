@@ -151,7 +151,7 @@ inline auto names_ladder_dialect(const std::string_view dialect) -> bool {
 // Whether an identifier and a dialect name the same thing once both are
 // resolved against what the caller said the document is called
 inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
-                               const char *keyword,
+                               const sourcemeta::core::JSON::StringView keyword,
                                const std::string_view dialect,
                                const std::string_view default_id) -> bool {
   const auto *identifier{schema.try_at(keyword)};
@@ -191,8 +191,10 @@ inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
 // itself, so it is a meta-schema on the strongest evidence there is. The
 // ladder rewrites that `$schema` on the first bump, taking the evidence with
 // it, so the question has to be asked before any rule runs
-inline auto describes_itself(const sourcemeta::core::JSON &schema,
-                             const std::string_view default_id) -> bool {
+inline auto
+describes_itself(const sourcemeta::core::JSON &schema,
+                 const sourcemeta::core::SchemaBaseDialect base_dialect,
+                 const std::string_view default_id) -> bool {
   if (!schema.is_object()) {
     return false;
   }
@@ -202,18 +204,13 @@ inline auto describes_itself(const sourcemeta::core::JSON &schema,
     return false;
   }
 
-  // Draft 3 and Draft 4 carry the identifier in `id` and everything the ladder
-  // names after them in `$id`, so the other keyword is ordinary data there.
-  // Anything the ladder does not name outright, which includes every alias of
-  // a dialect it does name, has to be asked of both
-  const auto position{dialect_position(dialect->to_string())};
-  const auto &value{dialect->to_string()};
-  if (position != 1 && position != 2 &&
-      names_the_same_uri(schema, "$id", value, default_id)) {
-    return true;
-  }
-
-  return position <= 2 && names_the_same_uri(schema, "id", value, default_id);
+  // Draft 3 and Draft 4 carry the identifier in `id` and everything after them
+  // in `$id`, so the other keyword is ordinary data there. Which one is which
+  // is the base dialect's answer to give, not something to read off a URI that
+  // has more than one accepted spelling
+  return names_the_same_uri(
+      schema, sourcemeta::core::schema_identifier_keyword(base_dialect),
+      dialect->to_string(), default_id);
 }
 
 inline auto moved_past(const sourcemeta::core::JSON &schema,

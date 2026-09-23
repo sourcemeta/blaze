@@ -67,7 +67,10 @@ auto assert_schema_references(const core::SchemaFrame &frame) -> void {
 auto assert_convertible_dialects(const core::JSON &schema,
                                  const core::SchemaFrame &frame,
                                  const std::string_view default_id) -> void {
-  if (describes_itself(schema, default_id)) {
+  const auto document{frame.traverse(core::EMPTY_WEAK_POINTER)};
+  if (document.has_value() &&
+      describes_itself(schema, document.value().get().base_dialect,
+                       default_id)) {
     throw ConvertUnsupportedMetaschemaError{schema.at("$schema").to_string(),
                                             core::EMPTY_POINTER};
   }
