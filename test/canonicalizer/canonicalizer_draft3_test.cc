@@ -4934,3 +4934,257 @@ TEST(external_reference_made_absolute_when_root_id_removed) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
+
+TEST(reference_inside_distributed_keyword_wraps) {
+  // Copying `properties` into both branches would duplicate the reference it
+  // holds, and the copy the engine does not know about would be left dangling
+  auto document = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": [
+        {
+          "type": "object",
+          "patternProperties": {
+            "^a": {}
+          }
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^b": {}
+          }
+        }
+      ],
+      "properties": {
+        "foo": {
+          "type": "integer"
+        },
+        "bar": {
+          "$ref": "#/properties/foo"
+        }
+      }
+    })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [
+        {
+          "type": [
+            {
+              "type": "object",
+              "properties": {},
+              "patternProperties": {
+                "^a": {}
+              },
+              "additionalProperties": {}
+            },
+            {
+              "type": "object",
+              "properties": {},
+              "patternProperties": {
+                "^b": {}
+              },
+              "additionalProperties": {}
+            }
+          ]
+        },
+        {
+          "type": [
+            {
+              "enum": [
+                null
+              ]
+            },
+            {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "foo": {
+                  "extends": [
+                    {
+                      "type": "integer",
+                      "divisibleBy": 1
+                    }
+                  ],
+                  "required": false
+                },
+                "bar": {
+                  "$ref": "#/extends/1/type/2/properties/foo"
+                }
+              },
+              "patternProperties": {},
+              "additionalProperties": {}
+            },
+            {
+              "type": "array",
+              "minItems": 0,
+              "uniqueItems": false,
+              "items": {}
+            },
+            {
+              "type": "string",
+              "minLength": 0
+            },
+            {
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(reference_into_dependencies_follows_the_schema) {
+  // The dependency schema moves into the implication wrapper, so a pointer
+  // into `dependencies` has to move with it
+  auto document = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "dependencies": {
+        "a": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "r": {
+          "$ref": "#/dependencies/a"
+        }
+      }
+    })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "extends": [
+        {
+          "extends": [
+            {
+              "type": [
+                {
+                  "disallow": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "a": {
+                          "extends": [
+                            {
+                              "type": [
+                                {
+                                  "enum": [
+                                    null
+                                  ]
+                                },
+                                {
+                                  "enum": [
+                                    false,
+                                    true
+                                  ]
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {},
+                                  "patternProperties": {},
+                                  "additionalProperties": {}
+                                },
+                                {
+                                  "type": "array",
+                                  "minItems": 0,
+                                  "uniqueItems": false,
+                                  "items": {}
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 0
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            }
+                          ],
+                          "required": true
+                        }
+                      },
+                      "patternProperties": {},
+                      "additionalProperties": {}
+                    }
+                  ]
+                },
+                {
+                  "extends": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "a": {
+                          "extends": [
+                            {
+                              "type": [
+                                {
+                                  "enum": [
+                                    null
+                                  ]
+                                },
+                                {
+                                  "enum": [
+                                    false,
+                                    true
+                                  ]
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {},
+                                  "patternProperties": {},
+                                  "additionalProperties": {}
+                                },
+                                {
+                                  "type": "array",
+                                  "minItems": 0,
+                                  "uniqueItems": false,
+                                  "items": {}
+                                },
+                                {
+                                  "type": "string",
+                                  "minLength": 0
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            }
+                          ],
+                          "required": true
+                        }
+                      },
+                      "patternProperties": {},
+                      "additionalProperties": {}
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "r": {
+              "$ref": "#/extends/0/extends/0/type/1/extends/1"
+            }
+          },
+          "patternProperties": {},
+          "additionalProperties": {}
+        }
+      ]
+    })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}

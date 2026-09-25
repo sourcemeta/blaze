@@ -32,6 +32,7 @@ public:
     // keyword really is about to be copied into more than one branch, and
     // remember the outcome for the keywords that follow
     std::optional<std::vector<std::string_view>> declaring;
+    std::optional<std::vector<std::string_view>> referencing;
     for (const auto &entry : schema.as_object()) {
       // `required` is a property-presence flag, not a value assertion, so it
       // is never pushed into a branch
@@ -86,6 +87,7 @@ public:
       // than one branch would declare it more than once. Wrap instead so each
       // declaration is only ever moved
       bool duplicates_identifier{false};
+      bool duplicates_reference{false};
       if (!this->wrap_ && targets.size() > 1) {
         if (!declaring.has_value()) {
           declaring = declaring_keywords(frame, location.pointer);
@@ -93,9 +95,20 @@ public:
 
         duplicates_identifier =
             std::ranges::contains(declaring.value(), entry.first);
+
+        // Copying a value that holds a reference, or that a reference points
+        // into, would leave one copy of the reference, or one copy of its
+        // target, that nothing accounts for afterwards
+        if (!referencing.has_value()) {
+          referencing = referencing_keywords(frame, location.pointer);
+        }
+
+        duplicates_reference =
+            std::ranges::contains(referencing.value(), entry.first);
       }
 
-      if (!has_match || conflict || duplicates_identifier) {
+      if (!has_match || conflict || duplicates_identifier ||
+          duplicates_reference) {
         this->wrap_ = true;
       } else {
         this->moves_.emplace_back(entry.first, std::move(targets));
@@ -269,6 +282,39 @@ private:
             }
           }
         });
+    return result;
+  }
+
+  // The keywords of the given schema whose value holds a reference, or that a
+  // reference points into
+  static auto referencing_keywords(const sourcemeta::core::SchemaFrame &frame,
+                                   const sourcemeta::core::WeakPointer &base)
+      -> std::vector<std::string_view> {
+    std::vector<std::string_view> result;
+    const auto record{
+        [&base, &result](const sourcemeta::core::WeakPointer &pointer) -> void {
+          if (pointer.size() > base.size() && pointer.starts_with(base) &&
+              pointer.at(base.size()).is_property()) {
+            const std::string_view keyword{
+                pointer.at(base.size()).to_property()};
+            if (!std::ranges::contains(result, keyword)) {
+              result.push_back(keyword);
+            }
+          }
+        }};
+
+    frame.for_each_reference(
+        [&frame, &record](
+            const sourcemeta::core::SchemaReferenceType,
+            const sourcemeta::core::WeakPointer &origin,
+            const sourcemeta::core::SchemaFrame::Reference &reference) -> void {
+          record(origin);
+          const auto destination{frame.traverse(reference.destination)};
+          if (destination.has_value()) {
+            record(destination.value().get().pointer);
+          }
+        });
+
     return result;
   }
 
