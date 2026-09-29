@@ -662,7 +662,7 @@ TEST(entrypoint_at_embedded_root_with_bundled_external_reference) {
     "info": { "title": "Example", "version": "1.0.0" },
     "components": {
       "schemas": {
-        "Pet": { "$ref": "pet.json" }
+        "Pet": { "$ref": "https://example.com/pet.json" }
       }
     },
     "x-bundled": {
