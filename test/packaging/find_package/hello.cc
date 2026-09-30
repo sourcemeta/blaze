@@ -4,6 +4,7 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/blaze/convert.h>
+#include <sourcemeta/blaze/documentation.h>
 #include <sourcemeta/blaze/editor.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
@@ -70,6 +71,13 @@ auto main() -> int {
   std::ostringstream binpack_output;
   sourcemeta::blaze::BinPackEncoder binpack_encoder{binpack_output};
   binpack_encoder.write(sourcemeta::core::JSON{5}, binpack_encoding);
+  const auto documentation{sourcemeta::blaze::to_documentation(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
+  if (sourcemeta::blaze::to_html(documentation).empty()) {
+    std::cerr << "Documentation rendering failed\n";
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }
