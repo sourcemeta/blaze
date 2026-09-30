@@ -56,7 +56,8 @@ private:
 
   static auto has_pending_pattern(const sourcemeta::core::JSON &subschema)
       -> bool {
-    if (!subschema.is_object()) {
+    if (!subschema.is_object() ||
+        declares_newer_dialect(subschema, DRAFT_6_URL)) {
       return false;
     }
 

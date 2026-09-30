@@ -1,0 +1,93 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "a": {
+        "$ref": "#/properties/b",
+        "divisibleBy": 2
+      },
+      "b": {
+        "type": "integer"
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "a": {
+          "$ref": "#/properties/b",
+          "multipleOf": 2
+        },
+        "b": {
+          "type": "integer"
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": {
+        "a": {
+          "$ref": "#/properties/b",
+          "multipleOf": 2
+        },
+        "b": {
+          "type": "integer"
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "a": {
+          "$ref": "#/properties/b",
+          "multipleOf": 2
+        },
+        "b": {
+          "type": "integer"
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "a": {
+          "$ref": "#/properties/b",
+          "x-multipleOf": 2
+        },
+        "b": {
+          "type": "integer"
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "a": {
+          "$ref": "#/properties/b",
+          "x-multipleOf": 2
+        },
+        "b": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "examples": [
+    {},
+    {
+      "a": 4
+    },
+    {
+      "b": 3
+    }
+  ],
+  "counterExamples": [
+    {
+      "a": "x"
+    },
+    {
+      "b": "y"
+    }
+  ]
+}

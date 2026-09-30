@@ -1,0 +1,98 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "dependencies": {
+      "a": [
+        "b",
+        "c",
+        "b"
+      ],
+      "d": [
+        "e"
+      ]
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "dependencies": {
+        "a": [
+          "b",
+          "c"
+        ],
+        "d": [
+          "e"
+        ]
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "dependencies": {
+        "a": [
+          "b",
+          "c"
+        ],
+        "d": [
+          "e"
+        ]
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "dependencies": {
+        "a": [
+          "b",
+          "c"
+        ],
+        "d": [
+          "e"
+        ]
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentRequired": {
+        "a": [
+          "b",
+          "c"
+        ],
+        "d": [
+          "e"
+        ]
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentRequired": {
+        "a": [
+          "b",
+          "c"
+        ],
+        "d": [
+          "e"
+        ]
+      }
+    }
+  },
+  "examples": [
+    {},
+    {
+      "a": 1,
+      "b": 2,
+      "c": 3
+    },
+    {
+      "d": 1,
+      "e": 2
+    }
+  ],
+  "counterExamples": [
+    {
+      "a": 1,
+      "b": 2
+    },
+    {
+      "d": 1
+    }
+  ]
+}

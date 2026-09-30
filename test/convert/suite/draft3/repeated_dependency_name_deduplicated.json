@@ -1,0 +1,68 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "dependencies": {
+      "a": [
+        "b",
+        "b"
+      ]
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "dependencies": {
+        "a": [
+          "b"
+        ]
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "dependencies": {
+        "a": [
+          "b"
+        ]
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "dependencies": {
+        "a": [
+          "b"
+        ]
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentRequired": {
+        "a": [
+          "b"
+        ]
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentRequired": {
+        "a": [
+          "b"
+        ]
+      }
+    }
+  },
+  "examples": [
+    {},
+    {
+      "a": 1,
+      "b": 2
+    },
+    {
+      "b": 2
+    }
+  ],
+  "counterExamples": [
+    {
+      "a": 1
+    }
+  ]
+}
