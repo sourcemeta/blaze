@@ -113,3 +113,19 @@ if(BLAZE_CONVERT)
   target_link_libraries(sourcemeta_blaze_contrib_upgrade
     PRIVATE sourcemeta::blaze::convert)
 endif()
+
+if(BLAZE_DOCUMENTATION)
+  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze
+    NAME contrib_document
+    FOLDER "Blaze/Contrib" SOURCES document.cc)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::core::io)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::core::json)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::core::jsonpointer)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::core::jsonschema)
+  target_link_libraries(sourcemeta_blaze_contrib_document
+    PRIVATE sourcemeta::blaze::documentation)
+endif()
