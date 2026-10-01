@@ -243,6 +243,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                    .target_relative_pointer = target.relative_pointer});
             });
 
+            rule->prepare(*frame, location);
             rule->transform(current);
 
             applied = true;
@@ -421,7 +422,8 @@ auto convert(sourcemeta::core::JSON &schema,
 
   rules.push_back(make_rule<UpgradeDialectOverrideCleanup>());
   apply(rules, schema, walker, resolver, default_dialect, default_id);
-  erase_dialect_overrides(schema);
+  erase_dialect_overrides(schema, walker, resolver, default_dialect,
+                          default_id);
 }
 
 } // namespace sourcemeta::blaze

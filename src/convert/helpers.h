@@ -297,112 +297,119 @@ inline auto declares_newer_dialect(const sourcemeta::core::JSON &subschema,
   return declared > 0 && declared > dialect_position(dialect);
 }
 
-// The keywords whose value is instance data rather than a schema, in every
-// dialect the ladder walks. The marker is only ever written onto a subschema,
-// so a member that merely reads like one inside these is the caller's own data
-// and carries no ladder state
-// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-constexpr std::array<std::string_view, 4> INSTANCE_DATA_KEYWORDS{
-    {"const", "default", "enum", "examples"}};
+// The ladder only ever writes its marker onto a schema, so clearing it follows
+// the frame's own idea of where the schemas are rather than the spelling of
+// keyword names. A keyword carries schemas only in a dialect that defines it,
+// and walking a name the dialect never defined reaches the caller's own data,
+// where a member that merely reads like the marker is not ours to touch. The
+// frame is only in hand while a condition runs, so the rules carry this list
+// over to their transform
+inline auto subschema_pointers_under(
+    const sourcemeta::core::SchemaFrame &frame,
+    const sourcemeta::core::SchemaFrame::Location &location)
+    -> std::vector<sourcemeta::core::Pointer> {
+  std::vector<sourcemeta::core::Pointer> result;
+  frame.for_each_subschema_under(
+      location.pointer,
+      [&result, &location](
+          const sourcemeta::core::SchemaFrame::Location &entry) -> void {
+        result.push_back(sourcemeta::core::to_pointer(entry.pointer)
+                             .slice(location.pointer.size()));
+      });
 
-inline auto holds_instance_data(const std::string_view keyword) -> bool {
-  return std::ranges::find(INSTANCE_DATA_KEYWORDS, keyword) !=
-         INSTANCE_DATA_KEYWORDS.cend();
-}
-
-// The keywords whose value is a map from a name the author chose to a schema.
-// Inside one of those, a member called `default` is a property called
-// `default`, not the keyword, so the names must not be read as keywords
-// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-constexpr std::array<std::string_view, 6> SCHEMA_MEMBER_KEYWORDS{
-    {"properties", "patternProperties", "definitions", "$defs", "dependencies",
-     "dependentSchemas"}};
-
-inline auto holds_schema_members(const std::string_view keyword) -> bool {
-  return std::ranges::find(SCHEMA_MEMBER_KEYWORDS, keyword) !=
-         SCHEMA_MEMBER_KEYWORDS.cend();
+  return result;
 }
 
 // The marker is state of the ladder rather than of the schema. A resource that
 // declares a dialect the conversion does not own can never materialise it into
 // a `$schema`, so whatever survives the ladder has to come off before the
-// caller ever sees it
-inline auto erase_dialect_overrides(sourcemeta::core::JSON &schema,
-                                    const bool in_members = false) -> void {
-  if (schema.is_array()) {
-    for (auto &item : schema.as_array()) {
-      erase_dialect_overrides(item);
-    }
-
-    return;
-  }
-
+// caller ever sees it.
+//
+// Which members of a document are schemas is a question for the walker, so this
+// follows the frame rather than guessing from keyword names. A keyword only
+// carries schemas in a dialect that defines it, and walking a name the dialect
+// never defined reaches the caller's own data, where a member that merely reads
+// like the marker is not ours to touch
+inline auto
+erase_dialect_overrides(sourcemeta::core::JSON &schema,
+                        const sourcemeta::core::SchemaWalker &walker,
+                        const sourcemeta::core::SchemaResolver &resolver,
+                        const std::string_view default_dialect,
+                        const std::string_view default_id) -> void {
   if (!schema.is_object()) {
     return;
   }
 
-  if (!in_members) {
-    const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-    if (marker != nullptr && is_own_dialect_override(*marker)) {
-      schema.erase(DIALECT_OVERRIDE_KEYWORD);
-    }
-  }
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      walker,
+      resolver,
+      default_dialect,
+      default_id,
+      sourcemeta::core::SchemaFrame::IdentifierMode::Fallback};
 
-  std::vector<std::string> keys;
-  keys.reserve(schema.size());
-  for (const auto &entry : schema.as_object()) {
-    if (in_members || !holds_instance_data(entry.first)) {
-      keys.push_back(entry.first);
+  std::vector<sourcemeta::core::Pointer> subschemas;
+  frame.for_each_subschema(
+      [&subschemas](
+          const sourcemeta::core::SchemaFrame::Location &location) -> void {
+        subschemas.push_back(sourcemeta::core::to_pointer(location.pointer));
+      });
+
+  for (const auto &pointer : subschemas) {
+    auto &subschema{sourcemeta::core::get(schema, pointer)};
+    if (!subschema.is_object()) {
+      continue;
     }
-  }
-  for (const auto &key : keys) {
-    erase_dialect_overrides(schema.at(key),
-                            !in_members && holds_schema_members(key));
+
+    const auto *marker{subschema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+    if (marker != nullptr && is_own_dialect_override(*marker)) {
+      subschema.erase(DIALECT_OVERRIDE_KEYWORD);
+    }
   }
 }
 
-inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
+inline auto clear_dialect_override(sourcemeta::core::JSON &subschema,
                                    const bool is_root,
-                                   const std::string_view dialect,
-                                   const bool in_members = false) -> void {
-  if (schema.is_array()) {
-    for (auto &item : schema.as_array()) {
-      drop_dialect_overrides(item, false, dialect);
-    }
+                                   const std::string_view dialect) -> void {
+  if (!subschema.is_object()) {
     return;
   }
 
-  if (!schema.is_object()) {
+  if (!is_root && subschema.defines("$schema") &&
+      subschema.at("$schema").is_string()) {
     return;
   }
 
-  if (!in_members) {
-    if (!is_root && schema.defines("$schema") &&
-        schema.at("$schema").is_string()) {
-      return;
+  // A subschema that already moved past the dialect being established keeps
+  // its marker. Dropping it would leave the keywords that move brought in
+  // looking like keywords of the dialect it has left behind, and the rules
+  // that reserve those names would prefix them away
+  const auto *marker{subschema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+  if (marker != nullptr && is_own_dialect_override(*marker) &&
+      (is_root || !moved_past(subschema, dialect))) {
+    subschema.erase(DIALECT_OVERRIDE_KEYWORD);
+  }
+}
+
+inline auto drop_dialect_overrides(
+    sourcemeta::core::JSON &schema, const std::string_view dialect,
+    const std::vector<sourcemeta::core::Pointer> &subschemas) -> void {
+  clear_dialect_override(schema, true, dialect);
+
+  for (const auto &pointer : subschemas) {
+    if (pointer.empty()) {
+      continue;
     }
 
-    // A subschema that already moved past the dialect being established keeps
-    // its marker. Dropping it would leave the keywords that move brought in
-    // looking like keywords of the dialect it has left behind, and the rules
-    // that reserve those names would prefix them away
-    const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-    if (marker != nullptr && is_own_dialect_override(*marker) &&
-        (is_root || !moved_past(schema, dialect))) {
-      schema.erase(DIALECT_OVERRIDE_KEYWORD);
+    // A transform may have moved things before the markers come off, so a
+    // location the frame knew about need not still be where it was
+    if (sourcemeta::core::try_get(schema, pointer) == nullptr) {
+      continue;
     }
-  }
 
-  std::vector<std::string> keys;
-  keys.reserve(schema.size());
-  for (const auto &entry : schema.as_object()) {
-    if (in_members || !holds_instance_data(entry.first)) {
-      keys.push_back(entry.first);
-    }
-  }
-  for (const auto &key : keys) {
-    drop_dialect_overrides(schema.at(key), false, dialect,
-                           !in_members && holds_schema_members(key));
+    clear_dialect_override(sourcemeta::core::get(schema, pointer), false,
+                           dialect);
   }
 }
 

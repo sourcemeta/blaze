@@ -45,7 +45,7 @@ public:
     this->split_id_fragment(schema);
     this->split_dependencies(schema);
     if (bump_schema(schema)) {
-      drop_dialect_overrides(schema, true, DRAFT_2019_09_URL);
+      drop_dialect_overrides(schema, DRAFT_2019_09_URL, this->subschemas());
     } else {
       mark_dialect_override(schema, DRAFT_2019_09_URL);
     }
