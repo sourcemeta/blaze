@@ -1,22 +1,19 @@
 {
   "schema": {
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "$id": "https://example.com/meta",
-    "$vocabulary": {
-      "https://json-schema.org/draft/2019-09/vocab/core": true
-    },
-    "$recursiveAnchor": true,
-    "allOf": [
-      {
-        "$ref": "https://json-schema.org/draft/2019-09/meta/core"
-      }
-    ],
-    "required": [
-      "title"
-    ],
-    "properties": {
-      "title": {
-        "type": "string"
+    "$id": "https://example.com/outer",
+    "type": "object",
+    "$defs": {
+      "meta": {
+        "$id": "https://example.com/meta",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2019-09/vocab/core": true
+        },
+        "allOf": [
+          {
+            "$ref": "https://json-schema.org/draft/2019-09/meta/core"
+          }
+        ]
       }
     }
   },
@@ -25,35 +22,33 @@
     "draft4": {
       "type": "unsupported-metaschema",
       "identifier": "https://json-schema.org/draft/2019-09/schema",
-      "location": ""
+      "location": "/$defs/meta"
     },
     "draft6": {
       "type": "unsupported-metaschema",
       "identifier": "https://json-schema.org/draft/2019-09/schema",
-      "location": ""
+      "location": "/$defs/meta"
     },
     "draft7": {
       "type": "unsupported-metaschema",
       "identifier": "https://json-schema.org/draft/2019-09/schema",
-      "location": ""
+      "location": "/$defs/meta"
     },
     "2019-09": {
       "type": "unsupported-metaschema",
       "identifier": "https://json-schema.org/draft/2019-09/schema",
-      "location": ""
+      "location": "/$defs/meta"
     },
     "2020-12": {
       "type": "unsupported-metaschema",
       "identifier": "https://json-schema.org/draft/2019-09/schema",
-      "location": ""
+      "location": "/$defs/meta"
     }
   },
   "examples": [
-    {
-      "title": "x"
-    }
+    {}
   ],
   "counterExamples": [
-    {}
+    "x"
   ]
 }

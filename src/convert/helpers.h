@@ -142,7 +142,7 @@ inline auto dialect_position(const std::string_view dialect) -> std::size_t {
 // meta-schema that extends one cannot be carried to another dialect by renaming
 // anything in the extending document alone
 // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-constexpr std::array<std::string_view, 19> OFFICIAL_METASCHEMAS{
+constexpr std::array<std::string_view, 22> OFFICIAL_METASCHEMAS{
     {"http://json-schema.org/draft-03/schema",
      "http://json-schema.org/draft-04/schema",
      "http://json-schema.org/draft-06/schema",
@@ -154,6 +154,7 @@ constexpr std::array<std::string_view, 19> OFFICIAL_METASCHEMAS{
      "https://json-schema.org/draft/2019-09/meta/meta-data",
      "https://json-schema.org/draft/2019-09/meta/format",
      "https://json-schema.org/draft/2019-09/meta/content",
+     "https://json-schema.org/draft/2019-09/meta/hyper-schema",
      "https://json-schema.org/draft/2020-12/schema",
      "https://json-schema.org/draft/2020-12/meta/core",
      "https://json-schema.org/draft/2020-12/meta/applicator",
@@ -161,13 +162,31 @@ constexpr std::array<std::string_view, 19> OFFICIAL_METASCHEMAS{
      "https://json-schema.org/draft/2020-12/meta/validation",
      "https://json-schema.org/draft/2020-12/meta/meta-data",
      "https://json-schema.org/draft/2020-12/meta/format-annotation",
-     "https://json-schema.org/draft/2020-12/meta/content"}};
+     "https://json-schema.org/draft/2020-12/meta/format-assertion",
+     "https://json-schema.org/draft/2020-12/meta/content",
+     "https://json-schema.org/draft/2020-12/meta/hyper-schema"}};
+
+// The two families settled on opposite schemes, `http` for the numbered drafts
+// and `https` for the dated ones, and both spellings are seen in the wild.
+// Which one a document wrote must not decide whether it is recognised
+inline auto normalized_metaschema_uri(const std::string_view uri)
+    -> std::string {
+  std::string result{without_empty_fragment(uri)};
+  if (result.starts_with("https://json-schema.org/draft-")) {
+    result.erase(4, 1);
+  } else if (result.starts_with("http://json-schema.org/draft/")) {
+    result.insert(4, "s");
+  }
+
+  return result;
+}
 
 inline auto names_official_metaschema(const std::string_view uri) -> bool {
-  const auto candidate{without_empty_fragment(uri)};
+  const auto candidate{normalized_metaschema_uri(uri)};
   return std::ranges::any_of(
-      OFFICIAL_METASCHEMAS,
-      [&candidate](const auto &entry) -> bool { return entry == candidate; });
+      OFFICIAL_METASCHEMAS, [&candidate](const auto &entry) -> bool {
+        return normalized_metaschema_uri(entry) == candidate;
+      });
 }
 
 // A dialect the ladder does not name is one the conversion has no rules for,

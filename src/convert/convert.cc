@@ -91,32 +91,43 @@ auto assert_convertible_dialects(const core::JSON &schema,
       });
 }
 
-/// A document that declares `$vocabulary` is a meta-schema, which is what this
+/// A schema that declares `$vocabulary` is a meta-schema, which is what this
 /// conversion asks of one. Extending an official meta-schema means referencing
 /// a document that recurses with the keyword of the dialect it was written for,
-/// and nothing this conversion renames in the extending document can carry that
-/// recursion to another dialect, so the whole document is refused rather than
+/// and nothing this conversion renames in the extending schema can carry that
+/// recursion to another dialect, so such a meta-schema is refused rather than
 /// quietly stripped of the constraints it places on what it describes
 auto assert_convertible_metaschema(const core::JSON &schema,
                                    const core::SchemaFrame &frame) -> void {
-  if (!schema.is_object() || !schema.defines("$vocabulary")) {
+  if (!schema.is_object()) {
     return;
   }
 
-  frame.for_each_reference(
+  // Naming a dialect is what every schema does and says nothing about
+  // extending it. Only a reference that pulls the other document's keywords in
+  // is the one that cannot be carried over
+  const auto extends_official{frame.any_reference(
       [](const core::SchemaReferenceType, const core::WeakPointer &origin,
-         const core::SchemaFrame::Reference &reference) -> void {
-        // Naming a dialect is what every document does and says nothing about
-        // extending it. Only a reference that pulls the other document's
-        // keywords in is the one that cannot be carried over
+         const core::SchemaFrame::Reference &reference) -> bool {
         if (!origin.empty() && origin.back().is_property() &&
             origin.back().to_property() == "$schema") {
-          return;
+          return false;
         }
 
-        if (names_official_metaschema(reference.destination)) {
-          throw ConvertUnsupportedMetaschemaError{reference.destination,
-                                                  core::to_pointer(origin)};
+        return names_official_metaschema(reference.destination);
+      })};
+  if (!extends_official) {
+    return;
+  }
+
+  // The meta-schema is what cannot be converted, so it is what the error names,
+  // and it may sit inside the document rather than be the whole of it
+  frame.for_each_subschema(
+      [&schema](const core::SchemaFrame::Location &location) -> void {
+        auto pointer{core::to_pointer(location.pointer)};
+        if (core::get(schema, pointer).defines("$vocabulary")) {
+          throw ConvertUnsupportedMetaschemaError{location.dialect,
+                                                  std::move(pointer)};
         }
       });
 }
