@@ -709,3 +709,45 @@ TEST(2020_12_a_default_that_is_empty_text_is_kept) {
   })JSON",
                             R"JSON({ "kind": "string", "default": "" })JSON");
 }
+
+TEST(2020_12_a_field_matching_a_pattern_is_held_to_both) {
+  EXPECT_DOCUMENTATION_ROOT(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "abc": { "type": "string" } },
+    "patternProperties": { "^a": { "type": "integer" } }
+  })JSON",
+                            R"JSON({
+    "kind": "object",
+    "fields": [
+      { "name": "abc",
+        "value": { "kind": "string", "also": [ { "kind": "integer" } ] } }
+    ],
+    "patternFields": [ { "pattern": "^a", "value": { "kind": "integer" } } ]
+  })JSON");
+}
+
+TEST(2020_12_a_name_the_key_rule_forbids_holds_nothing) {
+  EXPECT_DOCUMENTATION_ROOT(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "propertyNames": { "pattern": "^a" },
+    "properties": { "zzz": { "type": "string" } }
+  })JSON",
+                            R"JSON({
+    "kind": "object",
+    "fields": [ { "name": "zzz", "value": { "kind": "never" } } ],
+    "keys": { "kind": "string", "pattern": "^a", "otherTypesAllowed": true }
+  })JSON");
+}
+
+TEST(2020_12_a_bound_past_what_json_holds_exactly_is_refused) {
+  EXPECT_DOCUMENTATION_REFUSED(
+      R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer",
+    "maximum": 99999999999999999999
+  })JSON",
+      "The `maximum` keyword is past the numbers JSON holds exactly, so the "
+      "format cannot state it");
+}

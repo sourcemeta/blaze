@@ -13,3 +13,5 @@ target_link_libraries(sourcemeta_blaze_documentation PUBLIC
   sourcemeta::core::jsonpointer)
 target_link_libraries(sourcemeta_blaze_documentation PUBLIC
   sourcemeta::core::jsonschema)
+target_link_libraries(sourcemeta_blaze_documentation PRIVATE
+  sourcemeta::core::regex)
