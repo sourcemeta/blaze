@@ -19,7 +19,6 @@
       "allOf": [ { "type": "array" } ]
     }
   },
-  "evaluation": "nothing-valid",
   "examples": [],
   "counterExamples": [ [], [ "a" ], [ 1 ], "x" ]
 }

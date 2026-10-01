@@ -26,13 +26,8 @@ namespace {
 // otherwise go unnoticed, as the runner would simply not read it
 // NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 const std::vector<std::string> KNOWN_KEYS{
-    "schema",     "result",         "errors",    "examples", "counterExamples",
-    "evaluation", "defaultDialect", "defaultId", "resolver"};
-
-// What a fixture may say about evaluating its schema at all. Leaving it out
-// means every schema the fixture names accepts and rejects something
-const std::vector<std::string> KNOWN_EVALUATIONS{"nothing-valid",
-                                                 "not-evaluatable"};
+    "schema",          "result",   "errors",         "examples",
+    "counterExamples", "resolver", "defaultDialect", "defaultId"};
 
 const std::vector<std::string> KNOWN_ERROR_KEYS{"type", "identifier",
                                                 "location"};
@@ -42,13 +37,6 @@ const std::vector<std::string> KNOWN_ERROR_KEYS{"type", "identifier",
 const std::vector<std::string> KNOWN_ERROR_TYPES{
     "invalid-reference", "unsupported-metaschema", "unsupported-dialect"};
 // NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
-
-// A schema that no evaluator can take, such as one whose reference does not
-// point at a schema, cannot be asked about instances at all
-auto is_evaluatable(const sourcemeta::core::JSON &test) -> bool {
-  const auto *evaluation{test.try_at("evaluation")};
-  return evaluation == nullptr || evaluation->to_string() != "not-evaluatable";
-}
 
 struct Target {
   std::string_view name;
@@ -159,21 +147,8 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
   // hand-written test rather than here
   EXPECT_TRUE(test.at("schema").is_object());
 
-  const auto *evaluation{test.try_at("evaluation")};
-  if (evaluation != nullptr) {
-    EXPECT_TRUE(std::ranges::find(KNOWN_EVALUATIONS, evaluation->to_string()) !=
-                KNOWN_EVALUATIONS.cend());
-  }
-
   EXPECT_TRUE(test.at("examples").is_array());
   EXPECT_TRUE(test.at("counterExamples").is_array());
-
-  // A schema that accepts nothing has to say so and then carry no example,
-  // and a schema that says nothing about it has to carry one
-  EXPECT_EQ(test.at("examples").empty(), evaluation != nullptr);
-
-  // Only a schema that cannot be evaluated at all gets to reject nothing
-  EXPECT_EQ(test.at("counterExamples").empty(), !is_evaluatable(test));
 
   const auto &results{test.at("result")};
   EXPECT_TRUE(results.is_object());
@@ -506,7 +481,6 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   const auto resolver{make_resolver(test)};
   const auto inputs{make_inputs(test)};
   const auto &results{test.at("result")};
-  const auto evaluatable{is_evaluatable(test)};
 
   // Every target is converted up front, and the instances have their say before
   // any expectation about the shape of the output. A `result` that turns out
@@ -532,7 +506,7 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   check_resources(test.at("schema"), converted, resolver, inputs);
 
   auto disagreements{sourcemeta::core::JSON::make_array()};
-  if (evaluatable) {
+  if (!test.at("examples").empty() || !test.at("counterExamples").empty()) {
     check_instances(test.at("schema"), "input", test, resolver, inputs,
                     disagreements);
 

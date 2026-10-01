@@ -21,7 +21,6 @@
       "allOf": [ { "not": { "not": { "contains": { "type": "string" } } } } ]
     }
   },
-  "evaluation": "nothing-valid",
   "examples": [],
   "counterExamples": [ [], [ "a" ], [ 1 ], "x" ]
 }

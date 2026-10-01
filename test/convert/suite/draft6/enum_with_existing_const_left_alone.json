@@ -24,6 +24,5 @@
     }
   },
   "examples": [],
-  "counterExamples": [ "only", "other", 1 ],
-  "evaluation": "nothing-valid"
+  "counterExamples": [ "only", "other", 1 ]
 }

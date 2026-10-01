@@ -7,7 +7,6 @@
     "2019-09": { "$schema": "https://json-schema.org/draft/2019-09/schema", "not": true },
     "2020-12": { "$schema": "https://json-schema.org/draft/2020-12/schema", "not": true }
   },
-  "evaluation": "nothing-valid",
   "examples": [],
   "counterExamples": [ "x", 1, {}, [], null, true ]
 }
