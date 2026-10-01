@@ -53,10 +53,14 @@ public:
     rewrite_disallow(schema);
     rewrite_extends(schema);
     rewrite_divisible_by(schema);
-    rewrite_required_property_booleans(schema);
+    // Dropping the stray boolean first leaves the lift free to write its array
+    // under the same name. The other way round the lift's array is what gets
+    // erased, and the properties it named stop being required
     if (this->stray_required_) {
       schema.erase("required");
     }
+
+    rewrite_required_property_booleans(schema);
     rewrite_dependencies_string_form(schema);
     normalize_dependency_arrays(schema);
     rewrite_format(schema);
@@ -82,7 +86,8 @@ private:
 
   static auto
   has_pending_draft_3_pattern(const sourcemeta::core::JSON &subschema) -> bool {
-    if (!subschema.is_object()) {
+    if (!subschema.is_object() ||
+        declares_newer_dialect(subschema, DRAFT_3_URL)) {
       return false;
     }
 
@@ -396,6 +401,10 @@ private:
   has_stray_required_boolean(const sourcemeta::core::JSON &subschema,
                              const sourcemeta::core::WeakPointer &pointer)
       -> bool {
+    if (declares_newer_dialect(subschema, DRAFT_3_URL)) {
+      return false;
+    }
+
     const auto *required{subschema.try_at("required")};
     if (required == nullptr || !required->is_boolean()) {
       return false;

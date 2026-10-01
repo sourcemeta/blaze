@@ -107,18 +107,6 @@ constexpr std::array<std::string_view, 6> LADDER_DIALECTS{
      "https://json-schema.org/draft/2019-09/schema",
      "https://json-schema.org/draft/2020-12/schema"}};
 
-// How far along the ladder a dialect sits, counting from one so that anything
-// the ladder does not name sits before all of them
-inline auto dialect_position(const std::string_view dialect) -> std::size_t {
-  for (std::size_t index = 0; index < LADDER_DIALECTS.size(); index += 1) {
-    if (LADDER_DIALECTS[index] == dialect) {
-      return index + 1;
-    }
-  }
-
-  return 0;
-}
-
 // The spellings the normalising rules settle on all name the same dialect, so
 // whether the ladder names one has to be asked of the spelling those rules
 // would produce rather than of what the document happens to say
@@ -132,25 +120,36 @@ inline auto normalized_official_dialect(const std::string_view dialect)
   return result;
 }
 
+// How far along the ladder a dialect sits, counting from one so that anything
+// the ladder does not name sits before all of them. The spelling is normalised
+// first, so that every form naming the same dialect ranks the same. Whether a
+// dialect is the ladder's and how far along it sits have to be one question,
+// or the ladder would accept a marker in one place and refuse to rank it in
+// another
+inline auto dialect_position(const std::string_view dialect) -> std::size_t {
+  const auto candidate{normalized_official_dialect(dialect)};
+  for (std::size_t index = 0; index < LADDER_DIALECTS.size(); index += 1) {
+    if (without_empty_fragment(LADDER_DIALECTS[index]) == candidate) {
+      return index + 1;
+    }
+  }
+
+  return 0;
+}
+
 // A dialect the ladder does not name is one the conversion has no rules for,
 // whether it belongs to a draft older than the ladder starts at or to a
 // meta-schema of the caller's own
 inline auto names_ladder_dialect(const std::string_view dialect) -> bool {
-  const auto candidate{normalized_official_dialect(dialect)};
-  return std::ranges::any_of(
-      LADDER_DIALECTS, [&candidate](const auto &entry) -> bool {
-        return without_empty_fragment(entry) == candidate;
-      });
+  return dialect_position(dialect) > 0;
 }
 
 // Core reads this keyword as a dialect too, so it may well be a keyword the
 // caller wrote. The ladder only ever records one of the dialects it walks
-// through, so anything else is not ours to clear. Which spellings count has to
-// match what admits a document in the first place, or the ladder would write a
-// marker it then refuses to take back off
+// through, so anything else is not ours to clear
 inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
     -> bool {
-  return value.is_string() && names_ladder_dialect(value.to_string());
+  return value.is_string() && dialect_position(value.to_string()) > 0;
 }
 
 // Whether an identifier and a dialect name the same thing once both are
