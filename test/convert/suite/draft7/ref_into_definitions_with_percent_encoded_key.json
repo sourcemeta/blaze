@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": { "%41": { "type": "string" } },
+    "properties": { "a": { "$ref": "#/definitions/%2541" } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$defs": { "%41": { "type": "string" } },
+      "properties": { "a": { "$ref": "#/$defs/%2541" } }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": { "%41": { "type": "string" } },
+      "properties": { "a": { "$ref": "#/$defs/%2541" } }
+    }
+  },
+  "examples": [ {}, { "a": "s" } ],
+  "counterExamples": [ { "a": 1 } ]
+}

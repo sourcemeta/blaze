@@ -5,7 +5,7 @@
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/uri.h>
 
-#include <algorithm> // std::ranges::any_of
+#include <algorithm> // std::ranges::any_of, std::ranges::find
 #include <array>     // std::array
 #include <cassert>   // assert
 #include <concepts>  // std::derived_from
@@ -170,6 +170,16 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
               continue;
             }
 
+            // A rule that already produced this exact state here has nothing
+            // left to contribute, and applying it again would be a cycle. The
+            // asserts below say a correct rule never gets this far, so this is
+            // what keeps a faulty one from spinning where they are compiled out
+            if (processed_rules.contains(
+                    std::tuple<core::Pointer, std::string_view, core::JSON>{
+                        entry_pointer, rule->name(), current})) {
+              continue;
+            }
+
             potentially_broken_references.clear();
             frame->for_each_reference([&](const core::SchemaReferenceType,
                                           const core::WeakPointer &origin,
@@ -264,7 +274,10 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                       : new_relative.value()};
 
               core::URI original{saved_reference.original};
-              original.fragment(core::to_string(new_fragment));
+              // The stringified pointer is literal text, so a token that
+              // already reads as an escape must be encoded rather than taken
+              // as one
+              original.unescaped_fragment(core::to_string(new_fragment));
               core::set(schema, effective_origin,
                         core::JSON{original.recompose()});
               references_fixed = true;

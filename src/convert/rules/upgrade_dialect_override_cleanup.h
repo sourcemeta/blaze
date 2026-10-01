@@ -14,8 +14,12 @@ public:
     ONLY_CONTINUE_IF(location.pointer.empty() && schema.is_object());
     this->redundant_.clear();
 
+    // Only a marker naming a dialect the ladder walks through is one the ladder
+    // wrote, and only that one can be materialised and then cleared. Firing on
+    // any other value would leave `transform` with nothing to do and the
+    // condition still true
     const auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-    if (override_value != nullptr && override_value->is_string()) {
+    if (override_value != nullptr && is_own_dialect_override(*override_value)) {
       return true;
     }
 

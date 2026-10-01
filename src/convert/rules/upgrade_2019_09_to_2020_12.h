@@ -407,7 +407,8 @@ private:
   has_pending_pattern(const sourcemeta::core::JSON &subschema,
                       const sourcemeta::core::SchemaFrame::Location &location)
       -> bool {
-    if (!subschema.is_object()) {
+    if (!subschema.is_object() ||
+        declares_newer_dialect(subschema, DRAFT_2019_09_URL)) {
       return false;
     }
     if (!subschema.defines_any({"$schema", "$recursiveAnchor", "$recursiveRef",

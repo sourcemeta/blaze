@@ -13,8 +13,11 @@ inline auto declared_dialect(const sourcemeta::core::JSON &schema)
     return {};
   }
 
+  // Core reads an empty override as no override at all, so shadowing a real
+  // `$schema` with one would disagree with how the document frames
   const auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-  if (override_value != nullptr && override_value->is_string()) {
+  if (override_value != nullptr && override_value->is_string() &&
+      !override_value->to_string().empty()) {
     return override_value->to_string();
   }
 
@@ -104,26 +107,6 @@ constexpr std::array<std::string_view, 6> LADDER_DIALECTS{
      "https://json-schema.org/draft/2019-09/schema",
      "https://json-schema.org/draft/2020-12/schema"}};
 
-// How far along the ladder a dialect sits, counting from one so that anything
-// the ladder does not name sits before all of them
-inline auto dialect_position(const std::string_view dialect) -> std::size_t {
-  for (std::size_t index = 0; index < LADDER_DIALECTS.size(); index += 1) {
-    if (LADDER_DIALECTS[index] == dialect) {
-      return index + 1;
-    }
-  }
-
-  return 0;
-}
-
-// Core reads this keyword as a dialect too, so it may well be a keyword the
-// caller wrote. The ladder only ever records one of the dialects it walks
-// through, so anything else is not ours to clear
-inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
-    -> bool {
-  return value.is_string() && dialect_position(value.to_string()) > 0;
-}
-
 // The spellings the normalising rules settle on all name the same dialect, so
 // whether the ladder names one has to be asked of the spelling those rules
 // would produce rather than of what the document happens to say
@@ -137,15 +120,36 @@ inline auto normalized_official_dialect(const std::string_view dialect)
   return result;
 }
 
+// How far along the ladder a dialect sits, counting from one so that anything
+// the ladder does not name sits before all of them. The spelling is normalised
+// first, so that every form naming the same dialect ranks the same. Whether a
+// dialect is the ladder's and how far along it sits have to be one question,
+// or the ladder would accept a marker in one place and refuse to rank it in
+// another
+inline auto dialect_position(const std::string_view dialect) -> std::size_t {
+  const auto candidate{normalized_official_dialect(dialect)};
+  for (std::size_t index = 0; index < LADDER_DIALECTS.size(); index += 1) {
+    if (without_empty_fragment(LADDER_DIALECTS[index]) == candidate) {
+      return index + 1;
+    }
+  }
+
+  return 0;
+}
+
 // A dialect the ladder does not name is one the conversion has no rules for,
 // whether it belongs to a draft older than the ladder starts at or to a
 // meta-schema of the caller's own
 inline auto names_ladder_dialect(const std::string_view dialect) -> bool {
-  const auto candidate{normalized_official_dialect(dialect)};
-  return std::ranges::any_of(
-      LADDER_DIALECTS, [&candidate](const auto &entry) -> bool {
-        return without_empty_fragment(entry) == candidate;
-      });
+  return dialect_position(dialect) > 0;
+}
+
+// Core reads this keyword as a dialect too, so it may well be a keyword the
+// caller wrote. The ladder only ever records one of the dialects it walks
+// through, so anything else is not ours to clear
+inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
+    -> bool {
+  return value.is_string() && dialect_position(value.to_string()) > 0;
 }
 
 // Whether an identifier and a dialect name the same thing once both are
@@ -221,6 +225,30 @@ inline auto moved_past(const sourcemeta::core::JSON &schema,
              dialect_position(dialect);
 }
 
+// A subschema that declares a dialect newer than the one a step moves schemas
+// off has nothing pending for that step, as the keywords it holds belong to the
+// dialect it declares rather than being strangers there. A subschema that
+// declares nothing inherits the dialect of the schema being converted, which is
+// why only a declared position counts
+inline auto declares_newer_dialect(const sourcemeta::core::JSON &subschema,
+                                   const std::string_view dialect) -> bool {
+  const auto declared{dialect_position(declared_dialect(subschema))};
+  return declared > 0 && declared > dialect_position(dialect);
+}
+
+// The keywords whose value is instance data rather than a schema, in every
+// dialect the ladder walks. The marker is only ever written onto a subschema,
+// so a member that merely reads like one inside these is the caller's own data
+// and carries no ladder state
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+constexpr std::array<std::string_view, 4> INSTANCE_DATA_KEYWORDS{
+    {"const", "default", "enum", "examples"}};
+
+inline auto holds_instance_data(const std::string_view keyword) -> bool {
+  return std::ranges::find(INSTANCE_DATA_KEYWORDS, keyword) !=
+         INSTANCE_DATA_KEYWORDS.cend();
+}
+
 // The marker is state of the ladder rather than of the schema. A resource that
 // declares a dialect the conversion does not own can never materialise it into
 // a `$schema`, so whatever survives the ladder has to come off before the
@@ -246,7 +274,9 @@ inline auto erase_dialect_overrides(sourcemeta::core::JSON &schema) -> void {
   std::vector<std::string> keys;
   keys.reserve(schema.size());
   for (const auto &entry : schema.as_object()) {
-    keys.push_back(entry.first);
+    if (!holds_instance_data(entry.first)) {
+      keys.push_back(entry.first);
+    }
   }
   for (const auto &key : keys) {
     erase_dialect_overrides(schema.at(key));
@@ -285,7 +315,9 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
   std::vector<std::string> keys;
   keys.reserve(schema.size());
   for (const auto &entry : schema.as_object()) {
-    keys.push_back(entry.first);
+    if (!holds_instance_data(entry.first)) {
+      keys.push_back(entry.first);
+    }
   }
   for (const auto &key : keys) {
     drop_dialect_overrides(schema.at(key), false, dialect);
