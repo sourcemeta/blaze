@@ -13,6 +13,7 @@
 #include <cstddef>     // std::size_t
 #include <filesystem>  // std::filesystem
 #include <optional>    // std::optional, std::nullopt
+#include <set>         // std::set
 #include <sstream>     // std::ostringstream
 #include <string>      // std::string
 #include <string_view> // std::string_view
@@ -414,21 +415,84 @@ auto check_transitivity(
   }
 }
 
+// Which schema resources a document declares is part of what it means, and
+// conversion is not supposed to invent one or lose one. Where each resource
+// lives may move, so only the set of URIs is compared, not the pointers they
+// sit at
+auto resource_uris(const sourcemeta::core::JSON &document,
+                   const sourcemeta::core::SchemaResolver &resolver,
+                   const Inputs &inputs) -> std::set<std::string> {
+  std::set<std::string> uris;
+  if (!document.is_object()) {
+    return uris;
+  }
+
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      document,
+      sourcemeta::core::schema_walker,
+      resolver,
+      inputs.default_dialect,
+      inputs.default_id,
+      sourcemeta::core::SchemaFrame::IdentifierMode::Fallback};
+
+  frame.for_each_location(
+      [&uris](const sourcemeta::core::SchemaReferenceType,
+              const std::string_view uri,
+              const sourcemeta::core::SchemaFrame::Location &location) -> void {
+        if (location.type ==
+            sourcemeta::core::SchemaFrame::LocationType::Resource) {
+          uris.emplace(uri);
+        }
+      });
+
+  return uris;
+}
+
+auto check_resources(
+    const sourcemeta::core::JSON &input,
+    const std::vector<std::optional<sourcemeta::core::JSON>> &converted,
+    const sourcemeta::core::SchemaResolver &resolver, const Inputs &inputs)
+    -> void {
+  const auto before{resource_uris(input, resolver, inputs)};
+  for (std::size_t index = 0; index < TARGETS.size(); index += 1) {
+    if (!converted.at(index).has_value()) {
+      continue;
+    }
+
+    auto actual{sourcemeta::core::JSON::make_object()};
+    actual.assign("target", sourcemeta::core::JSON{TARGETS.at(index).name});
+    auto listing{sourcemeta::core::JSON::make_array()};
+    for (const auto &uri :
+         resource_uris(converted.at(index).value(), resolver, inputs)) {
+      listing.push_back(sourcemeta::core::JSON{uri});
+    }
+    actual.assign("resources", std::move(listing));
+
+    auto expected{sourcemeta::core::JSON::make_object()};
+    expected.assign("target", sourcemeta::core::JSON{TARGETS.at(index).name});
+    auto baseline{sourcemeta::core::JSON::make_array()};
+    for (const auto &uri : before) {
+      baseline.push_back(sourcemeta::core::JSON{uri});
+    }
+    expected.assign("resources", std::move(baseline));
+
+    EXPECT_EQ(actual, expected);
+  }
+}
+
 auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   check_shape(test);
 
   const auto resolver{make_resolver(test)};
   const auto inputs{make_inputs(test)};
   const auto &results{test.at("result")};
-
   const auto evaluatable{is_evaluatable(test)};
-  auto disagreements{sourcemeta::core::JSON::make_array()};
-  if (evaluatable) {
-    check_instances(test.at("schema"), "input", test, resolver, inputs,
-                    disagreements);
-  }
 
-  std::vector<sourcemeta::core::JSON> evaluated;
+  // Every target is converted up front, and the instances have their say before
+  // any expectation about the shape of the output. A `result` that turns out
+  // wrong would otherwise abort the test first and hide whether the conversion
+  // still means what it did, which is the one thing worth knowing
   std::vector<std::optional<sourcemeta::core::JSON>> converted;
   converted.reserve(TARGETS.size());
   for (const auto &target : TARGETS) {
@@ -439,10 +503,48 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
       continue;
     }
 
-    const auto document{
-        convert_schema(test.at("schema"), resolver, inputs, target)};
-    converted.emplace_back(document);
-    const auto &expected{results.at(name)};
+    converted.emplace_back(
+        convert_schema(test.at("schema"), resolver, inputs, target));
+  }
+
+  // Which resources a document declares is the most basic thing conversion must
+  // preserve, so it is asked first: a wrong `result` or a changed instance
+  // verdict would otherwise abort the test before this had its say
+  check_resources(test.at("schema"), converted, resolver, inputs);
+
+  auto disagreements{sourcemeta::core::JSON::make_array()};
+  if (evaluatable) {
+    check_instances(test.at("schema"), "input", test, resolver, inputs,
+                    disagreements);
+
+    std::vector<sourcemeta::core::JSON> evaluated;
+    for (std::size_t index = 0; index < TARGETS.size(); index += 1) {
+      if (!converted.at(index).has_value()) {
+        continue;
+      }
+
+      const auto &document{converted.at(index).value()};
+      if (std::ranges::find(evaluated, document) != evaluated.cend()) {
+        continue;
+      }
+
+      check_instances(document, TARGETS.at(index).name, test, resolver, inputs,
+                      disagreements);
+      evaluated.push_back(document);
+    }
+  }
+
+  EXPECT_EQ(disagreements, sourcemeta::core::JSON::make_array());
+
+  for (std::size_t index = 0; index < TARGETS.size(); index += 1) {
+    if (!converted.at(index).has_value()) {
+      continue;
+    }
+
+    const auto &target{TARGETS.at(index)};
+    const auto &document{converted.at(index).value()};
+    const auto &expected{
+        results.at(sourcemeta::core::JSON::String{target.name})};
     if (expected.is_null()) {
       expect_equal_with_ordering(target.name, document, test.at("schema"));
       continue;
@@ -464,20 +566,9 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
     expect_equal_with_ordering(
         target.name, convert_schema(document, resolver, inputs, target),
         document);
-
-    if (!evaluatable ||
-        std::ranges::find(evaluated, document) != evaluated.cend()) {
-      continue;
-    }
-
-    check_instances(document, target.name, test, resolver, inputs,
-                    disagreements);
-    evaluated.push_back(document);
   }
 
   check_transitivity(converted, resolver, inputs);
-
-  EXPECT_EQ(disagreements, sourcemeta::core::JSON::make_array());
 }
 
 auto register_tests(const std::filesystem::path &directory) -> std::size_t {

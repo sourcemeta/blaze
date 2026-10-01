@@ -77,8 +77,6 @@ public:
 
     this->renames_.clear();
 
-    rewrite_metaschema_reference(schema);
-
     if (schema.defines("$recursiveAnchor") &&
         schema.at("$recursiveAnchor").is_boolean()) {
       // Only the root of a schema resource can carry a recursive anchor.
@@ -224,73 +222,6 @@ private:
            "https://json-schema.org/draft/2020-12/vocab/format-annotation"},
           {"https://json-schema.org/draft/2019-09/vocab/content",
            "https://json-schema.org/draft/2020-12/vocab/content"}};
-
-  // A meta-schema that extends the official one references those documents by
-  // URI, and the 2019-09 copies recurse with `$recursiveRef`, a keyword the
-  // 2020-12 core vocabulary does not define. Left alone they stop climbing back
-  // to the meta-schema being converted, so it quietly stops describing anything
-  // below its own root
-  static inline const std::unordered_map<std::string, std::string>
-      // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-      METASCHEMA_URI_MAP_2019_09_TO_2020_12{
-          {"https://json-schema.org/draft/2019-09/schema",
-           "https://json-schema.org/draft/2020-12/schema"},
-          {"https://json-schema.org/draft/2019-09/meta/core",
-           "https://json-schema.org/draft/2020-12/meta/core"},
-          {"https://json-schema.org/draft/2019-09/meta/applicator",
-           "https://json-schema.org/draft/2020-12/meta/applicator"},
-          {"https://json-schema.org/draft/2019-09/meta/validation",
-           "https://json-schema.org/draft/2020-12/meta/validation"},
-          {"https://json-schema.org/draft/2019-09/meta/meta-data",
-           "https://json-schema.org/draft/2020-12/meta/meta-data"},
-          {"https://json-schema.org/draft/2019-09/meta/format",
-           "https://json-schema.org/draft/2020-12/meta/format-annotation"},
-          {"https://json-schema.org/draft/2019-09/meta/content",
-           "https://json-schema.org/draft/2020-12/meta/content"}};
-
-  // The resolver answers to more than one spelling of these URIs, so which one
-  // a document happened to write must not decide whether it is rewritten
-  static auto normalized_metaschema_uri(const std::string_view uri)
-      -> std::string {
-    std::string result{without_empty_fragment(uri)};
-    if (result.starts_with("http://json-schema.org/draft/")) {
-      result.insert(4, "s");
-    }
-
-    return result;
-  }
-
-  static auto mapped_metaschema_uri(const sourcemeta::core::JSON &subschema)
-      -> std::optional<std::string> {
-    const auto *reference{subschema.try_at("$ref")};
-    if (reference == nullptr || !reference->is_string()) {
-      return std::nullopt;
-    }
-
-    const auto match{METASCHEMA_URI_MAP_2019_09_TO_2020_12.find(
-        normalized_metaschema_uri(reference->to_string()))};
-    if (match == METASCHEMA_URI_MAP_2019_09_TO_2020_12.cend()) {
-      return std::nullopt;
-    }
-
-    return match->second;
-  }
-
-  static auto
-  references_mappable_metaschema(const sourcemeta::core::JSON &subschema)
-      -> bool {
-    return mapped_metaschema_uri(subschema).has_value();
-  }
-
-  static auto rewrite_metaschema_reference(sourcemeta::core::JSON &schema)
-      -> void {
-    const auto mapped{mapped_metaschema_uri(schema)};
-    if (!mapped.has_value()) {
-      return;
-    }
-
-    schema.assign("$ref", sourcemeta::core::JSON{mapped.value()});
-  }
 
   static auto
   vocabulary_has_mappable_uri(const sourcemeta::core::JSON &subschema) -> bool {
@@ -505,14 +436,8 @@ private:
     }
     if (!subschema.defines_any({"$schema", "$recursiveAnchor", "$recursiveRef",
                                 "items", "additionalItems", "contains",
-                                "$vocabulary", "$ref"})) {
+                                "$vocabulary"})) {
       return false;
-    }
-    // A reference to an official 2019-09 meta-schema has to be rewritten while
-    // the subschema holding it is still read as 2019-09, so the schema that
-    // encloses it waits rather than bumping the dialect out from under it
-    if (references_mappable_metaschema(subschema)) {
-      return true;
     }
     if (subschema.defines("$schema") && subschema.at("$schema").is_string() &&
         subschema.at("$schema").to_string() == DRAFT_2019_09_URL) {

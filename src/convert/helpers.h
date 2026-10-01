@@ -258,11 +258,25 @@ inline auto holds_instance_data(const std::string_view keyword) -> bool {
          INSTANCE_DATA_KEYWORDS.cend();
 }
 
+// The keywords whose value is a map from a name the author chose to a schema.
+// Inside one of those, a member called `default` is a property called
+// `default`, not the keyword, so the names must not be read as keywords
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+constexpr std::array<std::string_view, 6> SCHEMA_MEMBER_KEYWORDS{
+    {"properties", "patternProperties", "definitions", "$defs", "dependencies",
+     "dependentSchemas"}};
+
+inline auto holds_schema_members(const std::string_view keyword) -> bool {
+  return std::ranges::find(SCHEMA_MEMBER_KEYWORDS, keyword) !=
+         SCHEMA_MEMBER_KEYWORDS.cend();
+}
+
 // The marker is state of the ladder rather than of the schema. A resource that
 // declares a dialect the conversion does not own can never materialise it into
 // a `$schema`, so whatever survives the ladder has to come off before the
 // caller ever sees it
-inline auto erase_dialect_overrides(sourcemeta::core::JSON &schema) -> void {
+inline auto erase_dialect_overrides(sourcemeta::core::JSON &schema,
+                                    const bool in_members = false) -> void {
   if (schema.is_array()) {
     for (auto &item : schema.as_array()) {
       erase_dialect_overrides(item);
@@ -275,26 +289,30 @@ inline auto erase_dialect_overrides(sourcemeta::core::JSON &schema) -> void {
     return;
   }
 
-  const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-  if (marker != nullptr && is_own_dialect_override(*marker)) {
-    schema.erase(DIALECT_OVERRIDE_KEYWORD);
+  if (!in_members) {
+    const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+    if (marker != nullptr && is_own_dialect_override(*marker)) {
+      schema.erase(DIALECT_OVERRIDE_KEYWORD);
+    }
   }
 
   std::vector<std::string> keys;
   keys.reserve(schema.size());
   for (const auto &entry : schema.as_object()) {
-    if (!holds_instance_data(entry.first)) {
+    if (in_members || !holds_instance_data(entry.first)) {
       keys.push_back(entry.first);
     }
   }
   for (const auto &key : keys) {
-    erase_dialect_overrides(schema.at(key));
+    erase_dialect_overrides(schema.at(key),
+                            !in_members && holds_schema_members(key));
   }
 }
 
 inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
                                    const bool is_root,
-                                   const std::string_view dialect) -> void {
+                                   const std::string_view dialect,
+                                   const bool in_members = false) -> void {
   if (schema.is_array()) {
     for (auto &item : schema.as_array()) {
       drop_dialect_overrides(item, false, dialect);
@@ -306,30 +324,33 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
     return;
   }
 
-  if (!is_root && schema.defines("$schema") &&
-      schema.at("$schema").is_string()) {
-    return;
-  }
+  if (!in_members) {
+    if (!is_root && schema.defines("$schema") &&
+        schema.at("$schema").is_string()) {
+      return;
+    }
 
-  // A subschema that already moved past the dialect being established keeps
-  // its marker. Dropping it would leave the keywords that move brought in
-  // looking like keywords of the dialect it has left behind, and the rules
-  // that reserve those names would prefix them away
-  const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-  if (marker != nullptr && is_own_dialect_override(*marker) &&
-      (is_root || !moved_past(schema, dialect))) {
-    schema.erase(DIALECT_OVERRIDE_KEYWORD);
+    // A subschema that already moved past the dialect being established keeps
+    // its marker. Dropping it would leave the keywords that move brought in
+    // looking like keywords of the dialect it has left behind, and the rules
+    // that reserve those names would prefix them away
+    const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+    if (marker != nullptr && is_own_dialect_override(*marker) &&
+        (is_root || !moved_past(schema, dialect))) {
+      schema.erase(DIALECT_OVERRIDE_KEYWORD);
+    }
   }
 
   std::vector<std::string> keys;
   keys.reserve(schema.size());
   for (const auto &entry : schema.as_object()) {
-    if (!holds_instance_data(entry.first)) {
+    if (in_members || !holds_instance_data(entry.first)) {
       keys.push_back(entry.first);
     }
   }
   for (const auto &key : keys) {
-    drop_dialect_overrides(schema.at(key), false, dialect);
+    drop_dialect_overrides(schema.at(key), false, dialect,
+                           !in_members && holds_schema_members(key));
   }
 }
 

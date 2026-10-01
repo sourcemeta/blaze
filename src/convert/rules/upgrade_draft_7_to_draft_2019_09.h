@@ -77,10 +77,16 @@ private:
   static constexpr std::string_view DRAFT_2019_09_URL{
       "https://json-schema.org/draft/2019-09/schema"};
 
+  // A sibling that only ever annotated says the same thing once 2019-09 starts
+  // reading it, so shadowing it would lose a value for nothing. `$schema` is
+  // exempt because it names the dialect the subschema is read as rather than
+  // taking part in validation. `$id` is not exempt: Draft 7 ignored it beside a
+  // `$ref`, so it did not move the base the reference resolved against, and
+  // 2019-09 would start moving it and send the reference somewhere else
   // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-  static inline const std::array<std::string_view, 12> SHADOW_EXEMPT_KEYWORDS{
-      {"$schema", "$id", "title", "description", "default", "examples",
-       "$comment", "readOnly", "writeOnly", "deprecated", "contentMediaType",
+  static inline const std::array<std::string_view, 11> SHADOW_EXEMPT_KEYWORDS{
+      {"$schema", "title", "description", "default", "examples", "$comment",
+       "readOnly", "writeOnly", "deprecated", "contentMediaType",
        "contentEncoding"}};
 
   static inline const std::array<std::string_view, 13>
