@@ -549,6 +549,11 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
       auto expected{sourcemeta::core::JSON::make_object()};
       expected.assign("target", sourcemeta::core::JSON{target.name});
       expected.assign("threw", sourcemeta::core::JSON{"nothing"});
+
+      // No document came out for this target, and the entry keeps the vector
+      // in step with the targets whether or not the expectation above stops
+      // the test
+      converted.emplace_back(std::nullopt);
       EXPECT_EQ(actual, expected);
     }
   }

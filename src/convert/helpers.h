@@ -381,6 +381,34 @@ erase_dialect_overrides(sourcemeta::core::JSON &schema,
       default_id,
       sourcemeta::core::SchemaFrame::IdentifierMode::Fallback};
 
+  // A resource on a dialect the ladder does not name is one no rule was
+  // allowed to rewrite, so a marker inside it cannot be the ladder's own
+  // record of progress and is the author's data. Reading the resource's
+  // `$schema` rather than the dialect framing reports is what tells the two
+  // apart, as framing reads the marker itself as a dialect
+  std::vector<sourcemeta::core::Pointer> exempt;
+  frame.for_each_location(
+      [&schema, &exempt](
+          const sourcemeta::core::SchemaReferenceType, const std::string_view,
+          const sourcemeta::core::SchemaFrame::Location &location) -> void {
+        if (location.type !=
+            sourcemeta::core::SchemaFrame::LocationType::Resource) {
+          return;
+        }
+
+        auto pointer{sourcemeta::core::to_pointer(location.pointer)};
+        const auto &resource{sourcemeta::core::get(schema, pointer)};
+        if (!resource.is_object()) {
+          return;
+        }
+
+        const auto *dialect{resource.try_at("$schema")};
+        if (dialect != nullptr && dialect->is_string() &&
+            !names_ladder_dialect(dialect->to_string())) {
+          exempt.push_back(std::move(pointer));
+        }
+      });
+
   std::vector<sourcemeta::core::Pointer> subschemas;
   frame.for_each_subschema(
       [&subschemas](
@@ -389,6 +417,12 @@ erase_dialect_overrides(sourcemeta::core::JSON &schema,
       });
 
   for (const auto &pointer : subschemas) {
+    if (std::ranges::any_of(exempt, [&pointer](const auto &base) -> bool {
+          return pointer.starts_with(base);
+        })) {
+      continue;
+    }
+
     auto &subschema{sourcemeta::core::get(schema, pointer)};
     if (!subschema.is_object()) {
       continue;
