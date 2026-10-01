@@ -4,21 +4,12 @@
     "definitions": {
       "x": {
         "id": "http://example.com/b/c.json",
-        "not": {
-          "definitions": {
-            "y": {
-              "id": "http://example.com/b/d.json",
-              "type": "number"
-            }
-          }
+        "definitions": {
+          "y": { "id": "http://example.com/b/d.json", "type": "number" }
         }
       }
     },
-    "allOf": [
-      {
-        "$ref": "http://example.com/b/d.json"
-      }
-    ]
+    "allOf": [ { "$ref": "http://example.com/b/d.json" } ]
   },
   "defaultDialect": "http://json-schema.org/draft-04/schema#",
   "result": {
@@ -29,21 +20,12 @@
       "definitions": {
         "x": {
           "$id": "http://example.com/b/c.json",
-          "not": {
-            "definitions": {
-              "y": {
-                "$id": "http://example.com/b/d.json",
-                "type": "number"
-              }
-            }
+          "definitions": {
+            "y": { "$id": "http://example.com/b/d.json", "type": "number" }
           }
         }
       },
-      "allOf": [
-        {
-          "$ref": "http://example.com/b/d.json"
-        }
-      ]
+      "allOf": [ { "$ref": "http://example.com/b/d.json" } ]
     },
     "draft7": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -51,21 +33,12 @@
       "definitions": {
         "x": {
           "$id": "http://example.com/b/c.json",
-          "not": {
-            "definitions": {
-              "y": {
-                "$id": "http://example.com/b/d.json",
-                "type": "number"
-              }
-            }
+          "definitions": {
+            "y": { "$id": "http://example.com/b/d.json", "type": "number" }
           }
         }
       },
-      "allOf": [
-        {
-          "$ref": "http://example.com/b/d.json"
-        }
-      ]
+      "allOf": [ { "$ref": "http://example.com/b/d.json" } ]
     },
     "2019-09": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -73,21 +46,12 @@
       "$defs": {
         "x": {
           "$id": "http://example.com/b/c.json",
-          "not": {
-            "$defs": {
-              "y": {
-                "$id": "http://example.com/b/d.json",
-                "type": "number"
-              }
-            }
+          "$defs": {
+            "y": { "$id": "http://example.com/b/d.json", "type": "number" }
           }
         }
       },
-      "allOf": [
-        {
-          "$ref": "http://example.com/b/d.json"
-        }
-      ]
+      "allOf": [ { "$ref": "http://example.com/b/d.json" } ]
     },
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -95,27 +59,14 @@
       "$defs": {
         "x": {
           "$id": "http://example.com/b/c.json",
-          "not": {
-            "$defs": {
-              "y": {
-                "$id": "http://example.com/b/d.json",
-                "type": "number"
-              }
-            }
+          "$defs": {
+            "y": { "$id": "http://example.com/b/d.json", "type": "number" }
           }
         }
       },
-      "allOf": [
-        {
-          "$ref": "http://example.com/b/d.json"
-        }
-      ]
+      "allOf": [ { "$ref": "http://example.com/b/d.json" } ]
     }
   },
-  "examples": [
-    1
-  ],
-  "counterExamples": [
-    "a"
-  ]
+  "examples": [ 1 ],
+  "counterExamples": [ "a" ]
 }

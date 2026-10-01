@@ -120,16 +120,10 @@ inline auto normalized_official_dialect(const std::string_view dialect)
   return result;
 }
 
-// How far along the ladder a dialect sits, counting from one so that anything
-// the ladder does not name sits before all of them. The spelling is normalised
-// first, so that every form naming the same dialect ranks the same. Whether a
-// dialect is the ladder's and how far along it sits have to be one question,
-// or the ladder would accept a marker in one place and refuse to rank it in
-// another
-/// Where a base dialect sits on the ladder, so that a dialect the ladder does
-/// not name can still be placed by the official one it derives from. Hyper
-/// variants sit alongside their plain counterparts, and the drafts below the
-/// ladder answer zero just as an unrecognised dialect does
+// Where a base dialect sits on the ladder, so that a dialect the ladder does
+// not name can still be placed by the official one it derives from. Hyper
+// variants sit alongside their plain counterparts, and the drafts below the
+// ladder answer zero just as an unrecognised dialect does
 inline auto
 base_dialect_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
     -> std::size_t {
@@ -158,6 +152,12 @@ base_dialect_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
   }
 }
 
+// How far along the ladder a dialect sits, counting from one so that anything
+// the ladder does not name sits before all of them. The spelling is normalised
+// first, so that every form naming the same dialect ranks the same. Whether a
+// dialect is the ladder's and how far along it sits have to be one question,
+// or the ladder would accept a marker in one place and refuse to rank it in
+// another
 inline auto dialect_position(const std::string_view dialect) -> std::size_t {
   const auto candidate{normalized_official_dialect(dialect)};
   for (std::size_t index = 0; index < LADDER_DIALECTS.size(); index += 1) {

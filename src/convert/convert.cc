@@ -59,11 +59,6 @@ auto assert_schema_references(const core::SchemaFrame &frame) -> void {
       });
 }
 
-/// Conversion renames keywords, while a meta-schema names those same keywords
-/// as ordinary data that nothing renames alongside them. Until the two can be
-/// told apart, a document that describes itself or that carries the
-/// meta-schema something in it declares is refused. A dialect the ladder does
-/// not name is refused too, as there are no rules for moving a schema off it
 /// Where the requested target sits on the ladder, so that it can be compared
 /// against how far a resource has already come
 auto target_position(const ConvertTarget target) -> std::size_t {
@@ -83,6 +78,12 @@ auto target_position(const ConvertTarget target) -> std::size_t {
   return 0;
 }
 
+/// Conversion renames keywords, while a meta-schema names those same keywords
+/// as ordinary data that nothing renames alongside them. Until the two can be
+/// told apart, a document that describes itself or that carries the
+/// meta-schema something in it declares is refused. A dialect the ladder does
+/// not name is refused when the target is newer than the official dialect it
+/// derives from, as that is where a rule would otherwise have work to do
 auto assert_convertible_dialects(const core::JSON &schema,
                                  const core::SchemaFrame &frame,
                                  const std::string_view default_id,
@@ -242,6 +243,19 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
             return false;
           }
           const auto &entry_pointer{*visited_iterator};
+
+          // A dialect the ladder does not name has no rules for moving a
+          // schema off it, so nothing may rewrite a subschema that is read as
+          // one. Leaving this to each rule's own vocabulary gate does not
+          // hold: core derives a pre-2019-09 dialect's vocabularies from its
+          // base dialect, so an off-ladder resource does carry the rung's
+          // vocabulary and does match those gates. An empty dialect is the
+          // caller's to supply and is not off the ladder
+          if (!location.dialect.empty() &&
+              !names_ladder_dialect(location.dialect)) {
+            return false;
+          }
+
           auto &current{core::get(schema, entry_pointer)};
           const auto current_vocabularies{
               frame->vocabularies(location, resolver)};

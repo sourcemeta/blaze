@@ -35,8 +35,21 @@ const std::vector<std::string> KNOWN_ERROR_KEYS{"type", "identifier",
 // Which error a fixture expects conversion to raise. Leaving it out means the
 // reference was one the conversion had to carry and could not
 const std::vector<std::string> KNOWN_ERROR_TYPES{
-    "invalid-reference", "unsupported-metaschema", "unsupported-dialect"};
+    "invalid-reference", "unsupported-metaschema", "unsupported-dialect",
+    "broken-reference"};
 // NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
+
+auto expect_known(const std::string_view kind, const std::string_view name,
+                  const std::vector<std::string> &known) -> void {
+  auto actual{sourcemeta::core::JSON::make_object()};
+  actual.assign("kind", sourcemeta::core::JSON{kind});
+  actual.assign("name", sourcemeta::core::JSON{name});
+  actual.assign("known", sourcemeta::core::JSON{
+                             std::ranges::find(known, name) != known.cend()});
+  auto expected{actual};
+  expected.assign("known", sourcemeta::core::JSON{true});
+  EXPECT_EQ(actual, expected);
+}
 
 struct Target {
   std::string_view name;
@@ -53,6 +66,11 @@ constexpr std::array<Target, 5> TARGETS{
       .value = sourcemeta::blaze::ConvertTarget::Draft201909},
      {.name = "2020-12",
       .value = sourcemeta::blaze::ConvertTarget::Draft202012}}};
+
+// The same names again, as a fixture names its targets in text
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+const std::vector<std::string> TARGET_NAMES{"draft4", "draft6", "draft7",
+                                            "2019-09", "2020-12"};
 
 // Conversion decides where a keyword goes as much as whether it is there at
 // all, so the order of the result is part of what a fixture blesses. Both
@@ -134,8 +152,7 @@ auto convert_schema(const sourcemeta::core::JSON &schema,
 // error
 auto check_shape(const sourcemeta::core::JSON &test) -> void {
   for (const auto &entry : test.as_object()) {
-    EXPECT_TRUE(std::ranges::find(KNOWN_KEYS, entry.first) !=
-                KNOWN_KEYS.cend());
+    expect_known("fixture key", entry.first, KNOWN_KEYS);
   }
 
   EXPECT_TRUE(test.defines("schema"));
@@ -150,29 +167,46 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
   EXPECT_TRUE(test.at("examples").is_array());
   EXPECT_TRUE(test.at("counterExamples").is_array());
 
+  const auto *registry{test.try_at("resolver")};
+  if (registry != nullptr) {
+    EXPECT_TRUE(registry->is_object());
+  }
+
+  for (const auto &name : {"defaultDialect", "defaultId"}) {
+    const auto *value{test.try_at(sourcemeta::core::JSON::String{name})};
+    if (value != nullptr) {
+      EXPECT_TRUE(value->is_string());
+    }
+  }
+
   const auto &results{test.at("result")};
   EXPECT_TRUE(results.is_object());
   for (const auto &entry : results.as_object()) {
-    EXPECT_TRUE(std::ranges::any_of(TARGETS, [&entry](const auto &target) {
-      return target.name == entry.first;
-    }));
+    expect_known("result target", entry.first, TARGET_NAMES);
+    EXPECT_TRUE(entry.second.is_object() || entry.second.is_null());
   }
 
   if (test.defines("errors")) {
+    EXPECT_TRUE(test.at("errors").is_object());
     for (const auto &entry : test.at("errors").as_object()) {
-      EXPECT_TRUE(std::ranges::any_of(TARGETS, [&entry](const auto &target) {
-        return target.name == entry.first;
-      }));
+      expect_known("error target", entry.first, TARGET_NAMES);
       EXPECT_FALSE(results.defines(entry.first));
+      EXPECT_TRUE(entry.second.is_object());
       for (const auto &detail : entry.second.as_object()) {
-        EXPECT_TRUE(std::ranges::find(KNOWN_ERROR_KEYS, detail.first) !=
-                    KNOWN_ERROR_KEYS.cend());
+        expect_known("error key", detail.first, KNOWN_ERROR_KEYS);
+      }
+
+      // `check_error` reads both of these unconditionally
+      for (const auto &detail : {"identifier", "location"}) {
+        const sourcemeta::core::JSON::String name{detail};
+        EXPECT_TRUE(entry.second.defines(name));
+        EXPECT_TRUE(entry.second.at(name).is_string());
       }
 
       const auto *type{entry.second.try_at("type")};
       if (type != nullptr) {
-        EXPECT_TRUE(std::ranges::find(KNOWN_ERROR_TYPES, type->to_string()) !=
-                    KNOWN_ERROR_TYPES.cend());
+        EXPECT_TRUE(type->is_string());
+        expect_known("error type", type->to_string(), KNOWN_ERROR_TYPES);
       }
     }
   }
@@ -181,6 +215,15 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
     const sourcemeta::core::JSON::String name{target.name};
     EXPECT_TRUE(results.defines(name) ||
                 (test.defines("errors") && test.at("errors").defines(name)));
+  }
+
+  // A fixture that produces a document has to say something about what that
+  // document accepts, or the expected output is the only thing holding it and
+  // a lost instance leaves no trace. One that produces none is exempt, as
+  // there would be nothing to check an instance against
+  if (!results.empty()) {
+    EXPECT_FALSE(test.at("examples").empty() &&
+                 test.at("counterExamples").empty());
   }
 }
 
@@ -496,8 +539,18 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
       continue;
     }
 
-    converted.emplace_back(
-        convert_schema(test.at("schema"), resolver, inputs, target));
+    try {
+      converted.emplace_back(
+          convert_schema(test.at("schema"), resolver, inputs, target));
+    } catch (const std::exception &error) {
+      auto actual{sourcemeta::core::JSON::make_object()};
+      actual.assign("target", sourcemeta::core::JSON{target.name});
+      actual.assign("threw", sourcemeta::core::JSON{error.what()});
+      auto expected{sourcemeta::core::JSON::make_object()};
+      expected.assign("target", sourcemeta::core::JSON{target.name});
+      expected.assign("threw", sourcemeta::core::JSON{"nothing"});
+      EXPECT_EQ(actual, expected);
+    }
   }
 
   // Which resources a document declares is the most basic thing conversion must

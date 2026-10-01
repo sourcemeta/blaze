@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "contentEncoding": "base64",
+    "contentMediaType": "text/plain",
+    "else": { "type": "integer" },
+    "then": { "type": "integer" },
+    "writeOnly": true
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "string",
+      "x-contentEncoding": "base64",
+      "x-contentMediaType": "text/plain",
+      "x-else": { "type": "integer" },
+      "x-then": { "type": "integer" },
+      "x-writeOnly": true
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "string",
+      "x-contentEncoding": "base64",
+      "x-contentMediaType": "text/plain",
+      "x-else": { "type": "integer" },
+      "x-then": { "type": "integer" },
+      "x-writeOnly": true
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "x-contentEncoding": "base64",
+      "x-contentMediaType": "text/plain",
+      "x-else": { "type": "integer" },
+      "x-then": { "type": "integer" },
+      "x-writeOnly": true
+    }
+  },
+  "examples": [ "x" ],
+  "counterExamples": [ 1, null ]
+}
