@@ -33,7 +33,6 @@
       "location": "/properties/v/$ref"
     }
   },
-  "evaluation": "not-evaluatable",
   "examples": [],
   "counterExamples": []
 }

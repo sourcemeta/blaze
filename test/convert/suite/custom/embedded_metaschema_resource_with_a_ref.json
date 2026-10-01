@@ -20,19 +20,19 @@
   "result": {},
   "errors": {
     "draft4": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/meta",
-      "location": "/definitions/contact"
+      "location": "/definitions/meta"
     },
     "draft6": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/meta",
-      "location": "/definitions/contact"
+      "location": "/definitions/meta"
     },
     "draft7": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/meta",
-      "location": "/definitions/contact"
+      "location": "/definitions/meta"
     },
     "2019-09": {
       "type": "unsupported-dialect",

@@ -98,12 +98,12 @@ private:
 
     const auto *type_value{subschema.try_at("type")};
     if (type_value != nullptr) {
-      if (type_value->is_string() && type_value->to_string() == "any") {
+      if (names_every_instance(*type_value)) {
         return true;
       }
       if (type_value->is_array()) {
         for (const auto &element : type_value->as_array()) {
-          if (element.is_string() && element.to_string() == "any") {
+          if (names_every_instance(element)) {
             return true;
           }
           if (element.is_object()) {
@@ -172,13 +172,31 @@ private:
     return name == "host-name" || name == "ip-address";
   }
 
+  // Draft 3 lists the type names it defines and then says that a value outside
+  // that list accepts any instance, which is what `any` does. So an
+  // unrecognised name is dropped exactly as `any` is, rather than carried into
+  // a dialect whose meta-schema accepts only the listed names
+  static auto names_every_instance(const sourcemeta::core::JSON &element)
+      -> bool {
+    if (!element.is_string()) {
+      return false;
+    }
+
+    static constexpr std::array<std::string_view, 7> DRAFT_3_TYPE_NAMES{
+        {"string", "number", "integer", "boolean", "object", "array", "null"}};
+    const auto &name{element.to_string()};
+    return std::ranges::none_of(
+        DRAFT_3_TYPE_NAMES,
+        [&name](const auto candidate) -> bool { return candidate == name; });
+  }
+
   static auto rewrite_type_any(sourcemeta::core::JSON &schema) -> void {
     if (!schema.defines("type")) {
       return;
     }
     auto &type_value{schema.at("type")};
     if (type_value.is_string()) {
-      if (type_value.to_string() == "any") {
+      if (names_every_instance(type_value)) {
         schema.erase("type");
       }
       return;
@@ -188,7 +206,7 @@ private:
     }
     bool collapses{false};
     for (const auto &element : type_value.as_array()) {
-      if (element.is_string() && element.to_string() == "any") {
+      if (names_every_instance(element)) {
         collapses = true;
         break;
       }
@@ -357,6 +375,29 @@ private:
       if (!required_value.is_boolean()) {
         continue;
       }
+      // Draft 3 replaces a schema with whatever its `$ref` names, so a
+      // `required` flag beside one never made the property mandatory. Lifting
+      // it onto the parent, where nothing suppresses it, would invent an
+      // assertion the document never made, and erasing it would throw away the
+      // only record that the author asked for something the dialect ignored.
+      // Shadowing keeps that record without asserting anything, which is how
+      // every other suppressed sibling is carried over. A `false` flag is the
+      // default and says nothing, so it goes
+      if (property.defines("$ref")) {
+        if (required_value.to_boolean()) {
+          std::string shadowed{"x-required"};
+          while (property.defines(shadowed)) {
+            shadowed.insert(0, "x-");
+          }
+
+          property.rename("required", std::move(shadowed));
+        } else {
+          property.erase("required");
+        }
+
+        continue;
+      }
+
       const bool is_required{required_value.to_boolean()};
       property.erase("required");
       if (is_required) {

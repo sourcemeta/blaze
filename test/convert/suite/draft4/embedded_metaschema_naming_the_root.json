@@ -15,27 +15,27 @@
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
-      "identifier": "http://json-schema.org/draft-04/schema#",
+      "identifier": "https://example.com/my-dialect",
       "location": "/definitions/meta"
     },
     "draft6": {
       "type": "unsupported-metaschema",
-      "identifier": "http://json-schema.org/draft-04/schema#",
+      "identifier": "https://example.com/my-dialect",
       "location": "/definitions/meta"
     },
     "draft7": {
       "type": "unsupported-metaschema",
-      "identifier": "http://json-schema.org/draft-04/schema#",
+      "identifier": "https://example.com/my-dialect",
       "location": "/definitions/meta"
     },
     "2019-09": {
       "type": "unsupported-metaschema",
-      "identifier": "http://json-schema.org/draft-04/schema#",
+      "identifier": "https://example.com/my-dialect",
       "location": "/definitions/meta"
     },
     "2020-12": {
       "type": "unsupported-metaschema",
-      "identifier": "http://json-schema.org/draft-04/schema#",
+      "identifier": "https://example.com/my-dialect",
       "location": "/definitions/meta"
     }
   },
