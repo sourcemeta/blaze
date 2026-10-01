@@ -248,24 +248,48 @@ private:
           {"https://json-schema.org/draft/2019-09/meta/content",
            "https://json-schema.org/draft/2020-12/meta/content"}};
 
+  // The resolver answers to more than one spelling of these URIs, so which one
+  // a document happened to write must not decide whether it is rewritten
+  static auto normalized_metaschema_uri(const std::string_view uri)
+      -> std::string {
+    std::string result{without_empty_fragment(uri)};
+    if (result.starts_with("http://json-schema.org/draft/")) {
+      result.insert(4, "s");
+    }
+
+    return result;
+  }
+
+  static auto mapped_metaschema_uri(const sourcemeta::core::JSON &subschema)
+      -> std::optional<std::string> {
+    const auto *reference{subschema.try_at("$ref")};
+    if (reference == nullptr || !reference->is_string()) {
+      return std::nullopt;
+    }
+
+    const auto match{METASCHEMA_URI_MAP_2019_09_TO_2020_12.find(
+        normalized_metaschema_uri(reference->to_string()))};
+    if (match == METASCHEMA_URI_MAP_2019_09_TO_2020_12.cend()) {
+      return std::nullopt;
+    }
+
+    return match->second;
+  }
+
   static auto
   references_mappable_metaschema(const sourcemeta::core::JSON &subschema)
       -> bool {
-    const auto *reference{subschema.try_at("$ref")};
-    return reference != nullptr && reference->is_string() &&
-           METASCHEMA_URI_MAP_2019_09_TO_2020_12.contains(
-               reference->to_string());
+    return mapped_metaschema_uri(subschema).has_value();
   }
 
   static auto rewrite_metaschema_reference(sourcemeta::core::JSON &schema)
       -> void {
-    if (!references_mappable_metaschema(schema)) {
+    const auto mapped{mapped_metaschema_uri(schema)};
+    if (!mapped.has_value()) {
       return;
     }
 
-    schema.assign(
-        "$ref", sourcemeta::core::JSON{METASCHEMA_URI_MAP_2019_09_TO_2020_12.at(
-                    schema.at("$ref").to_string())});
+    schema.assign("$ref", sourcemeta::core::JSON{mapped.value()});
   }
 
   static auto

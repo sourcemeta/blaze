@@ -158,11 +158,12 @@ inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON::StringView keyword,
                                const std::string_view dialect,
                                const std::string_view default_id) -> bool {
-  // A document that declares no identifier of its own is named by whatever the
-  // caller said it is called, which is the answer identification gives too, so
-  // that is the name this question has to ask about. Reading only the keyword
-  // would let a meta-schema identified solely by the caller describe itself
-  // unnoticed
+  // A document that declares no usable identifier of its own is named by
+  // whatever the caller said it is called, which is the answer identification
+  // gives too, so that is the name this question has to ask about. Reading only
+  // the keyword would let a meta-schema identified solely by the caller
+  // describe itself unnoticed. A keyword holding something other than a string
+  // never reaches here, as framing rejects it first
   const auto *identifier{schema.try_at(keyword)};
   const std::string_view candidate{
       identifier != nullptr && identifier->is_string()
