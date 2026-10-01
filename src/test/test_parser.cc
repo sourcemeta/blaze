@@ -4,25 +4,12 @@
 #include <sourcemeta/core/uri.h>
 #include <sourcemeta/core/yaml.h>
 
-#include <algorithm>   // std::ranges::any_of
-#include <cassert>     // assert
-#include <string_view> // std::string_view
-#include <tuple>       // std::get
-#include <utility>     // std::move
+#include <algorithm> // std::ranges::any_of
+#include <cassert>   // assert
+#include <tuple>     // std::get
+#include <utility>   // std::move
 
 namespace {
-inline auto wrap_identifier(const std::string_view identifier)
-    -> sourcemeta::core::JSON {
-  auto result{sourcemeta::core::JSON::make_object()};
-  // JSON Schema 2020-12 is the first dialect that truly supports cross-dialect
-  // references In practice, others do, but we can play it safe here
-  result.assign_assume_new(
-      "$schema",
-      sourcemeta::core::JSON{"https://json-schema.org/draft/2020-12/schema"});
-  result.assign_assume_new("$ref", sourcemeta::core::JSON{identifier});
-  return result;
-}
-
 inline auto test_error_if(
     bool condition, const sourcemeta::core::PointerPositionTracker &tracker,
     const sourcemeta::core::Pointer &pointer, const char *message) -> void {
@@ -135,13 +122,7 @@ auto TestCase::parse(
 
 auto TestSuite::parse(const sourcemeta::core::JSON &document,
                       const sourcemeta::core::PointerPositionTracker &tracker,
-                      const std::filesystem::path &base_path,
-                      const sourcemeta::core::SchemaResolver &schema_resolver,
-                      const sourcemeta::core::SchemaWalker &walker,
-                      const Compiler &compiler,
-                      const std::string_view default_dialect,
-                      const std::string_view default_id,
-                      const std::optional<Tweaks> &tweaks) -> TestSuite {
+                      const std::filesystem::path &base_path) -> TestSuite {
   assert(std::filesystem::is_directory(base_path));
   test_error_if(!document.is_object(), tracker, sourcemeta::core::EMPTY_POINTER,
                 "The test document must be an object");
@@ -201,75 +182,42 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
     index += 1;
   }
 
-  const auto with_rdf{std::ranges::any_of(
+  test_suite.requires_jsonld_annotations_ = std::ranges::any_of(
       test_suite.tests, [](const TestCase &test_case) -> bool {
         return test_case.rdf.has_value();
-      })};
+      });
 
-  test_suite.tweaks_fast_ = tweaks;
-  test_suite.tweaks_exhaustive_ = tweaks;
-  if (with_rdf) {
-    if (!test_suite.tweaks_fast_.has_value()) {
-      test_suite.tweaks_fast_.emplace();
-    }
-
-    if (!test_suite.tweaks_fast_.value().annotations.has_value()) {
-      test_suite.tweaks_fast_.value().annotations.emplace();
-    }
-
-    test_suite.tweaks_fast_.value().annotations.value().insert(
-        JSONLD_KEYWORDS.cbegin(), JSONLD_KEYWORDS.cend());
-  }
-
-  test_suite.schema_resolver_ = schema_resolver;
-  test_suite.walker_ = walker;
-  test_suite.compiler_ = compiler;
-  test_suite.default_dialect_ = default_dialect;
-  test_suite.default_id_ = default_id;
-
-  test_suite.schemas_fast_.reserve(test_suite.targets.size());
+  test_suite.schemas_fast_.resize(test_suite.targets.size());
   test_suite.schemas_exhaustive_.resize(test_suite.targets.size());
-
-  for (std::size_t target_index = 0; target_index < test_suite.targets.size();
-       ++target_index) {
-    test_suite.schemas_fast_.push_back(
-        test_suite.compile_target(target_index, Mode::FastValidation));
-  }
+  test_suite.exhaustive_providers_.resize(test_suite.targets.size());
 
   return test_suite;
 }
 
-auto TestSuite::compile_target(const std::size_t target_index,
-                               const Mode mode) const -> Template {
-  const auto &target{this->targets[target_index]};
+auto TestSuite::bind(const std::size_t target_index, Template fast,
+                     ExhaustiveProvider exhaustive) -> void {
+  assert(target_index < this->schemas_fast_.size());
+  this->schemas_fast_[target_index] = std::move(fast);
+  this->exhaustive_providers_[target_index] = std::move(exhaustive);
+}
 
-  try {
-    return compile(wrap_identifier(target), this->walker_,
-                   this->schema_resolver_, this->compiler_, mode,
-                   this->default_dialect_, this->default_id_, "",
-                   mode == Mode::FastValidation ? this->tweaks_fast_
-                                                : this->tweaks_exhaustive_);
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    if (error.location() == sourcemeta::core::Pointer{"$ref"} &&
-        error.identifier() == target) {
-      throw sourcemeta::core::SchemaResolutionError{
-          target, "Could not resolve schema under test"};
-    }
-
-    throw;
-  }
+auto TestSuite::requires_jsonld_annotations() const noexcept -> bool {
+  return this->requires_jsonld_annotations_;
 }
 
 auto TestSuite::fast(const std::size_t target_index) const -> const Template & {
   assert(target_index < this->schemas_fast_.size());
-  return this->schemas_fast_[target_index];
+  const auto &schema_fast{this->schemas_fast_[target_index]};
+  assert(schema_fast.has_value());
+  return schema_fast.value();
 }
 
 auto TestSuite::exhaustive(const std::size_t target_index) -> const Template & {
   assert(target_index < this->schemas_exhaustive_.size());
   auto &schema_exhaustive{this->schemas_exhaustive_[target_index]};
   if (!schema_exhaustive.has_value()) {
-    schema_exhaustive = this->compile_target(target_index, Mode::Exhaustive);
+    assert(this->exhaustive_providers_[target_index]);
+    schema_exhaustive = this->exhaustive_providers_[target_index]();
   }
 
   return schema_exhaustive.value();

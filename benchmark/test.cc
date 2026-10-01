@@ -41,11 +41,26 @@ BENCHMARK(TestSuite_Parse_WoT) {
 
   for (auto iteration : state) {
     auto suite{sourcemeta::blaze::TestSuite::parse(
-        document, tracker, std::filesystem::path{CURRENT_DIRECTORY}, resolver,
-        sourcemeta::core::schema_walker,
-        sourcemeta::blaze::default_schema_compiler)};
+        document, tracker, std::filesystem::path{CURRENT_DIRECTORY})};
     assert(suite.targets.size() == 1);
     assert(suite.tests.size() == 1);
+
+    // Reaching a target is the caller's to do, so what a runnable suite costs
+    // includes resolving, bundling, framing and compiling it
+    const auto &target{suite.targets.front()};
+    const auto bundled{sourcemeta::core::schema_bundle(
+        schema, sourcemeta::core::schema_walker, resolver, "", target)};
+    const sourcemeta::core::SchemaFrame frame{
+        sourcemeta::core::SchemaFrame::Mode::References,
+        bundled,
+        sourcemeta::core::schema_walker,
+        resolver,
+        "",
+        target};
+    suite.bind(0,
+               sourcemeta::blaze::compile(
+                   bundled, sourcemeta::core::schema_walker, resolver,
+                   sourcemeta::blaze::default_schema_compiler, frame, target));
     sourcemeta::core::benchmark_do_not_optimize(suite);
   }
 }

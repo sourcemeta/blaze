@@ -95,6 +95,13 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestOutcome {
 
 /// @ingroup test
 /// Represents a test suite containing multiple test cases
+///
+/// A test suite reads a test document and runs its test cases against the
+/// templates that the caller binds to each of its targets. It does not resolve,
+/// frame or compile anything, so what a target names and what kind of document
+/// holds it are the caller's to settle. That is what lets a target name a
+/// schema that sits inside a wrapper document, such as an OpenAPI description,
+/// without this module knowing anything about wrappers
 struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
 
   /// The result of running a test suite
@@ -114,7 +121,8 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  /// The target schema URIs or file paths
+  /// The target schema URIs or file paths, resolved against the location of
+  /// the test document
   std::vector<sourcemeta::core::JSON::String> targets;
   /// The list of test cases in the suite
   std::vector<TestCase> tests;
@@ -124,18 +132,44 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// The evaluator instance used for validation
   Evaluator evaluator;
 
+  /// How to obtain the exhaustive template of a target, invoked at most once.
+  /// Whatever it closes over must outlive the test suite
+  // TODO(C++23): Use std::move_only_function when available in libc++
+  using ExhaustiveProvider = std::function<Template()>;
+
   /// A callback invoked for each test case during execution
   // TODO(C++23): Use std::move_only_function when available in libc++
   using Callback = std::function<void(
-      const sourcemeta::core::JSON::String &target, std::size_t index,
-      std::size_t total, const TestCase &test_case, const TestOutcome &outcome,
-      TestTimestamp start, TestTimestamp end)>;
+      const sourcemeta::core::JSON::String &target, std::size_t target_index,
+      std::size_t index, std::size_t total, const TestCase &test_case,
+      const TestOutcome &outcome, TestTimestamp start, TestTimestamp end)>;
 
-  /// The compiled schema template for fast validation of the given target
+  /// Give a target the template that its test cases are evaluated with, and
+  /// optionally how to obtain the exhaustive template that reporting a failure
+  /// in detail takes. Every target must be bound before the suite can run
+  ///
+  /// How that template came to be is up to the caller. A target that names a
+  /// schema of its own may go through the overload of
+  /// sourcemeta::blaze::compile that takes a resolver, while one that names a
+  /// schema inside a wrapper document goes through the overload that takes a
+  /// frame, passing the target as the entry point. See
+  /// sourcemeta::blaze::TestSuite::run for an example
+  auto bind(std::size_t target_index, Template fast,
+            ExhaustiveProvider exhaustive = {}) -> void;
+
+  /// Whether any test case of the suite states an expected RDF expansion. The
+  /// template that runs the cases must collect the JSON-LD annotations for
+  /// those expansions to be produced, so add
+  /// sourcemeta::blaze::JSONLD_KEYWORDS to the annotations tweak of the
+  /// template bound for fast validation when this holds. Exhaustive templates
+  /// emit every annotation keyword already
+  [[nodiscard]] auto requires_jsonld_annotations() const noexcept -> bool;
+
+  /// The template that the test cases of the given target are evaluated with
   [[nodiscard]] auto fast(std::size_t target_index) const -> const Template &;
 
-  /// The compiled schema template for exhaustive validation of the given
-  /// target, compiled on the first request and cached from then on. A test
+  /// The exhaustive template of the given target, obtained from the provider
+  /// that was bound to it on the first request and cached from then on. A test
   /// suite must not be shared across threads
   auto exhaustive(std::size_t target_index) -> const Template &;
 
@@ -150,6 +184,7 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// #include <sourcemeta/core/jsonpointer.h>
   /// #include <sourcemeta/core/jsonschema.h>
   ///
+  /// #include <cassert>
   /// #include <filesystem>
   /// #include <functional>
   /// #include <iostream>
@@ -172,14 +207,19 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// sourcemeta::core::parse_json(input, document, std::ref(tracker));
   ///
   /// auto suite{sourcemeta::blaze::TestSuite::parse(
-  ///     document, tracker, std::filesystem::current_path(),
-  ///     sourcemeta::core::schema_resolver,
-  ///     sourcemeta::core::schema_walker,
-  ///     sourcemeta::blaze::default_schema_compiler)};
+  ///     document, tracker, std::filesystem::current_path())};
+  ///
+  /// const auto schema{
+  ///     sourcemeta::core::schema_resolver(suite.targets.front())};
+  /// assert(schema.has_value());
+  /// suite.bind(0, sourcemeta::blaze::compile(
+  ///                   schema.value(), sourcemeta::core::schema_walker,
+  ///                   sourcemeta::core::schema_resolver,
+  ///                   sourcemeta::blaze::default_schema_compiler));
   ///
   /// const auto result{suite.run(
   ///     [](const sourcemeta::core::JSON::String &target,
-  ///        std::size_t index, std::size_t total,
+  ///        std::size_t, std::size_t index, std::size_t total,
   ///        const sourcemeta::blaze::TestCase &test_case,
   ///        const sourcemeta::blaze::TestOutcome &outcome,
   ///        sourcemeta::blaze::TestTimestamp start,
@@ -194,15 +234,15 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// ```
   auto run(const Callback &callback) -> Result;
 
-  /// Parse a test suite from a JSON object. For example:
+  /// Parse a test suite from a JSON object. This reads the test document and
+  /// nothing else, so the targets it reports must be bound before the suite
+  /// can run. For example:
   ///
   /// ```cpp
   /// #include <sourcemeta/blaze/test.h>
-  /// #include <sourcemeta/blaze/compiler.h>
   ///
   /// #include <sourcemeta/core/json.h>
   /// #include <sourcemeta/core/jsonpointer.h>
-  /// #include <sourcemeta/core/jsonschema.h>
   ///
   /// #include <cassert>
   /// #include <filesystem>
@@ -221,41 +261,25 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// sourcemeta::core::parse_json(input, document, std::ref(tracker));
   ///
   /// const auto suite{sourcemeta::blaze::TestSuite::parse(
-  ///     document, tracker, std::filesystem::current_path(),
-  ///     sourcemeta::core::schema_resolver,
-  ///     sourcemeta::core::schema_walker,
-  ///     sourcemeta::blaze::default_schema_compiler)};
+  ///     document, tracker, std::filesystem::current_path())};
   ///
   /// assert(suite.targets.size() == 1);
   /// assert(suite.targets.front() ==
   ///   "https://json-schema.org/draft/2020-12/schema");
   /// assert(suite.tests.size() == 2);
   /// ```
-  static auto
-  parse(const sourcemeta::core::JSON &document,
-        const sourcemeta::core::PointerPositionTracker &tracker,
-        const std::filesystem::path &base_path,
-        const sourcemeta::core::SchemaResolver &schema_resolver,
-        const sourcemeta::core::SchemaWalker &walker, const Compiler &compiler,
-        std::string_view default_dialect = "", std::string_view default_id = "",
-        const std::optional<Tweaks> &tweaks = std::nullopt) -> TestSuite;
+  static auto parse(const sourcemeta::core::JSON &document,
+                    const sourcemeta::core::PointerPositionTracker &tracker,
+                    const std::filesystem::path &base_path) -> TestSuite;
 
 private:
-  [[nodiscard]] auto compile_target(std::size_t target_index, Mode mode) const
-      -> Template;
-
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  std::vector<Template> schemas_fast_;
+  std::vector<std::optional<Template>> schemas_fast_;
   std::vector<std::optional<Template>> schemas_exhaustive_;
-  sourcemeta::core::SchemaResolver schema_resolver_;
-  sourcemeta::core::SchemaWalker walker_;
-  Compiler compiler_;
-  sourcemeta::core::JSON::String default_dialect_;
-  sourcemeta::core::JSON::String default_id_;
-  std::optional<Tweaks> tweaks_fast_;
-  std::optional<Tweaks> tweaks_exhaustive_;
+  std::vector<ExhaustiveProvider> exhaustive_providers_;
+  bool requires_jsonld_annotations_{false};
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif
