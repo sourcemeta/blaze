@@ -41,6 +41,16 @@ public:
       sanitization_branch = false;
     }
 
+    // A reference sitting outside this resource cannot be rewritten from
+    // here, and no ancestor that would carry it runs this rule, so an anchor
+    // that reference names must stay where it is. Renaming it anyway would
+    // leave the reference pointing at a name that no longer exists, which is
+    // worse than leaving the resource on the dialect it already had
+    if (sanitization_branch &&
+        outside_reference_names_a_pending_anchor(location, root, frame)) {
+      sanitization_branch = false;
+    }
+
     const bool other_branch = has_pending_draft_4_pattern(schema);
 
     const bool root_via_default_dialect =
@@ -701,6 +711,36 @@ private:
     return result;
   }
 
+  static auto outside_reference_names_a_pending_anchor(
+      const sourcemeta::core::SchemaFrame::Location &location,
+      const sourcemeta::core::JSON &root,
+      const sourcemeta::core::SchemaFrame &frame) -> bool {
+    const auto table{collect_subtree_renames(location, root, frame)};
+    if (table.empty()) {
+      return false;
+    }
+
+    return frame.any_reference(
+        [&location, &table](
+            const sourcemeta::core::SchemaReferenceType,
+            const sourcemeta::core::WeakPointer &origin,
+            const sourcemeta::core::SchemaFrame::Reference &reference) -> bool {
+          if (is_at_or_under(origin, location.pointer)) {
+            return false;
+          }
+
+          for (const auto &[base, renames] : table) {
+            for (const auto &entry : renames) {
+              if (reference.destination == base + "#" + entry.first) {
+                return true;
+              }
+            }
+          }
+
+          return false;
+        });
+  }
+
   static auto subtree_needs_anchor_sanitization(
       const sourcemeta::core::JSON &schema,
       const sourcemeta::core::SchemaFrame::Location &location,
@@ -750,11 +790,12 @@ private:
             return;
           }
 
-          // Only an ancestor that is itself rewritten can take this work on. A
-          // resource read as a dialect the ladder does not name is never
-          // offered to a rule, so deferring to it would leave the renaming
-          // undone and this resource waiting for good
-          if (!entry.dialect.empty() && !names_ladder_dialect(entry.dialect)) {
+          // Only an ancestor that runs this same rule can take this work on,
+          // which means one read as Draft 4. An ancestor on any other
+          // dialect, on the ladder or not, is never offered this rule, so
+          // deferring there would leave the renaming undone for good
+          if (dialect_position(entry.dialect) !=
+              dialect_position(DRAFT_4_URL)) {
             return;
           }
 
