@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object"
+  },
+  "defaultId": "http://json-schema.org/draft-04/schema#",
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-04/schema#",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-04/schema#",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-04/schema#",
+      "location": ""
+    },
+    "2019-09": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-04/schema#",
+      "location": ""
+    },
+    "2020-12": {
+      "type": "unsupported-metaschema",
+      "identifier": "http://json-schema.org/draft-04/schema#",
+      "location": ""
+    }
+  },
+  "examples": [
+    {}
+  ],
+  "counterExamples": [
+    "x"
+  ]
+}

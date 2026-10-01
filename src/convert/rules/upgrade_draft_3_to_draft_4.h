@@ -401,7 +401,8 @@ private:
   has_stray_required_boolean(const sourcemeta::core::JSON &subschema,
                              const sourcemeta::core::WeakPointer &pointer)
       -> bool {
-    if (declares_newer_dialect(subschema, DRAFT_3_URL)) {
+    if (!subschema.is_object() ||
+        declares_newer_dialect(subschema, DRAFT_3_URL)) {
       return false;
     }
 
