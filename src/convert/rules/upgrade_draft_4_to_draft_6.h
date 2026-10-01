@@ -750,6 +750,14 @@ private:
             return;
           }
 
+          // Only an ancestor that is itself rewritten can take this work on. A
+          // resource read as a dialect the ladder does not name is never
+          // offered to a rule, so deferring to it would leave the renaming
+          // undone and this resource waiting for good
+          if (!entry.dialect.empty() && !names_ladder_dialect(entry.dialect)) {
+            return;
+          }
+
           found = true;
         });
 
