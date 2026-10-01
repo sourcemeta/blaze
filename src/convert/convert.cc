@@ -128,45 +128,6 @@ auto assert_convertible_dialects(const core::JSON &schema,
       });
 }
 
-/// Whether every step from the meta-schema down to this reference keeps the
-/// instance location, which is what makes the reference pull the other
-/// document's keywords in. A reference reached through a keyword that moves to
-/// a child location, or through a container that merely holds schemas for
-/// others to name, describes another schema rather than extending this one
-auto reference_applies_in_place(const core::WeakPointer &base,
-                                const core::WeakPointer &origin,
-                                const core::SchemaWalker &walker,
-                                const core::SchemaVocabularies &vocabularies)
-    -> bool {
-  if (origin.size() <= base.size() || !origin.starts_with(base)) {
-    return false;
-  }
-
-  for (auto index = base.size(); index + 1 < origin.size(); index += 1) {
-    const auto &token{origin.at(index)};
-    if (!token.is_property()) {
-      continue;
-    }
-
-    switch (walker(token.to_property(), vocabularies).type) {
-      case core::SchemaKeywordType::ApplicatorValueOrElementsInPlace:
-      case core::SchemaKeywordType::ApplicatorMembersInPlaceSome:
-      case core::SchemaKeywordType::ApplicatorElementsInPlace:
-      case core::SchemaKeywordType::ApplicatorElementsInPlaceSome:
-      case core::SchemaKeywordType::ApplicatorElementsInPlaceSomeNegate:
-      case core::SchemaKeywordType::ApplicatorValueInPlaceMaybe:
-      case core::SchemaKeywordType::ApplicatorValueInPlaceOther:
-      case core::SchemaKeywordType::ApplicatorValueInPlaceNegate:
-      case core::SchemaKeywordType::Reference:
-        break;
-      default:
-        return false;
-    }
-  }
-
-  return true;
-}
-
 /// A schema that declares `$vocabulary` is a meta-schema, which is what this
 /// conversion asks of one. Extending an official meta-schema means referencing
 /// a document that recurses with the keyword of the dialect it was written for,
@@ -174,41 +135,39 @@ auto reference_applies_in_place(const core::WeakPointer &base,
 /// recursion to another dialect, so such a meta-schema is refused rather than
 /// quietly stripped of the constraints it places on what it describes
 auto assert_convertible_metaschema(const core::JSON &schema,
-                                   const core::SchemaFrame &frame,
-                                   const core::SchemaWalker &walker,
-                                   const core::SchemaResolver &resolver)
-    -> void {
+                                   const core::SchemaFrame &frame) -> void {
   if (!schema.is_object()) {
+    return;
+  }
+
+  // Declaring `$vocabulary` is what makes a schema a meta-schema here, and a
+  // meta-schema that names an official one anywhere other than in its own
+  // `$schema` is refused wherever that reference sits. Where the reference
+  // appears does not soften it: the conversion cannot know whether the author
+  // meant the schemas it describes to move dialect alongside it, and silently
+  // bumping the meta-schema while leaving the reference on the old dialect
+  // would decide that for them
+  const auto extends_official{frame.any_reference(
+      [](const core::SchemaReferenceType, const core::WeakPointer &origin,
+         const core::SchemaFrame::Reference &reference) -> bool {
+        if (!origin.empty() && origin.back().is_property() &&
+            origin.back().to_property() == "$schema") {
+          return false;
+        }
+
+        return names_official_metaschema(reference.destination);
+      })};
+  if (!extends_official) {
     return;
   }
 
   // The meta-schema is what cannot be converted, so it is what the error names,
   // and it may sit inside the document rather than be the whole of it
   frame.for_each_subschema(
-      [&schema, &frame, &walker,
-       &resolver](const core::SchemaFrame::Location &location) -> void {
+      [&schema](const core::SchemaFrame::Location &location) -> void {
         auto pointer{core::to_pointer(location.pointer)};
         const auto &subschema{core::get(schema, pointer)};
-        if (!subschema.is_object() || !subschema.defines("$vocabulary")) {
-          return;
-        }
-
-        const auto &vocabularies{frame.vocabularies(location, resolver)};
-        const auto extends_official{frame.any_reference(
-            [&location, &walker, &vocabularies](
-                const core::SchemaReferenceType,
-                const core::WeakPointer &origin,
-                const core::SchemaFrame::Reference &reference) -> bool {
-              if (!origin.empty() && origin.back().is_property() &&
-                  origin.back().to_property() == "$schema") {
-                return false;
-              }
-
-              return names_official_metaschema(reference.destination) &&
-                     reference_applies_in_place(location.pointer, origin,
-                                                walker, vocabularies);
-            })};
-        if (extends_official) {
+        if (subschema.is_object() && subschema.defines("$vocabulary")) {
           throw ConvertUnsupportedMetaschemaError{location.dialect,
                                                   std::move(pointer)};
         }
@@ -264,7 +223,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 
       if (!asserted) {
         assert_convertible_dialects(schema, frame.value(), default_id, target);
-        assert_convertible_metaschema(schema, frame.value(), walker, resolver);
+        assert_convertible_metaschema(schema, frame.value());
         assert_schema_references(frame.value());
         asserted = true;
       }
