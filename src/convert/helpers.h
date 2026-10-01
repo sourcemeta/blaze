@@ -126,6 +126,38 @@ inline auto normalized_official_dialect(const std::string_view dialect)
 // dialect is the ladder's and how far along it sits have to be one question,
 // or the ladder would accept a marker in one place and refuse to rank it in
 // another
+/// Where a base dialect sits on the ladder, so that a dialect the ladder does
+/// not name can still be placed by the official one it derives from. Hyper
+/// variants sit alongside their plain counterparts, and the drafts below the
+/// ladder answer zero just as an unrecognised dialect does
+inline auto
+base_dialect_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
+    -> std::size_t {
+  using Base = sourcemeta::core::SchemaBaseDialect;
+  switch (base_dialect) {
+    case Base::JSON_SCHEMA_DRAFT_3:
+    case Base::JSON_SCHEMA_DRAFT_3_HYPER:
+      return 1;
+    case Base::JSON_SCHEMA_DRAFT_4:
+    case Base::JSON_SCHEMA_DRAFT_4_HYPER:
+      return 2;
+    case Base::JSON_SCHEMA_DRAFT_6:
+    case Base::JSON_SCHEMA_DRAFT_6_HYPER:
+      return 3;
+    case Base::JSON_SCHEMA_DRAFT_7:
+    case Base::JSON_SCHEMA_DRAFT_7_HYPER:
+      return 4;
+    case Base::JSON_SCHEMA_2019_09:
+    case Base::JSON_SCHEMA_2019_09_HYPER:
+      return 5;
+    case Base::JSON_SCHEMA_2020_12:
+    case Base::JSON_SCHEMA_2020_12_HYPER:
+      return 6;
+    default:
+      return 0;
+  }
+}
+
 inline auto dialect_position(const std::string_view dialect) -> std::size_t {
   const auto candidate{normalized_official_dialect(dialect)};
   for (std::size_t index = 0; index < LADDER_DIALECTS.size(); index += 1) {

@@ -64,9 +64,29 @@ auto assert_schema_references(const core::SchemaFrame &frame) -> void {
 /// told apart, a document that describes itself or that carries the
 /// meta-schema something in it declares is refused. A dialect the ladder does
 /// not name is refused too, as there are no rules for moving a schema off it
+/// Where the requested target sits on the ladder, so that it can be compared
+/// against how far a resource has already come
+auto target_position(const ConvertTarget target) -> std::size_t {
+  switch (target) {
+    case ConvertTarget::Draft4:
+      return 2;
+    case ConvertTarget::Draft6:
+      return 3;
+    case ConvertTarget::Draft7:
+      return 4;
+    case ConvertTarget::Draft201909:
+      return 5;
+    case ConvertTarget::Draft202012:
+      return 6;
+  }
+
+  return 0;
+}
+
 auto assert_convertible_dialects(const core::JSON &schema,
                                  const core::SchemaFrame &frame,
-                                 const std::string_view default_id) -> void {
+                                 const std::string_view default_id,
+                                 const ConvertTarget target) -> void {
   const auto document{frame.traverse(core::EMPTY_WEAK_POINTER)};
   if (document.has_value() &&
       describes_itself(schema, document.value().get().base_dialect,
@@ -76,19 +96,75 @@ auto assert_convertible_dialects(const core::JSON &schema,
   }
 
   frame.for_each_subschema(
-      [&schema, &frame](const core::SchemaFrame::Location &location) -> void {
+      [&schema, &frame,
+       target](const core::SchemaFrame::Location &location) -> void {
         auto pointer{core::to_pointer(location.pointer)};
-        if (is_metaschema_target(core::get(schema, pointer), frame,
-                                 location.pointer)) {
-          throw ConvertUnsupportedMetaschemaError{location.dialect,
-                                                  std::move(pointer)};
+        const auto &subschema{core::get(schema, pointer)};
+        if (is_metaschema_target(subschema, frame, location.pointer)) {
+          // The meta-schema that cannot be moved is what the error names. The
+          // dialect that meta-schema is itself written in is an official one
+          // the conversion supports perfectly well, so naming that instead
+          // would report the evidence rather than the reason
+          const auto *identifier{subschema.try_at(
+              core::schema_identifier_keyword(location.base_dialect))};
+          throw ConvertUnsupportedMetaschemaError{
+              identifier != nullptr && identifier->is_string()
+                  ? std::string_view{identifier->to_string()}
+                  : location.dialect,
+              std::move(pointer)};
         }
 
-        if (!names_ladder_dialect(location.dialect)) {
+        // A dialect the ladder does not name has no rules for moving a schema
+        // off it, but nothing asks it to move when the target is no newer than
+        // the official dialect it derives from: every rule that could reach
+        // inside is gated on a vocabulary it does not have. Refusing then would
+        // turn a conversion that changes nothing into an error
+        if (!names_ladder_dialect(location.dialect) &&
+            target_position(target) >
+                base_dialect_position(location.base_dialect)) {
           throw ConvertUnsupportedDialectError{location.dialect,
                                                std::move(pointer)};
         }
       });
+}
+
+/// Whether every step from the meta-schema down to this reference keeps the
+/// instance location, which is what makes the reference pull the other
+/// document's keywords in. A reference reached through a keyword that moves to
+/// a child location, or through a container that merely holds schemas for
+/// others to name, describes another schema rather than extending this one
+auto reference_applies_in_place(const core::WeakPointer &base,
+                                const core::WeakPointer &origin,
+                                const core::SchemaWalker &walker,
+                                const core::SchemaVocabularies &vocabularies)
+    -> bool {
+  if (origin.size() <= base.size() || !origin.starts_with(base)) {
+    return false;
+  }
+
+  for (auto index = base.size(); index + 1 < origin.size(); index += 1) {
+    const auto &token{origin.at(index)};
+    if (!token.is_property()) {
+      continue;
+    }
+
+    switch (walker(token.to_property(), vocabularies).type) {
+      case core::SchemaKeywordType::ApplicatorValueOrElementsInPlace:
+      case core::SchemaKeywordType::ApplicatorMembersInPlaceSome:
+      case core::SchemaKeywordType::ApplicatorElementsInPlace:
+      case core::SchemaKeywordType::ApplicatorElementsInPlaceSome:
+      case core::SchemaKeywordType::ApplicatorElementsInPlaceSomeNegate:
+      case core::SchemaKeywordType::ApplicatorValueInPlaceMaybe:
+      case core::SchemaKeywordType::ApplicatorValueInPlaceOther:
+      case core::SchemaKeywordType::ApplicatorValueInPlaceNegate:
+      case core::SchemaKeywordType::Reference:
+        break;
+      default:
+        return false;
+    }
+  }
+
+  return true;
 }
 
 /// A schema that declares `$vocabulary` is a meta-schema, which is what this
@@ -98,34 +174,41 @@ auto assert_convertible_dialects(const core::JSON &schema,
 /// recursion to another dialect, so such a meta-schema is refused rather than
 /// quietly stripped of the constraints it places on what it describes
 auto assert_convertible_metaschema(const core::JSON &schema,
-                                   const core::SchemaFrame &frame) -> void {
+                                   const core::SchemaFrame &frame,
+                                   const core::SchemaWalker &walker,
+                                   const core::SchemaResolver &resolver)
+    -> void {
   if (!schema.is_object()) {
-    return;
-  }
-
-  // Naming a dialect is what every schema does and says nothing about
-  // extending it. Only a reference that pulls the other document's keywords in
-  // is the one that cannot be carried over
-  const auto extends_official{frame.any_reference(
-      [](const core::SchemaReferenceType, const core::WeakPointer &origin,
-         const core::SchemaFrame::Reference &reference) -> bool {
-        if (!origin.empty() && origin.back().is_property() &&
-            origin.back().to_property() == "$schema") {
-          return false;
-        }
-
-        return names_official_metaschema(reference.destination);
-      })};
-  if (!extends_official) {
     return;
   }
 
   // The meta-schema is what cannot be converted, so it is what the error names,
   // and it may sit inside the document rather than be the whole of it
   frame.for_each_subschema(
-      [&schema](const core::SchemaFrame::Location &location) -> void {
+      [&schema, &frame, &walker,
+       &resolver](const core::SchemaFrame::Location &location) -> void {
         auto pointer{core::to_pointer(location.pointer)};
-        if (core::get(schema, pointer).defines("$vocabulary")) {
+        const auto &subschema{core::get(schema, pointer)};
+        if (!subschema.is_object() || !subschema.defines("$vocabulary")) {
+          return;
+        }
+
+        const auto &vocabularies{frame.vocabularies(location, resolver)};
+        const auto extends_official{frame.any_reference(
+            [&location, &walker, &vocabularies](
+                const core::SchemaReferenceType,
+                const core::WeakPointer &origin,
+                const core::SchemaFrame::Reference &reference) -> bool {
+              if (!origin.empty() && origin.back().is_property() &&
+                  origin.back().to_property() == "$schema") {
+                return false;
+              }
+
+              return names_official_metaschema(reference.destination) &&
+                     reference_applies_in_place(location.pointer, origin,
+                                                walker, vocabularies);
+            })};
+        if (extends_official) {
           throw ConvertUnsupportedMetaschemaError{location.dialect,
                                                   std::move(pointer)};
         }
@@ -137,7 +220,8 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
            const sourcemeta::core::SchemaWalker &walker,
            const sourcemeta::core::SchemaResolver &resolver,
            const std::string_view default_dialect,
-           const std::string_view default_id) -> void {
+           const std::string_view default_id, const ConvertTarget target)
+    -> void {
   assert(!rules.empty());
 
   struct ProcessedRuleHasher {
@@ -179,8 +263,8 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                     sourcemeta::core::SchemaFrame::IdentifierMode::Fallback);
 
       if (!asserted) {
-        assert_convertible_dialects(schema, frame.value(), default_id);
-        assert_convertible_metaschema(schema, frame.value());
+        assert_convertible_dialects(schema, frame.value(), default_id, target);
+        assert_convertible_metaschema(schema, frame.value(), walker, resolver);
         assert_schema_references(frame.value());
         asserted = true;
       }
@@ -421,7 +505,7 @@ auto convert(sourcemeta::core::JSON &schema,
   }
 
   rules.push_back(make_rule<UpgradeDialectOverrideCleanup>());
-  apply(rules, schema, walker, resolver, default_dialect, default_id);
+  apply(rules, schema, walker, resolver, default_dialect, default_id, target);
   erase_dialect_overrides(schema, walker, resolver, default_dialect,
                           default_id);
 }

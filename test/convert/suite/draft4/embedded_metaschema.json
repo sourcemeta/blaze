@@ -13,9 +13,9 @@
   "result": {},
   "errors": {
     "draft4": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/my-dialect",
-      "location": ""
+      "location": "/definitions/meta"
     },
     "draft6": {
       "type": "unsupported-dialect",

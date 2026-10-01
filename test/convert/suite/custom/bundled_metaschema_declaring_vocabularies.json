@@ -19,27 +19,27 @@
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
-      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "identifier": "https://example.com/meta",
       "location": "/$defs/meta"
     },
     "draft6": {
       "type": "unsupported-metaschema",
-      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "identifier": "https://example.com/meta",
       "location": "/$defs/meta"
     },
     "draft7": {
       "type": "unsupported-metaschema",
-      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "identifier": "https://example.com/meta",
       "location": "/$defs/meta"
     },
     "2019-09": {
       "type": "unsupported-metaschema",
-      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "identifier": "https://example.com/meta",
       "location": "/$defs/meta"
     },
     "2020-12": {
       "type": "unsupported-metaschema",
-      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "identifier": "https://example.com/meta",
       "location": "/$defs/meta"
     }
   },

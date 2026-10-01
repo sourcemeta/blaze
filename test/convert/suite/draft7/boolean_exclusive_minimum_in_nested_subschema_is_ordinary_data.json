@@ -1,0 +1,25 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": { "a": { "exclusiveMinimum": true, "type": "integer" } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "properties": { "a": { "exclusiveMinimum": true, "type": "integer" } }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "a": { "exclusiveMinimum": true, "type": "integer" } }
+    }
+  },
+  "examples": [],
+  "counterExamples": [],
+  "evaluation": "not-evaluatable"
+}

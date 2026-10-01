@@ -30,19 +30,19 @@
   "result": {},
   "errors": {
     "draft4": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b1"
+      "location": "/definitions/c"
     },
     "draft6": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b1"
+      "location": "/definitions/c"
     },
     "draft7": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b1"
+      "location": "/definitions/c"
     },
     "2019-09": {
       "type": "unsupported-dialect",

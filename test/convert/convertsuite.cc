@@ -209,43 +209,56 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
   }
 }
 
+// Every error type carries the same three things, and naming all of them in one
+// comparison is what lets a report say which target went wrong and how, rather
+// than only that some expectation failed
+template <typename ErrorType>
+auto describe_error(const std::string_view target, const std::string_view type,
+                    const ErrorType &error) -> sourcemeta::core::JSON {
+  auto entry{sourcemeta::core::JSON::make_object()};
+  entry.assign("target", sourcemeta::core::JSON{target});
+  entry.assign("type", sourcemeta::core::JSON{type});
+  entry.assign("identifier", sourcemeta::core::JSON{error.identifier()});
+  entry.assign("location", sourcemeta::core::JSON{
+                               sourcemeta::core::to_string(error.location())});
+  return entry;
+}
+
 auto check_error(const sourcemeta::core::JSON &test,
                  const sourcemeta::core::SchemaResolver &resolver,
                  const Inputs &inputs, const Target &target,
                  const sourcemeta::core::JSON &expected) -> void {
-  const auto *type{expected.try_at("type")};
-  const sourcemeta::core::JSON::String expected_type{
-      type == nullptr ? "broken-reference" : type->to_string()};
+  auto actual{sourcemeta::core::JSON::make_object()};
+  actual.assign("target", sourcemeta::core::JSON{target.name});
+  actual.assign("type", sourcemeta::core::JSON{"none"});
 
   try {
     [[maybe_unused]] const auto document{
         convert_schema(test.at("schema"), resolver, inputs, target)};
-    FAIL();
   } catch (const sourcemeta::blaze::ConvertUnsupportedMetaschemaError &error) {
-    EXPECT_EQ(expected_type, "unsupported-metaschema");
     EXPECT_STREQ(error.what(), "The conversion does not support meta-schemas");
-    EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
-              expected.at("location").to_string());
+    actual = describe_error(target.name, "unsupported-metaschema", error);
   } catch (const sourcemeta::blaze::ConvertUnsupportedDialectError &error) {
-    EXPECT_EQ(expected_type, "unsupported-dialect");
     EXPECT_STREQ(error.what(), "The conversion does not support this dialect");
-    EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
-              expected.at("location").to_string());
+    actual = describe_error(target.name, "unsupported-dialect", error);
   } catch (const sourcemeta::blaze::ConvertInvalidReferenceError &error) {
-    EXPECT_EQ(expected_type, "invalid-reference");
     EXPECT_STREQ(error.what(), "The reference does not point to a schema");
-    EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
-              expected.at("location").to_string());
+    actual = describe_error(target.name, "invalid-reference", error);
   } catch (const sourcemeta::blaze::ConvertBrokenReferenceError &error) {
-    EXPECT_EQ(expected_type, "broken-reference");
     EXPECT_STREQ(error.what(), "The reference broke after transformation");
-    EXPECT_EQ(error.identifier(), expected.at("identifier").to_string());
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
-              expected.at("location").to_string());
+    actual = describe_error(target.name, "broken-reference", error);
   }
+
+  const auto *type{expected.try_at("type")};
+  auto wanted{sourcemeta::core::JSON::make_object()};
+  wanted.assign("target", sourcemeta::core::JSON{target.name});
+  wanted.assign("type",
+                sourcemeta::core::JSON{type == nullptr ? "broken-reference"
+                                                       : type->to_string()});
+  wanted.assign("identifier", expected.at("identifier"));
+  wanted.assign("location", expected.at("location"));
+
+  EXPECT_EQ(actual, wanted);
 }
 
 // Whichever way a schema is spelled, it has to accept and reject the same
@@ -364,7 +377,13 @@ auto meets_metaschema(const sourcemeta::core::JSON &document,
 // Whatever conversion produces has to be a schema of the dialect it now claims
 // to be, which is the one thing the instances cannot tell us. A document that
 // did not meet its own meta-schema to begin with is left out, as conversion
-// does not answer for what it was handed
+// does not answer for what it was handed.
+//
+// A document naming more than one dialect is left out too, because meta-schema
+// validation is not defined across dialects. A meta-schema describes one
+// dialect, so no single document can judge a root on one dialect together with
+// a resource on another, and holding the whole document to the root's
+// meta-schema would judge that resource by keywords it never claimed
 auto check_metaschema(const std::string_view target,
                       const sourcemeta::core::JSON &document,
                       const sourcemeta::core::JSON &input,

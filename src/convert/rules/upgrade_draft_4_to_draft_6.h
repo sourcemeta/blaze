@@ -23,8 +23,23 @@ public:
             sourcemeta::core::SchemaFrame::LocationType::Resource ||
         location.pointer.empty();
 
-    const bool sanitization_branch =
-        is_resource_scope && resource_needs_anchor_sanitization(schema);
+    // A reference may name an anchor in a resource other than the one it sits
+    // in, so the renaming has to be driven from the outermost resource whose
+    // subtree needs it. Firing per resource would let an inner resource rename
+    // its anchors first, leaving an outer reference pointing at a name that no
+    // longer exists and nothing left to tell it so
+    bool sanitization_branch =
+        is_resource_scope &&
+        subtree_needs_anchor_sanitization(schema, location, root, frame);
+
+    // An outer resource whose subtree needs sanitization covers this one too,
+    // so the renaming is left to it and only to it. This resource still has
+    // its own work to do, and the guard below holds that back until the
+    // anchors have settled
+    if (sanitization_branch &&
+        has_strict_ancestor_resource_scope(location, frame)) {
+      sanitization_branch = false;
+    }
 
     const bool other_branch = has_pending_draft_4_pattern(schema);
 
@@ -59,22 +74,28 @@ public:
     }
 
     this->sanitize_pending_ = sanitization_branch;
+    if (sanitization_branch) {
+      this->subtree_renames_ = collect_subtree_renames(location, root, frame);
+    }
+
     return true;
   }
 
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
     if (this->sanitize_pending_) {
-      const auto renames{build_resource_rename_map(schema)};
       std::optional<std::string> resource_base;
       if (schema.defines("id") && schema.at("id").is_string()) {
-        const sourcemeta::core::URI uri{schema.at("id").to_string()};
-        const auto without_fragment{uri.recompose_without_fragment()};
-        if (without_fragment.has_value() && !without_fragment.value().empty()) {
-          resource_base = without_fragment.value();
-        }
+        resource_base =
+            resolved_resource_base(schema.at("id").to_string(), std::nullopt);
       }
-      apply_anchor_renames_in_resource(schema, true, renames, resource_base);
-      if (resource_has_descendant_with_pending_pattern(schema, true)) {
+
+      const auto root_renames{build_resource_rename_map(schema)};
+      apply_anchor_renames_in_resource(schema, true, this->subtree_renames_,
+                                       resource_base, &root_renames);
+      // Bumping the dialect is what stops `id` from identifying anything, so
+      // it waits for every identifier below to have moved. The renaming pass
+      // reaches into sub-resources, so this has to look there as well
+      if (subtree_has_pending_pattern(schema, true, true)) {
         return;
       }
     }
@@ -113,6 +134,8 @@ public:
   }
 
 private:
+  using RenameTable = std::map<std::string, std::map<std::string, std::string>>;
+
   // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
   static inline const std::string DRAFT_4_URL{
       "http://json-schema.org/draft-04/schema#"};
@@ -124,6 +147,7 @@ private:
       {"const", "contains", "propertyNames", "examples"}};
 
   mutable bool sanitize_pending_{false};
+  mutable RenameTable subtree_renames_;
 
   static auto
   has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema) -> bool {
@@ -388,12 +412,15 @@ private:
     return renames;
   }
 
-  static auto resource_has_descendant_with_pending_pattern(
-      const sourcemeta::core::JSON &subschema, const bool is_root) -> bool {
+  static auto
+  subtree_has_pending_pattern(const sourcemeta::core::JSON &subschema,
+                              const bool is_root, const bool cross_resources)
+      -> bool {
     if (!subschema.is_object()) {
       return false;
     }
-    if (!is_root && subschema_starts_sub_resource(subschema)) {
+    if (!is_root && !cross_resources &&
+        subschema_starts_sub_resource(subschema)) {
       return false;
     }
     if (!is_root && has_pending_draft_4_pattern(subschema)) {
@@ -405,8 +432,8 @@ private:
       if (subschema.defines(object_keyword) &&
           subschema.at(object_keyword).is_object()) {
         for (const auto &entry : subschema.at(object_keyword).as_object()) {
-          if (resource_has_descendant_with_pending_pattern(entry.second,
-                                                           false)) {
+          if (subtree_has_pending_pattern(entry.second, false,
+                                          cross_resources)) {
             return true;
           }
         }
@@ -417,7 +444,7 @@ private:
       if (subschema.defines(array_keyword) &&
           subschema.at(array_keyword).is_array()) {
         for (const auto &item : subschema.at(array_keyword).as_array()) {
-          if (resource_has_descendant_with_pending_pattern(item, false)) {
+          if (subtree_has_pending_pattern(item, false, cross_resources)) {
             return true;
           }
         }
@@ -427,8 +454,8 @@ private:
     for (const std::string_view single_keyword :
          {"additionalProperties", "additionalItems", "not"}) {
       if (subschema.defines(single_keyword)) {
-        if (resource_has_descendant_with_pending_pattern(
-                subschema.at(single_keyword), false)) {
+        if (subtree_has_pending_pattern(subschema.at(single_keyword), false,
+                                        cross_resources)) {
           return true;
         }
       }
@@ -438,11 +465,11 @@ private:
       const auto &items{subschema.at("items")};
       if (items.is_array()) {
         for (const auto &item : items.as_array()) {
-          if (resource_has_descendant_with_pending_pattern(item, false)) {
+          if (subtree_has_pending_pattern(item, false, cross_resources)) {
             return true;
           }
         }
-      } else if (resource_has_descendant_with_pending_pattern(items, false)) {
+      } else if (subtree_has_pending_pattern(items, false, cross_resources)) {
         return true;
       }
     }
@@ -452,17 +479,34 @@ private:
 
   static auto apply_anchor_renames_in_resource(
       sourcemeta::core::JSON &subschema, const bool is_root,
-      const std::map<std::string, std::string> &renames,
-      const std::optional<std::string> &resource_base) -> void {
+      const RenameTable &table, const std::optional<std::string> &resource_base,
+      const std::map<std::string, std::string> *own_renames) -> void {
     if (!subschema.is_object()) {
       return;
     }
 
+    // A sub-resource is walked rather than skipped, under its own base and its
+    // own renames, so that one pass from the outermost resource leaves every
+    // anchor and every reference in the subtree agreeing with each other
+    // The resource this pass started from carries its map directly, because a
+    // resource that never named itself has no URI to look one up by
+    auto base{resource_base};
+    const auto *renames_for_base{own_renames};
     if (!is_root && subschema_starts_sub_resource(subschema)) {
-      return;
+      base =
+          resolved_resource_base(subschema.at("id").to_string(), resource_base);
+      renames_for_base = nullptr;
+      if (base.has_value()) {
+        const auto match{table.find(base.value())};
+        if (match != table.cend()) {
+          renames_for_base = &match->second;
+        }
+      }
     }
 
-    if (subschema.defines("id") && subschema.at("id").is_string()) {
+    if (renames_for_base != nullptr && subschema.defines("id") &&
+        subschema.at("id").is_string()) {
+      const auto &renames{*renames_for_base};
       const auto &id_string{subschema.at("id").to_string()};
       const sourcemeta::core::URI uri{id_string};
       const auto fragment{uri.fragment()};
@@ -485,25 +529,7 @@ private:
     }
 
     if (subschema.defines("$ref") && subschema.at("$ref").is_string()) {
-      const auto &ref_string{subschema.at("$ref").to_string()};
-      const sourcemeta::core::URI ref_uri{ref_string};
-      const auto fragment{ref_uri.fragment()};
-      if (fragment.has_value() &&
-          renames.contains(std::string{fragment.value()})) {
-        const auto without_fragment{ref_uri.recompose_without_fragment()};
-        const bool same_base =
-            ref_uri.is_fragment_only() ||
-            (resource_base.has_value() && without_fragment.has_value() &&
-             without_fragment.value() == resource_base.value());
-        if (same_base) {
-          const auto &new_name{renames.at(std::string{fragment.value()})};
-          subschema.assign(
-              "$ref", sourcemeta::core::JSON{
-                          ref_uri.is_fragment_only()
-                              ? "#" + new_name
-                              : (without_fragment.value() + "#" + new_name)});
-        }
-      }
+      rewrite_anchor_reference(subschema, table, base, renames_for_base);
     }
 
     for (const std::string_view object_keyword :
@@ -517,7 +543,8 @@ private:
         }
         for (const auto &key : keys) {
           apply_anchor_renames_in_resource(subschema.at(object_keyword).at(key),
-                                           false, renames, resource_base);
+                                           false, table, base,
+                                           renames_for_base);
         }
       }
     }
@@ -527,8 +554,8 @@ private:
           subschema.at(array_keyword).is_array()) {
         auto &array_value{subschema.at(array_keyword)};
         for (std::size_t index{0}; index < array_value.size(); ++index) {
-          apply_anchor_renames_in_resource(array_value.at(index), false,
-                                           renames, resource_base);
+          apply_anchor_renames_in_resource(array_value.at(index), false, table,
+                                           base, renames_for_base);
         }
       }
     }
@@ -537,7 +564,7 @@ private:
          {"additionalProperties", "additionalItems", "not"}) {
       if (subschema.defines(single_keyword)) {
         apply_anchor_renames_in_resource(subschema.at(single_keyword), false,
-                                         renames, resource_base);
+                                         table, base, renames_for_base);
       }
     }
 
@@ -545,13 +572,188 @@ private:
       auto &items{subschema.at("items")};
       if (items.is_array()) {
         for (std::size_t index{0}; index < items.size(); ++index) {
-          apply_anchor_renames_in_resource(items.at(index), false, renames,
-                                           resource_base);
+          apply_anchor_renames_in_resource(items.at(index), false, table, base,
+                                           renames_for_base);
         }
       } else {
-        apply_anchor_renames_in_resource(items, false, renames, resource_base);
+        apply_anchor_renames_in_resource(items, false, table, base,
+                                         renames_for_base);
       }
     }
+  }
+
+  // Which resource a reference names decides whose renames apply to it: its
+  // own when the base resolves back to the resource the reference sits in, and
+  // another resource's when the base names that one instead. Only the fragment
+  // is rewritten, so a relative base keeps the spelling the author chose
+  static auto rewrite_anchor_reference(
+      sourcemeta::core::JSON &subschema, const RenameTable &table,
+      const std::optional<std::string> &resource_base,
+      const std::map<std::string, std::string> *own_renames) -> void {
+    const sourcemeta::core::URI ref_uri{subschema.at("$ref").to_string()};
+    const auto fragment{ref_uri.fragment()};
+    if (!fragment.has_value() || fragment.value().empty()) {
+      return;
+    }
+
+    const std::string name{fragment.value()};
+    if (ref_uri.is_fragment_only()) {
+      if (own_renames == nullptr) {
+        return;
+      }
+
+      const auto match{own_renames->find(name)};
+      if (match != own_renames->cend()) {
+        subschema.assign("$ref", sourcemeta::core::JSON{"#" + match->second});
+      }
+
+      return;
+    }
+
+    const auto without_fragment{ref_uri.recompose_without_fragment()};
+    if (!without_fragment.has_value()) {
+      return;
+    }
+
+    auto target{without_fragment.value()};
+    if (resource_base.has_value()) {
+      sourcemeta::core::URI resolved{target};
+      resolved.resolve_from(sourcemeta::core::URI{resource_base.value()});
+      target = resolved.recompose();
+    }
+
+    const auto match{table.find(target)};
+    if (match == table.cend()) {
+      return;
+    }
+
+    const auto rename{match->second.find(name)};
+    if (rename == match->second.cend()) {
+      return;
+    }
+
+    subschema.assign("$ref", sourcemeta::core::JSON{without_fragment.value() +
+                                                    "#" + rename->second});
+  }
+
+  static auto
+  resolved_resource_base(const std::string &identifier,
+                         const std::optional<std::string> &parent_base)
+      -> std::optional<std::string> {
+    const sourcemeta::core::URI uri{identifier};
+    const auto without_fragment{uri.recompose_without_fragment()};
+    if (!without_fragment.has_value() || without_fragment.value().empty()) {
+      return parent_base;
+    }
+
+    if (!parent_base.has_value()) {
+      return without_fragment;
+    }
+
+    sourcemeta::core::URI resolved{without_fragment.value()};
+    resolved.resolve_from(sourcemeta::core::URI{parent_base.value()});
+    return resolved.recompose();
+  }
+
+  static auto is_at_or_under(const sourcemeta::core::WeakPointer &candidate,
+                             const sourcemeta::core::WeakPointer &ancestor)
+      -> bool {
+    if (candidate.size() < ancestor.size()) {
+      return false;
+    }
+
+    for (std::size_t index{0}; index < ancestor.size(); ++index) {
+      if (!(candidate.at(index) == ancestor.at(index))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Every resource at or under this one, keyed by the URI it identifies itself
+  // with. The table is read when rewriting a reference, so it has to be built
+  // before anything is renamed, or a reference would be matched against a name
+  // that has already moved
+  static auto collect_subtree_renames(
+      const sourcemeta::core::SchemaFrame::Location &location,
+      const sourcemeta::core::JSON &root,
+      const sourcemeta::core::SchemaFrame &frame) -> RenameTable {
+    RenameTable result;
+    frame.for_each_location(
+        [&location, &root, &result](
+            const sourcemeta::core::SchemaReferenceType,
+            const std::string_view uri,
+            const sourcemeta::core::SchemaFrame::Location &entry) -> void {
+          if (entry.type !=
+                  sourcemeta::core::SchemaFrame::LocationType::Resource ||
+              !is_at_or_under(entry.pointer, location.pointer)) {
+            return;
+          }
+
+          auto renames{build_resource_rename_map(sourcemeta::core::get(
+              root, sourcemeta::core::to_pointer(entry.pointer)))};
+          if (!renames.empty()) {
+            result.insert_or_assign(std::string{uri}, std::move(renames));
+          }
+        });
+
+    return result;
+  }
+
+  static auto subtree_needs_anchor_sanitization(
+      const sourcemeta::core::JSON &schema,
+      const sourcemeta::core::SchemaFrame::Location &location,
+      const sourcemeta::core::JSON &root,
+      const sourcemeta::core::SchemaFrame &frame) -> bool {
+    if (resource_needs_anchor_sanitization(schema)) {
+      return true;
+    }
+
+    bool pending{false};
+    frame.for_each_location(
+        [&location, &root, &pending](
+            const sourcemeta::core::SchemaReferenceType, const std::string_view,
+            const sourcemeta::core::SchemaFrame::Location &entry) -> void {
+          if (pending ||
+              entry.type !=
+                  sourcemeta::core::SchemaFrame::LocationType::Resource ||
+              !is_at_or_under(entry.pointer, location.pointer)) {
+            return;
+          }
+
+          pending = resource_needs_anchor_sanitization(sourcemeta::core::get(
+              root, sourcemeta::core::to_pointer(entry.pointer)));
+        });
+
+    return pending;
+  }
+
+  // An outer resource whose subtree needs sanitization covers this one too, so
+  // deferring to it is what keeps a reference and the anchor it names moving
+  // together
+  static auto has_strict_ancestor_resource_scope(
+      const sourcemeta::core::SchemaFrame::Location &location,
+      const sourcemeta::core::SchemaFrame &frame) -> bool {
+    bool found{false};
+    frame.for_each_location(
+        [&location, &found](
+            const sourcemeta::core::SchemaReferenceType, const std::string_view,
+            const sourcemeta::core::SchemaFrame::Location &entry) -> void {
+          const bool entry_is_resource_scope =
+              entry.type ==
+                  sourcemeta::core::SchemaFrame::LocationType::Resource ||
+              entry.pointer.empty();
+          if (found || !entry_is_resource_scope ||
+              entry.pointer.size() >= location.pointer.size() ||
+              !is_at_or_under(location.pointer, entry.pointer)) {
+            return;
+          }
+
+          found = true;
+        });
+
+    return found;
   }
 
   static auto resource_needs_anchor_sanitization(
