@@ -378,12 +378,29 @@ private:
       // Draft 3 replaces a schema with whatever its `$ref` names, so a
       // `required` flag beside one never made the property mandatory. Lifting
       // it onto the parent, where nothing suppresses it, would invent an
-      // assertion the document never made. Dropping it loses nothing, which is
-      // how every other meaningless `required` here is treated
-      const bool read_by_draft_3{!property.defines("$ref")};
+      // assertion the document never made, and erasing it would throw away the
+      // only record that the author asked for something the dialect ignored.
+      // Shadowing keeps that record without asserting anything, which is how
+      // every other suppressed sibling is carried over. A `false` flag is the
+      // default and says nothing, so it goes
+      if (property.defines("$ref")) {
+        if (required_value.to_boolean()) {
+          std::string shadowed{"x-required"};
+          while (property.defines(shadowed)) {
+            shadowed.insert(0, "x-");
+          }
+
+          property.rename("required", std::move(shadowed));
+        } else {
+          property.erase("required");
+        }
+
+        continue;
+      }
+
       const bool is_required{required_value.to_boolean()};
       property.erase("required");
-      if (is_required && read_by_draft_3) {
+      if (is_required) {
         newly_required.push_back(key);
       }
     }
