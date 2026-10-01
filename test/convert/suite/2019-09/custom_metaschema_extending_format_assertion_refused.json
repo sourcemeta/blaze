@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/meta",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2019-09/vocab/core": true
+    },
+    "allOf": [
+      {
+        "$ref": "https://json-schema.org/draft/2020-12/meta/format-assertion"
+      }
+    ],
+    "required": [
+      "title"
+    ],
+    "properties": {
+      "title": {
+        "type": "string"
+      }
+    }
+  },
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": ""
+    },
+    "2019-09": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": ""
+    },
+    "2020-12": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": ""
+    }
+  },
+  "examples": [
+    {
+      "title": "x"
+    }
+  ],
+  "counterExamples": [
+    {}
+  ]
+}

@@ -91,6 +91,47 @@ auto assert_convertible_dialects(const core::JSON &schema,
       });
 }
 
+/// A schema that declares `$vocabulary` is a meta-schema, which is what this
+/// conversion asks of one. Extending an official meta-schema means referencing
+/// a document that recurses with the keyword of the dialect it was written for,
+/// and nothing this conversion renames in the extending schema can carry that
+/// recursion to another dialect, so such a meta-schema is refused rather than
+/// quietly stripped of the constraints it places on what it describes
+auto assert_convertible_metaschema(const core::JSON &schema,
+                                   const core::SchemaFrame &frame) -> void {
+  if (!schema.is_object()) {
+    return;
+  }
+
+  // Naming a dialect is what every schema does and says nothing about
+  // extending it. Only a reference that pulls the other document's keywords in
+  // is the one that cannot be carried over
+  const auto extends_official{frame.any_reference(
+      [](const core::SchemaReferenceType, const core::WeakPointer &origin,
+         const core::SchemaFrame::Reference &reference) -> bool {
+        if (!origin.empty() && origin.back().is_property() &&
+            origin.back().to_property() == "$schema") {
+          return false;
+        }
+
+        return names_official_metaschema(reference.destination);
+      })};
+  if (!extends_official) {
+    return;
+  }
+
+  // The meta-schema is what cannot be converted, so it is what the error names,
+  // and it may sit inside the document rather than be the whole of it
+  frame.for_each_subschema(
+      [&schema](const core::SchemaFrame::Location &location) -> void {
+        auto pointer{core::to_pointer(location.pointer)};
+        if (core::get(schema, pointer).defines("$vocabulary")) {
+          throw ConvertUnsupportedMetaschemaError{location.dialect,
+                                                  std::move(pointer)};
+        }
+      });
+}
+
 /// Apply the given rules top-down to every subschema until none of them applies
 auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
            const sourcemeta::core::SchemaWalker &walker,
@@ -139,6 +180,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 
       if (!asserted) {
         assert_convertible_dialects(schema, frame.value(), default_id);
+        assert_convertible_metaschema(schema, frame.value());
         assert_schema_references(frame.value());
         asserted = true;
       }
@@ -201,6 +243,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                    .target_relative_pointer = target.relative_pointer});
             });
 
+            rule->prepare(*frame, location);
             rule->transform(current);
 
             applied = true;
@@ -379,7 +422,8 @@ auto convert(sourcemeta::core::JSON &schema,
 
   rules.push_back(make_rule<UpgradeDialectOverrideCleanup>());
   apply(rules, schema, walker, resolver, default_dialect, default_id);
-  erase_dialect_overrides(schema);
+  erase_dialect_overrides(schema, walker, resolver, default_dialect,
+                          default_id);
 }
 
 } // namespace sourcemeta::blaze

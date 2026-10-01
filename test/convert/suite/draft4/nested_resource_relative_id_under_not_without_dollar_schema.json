@@ -1,0 +1,121 @@
+{
+  "schema": {
+    "id": "http://example.com/a.json",
+    "definitions": {
+      "x": {
+        "id": "http://example.com/b/c.json",
+        "not": {
+          "definitions": {
+            "y": {
+              "id": "d.json",
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "http://example.com/b/d.json"
+      }
+    ]
+  },
+  "defaultDialect": "http://json-schema.org/draft-04/schema#",
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "http://example.com/a.json",
+      "definitions": {
+        "x": {
+          "$id": "http://example.com/b/c.json",
+          "not": {
+            "definitions": {
+              "y": {
+                "$id": "d.json",
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "http://example.com/b/d.json"
+        }
+      ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "http://example.com/a.json",
+      "definitions": {
+        "x": {
+          "$id": "http://example.com/b/c.json",
+          "not": {
+            "definitions": {
+              "y": {
+                "$id": "d.json",
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "http://example.com/b/d.json"
+        }
+      ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "http://example.com/a.json",
+      "$defs": {
+        "x": {
+          "$id": "http://example.com/b/c.json",
+          "not": {
+            "$defs": {
+              "y": {
+                "$id": "d.json",
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "http://example.com/b/d.json"
+        }
+      ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "http://example.com/a.json",
+      "$defs": {
+        "x": {
+          "$id": "http://example.com/b/c.json",
+          "not": {
+            "$defs": {
+              "y": {
+                "$id": "d.json",
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "http://example.com/b/d.json"
+        }
+      ]
+    }
+  },
+  "examples": [
+    1
+  ],
+  "counterExamples": [
+    "a"
+  ]
+}

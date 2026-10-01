@@ -137,6 +137,58 @@ inline auto dialect_position(const std::string_view dialect) -> std::size_t {
   return 0;
 }
 
+// The official meta-schema documents, by the URI a schema references them at.
+// Each recurses with the keyword of the dialect it was written for, so a
+// meta-schema that extends one cannot be carried to another dialect by renaming
+// anything in the extending document alone
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+constexpr std::array<std::string_view, 22> OFFICIAL_METASCHEMAS{
+    {"http://json-schema.org/draft-03/schema",
+     "http://json-schema.org/draft-04/schema",
+     "http://json-schema.org/draft-06/schema",
+     "http://json-schema.org/draft-07/schema",
+     "https://json-schema.org/draft/2019-09/schema",
+     "https://json-schema.org/draft/2019-09/meta/core",
+     "https://json-schema.org/draft/2019-09/meta/applicator",
+     "https://json-schema.org/draft/2019-09/meta/validation",
+     "https://json-schema.org/draft/2019-09/meta/meta-data",
+     "https://json-schema.org/draft/2019-09/meta/format",
+     "https://json-schema.org/draft/2019-09/meta/content",
+     "https://json-schema.org/draft/2019-09/meta/hyper-schema",
+     "https://json-schema.org/draft/2020-12/schema",
+     "https://json-schema.org/draft/2020-12/meta/core",
+     "https://json-schema.org/draft/2020-12/meta/applicator",
+     "https://json-schema.org/draft/2020-12/meta/unevaluated",
+     "https://json-schema.org/draft/2020-12/meta/validation",
+     "https://json-schema.org/draft/2020-12/meta/meta-data",
+     "https://json-schema.org/draft/2020-12/meta/format-annotation",
+     "https://json-schema.org/draft/2020-12/meta/format-assertion",
+     "https://json-schema.org/draft/2020-12/meta/content",
+     "https://json-schema.org/draft/2020-12/meta/hyper-schema"}};
+
+// The two families settled on opposite schemes, `http` for the numbered drafts
+// and `https` for the dated ones, and both spellings are seen in the wild.
+// Which one a document wrote must not decide whether it is recognised
+inline auto normalized_metaschema_uri(const std::string_view uri)
+    -> std::string {
+  std::string result{without_empty_fragment(uri)};
+  if (result.starts_with("https://json-schema.org/draft-")) {
+    result.erase(4, 1);
+  } else if (result.starts_with("http://json-schema.org/draft/")) {
+    result.insert(4, "s");
+  }
+
+  return result;
+}
+
+inline auto names_official_metaschema(const std::string_view uri) -> bool {
+  const auto candidate{normalized_metaschema_uri(uri)};
+  return std::ranges::any_of(
+      OFFICIAL_METASCHEMAS, [&candidate](const auto &entry) -> bool {
+        return normalized_metaschema_uri(entry) == candidate;
+      });
+}
+
 // A dialect the ladder does not name is one the conversion has no rules for,
 // whether it belongs to a draft older than the ladder starts at or to a
 // meta-schema of the caller's own
@@ -245,69 +297,87 @@ inline auto declares_newer_dialect(const sourcemeta::core::JSON &subschema,
   return declared > 0 && declared > dialect_position(dialect);
 }
 
-// The keywords whose value is instance data rather than a schema, in every
-// dialect the ladder walks. The marker is only ever written onto a subschema,
-// so a member that merely reads like one inside these is the caller's own data
-// and carries no ladder state
-// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-constexpr std::array<std::string_view, 4> INSTANCE_DATA_KEYWORDS{
-    {"const", "default", "enum", "examples"}};
+// The ladder only ever writes its marker onto a schema, so clearing it follows
+// the frame's own idea of where the schemas are rather than the spelling of
+// keyword names. A keyword carries schemas only in a dialect that defines it,
+// and walking a name the dialect never defined reaches the caller's own data,
+// where a member that merely reads like the marker is not ours to touch. The
+// frame is only in hand while a condition runs, so the rules carry this list
+// over to their transform
+inline auto subschema_pointers_under(
+    const sourcemeta::core::SchemaFrame &frame,
+    const sourcemeta::core::SchemaFrame::Location &location)
+    -> std::vector<sourcemeta::core::Pointer> {
+  std::vector<sourcemeta::core::Pointer> result;
+  frame.for_each_subschema_under(
+      location.pointer,
+      [&result, &location](
+          const sourcemeta::core::SchemaFrame::Location &entry) -> void {
+        result.push_back(sourcemeta::core::to_pointer(entry.pointer)
+                             .slice(location.pointer.size()));
+      });
 
-inline auto holds_instance_data(const std::string_view keyword) -> bool {
-  return std::ranges::find(INSTANCE_DATA_KEYWORDS, keyword) !=
-         INSTANCE_DATA_KEYWORDS.cend();
+  return result;
 }
 
 // The marker is state of the ladder rather than of the schema. A resource that
 // declares a dialect the conversion does not own can never materialise it into
 // a `$schema`, so whatever survives the ladder has to come off before the
-// caller ever sees it
-inline auto erase_dialect_overrides(sourcemeta::core::JSON &schema) -> void {
-  if (schema.is_array()) {
-    for (auto &item : schema.as_array()) {
-      erase_dialect_overrides(item);
-    }
-
-    return;
-  }
-
+// caller ever sees it.
+//
+// Which members of a document are schemas is a question for the walker, so this
+// follows the frame rather than guessing from keyword names. A keyword only
+// carries schemas in a dialect that defines it, and walking a name the dialect
+// never defined reaches the caller's own data, where a member that merely reads
+// like the marker is not ours to touch
+inline auto
+erase_dialect_overrides(sourcemeta::core::JSON &schema,
+                        const sourcemeta::core::SchemaWalker &walker,
+                        const sourcemeta::core::SchemaResolver &resolver,
+                        const std::string_view default_dialect,
+                        const std::string_view default_id) -> void {
   if (!schema.is_object()) {
     return;
   }
 
-  const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-  if (marker != nullptr && is_own_dialect_override(*marker)) {
-    schema.erase(DIALECT_OVERRIDE_KEYWORD);
-  }
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      walker,
+      resolver,
+      default_dialect,
+      default_id,
+      sourcemeta::core::SchemaFrame::IdentifierMode::Fallback};
 
-  std::vector<std::string> keys;
-  keys.reserve(schema.size());
-  for (const auto &entry : schema.as_object()) {
-    if (!holds_instance_data(entry.first)) {
-      keys.push_back(entry.first);
+  std::vector<sourcemeta::core::Pointer> subschemas;
+  frame.for_each_subschema(
+      [&subschemas](
+          const sourcemeta::core::SchemaFrame::Location &location) -> void {
+        subschemas.push_back(sourcemeta::core::to_pointer(location.pointer));
+      });
+
+  for (const auto &pointer : subschemas) {
+    auto &subschema{sourcemeta::core::get(schema, pointer)};
+    if (!subschema.is_object()) {
+      continue;
     }
-  }
-  for (const auto &key : keys) {
-    erase_dialect_overrides(schema.at(key));
+
+    const auto *marker{subschema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+    if (marker != nullptr && is_own_dialect_override(*marker)) {
+      subschema.erase(DIALECT_OVERRIDE_KEYWORD);
+    }
   }
 }
 
-inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
+inline auto clear_dialect_override(sourcemeta::core::JSON &subschema,
                                    const bool is_root,
                                    const std::string_view dialect) -> void {
-  if (schema.is_array()) {
-    for (auto &item : schema.as_array()) {
-      drop_dialect_overrides(item, false, dialect);
-    }
+  if (!subschema.is_object()) {
     return;
   }
 
-  if (!schema.is_object()) {
-    return;
-  }
-
-  if (!is_root && schema.defines("$schema") &&
-      schema.at("$schema").is_string()) {
+  if (!is_root && subschema.defines("$schema") &&
+      subschema.at("$schema").is_string()) {
     return;
   }
 
@@ -315,21 +385,31 @@ inline auto drop_dialect_overrides(sourcemeta::core::JSON &schema,
   // its marker. Dropping it would leave the keywords that move brought in
   // looking like keywords of the dialect it has left behind, and the rules
   // that reserve those names would prefix them away
-  const auto *marker{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+  const auto *marker{subschema.try_at(DIALECT_OVERRIDE_KEYWORD)};
   if (marker != nullptr && is_own_dialect_override(*marker) &&
-      (is_root || !moved_past(schema, dialect))) {
-    schema.erase(DIALECT_OVERRIDE_KEYWORD);
+      (is_root || !moved_past(subschema, dialect))) {
+    subschema.erase(DIALECT_OVERRIDE_KEYWORD);
   }
+}
 
-  std::vector<std::string> keys;
-  keys.reserve(schema.size());
-  for (const auto &entry : schema.as_object()) {
-    if (!holds_instance_data(entry.first)) {
-      keys.push_back(entry.first);
+inline auto drop_dialect_overrides(
+    sourcemeta::core::JSON &schema, const std::string_view dialect,
+    const std::vector<sourcemeta::core::Pointer> &subschemas) -> void {
+  clear_dialect_override(schema, true, dialect);
+
+  for (const auto &pointer : subschemas) {
+    if (pointer.empty()) {
+      continue;
     }
-  }
-  for (const auto &key : keys) {
-    drop_dialect_overrides(schema.at(key), false, dialect);
+
+    // A transform may have moved things before the markers come off, so a
+    // location the frame knew about need not still be where it was
+    if (sourcemeta::core::try_get(schema, pointer) == nullptr) {
+      continue;
+    }
+
+    clear_dialect_override(sourcemeta::core::get(schema, pointer), false,
+                           dialect);
   }
 }
 
