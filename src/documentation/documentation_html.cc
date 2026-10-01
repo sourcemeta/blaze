@@ -3,6 +3,7 @@
 #include <sourcemeta/core/json.h>
 
 #include <cassert>     // assert
+#include <cctype>      // std::tolower
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint32_t
 #include <map>         // std::map
@@ -165,6 +166,38 @@ auto anchor(std::string_view identifier) -> std::string {
   }
 
   return "shape-" + readable + "-" + mark(identifier);
+}
+
+// Whether an address from a schema is one a reader can be invited to follow.
+// Anything else is written out rather than linked.
+auto followable(const std::string_view address) -> bool {
+  // A browser throws away tabs, newlines and control characters before it
+  // reads an address, so they are thrown away here too. Otherwise an address
+  // written as "java\tscript:" would pass a test that "javascript:" fails.
+  std::string plain;
+  plain.reserve(address.size());
+  for (const auto character : address) {
+    if (static_cast<unsigned char>(character) > 0x20 &&
+        static_cast<unsigned char>(character) != 0x7f) {
+      plain += character;
+    }
+  }
+
+  const auto colon{plain.find(':')};
+  const auto slash{plain.find('/')};
+  if (colon == std::string::npos ||
+      (slash != std::string::npos && slash < colon)) {
+    // No scheme of its own, so it is read against the page it sits in.
+    return !plain.starts_with("//");
+  }
+
+  auto scheme{plain.substr(0, colon)};
+  for (auto &character : scheme) {
+    character =
+        static_cast<char>(std::tolower(static_cast<unsigned char>(character)));
+  }
+
+  return scheme == "http" || scheme == "https" || scheme == "mailto";
 }
 
 auto plain(const JSON &value) -> std::string {
@@ -412,9 +445,17 @@ auto write_value_cell(Page &html, const JSON &value, const Names &names)
   }
 
   if (kind == "external") {
-    html.open("a", "href", text_of(value, "href"));
-    html.text("described elsewhere");
-    html.close();
+    const auto where{text_of(value, "href")};
+    if (followable(where)) {
+      html.open("a", "href", where);
+      html.text("described elsewhere");
+      html.close();
+    } else {
+      // An address a reader should not be invited to follow is shown as the
+      // text it is.
+      html.text("described elsewhere, at " + where);
+    }
+
     return;
   }
 

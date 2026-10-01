@@ -3,9 +3,11 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
+#include <sourcemeta/core/regex.h>
 
 #include <algorithm>   // std::sort, std::any_of, std::find, std::max
 #include <cassert>     // assert
+#include <cmath>       // std::isfinite
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::int64_t, std::uint8_t, std::uint32_t
 #include <exception>   // std::exception
@@ -589,6 +591,31 @@ auto number_facts(JSON &value, const JSON &subschema, const Pointer &pointer,
     value.assign("range", std::move(range));
   }
 
+  for (const auto *keyword : {"minimum", "maximum", "exclusiveMinimum",
+                              "exclusiveMaximum", "multipleOf"}) {
+    if (!defines(subschema, keyword)) {
+      continue;
+    }
+
+    const auto &bound{subschema.at(keyword)};
+    constexpr std::int64_t EXACT{9007199254740991};
+    // A number too large for the usual kinds is kept as a decimal, which is
+    // already past what this can state exactly.
+    const auto past_exact{
+        bound.is_decimal() ||
+        (bound.is_integer() &&
+         (bound.to_integer() > EXACT || bound.to_integer() < -EXACT)) ||
+        (bound.is_real() && (!std::isfinite(bound.to_real()) ||
+                             bound.to_real() > static_cast<double>(EXACT) ||
+                             bound.to_real() < -static_cast<double>(EXACT)))};
+    if (past_exact) {
+      fail(std::string{"The `"} + keyword +
+               "` keyword is past the numbers JSON holds exactly, so the "
+               "format cannot state it",
+           pointer);
+    }
+  }
+
   if (defines(subschema, "multipleOf")) {
     const auto &step{subschema.at("multipleOf")};
     const auto positive{(step.is_integer() && step.to_integer() > 0) ||
@@ -599,6 +626,50 @@ auto number_facts(JSON &value, const JSON &subschema, const Pointer &pointer,
 
     value.assign("multipleOf", step);
   }
+}
+
+// Whether a key rule lets a name through. What it cannot decide, it allows,
+// since the table may only state what is certain.
+auto name_allowed(const JSON &keys, const JSON::String &name) -> bool {
+  if (!keys.is_object()) {
+    return true;
+  }
+
+  if (keys.at("kind").to_string() == "never") {
+    return false;
+  }
+
+  if (keys.at("kind").to_string() == "enum" && keys.defines("values")) {
+    for (const auto &allowed : keys.at("values").as_array()) {
+      if (allowed.is_string() && allowed.to_string() == name) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  if (keys.defines("pattern") && keys.at("pattern").is_string() &&
+      !sourcemeta::core::matches_if_valid(keys.at("pattern").to_string(),
+                                          name)) {
+    return false;
+  }
+
+  if (keys.defines("length")) {
+    const auto &length{keys.at("length")};
+    const auto size{static_cast<std::int64_t>(name.size())};
+    if (length.defines("min") && length.at("min").is_integer() &&
+        size < length.at("min").to_integer()) {
+      return false;
+    }
+
+    if (length.defines("max") && length.at("max").is_integer() &&
+        size > length.at("max").to_integer()) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 auto object_facts(Context &context, JSON &value, const JSON &subschema,
@@ -697,6 +768,40 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
   if (defines(subschema, "propertyNames") && context.rank >= Rank::Draft6) {
     value.assign("keys", convert(context, subschema.at("propertyNames"),
                                  child(pointer, "propertyNames")));
+  }
+
+  // A field whose name also matches a pattern is held to both, so the table
+  // says both of them rather than only the first.
+  if (value.defines("fields") && value.defines("patternFields")) {
+    for (auto &field : value.at("fields").as_array()) {
+      if (!field.defines("value")) {
+        continue;
+      }
+
+      for (const auto &entry : value.at("patternFields").as_array()) {
+        if (!sourcemeta::core::matches_if_valid(entry.at("pattern").to_string(),
+                                                field.at("name").to_string())) {
+          continue;
+        }
+
+        if (!field.at("value").defines("also")) {
+          field.at("value").assign("also", JSON::make_array());
+        }
+
+        field.at("value").at("also").push_back(entry.at("value"));
+      }
+    }
+  }
+
+  // A name the key rule does not allow can never appear, whatever a field says
+  // it would hold.
+  if (value.defines("fields") && value.defines("keys")) {
+    const auto &keys{value.at("keys")};
+    for (auto &field : value.at("fields").as_array()) {
+      if (!name_allowed(keys, field.at("name").to_string())) {
+        field.assign("value", make_value("never"));
+      }
+    }
   }
 
   count_of(subschema, "minProperties", pointer);
