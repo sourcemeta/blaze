@@ -12,6 +12,7 @@
 #include <array>       // std::array
 #include <cstddef>     // std::size_t
 #include <filesystem>  // std::filesystem
+#include <optional>    // std::optional, std::nullopt
 #include <sstream>     // std::ostringstream
 #include <string>      // std::string
 #include <string_view> // std::string_view
@@ -384,6 +385,35 @@ auto check_metaschema(const std::string_view target,
   EXPECT_EQ(entry, expected);
 }
 
+// Conversion reaches a dialect by walking the ladder, so going to an older
+// target first and then on to a newer one has to land exactly where going
+// straight to the newer one does. Anything else means a step depends on state
+// that one of the two routes threw away
+auto check_transitivity(
+    const std::vector<std::optional<sourcemeta::core::JSON>> &converted,
+    const sourcemeta::core::SchemaResolver &resolver, const Inputs &inputs)
+    -> void {
+  for (std::size_t earlier = 0; earlier < TARGETS.size(); earlier += 1) {
+    if (!converted.at(earlier).has_value()) {
+      continue;
+    }
+
+    for (std::size_t later = earlier + 1; later < TARGETS.size(); later += 1) {
+      if (!converted.at(later).has_value()) {
+        continue;
+      }
+
+      std::ostringstream label;
+      label << TARGETS.at(earlier).name << " then " << TARGETS.at(later).name;
+      expect_equal_with_ordering(label.str(),
+                                 convert_schema(converted.at(earlier).value(),
+                                                resolver, inputs,
+                                                TARGETS.at(later)),
+                                 converted.at(later).value());
+    }
+  }
+}
+
 auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   check_shape(test);
 
@@ -399,15 +429,19 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   }
 
   std::vector<sourcemeta::core::JSON> evaluated;
+  std::vector<std::optional<sourcemeta::core::JSON>> converted;
+  converted.reserve(TARGETS.size());
   for (const auto &target : TARGETS) {
     const sourcemeta::core::JSON::String name{target.name};
     if (test.defines("errors") && test.at("errors").defines(name)) {
       check_error(test, resolver, inputs, target, test.at("errors").at(name));
+      converted.emplace_back(std::nullopt);
       continue;
     }
 
     const auto document{
         convert_schema(test.at("schema"), resolver, inputs, target)};
+    converted.emplace_back(document);
     const auto &expected{results.at(name)};
     if (expected.is_null()) {
       expect_equal_with_ordering(target.name, document, test.at("schema"));
@@ -440,6 +474,8 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
                     disagreements);
     evaluated.push_back(document);
   }
+
+  check_transitivity(converted, resolver, inputs);
 
   EXPECT_EQ(disagreements, sourcemeta::core::JSON::make_array());
 }

@@ -158,13 +158,21 @@ inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
                                const sourcemeta::core::JSON::StringView keyword,
                                const std::string_view dialect,
                                const std::string_view default_id) -> bool {
+  // A document that declares no identifier of its own is named by whatever the
+  // caller said it is called, which is the answer identification gives too, so
+  // that is the name this question has to ask about. Reading only the keyword
+  // would let a meta-schema identified solely by the caller describe itself
+  // unnoticed
   const auto *identifier{schema.try_at(keyword)};
-  if (identifier == nullptr || !identifier->is_string()) {
+  const std::string_view candidate{
+      identifier != nullptr && identifier->is_string()
+          ? std::string_view{identifier->to_string()}
+          : default_id};
+  if (candidate.empty()) {
     return false;
   }
 
-  if (without_empty_fragment(identifier->to_string()) ==
-      without_empty_fragment(dialect)) {
+  if (without_empty_fragment(candidate) == without_empty_fragment(dialect)) {
     return true;
   }
 
@@ -173,7 +181,7 @@ inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
   // A value that does not parse is not for this question to complain about,
   // as framing says so in better words a moment later
   try {
-    sourcemeta::core::URI left{identifier->to_string()};
+    sourcemeta::core::URI left{std::string{candidate}};
     sourcemeta::core::URI right{std::string{dialect}};
     if (!default_id.empty()) {
       const sourcemeta::core::URI base{std::string{default_id}};

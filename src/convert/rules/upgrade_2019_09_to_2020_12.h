@@ -49,7 +49,7 @@ public:
     }
 
     this->is_inside_contains_wrapper_ =
-        location_inside_contains_wrapper(location);
+        location_inside_contains_wrapper(schema, location);
 
     if (any_descendant_has_pending_pattern(root, frame, location)) {
       return false;
@@ -387,7 +387,30 @@ private:
     return true;
   }
 
+  // The wrapper this rule builds holds nothing but the `contains` it moved and
+  // the two bounds that go with it, so a double negation the document wrote
+  // itself can be told apart by what sits beside them. Reading the position
+  // alone would mistake an authored `not` of a `not` for the rule's own output
+  // and leave the `contains` inside it bare
+  static auto
+  subschema_is_contains_wrapper(const sourcemeta::core::JSON &subschema)
+      -> bool {
+    if (!subschema.is_object() || !subschema.defines("contains")) {
+      return false;
+    }
+
+    for (const auto &entry : subschema.as_object()) {
+      if (entry.first != "contains" && entry.first != "minContains" &&
+          entry.first != "maxContains") {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   static auto location_inside_contains_wrapper(
+      const sourcemeta::core::JSON &subschema,
       const sourcemeta::core::SchemaFrame::Location &location) -> bool {
     if (location.pointer.size() < 2) {
       return false;
@@ -400,7 +423,7 @@ private:
     if (!second_last.is_property() || second_last.to_property() != "not") {
       return false;
     }
-    return true;
+    return subschema_is_contains_wrapper(subschema);
   }
 
   static auto
@@ -428,7 +451,7 @@ private:
       return true;
     }
     if (subschema.defines("contains") &&
-        !location_inside_contains_wrapper(location)) {
+        !location_inside_contains_wrapper(subschema, location)) {
       return true;
     }
     if (vocabulary_has_mappable_uri(subschema)) {
