@@ -91,6 +91,36 @@ auto assert_convertible_dialects(const core::JSON &schema,
       });
 }
 
+/// A document that declares `$vocabulary` is a meta-schema, which is what this
+/// conversion asks of one. Extending an official meta-schema means referencing
+/// a document that recurses with the keyword of the dialect it was written for,
+/// and nothing this conversion renames in the extending document can carry that
+/// recursion to another dialect, so the whole document is refused rather than
+/// quietly stripped of the constraints it places on what it describes
+auto assert_convertible_metaschema(const core::JSON &schema,
+                                   const core::SchemaFrame &frame) -> void {
+  if (!schema.is_object() || !schema.defines("$vocabulary")) {
+    return;
+  }
+
+  frame.for_each_reference(
+      [](const core::SchemaReferenceType, const core::WeakPointer &origin,
+         const core::SchemaFrame::Reference &reference) -> void {
+        // Naming a dialect is what every document does and says nothing about
+        // extending it. Only a reference that pulls the other document's
+        // keywords in is the one that cannot be carried over
+        if (!origin.empty() && origin.back().is_property() &&
+            origin.back().to_property() == "$schema") {
+          return;
+        }
+
+        if (names_official_metaschema(reference.destination)) {
+          throw ConvertUnsupportedMetaschemaError{reference.destination,
+                                                  core::to_pointer(origin)};
+        }
+      });
+}
+
 /// Apply the given rules top-down to every subschema until none of them applies
 auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
            const sourcemeta::core::SchemaWalker &walker,
@@ -139,6 +169,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 
       if (!asserted) {
         assert_convertible_dialects(schema, frame.value(), default_id);
+        assert_convertible_metaschema(schema, frame.value());
         assert_schema_references(frame.value());
         asserted = true;
       }

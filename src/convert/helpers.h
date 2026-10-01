@@ -137,6 +137,39 @@ inline auto dialect_position(const std::string_view dialect) -> std::size_t {
   return 0;
 }
 
+// The official meta-schema documents, by the URI a schema references them at.
+// Each recurses with the keyword of the dialect it was written for, so a
+// meta-schema that extends one cannot be carried to another dialect by renaming
+// anything in the extending document alone
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+constexpr std::array<std::string_view, 19> OFFICIAL_METASCHEMAS{
+    {"http://json-schema.org/draft-03/schema",
+     "http://json-schema.org/draft-04/schema",
+     "http://json-schema.org/draft-06/schema",
+     "http://json-schema.org/draft-07/schema",
+     "https://json-schema.org/draft/2019-09/schema",
+     "https://json-schema.org/draft/2019-09/meta/core",
+     "https://json-schema.org/draft/2019-09/meta/applicator",
+     "https://json-schema.org/draft/2019-09/meta/validation",
+     "https://json-schema.org/draft/2019-09/meta/meta-data",
+     "https://json-schema.org/draft/2019-09/meta/format",
+     "https://json-schema.org/draft/2019-09/meta/content",
+     "https://json-schema.org/draft/2020-12/schema",
+     "https://json-schema.org/draft/2020-12/meta/core",
+     "https://json-schema.org/draft/2020-12/meta/applicator",
+     "https://json-schema.org/draft/2020-12/meta/unevaluated",
+     "https://json-schema.org/draft/2020-12/meta/validation",
+     "https://json-schema.org/draft/2020-12/meta/meta-data",
+     "https://json-schema.org/draft/2020-12/meta/format-annotation",
+     "https://json-schema.org/draft/2020-12/meta/content"}};
+
+inline auto names_official_metaschema(const std::string_view uri) -> bool {
+  const auto candidate{without_empty_fragment(uri)};
+  return std::ranges::any_of(
+      OFFICIAL_METASCHEMAS,
+      [&candidate](const auto &entry) -> bool { return entry == candidate; });
+}
+
 // A dialect the ladder does not name is one the conversion has no rules for,
 // whether it belongs to a draft older than the ladder starts at or to a
 // meta-schema of the caller's own
