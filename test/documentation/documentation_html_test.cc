@@ -133,3 +133,26 @@ TEST(html_a_list_of_a_shape_links_to_it) {
   EXPECT_TRUE(page.find("a list of <a href=\"#shape-defs-line-") !=
               std::string::npos);
 }
+
+TEST(html_an_address_worth_not_following_is_not_a_link) {
+  const auto documentation{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:table-format/2",
+    "title": "Order",
+    "language": "https://json-schema.org/draft/2020-12/schema",
+    "root": {
+      "kind": "object",
+      "fields": [
+        { "name": "bad",
+          "value": { "kind": "external", "href": "javascript:alert(1)" } },
+        { "name": "good",
+          "value": { "kind": "external", "href": "https://example.com/party" } }
+      ]
+    }
+  })JSON")};
+
+  const auto page{sourcemeta::blaze::to_html(documentation)};
+  EXPECT_TRUE(page.find("href=\"javascript") == std::string::npos);
+  EXPECT_TRUE(page.find("javascript:alert(1)") != std::string::npos);
+  EXPECT_TRUE(page.find("href=\"https://example.com/party\"") !=
+              std::string::npos);
+}
