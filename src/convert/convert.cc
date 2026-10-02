@@ -468,7 +468,7 @@ auto convert(sourcemeta::core::JSON &schema,
              const ConvertTarget target, const std::string_view default_dialect,
              const std::string_view default_id) -> void {
   std::vector<Rule> rules;
-  rules.reserve(20);
+  rules.reserve(21);
   rules.push_back(make_rule<ShadowStrayDialectDeclaration>());
   rules.push_back(make_rule<DraftOfficialDialectWithHttps>());
   rules.push_back(make_rule<DraftOfficialDialectWithoutEmptyFragment>());

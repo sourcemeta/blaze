@@ -22,7 +22,7 @@ public:
     this->stray_required_ =
         has_stray_required_boolean(schema, location.pointer);
 
-    ONLY_CONTINUE_IF(has_pending_draft_3_pattern(schema) ||
+    ONLY_CONTINUE_IF(has_pending_draft_3_pattern(schema, location.dialect) ||
                      this->stray_required_ || root_via_default_dialect);
 
     if (frame.any_subschema_under(
@@ -38,7 +38,7 @@ public:
               // validation, but Draft 4 does not accept it as a value at all,
               // so it has to be upgraded before the dialect moves rather than
               // being left for the target meta-schema to reject
-              return has_pending_draft_3_pattern(entry_schema) ||
+              return has_pending_draft_3_pattern(entry_schema, entry.dialect) ||
                      has_stray_required_boolean(entry_schema, entry.pointer);
             })) {
       return false;
@@ -69,7 +69,7 @@ public:
     rewrite_type_array_with_subschemas(schema, this->renames_);
     rewrite_disallow(schema, this->renames_);
     rewrite_extends(schema, this->renames_);
-    rewrite_empty_items(schema);
+    rewrite_empty_items(schema, this->renames_);
     rewrite_divisible_by(schema);
     // Dropping the stray boolean first leaves the lift free to write its array
     // under the same name. The other way round the lift's array is what gets
@@ -112,9 +112,17 @@ private:
   mutable std::vector<Relocation> renames_;
 
   static auto
-  has_pending_draft_3_pattern(const sourcemeta::core::JSON &subschema) -> bool {
+  has_pending_draft_3_pattern(const sourcemeta::core::JSON &subschema,
+                              const std::string_view dialect) -> bool {
+    // Either answer putting the subschema past this rung is enough. What it
+    // declares covers the marker this rule plants on its own output, without
+    // which the keywords it writes would read as pending for good. What
+    // framing reads covers a subschema sitting inside a resource that has
+    // already moved up, which declares nothing of its own and would otherwise
+    // leave the root waiting on work nothing will do
     if (!subschema.is_object() ||
-        declares_dialect_out_of_reach(subschema, DRAFT_3_URL)) {
+        declares_dialect_out_of_reach(subschema, DRAFT_3_URL) ||
+        dialect_position(dialect) > dialect_position(DRAFT_3_URL)) {
       return false;
     }
 
@@ -425,19 +433,40 @@ private:
   // element, which is what a single-schema `items` does. Dropping the empty
   // array alone would instead leave `additionalItems` with no array beside it,
   // where both dialects ignore it, and every element would stop being checked
-  static auto rewrite_empty_items(sourcemeta::core::JSON &schema) -> void {
+  static auto rewrite_empty_items(sourcemeta::core::JSON &schema,
+                                  std::vector<Relocation> &renames) -> void {
     if (!schema.defines("items") || !schema.at("items").is_array() ||
         !schema.at("items").empty()) {
       return;
     }
 
-    if (schema.defines("additionalItems")) {
-      schema.assign("items", schema.at("additionalItems"));
-      schema.erase("additionalItems");
+    if (!schema.defines("additionalItems")) {
+      schema.erase("items");
       return;
     }
 
-    schema.erase("items");
+    // Draft 3 lets this keyword be a boolean, which Draft 4 does not accept
+    // where it is going. `true` allows every element, which is what saying
+    // nothing does, and `false` allows none, which is an array that has to be
+    // empty. `maxItems` says that in a keyword both dialects share, so no
+    // keyword Draft 4 only just promoted is introduced here
+    if (schema.at("additionalItems").is_boolean()) {
+      const auto allows{schema.at("additionalItems").to_boolean()};
+      schema.erase("additionalItems");
+      schema.erase("items");
+      if (!allows) {
+        schema.assign("maxItems", sourcemeta::core::JSON{0});
+      }
+
+      return;
+    }
+
+    // A reference may name the schema being moved, or something inside it, so
+    // where it lands is recorded for `rereference` to follow
+    renames.emplace_back(sourcemeta::core::Pointer{"additionalItems"},
+                         sourcemeta::core::Pointer{"items"});
+    schema.assign("items", schema.at("additionalItems"));
+    schema.erase("additionalItems");
   }
 
   static auto rewrite_divisible_by(sourcemeta::core::JSON &schema) -> void {

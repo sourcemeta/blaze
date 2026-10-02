@@ -491,11 +491,19 @@ auto meets_metaschema(const sourcemeta::core::JSON &document,
 // did not meet its own meta-schema to begin with is left out, as conversion
 // does not answer for what it was handed.
 //
-// A document naming more than one dialect is left out too, because meta-schema
-// validation is not defined across dialects. A meta-schema describes one
-// dialect, so no single document can judge a root on one dialect together with
-// a resource on another, and holding the whole document to the root's
-// meta-schema would judge that resource by keywords it never claimed
+// What is judged is the document that came out, and it is left out when it
+// names more than one dialect, because meta-schema validation is not defined
+// across dialects. A meta-schema describes one dialect, so no single document
+// can judge a root on one dialect together with a resource on another, and
+// holding the whole document to the root's meta-schema would judge that
+// resource by keywords it never claimed.
+//
+// That is asked of the output alone. An upgrade leaves one dialect behind, so
+// the output usually names one even where the input named several, and the
+// input's count says nothing about whether the output can be judged. Asking it
+// of the input as well is what kept this check off for every mixed-dialect
+// fixture in the suite, which is exactly where mis-upgrading an embedded
+// resource is the risk
 auto check_metaschema(const std::string_view target,
                       const sourcemeta::core::JSON &document,
                       const sourcemeta::core::JSON &input,

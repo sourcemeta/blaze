@@ -4,17 +4,11 @@
     "id": "https://example.com/root",
     "properties": {
       "a": {
-        "$schema": "https://example.com/meta",
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-04/schema#",
+        "$schema": "http://json-schema.org/draft-07/schema#",
         "minimum": 3,
         "exclusiveMinimum": true
       }
-    }
-  },
-  "resolver": {
-    "https://example.com/meta": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "$id": "https://example.com/meta",
-      "type": "object"
     }
   },
   "result": {
@@ -23,7 +17,7 @@
       "id": "https://example.com/root",
       "properties": {
         "a": {
-          "x-$schema": "https://example.com/meta",
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
           "minimum": 3,
           "exclusiveMinimum": true
         }
@@ -34,7 +28,7 @@
       "$id": "https://example.com/root",
       "properties": {
         "a": {
-          "x-$schema": "https://example.com/meta",
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
           "exclusiveMinimum": 3
         }
       }
@@ -44,7 +38,7 @@
       "$id": "https://example.com/root",
       "properties": {
         "a": {
-          "x-$schema": "https://example.com/meta",
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
           "exclusiveMinimum": 3
         }
       }
@@ -54,7 +48,7 @@
       "$id": "https://example.com/root",
       "properties": {
         "a": {
-          "x-$schema": "https://example.com/meta",
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
           "exclusiveMinimum": 3
         }
       }
@@ -64,21 +58,12 @@
       "$id": "https://example.com/root",
       "properties": {
         "a": {
-          "x-$schema": "https://example.com/meta",
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
           "exclusiveMinimum": 3
         }
       }
     }
   },
-  "examples": [
-    {},
-    {
-      "a": 4
-    }
-  ],
-  "counterExamples": [
-    {
-      "a": 3
-    }
-  ]
+  "examples": [ {}, { "a": 4 } ],
+  "counterExamples": [ { "a": 3 } ]
 }

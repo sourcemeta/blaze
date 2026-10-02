@@ -28,11 +28,12 @@ public:
     ONLY_CONTINUE_IF(!location.pointer.empty() &&
                      location.pointer.size() != location.relative_pointer);
 
-    // While this module is carrying a subschema up the ladder it keeps the
-    // dialect it has reached in a marker of its own, beside the `$schema` the
-    // author wrote. That pair is in-flight state rather than a stray
-    // declaration, so it is left for the rules that own it
-    ONLY_CONTINUE_IF(!schema.defines(DIALECT_OVERRIDE_KEYWORD));
+    // The ladder's own marker may sit beside this `$schema`, and it is left
+    // alone: it records the dialect reached so far, which renaming a
+    // declaration that declares nothing does not disturb. Standing down while
+    // one is present would mean shadowing the same `$schema` only once the
+    // marker had gone, so converting a document twice would not agree with
+    // converting it once
 
     return true;
   }
