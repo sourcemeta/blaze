@@ -484,6 +484,111 @@ struct AnchorCharPolicy {
   std::function<bool(char)> is_valid_body;
 };
 
+// The dialect whose identifiers carry a free-form fragment
+constexpr std::string_view DRAFT_4_DIALECT{
+    "http://json-schema.org/draft-04/schema#"};
+
+// Draft 6 core 9.2 restricts a plain-name fragment to a letter followed by
+// letters, digits, hyphens, underscores, colons or periods. Draft 4 placed no
+// such restriction on the fragment its identifier carries, so an anchor that
+// was legal there may not be legal once the dialect moves
+inline auto is_draft_6_anchor_first_char(const char character) -> bool {
+  return (character >= 'A' && character <= 'Z') ||
+         (character >= 'a' && character <= 'z');
+}
+
+inline auto is_draft_6_anchor_body_char(const char character) -> bool {
+  return is_draft_6_anchor_first_char(character) ||
+         (character >= '0' && character <= '9') || character == '_' ||
+         character == ':' || character == '.' || character == '-';
+}
+
+inline auto is_draft_6_plain_name(const std::string_view fragment) -> bool {
+  if (fragment.empty() || !is_draft_6_anchor_first_char(fragment.front())) {
+    return false;
+  }
+
+  for (std::size_t index{1}; index < fragment.size(); index += 1) {
+    if (!is_draft_6_anchor_body_char(fragment[index])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+inline auto draft_6_anchor_policy() -> const AnchorCharPolicy & {
+  // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+  static const AnchorCharPolicy POLICY{
+      .is_valid_first = &is_draft_6_anchor_first_char,
+      .is_valid_body = &is_draft_6_anchor_body_char};
+  return POLICY;
+}
+
+// The fragment an identifier carries, if it carries one
+inline auto identifier_fragment(const sourcemeta::core::JSON &value)
+    -> std::optional<std::string> {
+  if (!value.is_string()) {
+    return std::nullopt;
+  }
+
+  const sourcemeta::core::URI uri{value.to_string()};
+  const auto fragment{uri.fragment()};
+  if (!fragment.has_value()) {
+    return std::nullopt;
+  }
+
+  return std::string{fragment.value()};
+}
+
+// Whether any Draft 4 resource in this document still holds an anchor that
+// Draft 6 would reject. The dialect must not move while one does, or the
+// identifier would arrive in Draft 6 carrying a fragment that dialect rejects
+inline auto
+has_unsanitized_draft_4_anchor(const sourcemeta::core::JSON &schema,
+                               const sourcemeta::core::SchemaFrame &frame)
+    -> bool {
+  if (!schema.is_object()) {
+    return false;
+  }
+
+  bool pending{false};
+  frame.for_each_subschema(
+      [&schema,
+       &pending](const sourcemeta::core::SchemaFrame::Location &entry) -> void {
+        if (pending || base_dialect_position(entry.base_dialect) !=
+                           dialect_position(DRAFT_4_DIALECT)) {
+          return;
+        }
+
+        const auto &subschema{sourcemeta::core::get(
+            schema, sourcemeta::core::to_pointer(entry.pointer))};
+        if (!subschema.is_object()) {
+          return;
+        }
+
+        const auto *identifier{subschema.try_at("id")};
+        if (identifier == nullptr) {
+          return;
+        }
+
+        const auto fragment{identifier_fragment(*identifier)};
+        pending = fragment.has_value() && !fragment.value().empty() &&
+                  !is_draft_6_plain_name(fragment.value());
+      });
+
+  return pending;
+}
+
+// Whatever an identifier is spelled relative to, kept as written, so that only
+// the fragment moves when an anchor is renamed
+inline auto without_fragment_as_written(const std::string_view identifier)
+    -> std::string_view {
+  const auto hash{identifier.find('#')};
+  return hash == std::string_view::npos ? identifier
+                                        : identifier.substr(0, hash);
+}
+
 inline auto sanitize_anchor_with_policy(const std::string_view original,
                                         const std::set<std::string> &in_use,
                                         const AnchorCharPolicy &policy)

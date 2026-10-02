@@ -1,0 +1,80 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://outer.example.com/schema",
+    "type": "object",
+    "properties": { "p": { "$ref": "https://inner.example.com/schema#1bad" } },
+    "definitions": {
+      "inner": {
+        "id": "https://inner.example.com/schema",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "definitions": { "x": { "id": "#1bad", "type": "string" } }
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://outer.example.com/schema",
+      "type": "object",
+      "properties": {
+        "p": { "$ref": "https://inner.example.com/schema#x-1bad" }
+      },
+      "definitions": {
+        "inner": {
+          "$id": "https://inner.example.com/schema",
+          "$schema": "http://json-schema.org/draft-06/schema#",
+          "definitions": { "x": { "$id": "#x-1bad", "type": "string" } }
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://outer.example.com/schema",
+      "type": "object",
+      "properties": {
+        "p": { "$ref": "https://inner.example.com/schema#x-1bad" }
+      },
+      "definitions": {
+        "inner": {
+          "$id": "https://inner.example.com/schema",
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "definitions": { "x": { "$id": "#x-1bad", "type": "string" } }
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://outer.example.com/schema",
+      "type": "object",
+      "properties": {
+        "p": { "$ref": "https://inner.example.com/schema#x-1bad" }
+      },
+      "$defs": {
+        "inner": {
+          "$id": "https://inner.example.com/schema",
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$defs": { "x": { "$anchor": "x-1bad", "type": "string" } }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://outer.example.com/schema",
+      "type": "object",
+      "properties": {
+        "p": { "$ref": "https://inner.example.com/schema#x-1bad" }
+      },
+      "$defs": {
+        "inner": {
+          "$id": "https://inner.example.com/schema",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$defs": { "x": { "$anchor": "x-1bad", "type": "string" } }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "p": "s" } ],
+  "counterExamples": [ { "p": 1 } ]
+}

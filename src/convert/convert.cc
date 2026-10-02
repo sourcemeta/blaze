@@ -34,13 +34,14 @@ namespace {
 #include "helpers.h"
 #include "rule.h"
 
-using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool>;
+using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool, bool>;
 
 /// Construct a rule entry for the given rule type
 template <std::derived_from<SchemaTransformRule> T>
 [[nodiscard]] auto make_rule() -> Rule {
   return {std::make_unique<T>(),
-          std::is_same_v<typename T::reframe_after_transform, std::true_type>};
+          std::is_same_v<typename T::reframe_after_transform, std::true_type>,
+          std::is_same_v<typename T::writes_outside_itself, std::true_type>};
 }
 
 /// A reference that lands on something other than a schema is not a reference
@@ -243,24 +244,25 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
             return false;
           }
           const auto &entry_pointer{*visited_iterator};
-
-          // A dialect the ladder does not name has no rules for moving a
-          // schema off it, so nothing may rewrite a subschema that is read as
-          // one. Leaving this to each rule's own vocabulary gate does not
-          // hold: core derives a pre-2019-09 dialect's vocabularies from its
-          // base dialect, so an off-ladder resource does carry the rung's
-          // vocabulary and does match those gates. An empty dialect is the
-          // caller's to supply and is not off the ladder
-          if (!location.dialect.empty() &&
-              !names_ladder_dialect(location.dialect)) {
-            return false;
-          }
-
           auto &current{core::get(schema, entry_pointer)};
           const auto current_vocabularies{
               frame->vocabularies(location, resolver)};
 
-          for (const auto &[rule, reframe_after_transform] : rules) {
+          for (const auto &[rule, reframe_after_transform, writes_outside] :
+               rules) {
+            // A dialect the ladder does not name has no rules for moving a
+            // schema off it, so nothing may rewrite a subschema that is read
+            // as one. Leaving this to each rule's own vocabulary gate does not
+            // hold: core derives a pre-2019-09 dialect's vocabularies from its
+            // base dialect, so an off-ladder resource does carry the rung's
+            // vocabulary and does match those gates. A rule that writes
+            // outside itself answers for what it touches, and an empty dialect
+            // is the caller's to supply and is not off the ladder
+            if (!writes_outside && !location.dialect.empty() &&
+                !names_ladder_dialect(location.dialect)) {
+              continue;
+            }
+
             const auto outcome{rule->condition(current, schema,
                                                current_vocabularies, *frame,
                                                location, walker, resolver)};
@@ -425,6 +427,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/prefix_promoted_draft_4_keywords.h"
 #include "rules/prefix_promoted_draft_6_keywords.h"
 #include "rules/prefix_promoted_draft_7_keywords.h"
+#include "rules/sanitize_draft_4_anchors.h"
 #include "rules/upgrade_2019_09_to_2020_12.h"
 #include "rules/upgrade_dialect_override_cleanup.h"
 #include "rules/upgrade_draft_3_to_draft_4.h"
@@ -453,6 +456,7 @@ auto convert(sourcemeta::core::JSON &schema,
       target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012) {
     rules.push_back(make_rule<PrefixPromotedDraft6Keywords>());
+    rules.push_back(make_rule<SanitizeDraft4Anchors>());
     rules.push_back(make_rule<UpgradeDraft4ToDraft6>());
     rules.push_back(make_rule<EmptyObjectAsTrue>());
     rules.push_back(make_rule<EnumToConst>());
