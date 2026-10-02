@@ -94,14 +94,49 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestOutcome {
 };
 
 /// @ingroup test
+/// Where a target of a test document lives, as the caller resolved it
+///
+/// The document and the frame are borrowed rather than copied, and the
+/// exhaustive template of a target is compiled on the first request, so both
+/// must outlive the test suite
+struct SOURCEMETA_BLAZE_TEST_EXPORT TestTarget {
+// See
+// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4251?view=msvc-170
+#if defined(_MSC_VER)
+#pragma warning(disable : 4251)
+#endif
+  /// The document that holds the schema under test, which may be that schema
+  /// or a wrapper that holds it, such as an OpenAPI description
+  const sourcemeta::core::JSON &document;
+  /// The frame of the schemas that the document holds. For a wrapper, this is
+  /// what framing the places it keeps its schemas in reports, such as what
+  /// sourcemeta::core::OpenAPIFrame::schemas returns
+  const sourcemeta::core::SchemaFrame &frame;
+  /// The URI of the schema under test, which the frame must locate. This is
+  /// typically the target itself, as what a test document names a schema by
+  /// and what framing the document it lives in keys that schema by are the
+  /// same URI. An empty string names whatever the frame was rooted at
+  sourcemeta::core::JSON::String entrypoint;
+#if defined(_MSC_VER)
+#pragma warning(default : 4251)
+#endif
+};
+
+/// @ingroup test
+/// How to reach what a target names, invoked once per target of a test
+/// document in the order that the document lists them
+// TODO(C++23): Use std::move_only_function when available in libc++
+using TestTargetResolver =
+    std::function<TestTarget(const sourcemeta::core::JSON::String &target)>;
+
+/// @ingroup test
 /// Represents a test suite containing multiple test cases
 ///
-/// A test suite reads a test document and runs its test cases against the
-/// templates that the caller binds to each of its targets. It does not resolve,
-/// frame or compile anything, so what a target names and what kind of document
-/// holds it are the caller's to settle. That is what lets a target name a
-/// schema that sits inside a wrapper document, such as an OpenAPI description,
-/// without this module knowing anything about wrappers
+/// A test suite does not resolve or frame anything. The caller hands over the
+/// document that holds each target, a frame of the schemas in it, and where in
+/// it the schema under test sits. That is what lets a target name a schema
+/// inside a document that is not a schema itself, such as an OpenAPI
+/// description, without this module knowing anything about wrappers
 struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
 
   /// The result of running a test suite
@@ -132,11 +167,6 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// The evaluator instance used for validation
   Evaluator evaluator;
 
-  /// How to obtain the exhaustive template of a target, invoked at most once.
-  /// Whatever it closes over must outlive the test suite
-  // TODO(C++23): Use std::move_only_function when available in libc++
-  using ExhaustiveProvider = std::function<Template()>;
-
   /// A callback invoked for each test case during execution
   // TODO(C++23): Use std::move_only_function when available in libc++
   using Callback = std::function<void(
@@ -144,32 +174,11 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
       std::size_t index, std::size_t total, const TestCase &test_case,
       const TestOutcome &outcome, TestTimestamp start, TestTimestamp end)>;
 
-  /// Give a target the template that its test cases are evaluated with, and
-  /// optionally how to obtain the exhaustive template that reporting a failure
-  /// in detail takes. Every target must be bound before the suite can run
-  ///
-  /// How that template came to be is up to the caller. A target that names a
-  /// schema of its own may go through the overload of
-  /// sourcemeta::blaze::compile that takes a resolver, while one that names a
-  /// schema inside a wrapper document goes through the overload that takes a
-  /// frame, passing the target as the entry point. See
-  /// sourcemeta::blaze::TestSuite::run for an example
-  auto bind(std::size_t target_index, Template fast,
-            ExhaustiveProvider exhaustive = {}) -> void;
-
-  /// Whether any test case of the suite states an expected RDF expansion. The
-  /// template that runs the cases must collect the JSON-LD annotations for
-  /// those expansions to be produced, so add
-  /// sourcemeta::blaze::JSONLD_KEYWORDS to the annotations tweak of the
-  /// template bound for fast validation when this holds. Exhaustive templates
-  /// emit every annotation keyword already
-  [[nodiscard]] auto requires_jsonld_annotations() const noexcept -> bool;
-
-  /// The template that the test cases of the given target are evaluated with
+  /// The compiled schema template for fast validation of the given target
   [[nodiscard]] auto fast(std::size_t target_index) const -> const Template &;
 
-  /// The exhaustive template of the given target, obtained from the provider
-  /// that was bound to it on the first request and cached from then on. A test
+  /// The compiled schema template for exhaustive validation of the given
+  /// target, compiled on the first request and cached from then on. A test
   /// suite must not be shared across threads
   auto exhaustive(std::size_t target_index) -> const Template &;
 
@@ -184,21 +193,14 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// #include <sourcemeta/core/jsonpointer.h>
   /// #include <sourcemeta/core/jsonschema.h>
   ///
-  /// #include <cassert>
   /// #include <filesystem>
   /// #include <functional>
   /// #include <iostream>
   ///
   /// const auto input{R"JSON({
-  ///   "target": "https://json-schema.org/draft/2020-12/schema",
+  ///   "target": "https://example.com/string",
   ///   "tests": [
-  ///     {
-  ///       "data": {
-  ///         "$schema": "https://json-schema.org/draft/2020-12/schema"
-  ///       },
-  ///       "valid": true,
-  ///       "description": "valid schema"
-  ///     }
+  ///     { "data": "foo", "valid": true, "description": "a string" }
   ///   ]
   /// })JSON"};
   ///
@@ -206,16 +208,24 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// sourcemeta::core::JSON document{nullptr};
   /// sourcemeta::core::parse_json(input, document, std::ref(tracker));
   ///
-  /// auto suite{sourcemeta::blaze::TestSuite::parse(
-  ///     document, tracker, std::filesystem::current_path())};
+  /// const auto schema{sourcemeta::core::parse_json(R"JSON({
+  ///   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  ///   "$id": "https://example.com/string",
+  ///   "type": "string"
+  /// })JSON")};
   ///
-  /// const auto schema{
-  ///     sourcemeta::core::schema_resolver(suite.targets.front())};
-  /// assert(schema.has_value());
-  /// suite.bind(0, sourcemeta::blaze::compile(
-  ///                   schema.value(), sourcemeta::core::schema_walker,
-  ///                   sourcemeta::core::schema_resolver,
-  ///                   sourcemeta::blaze::default_schema_compiler));
+  /// const sourcemeta::core::SchemaFrame frame{
+  ///     sourcemeta::core::SchemaFrame::Mode::References, schema,
+  ///     sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
+  ///
+  /// auto suite{sourcemeta::blaze::TestSuite::parse(
+  ///     document, tracker, std::filesystem::current_path(),
+  ///     [&schema, &frame](const sourcemeta::core::JSON::String &target)
+  ///         -> sourcemeta::blaze::TestTarget {
+  ///       return {.document = schema, .frame = frame, .entrypoint = target};
+  ///     },
+  ///     sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+  ///     sourcemeta::blaze::default_schema_compiler)};
   ///
   /// const auto result{suite.run(
   ///     [](const sourcemeta::core::JSON::String &target,
@@ -232,27 +242,41 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   ///
   /// std::cout << result.passed << "/" << result.total << " passed\n";
   /// ```
+  ///
+  /// A target that names a schema inside a document that is not a schema
+  /// itself is reached the same way, by handing over that document and a frame
+  /// of the schemas it holds. Nothing else about it differs, as framing a
+  /// document under the base it was read from keys a schema within it by that
+  /// base and the place it sits in, which is what the target spells:
+  ///
+  /// ```cpp
+  /// const sourcemeta::core::OpenAPIFrame frame{description, walker,
+  ///                                            resolver, base};
+  /// return {.document = description, .frame = frame.schemas(),
+  ///         .entrypoint = target};
+  /// ```
   auto run(const Callback &callback) -> Result;
 
-  /// Parse a test suite from a JSON object. This reads the test document and
-  /// nothing else, so the targets it reports must be bound before the suite
-  /// can run. For example:
+  /// Parse a test suite from a JSON object, resolving and compiling every
+  /// target that it names. For example:
   ///
   /// ```cpp
   /// #include <sourcemeta/blaze/test.h>
+  /// #include <sourcemeta/blaze/compiler.h>
   ///
   /// #include <sourcemeta/core/json.h>
   /// #include <sourcemeta/core/jsonpointer.h>
+  /// #include <sourcemeta/core/jsonschema.h>
   ///
   /// #include <cassert>
   /// #include <filesystem>
   /// #include <functional>
   ///
   /// const auto input{R"JSON({
-  ///   "target": "https://json-schema.org/draft/2020-12/schema",
+  ///   "target": "https://example.com/string",
   ///   "tests": [
-  ///     { "data": {}, "valid": true },
-  ///     { "data": [], "valid": false, "description": "Not an object" }
+  ///     { "data": "foo", "valid": true },
+  ///     { "data": [], "valid": false, "description": "Not a string" }
   ///   ]
   /// })JSON"};
   ///
@@ -260,26 +284,61 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// sourcemeta::core::JSON document{nullptr};
   /// sourcemeta::core::parse_json(input, document, std::ref(tracker));
   ///
+  /// const auto schema{sourcemeta::core::parse_json(R"JSON({
+  ///   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  ///   "$id": "https://example.com/string",
+  ///   "type": "string"
+  /// })JSON")};
+  ///
+  /// const sourcemeta::core::SchemaFrame frame{
+  ///     sourcemeta::core::SchemaFrame::Mode::References, schema,
+  ///     sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
+  ///
   /// const auto suite{sourcemeta::blaze::TestSuite::parse(
-  ///     document, tracker, std::filesystem::current_path())};
+  ///     document, tracker, std::filesystem::current_path(),
+  ///     [&schema, &frame](const sourcemeta::core::JSON::String &target)
+  ///         -> sourcemeta::blaze::TestTarget {
+  ///       return {.document = schema, .frame = frame, .entrypoint = target};
+  ///     },
+  ///     sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+  ///     sourcemeta::blaze::default_schema_compiler)};
   ///
   /// assert(suite.targets.size() == 1);
-  /// assert(suite.targets.front() ==
-  ///   "https://json-schema.org/draft/2020-12/schema");
+  /// assert(suite.targets.front() == "https://example.com/string");
   /// assert(suite.tests.size() == 2);
   /// ```
+  ///
+  /// The frame that a target resolves to must contain reference information
+  /// for the document it frames, and that document must be bundled, which are
+  /// the same pre-conditions that the overload of sourcemeta::blaze::compile
+  /// taking a frame states. The frame must also locate the entry point, so a
+  /// document is framed under the base that the target was resolved against
+  /// rather than under no base at all
   static auto parse(const sourcemeta::core::JSON &document,
                     const sourcemeta::core::PointerPositionTracker &tracker,
-                    const std::filesystem::path &base_path) -> TestSuite;
+                    const std::filesystem::path &base_path,
+                    const TestTargetResolver &target_resolver,
+                    const sourcemeta::core::SchemaResolver &schema_resolver,
+                    const sourcemeta::core::SchemaWalker &walker,
+                    const Compiler &compiler,
+                    const std::optional<Tweaks> &tweaks = std::nullopt)
+      -> TestSuite;
 
 private:
+  [[nodiscard]] auto compile_target(std::size_t target_index, Mode mode) const
+      -> Template;
+
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  std::vector<std::optional<Template>> schemas_fast_;
+  std::vector<TestTarget> resolved_targets_;
+  std::vector<Template> schemas_fast_;
   std::vector<std::optional<Template>> schemas_exhaustive_;
-  std::vector<ExhaustiveProvider> exhaustive_providers_;
-  bool requires_jsonld_annotations_{false};
+  sourcemeta::core::SchemaResolver schema_resolver_;
+  sourcemeta::core::SchemaWalker walker_;
+  Compiler compiler_;
+  std::optional<Tweaks> tweaks_fast_;
+  std::optional<Tweaks> tweaks_exhaustive_;
 #if defined(_MSC_VER)
 #pragma warning(default : 4251)
 #endif

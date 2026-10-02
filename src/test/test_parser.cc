@@ -122,7 +122,12 @@ auto TestCase::parse(
 
 auto TestSuite::parse(const sourcemeta::core::JSON &document,
                       const sourcemeta::core::PointerPositionTracker &tracker,
-                      const std::filesystem::path &base_path) -> TestSuite {
+                      const std::filesystem::path &base_path,
+                      const TestTargetResolver &target_resolver,
+                      const sourcemeta::core::SchemaResolver &schema_resolver,
+                      const sourcemeta::core::SchemaWalker &walker,
+                      const Compiler &compiler,
+                      const std::optional<Tweaks> &tweaks) -> TestSuite {
   assert(std::filesystem::is_directory(base_path));
   test_error_if(!document.is_object(), tracker, sourcemeta::core::EMPTY_POINTER,
                 "The test document must be an object");
@@ -182,42 +187,66 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
     index += 1;
   }
 
-  test_suite.requires_jsonld_annotations_ = std::ranges::any_of(
+  const auto with_rdf{std::ranges::any_of(
       test_suite.tests, [](const TestCase &test_case) -> bool {
         return test_case.rdf.has_value();
-      });
+      })};
 
-  test_suite.schemas_fast_.resize(test_suite.targets.size());
+  test_suite.tweaks_fast_ = tweaks;
+  test_suite.tweaks_exhaustive_ = tweaks;
+  if (with_rdf) {
+    if (!test_suite.tweaks_fast_.has_value()) {
+      test_suite.tweaks_fast_.emplace();
+    }
+
+    if (!test_suite.tweaks_fast_.value().annotations.has_value()) {
+      test_suite.tweaks_fast_.value().annotations.emplace();
+    }
+
+    test_suite.tweaks_fast_.value().annotations.value().insert(
+        JSONLD_KEYWORDS.cbegin(), JSONLD_KEYWORDS.cend());
+  }
+
+  test_suite.schema_resolver_ = schema_resolver;
+  test_suite.walker_ = walker;
+  test_suite.compiler_ = compiler;
+
+  test_suite.resolved_targets_.reserve(test_suite.targets.size());
+  test_suite.schemas_fast_.reserve(test_suite.targets.size());
   test_suite.schemas_exhaustive_.resize(test_suite.targets.size());
-  test_suite.exhaustive_providers_.resize(test_suite.targets.size());
+
+  for (std::size_t target_index = 0; target_index < test_suite.targets.size();
+       ++target_index) {
+    test_suite.resolved_targets_.push_back(
+        target_resolver(test_suite.targets[target_index]));
+    test_suite.schemas_fast_.push_back(
+        test_suite.compile_target(target_index, Mode::FastValidation));
+  }
 
   return test_suite;
 }
 
-auto TestSuite::bind(const std::size_t target_index, Template fast,
-                     ExhaustiveProvider exhaustive) -> void {
-  assert(target_index < this->schemas_fast_.size());
-  this->schemas_fast_[target_index] = std::move(fast);
-  this->exhaustive_providers_[target_index] = std::move(exhaustive);
-}
-
-auto TestSuite::requires_jsonld_annotations() const noexcept -> bool {
-  return this->requires_jsonld_annotations_;
+auto TestSuite::compile_target(const std::size_t target_index,
+                               const Mode mode) const -> Template {
+  const auto &target{this->resolved_targets_[target_index]};
+  return compile(
+      target.document, this->walker_, this->schema_resolver_, this->compiler_,
+      target.frame,
+      target.entrypoint.empty() ? target.frame.root() : target.entrypoint, mode,
+      mode == Mode::FastValidation ? this->tweaks_fast_
+                                   : this->tweaks_exhaustive_);
 }
 
 auto TestSuite::fast(const std::size_t target_index) const -> const Template & {
   assert(target_index < this->schemas_fast_.size());
-  const auto &schema_fast{this->schemas_fast_[target_index]};
-  assert(schema_fast.has_value());
-  return schema_fast.value();
+  return this->schemas_fast_[target_index];
 }
 
 auto TestSuite::exhaustive(const std::size_t target_index) -> const Template & {
   assert(target_index < this->schemas_exhaustive_.size());
   auto &schema_exhaustive{this->schemas_exhaustive_[target_index]};
   if (!schema_exhaustive.has_value()) {
-    assert(this->exhaustive_providers_[target_index]);
-    schema_exhaustive = this->exhaustive_providers_[target_index]();
+    schema_exhaustive = this->compile_target(target_index, Mode::Exhaustive);
   }
 
   return schema_exhaustive.value();

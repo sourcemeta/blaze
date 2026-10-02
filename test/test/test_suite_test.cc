@@ -25,8 +25,11 @@ TEST(error_not_an_object) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(), "The test document must be an object");
@@ -43,8 +46,11 @@ TEST(error_no_target) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -63,8 +69,11 @@ TEST(error_target_neither_string_nor_array) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(), "The test document `target` property must be a "
@@ -82,8 +91,11 @@ TEST(error_no_tests) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -102,8 +114,11 @@ TEST(error_tests_not_array) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -122,8 +137,11 @@ TEST(error_unresolvable_target) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::core::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(), "Could not resolve schema under test");
@@ -139,9 +157,11 @@ TEST(valid_empty_tests) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
@@ -161,9 +181,11 @@ TEST(valid_with_test_cases) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
@@ -197,8 +219,11 @@ TEST(error_invalid_test_case) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(
@@ -229,8 +254,11 @@ TEST(valid_with_file_path_target) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  const auto result{parse_and_bind(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver)};
+  TestTargetStore targets{test_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema.json")};
 
@@ -271,8 +299,11 @@ TEST(error_no_dialect_without_default) {
   }};
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   test_resolver);
+    TestTargetStore targets{test_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        test_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::core::SchemaUnknownBaseDialectError &error) {
     EXPECT_STREQ(error.what(),
@@ -302,9 +333,12 @@ TEST(valid_with_default_dialect) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  const auto result{parse_and_bind(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      "https://json-schema.org/draft/2020-12/schema")};
+  TestTargetStore targets{test_resolver,
+                          "https://json-schema.org/draft/2020-12/schema"};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
 
@@ -335,8 +369,11 @@ TEST(error_target_object) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -359,8 +396,11 @@ TEST(error_target_null) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -383,8 +423,11 @@ TEST(error_target_empty_array) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -410,8 +453,11 @@ TEST(error_target_array_first_element_not_string) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -437,8 +483,11 @@ TEST(error_target_array_trailing_element_not_string) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -464,8 +513,11 @@ TEST(error_target_array_element_null) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -491,8 +543,11 @@ TEST(error_target_array_element_array) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::blaze::TestParseError &error) {
     EXPECT_STREQ(error.what(),
@@ -518,8 +573,11 @@ TEST(error_target_array_unresolvable_entry) {
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
   try {
-    parse_and_bind(document, tracker, std::filesystem::path{STUBS_PATH},
-                   sourcemeta::core::schema_resolver);
+    TestTargetStore targets{sourcemeta::core::schema_resolver};
+    sourcemeta::blaze::TestSuite::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+        sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+        sourcemeta::blaze::default_schema_compiler);
     FAIL();
   } catch (const sourcemeta::core::SchemaResolutionError &error) {
     EXPECT_STREQ(error.what(), "Could not resolve schema under test");
@@ -538,9 +596,11 @@ TEST(valid_target_array_single_element) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
@@ -564,9 +624,11 @@ TEST(valid_target_array_multiple_uris) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 3);
   EXPECT_EQ(result.targets[0], "https://json-schema.org/draft/2020-12/schema");
@@ -596,8 +658,11 @@ TEST(valid_target_array_with_file_paths) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  const auto result{parse_and_bind(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver)};
+  TestTargetStore targets{test_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema.json")};
 
@@ -630,8 +695,11 @@ TEST(valid_target_array_mixed_uri_and_file_path) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  const auto result{parse_and_bind(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver)};
+  TestTargetStore targets{test_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
   const auto expected_file_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema.json")};
 
@@ -665,9 +733,12 @@ TEST(valid_target_array_with_default_dialect) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  const auto result{parse_and_bind(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      "https://json-schema.org/draft/2020-12/schema")};
+  TestTargetStore targets{test_resolver,
+                          "https://json-schema.org/draft/2020-12/schema"};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
   const auto expected_file_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
 
@@ -692,9 +763,11 @@ TEST(valid_target_array_preserves_test_case_positions) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 2);
   EXPECT_EQ(result.tests.size(), 2);
@@ -724,9 +797,11 @@ TEST(valid_rdf_2020_12_target) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
@@ -751,9 +826,11 @@ TEST(valid_rdf_2019_09_target) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(),
@@ -775,9 +852,11 @@ TEST(valid_rdf_draft7_target) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), "http://json-schema.org/draft-07/schema");
@@ -798,9 +877,11 @@ TEST(valid_draft7_target_without_rdf) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
-  const auto result{parse_and_bind(document, tracker,
-                                   std::filesystem::path{STUBS_PATH},
-                                   sourcemeta::core::schema_resolver)};
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 1);
   EXPECT_EQ(result.targets.front(), "http://json-schema.org/draft-07/schema");
@@ -829,8 +910,11 @@ TEST(valid_rdf_embedded_legacy_root_target) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  const auto result{parse_and_bind(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver)};
+  TestTargetStore targets{test_resolver};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_embedded_legacy.json")};
 
@@ -863,9 +947,12 @@ TEST(valid_rdf_no_dialect_target_with_2020_12_default) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  const auto result{parse_and_bind(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      "https://json-schema.org/draft/2020-12/schema")};
+  TestTargetStore targets{test_resolver,
+                          "https://json-schema.org/draft/2020-12/schema"};
+  const auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
 
@@ -898,8 +985,11 @@ TEST(fast_template_validates_the_target) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  auto result{parse_and_bind(document, tracker,
-                             std::filesystem::path{STUBS_PATH}, test_resolver)};
+  TestTargetStore targets{test_resolver};
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
@@ -934,8 +1024,11 @@ TEST(exhaustive_template_emits_annotations) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  auto result{parse_and_bind(document, tracker,
-                             std::filesystem::path{STUBS_PATH}, test_resolver)};
+  TestTargetStore targets{test_resolver};
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema.json")};
 
@@ -982,8 +1075,11 @@ TEST(exhaustive_template_is_compiled_once) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  auto result{parse_and_bind(document, tracker,
-                             std::filesystem::path{STUBS_PATH}, test_resolver)};
+  TestTargetStore targets{test_resolver};
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(&result.exhaustive(0), &result.exhaustive(0));
 }
@@ -1009,30 +1105,27 @@ TEST(exhaustive_template_is_only_compiled_on_request) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
+  // Compiling is what walks a schema, so what the walker was asked is what
+  // tells whether the exhaustive template was compiled
+  std::size_t walks{0};
+  const auto counting_walker{
+      [&walks](const std::string_view keyword,
+               const sourcemeta::core::SchemaVocabularies &vocabularies)
+          -> const sourcemeta::core::SchemaWalkerResult & {
+        walks += 1;
+        return sourcemeta::core::schema_walker(keyword, vocabularies);
+      }};
+
+  TestTargetStore targets{test_resolver};
   auto result{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH})};
-  const auto target{result.targets.front()};
-  const auto bundled{sourcemeta::core::schema_bundle(
-      test_resolve_target(test_resolver, target),
-      sourcemeta::core::schema_walker, test_resolver, "", target)};
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, counting_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
-  std::size_t compilations{0};
-  result.bind(0,
-              test_compile_target(bundled, test_resolver, target, target, "",
-                                  sourcemeta::blaze::Mode::FastValidation,
-                                  std::nullopt),
-              [&compilations, &bundled, &test_resolver, &target]() {
-                compilations += 1;
-                return test_compile_target(
-                    bundled, test_resolver, target, target, "",
-                    sourcemeta::blaze::Mode::Exhaustive, std::nullopt);
-              });
-
-  EXPECT_EQ(compilations, 0);
+  const auto walks_after_parse{walks};
+  EXPECT_TRUE(walks_after_parse > 0);
   [[maybe_unused]] const auto &schema_exhaustive{result.exhaustive(0)};
-  EXPECT_EQ(compilations, 1);
-  [[maybe_unused]] const auto &schema_exhaustive_again{result.exhaustive(0)};
-  EXPECT_EQ(compilations, 1);
+  EXPECT_TRUE(walks > walks_after_parse);
 }
 
 TEST(exhaustive_template_per_target) {
@@ -1056,8 +1149,11 @@ TEST(exhaustive_template_per_target) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
-  auto result{parse_and_bind(document, tracker,
-                             std::filesystem::path{STUBS_PATH}, test_resolver)};
+  TestTargetStore targets{test_resolver};
+  auto result{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_EQ(result.targets.size(), 2);
   EXPECT_TRUE(&result.exhaustive(0) != &result.exhaustive(1));
