@@ -32,6 +32,6 @@
       "properties": { "p": { "$ref": "#/items/properties/foo" } }
     }
   },
-  "examples": [ {} ],
-  "counterExamples": []
+  "examples": [ {}, { "p": "x" }, [], [ { "foo": "x" } ] ],
+  "counterExamples": [ { "p": 1 }, [ { "foo": 1 } ] ]
 }

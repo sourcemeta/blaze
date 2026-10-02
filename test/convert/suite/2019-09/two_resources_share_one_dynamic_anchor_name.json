@@ -5,14 +5,18 @@
     "$recursiveAnchor": true,
     "properties": {
       "a": { "$recursiveRef": "#" },
-      "t": { "$anchor": "meta", "type": "string" }
+      "t": { "$anchor": "meta", "type": "string" },
+      "c": { "$ref": "https://example.com/inner" }
     },
     "$defs": {
       "inner": {
         "$id": "https://example.com/inner",
         "$schema": "https://json-schema.org/draft/2019-09/schema",
         "$recursiveAnchor": true,
-        "properties": { "b": { "$recursiveRef": "#" } }
+        "properties": {
+          "b": { "$recursiveRef": "#" },
+          "u": { "type": "integer" }
+        }
       }
     }
   },
@@ -27,18 +31,27 @@
       "$dynamicAnchor": "x-meta",
       "properties": {
         "a": { "$dynamicRef": "#x-meta" },
-        "t": { "$anchor": "meta", "type": "string" }
+        "t": { "$anchor": "meta", "type": "string" },
+        "c": { "$ref": "https://example.com/inner" }
       },
       "$defs": {
         "inner": {
           "$id": "https://example.com/inner",
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "$dynamicAnchor": "x-meta",
-          "properties": { "b": { "$dynamicRef": "#x-meta" } }
+          "properties": {
+            "b": { "$dynamicRef": "#x-meta" },
+            "u": { "type": "integer" }
+          }
         }
       }
     }
   },
-  "examples": [ {} ],
-  "counterExamples": []
+  "examples": [ {}, { "t": "x" }, { "a": { "t": "x" } }, { "c": { "u": 1 } } ],
+  "counterExamples": [
+    { "t": 1 },
+    { "a": { "t": 1 } },
+    { "c": { "u": "x" } },
+    { "c": { "b": { "t": 1 } } }
+  ]
 }
