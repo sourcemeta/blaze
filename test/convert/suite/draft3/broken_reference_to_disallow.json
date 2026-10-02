@@ -4,31 +4,33 @@
     "disallow": [ { "type": "string" } ],
     "properties": { "foo": { "$ref": "#/disallow/0" } }
   },
-  "errors": {
+  "result": {
     "draft4": {
-      "type": "broken-reference",
-      "identifier": "#/disallow/0",
-      "location": "/properties/foo/$ref"
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "foo": { "$ref": "#/not/anyOf/0" } },
+      "not": { "anyOf": [ { "type": "string" } ] }
     },
     "draft6": {
-      "type": "broken-reference",
-      "identifier": "#/disallow/0",
-      "location": "/properties/foo/$ref"
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": { "foo": { "$ref": "#/not/anyOf/0" } },
+      "not": { "anyOf": [ { "type": "string" } ] }
     },
     "draft7": {
-      "type": "broken-reference",
-      "identifier": "#/disallow/0",
-      "location": "/properties/foo/$ref"
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "foo": { "$ref": "#/not/anyOf/0" } },
+      "not": { "anyOf": [ { "type": "string" } ] }
     },
     "2019-09": {
-      "type": "broken-reference",
-      "identifier": "#/disallow/0",
-      "location": "/properties/foo/$ref"
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": { "foo": { "$ref": "#/not/anyOf/0" } },
+      "not": { "anyOf": [ { "type": "string" } ] }
     },
     "2020-12": {
-      "type": "broken-reference",
-      "identifier": "#/disallow/0",
-      "location": "/properties/foo/$ref"
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "foo": { "$ref": "#/not/anyOf/0" } },
+      "not": { "anyOf": [ { "type": "string" } ] }
     }
-  }
+  },
+  "examples": [ { "foo": "x" }, {} ],
+  "counterExamples": [ { "foo": 1 }, "x" ]
 }

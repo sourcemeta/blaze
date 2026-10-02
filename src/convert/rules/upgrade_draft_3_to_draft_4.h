@@ -47,11 +47,28 @@ public:
     return true;
   }
 
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    for (const auto &[old_pointer, new_pointer] : this->renames_) {
+      const auto result{target.rebase(current.concat(old_pointer),
+                                      current.concat(new_pointer))};
+      if (result != target) {
+        return result;
+      }
+    }
+
+    return target;
+  }
+
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
     rewrite_type_any(schema);
     rewrite_type_array_with_subschemas(schema);
-    rewrite_disallow(schema);
-    rewrite_extends(schema);
+    this->renames_.clear();
+    rewrite_disallow(schema, this->renames_);
+    rewrite_extends(schema, this->renames_);
     rewrite_divisible_by(schema);
     // Dropping the stray boolean first leaves the lift free to write its array
     // under the same name. The other way round the lift's array is what gets
@@ -75,6 +92,9 @@ public:
   }
 
 private:
+  using Relocation =
+      std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>;
+
   // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
   static inline const std::string DRAFT_3_URL{
       "http://json-schema.org/draft-03/schema#"};
@@ -83,6 +103,7 @@ private:
       "http://json-schema.org/draft-04/schema#"};
 
   mutable bool stray_required_{false};
+  mutable std::vector<Relocation> renames_;
 
   static auto
   has_pending_draft_3_pattern(const sourcemeta::core::JSON &subschema) -> bool {
@@ -257,7 +278,8 @@ private:
     return branch;
   }
 
-  static auto rewrite_disallow(sourcemeta::core::JSON &schema) -> void {
+  static auto rewrite_disallow(sourcemeta::core::JSON &schema,
+                               std::vector<Relocation> &renames) -> void {
     if (!schema.defines("disallow") || schema.defines("not")) {
       return;
     }
@@ -312,11 +334,24 @@ private:
       negated = disallow;
     }
 
+    // A reference may name a schema that sat inside `disallow`, so where that
+    // schema lands is recorded for `rereference` to follow. The collapsing
+    // cases above record nothing, as the schemas they drop are gone and no
+    // reference can be pointed anywhere instead
+    if (negated.defines("anyOf")) {
+      renames.emplace_back(sourcemeta::core::Pointer{"disallow"},
+                           sourcemeta::core::Pointer{"not", "anyOf"});
+    } else if (disallow.is_object()) {
+      renames.emplace_back(sourcemeta::core::Pointer{"disallow"},
+                           sourcemeta::core::Pointer{"not"});
+    }
+
     schema.erase("disallow");
     schema.assign("not", std::move(negated));
   }
 
-  static auto rewrite_extends(sourcemeta::core::JSON &schema) -> void {
+  static auto rewrite_extends(sourcemeta::core::JSON &schema,
+                              std::vector<Relocation> &renames) -> void {
     if (!schema.defines("extends") || schema.defines("allOf")) {
       return;
     }
@@ -336,12 +371,16 @@ private:
         return;
       }
 
+      renames.emplace_back(sourcemeta::core::Pointer{"extends"},
+                           sourcemeta::core::Pointer{"allOf"});
       schema.assign("allOf", std::move(value));
       return;
     }
 
     auto array{sourcemeta::core::JSON::make_array()};
     array.push_back(std::move(value));
+    renames.emplace_back(sourcemeta::core::Pointer{"extends"},
+                         sourcemeta::core::Pointer{"allOf", 0});
     schema.assign("allOf", std::move(array));
   }
 

@@ -34,9 +34,14 @@ const std::vector<std::string> KNOWN_ERROR_KEYS{"type", "identifier",
 
 // Which error a fixture expects conversion to raise. Leaving it out means the
 // reference was one the conversion had to carry and could not
+// A reference that stops resolving because a rule moved the schema it named is
+// not something a fixture may expect. Rules say where they moved a schema so
+// that the references reaching it follow, which makes such a reference always
+// repairable, and accepting one here would write that omission down as the
+// intended outcome. A reference that never named a schema to begin with is a
+// different matter, as nothing in the conversion can repair the input
 const std::vector<std::string> KNOWN_ERROR_TYPES{
-    "invalid-reference", "unsupported-metaschema", "unsupported-dialect",
-    "broken-reference"};
+    "invalid-reference", "unsupported-metaschema", "unsupported-dialect"};
 // NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 
 // A refused fixture carries no `result` at all, and this stands in for one so

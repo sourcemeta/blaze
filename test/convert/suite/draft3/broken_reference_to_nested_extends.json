@@ -6,31 +6,43 @@
       "bar": { "$ref": "#/properties/foo/extends" }
     }
   },
-  "errors": {
+  "result": {
     "draft4": {
-      "type": "broken-reference",
-      "identifier": "#/properties/foo/extends",
-      "location": "/properties/bar/$ref"
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
     },
     "draft6": {
-      "type": "broken-reference",
-      "identifier": "#/properties/foo/extends",
-      "location": "/properties/bar/$ref"
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
     },
     "draft7": {
-      "type": "broken-reference",
-      "identifier": "#/properties/foo/extends",
-      "location": "/properties/bar/$ref"
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
     },
     "2019-09": {
-      "type": "broken-reference",
-      "identifier": "#/properties/foo/extends",
-      "location": "/properties/bar/$ref"
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
     },
     "2020-12": {
-      "type": "broken-reference",
-      "identifier": "#/properties/foo/extends",
-      "location": "/properties/bar/$ref"
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
     }
-  }
+  },
+  "examples": [ { "foo": "x", "bar": "y" }, {} ],
+  "counterExamples": [ { "foo": 1 }, { "bar": 1 } ]
 }
