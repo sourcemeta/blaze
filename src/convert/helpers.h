@@ -120,16 +120,10 @@ inline auto normalized_official_dialect(const std::string_view dialect)
   return result;
 }
 
-// How far along the ladder a dialect sits, counting from one so that anything
-// the ladder does not name sits before all of them. The spelling is normalised
-// first, so that every form naming the same dialect ranks the same. Whether a
-// dialect is the ladder's and how far along it sits have to be one question,
-// or the ladder would accept a marker in one place and refuse to rank it in
-// another
-/// Where a base dialect sits on the ladder, so that a dialect the ladder does
-/// not name can still be placed by the official one it derives from. Hyper
-/// variants sit alongside their plain counterparts, and the drafts below the
-/// ladder answer zero just as an unrecognised dialect does
+// Where a base dialect sits on the ladder, so that a dialect the ladder does
+// not name can still be placed by the official one it derives from. Hyper
+// variants sit alongside their plain counterparts, and the drafts below the
+// ladder answer zero just as an unrecognised dialect does
 inline auto
 base_dialect_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
     -> std::size_t {
@@ -158,6 +152,12 @@ base_dialect_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
   }
 }
 
+// How far along the ladder a dialect sits, counting from one so that anything
+// the ladder does not name sits before all of them. The spelling is normalised
+// first, so that every form naming the same dialect ranks the same. Whether a
+// dialect is the ladder's and how far along it sits have to be one question,
+// or the ladder would accept a marker in one place and refuse to rank it in
+// another
 inline auto dialect_position(const std::string_view dialect) -> std::size_t {
   const auto candidate{normalized_official_dialect(dialect)};
   for (std::size_t index = 0; index < LADDER_DIALECTS.size(); index += 1) {
@@ -381,6 +381,34 @@ erase_dialect_overrides(sourcemeta::core::JSON &schema,
       default_id,
       sourcemeta::core::SchemaFrame::IdentifierMode::Fallback};
 
+  // A resource on a dialect the ladder does not name is one no rule was
+  // allowed to rewrite, so a marker inside it cannot be the ladder's own
+  // record of progress and is the author's data. Reading the resource's
+  // `$schema` rather than the dialect framing reports is what tells the two
+  // apart, as framing reads the marker itself as a dialect
+  std::vector<sourcemeta::core::Pointer> exempt;
+  frame.for_each_location(
+      [&schema, &exempt](
+          const sourcemeta::core::SchemaReferenceType, const std::string_view,
+          const sourcemeta::core::SchemaFrame::Location &location) -> void {
+        if (location.type !=
+            sourcemeta::core::SchemaFrame::LocationType::Resource) {
+          return;
+        }
+
+        auto pointer{sourcemeta::core::to_pointer(location.pointer)};
+        const auto &resource{sourcemeta::core::get(schema, pointer)};
+        if (!resource.is_object()) {
+          return;
+        }
+
+        const auto *dialect{resource.try_at("$schema")};
+        if (dialect != nullptr && dialect->is_string() &&
+            !names_ladder_dialect(dialect->to_string())) {
+          exempt.push_back(std::move(pointer));
+        }
+      });
+
   std::vector<sourcemeta::core::Pointer> subschemas;
   frame.for_each_subschema(
       [&subschemas](
@@ -389,6 +417,12 @@ erase_dialect_overrides(sourcemeta::core::JSON &schema,
       });
 
   for (const auto &pointer : subschemas) {
+    if (std::ranges::any_of(exempt, [&pointer](const auto &base) -> bool {
+          return pointer.starts_with(base);
+        })) {
+      continue;
+    }
+
     auto &subschema{sourcemeta::core::get(schema, pointer)};
     if (!subschema.is_object()) {
       continue;
@@ -449,6 +483,111 @@ struct AnchorCharPolicy {
   std::function<bool(char)> is_valid_first;
   std::function<bool(char)> is_valid_body;
 };
+
+// The dialect whose identifiers carry a free-form fragment
+constexpr std::string_view DRAFT_4_DIALECT{
+    "http://json-schema.org/draft-04/schema#"};
+
+// Draft 6 core 9.2 restricts a plain-name fragment to a letter followed by
+// letters, digits, hyphens, underscores, colons or periods. Draft 4 placed no
+// such restriction on the fragment its identifier carries, so an anchor that
+// was legal there may not be legal once the dialect moves
+inline auto is_draft_6_anchor_first_char(const char character) -> bool {
+  return (character >= 'A' && character <= 'Z') ||
+         (character >= 'a' && character <= 'z');
+}
+
+inline auto is_draft_6_anchor_body_char(const char character) -> bool {
+  return is_draft_6_anchor_first_char(character) ||
+         (character >= '0' && character <= '9') || character == '_' ||
+         character == ':' || character == '.' || character == '-';
+}
+
+inline auto is_draft_6_plain_name(const std::string_view fragment) -> bool {
+  if (fragment.empty() || !is_draft_6_anchor_first_char(fragment.front())) {
+    return false;
+  }
+
+  for (std::size_t index{1}; index < fragment.size(); index += 1) {
+    if (!is_draft_6_anchor_body_char(fragment[index])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+inline auto draft_6_anchor_policy() -> const AnchorCharPolicy & {
+  // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+  static const AnchorCharPolicy POLICY{
+      .is_valid_first = &is_draft_6_anchor_first_char,
+      .is_valid_body = &is_draft_6_anchor_body_char};
+  return POLICY;
+}
+
+// The fragment an identifier carries, if it carries one
+inline auto identifier_fragment(const sourcemeta::core::JSON &value)
+    -> std::optional<std::string> {
+  if (!value.is_string()) {
+    return std::nullopt;
+  }
+
+  const sourcemeta::core::URI uri{value.to_string()};
+  const auto fragment{uri.fragment()};
+  if (!fragment.has_value()) {
+    return std::nullopt;
+  }
+
+  return std::string{fragment.value()};
+}
+
+// Whether any Draft 4 resource in this document still holds an anchor that
+// Draft 6 would reject. The dialect must not move while one does, or the
+// identifier would arrive in Draft 6 carrying a fragment that dialect rejects
+inline auto
+has_unsanitized_draft_4_anchor(const sourcemeta::core::JSON &schema,
+                               const sourcemeta::core::SchemaFrame &frame)
+    -> bool {
+  if (!schema.is_object()) {
+    return false;
+  }
+
+  bool pending{false};
+  frame.for_each_subschema(
+      [&schema,
+       &pending](const sourcemeta::core::SchemaFrame::Location &entry) -> void {
+        if (pending || base_dialect_position(entry.base_dialect) !=
+                           dialect_position(DRAFT_4_DIALECT)) {
+          return;
+        }
+
+        const auto &subschema{sourcemeta::core::get(
+            schema, sourcemeta::core::to_pointer(entry.pointer))};
+        if (!subschema.is_object()) {
+          return;
+        }
+
+        const auto *identifier{subschema.try_at("id")};
+        if (identifier == nullptr) {
+          return;
+        }
+
+        const auto fragment{identifier_fragment(*identifier)};
+        pending = fragment.has_value() && !fragment.value().empty() &&
+                  !is_draft_6_plain_name(fragment.value());
+      });
+
+  return pending;
+}
+
+// Whatever an identifier is spelled relative to, kept as written, so that only
+// the fragment moves when an anchor is renamed
+inline auto without_fragment_as_written(const std::string_view identifier)
+    -> std::string_view {
+  const auto hash{identifier.find('#')};
+  return hash == std::string_view::npos ? identifier
+                                        : identifier.substr(0, hash);
+}
 
 inline auto sanitize_anchor_with_policy(const std::string_view original,
                                         const std::set<std::string> &in_use,

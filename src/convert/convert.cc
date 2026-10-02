@@ -34,13 +34,14 @@ namespace {
 #include "helpers.h"
 #include "rule.h"
 
-using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool>;
+using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool, bool>;
 
 /// Construct a rule entry for the given rule type
 template <std::derived_from<SchemaTransformRule> T>
 [[nodiscard]] auto make_rule() -> Rule {
   return {std::make_unique<T>(),
-          std::is_same_v<typename T::reframe_after_transform, std::true_type>};
+          std::is_same_v<typename T::reframe_after_transform, std::true_type>,
+          std::is_same_v<typename T::writes_outside_itself, std::true_type>};
 }
 
 /// A reference that lands on something other than a schema is not a reference
@@ -59,11 +60,6 @@ auto assert_schema_references(const core::SchemaFrame &frame) -> void {
       });
 }
 
-/// Conversion renames keywords, while a meta-schema names those same keywords
-/// as ordinary data that nothing renames alongside them. Until the two can be
-/// told apart, a document that describes itself or that carries the
-/// meta-schema something in it declares is refused. A dialect the ladder does
-/// not name is refused too, as there are no rules for moving a schema off it
 /// Where the requested target sits on the ladder, so that it can be compared
 /// against how far a resource has already come
 auto target_position(const ConvertTarget target) -> std::size_t {
@@ -83,6 +79,12 @@ auto target_position(const ConvertTarget target) -> std::size_t {
   return 0;
 }
 
+/// Conversion renames keywords, while a meta-schema names those same keywords
+/// as ordinary data that nothing renames alongside them. Until the two can be
+/// told apart, a document that describes itself or that carries the
+/// meta-schema something in it declares is refused. A dialect the ladder does
+/// not name is refused when the target is newer than the official dialect it
+/// derives from, as that is where a rule would otherwise have work to do
 auto assert_convertible_dialects(const core::JSON &schema,
                                  const core::SchemaFrame &frame,
                                  const std::string_view default_id,
@@ -246,7 +248,21 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
           const auto current_vocabularies{
               frame->vocabularies(location, resolver)};
 
-          for (const auto &[rule, reframe_after_transform] : rules) {
+          for (const auto &[rule, reframe_after_transform, writes_outside] :
+               rules) {
+            // A dialect the ladder does not name has no rules for moving a
+            // schema off it, so nothing may rewrite a subschema that is read
+            // as one. Leaving this to each rule's own vocabulary gate does not
+            // hold: core derives a pre-2019-09 dialect's vocabularies from its
+            // base dialect, so an off-ladder resource does carry the rung's
+            // vocabulary and does match those gates. A rule that writes
+            // outside itself answers for what it touches, and an empty dialect
+            // is the caller's to supply and is not off the ladder
+            if (!writes_outside && !location.dialect.empty() &&
+                !names_ladder_dialect(location.dialect)) {
+              continue;
+            }
+
             const auto outcome{rule->condition(current, schema,
                                                current_vocabularies, *frame,
                                                location, walker, resolver)};
@@ -276,14 +292,14 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                 return;
               }
 
-              const auto &target{destination.value().get()};
+              const auto &landing{destination.value().get()};
               potentially_broken_references.push_back(
                   {.origin = core::to_pointer(origin),
                    .original = core::JSON::String{reference.original},
                    .destination = reference.destination,
                    .fragment = core::JSON::String{reference.fragment.value()},
-                   .target_pointer = core::to_pointer(target.pointer),
-                   .target_relative_pointer = target.relative_pointer});
+                   .target_pointer = core::to_pointer(landing.pointer),
+                   .target_relative_pointer = landing.relative_pointer});
             });
 
             rule->prepare(*frame, location);
@@ -411,6 +427,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/prefix_promoted_draft_4_keywords.h"
 #include "rules/prefix_promoted_draft_6_keywords.h"
 #include "rules/prefix_promoted_draft_7_keywords.h"
+#include "rules/sanitize_draft_4_anchors.h"
 #include "rules/upgrade_2019_09_to_2020_12.h"
 #include "rules/upgrade_dialect_override_cleanup.h"
 #include "rules/upgrade_draft_3_to_draft_4.h"
@@ -439,6 +456,7 @@ auto convert(sourcemeta::core::JSON &schema,
       target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012) {
     rules.push_back(make_rule<PrefixPromotedDraft6Keywords>());
+    rules.push_back(make_rule<SanitizeDraft4Anchors>());
     rules.push_back(make_rule<UpgradeDraft4ToDraft6>());
     rules.push_back(make_rule<EmptyObjectAsTrue>());
     rules.push_back(make_rule<EnumToConst>());

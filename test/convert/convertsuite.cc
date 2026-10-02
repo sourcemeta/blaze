@@ -35,24 +35,83 @@ const std::vector<std::string> KNOWN_ERROR_KEYS{"type", "identifier",
 // Which error a fixture expects conversion to raise. Leaving it out means the
 // reference was one the conversion had to carry and could not
 const std::vector<std::string> KNOWN_ERROR_TYPES{
-    "invalid-reference", "unsupported-metaschema", "unsupported-dialect"};
+    "invalid-reference", "unsupported-metaschema", "unsupported-dialect",
+    "broken-reference"};
 // NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
+
+auto expect_known(const std::string_view kind, const std::string_view name,
+                  const std::vector<std::string> &known) -> void {
+  auto actual{sourcemeta::core::JSON::make_object()};
+  actual.assign("kind", sourcemeta::core::JSON{kind});
+  actual.assign("name", sourcemeta::core::JSON{name});
+  actual.assign("known", sourcemeta::core::JSON{
+                             std::ranges::find(known, name) != known.cend()});
+  auto expected{actual};
+  expected.assign("known", sourcemeta::core::JSON{true});
+  EXPECT_EQ(actual, expected);
+}
 
 struct Target {
   std::string_view name;
   sourcemeta::blaze::ConvertTarget value;
+  std::size_t position;
 };
+
+// Where a base dialect sits on the ladder, counting from one. Stated here
+// rather than taken from the module, so that the suite says independently what
+// it expects. Hyper variants sit alongside their plain counterparts, since a
+// hyper-schema document is read as that rung, and the drafts below the ladder
+// answer zero just as an unrecognised dialect does
+auto ladder_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
+    -> std::size_t {
+  using Base = sourcemeta::core::SchemaBaseDialect;
+  switch (base_dialect) {
+    case Base::JSON_SCHEMA_DRAFT_3:
+    case Base::JSON_SCHEMA_DRAFT_3_HYPER:
+      return 1;
+    case Base::JSON_SCHEMA_DRAFT_4:
+    case Base::JSON_SCHEMA_DRAFT_4_HYPER:
+      return 2;
+    case Base::JSON_SCHEMA_DRAFT_6:
+    case Base::JSON_SCHEMA_DRAFT_6_HYPER:
+      return 3;
+    case Base::JSON_SCHEMA_DRAFT_7:
+    case Base::JSON_SCHEMA_DRAFT_7_HYPER:
+      return 4;
+    case Base::JSON_SCHEMA_2019_09:
+    case Base::JSON_SCHEMA_2019_09_HYPER:
+      return 5;
+    case Base::JSON_SCHEMA_2020_12:
+    case Base::JSON_SCHEMA_2020_12_HYPER:
+      return 6;
+    default:
+      return 0;
+  }
+}
 
 // Every target that conversion takes, as a fixture has to account for all of
 // them rather than for the ones whoever wrote it happened to think of
 constexpr std::array<Target, 5> TARGETS{
-    {{.name = "draft4", .value = sourcemeta::blaze::ConvertTarget::Draft4},
-     {.name = "draft6", .value = sourcemeta::blaze::ConvertTarget::Draft6},
-     {.name = "draft7", .value = sourcemeta::blaze::ConvertTarget::Draft7},
+    {{.name = "draft4",
+      .value = sourcemeta::blaze::ConvertTarget::Draft4,
+      .position = 2},
+     {.name = "draft6",
+      .value = sourcemeta::blaze::ConvertTarget::Draft6,
+      .position = 3},
+     {.name = "draft7",
+      .value = sourcemeta::blaze::ConvertTarget::Draft7,
+      .position = 4},
      {.name = "2019-09",
-      .value = sourcemeta::blaze::ConvertTarget::Draft201909},
+      .value = sourcemeta::blaze::ConvertTarget::Draft201909,
+      .position = 5},
      {.name = "2020-12",
-      .value = sourcemeta::blaze::ConvertTarget::Draft202012}}};
+      .value = sourcemeta::blaze::ConvertTarget::Draft202012,
+      .position = 6}}};
+
+// The same names again, as a fixture names its targets in text
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+const std::vector<std::string> TARGET_NAMES{"draft4", "draft6", "draft7",
+                                            "2019-09", "2020-12"};
 
 // Conversion decides where a keyword goes as much as whether it is there at
 // all, so the order of the result is part of what a fixture blesses. Both
@@ -134,8 +193,7 @@ auto convert_schema(const sourcemeta::core::JSON &schema,
 // error
 auto check_shape(const sourcemeta::core::JSON &test) -> void {
   for (const auto &entry : test.as_object()) {
-    EXPECT_TRUE(std::ranges::find(KNOWN_KEYS, entry.first) !=
-                KNOWN_KEYS.cend());
+    expect_known("fixture key", entry.first, KNOWN_KEYS);
   }
 
   EXPECT_TRUE(test.defines("schema"));
@@ -150,29 +208,46 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
   EXPECT_TRUE(test.at("examples").is_array());
   EXPECT_TRUE(test.at("counterExamples").is_array());
 
+  const auto *registry{test.try_at("resolver")};
+  if (registry != nullptr) {
+    EXPECT_TRUE(registry->is_object());
+  }
+
+  for (const auto &name : {"defaultDialect", "defaultId"}) {
+    const auto *value{test.try_at(sourcemeta::core::JSON::String{name})};
+    if (value != nullptr) {
+      EXPECT_TRUE(value->is_string());
+    }
+  }
+
   const auto &results{test.at("result")};
   EXPECT_TRUE(results.is_object());
   for (const auto &entry : results.as_object()) {
-    EXPECT_TRUE(std::ranges::any_of(TARGETS, [&entry](const auto &target) {
-      return target.name == entry.first;
-    }));
+    expect_known("result target", entry.first, TARGET_NAMES);
+    EXPECT_TRUE(entry.second.is_object() || entry.second.is_null());
   }
 
   if (test.defines("errors")) {
+    EXPECT_TRUE(test.at("errors").is_object());
     for (const auto &entry : test.at("errors").as_object()) {
-      EXPECT_TRUE(std::ranges::any_of(TARGETS, [&entry](const auto &target) {
-        return target.name == entry.first;
-      }));
+      expect_known("error target", entry.first, TARGET_NAMES);
       EXPECT_FALSE(results.defines(entry.first));
+      EXPECT_TRUE(entry.second.is_object());
       for (const auto &detail : entry.second.as_object()) {
-        EXPECT_TRUE(std::ranges::find(KNOWN_ERROR_KEYS, detail.first) !=
-                    KNOWN_ERROR_KEYS.cend());
+        expect_known("error key", detail.first, KNOWN_ERROR_KEYS);
+      }
+
+      // `check_error` reads both of these unconditionally
+      for (const auto &detail : {"identifier", "location"}) {
+        const sourcemeta::core::JSON::String name{detail};
+        EXPECT_TRUE(entry.second.defines(name));
+        EXPECT_TRUE(entry.second.at(name).is_string());
       }
 
       const auto *type{entry.second.try_at("type")};
       if (type != nullptr) {
-        EXPECT_TRUE(std::ranges::find(KNOWN_ERROR_TYPES, type->to_string()) !=
-                    KNOWN_ERROR_TYPES.cend());
+        EXPECT_TRUE(type->is_string());
+        expect_known("error type", type->to_string(), KNOWN_ERROR_TYPES);
       }
     }
   }
@@ -181,6 +256,15 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
     const sourcemeta::core::JSON::String name{target.name};
     EXPECT_TRUE(results.defines(name) ||
                 (test.defines("errors") && test.at("errors").defines(name)));
+  }
+
+  // A fixture that produces a document has to say something about what that
+  // document accepts, or the expected output is the only thing holding it and
+  // a lost instance leaves no trace. One that produces none is exempt, as
+  // there would be nothing to check an instance against
+  if (!results.empty()) {
+    EXPECT_FALSE(test.at("examples").empty() &&
+                 test.at("counterExamples").empty());
   }
 }
 
@@ -409,6 +493,82 @@ auto check_transitivity(
   }
 }
 
+// Conversion moves a document to the dialect it was asked for. A target at or
+// above the rung the document starts on must therefore leave it reading as
+// that target, and a result still reading as the old dialect is a conversion
+// that silently did not happen. A target below that rung must leave it reading
+// as the dialect it already had, since conversion only ever upgrades.
+//
+// Only the rung is asserted here. A lower target may still rewrite the
+// document, because the rules that normalise a spelling or canonicalise a
+// keyword are registered for every target and do not move the dialect
+auto dialect_rung(const sourcemeta::core::JSON &document,
+                  const sourcemeta::core::SchemaResolver &resolver,
+                  const Inputs &inputs) -> std::size_t {
+  if (!document.is_object()) {
+    return 0;
+  }
+
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      document,
+      sourcemeta::core::schema_walker,
+      resolver,
+      inputs.default_dialect,
+      inputs.default_id,
+      sourcemeta::core::SchemaFrame::IdentifierMode::Fallback};
+
+  const auto location{frame.traverse(sourcemeta::core::EMPTY_WEAK_POINTER)};
+  if (!location.has_value()) {
+    return 0;
+  }
+
+  return ladder_position(location.value().get().base_dialect);
+}
+
+auto check_dialects(
+    const sourcemeta::core::JSON &input,
+    const std::vector<std::optional<sourcemeta::core::JSON>> &converted,
+    const sourcemeta::core::SchemaResolver &resolver, const Inputs &inputs)
+    -> void {
+  const auto before{dialect_rung(input, resolver, inputs)};
+  if (before == 0) {
+    return;
+  }
+
+  auto actual{sourcemeta::core::JSON::make_array()};
+  auto expected{sourcemeta::core::JSON::make_array()};
+  for (std::size_t index = 0; index < TARGETS.size(); index += 1) {
+    const auto &target{TARGETS.at(index)};
+    if (!converted.at(index).has_value()) {
+      continue;
+    }
+
+    // A target at or above where the document starts has to leave it reading
+    // as that target, and one below has to leave it reading as the dialect it
+    // already had. Both are the same statement about the rung the document
+    // comes back on, which is the only thing this compares
+    const auto wanted_rung{std::max(before, target.position)};
+
+    auto entry{sourcemeta::core::JSON::make_object()};
+    entry.assign("target", sourcemeta::core::JSON{target.name});
+    entry.assign(
+        "rung",
+        sourcemeta::core::JSON{static_cast<sourcemeta::core::JSON::Integer>(
+            dialect_rung(converted.at(index).value(), resolver, inputs))});
+    actual.push_back(std::move(entry));
+
+    auto wanted{sourcemeta::core::JSON::make_object()};
+    wanted.assign("target", sourcemeta::core::JSON{target.name});
+    wanted.assign(
+        "rung", sourcemeta::core::JSON{
+                    static_cast<sourcemeta::core::JSON::Integer>(wanted_rung)});
+    expected.push_back(std::move(wanted));
+  }
+
+  EXPECT_EQ(actual, expected);
+}
+
 // Which schema resources a document declares is part of what it means, and
 // conversion is not supposed to invent one or lose one. Where each resource
 // lives may move, so only the set of URIs is compared, not the pointers they
@@ -496,8 +656,23 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
       continue;
     }
 
-    converted.emplace_back(
-        convert_schema(test.at("schema"), resolver, inputs, target));
+    try {
+      converted.emplace_back(
+          convert_schema(test.at("schema"), resolver, inputs, target));
+    } catch (const std::exception &error) {
+      auto actual{sourcemeta::core::JSON::make_object()};
+      actual.assign("target", sourcemeta::core::JSON{target.name});
+      actual.assign("threw", sourcemeta::core::JSON{error.what()});
+      auto expected{sourcemeta::core::JSON::make_object()};
+      expected.assign("target", sourcemeta::core::JSON{target.name});
+      expected.assign("threw", sourcemeta::core::JSON{"nothing"});
+
+      // No document came out for this target, and the entry keeps the vector
+      // in step with the targets whether or not the expectation above stops
+      // the test
+      converted.emplace_back(std::nullopt);
+      EXPECT_EQ(actual, expected);
+    }
   }
 
   // Which resources a document declares is the most basic thing conversion must
@@ -528,6 +703,10 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   }
 
   EXPECT_EQ(disagreements, sourcemeta::core::JSON::make_array());
+
+  // After the instances, because a dialect that did not move is coarser news
+  // than a changed verdict and must not hide one
+  check_dialects(test.at("schema"), converted, resolver, inputs);
 
   for (std::size_t index = 0; index < TARGETS.size(); index += 1) {
     if (!converted.at(index).has_value()) {

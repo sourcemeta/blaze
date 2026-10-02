@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "if": true,
+    "then": { "type": "integer" }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "string",
+      "x-if": true,
+      "x-then": { "type": "integer" }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "string",
+      "x-if": true,
+      "x-then": { "type": "integer" }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "x-if": true,
+      "x-then": { "type": "integer" }
+    }
+  },
+  "examples": [ "x", "abc" ],
+  "counterExamples": [ 1, 2.5, null ]
+}
