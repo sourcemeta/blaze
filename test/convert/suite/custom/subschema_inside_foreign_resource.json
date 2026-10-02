@@ -3,9 +3,7 @@
     "$schema": "https://example.com/meta",
     "$id": "https://example.com/root",
     "properties": {
-      "a": {
-        "properties": { "b": { "minimum": 2, "exclusiveMinimum": true } }
-      }
+      "a": { "properties": { "b": { "minimum": 2, "exclusiveMinimum": true } } }
     }
   },
   "resolver": {
@@ -15,10 +13,13 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null
-  },
+  "result": {},
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "draft6": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",

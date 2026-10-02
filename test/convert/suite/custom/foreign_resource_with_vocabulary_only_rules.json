@@ -18,10 +18,13 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null
-  },
+  "result": {},
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/f"
+    },
     "draft6": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",

@@ -60,35 +60,14 @@ auto assert_schema_references(const core::SchemaFrame &frame) -> void {
       });
 }
 
-/// Where the requested target sits on the ladder, so that it can be compared
-/// against how far a resource has already come
-auto target_position(const ConvertTarget target) -> std::size_t {
-  switch (target) {
-    case ConvertTarget::Draft4:
-      return 2;
-    case ConvertTarget::Draft6:
-      return 3;
-    case ConvertTarget::Draft7:
-      return 4;
-    case ConvertTarget::Draft201909:
-      return 5;
-    case ConvertTarget::Draft202012:
-      return 6;
-  }
-
-  return 0;
-}
-
 /// Conversion renames keywords, while a meta-schema names those same keywords
 /// as ordinary data that nothing renames alongside them. Until the two can be
 /// told apart, a document that describes itself or that carries the
-/// meta-schema something in it declares is refused. A dialect the ladder does
-/// not name is refused when the target is newer than the official dialect it
-/// derives from, as that is where a rule would otherwise have work to do
+/// meta-schema something in it declares is refused, and so is any resource
+/// read as a dialect the ladder does not name
 auto assert_convertible_dialects(const core::JSON &schema,
                                  const core::SchemaFrame &frame,
-                                 const std::string_view default_id,
-                                 const ConvertTarget target) -> void {
+                                 const std::string_view default_id) -> void {
   const auto document{frame.traverse(core::EMPTY_WEAK_POINTER)};
   if (document.has_value() &&
       describes_itself(schema, document.value().get().base_dialect,
@@ -97,36 +76,45 @@ auto assert_convertible_dialects(const core::JSON &schema,
                                             core::EMPTY_POINTER};
   }
 
+  // A bundled meta-schema is what the resources naming it are refused for, so
+  // it is looked for across the whole document before any of them is reported.
+  // Otherwise whichever the frame happened to reach first would decide, and a
+  // document carrying its own meta-schema would be reported against the
+  // resource using it rather than against the meta-schema it cannot move
   frame.for_each_subschema(
-      [&schema, &frame,
-       target](const core::SchemaFrame::Location &location) -> void {
+      [&schema, &frame](const core::SchemaFrame::Location &location) -> void {
         auto pointer{core::to_pointer(location.pointer)};
         const auto &subschema{core::get(schema, pointer)};
-        if (is_metaschema_target(subschema, frame, location.pointer)) {
-          // The meta-schema that cannot be moved is what the error names. The
-          // dialect that meta-schema is itself written in is an official one
-          // the conversion supports perfectly well, so naming that instead
-          // would report the evidence rather than the reason
-          const auto *identifier{subschema.try_at(
-              core::schema_identifier_keyword(location.base_dialect))};
-          throw ConvertUnsupportedMetaschemaError{
-              identifier != nullptr && identifier->is_string()
-                  ? std::string_view{identifier->to_string()}
-                  : location.dialect,
-              std::move(pointer)};
+        if (!is_metaschema_target(subschema, frame, location.pointer)) {
+          return;
         }
 
-        // A dialect the ladder does not name has no rules for moving a schema
-        // off it, but nothing asks it to move when the target is no newer than
-        // the official dialect it derives from: every rule that could reach
-        // inside is gated on a vocabulary it does not have. Refusing then would
-        // turn a conversion that changes nothing into an error
-        if (!names_ladder_dialect(location.dialect) &&
-            target_position(target) >
-                base_dialect_position(location.base_dialect)) {
-          throw ConvertUnsupportedDialectError{location.dialect,
-                                               std::move(pointer)};
+        // The meta-schema that cannot be moved is what the error names. The
+        // dialect that meta-schema is itself written in is an official one
+        // the conversion supports perfectly well, so naming that instead
+        // would report the evidence rather than the reason
+        const auto *identifier{subschema.try_at(
+            core::schema_identifier_keyword(location.base_dialect))};
+        throw ConvertUnsupportedMetaschemaError{
+            identifier != nullptr && identifier->is_string()
+                ? std::string_view{identifier->to_string()}
+                : location.dialect,
+            std::move(pointer)};
+      });
+
+  // A dialect the ladder does not name has no rules for moving a schema off
+  // it, and this conversion does not go near one. Carrying it along to the
+  // targets it happens to outrank would convert the document around it and
+  // leave the author to work out which parts moved, so a custom dialect is
+  // refused outright whatever the target is
+  frame.for_each_subschema(
+      [](const core::SchemaFrame::Location &location) -> void {
+        if (names_ladder_dialect(location.dialect)) {
+          return;
         }
+
+        throw ConvertUnsupportedDialectError{
+            location.dialect, core::to_pointer(location.pointer)};
       });
 }
 
@@ -181,8 +169,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
            const sourcemeta::core::SchemaWalker &walker,
            const sourcemeta::core::SchemaResolver &resolver,
            const std::string_view default_dialect,
-           const std::string_view default_id, const ConvertTarget target)
-    -> void {
+           const std::string_view default_id) -> void {
   assert(!rules.empty());
 
   struct ProcessedRuleHasher {
@@ -224,7 +211,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                     sourcemeta::core::SchemaFrame::IdentifierMode::Fallback);
 
       if (!asserted) {
-        assert_convertible_dialects(schema, frame.value(), default_id, target);
+        assert_convertible_dialects(schema, frame.value(), default_id);
         assert_convertible_metaschema(schema, frame.value());
         assert_schema_references(frame.value());
         asserted = true;
@@ -492,7 +479,7 @@ auto convert(sourcemeta::core::JSON &schema,
   }
 
   rules.push_back(make_rule<UpgradeDialectOverrideCleanup>());
-  apply(rules, schema, walker, resolver, default_dialect, default_id, target);
+  apply(rules, schema, walker, resolver, default_dialect, default_id);
   erase_dialect_overrides(schema, walker, resolver, default_dialect,
                           default_id);
 }

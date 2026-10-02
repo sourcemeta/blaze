@@ -22,44 +22,32 @@
       }
     }
   },
-  "result": {
-    "draft4": null,
-    "draft6": null,
+  "result": {},
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
+    },
     "draft7": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "$id": "https://example.com/root",
-      "properties": { "n": { "type": "string" } },
-      "definitions": {
-        "f": {
-          "$schema": "https://example.com/foreign",
-          "$id": "https://example.com/f",
-          "if": { "type": "string" }
-        }
-      }
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
     },
     "2019-09": {
-      "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "$id": "https://example.com/root",
-      "properties": { "n": { "type": "string" } },
-      "$defs": {
-        "f": {
-          "$schema": "https://example.com/foreign",
-          "$id": "https://example.com/f",
-          "if": { "type": "string" }
-        }
-      }
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
     },
     "2020-12": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://example.com/root",
-      "properties": { "n": { "type": "string" } },
-      "$defs": {
-        "f": {
-          "$schema": "https://example.com/foreign",
-          "$id": "https://example.com/f",
-          "if": { "type": "string" }
-        }
-      }
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
     }
   },
   "examples": [ {}, { "n": "s" } ],

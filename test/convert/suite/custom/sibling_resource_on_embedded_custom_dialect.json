@@ -34,14 +34,14 @@
       "location": "/definitions/meta"
     },
     "2019-09": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/meta",
-      "location": "/definitions/child"
+      "location": "/definitions/meta"
     },
     "2020-12": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/meta",
-      "location": "/definitions/child"
+      "location": "/definitions/meta"
     }
   },
   "examples": [ {}, { "value": "x" } ],

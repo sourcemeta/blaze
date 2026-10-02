@@ -244,13 +244,27 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
         EXPECT_TRUE(entry.second.at(name).is_string());
       }
 
-      const auto *type{entry.second.try_at("type")};
-      if (type != nullptr) {
-        EXPECT_TRUE(type->is_string());
-        expect_known("error type", type->to_string(), KNOWN_ERROR_TYPES);
-      }
+      EXPECT_TRUE(entry.second.defines("type"));
+      EXPECT_TRUE(entry.second.at("type").is_string());
+      expect_known("error type", entry.second.at("type").to_string(),
+                   KNOWN_ERROR_TYPES);
     }
   }
+
+  // Every target is accounted for by one of the two, so a fixture that fills
+  // both is saying one document converts for some targets and is refused for
+  // others. Nothing about a document is unconvertible for one target and not
+  // another: a dialect the conversion will not go near is refused whatever
+  // was asked for. Such a fixture is really describing two documents, and
+  // reading it means working out which targets went which way
+  auto filled{sourcemeta::core::JSON::make_object()};
+  filled.assign("converts", sourcemeta::core::JSON{!results.empty()});
+  filled.assign("refuses", sourcemeta::core::JSON{test.defines("errors") &&
+                                                  !test.at("errors").empty()});
+  auto wanted_split{sourcemeta::core::JSON::make_object()};
+  wanted_split.assign("converts", sourcemeta::core::JSON{!results.empty()});
+  wanted_split.assign("refuses", sourcemeta::core::JSON{results.empty()});
+  EXPECT_EQ(filled, wanted_split);
 
   for (const auto &target : TARGETS) {
     const sourcemeta::core::JSON::String name{target.name};
@@ -308,12 +322,9 @@ auto check_error(const sourcemeta::core::JSON &test,
     actual = describe_error(target.name, "broken-reference", error);
   }
 
-  const auto *type{expected.try_at("type")};
   auto wanted{sourcemeta::core::JSON::make_object()};
   wanted.assign("target", sourcemeta::core::JSON{target.name});
-  wanted.assign("type",
-                sourcemeta::core::JSON{type == nullptr ? "broken-reference"
-                                                       : type->to_string()});
+  wanted.assign("type", expected.at("type"));
   wanted.assign("identifier", expected.at("identifier"));
   wanted.assign("location", expected.at("location"));
 

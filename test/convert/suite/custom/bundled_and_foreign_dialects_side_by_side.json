@@ -15,16 +15,12 @@
       "b": {
         "$schema": "https://example.com/c",
         "$id": "https://example.com/b",
-        "dependencies": {
-          "t": { "properties": { "p": { "type": "string" } } }
-        }
+        "dependencies": { "t": { "properties": { "p": { "type": "string" } } } }
       },
       "f": {
         "$schema": "https://example.com/meta",
         "$id": "https://example.com/f",
-        "dependencies": {
-          "t": { "properties": { "q": { "type": "string" } } }
-        }
+        "dependencies": { "t": { "properties": { "q": { "type": "string" } } } }
       }
     }
   },
@@ -53,14 +49,14 @@
       "location": "/definitions/c"
     },
     "2019-09": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b"
+      "location": "/definitions/c"
     },
     "2020-12": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b"
+      "location": "/definitions/c"
     }
   },
   "examples": [

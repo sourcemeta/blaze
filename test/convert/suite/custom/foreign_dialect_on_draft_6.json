@@ -13,11 +13,18 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null,
-    "draft6": null
-  },
+  "result": {},
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "draft7": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",

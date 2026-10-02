@@ -36,14 +36,14 @@
       "location": "/definitions/c"
     },
     "2019-09": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b"
+      "location": "/definitions/c"
     },
     "2020-12": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b"
+      "location": "/definitions/c"
     }
   },
   "examples": [ {}, { "primary": { "token": 1, "address": "x" } } ],

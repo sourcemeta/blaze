@@ -9,22 +9,27 @@
   "result": {},
   "errors": {
     "draft4": {
+      "type": "broken-reference",
       "identifier": "#/properties/foo/extends",
       "location": "/properties/bar/$ref"
     },
     "draft6": {
+      "type": "broken-reference",
       "identifier": "#/properties/foo/extends",
       "location": "/properties/bar/$ref"
     },
     "draft7": {
+      "type": "broken-reference",
       "identifier": "#/properties/foo/extends",
       "location": "/properties/bar/$ref"
     },
     "2019-09": {
+      "type": "broken-reference",
       "identifier": "#/properties/foo/extends",
       "location": "/properties/bar/$ref"
     },
     "2020-12": {
+      "type": "broken-reference",
       "identifier": "#/properties/foo/extends",
       "location": "/properties/bar/$ref"
     }
