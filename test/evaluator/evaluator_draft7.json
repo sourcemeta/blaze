@@ -6001,5 +6001,17 @@
         "Every item in the array value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "additionalItems_ignored_with_boolean_items",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "items": true,
+      "additionalItems": false
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]
