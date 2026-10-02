@@ -30,6 +30,11 @@ public:
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
     auto result_branches{sourcemeta::core::JSON::make_array()};
     std::vector<sourcemeta::core::JSON::String> processed;
+    this->moved_.clear();
+    const std::size_t base{
+        (schema.defines("extends") && schema.at("extends").is_array())
+            ? schema.at("extends").size()
+            : 0};
 
     for (const auto &entry : schema.at("dependencies").as_object()) {
       auto required_property{sourcemeta::core::JSON::make_object()};
@@ -74,6 +79,9 @@ public:
 
         auto wrapper{sourcemeta::core::JSON::make_object()};
         wrapper.assign("type", std::move(type_array));
+        // Remember where this dependency schema ended up, so that references
+        // into it can be pointed at its new location
+        this->moved_.emplace_back(entry.first, base + result_branches.size());
         result_branches.push_back(std::move(wrapper));
       } else if (entry.second.is_string() || entry.second.is_array()) {
         std::vector<std::string> dependent_props;
@@ -134,4 +142,33 @@ public:
       schema.assign("extends", std::move(result_branches));
     }
   }
+
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    static const sourcemeta::core::JSON::String DEPENDENCIES_KEYWORD{
+        "dependencies"};
+    static const sourcemeta::core::JSON::String EXTENDS_KEYWORD{"extends"};
+    static const sourcemeta::core::JSON::String TYPE_KEYWORD{"type"};
+
+    for (const auto &[keyword, index] : this->moved_) {
+      const sourcemeta::core::Pointer old_prefix{
+          current.concat({DEPENDENCIES_KEYWORD, keyword})};
+      if (target.starts_with(old_prefix)) {
+        // The dependency schema becomes the second branch of the implication
+        // wrapper this rule appends to `extends`
+        return target.rebase(
+            old_prefix, current.concat({EXTENDS_KEYWORD, index, TYPE_KEYWORD, 1,
+                                        EXTENDS_KEYWORD, 1}));
+      }
+    }
+
+    return target;
+  }
+
+private:
+  mutable std::vector<std::pair<sourcemeta::core::JSON::String, std::size_t>>
+      moved_;
 };
