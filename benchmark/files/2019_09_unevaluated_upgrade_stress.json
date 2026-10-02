@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://example.com/unevaluated",
+  "$recursiveAnchor": true,
+  "unevaluatedItems": false,
+  "properties": {
+    "subschema-0": {
+      "contains": {
+        "type": "string"
+      },
+      "minContains": 1,
+      "maxContains": 3,
+      "items": [
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "subschema-1": {
+      "contains": {
+        "type": "string"
+      },
+      "minContains": 1,
+      "maxContains": 3,
+      "items": [
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "subschema-2": {
+      "contains": {
+        "type": "string"
+      },
+      "minContains": 1,
+      "maxContains": 3,
+      "items": [
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "recursive": {
+      "$recursiveRef": "#"
+    },
+    "colon": {
+      "$anchor": "with:colon",
+      "type": "string"
+    },
+    "to-colon": {
+      "$ref": "#with:colon"
+    }
+  }
+}

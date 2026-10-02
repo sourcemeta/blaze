@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema#",
+  "id": "https://example.com/main",
+  "extends": {
+    "maxProperties": 64
+  },
+  "disallow": [
+    "null",
+    {
+      "minLength": 4
+    }
+  ],
+  "definitions": {
+    "shared": {
+      "type": "string"
+    }
+  },
+  "properties": {
+    "subschema-0": {
+      "divisibleBy": 2,
+      "disallow": [
+        "string",
+        {
+          "type": "object"
+        }
+      ],
+      "extends": {
+        "maxProperties": 8
+      },
+      "type": [
+        "number",
+        {
+          "type": "integer"
+        }
+      ],
+      "dependencies": {
+        "alpha": "beta"
+      },
+      "properties": {
+        "mandatory": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "minProperties": 1,
+      "const": "fixed",
+      "if": {
+        "type": "object"
+      },
+      "$defs": {}
+    },
+    "subschema-1": {
+      "divisibleBy": 2,
+      "disallow": [
+        "string",
+        {
+          "type": "object"
+        }
+      ],
+      "extends": {
+        "maxProperties": 8
+      },
+      "type": [
+        "number",
+        {
+          "type": "integer"
+        }
+      ],
+      "dependencies": {
+        "alpha": "beta"
+      },
+      "properties": {
+        "mandatory": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "minProperties": 1,
+      "const": "fixed",
+      "if": {
+        "type": "object"
+      },
+      "$defs": {}
+    },
+    "subschema-2": {
+      "divisibleBy": 2,
+      "disallow": [
+        "string",
+        {
+          "type": "object"
+        }
+      ],
+      "extends": {
+        "maxProperties": 8
+      },
+      "type": [
+        "number",
+        {
+          "type": "integer"
+        }
+      ],
+      "dependencies": {
+        "alpha": "beta"
+      },
+      "properties": {
+        "mandatory": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "minProperties": 1,
+      "const": "fixed",
+      "if": {
+        "type": "object"
+      },
+      "$defs": {}
+    },
+    "nested": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "https://example.com/nested",
+      "properties": {
+        "anchored": {
+          "id": "#1bad",
+          "type": "string"
+        },
+        "local": {
+          "$ref": "#1bad"
+        }
+      }
+    },
+    "across": {
+      "$ref": "https://example.com/nested#1bad"
+    },
+    "to-definition": {
+      "$ref": "#/definitions/shared"
+    },
+    "to-extends": {
+      "$ref": "#/extends"
+    },
+    "to-disallow": {
+      "$ref": "#/disallow/1"
+    }
+  }
+}
