@@ -1,0 +1,15 @@
+{
+  "title": "A document that holds schemas without being one",
+  "components": {
+    "schemas": {
+      "Person": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" }
+        },
+        "required": [ "name" ]
+      }
+    }
+  }
+}

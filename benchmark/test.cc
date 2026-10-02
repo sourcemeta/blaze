@@ -39,10 +39,26 @@ BENCHMARK(TestSuite_Parse_WoT) {
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
 
+  // What a target names is the caller's to resolve, bundle and frame, and a
+  // runnable suite costs that plus parsing and compiling
+  const auto bundled{sourcemeta::core::schema_bundle(
+      schema, sourcemeta::core::schema_walker, resolver, "", WOT_IDENTIFIER)};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      bundled,
+      sourcemeta::core::schema_walker,
+      resolver,
+      "",
+      WOT_IDENTIFIER};
+
   for (auto iteration : state) {
     auto suite{sourcemeta::blaze::TestSuite::parse(
-        document, tracker, std::filesystem::path{CURRENT_DIRECTORY}, resolver,
-        sourcemeta::core::schema_walker,
+        document, tracker, std::filesystem::path{CURRENT_DIRECTORY},
+        [&bundled, &frame](const sourcemeta::core::JSON::String &target)
+            -> sourcemeta::blaze::TestTarget {
+          return {.document = bundled, .frame = frame, .entrypoint = target};
+        },
+        resolver, sourcemeta::core::schema_walker,
         sourcemeta::blaze::default_schema_compiler)};
     assert(suite.targets.size() == 1);
     assert(suite.tests.size() == 1);

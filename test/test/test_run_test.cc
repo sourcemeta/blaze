@@ -3,6 +3,8 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/test.h>
 
+#include "test_utils.h"
+
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
@@ -173,16 +175,16 @@ using RDFTrace =
 
 static auto rdf_trace_callback(std::vector<RDFTrace> &traces)
     -> sourcemeta::blaze::TestSuite::Callback {
-  return
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
-        traces.emplace_back(target, index, total, test_case.description,
-                            test_case.valid, outcome.passed, outcome.valid,
-                            outcome.rdf, outcome.rdf_error);
-      };
+  return [&traces](const sourcemeta::core::JSON::String &target, std::size_t,
+                   std::size_t index, std::size_t total,
+                   const sourcemeta::blaze::TestCase &test_case,
+                   const sourcemeta::blaze::TestOutcome &outcome,
+                   sourcemeta::blaze::TestTimestamp,
+                   sourcemeta::blaze::TestTimestamp) {
+    traces.emplace_back(target, index, total, test_case.description,
+                        test_case.valid, outcome.passed, outcome.valid,
+                        outcome.rdf, outcome.rdf_error);
+  };
 }
 
 TEST(empty_tests) {
@@ -194,20 +196,22 @@ TEST(empty_tests) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -240,20 +244,22 @@ TEST(all_passing) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -308,20 +314,22 @@ TEST(all_failing) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -381,20 +389,22 @@ TEST(mixed_results) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -476,9 +486,10 @@ TEST(file_path_target) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
+  TestTargetStore targets{test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   const auto expected_target{sourcemeta::core::URI::from_path(
@@ -487,12 +498,13 @@ TEST(file_path_target) {
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -571,11 +583,12 @@ TEST(default_dialect) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
+  TestTargetStore targets{test_resolver,
+                          "https://json-schema.org/draft/2020-12/schema"};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
-      sourcemeta::blaze::default_schema_compiler,
-      "https://json-schema.org/draft/2020-12/schema")};
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
@@ -583,12 +596,13 @@ TEST(default_dialect) {
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -657,8 +671,9 @@ TEST(timestamps_ordering) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -667,7 +682,7 @@ TEST(timestamps_ordering) {
       traces;
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t,
-                std::size_t, const sourcemeta::blaze::TestCase &,
+                std::size_t, std::size_t, const sourcemeta::blaze::TestCase &,
                 const sourcemeta::blaze::TestOutcome &,
                 sourcemeta::blaze::TestTimestamp start,
                 sourcemeta::blaze::TestTimestamp end) {
@@ -735,20 +750,22 @@ TEST(multiple_targets_all_passing) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -813,20 +830,22 @@ TEST(multiple_targets_all_failing) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -891,20 +910,22 @@ TEST(multiple_targets_mixed_results) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -958,20 +979,22 @@ TEST(multiple_targets_with_no_tests) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -996,20 +1019,22 @@ TEST(multiple_targets_single_element_matches_string_form) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -1054,9 +1079,10 @@ TEST(multiple_targets_with_file_path_targets) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
+  TestTargetStore targets{test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   const auto expected_file_target{sourcemeta::core::URI::from_path(
@@ -1065,12 +1091,13 @@ TEST(multiple_targets_with_file_path_targets) {
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -1128,11 +1155,12 @@ TEST(multiple_targets_with_default_dialect) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
+  TestTargetStore targets{test_resolver,
+                          "https://json-schema.org/draft/2020-12/schema"};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
-      sourcemeta::blaze::default_schema_compiler,
-      "https://json-schema.org/draft/2020-12/schema")};
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   const auto expected_no_dialect_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_no_dialect.json")};
@@ -1142,12 +1170,13 @@ TEST(multiple_targets_with_default_dialect) {
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -1203,20 +1232,22 @@ TEST(multiple_targets_with_data_path) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -1265,8 +1296,9 @@ TEST(multiple_targets_timestamps_ordering) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -1275,7 +1307,7 @@ TEST(multiple_targets_timestamps_ordering) {
       traces;
   const auto result{suite.run(
       [&traces](const sourcemeta::core::JSON::String &target, std::size_t,
-                std::size_t, const sourcemeta::blaze::TestCase &,
+                std::size_t, std::size_t, const sourcemeta::blaze::TestCase &,
                 const sourcemeta::blaze::TestOutcome &,
                 sourcemeta::blaze::TestTimestamp start,
                 sourcemeta::blaze::TestTimestamp end) {
@@ -1324,20 +1356,22 @@ TEST(multiple_targets_three_targets) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -1398,11 +1432,12 @@ TEST(multiple_targets_per_target_validation_differs) {
     return sourcemeta::core::schema_resolver(identifier);
   }};
 
+  TestTargetStore targets{test_resolver,
+                          "https://json-schema.org/draft/2020-12/schema"};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
-      sourcemeta::blaze::default_schema_compiler,
-      "https://json-schema.org/draft/2020-12/schema")};
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
 
   const auto expected_schema_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema.json")};
@@ -1412,12 +1447,13 @@ TEST(multiple_targets_per_target_validation_differs) {
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -1490,20 +1526,22 @@ TEST(embedded_custom_metaschema) {
     return sourcemeta::core::schema_resolver(identifier);
   };
 
+  TestTargetStore targets{resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
                          bool, bool>>
       traces;
-  const auto result{suite.run(
-      [&traces](const sourcemeta::core::JSON::String &target, std::size_t index,
-                std::size_t total, const sourcemeta::blaze::TestCase &test_case,
-                const sourcemeta::blaze::TestOutcome &outcome,
-                sourcemeta::blaze::TestTimestamp,
-                sourcemeta::blaze::TestTimestamp) {
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
         traces.emplace_back(target, index, total, test_case.description,
                             test_case.valid, outcome.valid);
       })};
@@ -1540,9 +1578,10 @@ TEST(rdf_passing_inline) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -1591,9 +1630,10 @@ TEST(rdf_failing_expansion_mismatch) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -1637,9 +1677,10 @@ TEST(rdf_validity_mismatch_skips_comparison) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -1682,9 +1723,10 @@ TEST(rdf_resolution_error_fails_case_and_later_cases_run) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -1758,9 +1800,10 @@ TEST(rdf_with_rdfPath_json) {
 
     return sourcemeta::core::schema_resolver(identifier);
   }};
+  TestTargetStore targets{test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_jsonld.json")};
@@ -1814,9 +1857,10 @@ TEST(rdf_with_rdfPath_yaml) {
 
     return sourcemeta::core::schema_resolver(identifier);
   }};
+  TestTargetStore targets{test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
   const auto expected_target{sourcemeta::core::URI::from_path(
       std::filesystem::path{STUBS_PATH} / "schema_jsonld.json")};
@@ -1866,9 +1910,10 @@ TEST(rdf_anyof_annotations_collected) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -1916,9 +1961,10 @@ TEST(rdf_oneof_annotations_collected) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -1965,9 +2011,10 @@ TEST(rdf_numeric_expectation_cross_representation) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -2009,9 +2056,10 @@ TEST(rdf_empty_expectation_without_jsonld_keywords) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -2054,9 +2102,10 @@ TEST(rdf_2019_09_schema) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -2107,9 +2156,10 @@ TEST(rdf_multi_target_same_expectation) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -2177,9 +2227,10 @@ TEST(rdf_multi_target_divergent_expectation) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -2244,9 +2295,10 @@ TEST(rdf_fragment_target_subschema) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -2306,9 +2358,10 @@ TEST(rdf_mixed_with_plain_cases) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{rdf_test_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH}, rdf_test_resolver,
-      sourcemeta::core::schema_walker,
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      rdf_test_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
   std::vector<RDFTrace> traces;
@@ -2371,8 +2424,9 @@ TEST(rdf_draft7_target_empty_expansion) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -2415,8 +2469,9 @@ TEST(rdf_draft7_target_expectation_never_matches) {
   sourcemeta::core::PointerPositionTracker tracker;
   sourcemeta::core::JSON document{nullptr};
   sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  TestTargetStore targets{sourcemeta::core::schema_resolver};
   auto suite{sourcemeta::blaze::TestSuite::parse(
-      document, tracker, std::filesystem::path{STUBS_PATH},
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
       sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
       sourcemeta::blaze::default_schema_compiler)};
 
@@ -2438,4 +2493,236 @@ TEST(rdf_draft7_target_expectation_never_matches) {
   EXPECT_EQ(std::get<7>(traces[0]).value(),
             sourcemeta::core::parse_json(R"JSON([])JSON"));
   EXPECT_FALSE(std::get<8>(traces[0]).has_value());
+}
+
+TEST(target_inside_a_wrapper_document) {
+  const auto *const input{R"JSON({
+    "target": "wrapper.json#/components/schemas/Person",
+    "tests": [
+      { "data": { "name": "John Doe" }, "valid": true, "description": "named" },
+      { "data": {}, "valid": false, "description": "nameless" }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  // The document that holds the schema is not a schema of its own, so framing
+  // it takes the place that the schema sits in and the base it was read under,
+  // which together are the URI that the test document names it by
+  const auto wrapper_path{std::filesystem::path{STUBS_PATH} / "wrapper.json"};
+  const auto wrapper{sourcemeta::core::read_json(wrapper_path)};
+  const auto wrapper_base{
+      sourcemeta::core::URI::from_path(wrapper_path).recompose()};
+  const sourcemeta::core::Pointer schema_pointer{"components", "schemas",
+                                                 "Person"};
+  const sourcemeta::core::SchemaFrame::Paths paths{
+      sourcemeta::core::to_weak_pointer(schema_pointer)};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      wrapper,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      "",
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      paths,
+      wrapper_base};
+
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      [&wrapper, &frame](const sourcemeta::core::JSON::String &target)
+          -> sourcemeta::blaze::TestTarget {
+        return {.document = wrapper, .frame = frame, .entrypoint = target};
+      },
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const auto expected_target{wrapper_base + "#/components/schemas/Person"};
+  EXPECT_EQ(suite.targets.size(), 1);
+  EXPECT_EQ(suite.targets.front(), expected_target);
+
+  std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
+                         bool, bool>>
+      traces;
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, outcome.valid);
+      })};
+
+  EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 2);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(std::get<0>(traces[0]), expected_target);
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
+  EXPECT_EQ(std::get<3>(traces[0]), "named");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+
+  EXPECT_EQ(std::get<0>(traces[1]), expected_target);
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
+  EXPECT_EQ(std::get<3>(traces[1]), "nameless");
+  EXPECT_FALSE(std::get<4>(traces[1]));
+  EXPECT_FALSE(std::get<5>(traces[1]));
+}
+
+TEST(target_naming_an_anchor) {
+  const auto *const input{R"JSON({
+    "target": "schema_anchored.json#person",
+    "tests": [
+      { "data": { "name": "John Doe" }, "valid": true, "description": "named" },
+      { "data": {}, "valid": false, "description": "nameless" }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+  const auto test_resolver{[](std::string_view identifier)
+                               -> sourcemeta::core::SchemaResolverResult {
+    const sourcemeta::core::URI uri{identifier};
+    if (uri.is_file()) {
+      return sourcemeta::core::read_yaml_or_json(uri.to_path());
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  }};
+
+  // A target may name a place that no pointer spells, which is the frame's to
+  // tell the caller the place of
+  TestTargetStore targets{test_resolver};
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH}, std::ref(targets),
+      test_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  const auto expected_target{
+      sourcemeta::core::URI::from_path(std::filesystem::path{STUBS_PATH} /
+                                       "schema_anchored.json")
+          .recompose() +
+      "#person"};
+  EXPECT_EQ(suite.targets.size(), 1);
+  EXPECT_EQ(suite.targets.front(), expected_target);
+
+  std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
+                         bool, bool>>
+      traces;
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, outcome.valid);
+      })};
+
+  EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 2);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(std::get<0>(traces[0]), expected_target);
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
+  EXPECT_EQ(std::get<3>(traces[0]), "named");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+
+  EXPECT_EQ(std::get<0>(traces[1]), expected_target);
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
+  EXPECT_EQ(std::get<3>(traces[1]), "nameless");
+  EXPECT_FALSE(std::get<4>(traces[1]));
+  EXPECT_FALSE(std::get<5>(traces[1]));
+}
+
+TEST(target_framed_under_a_base_without_an_identifier) {
+  const auto *const input{R"JSON({
+    "target": "schema.json",
+    "tests": [
+      { "data": { "foo": "bar" }, "valid": true, "description": "with foo" },
+      { "data": {}, "valid": false, "description": "without foo" }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  // A document that declares no identifier of its own is addressed by the base
+  // it was read under rather than by nothing at all, and that base is not what
+  // the frame reports as its root, so an empty entry point has to reach it all
+  // the same
+  const auto schema_path{std::filesystem::path{STUBS_PATH} / "schema.json"};
+  const auto schema{sourcemeta::core::read_json(schema_path)};
+  const auto schema_base{
+      sourcemeta::core::URI::from_path(schema_path).recompose()};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      "",
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      sourcemeta::core::SchemaFrame::Paths{
+          sourcemeta::core::EMPTY_WEAK_POINTER},
+      schema_base};
+
+  EXPECT_TRUE(frame.root().empty());
+  EXPECT_FALSE(frame.traverse("").has_value());
+  EXPECT_EQ(frame.uri(sourcemeta::core::EMPTY_WEAK_POINTER).value().get(),
+            schema_base);
+
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      [&schema, &frame](const sourcemeta::core::JSON::String &)
+          -> sourcemeta::blaze::TestTarget {
+        return {.document = schema, .frame = frame, .entrypoint = ""};
+      },
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
+                         bool, bool>>
+      traces;
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, outcome.valid);
+      })};
+
+  EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 2);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(std::get<0>(traces[0]), schema_base);
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
+  EXPECT_EQ(std::get<3>(traces[0]), "with foo");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+
+  EXPECT_EQ(std::get<0>(traces[1]), schema_base);
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
+  EXPECT_EQ(std::get<3>(traces[1]), "without foo");
+  EXPECT_FALSE(std::get<4>(traces[1]));
+  EXPECT_FALSE(std::get<5>(traces[1]));
 }
