@@ -4,12 +4,26 @@
 #include <sourcemeta/core/uri.h>
 #include <sourcemeta/core/yaml.h>
 
-#include <algorithm> // std::ranges::any_of
-#include <cassert>   // assert
-#include <tuple>     // std::get
-#include <utility>   // std::move
+#include <algorithm>   // std::ranges::any_of
+#include <cassert>     // assert
+#include <string_view> // std::string_view
+#include <tuple>       // std::get
+#include <utility>     // std::move
 
 namespace {
+// A frame keys the document it analysed by whatever identifier that document
+// declares, or by the base it was retrieved from when it declares none, so
+// what names the root of one is the frame's to say rather than ours
+inline auto frame_root(const sourcemeta::core::SchemaFrame &frame)
+    -> std::string_view {
+  const auto uri{frame.uri(sourcemeta::core::EMPTY_WEAK_POINTER)};
+  if (!uri.has_value()) {
+    return {};
+  }
+
+  return uri.value().get();
+}
+
 inline auto test_error_if(
     bool condition, const sourcemeta::core::PointerPositionTracker &tracker,
     const sourcemeta::core::Pointer &pointer, const char *message) -> void {
@@ -229,12 +243,13 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
 auto TestSuite::compile_target(const std::size_t target_index,
                                const Mode mode) const -> Template {
   const auto &target{this->resolved_targets_[target_index]};
-  return compile(
-      target.document, this->walker_, this->schema_resolver_, this->compiler_,
-      target.frame,
-      target.entrypoint.empty() ? target.frame.root() : target.entrypoint, mode,
-      mode == Mode::FastValidation ? this->tweaks_fast_
-                                   : this->tweaks_exhaustive_);
+  return compile(target.document, this->walker_, this->schema_resolver_,
+                 this->compiler_, target.frame,
+                 target.entrypoint.empty() ? frame_root(target.frame)
+                                           : target.entrypoint,
+                 mode,
+                 mode == Mode::FastValidation ? this->tweaks_fast_
+                                              : this->tweaks_exhaustive_);
 }
 
 auto TestSuite::fast(const std::size_t target_index) const -> const Template & {

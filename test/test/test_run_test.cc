@@ -2646,3 +2646,83 @@ TEST(target_naming_an_anchor) {
   EXPECT_FALSE(std::get<4>(traces[1]));
   EXPECT_FALSE(std::get<5>(traces[1]));
 }
+
+TEST(target_framed_under_a_base_without_an_identifier) {
+  const auto *const input{R"JSON({
+    "target": "schema.json",
+    "tests": [
+      { "data": { "foo": "bar" }, "valid": true, "description": "with foo" },
+      { "data": {}, "valid": false, "description": "without foo" }
+    ]
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  // A document that declares no identifier of its own is addressed by the base
+  // it was read under rather than by nothing at all, and that base is not what
+  // the frame reports as its root, so an empty entry point has to reach it all
+  // the same
+  const auto schema_path{std::filesystem::path{STUBS_PATH} / "schema.json"};
+  const auto schema{sourcemeta::core::read_json(schema_path)};
+  const auto schema_base{
+      sourcemeta::core::URI::from_path(schema_path).recompose()};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      "",
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      sourcemeta::core::SchemaFrame::Paths{
+          sourcemeta::core::EMPTY_WEAK_POINTER},
+      schema_base};
+
+  EXPECT_TRUE(frame.root().empty());
+  EXPECT_FALSE(frame.traverse("").has_value());
+  EXPECT_EQ(frame.uri(sourcemeta::core::EMPTY_WEAK_POINTER).value().get(),
+            schema_base);
+
+  auto suite{sourcemeta::blaze::TestSuite::parse(
+      document, tracker, std::filesystem::path{STUBS_PATH},
+      [&schema, &frame](const sourcemeta::core::JSON::String &)
+          -> sourcemeta::blaze::TestTarget {
+        return {.document = schema, .frame = frame, .entrypoint = ""};
+      },
+      sourcemeta::core::schema_resolver, sourcemeta::core::schema_walker,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  std::vector<std::tuple<std::string, std::size_t, std::size_t, std::string,
+                         bool, bool>>
+      traces;
+  const auto result{
+      suite.run([&traces](const sourcemeta::core::JSON::String &target,
+                          std::size_t, std::size_t index, std::size_t total,
+                          const sourcemeta::blaze::TestCase &test_case,
+                          const sourcemeta::blaze::TestOutcome &outcome,
+                          sourcemeta::blaze::TestTimestamp,
+                          sourcemeta::blaze::TestTimestamp) {
+        traces.emplace_back(target, index, total, test_case.description,
+                            test_case.valid, outcome.valid);
+      })};
+
+  EXPECT_EQ(result.total, 2);
+  EXPECT_EQ(result.passed, 2);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_EQ(std::get<0>(traces[0]), schema_base);
+  EXPECT_EQ(std::get<1>(traces[0]), 1);
+  EXPECT_EQ(std::get<2>(traces[0]), 2);
+  EXPECT_EQ(std::get<3>(traces[0]), "with foo");
+  EXPECT_TRUE(std::get<4>(traces[0]));
+  EXPECT_TRUE(std::get<5>(traces[0]));
+
+  EXPECT_EQ(std::get<0>(traces[1]), schema_base);
+  EXPECT_EQ(std::get<1>(traces[1]), 2);
+  EXPECT_EQ(std::get<2>(traces[1]), 2);
+  EXPECT_EQ(std::get<3>(traces[1]), "without foo");
+  EXPECT_FALSE(std::get<4>(traces[1]));
+  EXPECT_FALSE(std::get<5>(traces[1]));
+}

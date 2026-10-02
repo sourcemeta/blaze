@@ -250,8 +250,12 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
   /// base and the place it sits in, which is what the target spells:
   ///
   /// ```cpp
-  /// const sourcemeta::core::OpenAPIFrame frame{description, walker,
-  ///                                            resolver, base};
+  /// // A frame can neither be copied nor moved, and this one has to outlive
+  /// // the suite, so the caller keeps it somewhere of its own and hands over
+  /// // a reference to it
+  /// const auto &frame{*frames.emplace_back(
+  ///     std::make_unique<sourcemeta::core::OpenAPIFrame>(
+  ///         description, walker, resolver, base))};
   /// return {.document = description, .frame = frame.schemas(),
   ///         .entrypoint = target};
   /// ```
