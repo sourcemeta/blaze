@@ -17,6 +17,14 @@ public:
                          SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE) &&
                      schema.is_object());
 
+    // Answered here rather than beside its use, because more than one branch
+    // below returns without reaching that point, and a stale answer from the
+    // subschema visited before this one would decide whether a referenced
+    // schema is kept
+    this->additional_items_is_referenced_ =
+        schema.defines("additionalItems") &&
+        compute_additional_items_is_referenced(frame, location);
+
     const bool is_resource_scope{
         location.type ==
             sourcemeta::core::SchemaFrame::LocationType::Resource ||
@@ -64,8 +72,6 @@ public:
 
     this->document_has_unevaluated_items_ =
         compute_document_has_unevaluated_items(root, frame, walker, resolver);
-    this->additional_items_is_referenced_ =
-        compute_additional_items_is_referenced(frame, location);
     return true;
   }
 
@@ -305,8 +311,10 @@ private:
 
   // Beside an `items` that is not an array this keyword asserts nothing, and
   // 2020-12 does not define it at all, so dropping it loses nothing unless a
-  // reference names the schema it holds. Such a reference uses it as a
-  // definition, and `$defs` is where 2020-12 keeps a schema it does not apply
+  // reference reaches the schema it holds. Such a reference uses it as a
+  // definition, and `$defs` is where 2020-12 keeps a schema it does not apply.
+  // A reference naming something nested inside it counts too, since erasing
+  // the schema takes everything under it along
   static auto compute_additional_items_is_referenced(
       const sourcemeta::core::SchemaFrame &frame,
       const sourcemeta::core::SchemaFrame::Location &location) -> bool {
@@ -320,8 +328,8 @@ private:
             const sourcemeta::core::SchemaFrame::Reference &reference) -> bool {
           const auto destination{frame.traverse(reference.destination)};
           return destination.has_value() &&
-                 sourcemeta::core::to_pointer(
-                     destination.value().get().pointer) == wanted;
+                 sourcemeta::core::to_pointer(destination.value().get().pointer)
+                     .starts_with(wanted);
         });
   }
 
