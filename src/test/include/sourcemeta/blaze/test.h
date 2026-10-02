@@ -329,13 +329,23 @@ struct SOURCEMETA_BLAZE_TEST_EXPORT TestSuite {
       -> TestSuite;
 
 private:
-  [[nodiscard]] auto compile_target(std::size_t target_index, Mode mode) const
-      -> Template;
-
+// See
+// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4251?view=msvc-170
 #if defined(_MSC_VER)
 #pragma warning(disable : 4251)
 #endif
-  std::vector<TestTarget> resolved_targets_;
+  // What a target resolved to, held the way a container can hold it, as an
+  // entry with a reference member cannot be assigned
+  struct ResolvedTarget {
+    const sourcemeta::core::JSON *document;
+    const sourcemeta::core::SchemaFrame *frame;
+    sourcemeta::core::JSON::String entrypoint;
+  };
+
+  [[nodiscard]] auto compile_target(std::size_t target_index, Mode mode) const
+      -> Template;
+
+  std::vector<ResolvedTarget> resolved_targets_;
   std::vector<Template> schemas_fast_;
   std::vector<std::optional<Template>> schemas_exhaustive_;
   sourcemeta::core::SchemaResolver schema_resolver_;

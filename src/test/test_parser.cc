@@ -231,8 +231,11 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
 
   for (std::size_t target_index = 0; target_index < test_suite.targets.size();
        ++target_index) {
+    auto resolved{target_resolver(test_suite.targets[target_index])};
     test_suite.resolved_targets_.push_back(
-        target_resolver(test_suite.targets[target_index]));
+        {.document = &resolved.document,
+         .frame = &resolved.frame,
+         .entrypoint = std::move(resolved.entrypoint)});
     test_suite.schemas_fast_.push_back(
         test_suite.compile_target(target_index, Mode::FastValidation));
   }
@@ -243,9 +246,9 @@ auto TestSuite::parse(const sourcemeta::core::JSON &document,
 auto TestSuite::compile_target(const std::size_t target_index,
                                const Mode mode) const -> Template {
   const auto &target{this->resolved_targets_[target_index]};
-  return compile(target.document, this->walker_, this->schema_resolver_,
-                 this->compiler_, target.frame,
-                 target.entrypoint.empty() ? frame_root(target.frame)
+  return compile(*target.document, this->walker_, this->schema_resolver_,
+                 this->compiler_, *target.frame,
+                 target.entrypoint.empty() ? frame_root(*target.frame)
                                            : target.entrypoint,
                  mode,
                  mode == Mode::FastValidation ? this->tweaks_fast_
