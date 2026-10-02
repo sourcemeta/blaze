@@ -496,8 +496,12 @@ auto check_transitivity(
 // Conversion moves a document to the dialect it was asked for. A target at or
 // above the rung the document starts on must therefore leave it reading as
 // that target, and a result still reading as the old dialect is a conversion
-// that silently did not happen. A target below that rung must leave the
-// document where it was, as conversion only ever upgrades
+// that silently did not happen. A target below that rung must leave it reading
+// as the dialect it already had, since conversion only ever upgrades.
+//
+// Only the rung is asserted here. A lower target may still rewrite the
+// document, because the rules that normalise a spelling or canonicalise a
+// keyword are registered for every target and do not move the dialect
 auto dialect_rung(const sourcemeta::core::JSON &document,
                   const sourcemeta::core::SchemaResolver &resolver,
                   const Inputs &inputs) -> std::size_t {
@@ -541,22 +545,24 @@ auto check_dialects(
     }
 
     // A target at or above where the document starts has to leave it reading
-    // as that target. One below has to leave it where it was, since
-    // conversion only ever upgrades, so the two cases are the same statement
-    // about the rung the document comes back on
+    // as that target, and one below has to leave it reading as the dialect it
+    // already had. Both are the same statement about the rung the document
+    // comes back on, which is the only thing this compares
     const auto wanted_rung{std::max(before, target.position)};
 
     auto entry{sourcemeta::core::JSON::make_object()};
     entry.assign("target", sourcemeta::core::JSON{target.name});
-    entry.assign("rung",
-                 sourcemeta::core::JSON{static_cast<std::int64_t>(dialect_rung(
-                     converted.at(index).value(), resolver, inputs))});
+    entry.assign(
+        "rung",
+        sourcemeta::core::JSON{static_cast<sourcemeta::core::JSON::Integer>(
+            dialect_rung(converted.at(index).value(), resolver, inputs))});
     actual.push_back(std::move(entry));
 
     auto wanted{sourcemeta::core::JSON::make_object()};
     wanted.assign("target", sourcemeta::core::JSON{target.name});
     wanted.assign(
-        "rung", sourcemeta::core::JSON{static_cast<std::int64_t>(wanted_rung)});
+        "rung", sourcemeta::core::JSON{
+                    static_cast<sourcemeta::core::JSON::Integer>(wanted_rung)});
     expected.push_back(std::move(wanted));
   }
 

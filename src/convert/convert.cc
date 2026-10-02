@@ -292,14 +292,14 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                 return;
               }
 
-              const auto &target{destination.value().get()};
+              const auto &landing{destination.value().get()};
               potentially_broken_references.push_back(
                   {.origin = core::to_pointer(origin),
                    .original = core::JSON::String{reference.original},
                    .destination = reference.destination,
                    .fragment = core::JSON::String{reference.fragment.value()},
-                   .target_pointer = core::to_pointer(target.pointer),
-                   .target_relative_pointer = target.relative_pointer});
+                   .target_pointer = core::to_pointer(landing.pointer),
+                   .target_relative_pointer = landing.relative_pointer});
             });
 
             rule->prepare(*frame, location);
