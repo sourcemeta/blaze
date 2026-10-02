@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": { "type": "integer" },
+    "additionalItems": {
+      "properties": { "a": { "type": "string" } },
+      "additionalProperties": { "$ref": "#/additionalItems/properties/a" }
+    },
+    "properties": { "x": { "$ref": "#/additionalItems" } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "integer" },
+      "properties": { "x": { "$ref": "#/$defs/additionalItems" } },
+      "$defs": {
+        "additionalItems": {
+          "properties": { "a": { "type": "string" } },
+          "additionalProperties": {
+            "$ref": "#/$defs/additionalItems/properties/a"
+          }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "x": { "a": "s", "b": "t" } } ],
+  "counterExamples": [ { "x": { "b": 1 } } ]
+}

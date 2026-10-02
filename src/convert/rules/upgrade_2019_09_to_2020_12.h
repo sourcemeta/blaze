@@ -332,6 +332,11 @@ private:
       -> void {
     if (!schema.defines("$defs")) {
       schema.assign("$defs", sourcemeta::core::JSON::make_object());
+    } else if (!schema.at("$defs").is_object()) {
+      // Nothing can be put inside a `$defs` that is not an object, and a
+      // document carrying one is not a valid schema of its own dialect
+      // either, so the keyword stays where its author wrote it
+      return;
     }
 
     std::string name{keyword};
