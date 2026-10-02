@@ -54,18 +54,59 @@ auto expect_known(const std::string_view kind, const std::string_view name,
 struct Target {
   std::string_view name;
   sourcemeta::blaze::ConvertTarget value;
+  std::size_t position;
 };
+
+// Where a base dialect sits on the ladder, counting from one. Stated here
+// rather than taken from the module, so that the suite says independently what
+// it expects. Hyper variants sit alongside their plain counterparts, since a
+// hyper-schema document is read as that rung, and the drafts below the ladder
+// answer zero just as an unrecognised dialect does
+auto ladder_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
+    -> std::size_t {
+  using Base = sourcemeta::core::SchemaBaseDialect;
+  switch (base_dialect) {
+    case Base::JSON_SCHEMA_DRAFT_3:
+    case Base::JSON_SCHEMA_DRAFT_3_HYPER:
+      return 1;
+    case Base::JSON_SCHEMA_DRAFT_4:
+    case Base::JSON_SCHEMA_DRAFT_4_HYPER:
+      return 2;
+    case Base::JSON_SCHEMA_DRAFT_6:
+    case Base::JSON_SCHEMA_DRAFT_6_HYPER:
+      return 3;
+    case Base::JSON_SCHEMA_DRAFT_7:
+    case Base::JSON_SCHEMA_DRAFT_7_HYPER:
+      return 4;
+    case Base::JSON_SCHEMA_2019_09:
+    case Base::JSON_SCHEMA_2019_09_HYPER:
+      return 5;
+    case Base::JSON_SCHEMA_2020_12:
+    case Base::JSON_SCHEMA_2020_12_HYPER:
+      return 6;
+    default:
+      return 0;
+  }
+}
 
 // Every target that conversion takes, as a fixture has to account for all of
 // them rather than for the ones whoever wrote it happened to think of
 constexpr std::array<Target, 5> TARGETS{
-    {{.name = "draft4", .value = sourcemeta::blaze::ConvertTarget::Draft4},
-     {.name = "draft6", .value = sourcemeta::blaze::ConvertTarget::Draft6},
-     {.name = "draft7", .value = sourcemeta::blaze::ConvertTarget::Draft7},
+    {{.name = "draft4",
+      .value = sourcemeta::blaze::ConvertTarget::Draft4,
+      .position = 2},
+     {.name = "draft6",
+      .value = sourcemeta::blaze::ConvertTarget::Draft6,
+      .position = 3},
+     {.name = "draft7",
+      .value = sourcemeta::blaze::ConvertTarget::Draft7,
+      .position = 4},
      {.name = "2019-09",
-      .value = sourcemeta::blaze::ConvertTarget::Draft201909},
+      .value = sourcemeta::blaze::ConvertTarget::Draft201909,
+      .position = 5},
      {.name = "2020-12",
-      .value = sourcemeta::blaze::ConvertTarget::Draft202012}}};
+      .value = sourcemeta::blaze::ConvertTarget::Draft202012,
+      .position = 6}}};
 
 // The same names again, as a fixture names its targets in text
 // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
@@ -452,6 +493,70 @@ auto check_transitivity(
   }
 }
 
+// Conversion moves a document to the dialect it was asked for. A target at or
+// above the rung the document starts on must therefore leave it reading as
+// that target, and a result still reading as the old dialect is a conversion
+// that silently did not happen. A target below that rung is left out, since
+// conversion only ever upgrades
+auto dialect_rung(const sourcemeta::core::JSON &document,
+                  const sourcemeta::core::SchemaResolver &resolver,
+                  const Inputs &inputs) -> std::size_t {
+  if (!document.is_object()) {
+    return 0;
+  }
+
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      document,
+      sourcemeta::core::schema_walker,
+      resolver,
+      inputs.default_dialect,
+      inputs.default_id,
+      sourcemeta::core::SchemaFrame::IdentifierMode::Fallback};
+
+  const auto location{frame.traverse(sourcemeta::core::EMPTY_WEAK_POINTER)};
+  if (!location.has_value()) {
+    return 0;
+  }
+
+  return ladder_position(location.value().get().base_dialect);
+}
+
+auto check_dialects(
+    const sourcemeta::core::JSON &input,
+    const std::vector<std::optional<sourcemeta::core::JSON>> &converted,
+    const sourcemeta::core::SchemaResolver &resolver, const Inputs &inputs)
+    -> void {
+  const auto before{dialect_rung(input, resolver, inputs)};
+  if (before == 0) {
+    return;
+  }
+
+  auto actual{sourcemeta::core::JSON::make_array()};
+  auto expected{sourcemeta::core::JSON::make_array()};
+  for (std::size_t index = 0; index < TARGETS.size(); index += 1) {
+    const auto &target{TARGETS.at(index)};
+    if (!converted.at(index).has_value() || target.position < before) {
+      continue;
+    }
+
+    auto entry{sourcemeta::core::JSON::make_object()};
+    entry.assign("target", sourcemeta::core::JSON{target.name});
+    entry.assign("rung",
+                 sourcemeta::core::JSON{static_cast<std::int64_t>(dialect_rung(
+                     converted.at(index).value(), resolver, inputs))});
+    actual.push_back(std::move(entry));
+
+    auto wanted{sourcemeta::core::JSON::make_object()};
+    wanted.assign("target", sourcemeta::core::JSON{target.name});
+    wanted.assign("rung", sourcemeta::core::JSON{
+                              static_cast<std::int64_t>(target.position)});
+    expected.push_back(std::move(wanted));
+  }
+
+  EXPECT_EQ(actual, expected);
+}
+
 // Which schema resources a document declares is part of what it means, and
 // conversion is not supposed to invent one or lose one. Where each resource
 // lives may move, so only the set of URIs is compared, not the pointers they
@@ -586,6 +691,10 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   }
 
   EXPECT_EQ(disagreements, sourcemeta::core::JSON::make_array());
+
+  // After the instances, because a dialect that did not move is coarser news
+  // than a changed verdict and must not hide one
+  check_dialects(test.at("schema"), converted, resolver, inputs);
 
   for (std::size_t index = 0; index < TARGETS.size(); index += 1) {
     if (!converted.at(index).has_value()) {

@@ -721,7 +721,7 @@ private:
     }
 
     return frame.any_reference(
-        [&location, &table](
+        [&location, &root, &frame, &table](
             const sourcemeta::core::SchemaReferenceType,
             const sourcemeta::core::WeakPointer &origin,
             const sourcemeta::core::SchemaFrame::Reference &reference) -> bool {
@@ -729,15 +729,36 @@ private:
             return false;
           }
 
-          for (const auto &[base, renames] : table) {
-            for (const auto &entry : renames) {
-              if (reference.destination == base + "#" + entry.first) {
-                return true;
-              }
-            }
+          // Letting framing resolve the reference is what keeps the two sides
+          // comparable. Matching the destination against a URI built here
+          // would miss a fragment that differs only in normalisation, such as
+          // the case of a percent-encoded octet, and the anchor would move out
+          // from under the reference
+          const auto target{frame.traverse(reference.destination)};
+          if (!target.has_value()) {
+            return false;
           }
 
-          return false;
+          const auto &entry{target.value().get()};
+          const auto renames{table.find(std::string{entry.base})};
+          if (renames == table.cend()) {
+            return false;
+          }
+
+          const auto &subschema{sourcemeta::core::get(
+              root, sourcemeta::core::to_pointer(entry.pointer))};
+          if (!subschema.is_object()) {
+            return false;
+          }
+
+          const auto *identifier{subschema.try_at("id")};
+          if (identifier == nullptr || !identifier->is_string()) {
+            return false;
+          }
+
+          const auto fragment{extract_id_fragment(*identifier)};
+          return fragment.has_value() &&
+                 renames->second.contains(fragment.value());
         });
   }
 
