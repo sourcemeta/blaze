@@ -1,0 +1,57 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "$recursiveAnchor": true,
+    "properties": {
+      "a": { "$recursiveRef": "#" },
+      "t": { "$anchor": "meta", "type": "string" },
+      "c": { "$ref": "https://example.com/inner" }
+    },
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "$recursiveAnchor": true,
+        "properties": {
+          "b": { "$recursiveRef": "#" },
+          "u": { "type": "integer" }
+        }
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "$dynamicAnchor": "x-meta",
+      "properties": {
+        "a": { "$dynamicRef": "#x-meta" },
+        "t": { "$anchor": "meta", "type": "string" },
+        "c": { "$ref": "https://example.com/inner" }
+      },
+      "$defs": {
+        "inner": {
+          "$id": "https://example.com/inner",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$dynamicAnchor": "x-meta",
+          "properties": {
+            "b": { "$dynamicRef": "#x-meta" },
+            "u": { "type": "integer" }
+          }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "t": "x" }, { "a": { "t": "x" } }, { "c": { "u": 1 } } ],
+  "counterExamples": [
+    { "t": 1 },
+    { "a": { "t": 1 } },
+    { "c": { "u": "x" } },
+    { "c": { "b": { "t": 1 } } }
+  ]
+}

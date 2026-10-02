@@ -1,0 +1,69 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "a": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-04/schema#",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "minimum": 3,
+        "exclusiveMinimum": true
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
+          "minimum": 3,
+          "exclusiveMinimum": true
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
+          "exclusiveMinimum": 3
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
+          "exclusiveMinimum": 3
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
+          "exclusiveMinimum": 3
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "http://json-schema.org/draft-07/schema#",
+          "exclusiveMinimum": 3
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "a": 4 } ],
+  "counterExamples": [ { "a": 3 } ]
+}

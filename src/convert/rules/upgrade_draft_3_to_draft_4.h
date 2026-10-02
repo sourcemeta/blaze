@@ -22,7 +22,7 @@ public:
     this->stray_required_ =
         has_stray_required_boolean(schema, location.pointer);
 
-    ONLY_CONTINUE_IF(has_pending_draft_3_pattern(schema) ||
+    ONLY_CONTINUE_IF(has_pending_draft_3_pattern(schema, location.dialect) ||
                      this->stray_required_ || root_via_default_dialect);
 
     if (frame.any_subschema_under(
@@ -38,7 +38,7 @@ public:
               // validation, but Draft 4 does not accept it as a value at all,
               // so it has to be upgraded before the dialect moves rather than
               // being left for the target meta-schema to reject
-              return has_pending_draft_3_pattern(entry_schema) ||
+              return has_pending_draft_3_pattern(entry_schema, entry.dialect) ||
                      has_stray_required_boolean(entry_schema, entry.pointer);
             })) {
       return false;
@@ -69,6 +69,7 @@ public:
     rewrite_type_array_with_subschemas(schema, this->renames_);
     rewrite_disallow(schema, this->renames_);
     rewrite_extends(schema, this->renames_);
+    rewrite_empty_items(schema, this->renames_);
     rewrite_divisible_by(schema);
     // Dropping the stray boolean first leaves the lift free to write its array
     // under the same name. The other way round the lift's array is what gets
@@ -102,13 +103,26 @@ private:
   static inline const std::string DRAFT_4_URL{
       "http://json-schema.org/draft-04/schema#"};
 
+  // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+  static inline const std::array<std::string_view, 7> PROMOTED_DRAFT_4_KEYWORDS{
+      {"multipleOf", "maxProperties", "minProperties", "allOf", "anyOf",
+       "oneOf", "not"}};
+
   mutable bool stray_required_{false};
   mutable std::vector<Relocation> renames_;
 
   static auto
-  has_pending_draft_3_pattern(const sourcemeta::core::JSON &subschema) -> bool {
+  has_pending_draft_3_pattern(const sourcemeta::core::JSON &subschema,
+                              const std::string_view dialect) -> bool {
+    // Either answer putting the subschema past this rung is enough. What it
+    // declares covers the marker this rule plants on its own output, without
+    // which the keywords it writes would read as pending for good. What
+    // framing reads covers a subschema sitting inside a resource that has
+    // already moved up, which declares nothing of its own and would otherwise
+    // leave the root waiting on work nothing will do
     if (!subschema.is_object() ||
-        declares_dialect_out_of_reach(subschema, DRAFT_3_URL)) {
+        declares_dialect_out_of_reach(subschema, DRAFT_3_URL) ||
+        dialect_position(dialect) > dialect_position(DRAFT_3_URL)) {
       return false;
     }
 
@@ -151,6 +165,11 @@ private:
       return true;
     }
 
+    const auto *items{subschema.try_at("items")};
+    if (items != nullptr && items->is_array() && items->empty()) {
+      return true;
+    }
+
     const auto *properties{subschema.try_at("properties")};
     if (properties != nullptr && properties->is_object()) {
       for (const auto &entry : properties->as_object()) {
@@ -176,7 +195,16 @@ private:
       return true;
     }
 
-    return false;
+    // A keyword Draft 4 promotes is inert data here, and the rule that
+    // shadows it only fires while the subschema is still read as Draft 3.
+    // Bumping an ancestor first takes that reading away, and the keyword
+    // starts asserting something the document never said. A descendant this
+    // rule has already converted carries the marker that puts it out of
+    // reach above, so waiting cannot outlast the work
+    return std::ranges::any_of(PROMOTED_DRAFT_4_KEYWORDS,
+                               [&subschema](const auto keyword) -> bool {
+                                 return subschema.defines(keyword);
+                               });
   }
 
   static auto
@@ -354,6 +382,12 @@ private:
                            sourcemeta::core::Pointer{"not"});
     }
 
+    // The wrapper is a subschema this rule just wrote, and the keywords it
+    // holds are Draft 4 spellings rather than the author's data. Saying so
+    // keeps the rule that shadows a promoted keyword from reading them as
+    // something inert that has to be moved out of the way
+    mark_dialect_override(negated, DRAFT_4_URL);
+
     schema.erase("disallow");
     schema.assign("not", std::move(negated));
   }
@@ -390,6 +424,49 @@ private:
     renames.emplace_back(sourcemeta::core::Pointer{"extends"},
                          sourcemeta::core::Pointer{"allOf", 0});
     schema.assign("allOf", std::move(array));
+  }
+
+  // Draft 3 takes an empty `items` array as naming no position at all, so
+  // every element falls to `additionalItems`. Draft 4 asks a schema array for
+  // at least one entry, so the empty one cannot come along. Saying the same
+  // thing there means letting the `additionalItems` schema apply to every
+  // element, which is what a single-schema `items` does. Dropping the empty
+  // array alone would instead leave `additionalItems` with no array beside it,
+  // where both dialects ignore it, and every element would stop being checked
+  static auto rewrite_empty_items(sourcemeta::core::JSON &schema,
+                                  std::vector<Relocation> &renames) -> void {
+    if (!schema.defines("items") || !schema.at("items").is_array() ||
+        !schema.at("items").empty()) {
+      return;
+    }
+
+    if (!schema.defines("additionalItems")) {
+      schema.erase("items");
+      return;
+    }
+
+    // Draft 3 lets this keyword be a boolean, which Draft 4 does not accept
+    // where it is going. `true` allows every element, which is what saying
+    // nothing does, and `false` allows none, which is an array that has to be
+    // empty. `maxItems` says that in a keyword both dialects share, so no
+    // keyword Draft 4 only just promoted is introduced here
+    if (schema.at("additionalItems").is_boolean()) {
+      const auto allows{schema.at("additionalItems").to_boolean()};
+      schema.erase("additionalItems");
+      schema.erase("items");
+      if (!allows) {
+        schema.assign("maxItems", sourcemeta::core::JSON{0});
+      }
+
+      return;
+    }
+
+    // A reference may name the schema being moved, or something inside it, so
+    // where it lands is recorded for `rereference` to follow
+    renames.emplace_back(sourcemeta::core::Pointer{"additionalItems"},
+                         sourcemeta::core::Pointer{"items"});
+    schema.assign("items", schema.at("additionalItems"));
+    schema.erase("additionalItems");
   }
 
   static auto rewrite_divisible_by(sourcemeta::core::JSON &schema) -> void {

@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "a": { "$ref": "#ns:thing" },
+      "b": { "$ref": "https://example.com/ext#ns:thing" }
+    },
+    "$defs": { "local": { "$anchor": "ns:thing", "type": "string" } }
+  },
+  "resolver": {
+    "https://example.com/ext": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/ext",
+      "$defs": {
+        "colon": { "$anchor": "ns:thing", "type": "integer" },
+        "plain": { "$anchor": "ns-thing", "type": "boolean" }
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": {
+        "a": { "$ref": "#ns-thing" },
+        "b": { "$ref": "https://example.com/ext#ns:thing" }
+      },
+      "$defs": { "local": { "$anchor": "ns-thing", "type": "string" } }
+    }
+  },
+  "examples": [ {}, { "a": "s", "b": 1 } ],
+  "counterExamples": [ { "a": 1 }, { "b": true } ]
+}

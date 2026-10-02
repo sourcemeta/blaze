@@ -1,0 +1,99 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "foo": {
+        "type": "string"
+      }
+    },
+    "properties": {
+      "value": {
+        "$ref": "#/definitions/foo",
+        "$schema": "http://json-schema.org/draft-06/schema#"
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "value": {
+          "$ref": "#/definitions/foo",
+          "x-$schema": "http://json-schema.org/draft-06/schema#"
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "value": {
+          "$ref": "#/definitions/foo",
+          "x-$schema": "http://json-schema.org/draft-06/schema#"
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "value": {
+          "$ref": "#/definitions/foo",
+          "x-$schema": "http://json-schema.org/draft-06/schema#"
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$defs": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/foo",
+          "x-$schema": "http://json-schema.org/draft-06/schema#"
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "foo": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/foo",
+          "x-$schema": "http://json-schema.org/draft-06/schema#"
+        }
+      }
+    }
+  },
+  "examples": [
+    {},
+    {
+      "value": "s"
+    }
+  ],
+  "counterExamples": [
+    {
+      "value": 1
+    }
+  ]
+}
