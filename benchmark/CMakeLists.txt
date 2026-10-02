@@ -19,6 +19,10 @@ if(BLAZE_ALTERSCHEMA)
   list(APPEND BENCHMARK_SOURCES alterschema.cc)
 endif()
 
+if(BLAZE_CONVERT)
+  list(APPEND BENCHMARK_SOURCES convert.cc)
+endif()
+
 if(BENCHMARK_SOURCES)
   sourcemeta_benchmark(NAMESPACE sourcemeta PROJECT blaze
     SOURCES ${BENCHMARK_SOURCES})
@@ -50,6 +54,10 @@ if(BENCHMARK_SOURCES)
   if(BLAZE_ALTERSCHEMA)
     target_link_libraries(sourcemeta_blaze_benchmarks
       PRIVATE sourcemeta::blaze::alterschema)
+  endif()
+  if(BLAZE_CONVERT)
+    target_link_libraries(sourcemeta_blaze_benchmarks
+      PRIVATE sourcemeta::blaze::convert)
   endif()
 
   # A single run prints the human readable report and writes the JSON file, so
