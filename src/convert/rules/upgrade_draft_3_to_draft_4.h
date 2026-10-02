@@ -87,7 +87,7 @@ private:
   static auto
   has_pending_draft_3_pattern(const sourcemeta::core::JSON &subschema) -> bool {
     if (!subschema.is_object() ||
-        declares_newer_dialect(subschema, DRAFT_3_URL)) {
+        declares_dialect_out_of_reach(subschema, DRAFT_3_URL)) {
       return false;
     }
 
@@ -352,6 +352,17 @@ private:
     schema.rename("divisibleBy", "multipleOf");
   }
 
+  // A boolean `required` is a Draft 3 spelling, so it is only this rule's to
+  // move when the property is read as Draft 3 as well. One that names a dialect
+  // of its own answers to that dialect instead, where the member may be nothing
+  // but author data, and lifting it would destroy it there while inventing an
+  // assertion here that the document never made
+  static auto reads_as_draft_3(const sourcemeta::core::JSON &property) -> bool {
+    const auto declared{declared_dialect(property)};
+    return declared.empty() ||
+           dialect_position(declared) == dialect_position(DRAFT_3_URL);
+  }
+
   static auto rewrite_required_property_booleans(sourcemeta::core::JSON &schema)
       -> void {
     if (!schema.defines("properties") || !schema.at("properties").is_object()) {
@@ -369,6 +380,10 @@ private:
     for (const auto &key : property_keys) {
       auto &property{properties.at(key)};
       if (!property.is_object() || !property.defines("required")) {
+        continue;
+      }
+
+      if (!reads_as_draft_3(property)) {
         continue;
       }
       const auto &required_value{property.at("required")};
@@ -443,7 +458,7 @@ private:
                              const sourcemeta::core::WeakPointer &pointer)
       -> bool {
     if (!subschema.is_object() ||
-        declares_newer_dialect(subschema, DRAFT_3_URL)) {
+        declares_dialect_out_of_reach(subschema, DRAFT_3_URL)) {
       return false;
     }
 

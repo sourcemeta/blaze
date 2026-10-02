@@ -16,6 +16,14 @@ public:
         vocabularies.contains(SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_7) &&
         schema.is_object());
 
+    // Several of these keywords are also what the upgrade writes as it climbs,
+    // so one sitting in a subschema that already declares the dialect that
+    // promoted it is the keyword doing its job rather than author data that
+    // still needs shadowing. Reading it as data shadows the upgrade's own
+    // output, and the rule then never settles
+    ONLY_CONTINUE_IF(dialect_position(declared_dialect(schema)) <
+                     dialect_position(PROMOTING_DIALECT));
+
     for (const auto &keyword : KEYWORDS) {
       if (schema.defines(keyword)) {
         return true;
@@ -61,6 +69,9 @@ public:
   }
 
 private:
+  static constexpr std::string_view PROMOTING_DIALECT{
+      "https://json-schema.org/draft/2019-09/schema"};
+
   // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
   static inline const std::array<std::string_view, 13> KEYWORDS{
       {"$anchor", "$recursiveAnchor", "$recursiveRef", "$vocabulary", "$defs",

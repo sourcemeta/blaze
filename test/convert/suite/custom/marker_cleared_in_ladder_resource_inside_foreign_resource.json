@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "https://example.com/foreign",
+    "$id": "https://example.com/root",
+    "properties": {
+      "x": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/x",
+        "dependencies": { "k": { "dependencies": { "m": [ "n" ] } } }
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/foreign": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/foreign",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2019-09/vocab/core": true,
+        "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+        "https://json-schema.org/draft/2019-09/vocab/validation": true
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": {
+      "$schema": "https://example.com/foreign",
+      "$id": "https://example.com/root",
+      "properties": {
+        "x": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://example.com/x",
+          "dependentSchemas": { "k": { "dependentRequired": { "m": [ "n" ] } } }
+        }
+      }
+    }
+  },
+  "errors": {
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": ""
+    }
+  },
+  "examples": [ {}, { "x": {} }, { "x": { "k": 1 } } ],
+  "counterExamples": [ { "x": { "k": 1, "m": 1 } } ]
+}

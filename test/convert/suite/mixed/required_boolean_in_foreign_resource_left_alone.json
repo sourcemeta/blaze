@@ -1,0 +1,108 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/outer",
+    "$defs": {
+      "three": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "id": "https://example.com/three",
+        "properties": {
+          "p": {
+            "$schema": "https://example.com/bare",
+            "$id": "https://example.com/p",
+            "required": true
+          }
+        }
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/bare": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/bare",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2019-09/vocab/core": true,
+        "https://json-schema.org/draft/2019-09/vocab/applicator": true
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/outer",
+      "$defs": {
+        "three": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/three",
+          "properties": {
+            "p": {
+              "$schema": "https://example.com/bare",
+              "$id": "https://example.com/p",
+              "required": true
+            }
+          }
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/outer",
+      "$defs": {
+        "three": {
+          "$schema": "http://json-schema.org/draft-06/schema#",
+          "$id": "https://example.com/three",
+          "properties": {
+            "p": {
+              "$schema": "https://example.com/bare",
+              "$id": "https://example.com/p",
+              "required": true
+            }
+          }
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/outer",
+      "$defs": {
+        "three": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/three",
+          "properties": {
+            "p": {
+              "$schema": "https://example.com/bare",
+              "$id": "https://example.com/p",
+              "required": true
+            }
+          }
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/outer",
+      "$defs": {
+        "three": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://example.com/three",
+          "properties": {
+            "p": {
+              "$schema": "https://example.com/bare",
+              "$id": "https://example.com/p",
+              "required": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/bare",
+      "location": "/$defs/three/properties/p"
+    }
+  },
+  "examples": [ {}, { "p": 1 } ],
+  "counterExamples": []
+}

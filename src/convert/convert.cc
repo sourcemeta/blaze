@@ -293,6 +293,16 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
               }
 
               const auto &landing{destination.value().get()};
+
+              // A fragment shaped like a pointer is not necessarily one. Draft
+              // 4 placed no restriction on the fragment an identifier carries,
+              // so an anchor may be named something like `/definitions/x`, and
+              // framing hands that name the URI the pointer would otherwise
+              // have had. Such a reference follows the anchor when it moves
+              // rather than keeping the location it looks like it names
+              if (landing.type == core::SchemaFrame::LocationType::Anchor) {
+                return;
+              }
               potentially_broken_references.push_back(
                   {.origin = core::to_pointer(origin),
                    .original = core::JSON::String{reference.original},

@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": { "p": { "$ref": "#/definitions/y" } },
+    "definitions": {
+      "x": { "id": "#/definitions/y", "type": "string" },
+      "y": { "type": "number" }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "object",
+      "properties": { "p": { "$ref": "#x--definitions-y" } },
+      "definitions": {
+        "x": { "$id": "#x--definitions-y", "type": "string" },
+        "y": { "type": "number" }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": { "p": { "$ref": "#x--definitions-y" } },
+      "definitions": {
+        "x": { "$id": "#x--definitions-y", "type": "string" },
+        "y": { "type": "number" }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "properties": { "p": { "$ref": "#x--definitions-y" } },
+      "$defs": {
+        "x": { "$anchor": "x--definitions-y", "type": "string" },
+        "y": { "type": "number" }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "p": { "$ref": "#x--definitions-y" } },
+      "$defs": {
+        "x": { "$anchor": "x--definitions-y", "type": "string" },
+        "y": { "type": "number" }
+      }
+    }
+  },
+  "examples": [ {}, { "p": "s" } ],
+  "counterExamples": [ { "p": 1 } ]
+}

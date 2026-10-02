@@ -30,7 +30,7 @@ public:
 
     // Which anchors move, and what each becomes, settled before anything is
     // written so that a reference is matched against the name it still has
-    std::map<sourcemeta::core::Pointer, std::string> renamed;
+    std::map<sourcemeta::core::Pointer, Rename> renamed;
     plan_anchor_renames(schema, frame, renamed, this->moves_);
     if (renamed.empty()) {
       return false;
@@ -50,6 +50,13 @@ private:
   // The subschema to write into, the keyword to write, and the value. Holding
   // the parent rather than the keyword's own pointer keeps the write a plain
   // assignment
+  // The name a reference has to spell out to be following this anchor, and
+  // the one it becomes
+  struct Rename {
+    std::string from;
+    std::string to;
+  };
+
   using Move = std::tuple<sourcemeta::core::Pointer, std::string,
                           sourcemeta::core::JSON>;
 
@@ -58,7 +65,7 @@ private:
   static auto
   plan_anchor_renames(const sourcemeta::core::JSON &schema,
                       const sourcemeta::core::SchemaFrame &frame,
-                      std::map<sourcemeta::core::Pointer, std::string> &renamed,
+                      std::map<sourcemeta::core::Pointer, Rename> &renamed,
                       std::vector<Move> &moves) -> void {
     // Every anchor each resource already holds, so that a sanitised name never
     // lands on one that is taken
@@ -120,25 +127,24 @@ private:
       auto replacement{sourcemeta::core::JSON{
           std::string{without_fragment_as_written(written)} + "#" + sanitized}};
       moves.emplace_back(pointer, "id", std::move(replacement));
-      renamed.emplace(pointer, std::move(sanitized));
+      renamed.emplace(pointer,
+                      Rename{.from = original, .to = std::move(sanitized)});
     }
   }
 
   static auto plan_reference_rewrites(
       const sourcemeta::core::SchemaFrame &frame,
-      const std::map<sourcemeta::core::Pointer, std::string> &renamed,
+      const std::map<sourcemeta::core::Pointer, Rename> &renamed,
       std::vector<Move> &moves) -> void {
     frame.for_each_reference(
         [&frame, &renamed, &moves](
             const sourcemeta::core::SchemaReferenceType,
             const sourcemeta::core::WeakPointer &origin,
             const sourcemeta::core::SchemaFrame::Reference &reference) -> void {
-          // A reference that names no fragment points at the resource itself,
-          // and one whose fragment is a JSON Pointer tracks a location rather
-          // than an anchor. Neither follows an anchor's name
+          // A reference that names no fragment points at the resource itself
+          // rather than at anything inside it
           if (!reference.fragment.has_value() ||
-              reference.fragment.value().empty() ||
-              reference.fragment.value().starts_with('/')) {
+              reference.fragment.value().empty()) {
             return;
           }
 
@@ -157,9 +163,18 @@ private:
             return;
           }
 
+          // Landing on a renamed subschema is not enough. A JSON Pointer
+          // fragment reaches it by location and keeps working whatever the
+          // anchor is called, while a Draft 4 anchor name may itself be shaped
+          // like a pointer, so what decides is whether the reference spells
+          // out the name that is moving
+          if (reference.fragment.value() != match->second.from) {
+            return;
+          }
+
           auto replacement{sourcemeta::core::JSON{
               std::string{without_fragment_as_written(reference.original)} +
-              "#" + match->second}};
+              "#" + match->second.to}};
           auto holder{sourcemeta::core::to_pointer(origin)};
           const auto keyword{holder.back().to_property()};
           holder.pop_back();

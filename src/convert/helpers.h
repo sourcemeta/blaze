@@ -323,10 +323,22 @@ inline auto moved_past(const sourcemeta::core::JSON &schema,
 // dialect it declares rather than being strangers there. A subschema that
 // declares nothing inherits the dialect of the schema being converted, which is
 // why only a declared position counts
-inline auto declares_newer_dialect(const sourcemeta::core::JSON &subschema,
-                                   const std::string_view dialect) -> bool {
-  const auto declared{dialect_position(declared_dialect(subschema))};
-  return declared > 0 && declared > dialect_position(dialect);
+// Whether a rule for the given rung has no work in this subschema and never
+// will. A subschema declaring a newer dialect has already moved past the rung,
+// and one declaring a dialect the ladder does not name is never rewritten at
+// all, so neither is ever going to change. Reading the second as merely
+// "older, still pending" is what holds an ancestor's upgrade back for good:
+// the ancestor waits for a descendant that nothing is allowed to touch
+inline auto
+declares_dialect_out_of_reach(const sourcemeta::core::JSON &subschema,
+                              const std::string_view dialect) -> bool {
+  const auto declared_uri{declared_dialect(subschema)};
+  if (declared_uri.empty()) {
+    return false;
+  }
+
+  const auto declared{dialect_position(declared_uri)};
+  return declared == 0 || declared > dialect_position(dialect);
 }
 
 // The ladder only ever writes its marker onto a schema, so clearing it follows
@@ -386,7 +398,11 @@ erase_dialect_overrides(sourcemeta::core::JSON &schema,
   // record of progress and is the author's data. Reading the resource's
   // `$schema` rather than the dialect framing reports is what tells the two
   // apart, as framing reads the marker itself as a dialect
-  std::vector<sourcemeta::core::Pointer> exempt;
+  // Naming the resources rather than their positions is what keeps a resource
+  // nested inside a foreign one from being exempted along with it. A position
+  // prefix cannot tell the two apart, and an exempt document root prefixes
+  // every pointer there is
+  std::set<std::string> exempt;
   frame.for_each_location(
       [&schema, &exempt](
           const sourcemeta::core::SchemaReferenceType, const std::string_view,
@@ -396,8 +412,8 @@ erase_dialect_overrides(sourcemeta::core::JSON &schema,
           return;
         }
 
-        auto pointer{sourcemeta::core::to_pointer(location.pointer)};
-        const auto &resource{sourcemeta::core::get(schema, pointer)};
+        const auto &resource{sourcemeta::core::get(
+            schema, sourcemeta::core::to_pointer(location.pointer))};
         if (!resource.is_object()) {
           return;
         }
@@ -405,21 +421,20 @@ erase_dialect_overrides(sourcemeta::core::JSON &schema,
         const auto *dialect{resource.try_at("$schema")};
         if (dialect != nullptr && dialect->is_string() &&
             !names_ladder_dialect(dialect->to_string())) {
-          exempt.push_back(std::move(pointer));
+          exempt.insert(std::string{location.base});
         }
       });
 
-  std::vector<sourcemeta::core::Pointer> subschemas;
+  std::vector<std::pair<sourcemeta::core::Pointer, std::string>> subschemas;
   frame.for_each_subschema(
       [&subschemas](
           const sourcemeta::core::SchemaFrame::Location &location) -> void {
-        subschemas.push_back(sourcemeta::core::to_pointer(location.pointer));
+        subschemas.emplace_back(sourcemeta::core::to_pointer(location.pointer),
+                                location.base);
       });
 
-  for (const auto &pointer : subschemas) {
-    if (std::ranges::any_of(exempt, [&pointer](const auto &base) -> bool {
-          return pointer.starts_with(base);
-        })) {
+  for (const auto &[pointer, base] : subschemas) {
+    if (exempt.contains(base)) {
       continue;
     }
 
