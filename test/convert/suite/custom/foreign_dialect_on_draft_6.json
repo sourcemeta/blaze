@@ -13,11 +13,17 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null,
-    "draft6": null
-  },
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "draft7": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
@@ -33,7 +39,5 @@
       "identifier": "https://example.com/meta",
       "location": ""
     }
-  },
-  "examples": [ {}, { "a": 1 }, "abc" ],
-  "counterExamples": [ { "a": 2 } ]
+  }
 }

@@ -16,32 +16,22 @@
       "$id": "https://example.com/meta"
     }
   },
-  "result": {
-    "draft4": null,
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "draft6": {
-      "$schema": "https://example.com/meta",
-      "$id": "https://example.com/root",
-      "definitions": {
-        "inner": {
-          "$id": "https://example.com/inner",
-          "$schema": "http://json-schema.org/draft-06/schema#",
-          "properties": { "c": { "$id": "#x-1bad", "type": "string" } }
-        }
-      }
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
     },
     "draft7": {
-      "$schema": "https://example.com/meta",
-      "$id": "https://example.com/root",
-      "definitions": {
-        "inner": {
-          "$id": "https://example.com/inner",
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "properties": { "c": { "$id": "#x-1bad", "type": "string" } }
-        }
-      }
-    }
-  },
-  "errors": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "2019-09": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
@@ -52,7 +42,5 @@
       "identifier": "https://example.com/meta",
       "location": ""
     }
-  },
-  "examples": [ {}, 1, "x" ],
-  "counterExamples": []
+  }
 }

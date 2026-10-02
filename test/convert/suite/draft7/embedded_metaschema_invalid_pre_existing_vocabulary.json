@@ -12,7 +12,6 @@
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -39,7 +38,5 @@
       "identifier": "https://example.com/my-dialect",
       "location": "/definitions/meta"
     }
-  },
-  "examples": [ {}, { "foo": 1 } ],
-  "counterExamples": [ "x", 1 ]
+  }
 }

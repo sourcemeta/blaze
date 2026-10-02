@@ -3,13 +3,8 @@
     "$schema": "https://json-schema.org/draft-04/schema#",
     "id": "https://json-schema.org/draft-04/schema#",
     "type": "object",
-    "properties": {
-      "definitions": {
-        "type": "object"
-      }
-    }
+    "properties": { "definitions": { "type": "object" } }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -36,11 +31,5 @@
       "identifier": "https://json-schema.org/draft-04/schema#",
       "location": ""
     }
-  },
-  "examples": [
-    {}
-  ],
-  "counterExamples": [
-    1
-  ]
+  }
 }

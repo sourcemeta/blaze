@@ -431,7 +431,7 @@ private:
                       const sourcemeta::core::SchemaFrame::Location &location)
       -> bool {
     if (!subschema.is_object() ||
-        declares_newer_dialect(subschema, DRAFT_2019_09_URL)) {
+        declares_dialect_out_of_reach(subschema, DRAFT_2019_09_URL)) {
       return false;
     }
     if (!subschema.defines_any({"$schema", "$recursiveAnchor", "$recursiveRef",

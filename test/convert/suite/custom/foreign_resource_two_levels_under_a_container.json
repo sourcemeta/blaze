@@ -23,12 +23,22 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null,
-    "draft6": null,
-    "draft7": null
-  },
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/wrapper/properties/deep"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/wrapper/properties/deep"
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/wrapper/properties/deep"
+    },
     "2019-09": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
@@ -39,7 +49,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/wrapper/properties/deep"
     }
-  },
-  "examples": [ {}, { "primary": { "address": "x" } } ],
-  "counterExamples": [ { "primary": { "address": 1 } } ]
+  }
 }

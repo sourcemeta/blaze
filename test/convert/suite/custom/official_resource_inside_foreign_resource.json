@@ -10,9 +10,7 @@
       "foreign": {
         "$schema": "https://example.com/meta",
         "$id": "https://example.com/foreign",
-        "dependencies": {
-          "t": { "properties": { "p": { "type": "string" } } }
-        },
+        "dependencies": { "t": { "properties": { "p": { "type": "string" } } } },
         "properties": {
           "deep": {
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -32,12 +30,22 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null,
-    "draft6": null,
-    "draft7": null
-  },
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/foreign"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/foreign"
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/foreign"
+    },
     "2019-09": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
@@ -48,10 +56,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/foreign"
     }
-  },
-  "examples": [ {}, { "f": { "t": 1, "p": "x" }, "g": { "u": 1, "q": "y" } } ],
-  "counterExamples": [
-    { "f": { "t": 1, "p": 1 } },
-    { "g": { "u": 1, "q": 1 } }
-  ]
+  }
 }

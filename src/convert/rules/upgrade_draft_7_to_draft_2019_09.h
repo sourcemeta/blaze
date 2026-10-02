@@ -349,6 +349,13 @@ private:
       return false;
     }
 
+    // A descendant read as a dialect the ladder does not name is never
+    // rewritten by anything, so it can never stop having work pending and
+    // waiting for it would block this upgrade for good
+    if (!names_ladder_dialect(descendant_dialect)) {
+      return false;
+    }
+
     if (subschema.defines("$schema") && subschema.at("$schema").is_string()) {
       const auto &dialect{subschema.at("$schema").to_string()};
       if (dialect == DRAFT_4_URL || dialect == DRAFT_6_URL ||

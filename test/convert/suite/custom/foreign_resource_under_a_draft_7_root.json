@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "properties": { "n": { "type": "string" } },
+    "definitions": {
+      "f": {
+        "$schema": "https://example.com/foreign",
+        "$id": "https://example.com/f",
+        "dependencies": { "a": [ "b" ] }
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/foreign": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/foreign",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true
+      }
+    }
+  },
+  "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
+    },
+    "2020-12": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
+    }
+  }
+}

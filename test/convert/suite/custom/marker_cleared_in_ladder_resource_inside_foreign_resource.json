@@ -1,14 +1,19 @@
 {
   "schema": {
-    "$schema": "https://example.com/meta",
+    "$schema": "https://example.com/foreign",
     "$id": "https://example.com/root",
-    "items": [ { "type": "string" } ]
+    "properties": {
+      "x": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "https://example.com/x",
+        "dependencies": { "k": { "dependencies": { "m": [ "n" ] } } }
+      }
+    }
   },
   "resolver": {
-    "https://example.com/meta": {
+    "https://example.com/foreign": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",
-      "$id": "https://example.com/meta",
-      "type": "object",
+      "$id": "https://example.com/foreign",
       "$vocabulary": {
         "https://json-schema.org/draft/2019-09/vocab/core": true,
         "https://json-schema.org/draft/2019-09/vocab/applicator": true,
@@ -19,27 +24,27 @@
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
-      "identifier": "https://example.com/meta",
+      "identifier": "https://example.com/foreign",
       "location": ""
     },
     "draft6": {
       "type": "unsupported-dialect",
-      "identifier": "https://example.com/meta",
+      "identifier": "https://example.com/foreign",
       "location": ""
     },
     "draft7": {
       "type": "unsupported-dialect",
-      "identifier": "https://example.com/meta",
+      "identifier": "https://example.com/foreign",
       "location": ""
     },
     "2019-09": {
       "type": "unsupported-dialect",
-      "identifier": "https://example.com/meta",
+      "identifier": "https://example.com/foreign",
       "location": ""
     },
     "2020-12": {
       "type": "unsupported-dialect",
-      "identifier": "https://example.com/meta",
+      "identifier": "https://example.com/foreign",
       "location": ""
     }
   }

@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "foo": { "extends": { "type": "string" } },
+      "bar": { "$ref": "#/properties/foo/extends" }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "foo": { "allOf": [ { "type": "string" } ] },
+        "bar": { "$ref": "#/properties/foo/allOf/0" }
+      }
+    }
+  },
+  "examples": [ { "foo": "x", "bar": "y" }, {} ],
+  "counterExamples": [ { "foo": 1 }, { "bar": 1 } ]
+}

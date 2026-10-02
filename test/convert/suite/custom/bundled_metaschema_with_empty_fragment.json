@@ -17,7 +17,6 @@
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -35,16 +34,14 @@
       "location": "/definitions/c"
     },
     "2019-09": {
-      "type": "unsupported-dialect",
-      "identifier": "https://example.com/c#",
-      "location": "/definitions/b"
+      "type": "unsupported-metaschema",
+      "identifier": "https://example.com/c",
+      "location": "/definitions/c"
     },
     "2020-12": {
-      "type": "unsupported-dialect",
-      "identifier": "https://example.com/c#",
-      "location": "/definitions/b"
+      "type": "unsupported-metaschema",
+      "identifier": "https://example.com/c",
+      "location": "/definitions/c"
     }
-  },
-  "examples": [ {}, { "v": { "p": "x" } } ],
-  "counterExamples": [ { "v": { "p": 1 } } ]
+  }
 }

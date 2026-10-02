@@ -11,10 +11,12 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null
-  },
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "draft6": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
@@ -35,7 +37,5 @@
       "identifier": "https://example.com/meta",
       "location": ""
     }
-  },
-  "examples": [ {}, { "a": 3 } ],
-  "counterExamples": [ { "a": 2 } ]
+  }
 }

@@ -15,7 +15,6 @@
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -42,7 +41,5 @@
       "identifier": "https://example.com/meta",
       "location": "/$defs/meta"
     }
-  },
-  "examples": [ {} ],
-  "counterExamples": [ { "a": 1 }, { "b": 1 } ]
+  }
 }

@@ -8,9 +8,7 @@
       "inner": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "$id": "https://example.com/inner",
-        "dependencies": {
-          "u": { "properties": { "q": { "type": "string" } } }
-        }
+        "dependencies": { "u": { "properties": { "q": { "type": "string" } } } }
       }
     }
   },
@@ -21,12 +19,22 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null,
-    "draft6": null,
-    "draft7": null
-  },
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "2019-09": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
@@ -37,7 +45,5 @@
       "identifier": "https://example.com/meta",
       "location": ""
     }
-  },
-  "examples": [ {}, { "t": 1, "p": "x", "g": { "u": 1, "q": "y" } } ],
-  "counterExamples": [ { "t": 1, "p": 1 }, { "g": { "u": 1, "q": 1 } } ]
+  }
 }

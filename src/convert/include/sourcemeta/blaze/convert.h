@@ -49,9 +49,9 @@ enum class ConvertTarget : std::uint8_t {
 /// is. A document that describes itself or that carries the meta-schema
 /// something in it declares raises `ConvertUnsupportedMetaschemaError`. One
 /// that sits on a dialect outside the official ladder raises
-/// `ConvertUnsupportedDialectError` when the requested target is newer than the
-/// official dialect that one derives from, and is left as is otherwise, since
-/// no rule rewrites a schema read as a dialect the ladder does not name. Note
+/// `ConvertUnsupportedDialectError` whatever the requested target is, as this
+/// conversion has no rules for moving a schema off such a dialect and will not
+/// convert the document around one either. Note
 /// that a document whose dialect cannot be resolved or framed at all fails
 /// before any of those apply, propagating the error that resolution or framing
 /// raised rather than one of this module's, so a caller that must not fault on

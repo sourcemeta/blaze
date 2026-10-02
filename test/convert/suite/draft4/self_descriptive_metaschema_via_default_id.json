@@ -4,7 +4,6 @@
     "type": "object"
   },
   "defaultId": "http://json-schema.org/draft-04/schema#",
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -31,11 +30,5 @@
       "identifier": "http://json-schema.org/draft-04/schema#",
       "location": ""
     }
-  },
-  "examples": [
-    {}
-  ],
-  "counterExamples": [
-    "x"
-  ]
+  }
 }

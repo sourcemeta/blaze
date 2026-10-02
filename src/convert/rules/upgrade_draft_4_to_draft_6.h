@@ -88,7 +88,7 @@ private:
   static auto
   has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema) -> bool {
     if (!subschema.is_object() ||
-        declares_newer_dialect(subschema, DRAFT_4_URL)) {
+        declares_dialect_out_of_reach(subschema, DRAFT_4_URL)) {
       return false;
     }
 

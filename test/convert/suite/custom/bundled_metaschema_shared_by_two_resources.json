@@ -21,13 +21,10 @@
       "b2": {
         "$schema": "https://example.com/c",
         "$id": "https://example.com/b2",
-        "dependencies": {
-          "t": { "properties": { "w": { "type": "number" } } }
-        }
+        "dependencies": { "t": { "properties": { "w": { "type": "number" } } } }
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -45,19 +42,14 @@
       "location": "/definitions/c"
     },
     "2019-09": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b1"
+      "location": "/definitions/c"
     },
     "2020-12": {
-      "type": "unsupported-dialect",
+      "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
-      "location": "/definitions/b1"
+      "location": "/definitions/c"
     }
-  },
-  "examples": [ {}, { "one": { "v": "s" }, "two": { "t": 1, "w": 2 } } ],
-  "counterExamples": [
-    { "one": { "v": 1 } },
-    { "two": { "t": 1, "w": "no" } }
-  ]
+  }
 }

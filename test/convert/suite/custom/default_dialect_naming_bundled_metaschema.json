@@ -11,9 +11,6 @@
     }
   },
   "defaultDialect": "https://example.com/c",
-  "examples": [ {}, { "t": 1, "p": "x" } ],
-  "counterExamples": [ { "t": 1, "p": 1 } ],
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",

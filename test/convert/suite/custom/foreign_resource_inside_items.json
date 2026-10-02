@@ -24,19 +24,31 @@
       "type": "object"
     }
   },
-  "result": {
-    "draft4": null,
-    "draft6": null,
-    "draft7": null,
-    "2019-09": null
-  },
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/$defs/f"
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/$defs/f"
+    },
+    "draft7": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/$defs/f"
+    },
+    "2019-09": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/$defs/f"
+    },
     "2020-12": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
       "location": "/$defs/f"
     }
-  },
-  "examples": [ [], [ "a" ], { "deep": [ 1 ] } ],
-  "counterExamples": [ [ 1 ], { "deep": [ "x" ] } ]
+  }
 }

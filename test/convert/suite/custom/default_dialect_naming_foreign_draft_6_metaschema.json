@@ -5,6 +5,7 @@
     "if": { "type": "string" },
     "then": { "maxLength": 1 }
   },
+  "defaultDialect": "https://example.com/meta",
   "resolver": {
     "https://example.com/meta": {
       "$schema": "http://json-schema.org/draft-06/schema#",
@@ -12,12 +13,17 @@
       "type": "object"
     }
   },
-  "defaultDialect": "https://example.com/meta",
-  "result": {
-    "draft4": null,
-    "draft6": null
-  },
   "errors": {
+    "draft4": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
+    },
     "draft7": {
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
@@ -33,7 +39,5 @@
       "identifier": "https://example.com/meta",
       "location": ""
     }
-  },
-  "examples": [ {}, { "a": 1 }, "abc" ],
-  "counterExamples": [ { "a": 2 } ]
+  }
 }

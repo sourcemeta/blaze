@@ -47,11 +47,28 @@ public:
     return true;
   }
 
+  [[nodiscard]] auto rereference(const std::string_view,
+                                 const sourcemeta::core::Pointer &,
+                                 const sourcemeta::core::Pointer &target,
+                                 const sourcemeta::core::Pointer &current) const
+      -> std::optional<sourcemeta::core::Pointer> override {
+    for (const auto &[old_pointer, new_pointer] : this->renames_) {
+      const auto result{target.rebase(current.concat(old_pointer),
+                                      current.concat(new_pointer))};
+      if (result != target) {
+        return result;
+      }
+    }
+
+    return target;
+  }
+
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
+    this->renames_.clear();
     rewrite_type_any(schema);
-    rewrite_type_array_with_subschemas(schema);
-    rewrite_disallow(schema);
-    rewrite_extends(schema);
+    rewrite_type_array_with_subschemas(schema, this->renames_);
+    rewrite_disallow(schema, this->renames_);
+    rewrite_extends(schema, this->renames_);
     rewrite_divisible_by(schema);
     // Dropping the stray boolean first leaves the lift free to write its array
     // under the same name. The other way round the lift's array is what gets
@@ -75,6 +92,9 @@ public:
   }
 
 private:
+  using Relocation =
+      std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>;
+
   // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
   static inline const std::string DRAFT_3_URL{
       "http://json-schema.org/draft-03/schema#"};
@@ -83,11 +103,12 @@ private:
       "http://json-schema.org/draft-04/schema#"};
 
   mutable bool stray_required_{false};
+  mutable std::vector<Relocation> renames_;
 
   static auto
   has_pending_draft_3_pattern(const sourcemeta::core::JSON &subschema) -> bool {
     if (!subschema.is_object() ||
-        declares_newer_dialect(subschema, DRAFT_3_URL)) {
+        declares_dialect_out_of_reach(subschema, DRAFT_3_URL)) {
       return false;
     }
 
@@ -216,8 +237,9 @@ private:
     }
   }
 
-  static auto rewrite_type_array_with_subschemas(sourcemeta::core::JSON &schema)
-      -> void {
+  static auto
+  rewrite_type_array_with_subschemas(sourcemeta::core::JSON &schema,
+                                     std::vector<Relocation> &renames) -> void {
     if (!schema.defines("type")) {
       return;
     }
@@ -248,6 +270,8 @@ private:
     }
     schema.erase("type");
     schema.assign("anyOf", std::move(branches));
+    renames.emplace_back(sourcemeta::core::Pointer{"type"},
+                         sourcemeta::core::Pointer{"anyOf"});
   }
 
   static auto type_string_to_branch(const std::string &type_name)
@@ -257,7 +281,8 @@ private:
     return branch;
   }
 
-  static auto rewrite_disallow(sourcemeta::core::JSON &schema) -> void {
+  static auto rewrite_disallow(sourcemeta::core::JSON &schema,
+                               std::vector<Relocation> &renames) -> void {
     if (!schema.defines("disallow") || schema.defines("not")) {
       return;
     }
@@ -307,16 +332,26 @@ private:
           }
         }
         negated.assign("anyOf", std::move(branches));
+
+        // A reference may name a schema that sat in here, so where these
+        // land is recorded for `rereference` to follow. Each branch records
+        // its own move, as an author's `disallow` schema may define `anyOf`
+        // itself and reading the result back cannot tell the two apart
+        renames.emplace_back(sourcemeta::core::Pointer{"disallow"},
+                             sourcemeta::core::Pointer{"not", "anyOf"});
       }
     } else {
       negated = disallow;
+      renames.emplace_back(sourcemeta::core::Pointer{"disallow"},
+                           sourcemeta::core::Pointer{"not"});
     }
 
     schema.erase("disallow");
     schema.assign("not", std::move(negated));
   }
 
-  static auto rewrite_extends(sourcemeta::core::JSON &schema) -> void {
+  static auto rewrite_extends(sourcemeta::core::JSON &schema,
+                              std::vector<Relocation> &renames) -> void {
     if (!schema.defines("extends") || schema.defines("allOf")) {
       return;
     }
@@ -336,12 +371,16 @@ private:
         return;
       }
 
+      renames.emplace_back(sourcemeta::core::Pointer{"extends"},
+                           sourcemeta::core::Pointer{"allOf"});
       schema.assign("allOf", std::move(value));
       return;
     }
 
     auto array{sourcemeta::core::JSON::make_array()};
     array.push_back(std::move(value));
+    renames.emplace_back(sourcemeta::core::Pointer{"extends"},
+                         sourcemeta::core::Pointer{"allOf", 0});
     schema.assign("allOf", std::move(array));
   }
 
@@ -350,6 +389,17 @@ private:
       return;
     }
     schema.rename("divisibleBy", "multipleOf");
+  }
+
+  // A boolean `required` is a Draft 3 spelling, so it is only this rule's to
+  // move when the property is read as Draft 3 as well. One that names a dialect
+  // of its own answers to that dialect instead, where the member may be nothing
+  // but author data, and lifting it would destroy it there while inventing an
+  // assertion here that the document never made
+  static auto reads_as_draft_3(const sourcemeta::core::JSON &property) -> bool {
+    const auto declared{declared_dialect(property)};
+    return declared.empty() ||
+           dialect_position(declared) == dialect_position(DRAFT_3_URL);
   }
 
   static auto rewrite_required_property_booleans(sourcemeta::core::JSON &schema)
@@ -369,6 +419,10 @@ private:
     for (const auto &key : property_keys) {
       auto &property{properties.at(key)};
       if (!property.is_object() || !property.defines("required")) {
+        continue;
+      }
+
+      if (!reads_as_draft_3(property)) {
         continue;
       }
       const auto &required_value{property.at("required")};
@@ -443,7 +497,7 @@ private:
                              const sourcemeta::core::WeakPointer &pointer)
       -> bool {
     if (!subschema.is_object() ||
-        declares_newer_dialect(subschema, DRAFT_3_URL)) {
+        declares_dialect_out_of_reach(subschema, DRAFT_3_URL)) {
       return false;
     }
 
