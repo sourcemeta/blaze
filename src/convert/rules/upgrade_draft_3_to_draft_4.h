@@ -225,14 +225,13 @@ private:
     if (!type_value.is_array()) {
       return;
     }
-    bool collapses{false};
-    for (const auto &element : type_value.as_array()) {
-      if (names_every_instance(element)) {
-        collapses = true;
-        break;
-      }
+    if (std::ranges::any_of(
+            type_value.as_array(),
+            [](const auto &element) -> bool { return element.is_object(); })) {
+      return;
     }
-    if (collapses) {
+
+    if (std::ranges::any_of(type_value.as_array(), names_every_instance)) {
       schema.erase("type");
     }
   }
@@ -261,9 +260,7 @@ private:
     auto branches{sourcemeta::core::JSON::make_array()};
     for (const auto &element : type_value.as_array()) {
       if (element.is_string()) {
-        auto branch{sourcemeta::core::JSON::make_object()};
-        branch.assign("type", element);
-        branches.push_back(std::move(branch));
+        branches.push_back(type_name_to_branch(element));
       } else if (element.is_object()) {
         branches.push_back(element);
       }
@@ -274,10 +271,15 @@ private:
                          sourcemeta::core::Pointer{"anyOf"});
   }
 
-  static auto type_string_to_branch(const std::string &type_name)
+  // A name matching every instance becomes a schema that accepts anything,
+  // since no later dialect defines that name as a type
+  static auto type_name_to_branch(const sourcemeta::core::JSON &type_name)
       -> sourcemeta::core::JSON {
     auto branch{sourcemeta::core::JSON::make_object()};
-    branch.assign("type", sourcemeta::core::JSON{type_name});
+    if (!names_every_instance(type_name)) {
+      branch.assign("type", type_name);
+    }
+
     return branch;
   }
 
@@ -293,20 +295,26 @@ private:
       return;
     }
 
-    if (disallow.is_string() && disallow.to_string() == "any") {
+    if (disallow.is_string() && names_every_instance(disallow)) {
       schema.erase("disallow");
       schema.assign("not", sourcemeta::core::JSON::make_object());
       return;
     }
 
-    if (disallow.is_array()) {
-      for (const auto &element : disallow.as_array()) {
-        if (element.is_string() && element.to_string() == "any") {
-          schema.erase("disallow");
-          schema.assign("not", sourcemeta::core::JSON::make_object());
-          return;
-        }
-      }
+    // A name matching every instance makes the whole union match everything,
+    // so the result rejects everything whatever else is listed. Collapsing
+    // straight to that answer is only safe while the other entries are type
+    // names: a schema among them is a schema a reference can name, and
+    // dropping it would leave that reference pointing nowhere. Carrying every
+    // entry over as a branch says the same thing and keeps them all addressable
+    if (disallow.is_array() &&
+        std::ranges::any_of(disallow.as_array(), names_every_instance) &&
+        std::ranges::none_of(
+            disallow.as_array(),
+            [](const auto &element) -> bool { return element.is_object(); })) {
+      schema.erase("disallow");
+      schema.assign("not", sourcemeta::core::JSON::make_object());
+      return;
     }
 
     auto negated{sourcemeta::core::JSON::make_object()};
@@ -326,7 +334,7 @@ private:
         auto branches{sourcemeta::core::JSON::make_array()};
         for (const auto &element : disallow.as_array()) {
           if (element.is_string()) {
-            branches.push_back(type_string_to_branch(element.to_string()));
+            branches.push_back(type_name_to_branch(element));
           } else if (element.is_object()) {
             branches.push_back(element);
           }

@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "any", { "type": "object" } ],
+    "properties": { "foo": { "$ref": "#/type/1" } }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "foo": { "$ref": "#/anyOf/1" } },
+      "anyOf": [ {}, { "type": "object" } ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": { "foo": { "$ref": "#/anyOf/1" } },
+      "anyOf": [ true, { "type": "object" } ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "foo": { "$ref": "#/anyOf/1" } },
+      "anyOf": [ true, { "type": "object" } ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": { "foo": { "$ref": "#/anyOf/1" } },
+      "anyOf": [ true, { "type": "object" } ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": { "foo": { "$ref": "#/anyOf/1" } },
+      "anyOf": [ true, { "type": "object" } ]
+    }
+  },
+  "examples": [ { "foo": {} }, {} ],
+  "counterExamples": [ { "foo": 1 } ]
+}

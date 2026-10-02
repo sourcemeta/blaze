@@ -108,13 +108,31 @@ auto assert_convertible_dialects(const core::JSON &schema,
   // leave the author to work out which parts moved, so a custom dialect is
   // refused outright whatever the target is
   frame.for_each_subschema(
-      [](const core::SchemaFrame::Location &location) -> void {
+      [&schema](const core::SchemaFrame::Location &location) -> void {
+        auto pointer{core::to_pointer(location.pointer)};
+
+        // What a subschema says about itself counts even where framing does
+        // not read it that way. The ladder's own marker is read ahead of
+        // `$schema`, so a document naming a custom meta-schema and carrying a
+        // marker beside it frames as whatever the marker says, and asking
+        // framing alone would let it through to be rewritten and have the
+        // marker cleaned away underneath it
+        const auto &subschema{core::get(schema, pointer)};
+        if (subschema.is_object()) {
+          const auto *declared{subschema.try_at("$schema")};
+          if (declared != nullptr && declared->is_string() &&
+              !names_ladder_dialect(declared->to_string())) {
+            throw ConvertUnsupportedDialectError{declared->to_string(),
+                                                 std::move(pointer)};
+          }
+        }
+
         if (names_ladder_dialect(location.dialect)) {
           return;
         }
 
-        throw ConvertUnsupportedDialectError{
-            location.dialect, core::to_pointer(location.pointer)};
+        throw ConvertUnsupportedDialectError{location.dialect,
+                                             std::move(pointer)};
       });
 }
 
@@ -419,6 +437,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/empty_object_as_true.h"
 #include "rules/enum_to_const.h"
 #include "rules/modern_official_dialect_with_empty_fragment.h"
+#include "rules/modern_official_dialect_with_http.h"
 #include "rules/prefix_promoted_2020_12_keywords.h"
 #include "rules/prefix_promoted_draft_2019_09_keywords.h"
 #include "rules/prefix_promoted_draft_4_keywords.h"
@@ -446,6 +465,7 @@ auto convert(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<DraftOfficialDialectWithHttps>());
   rules.push_back(make_rule<DraftOfficialDialectWithoutEmptyFragment>());
   rules.push_back(make_rule<ModernOfficialDialectWithEmptyFragment>());
+  rules.push_back(make_rule<ModernOfficialDialectWithHttp>());
   rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
   rules.push_back(make_rule<UpgradeDraft3ToDraft4>());
 

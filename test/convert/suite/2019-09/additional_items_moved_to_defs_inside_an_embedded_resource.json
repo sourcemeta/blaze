@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "properties": {
+      "x": { "$ref": "https://example.com/inner#/additionalItems" }
+    },
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner",
+        "items": { "type": "integer" },
+        "additionalItems": { "type": "string" }
+      }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": {
+        "x": { "$ref": "https://example.com/inner#/$defs/additionalItems" }
+      },
+      "$defs": {
+        "inner": {
+          "$id": "https://example.com/inner",
+          "items": { "type": "integer" },
+          "$defs": { "additionalItems": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "x": "a" } ],
+  "counterExamples": [ { "x": 1 } ]
+}

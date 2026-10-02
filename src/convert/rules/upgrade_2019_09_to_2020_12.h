@@ -17,6 +17,14 @@ public:
                          SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE) &&
                      schema.is_object());
 
+    // Answered here rather than beside its use, because more than one branch
+    // below returns without reaching that point, and a stale answer from the
+    // subschema visited before this one would decide whether a referenced
+    // schema is kept
+    this->additional_items_is_referenced_ =
+        schema.defines("additionalItems") &&
+        compute_additional_items_is_referenced(frame, location);
+
     const bool is_resource_scope{
         location.type ==
             sourcemeta::core::SchemaFrame::LocationType::Resource ||
@@ -115,7 +123,11 @@ public:
         schema.rename("additionalItems", "items");
       }
     } else if (schema.defines("additionalItems")) {
-      schema.erase("additionalItems");
+      if (this->additional_items_is_referenced_) {
+        move_to_defs(schema, "additionalItems", this->renames_);
+      } else {
+        schema.erase("additionalItems");
+      }
     }
 
     if (schema.defines("contains") && !this->is_inside_contains_wrapper_ &&
@@ -297,6 +309,56 @@ private:
     std::string new_value;
   };
 
+  // Beside an `items` that is not an array this keyword asserts nothing, and
+  // 2020-12 does not define it at all, so dropping it loses nothing unless a
+  // reference reaches the schema it holds. Such a reference uses it as a
+  // definition, and `$defs` is where 2020-12 keeps a schema it does not apply.
+  // A reference naming something nested inside it counts too, since erasing
+  // the schema takes everything under it along
+  static auto compute_additional_items_is_referenced(
+      const sourcemeta::core::SchemaFrame &frame,
+      const sourcemeta::core::SchemaFrame::Location &location) -> bool {
+    const auto wanted{
+        sourcemeta::core::to_pointer(location.pointer)
+            .concat(sourcemeta::core::Pointer{"additionalItems"})};
+    return frame.any_reference(
+        [&frame, &wanted](
+            const sourcemeta::core::SchemaReferenceType,
+            const sourcemeta::core::WeakPointer &,
+            const sourcemeta::core::SchemaFrame::Reference &reference) -> bool {
+          const auto destination{frame.traverse(reference.destination)};
+          return destination.has_value() &&
+                 sourcemeta::core::to_pointer(destination.value().get().pointer)
+                     .starts_with(wanted);
+        });
+  }
+
+  static auto
+  move_to_defs(sourcemeta::core::JSON &schema, const std::string &keyword,
+               std::vector<std::pair<sourcemeta::core::Pointer,
+                                     sourcemeta::core::Pointer>> &renames)
+      -> void {
+    if (!schema.defines("$defs")) {
+      schema.assign("$defs", sourcemeta::core::JSON::make_object());
+    } else if (!schema.at("$defs").is_object()) {
+      // Nothing can be put inside a `$defs` that is not an object, and a
+      // document carrying one is not a valid schema of its own dialect
+      // either, so the keyword stays where its author wrote it
+      return;
+    }
+
+    std::string name{keyword};
+    while (schema.at("$defs").defines(name)) {
+      name.insert(0, "x-");
+    }
+
+    renames.emplace_back(sourcemeta::core::Pointer{keyword},
+                         sourcemeta::core::Pointer{"$defs", name});
+    schema.at("$defs").assign(name, schema.at(keyword));
+    schema.erase(keyword);
+  }
+
+  mutable bool additional_items_is_referenced_{false};
   mutable std::vector<
       std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>
       renames_;
