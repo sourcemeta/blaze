@@ -323,6 +323,20 @@ inline auto moved_past(const sourcemeta::core::JSON &schema,
 // dialect it declares rather than being strangers there. A subschema that
 // declares nothing inherits the dialect of the schema being converted, which is
 // why only a declared position counts
+// Whether a keyword that the given dialect promoted is still the author's data
+// here. It is while the subschema is read below that rung, where the keyword
+// asserts nothing and would start to once the dialect moves, so it has to be
+// shadowed first. Several of those keywords are also what the upgrade writes
+// as it climbs, so one in a subschema already declaring the promoting dialect
+// is the keyword doing its job and must be left alone. This asks what a rule
+// found, where `declares_dialect_out_of_reach` asks whether it has work at all
+inline auto
+promoted_keyword_is_author_data(const sourcemeta::core::JSON &subschema,
+                                const std::string_view dialect) -> bool {
+  return dialect_position(declared_dialect(subschema)) <
+         dialect_position(dialect);
+}
+
 // Whether a rule for the given rung has no work in this subschema and never
 // will. A subschema declaring a newer dialect has already moved past the rung,
 // and one declaring a dialect the ladder does not name is never rewritten at

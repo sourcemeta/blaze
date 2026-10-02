@@ -340,10 +340,12 @@ auto check_error(const sourcemeta::core::JSON &test,
   } catch (const sourcemeta::blaze::ConvertInvalidReferenceError &error) {
     EXPECT_STREQ(error.what(), "The reference does not point to a schema");
     actual = describe_error(target.name, "invalid-reference", error);
-  } catch (const sourcemeta::blaze::ConvertBrokenReferenceError &error) {
-    EXPECT_STREQ(error.what(), "The reference broke after transformation");
-    actual = describe_error(target.name, "broken-reference", error);
   }
+
+  // A reference left dangling by a transform is deliberately not caught here.
+  // No fixture may expect one, so there is nothing to compare it against, and
+  // letting it escape names it in the report instead of dressing it up as an
+  // outcome the suite accepts
 
   auto wanted{sourcemeta::core::JSON::make_object()};
   wanted.assign("target", sourcemeta::core::JSON{target.name});

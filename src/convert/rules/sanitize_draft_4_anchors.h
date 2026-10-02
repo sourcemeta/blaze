@@ -50,15 +50,15 @@ private:
   // The subschema to write into, the keyword to write, and the value. Holding
   // the parent rather than the keyword's own pointer keeps the write a plain
   // assignment
+  using Move = std::tuple<sourcemeta::core::Pointer, std::string,
+                          sourcemeta::core::JSON>;
+
   // The name a reference has to spell out to be following this anchor, and
   // the one it becomes
   struct Rename {
     std::string from;
     std::string to;
   };
-
-  using Move = std::tuple<sourcemeta::core::Pointer, std::string,
-                          sourcemeta::core::JSON>;
 
   mutable std::vector<Move> moves_;
 

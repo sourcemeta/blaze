@@ -64,9 +64,9 @@ public:
   }
 
   auto transform(sourcemeta::core::JSON &schema) const -> void override {
-    rewrite_type_any(schema);
-    rewrite_type_array_with_subschemas(schema);
     this->renames_.clear();
+    rewrite_type_any(schema);
+    rewrite_type_array_with_subschemas(schema, this->renames_);
     rewrite_disallow(schema, this->renames_);
     rewrite_extends(schema, this->renames_);
     rewrite_divisible_by(schema);
@@ -237,8 +237,9 @@ private:
     }
   }
 
-  static auto rewrite_type_array_with_subschemas(sourcemeta::core::JSON &schema)
-      -> void {
+  static auto
+  rewrite_type_array_with_subschemas(sourcemeta::core::JSON &schema,
+                                     std::vector<Relocation> &renames) -> void {
     if (!schema.defines("type")) {
       return;
     }
@@ -269,6 +270,8 @@ private:
     }
     schema.erase("type");
     schema.assign("anyOf", std::move(branches));
+    renames.emplace_back(sourcemeta::core::Pointer{"type"},
+                         sourcemeta::core::Pointer{"anyOf"});
   }
 
   static auto type_string_to_branch(const std::string &type_name)
@@ -329,19 +332,16 @@ private:
           }
         }
         negated.assign("anyOf", std::move(branches));
+
+        // A reference may name a schema that sat in here, so where these
+        // land is recorded for `rereference` to follow. Each branch records
+        // its own move, as an author's `disallow` schema may define `anyOf`
+        // itself and reading the result back cannot tell the two apart
+        renames.emplace_back(sourcemeta::core::Pointer{"disallow"},
+                             sourcemeta::core::Pointer{"not", "anyOf"});
       }
     } else {
       negated = disallow;
-    }
-
-    // A reference may name a schema that sat inside `disallow`, so where that
-    // schema lands is recorded for `rereference` to follow. The collapsing
-    // cases above record nothing, as the schemas they drop are gone and no
-    // reference can be pointed anywhere instead
-    if (negated.defines("anyOf")) {
-      renames.emplace_back(sourcemeta::core::Pointer{"disallow"},
-                           sourcemeta::core::Pointer{"not", "anyOf"});
-    } else if (disallow.is_object()) {
       renames.emplace_back(sourcemeta::core::Pointer{"disallow"},
                            sourcemeta::core::Pointer{"not"});
     }
