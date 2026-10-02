@@ -64,6 +64,8 @@ public:
 
     this->document_has_unevaluated_items_ =
         compute_document_has_unevaluated_items(root, frame, walker, resolver);
+    this->additional_items_is_referenced_ =
+        compute_additional_items_is_referenced(frame, location);
     return true;
   }
 
@@ -115,7 +117,11 @@ public:
         schema.rename("additionalItems", "items");
       }
     } else if (schema.defines("additionalItems")) {
-      schema.erase("additionalItems");
+      if (this->additional_items_is_referenced_) {
+        move_to_defs(schema, "additionalItems", this->renames_);
+      } else {
+        schema.erase("additionalItems");
+      }
     }
 
     if (schema.defines("contains") && !this->is_inside_contains_wrapper_ &&
@@ -297,6 +303,49 @@ private:
     std::string new_value;
   };
 
+  // Beside an `items` that is not an array this keyword asserts nothing, and
+  // 2020-12 does not define it at all, so dropping it loses nothing unless a
+  // reference names the schema it holds. Such a reference uses it as a
+  // definition, and `$defs` is where 2020-12 keeps a schema it does not apply
+  static auto compute_additional_items_is_referenced(
+      const sourcemeta::core::SchemaFrame &frame,
+      const sourcemeta::core::SchemaFrame::Location &location) -> bool {
+    const auto wanted{
+        sourcemeta::core::to_pointer(location.pointer)
+            .concat(sourcemeta::core::Pointer{"additionalItems"})};
+    return frame.any_reference(
+        [&frame, &wanted](
+            const sourcemeta::core::SchemaReferenceType,
+            const sourcemeta::core::WeakPointer &,
+            const sourcemeta::core::SchemaFrame::Reference &reference) -> bool {
+          const auto destination{frame.traverse(reference.destination)};
+          return destination.has_value() &&
+                 sourcemeta::core::to_pointer(
+                     destination.value().get().pointer) == wanted;
+        });
+  }
+
+  static auto
+  move_to_defs(sourcemeta::core::JSON &schema, const std::string &keyword,
+               std::vector<std::pair<sourcemeta::core::Pointer,
+                                     sourcemeta::core::Pointer>> &renames)
+      -> void {
+    if (!schema.defines("$defs")) {
+      schema.assign("$defs", sourcemeta::core::JSON::make_object());
+    }
+
+    std::string name{keyword};
+    while (schema.at("$defs").defines(name)) {
+      name.insert(0, "x-");
+    }
+
+    renames.emplace_back(sourcemeta::core::Pointer{keyword},
+                         sourcemeta::core::Pointer{"$defs", name});
+    schema.at("$defs").assign(name, schema.at(keyword));
+    schema.erase(keyword);
+  }
+
+  mutable bool additional_items_is_referenced_{false};
   mutable std::vector<
       std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>
       renames_;

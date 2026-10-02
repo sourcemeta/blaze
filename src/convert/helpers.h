@@ -110,11 +110,18 @@ constexpr std::array<std::string_view, 6> LADDER_DIALECTS{
 // The spellings the normalising rules settle on all name the same dialect, so
 // whether the ladder names one has to be asked of the spelling those rules
 // would produce rather than of what the document happens to say
+// The numbered drafts are spelled `http` and the dated ones `https`, but
+// either scheme names the same dialect and framing accepts both, reporting the
+// canonical spelling as the base dialect while the one that was written stays
+// in the dialect. Both have to collapse to one answer here, or a document is
+// read as off the ladder purely for how its `$schema` was typed
 inline auto normalized_official_dialect(const std::string_view dialect)
     -> std::string {
   std::string result{without_empty_fragment(dialect)};
   if (result.starts_with("https://json-schema.org/draft-")) {
     result.erase(4, 1);
+  } else if (result.starts_with("http://json-schema.org/draft/")) {
+    result.insert(4, "s");
   }
 
   return result;
