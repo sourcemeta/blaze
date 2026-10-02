@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": {
+      "v": {
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "type": "string"
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "v": {
+          "x-$schema": "https://json-schema.org/draft/2019-09/schema",
+          "type": "string"
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "v": {
+          "x-$schema": "https://json-schema.org/draft/2019-09/schema",
+          "type": "string"
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "v": {
+          "x-$schema": "https://json-schema.org/draft/2019-09/schema",
+          "type": "string"
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "v": {
+          "x-$schema": "https://json-schema.org/draft/2019-09/schema",
+          "type": "string"
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "v": {
+          "x-$schema": "https://json-schema.org/draft/2019-09/schema",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "v": "s" } ],
+  "counterExamples": [ { "v": 1 } ]
+}

@@ -116,9 +116,15 @@ auto assert_convertible_dialects(const core::JSON &schema,
         // `$schema`, so a document naming a custom meta-schema and carrying a
         // marker beside it frames as whatever the marker says, and asking
         // framing alone would let it through to be rewritten and have the
-        // marker cleaned away underneath it
+        // marker cleaned away underneath it.
+        //
+        // Only where a resource begins, though. A `$schema` deeper inside one
+        // declares nothing, which is what both Draft 7 core 7 and 2019-09
+        // core 8.1.1 say, so refusing over it would turn a string the author
+        // left behind into an unconvertible document
         const auto &subschema{core::get(schema, pointer)};
-        if (subschema.is_object()) {
+        if (subschema.is_object() &&
+            location.pointer.size() == location.relative_pointer) {
           const auto *declared{subschema.try_at("$schema")};
           if (declared != nullptr && declared->is_string() &&
               !names_ladder_dialect(declared->to_string())) {
@@ -444,6 +450,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/prefix_promoted_draft_6_keywords.h"
 #include "rules/prefix_promoted_draft_7_keywords.h"
 #include "rules/sanitize_draft_4_anchors.h"
+#include "rules/shadow_stray_dialect_declaration.h"
 #include "rules/upgrade_2019_09_to_2020_12.h"
 #include "rules/upgrade_dialect_override_cleanup.h"
 #include "rules/upgrade_draft_3_to_draft_4.h"
@@ -462,6 +469,7 @@ auto convert(sourcemeta::core::JSON &schema,
              const std::string_view default_id) -> void {
   std::vector<Rule> rules;
   rules.reserve(20);
+  rules.push_back(make_rule<ShadowStrayDialectDeclaration>());
   rules.push_back(make_rule<DraftOfficialDialectWithHttps>());
   rules.push_back(make_rule<DraftOfficialDialectWithoutEmptyFragment>());
   rules.push_back(make_rule<ModernOfficialDialectWithEmptyFragment>());

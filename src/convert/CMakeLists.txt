@@ -19,6 +19,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME convert
     rules/prefix_promoted_draft_4_keywords.h
     rules/prefix_promoted_draft_6_keywords.h
     rules/prefix_promoted_draft_7_keywords.h
+    rules/shadow_stray_dialect_declaration.h
     rules/upgrade_2019_09_to_2020_12.h
     rules/upgrade_dialect_override_cleanup.h
     rules/upgrade_draft_3_to_draft_4.h

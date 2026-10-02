@@ -1,0 +1,73 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "properties": {
+      "a": {
+        "$schema": "https://example.com/meta",
+        "items": [ { "type": "integer" } ]
+      }
+    }
+  },
+  "resolver": {
+    "https://example.com/meta": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/meta",
+      "type": "object"
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "https://example.com/meta",
+          "items": [ { "type": "integer" } ]
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "https://example.com/meta",
+          "items": [ { "type": "integer" } ]
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "https://example.com/meta",
+          "items": [ { "type": "integer" } ]
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "https://example.com/meta",
+          "items": [ { "type": "integer" } ]
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "https://example.com/meta",
+          "prefixItems": [ { "type": "integer" } ]
+        }
+      }
+    }
+  },
+  "examples": [ {}, { "a": [ 1 ] } ],
+  "counterExamples": [ { "a": [ "x" ] } ]
+}

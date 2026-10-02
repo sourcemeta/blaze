@@ -19,7 +19,7 @@ public:
     const bool root_via_default_dialect =
         location.pointer.empty() && !schema.defines("$schema");
 
-    ONLY_CONTINUE_IF(has_pending_draft_4_pattern(schema) ||
+    ONLY_CONTINUE_IF(has_pending_draft_4_pattern(schema, location.dialect) ||
                      root_via_default_dialect);
 
     // Anchors are renamed document-wide by a rule of its own, and bumping the
@@ -36,7 +36,7 @@ public:
             return false;
           }
 
-          return has_pending_draft_4_pattern(entry_schema);
+          return has_pending_draft_4_pattern(entry_schema, entry.dialect);
         });
   }
 
@@ -86,9 +86,18 @@ private:
       {"const", "contains", "propertyNames", "examples"}};
 
   static auto
-  has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema) -> bool {
-    if (!subschema.is_object() ||
-        declares_dialect_out_of_reach(subschema, DRAFT_4_URL)) {
+  has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema,
+                              const std::string_view dialect) -> bool {
+    if (!subschema.is_object()) {
+      return false;
+    }
+
+    // What framing reads is what decides whether this rung still has work
+    // here. A `$schema` that framing does not read declares nothing, and
+    // taking it at its word would put the subschema out of reach while it is
+    // still waiting to be converted, letting an ancestor move the dialect out
+    // from under it
+    if (dialect_position(dialect) > dialect_position(DRAFT_4_URL)) {
       return false;
     }
 
@@ -121,17 +130,24 @@ private:
       }
     }
 
-    return has_stray_identifier(subschema);
+    return has_stray_identifier(subschema, dialect);
   }
 
   // Draft 4 does not know `$id`, so one written there is inert data that
   // Draft 6 would read as the identifier, and it has to be shadowed before
   // `id` takes that name. It is also the one Draft 6 addition this rule
   // produces itself, so unlike every other promoted keyword its presence only
-  // means work is pending while the subschema is still on Draft 4 or older
-  static auto has_stray_identifier(const sourcemeta::core::JSON &subschema)
-      -> bool {
+  // means work is pending while the subschema is still on Draft 4 or older.
+  //
+  // How the subschema is read counts as well as what it declares. A resource
+  // around it may have moved on while leaving it declaring nothing, and the
+  // `$id` is then the identifier doing its job rather than data awaiting a
+  // shadow. Asking only what it declares leaves an ancestor waiting on a
+  // subschema that nothing is going to change again
+  static auto has_stray_identifier(const sourcemeta::core::JSON &subschema,
+                                   const std::string_view dialect) -> bool {
     return subschema.defines("$id") &&
+           dialect_position(dialect) <= dialect_position(DRAFT_4_URL) &&
            dialect_position(declared_dialect(subschema)) <=
                dialect_position(DRAFT_4_URL);
   }

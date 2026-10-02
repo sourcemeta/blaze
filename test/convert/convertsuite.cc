@@ -397,29 +397,46 @@ auto check_instances(const sourcemeta::core::JSON &schema,
 // A document that names more than one dialect cannot be checked this way: an
 // outer meta-schema describes its own dialect, and it has no way to defer to a
 // resource that declares a dialect of its own
-auto names_one_dialect(const sourcemeta::core::JSON &document) -> bool {
+// Whether one meta-schema can judge the whole document. Only a `$schema` at a
+// schema position declares a dialect, so framing is what decides where to
+// look: the same string sitting in `default`, `enum` or `examples` is instance
+// data and says nothing about what dialect the document is written in. Reading
+// every node alike would let an author's data switch this answer, and with it
+// switch off the check that follows
+auto names_one_dialect(const sourcemeta::core::JSON &document,
+                       const sourcemeta::core::SchemaResolver &resolver,
+                       const Inputs &inputs) -> bool {
+  if (!document.is_object()) {
+    return true;
+  }
+
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      document,
+      sourcemeta::core::schema_walker,
+      resolver,
+      inputs.default_dialect,
+      inputs.default_id,
+      sourcemeta::core::SchemaFrame::IdentifierMode::Fallback};
+
   std::vector<sourcemeta::core::JSON::String> dialects;
-  const auto collect{
-      [&dialects](const sourcemeta::core::JSON &node, auto &self) -> void {
-        if (node.is_object()) {
-          const auto *dialect{node.try_at("$schema")};
-          if (dialect != nullptr && dialect->is_string() &&
-              std::ranges::find(dialects, dialect->to_string()) ==
-                  dialects.cend()) {
-            dialects.push_back(dialect->to_string());
-          }
-
-          for (const auto &entry : node.as_object()) {
-            self(entry.second, self);
-          }
-        } else if (node.is_array()) {
-          for (const auto &item : node.as_array()) {
-            self(item, self);
-          }
+  frame.for_each_subschema(
+      [&document, &dialects](
+          const sourcemeta::core::SchemaFrame::Location &location) -> void {
+        const auto &subschema{sourcemeta::core::get(
+            document, sourcemeta::core::to_pointer(location.pointer))};
+        if (!subschema.is_object()) {
+          return;
         }
-      }};
 
-  collect(document, collect);
+        const auto *dialect{subschema.try_at("$schema")};
+        if (dialect != nullptr && dialect->is_string() &&
+            std::ranges::find(dialects, dialect->to_string()) ==
+                dialects.cend()) {
+          dialects.push_back(dialect->to_string());
+        }
+      });
+
   return dialects.size() <= 1;
 }
 
@@ -485,7 +502,7 @@ auto check_metaschema(const std::string_view target,
                       const sourcemeta::core::SchemaResolver &resolver,
                       const sourcemeta::core::JSON &registry,
                       const Inputs &inputs) -> void {
-  if (!names_one_dialect(document) || !names_one_dialect(input) ||
+  if (!names_one_dialect(document, resolver, inputs) ||
       !meets_metaschema(input, resolver, registry, inputs)) {
     return;
   }

@@ -366,6 +366,7 @@ private:
   mutable bool resource_has_recursive_anchor_{false};
   mutable bool anchor_at_resource_root_{false};
   mutable std::string dynamic_anchor_name_{"meta"};
+  mutable bool dynamic_anchor_name_chosen_{false};
   mutable bool is_inside_contains_wrapper_{false};
   mutable bool descendant_has_pending_pattern_{false};
   mutable bool document_has_unevaluated_items_{false};
@@ -492,8 +493,16 @@ private:
   has_pending_pattern(const sourcemeta::core::JSON &subschema,
                       const sourcemeta::core::SchemaFrame::Location &location)
       -> bool {
-    if (!subschema.is_object() ||
-        declares_dialect_out_of_reach(subschema, DRAFT_2019_09_URL)) {
+    if (!subschema.is_object()) {
+      return false;
+    }
+
+    // What framing reads is what decides whether this rung still has work
+    // here. A `$schema` framing does not read declares nothing, and taking it
+    // at its word would put the subschema out of reach while it is still
+    // waiting to be converted
+    if (dialect_position(location.dialect) >
+        dialect_position(DRAFT_2019_09_URL)) {
       return false;
     }
     if (!subschema.defines_any({"$schema", "$recursiveAnchor", "$recursiveRef",
@@ -661,6 +670,17 @@ private:
             return;
           }
 
+          // Spelling the same fragment is not enough. Another document may
+          // name an anchor identically, and following the renamed one would
+          // point this reference at a schema it never named. What decides is
+          // where framing says the reference actually lands
+          const auto destination{frame.traverse(reference.destination)};
+          if (!destination.has_value() ||
+              !pointer_within_resource(destination.value().get().pointer,
+                                       resource_pointer)) {
+            return;
+          }
+
           sourcemeta::core::URI ref_uri{reference.original};
           ref_uri.fragment(rename_iter->second);
           const auto new_value{ref_uri.recompose()};
@@ -759,6 +779,16 @@ private:
       names.emplace(anchor->to_string());
     }
 
+    // An author's own dynamic anchor has to be stepped around too, or the
+    // name chosen here lands on it and, being declared further out, takes
+    // over every reference that named it. This is read once, before this rule
+    // has written any dynamic anchor of its own, so what it finds is the
+    // author's and nothing else
+    const auto *dynamic{node.try_at("$dynamicAnchor")};
+    if (dynamic != nullptr && dynamic->is_string()) {
+      names.emplace(dynamic->to_string());
+    }
+
     for (const auto &entry : node.as_object()) {
       collect_static_anchors(entry.second, names);
     }
@@ -772,8 +802,15 @@ private:
            schema.defines_any({"$recursiveAnchor", "$recursiveRef"});
   }
 
-  static auto compute_dynamic_anchor_name(const sourcemeta::core::JSON &root)
+  // Answered once per document. The driver runs this rule to a fixed point, so
+  // a later pass would read back the dynamic anchor this one wrote and keep
+  // stepping around its own name
+  auto compute_dynamic_anchor_name(const sourcemeta::core::JSON &root) const
       -> std::string {
+    if (this->dynamic_anchor_name_chosen_) {
+      return this->dynamic_anchor_name_;
+    }
+
     std::set<std::string> in_use;
     collect_static_anchors(root, in_use);
 
@@ -782,6 +819,7 @@ private:
       name.insert(0, "x-");
     }
 
+    this->dynamic_anchor_name_chosen_ = true;
     return name;
   }
 
