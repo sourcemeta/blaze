@@ -18,7 +18,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -45,7 +44,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/f"
     }
-  },
-  "examples": [ {}, { "foreign": { "single": "x", "empty": 1 } } ],
-  "counterExamples": [ { "foreign": { "single": "y" } } ]
+  }
 }

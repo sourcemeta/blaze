@@ -30,7 +30,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -57,10 +56,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/foreign"
     }
-  },
-  "examples": [ {}, { "f": { "t": 1, "p": "x" }, "g": { "u": 1, "q": "y" } } ],
-  "counterExamples": [
-    { "f": { "t": 1, "p": 1 } },
-    { "g": { "u": 1, "q": 1 } }
-  ]
+  }
 }

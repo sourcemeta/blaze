@@ -16,7 +16,6 @@
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -43,7 +42,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/meta"
     }
-  },
-  "examples": [ {}, { "value": "x" } ],
-  "counterExamples": [ { "value": 1 } ]
+  }
 }

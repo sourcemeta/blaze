@@ -20,7 +20,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -47,7 +46,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/contact"
     }
-  },
-  "examples": [ {}, { "primary": { "token": 1, "address": "x" } } ],
-  "counterExamples": [ { "primary": { "token": 1, "address": 1 } } ]
+  }
 }

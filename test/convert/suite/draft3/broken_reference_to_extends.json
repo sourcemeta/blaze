@@ -4,7 +4,6 @@
     "extends": { "properties": { "bar": { "type": "string" } } },
     "properties": { "foo": { "$ref": "#/extends" } }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "broken-reference",
@@ -31,7 +30,5 @@
       "identifier": "#/extends",
       "location": "/properties/foo/$ref"
     }
-  },
-  "examples": [ {}, { "foo": { "bar": "s" } } ],
-  "counterExamples": [ { "foo": { "bar": 1 } }, { "bar": 1 } ]
+  }
 }

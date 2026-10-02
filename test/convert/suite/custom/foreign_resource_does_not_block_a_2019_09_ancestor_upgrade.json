@@ -22,7 +22,6 @@
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -49,7 +48,5 @@
       "identifier": "https://example.com/foreign",
       "location": "/$defs/f"
     }
-  },
-  "examples": [ {}, { "n": "s" } ],
-  "counterExamples": [ { "n": 1 } ]
+  }
 }

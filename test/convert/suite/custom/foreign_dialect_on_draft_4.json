@@ -11,7 +11,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -38,7 +37,5 @@
       "identifier": "https://example.com/meta",
       "location": ""
     }
-  },
-  "examples": [ {}, { "a": 3 } ],
-  "counterExamples": [ { "a": 2 } ]
+  }
 }

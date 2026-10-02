@@ -31,7 +31,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -58,13 +57,5 @@
       "identifier": "https://example.com/c",
       "location": "/definitions/c"
     }
-  },
-  "examples": [
-    {},
-    { "owned": { "t": 1, "p": "x" }, "foreign": { "t": 1, "q": "y" } }
-  ],
-  "counterExamples": [
-    { "owned": { "t": 1, "p": 1 } },
-    { "foreign": { "t": 1, "q": 1 } }
-  ]
+  }
 }

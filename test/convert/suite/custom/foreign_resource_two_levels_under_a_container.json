@@ -23,7 +23,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -50,7 +49,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/wrapper/properties/deep"
     }
-  },
-  "examples": [ {}, { "primary": { "address": "x" } } ],
-  "counterExamples": [ { "primary": { "address": 1 } } ]
+  }
 }

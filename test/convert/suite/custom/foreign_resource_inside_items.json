@@ -24,7 +24,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -51,7 +50,5 @@
       "identifier": "https://example.com/meta",
       "location": "/$defs/f"
     }
-  },
-  "examples": [ [], [ "a" ], { "deep": [ 1 ] } ],
-  "counterExamples": [ [ 1 ], { "deep": [ "x" ] } ]
+  }
 }

@@ -18,7 +18,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -45,7 +44,5 @@
       "identifier": "https://example.com/meta",
       "location": "/dependencies/primary"
     }
-  },
-  "examples": [ {}, { "primary": 1, "address": "x" } ],
-  "counterExamples": [ { "primary": 1, "address": 1 } ]
+  }
 }

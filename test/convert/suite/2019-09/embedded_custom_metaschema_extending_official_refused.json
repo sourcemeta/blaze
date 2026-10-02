@@ -10,14 +10,11 @@
           "https://json-schema.org/draft/2019-09/vocab/core": true
         },
         "allOf": [
-          {
-            "$ref": "https://json-schema.org/draft/2019-09/meta/core"
-          }
+          { "$ref": "https://json-schema.org/draft/2019-09/meta/core" }
         ]
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -44,11 +41,5 @@
       "identifier": "https://json-schema.org/draft/2019-09/schema",
       "location": "/$defs/meta"
     }
-  },
-  "examples": [
-    {}
-  ],
-  "counterExamples": [
-    "x"
-  ]
+  }
 }

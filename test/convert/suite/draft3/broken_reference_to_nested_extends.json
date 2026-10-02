@@ -6,7 +6,6 @@
       "bar": { "$ref": "#/properties/foo/extends" }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "broken-reference",
@@ -33,7 +32,5 @@
       "identifier": "#/properties/foo/extends",
       "location": "/properties/bar/$ref"
     }
-  },
-  "examples": [ {}, { "bar": "s" } ],
-  "counterExamples": [ { "bar": 1 } ]
+  }
 }

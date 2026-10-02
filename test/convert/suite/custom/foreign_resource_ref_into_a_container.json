@@ -21,7 +21,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -48,7 +47,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/contact"
     }
-  },
-  "examples": [ {}, { "primary": { "kind": "x" } } ],
-  "counterExamples": [ { "primary": { "kind": 1 } } ]
+  }
 }

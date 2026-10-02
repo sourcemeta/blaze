@@ -23,7 +23,6 @@
       "type": "object"
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-dialect",
@@ -50,7 +49,5 @@
       "identifier": "https://example.com/meta",
       "location": "/definitions/contact"
     }
-  },
-  "examples": [ {}, { "local": "x", "primary": { "address": "y" } } ],
-  "counterExamples": [ { "local": 1 }, { "primary": { "address": 1 } } ]
+  }
 }

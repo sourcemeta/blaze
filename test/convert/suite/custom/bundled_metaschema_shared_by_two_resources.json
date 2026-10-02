@@ -25,7 +25,6 @@
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -52,7 +51,5 @@
       "identifier": "https://example.com/c",
       "location": "/definitions/c"
     }
-  },
-  "examples": [ {}, { "one": { "v": "s" }, "two": { "t": 1, "w": 2 } } ],
-  "counterExamples": [ { "one": { "v": 1 } }, { "two": { "t": 1, "w": "no" } } ]
+  }
 }

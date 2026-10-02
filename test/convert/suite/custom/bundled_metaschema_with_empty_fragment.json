@@ -17,7 +17,6 @@
       }
     }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "unsupported-metaschema",
@@ -44,7 +43,5 @@
       "identifier": "https://example.com/c",
       "location": "/definitions/c"
     }
-  },
-  "examples": [ {}, { "v": { "p": "x" } } ],
-  "counterExamples": [ { "v": { "p": 1 } } ]
+  }
 }

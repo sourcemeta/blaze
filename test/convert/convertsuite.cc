@@ -39,6 +39,11 @@ const std::vector<std::string> KNOWN_ERROR_TYPES{
     "broken-reference"};
 // NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 
+// A refused fixture carries no `result` at all, and this stands in for one so
+// that the checks can read it without copying an object per test
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+const sourcemeta::core::JSON NO_RESULTS{sourcemeta::core::JSON::make_object()};
+
 auto expect_known(const std::string_view kind, const std::string_view name,
                   const std::vector<std::string> &known) -> void {
   auto actual{sourcemeta::core::JSON::make_object()};
@@ -197,16 +202,43 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
   }
 
   EXPECT_TRUE(test.defines("schema"));
-  EXPECT_TRUE(test.defines("result"));
-  EXPECT_TRUE(test.defines("examples"));
-  EXPECT_TRUE(test.defines("counterExamples"));
 
-  // A boolean schema cannot carry both kinds of instance, so it belongs in a
-  // hand-written test rather than here
+  // A boolean schema cannot carry both kinds of instance, so it belongs in
+  // a hand-written test rather than here
   EXPECT_TRUE(test.at("schema").is_object());
 
-  EXPECT_TRUE(test.at("examples").is_array());
-  EXPECT_TRUE(test.at("counterExamples").is_array());
+  // A document either converts or is refused, and what makes it
+  // unconvertible does not depend on which target was asked for. So one of
+  // these two keys accounts for every target and the other is not there at
+  // all: an empty one left behind reads as a claim about nothing, and both
+  // together describe two different documents
+  auto carried{sourcemeta::core::JSON::make_object()};
+  carried.assign("result", sourcemeta::core::JSON{test.defines("result")});
+  carried.assign("errors", sourcemeta::core::JSON{test.defines("errors")});
+  auto wanted_carried{sourcemeta::core::JSON::make_object()};
+  wanted_carried.assign("result",
+                        sourcemeta::core::JSON{!test.defines("errors")});
+  wanted_carried.assign("errors",
+                        sourcemeta::core::JSON{!test.defines("result")});
+  EXPECT_EQ(carried, wanted_carried);
+
+  // A refused document never comes out, so there is nothing for an instance
+  // to be checked against and the keys are left off along with it
+  const auto converts{test.defines("result")};
+  auto instanced{sourcemeta::core::JSON::make_object()};
+  instanced.assign("examples",
+                   sourcemeta::core::JSON{test.defines("examples")});
+  instanced.assign("counterExamples",
+                   sourcemeta::core::JSON{test.defines("counterExamples")});
+  auto wanted_instanced{sourcemeta::core::JSON::make_object()};
+  wanted_instanced.assign("examples", sourcemeta::core::JSON{converts});
+  wanted_instanced.assign("counterExamples", sourcemeta::core::JSON{converts});
+  EXPECT_EQ(instanced, wanted_instanced);
+
+  if (converts) {
+    EXPECT_TRUE(test.at("examples").is_array());
+    EXPECT_TRUE(test.at("counterExamples").is_array());
+  }
 
   const auto *registry{test.try_at("resolver")};
   if (registry != nullptr) {
@@ -220,8 +252,9 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
     }
   }
 
-  const auto &results{test.at("result")};
+  const auto &results{converts ? test.at("result") : NO_RESULTS};
   EXPECT_TRUE(results.is_object());
+  EXPECT_FALSE(converts && results.empty());
   for (const auto &entry : results.as_object()) {
     expect_known("result target", entry.first, TARGET_NAMES);
     EXPECT_TRUE(entry.second.is_object() || entry.second.is_null());
@@ -251,34 +284,19 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
     }
   }
 
-  // Every target is accounted for by one of the two, so a fixture that fills
-  // both is saying one document converts for some targets and is refused for
-  // others. Nothing about a document is unconvertible for one target and not
-  // another: a dialect the conversion will not go near is refused whatever
-  // was asked for. Such a fixture is really describing two documents, and
-  // reading it means working out which targets went which way
-  auto filled{sourcemeta::core::JSON::make_object()};
-  filled.assign("converts", sourcemeta::core::JSON{!results.empty()});
-  filled.assign("refuses", sourcemeta::core::JSON{test.defines("errors") &&
-                                                  !test.at("errors").empty()});
-  auto wanted_split{sourcemeta::core::JSON::make_object()};
-  wanted_split.assign("converts", sourcemeta::core::JSON{!results.empty()});
-  wanted_split.assign("refuses", sourcemeta::core::JSON{results.empty()});
-  EXPECT_EQ(filled, wanted_split);
-
   for (const auto &target : TARGETS) {
     const sourcemeta::core::JSON::String name{target.name};
     EXPECT_TRUE(results.defines(name) ||
                 (test.defines("errors") && test.at("errors").defines(name)));
   }
 
-  // A fixture that produces a document has to say something about what that
-  // document accepts, or the expected output is the only thing holding it and
-  // a lost instance leaves no trace. One that produces none is exempt, as
-  // there would be nothing to check an instance against
-  if (!results.empty()) {
+  if (converts) {
     EXPECT_FALSE(test.at("examples").empty() &&
                  test.at("counterExamples").empty());
+  }
+
+  if (test.defines("errors")) {
+    EXPECT_FALSE(test.at("errors").empty());
   }
 }
 
@@ -651,7 +669,7 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
 
   const auto resolver{make_resolver(test)};
   const auto inputs{make_inputs(test)};
-  const auto &results{test.at("result")};
+  const auto &results{test.defines("result") ? test.at("result") : NO_RESULTS};
 
   // Every target is converted up front, and the instances have their say before
   // any expectation about the shape of the output. A `result` that turns out
@@ -692,7 +710,10 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
   check_resources(test.at("schema"), converted, resolver, inputs);
 
   auto disagreements{sourcemeta::core::JSON::make_array()};
-  if (!test.at("examples").empty() || !test.at("counterExamples").empty()) {
+  // A refused fixture carries no instances at all, so there is nothing here to
+  // put to either side of the conversion
+  if (test.defines("examples") &&
+      (!test.at("examples").empty() || !test.at("counterExamples").empty())) {
     check_instances(test.at("schema"), "input", test, resolver, inputs,
                     disagreements);
 

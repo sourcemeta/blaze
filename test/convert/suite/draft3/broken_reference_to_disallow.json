@@ -4,7 +4,6 @@
     "disallow": [ { "type": "string" } ],
     "properties": { "foo": { "$ref": "#/disallow/0" } }
   },
-  "result": {},
   "errors": {
     "draft4": {
       "type": "broken-reference",
@@ -31,7 +30,5 @@
       "identifier": "#/disallow/0",
       "location": "/properties/foo/$ref"
     }
-  },
-  "examples": [ 1, {}, { "foo": "s" } ],
-  "counterExamples": [ "a", { "foo": 1 } ]
+  }
 }
