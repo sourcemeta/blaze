@@ -90,6 +90,9 @@ static auto canonicalizer_test_resolver(std::string_view identifier)
   }
 }
 
+// Besides the expected result, every case checks that canonicalising the
+// result again does nothing. A canonical form that is not a fixpoint would
+// mean the same schema has more than one canonical spelling
 #define CANONICALIZE_AND_VALIDATE(document, expected, compiled_template)       \
   {                                                                            \
     sourcemeta::blaze::canonicalize(document, sourcemeta::core::schema_walker, \
@@ -97,6 +100,10 @@ static auto canonicalizer_test_resolver(std::string_view identifier)
     EXPECT_EQ(document, expected);                                             \
     sourcemeta::blaze::Evaluator _evaluator;                                   \
     EXPECT_TRUE(_evaluator.validate(compiled_template, document));             \
+    auto _again{document};                                                     \
+    sourcemeta::blaze::canonicalize(_again, sourcemeta::core::schema_walker,   \
+                                    canonicalizer_test_resolver);              \
+    EXPECT_EQ(_again, document);                                               \
   }
 
 #endif
