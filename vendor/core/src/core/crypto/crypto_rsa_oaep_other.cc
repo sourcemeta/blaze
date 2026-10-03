@@ -15,7 +15,6 @@
 #include <span>        // std::span
 #include <string>      // std::string
 #include <string_view> // std::string_view
-#include <utility>     // std::unreachable
 
 // A from-scratch RSA-OAEP (RFC 8017 Section 7.1) for the reference backend,
 // over the shared big integer arithmetic. The decode is not constant-time,
@@ -32,28 +31,22 @@ auto hash_length(const RSAOAEPHash hash) -> std::size_t {
     case RSAOAEPHash::SHA1:
       return 20;
     case RSAOAEPHash::SHA256:
-      return 32;
+      break;
   }
 
-  std::unreachable();
+  return 32;
 }
 
 auto oaep_hash(const RSAOAEPHash hash, const std::string_view input)
     -> std::string {
   switch (hash) {
-    case RSAOAEPHash::SHA1: {
-      const auto digest{sha1_digest(input)};
-      return std::string{reinterpret_cast<const char *>(digest.data()),
-                         digest.size()};
-    }
-    case RSAOAEPHash::SHA256: {
-      const auto digest{sha256_digest(input)};
-      return std::string{reinterpret_cast<const char *>(digest.data()),
-                         digest.size()};
-    }
+    case RSAOAEPHash::SHA1:
+      return digest_bytes(sha1_digest(input));
+    case RSAOAEPHash::SHA256:
+      break;
   }
 
-  std::unreachable();
+  return digest_bytes(sha256_digest(input));
 }
 
 // The mask generation function (RFC 8017 Appendix B.2.1)
