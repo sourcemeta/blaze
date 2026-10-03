@@ -43,6 +43,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
       "location": "/dependencies/primary"
+    },
+    "openapi3.1": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/dependencies/primary"
     }
   }
 }

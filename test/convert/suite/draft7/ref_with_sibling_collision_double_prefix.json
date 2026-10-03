@@ -35,6 +35,17 @@
           "x-minLength": "already-here"
         }
       }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$defs": { "foo": { "type": "string" } },
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/foo",
+          "x-x-minLength": 3,
+          "x-minLength": "already-here"
+        }
+      }
     }
   },
   "examples": [ {}, { "value": "ab" } ],

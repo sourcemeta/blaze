@@ -23,6 +23,10 @@
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "not": { "anyOf": [ true, { "type": "object" } ] }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "not": { "anyOf": [ true, { "type": "object" } ] }
     }
   },
   "examples": [],

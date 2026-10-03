@@ -47,6 +47,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/foreign",
       "location": "/definitions/f"
+    },
+    "openapi3.1": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": "/definitions/f"
     }
   }
 }

@@ -21,6 +21,15 @@
       },
       "type": "object",
       "properties": { "v": { "$ref": "#/$defs/y" } }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$defs": {
+        "x": { "$anchor": "ns-thing", "type": "string" },
+        "y": { "$ref": "#ns-thing" }
+      },
+      "type": "object",
+      "properties": { "v": { "$ref": "#/$defs/y" } }
     }
   },
   "examples": [ {}, { "v": "s" } ],

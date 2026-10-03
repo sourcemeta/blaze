@@ -1,0 +1,25 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/x",
+    "type": "string",
+    "example": "foo",
+    "x-example": "taken"
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": null,
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$id": "https://example.com/x",
+      "type": "string",
+      "x-x-example": "foo",
+      "x-example": "taken"
+    }
+  },
+  "examples": [ "foo", "" ],
+  "counterExamples": [ 1, null ]
+}

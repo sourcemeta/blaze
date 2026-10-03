@@ -15,13 +15,16 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME convert
     rules/enum_to_const.h
     rules/modern_official_dialect_with_empty_fragment.h
     rules/modern_official_dialect_with_http.h
+    rules/openapi_official_dialect_with_date.h
     rules/prefix_promoted_2020_12_keywords.h
     rules/prefix_promoted_draft_2019_09_keywords.h
     rules/prefix_promoted_draft_4_keywords.h
     rules/prefix_promoted_draft_6_keywords.h
     rules/prefix_promoted_draft_7_keywords.h
+    rules/prefix_promoted_openapi_3_1_keywords.h
     rules/shadow_stray_dialect_declaration.h
     rules/upgrade_2019_09_to_2020_12.h
+    rules/upgrade_2020_12_to_openapi_3_1.h
     rules/upgrade_draft_3_to_draft_4.h
     rules/upgrade_draft_4_to_draft_6.h
     rules/upgrade_draft_6_to_draft_7.h

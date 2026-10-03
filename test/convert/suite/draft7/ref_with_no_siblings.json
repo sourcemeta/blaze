@@ -17,6 +17,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$defs": { "foo": { "type": "string" } },
       "properties": { "value": { "$ref": "#/$defs/foo" } }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$defs": { "foo": { "type": "string" } },
+      "properties": { "value": { "$ref": "#/$defs/foo" } }
     }
   },
   "examples": [ {}, { "value": "ab" } ],

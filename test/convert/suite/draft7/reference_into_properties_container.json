@@ -29,6 +29,11 @@
       "type": "invalid-reference",
       "identifier": "https://example.com/x#/properties",
       "location": "/properties/v/$ref"
+    },
+    "openapi3.1": {
+      "type": "invalid-reference",
+      "identifier": "https://example.com/x#/properties",
+      "location": "/properties/v/$ref"
     }
   }
 }

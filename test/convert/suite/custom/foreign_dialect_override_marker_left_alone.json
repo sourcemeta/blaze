@@ -9,7 +9,12 @@
     "draft6": null,
     "draft7": null,
     "2019-09": null,
-    "2020-12": null
+    "2020-12": null,
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "x-sourcemeta-dialect-override-subschema": "",
+      "type": "string"
+    }
   },
   "examples": [ "foo", "" ],
   "counterExamples": [ 1, null ]

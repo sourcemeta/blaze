@@ -21,6 +21,16 @@
         { "type": "array" },
         { "not": { "not": { "contains": { "type": "string" } } } }
       ]
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "type": "array",
+      "unevaluatedItems": false,
+      "not": { "type": "null" },
+      "allOf": [
+        { "type": "array" },
+        { "not": { "not": { "contains": { "type": "string" } } } }
+      ]
     }
   },
   "examples": [],

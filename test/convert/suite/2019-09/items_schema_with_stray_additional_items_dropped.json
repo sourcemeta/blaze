@@ -12,6 +12,10 @@
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "items": { "type": "string" }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "items": { "type": "string" }
     }
   },
   "examples": [ [], [ "a" ] ],

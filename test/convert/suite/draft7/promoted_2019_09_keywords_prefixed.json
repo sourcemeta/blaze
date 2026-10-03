@@ -50,6 +50,22 @@
       "x-minContains": "custom-value",
       "x-contentSchema": "custom-value",
       "x-deprecated": "string explanation"
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "type": "string",
+      "x-$anchor": "my-anchor",
+      "x-$recursiveAnchor": true,
+      "x-$recursiveRef": "#",
+      "x-$vocabulary": { "https://example.com/vocab": true },
+      "x-dependentSchemas": "custom-value",
+      "x-dependentRequired": "custom-value",
+      "x-unevaluatedItems": "custom-value",
+      "x-unevaluatedProperties": "custom-value",
+      "x-maxContains": "custom-value",
+      "x-minContains": "custom-value",
+      "x-contentSchema": "custom-value",
+      "x-deprecated": "string explanation"
     }
   },
   "examples": [ "x" ],

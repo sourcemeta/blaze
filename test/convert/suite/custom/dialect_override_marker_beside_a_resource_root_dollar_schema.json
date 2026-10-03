@@ -24,6 +24,10 @@
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "const": 2
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "const": 2
     }
   },
   "examples": [ 2 ],

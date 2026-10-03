@@ -31,6 +31,20 @@
           "additionalProperties": { "$dynamicRef": "#meta" }
         }
       }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$id": "https://example.com/outer",
+      "type": "object",
+      "additionalProperties": { "$dynamicRef": "#" },
+      "$defs": {
+        "inner": {
+          "$id": "https://example.com/inner",
+          "$dynamicAnchor": "meta",
+          "type": "object",
+          "additionalProperties": { "$dynamicRef": "#meta" }
+        }
+      }
     }
   },
   "examples": [ {}, { "a": {} } ],
