@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-06/schema#",
+    "const": 2
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "const": 2
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "const": 2
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "const": 2
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "const": 2
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "const": 2
+    }
+  },
+  "examples": [ 2 ],
+  "counterExamples": [ 3, "2" ]
+}

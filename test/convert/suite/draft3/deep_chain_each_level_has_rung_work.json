@@ -1,0 +1,107 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "divisibleBy": 1,
+    "properties": {
+      "a": {
+        "divisibleBy": 2,
+        "properties": {
+          "b": {
+            "disallow": "string",
+            "properties": {
+              "c": { "extends": { "minimum": 1 }, "required": true }
+            }
+          }
+        }
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "multipleOf": 1,
+      "properties": {
+        "a": {
+          "multipleOf": 2,
+          "properties": {
+            "b": {
+              "required": [ "c" ],
+              "properties": { "c": { "allOf": [ { "minimum": 1 } ] } },
+              "not": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "multipleOf": 1,
+      "properties": {
+        "a": {
+          "multipleOf": 2,
+          "properties": {
+            "b": {
+              "required": [ "c" ],
+              "properties": { "c": { "allOf": [ { "minimum": 1 } ] } },
+              "not": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "multipleOf": 1,
+      "properties": {
+        "a": {
+          "multipleOf": 2,
+          "properties": {
+            "b": {
+              "required": [ "c" ],
+              "properties": { "c": { "allOf": [ { "minimum": 1 } ] } },
+              "not": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "multipleOf": 1,
+      "properties": {
+        "a": {
+          "multipleOf": 2,
+          "properties": {
+            "b": {
+              "required": [ "c" ],
+              "properties": { "c": { "allOf": [ { "minimum": 1 } ] } },
+              "not": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "multipleOf": 1,
+      "properties": {
+        "a": {
+          "multipleOf": 2,
+          "properties": {
+            "b": {
+              "required": [ "c" ],
+              "properties": { "c": { "allOf": [ { "minimum": 1 } ] } },
+              "not": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [ { "a": { "b": { "c": 5 } } } ],
+  "counterExamples": [
+    { "a": { "b": {} } },
+    { "a": { "b": { "c": 0 } } },
+    { "a": { "b": "text" } }
+  ]
+}

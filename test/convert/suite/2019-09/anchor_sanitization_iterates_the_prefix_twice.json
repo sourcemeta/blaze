@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "properties": {
+      "a": { "$ref": "#a:b" },
+      "b": { "$ref": "#a-b" },
+      "c": { "$ref": "#x-a-b" }
+    },
+    "$defs": {
+      "colon": { "$anchor": "a:b", "minLength": 3 },
+      "taken": { "$anchor": "a-b", "minimum": 10 },
+      "alsoTaken": { "$anchor": "x-a-b", "type": "boolean" }
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": { "$ref": "#x-x-a-b" },
+        "b": { "$ref": "#a-b" },
+        "c": { "$ref": "#x-a-b" }
+      },
+      "$defs": {
+        "colon": { "$anchor": "x-x-a-b", "minLength": 3 },
+        "taken": { "$anchor": "a-b", "minimum": 10 },
+        "alsoTaken": { "$anchor": "x-a-b", "type": "boolean" }
+      }
+    }
+  },
+  "examples": [ { "a": "abc", "b": 11, "c": true }, {} ],
+  "counterExamples": [ { "a": "ab" }, { "b": 9 }, { "c": "yes" } ]
+}

@@ -1,0 +1,78 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/root",
+    "properties": { "a": { "$ref": "https://example.com/inner" } },
+    "definitions": {
+      "inner": {
+        "$id": "https://example.com/inner",
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-07/schema#",
+        "minLength": 3
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner" } },
+      "definitions": {
+        "inner": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/inner",
+          "minLength": 3
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner" } },
+      "definitions": {
+        "inner": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/inner",
+          "minLength": 3
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner" } },
+      "definitions": {
+        "inner": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/inner",
+          "minLength": 3
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner" } },
+      "$defs": {
+        "inner": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://example.com/inner",
+          "minLength": 3
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner" } },
+      "$defs": {
+        "inner": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/inner",
+          "minLength": 3
+        }
+      }
+    }
+  },
+  "examples": [ { "a": "abcd" }, {} ],
+  "counterExamples": [ { "a": "ab" } ]
+}
