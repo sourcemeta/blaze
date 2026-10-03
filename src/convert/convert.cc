@@ -218,22 +218,36 @@ auto repair_references(sourcemeta::core::JSON &schema,
       continue;
     }
 
+    // The resource the fragment is written relative to can move in the same
+    // pass as the target does, so where that resource now begins is followed
+    // too. Slicing the moved target by where it used to begin would count
+    // tokens of the new position as part of the old prefix
     auto target{snapshot.target};
     auto origin{snapshot.origin};
+    auto base{snapshot.target.slice(0, snapshot.target_offset)};
     for (const auto &[before, after] : journal) {
       target = target.rebase(before, after);
       origin = origin.rebase(before, after);
+      base = base.rebase(before, after);
     }
 
-    if (target == snapshot.target || !core::try_get(schema, origin.initial())) {
+    // A pass is free to drop the subschema a reference was written in, and a
+    // reference that is no longer in the document has nothing left to point
+    // anywhere, so there is nothing to repair rather than anything broken
+    if (core::try_get(schema, origin.initial()) == nullptr) {
+      continue;
+    }
+
+    // Nothing the pass recorded accounts for where the target went, so the
+    // reference cannot be followed
+    if (target == snapshot.target) {
       throw ConvertBrokenReferenceError{snapshot.destination, snapshot.origin};
     }
 
-    const auto relative{target.slice(snapshot.target_offset)};
-    const auto fragment{
-        snapshot.fragment == core::to_string(snapshot.target)
-            ? snapshot.target.slice(0, snapshot.target_offset).concat(relative)
-            : relative};
+    const auto relative{target.slice(base.size())};
+    const auto fragment{snapshot.fragment == core::to_string(snapshot.target)
+                            ? base.concat(relative)
+                            : relative};
 
     core::URI original{snapshot.original};
     // The stringified pointer is literal text, so a token that already reads
@@ -262,7 +276,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 
   struct Scheduled {
     Site site;
-    const core::SchemaVocabularies *vocabularies;
+    core::SchemaVocabularies vocabularies;
     std::size_t rule;
     std::size_t depth;
     bool writes_outside;
@@ -345,12 +359,6 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
         rule->begin_pass();
       }
 
-      // Which vocabularies a dialect brings is a question about the dialect,
-      // not about the position, and resolving it per position asks the resolver
-      // the same question once for every subschema in the document
-      std::map<core::JSON::String, core::SchemaVocabularies>
-          vocabularies_by_dialect;
-
       std::unordered_set<core::Pointer, core::Pointer::Hasher> visited;
       frame.for_each_subschema(
           [&](const core::SchemaFrame::Location &location) -> void {
@@ -360,16 +368,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
             }
 
             const auto &current{core::get(schema, pointer)};
-            auto cached{vocabularies_by_dialect.find(
-                core::JSON::String{location.dialect})};
-            if (cached == vocabularies_by_dialect.cend()) {
-              cached = vocabularies_by_dialect
-                           .emplace(core::JSON::String{location.dialect},
-                                    frame.vocabularies(location, resolver))
-                           .first;
-            }
-
-            const auto &vocabularies{cached->second};
+            const auto &vocabularies{frame.vocabularies(location, resolver)};
             Site site{.pointer = std::move(pointer),
                       .dialect = core::JSON::String{location.dialect},
                       .base_dialect = location.base_dialect,
@@ -397,7 +396,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
               if (rule->condition(current, schema, vocabularies, site, walker,
                                   resolver)) {
                 scheduled.push_back({.site = site,
-                                     .vocabularies = &vocabularies,
+                                     .vocabularies = vocabularies,
                                      .rule = index,
                                      .depth = site.pointer.size(),
                                      .writes_outside = writes_outside});
@@ -474,7 +473,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
       // Asked again right before the edit, so that an edit applied earlier in
       // this pass can settle what this one was going to do. The question is
       // answered from what was taken down above, never from the frame
-      if (!rule->condition(current, schema, *entry.vocabularies, entry.site,
+      if (!rule->condition(current, schema, entry.vocabularies, entry.site,
                            walker, resolver)) {
         continue;
       }

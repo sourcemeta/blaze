@@ -1,0 +1,21 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": { "type": "integer" },
+    "additionalItems": { "$ref": "#/$defs/t/items/0" },
+    "$defs": { "t": { "items": [ { "type": "string" } ] } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": { "type": "integer" },
+      "$defs": { "t": { "prefixItems": [ { "type": "string" } ] } }
+    }
+  },
+  "examples": [ [ 1, 2 ], [] ],
+  "counterExamples": [ [ "a" ], [ 1, "b" ] ]
+}

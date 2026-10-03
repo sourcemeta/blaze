@@ -36,16 +36,10 @@ public:
     // nothing that a `$schema` could say, and the subschema takes the dialect
     // of the resource holding it
     if (!dialect.is_string() || schema.defines("$schema") ||
-        site.pointer.size() != site.relative_pointer) {
+        !at_dialect_declaration(schema, site)) {
       return;
     }
 
-    sourcemeta::core::JSON value{std::move(dialect)};
-    for (const auto &entry : schema.as_object()) {
-      schema.try_assign_before("$schema", value, entry.first);
-      return;
-    }
-
-    schema.assign("$schema", std::move(value));
+    assign_before_first_key(schema, "$schema", std::move(dialect));
   }
 };

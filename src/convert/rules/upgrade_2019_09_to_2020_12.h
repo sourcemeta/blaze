@@ -44,15 +44,14 @@ public:
       if (!this->anchor_renames_.empty() ||
           !this->anchor_ref_rewrites_.empty()) {
         this->resource_has_recursive_anchor_ =
-            compute_resource_has_recursive_anchor(root, frame, location);
+            this->resource_has_recursive_anchor(root, frame, location, site);
         this->anchor_at_resource_root_ = is_resource_root(frame, location);
         if (needs_dynamic_anchor_name(schema)) {
           this->dynamic_anchor_name_ = compute_dynamic_anchor_name(root);
         }
 
         this->document_has_unevaluated_items_ =
-            compute_document_has_unevaluated_items(root, frame, walker,
-                                                   resolver);
+            this->document_has_unevaluated_items(root, frame, walker, resolver);
         this->is_inside_contains_wrapper_ = false;
         this->sanitize_pending_ = true;
         this->record(site);
@@ -68,7 +67,7 @@ public:
         location_inside_contains_wrapper(schema, location);
 
     this->resource_has_recursive_anchor_ =
-        this->resource_has_recursive_anchor(root, frame, location, site);
+        compute_resource_has_recursive_anchor(root, frame, location);
     this->anchor_at_resource_root_ = is_resource_root(frame, location);
     if (needs_dynamic_anchor_name(schema)) {
       this->dynamic_anchor_name_ = compute_dynamic_anchor_name(root);
@@ -128,8 +127,13 @@ public:
       -> void override {
     [[maybe_unused]] const auto planned{this->load(site)};
     assert(planned);
+    // Renaming this resource's anchors is what the pass does here, and it
+    // held the subschemas under it back while doing so. Moving the dialect as
+    // well would leave them reading as the target while their own rung work is
+    // still outstanding, and nothing would come back for it
     if (this->sanitize_pending_) {
       apply_anchor_sanitization(schema);
+      return;
     }
 
     this->renames_.clear();
@@ -915,11 +919,13 @@ private:
     return name;
   }
 
-  // Which resource a position sits in, as a position of its own, so that a
-  // question about the resource is asked once rather than once per position
+  // Both of these ask about the resource holding a position rather than about
+  // the position, so they are asked once per resource instead of once per
+  // position in it. `relative_pointer` is how deep the resource begins, so the
+  // resource is the pointer cut to that depth
   [[nodiscard]] static auto enclosing_resource(const Site &site)
       -> sourcemeta::core::Pointer {
-    return site.pointer.slice(0, site.pointer.size() - site.relative_pointer);
+    return site.pointer.slice(0, site.relative_pointer);
   }
 
   [[nodiscard]] auto resource_has_recursive_anchor(

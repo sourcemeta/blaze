@@ -48,12 +48,30 @@ struct Site {
 
 inline auto at_dialect_declaration(const sourcemeta::core::JSON &schema,
                                    const Site &site) -> bool {
-  if (site.pointer.size() != site.relative_pointer) {
+  // A rule scheduled against an object may find a boolean here, because an
+  // edit applied earlier in the same pass can have replaced it with one
+  if (!schema.is_object() || site.pointer.size() != site.relative_pointer) {
     return false;
   }
 
-  return site.pointer.empty() ||
-         (schema.is_object() && schema.defines("$schema"));
+  return site.pointer.empty() || schema.defines("$schema");
+}
+
+// A dialect the document never spelled out goes in front of what the author
+// did write, which is where a `$schema` belongs and where one that was already
+// there would have stayed. The first key is read before anything is written,
+// because inserting into the object invalidates what iterating it handed out
+inline auto assign_before_first_key(sourcemeta::core::JSON &schema,
+                                    const sourcemeta::core::JSON::String &key,
+                                    sourcemeta::core::JSON &&value) -> void {
+  if (schema.empty()) {
+    schema.assign(key, std::move(value));
+    return;
+  }
+
+  const sourcemeta::core::JSON::String first{
+      schema.as_object().cbegin()->first};
+  schema.try_assign_before(key, value, first);
 }
 
 inline auto bump_dialect(sourcemeta::core::JSON &schema, const Site &site,
@@ -67,16 +85,7 @@ inline auto bump_dialect(sourcemeta::core::JSON &schema, const Site &site,
     return;
   }
 
-  // A dialect the document never spelled out goes in front of what the author
-  // did write, which is where a `$schema` belongs and where one that was
-  // already there would have stayed
-  sourcemeta::core::JSON value{dialect};
-  for (const auto &entry : schema.as_object()) {
-    schema.try_assign_before("$schema", value, entry.first);
-    return;
-  }
-
-  schema.assign("$schema", std::move(value));
+  assign_before_first_key(schema, "$schema", sourcemeta::core::JSON{dialect});
 }
 
 inline auto current_dialect_or_override(const sourcemeta::core::JSON &schema)

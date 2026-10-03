@@ -17,11 +17,7 @@
       "$id": "https://example.com/root",
       "properties": { "a": { "$ref": "https://example.com/inner" } },
       "definitions": {
-        "inner": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "$id": "https://example.com/inner",
-          "minLength": 3
-        }
+        "inner": { "$id": "https://example.com/inner", "minLength": 3 }
       }
     },
     "draft6": {
@@ -29,11 +25,7 @@
       "$id": "https://example.com/root",
       "properties": { "a": { "$ref": "https://example.com/inner" } },
       "definitions": {
-        "inner": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "$id": "https://example.com/inner",
-          "minLength": 3
-        }
+        "inner": { "$id": "https://example.com/inner", "minLength": 3 }
       }
     },
     "draft7": {
@@ -41,11 +33,7 @@
       "$id": "https://example.com/root",
       "properties": { "a": { "$ref": "https://example.com/inner" } },
       "definitions": {
-        "inner": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "$id": "https://example.com/inner",
-          "minLength": 3
-        }
+        "inner": { "$id": "https://example.com/inner", "minLength": 3 }
       }
     },
     "2019-09": {
@@ -53,11 +41,7 @@
       "$id": "https://example.com/root",
       "properties": { "a": { "$ref": "https://example.com/inner" } },
       "$defs": {
-        "inner": {
-          "$schema": "https://json-schema.org/draft/2019-09/schema",
-          "$id": "https://example.com/inner",
-          "minLength": 3
-        }
+        "inner": { "$id": "https://example.com/inner", "minLength": 3 }
       }
     },
     "2020-12": {
@@ -65,11 +49,7 @@
       "$id": "https://example.com/root",
       "properties": { "a": { "$ref": "https://example.com/inner" } },
       "$defs": {
-        "inner": {
-          "$schema": "https://json-schema.org/draft/2020-12/schema",
-          "$id": "https://example.com/inner",
-          "minLength": 3
-        }
+        "inner": { "$id": "https://example.com/inner", "minLength": 3 }
       }
     }
   },
