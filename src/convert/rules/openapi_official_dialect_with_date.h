@@ -13,7 +13,11 @@ public:
     ONLY_CONTINUE_IF(schema.is_object());
     const auto *schema_keyword{schema.try_at("$schema")};
     ONLY_CONTINUE_IF(schema_keyword && schema_keyword->is_string());
-    const auto &dialect{schema_keyword->to_string()};
+    // The empty fragment does not change which dialect a URI names, and
+    // `normalized_official_dialect` strips one before placing a dialect on the
+    // ladder. Comparing the spelling as written would accept such a document as
+    // this dialect and then decline to settle it onto the canonical URI
+    const auto dialect{without_empty_fragment(schema_keyword->to_string())};
     ONLY_CONTINUE_IF(
         dialect == "https://spec.openapis.org/oas/3.1/dialect/2024-10-25" ||
         dialect == "https://spec.openapis.org/oas/3.1/dialect/2024-11-10");

@@ -136,9 +136,18 @@ constexpr std::array<Target, 6> TARGETS{
 const std::vector<std::string> TARGET_NAMES{"draft4",  "draft6",  "draft7",
                                             "2019-09", "2020-12", "openapi3.1"};
 
+// A document on any spelling of the OpenAPI dialect sits on the last rung. The
+// empty fragment does not change which dialect a URI names
+auto names_openapi_3_1_dialect(const std::string_view dialect) -> bool {
+  const auto candidate{
+      dialect.ends_with('#') ? dialect.substr(0, dialect.size() - 1) : dialect};
+  return std::ranges::find(OPENAPI_3_1_DIALECTS, candidate) !=
+         OPENAPI_3_1_DIALECTS.cend();
+}
+
 // Conversion decides where a keyword goes as much as whether it is there at
 // all, so the order of the result is part of what a fixture blesses. Both
-// sides carry the target they came from, as a fixture accounts for five of
+// sides carry the target they came from, as a fixture accounts for six of
 // them and a bare pair of schemas does not say which one went wrong
 auto expect_equal_with_ordering(const std::string_view target,
                                 const sourcemeta::core::JSON &actual,
@@ -602,8 +611,7 @@ auto dialect_rung(const sourcemeta::core::JSON &document,
   // which of the two rungs the document sits on. A dated spelling answers the
   // same rung, as the conversion settles one onto the undated spelling rather
   // than treating it as a dialect of its own
-  if (std::ranges::find(OPENAPI_3_1_DIALECTS, location.value().get().dialect) !=
-      OPENAPI_3_1_DIALECTS.cend()) {
+  if (names_openapi_3_1_dialect(location.value().get().dialect)) {
     return 7;
   }
 
