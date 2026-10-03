@@ -50,6 +50,30 @@
         }
       },
       "type": "object"
+    },
+    "openapi3.1": {
+      "$id": "https://example.com/outer",
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$defs": {
+        "alpha": {
+          "$id": "https://example.com/alpha-meta",
+          "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": true
+          }
+        },
+        "beta": {
+          "$id": "https://example.com/beta-meta",
+          "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": true
+          }
+        }
+      },
+      "type": "object"
     }
   },
   "examples": [ {} ],

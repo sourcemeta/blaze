@@ -38,6 +38,11 @@
       "type": "unsupported-metaschema",
       "identifier": "https://example.com/my-dialect",
       "location": "/definitions/meta"
+    },
+    "openapi3.1": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://example.com/my-dialect",
+      "location": "/definitions/meta"
     }
   }
 }

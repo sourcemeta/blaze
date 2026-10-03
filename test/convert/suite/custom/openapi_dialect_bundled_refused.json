@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+    "$id": "https://example.com/root",
+    "type": "string",
+    "$defs": {
+      "dialect": {
+        "$id": "https://spec.openapis.org/oas/3.1/dialect/base",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+          "https://json-schema.org/draft/2020-12/vocab/core": true,
+          "https://spec.openapis.org/oas/3.1/vocab/base": false
+        }
+      }
+    }
+  },
+  "errors": {
+    "draft4": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "location": "/$defs/dialect"
+    },
+    "draft6": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "location": "/$defs/dialect"
+    },
+    "draft7": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "location": "/$defs/dialect"
+    },
+    "2019-09": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "location": "/$defs/dialect"
+    },
+    "2020-12": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "location": "/$defs/dialect"
+    },
+    "openapi3.1": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "location": "/$defs/dialect"
+    }
+  }
+}

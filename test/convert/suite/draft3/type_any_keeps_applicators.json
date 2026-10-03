@@ -24,6 +24,10 @@
     "2020-12": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "properties": { "foo": { "type": "string" } }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "properties": { "foo": { "type": "string" } }
     }
   },
   "examples": [ {}, { "foo": "s" }, "x" ],

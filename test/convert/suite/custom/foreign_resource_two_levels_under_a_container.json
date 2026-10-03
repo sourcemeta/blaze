@@ -48,6 +48,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
       "location": "/definitions/wrapper/properties/deep"
+    },
+    "openapi3.1": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/wrapper/properties/deep"
     }
   }
 }

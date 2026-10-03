@@ -29,6 +29,19 @@
         }
       },
       "properties": { "a": { "$ref": "https://example.com/r#ns-x" } }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$id": "https://example.com/root",
+      "unevaluatedItems": false,
+      "$defs": {
+        "r": {
+          "$id": "https://example.com/r",
+          "$anchor": "ns-x",
+          "properties": { "deep": { "prefixItems": [ { "type": "string" } ] } }
+        }
+      },
+      "properties": { "a": { "$ref": "https://example.com/r#ns-x" } }
     }
   },
   "examples": [ { "a": { "deep": [ "x" ] } }, {} ],

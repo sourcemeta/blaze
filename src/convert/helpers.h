@@ -139,16 +139,25 @@ inline auto is_metaschema_target(const sourcemeta::core::JSON &schema,
       });
 }
 
-// The official dialects the upgrade walks through, oldest first, so that a
-// marker recording a newer one can be told apart from a stale one
+// The spelling every OpenAPI 3.1 dialect URI settles onto. OpenAPI 3.1
+// publishes the same dialect at `dialect/2024-10-25` and `dialect/2024-11-10`
+// as well, naming documents that differ only in formatting, and
+// `normalized_official_dialect` below folds those onto this one
+constexpr std::string_view OPENAPI_3_1_DIALECT{
+    "https://spec.openapis.org/oas/3.1/dialect/base"};
+
+// The dialects the upgrade walks through, oldest first, so that a marker
+// recording a newer one can be told apart from a stale one. The last rung is
+// not a JSON Schema dialect but the OpenAPI 3.1 one, which requires every
+// 2020-12 vocabulary and adds one of its own
 // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-constexpr std::array<std::string_view, 6> LADDER_DIALECTS{
+constexpr std::array<std::string_view, 7> LADDER_DIALECTS{
     {"http://json-schema.org/draft-03/schema#",
      "http://json-schema.org/draft-04/schema#",
      "http://json-schema.org/draft-06/schema#",
      "http://json-schema.org/draft-07/schema#",
      "https://json-schema.org/draft/2019-09/schema",
-     "https://json-schema.org/draft/2020-12/schema"}};
+     "https://json-schema.org/draft/2020-12/schema", OPENAPI_3_1_DIALECT}};
 
 // The spellings the normalising rules settle on all name the same dialect, so
 // whether the ladder names one has to be asked of the spelling those rules
@@ -165,6 +174,13 @@ inline auto normalized_official_dialect(const std::string_view dialect)
     result.erase(4, 1);
   } else if (result.starts_with("http://json-schema.org/draft/")) {
     result.insert(4, "s");
+  } else if (result == "https://spec.openapis.org/oas/3.1/dialect/2024-10-25" ||
+             result == "https://spec.openapis.org/oas/3.1/dialect/2024-11-10") {
+    // A spelling rule rewrites the document, but it cannot be the only place
+    // this lives. The dialect asserts run in the first pass of the spellings
+    // phase, before any rule is planned, so a dated URI would be refused
+    // before that rule could reach it
+    result = OPENAPI_3_1_DIALECT;
   }
 
   return result;
@@ -173,7 +189,13 @@ inline auto normalized_official_dialect(const std::string_view dialect)
 // Where a base dialect sits on the ladder, so that a dialect the ladder does
 // not name can still be placed by the official one it derives from. Hyper
 // variants sit alongside their plain counterparts, and the drafts below the
-// ladder answer zero just as an unrecognised dialect does
+// ladder answer zero just as an unrecognised dialect does.
+//
+// This stops at 2020-12 where `dialect_position` goes one rung further. The
+// OpenAPI 3.1 dialect declares 2020-12 as its own `$schema`, so core frames a
+// document on it with a 2020-12 base dialect and there is no base dialect that
+// names the last rung. Anything needing that rung has to ask about the
+// declared dialect instead
 inline auto
 base_dialect_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
     -> std::size_t {
@@ -222,9 +244,13 @@ inline auto dialect_position(const std::string_view dialect) -> std::size_t {
 // The official meta-schema documents, by the URI a schema references them at.
 // Each recurses with the keyword of the dialect it was written for, so a
 // meta-schema that extends one cannot be carried to another dialect by renaming
-// anything in the extending document alone
+// anything in the extending document alone. The OpenAPI documents are here for
+// that same reason, as they recurse through `$dynamicAnchor`. All three
+// spellings are listed, because `normalized_metaschema_uri` folds only
+// `json-schema.org` prefixes and a `$ref` is not something a spelling rule
+// rewrites
 // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-constexpr std::array<std::string_view, 22> OFFICIAL_METASCHEMAS{
+constexpr std::array<std::string_view, 28> OFFICIAL_METASCHEMAS{
     {"http://json-schema.org/draft-03/schema",
      "http://json-schema.org/draft-04/schema",
      "http://json-schema.org/draft-06/schema",
@@ -246,7 +272,13 @@ constexpr std::array<std::string_view, 22> OFFICIAL_METASCHEMAS{
      "https://json-schema.org/draft/2020-12/meta/format-annotation",
      "https://json-schema.org/draft/2020-12/meta/format-assertion",
      "https://json-schema.org/draft/2020-12/meta/content",
-     "https://json-schema.org/draft/2020-12/meta/hyper-schema"}};
+     "https://json-schema.org/draft/2020-12/meta/hyper-schema",
+     "https://spec.openapis.org/oas/3.1/dialect/base",
+     "https://spec.openapis.org/oas/3.1/dialect/2024-10-25",
+     "https://spec.openapis.org/oas/3.1/dialect/2024-11-10",
+     "https://spec.openapis.org/oas/3.1/meta/base",
+     "https://spec.openapis.org/oas/3.1/meta/2024-10-25",
+     "https://spec.openapis.org/oas/3.1/meta/2024-11-10"}};
 
 // The two families settled on opposite schemes, `http` for the numbered drafts
 // and `https` for the dated ones, and both spellings are seen in the wild.

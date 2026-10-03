@@ -41,6 +41,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "dependentSchemas": { "schemaForm": { "properties": { "other": { "type": "string" } } } },
       "dependentRequired": { "foo": [ "bar" ], "qux": [ "a", "b" ] }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "dependentSchemas": { "schemaForm": { "properties": { "other": { "type": "string" } } } },
+      "dependentRequired": { "foo": [ "bar" ], "qux": [ "a", "b" ] }
     }
   },
   "examples": [ {}, { "foo": 1, "bar": 2 }, { "schemaForm": 1, "other": "s" } ],

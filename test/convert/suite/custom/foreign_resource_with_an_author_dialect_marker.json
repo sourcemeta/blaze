@@ -40,6 +40,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
       "location": ""
+    },
+    "openapi3.1": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": ""
     }
   }
 }

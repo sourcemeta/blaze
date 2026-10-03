@@ -95,3 +95,27 @@ TEST(false_to_2020_12_with_default_dialect_2019_09) {
   UPGRADE_BOOLEAN_WITH_DIALECT("false", Draft202012,
                                "https://json-schema.org/draft/2019-09/schema");
 }
+
+TEST(true_to_openapi_3_1) { UPGRADE_BOOLEAN("true", OpenAPI31); }
+
+TEST(false_to_openapi_3_1) { UPGRADE_BOOLEAN("false", OpenAPI31); }
+
+TEST(true_to_openapi_3_1_with_default_dialect_2020_12) {
+  UPGRADE_BOOLEAN_WITH_DIALECT("true", OpenAPI31,
+                               "https://json-schema.org/draft/2020-12/schema");
+}
+
+TEST(false_to_openapi_3_1_with_default_dialect_2020_12) {
+  UPGRADE_BOOLEAN_WITH_DIALECT("false", OpenAPI31,
+                               "https://json-schema.org/draft/2020-12/schema");
+}
+
+TEST(true_to_openapi_3_1_with_default_dialect_draft4) {
+  UPGRADE_BOOLEAN_WITH_DIALECT("true", OpenAPI31,
+                               "http://json-schema.org/draft-04/schema#");
+}
+
+TEST(false_to_openapi_3_1_with_default_dialect_draft4) {
+  UPGRADE_BOOLEAN_WITH_DIALECT("false", OpenAPI31,
+                               "http://json-schema.org/draft-04/schema#");
+}

@@ -15,6 +15,12 @@
       "x-x-$dynamicRef": "original",
       "x-$dynamicRef": "already-prefixed",
       "type": "object"
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "x-x-$dynamicRef": "original",
+      "x-$dynamicRef": "already-prefixed",
+      "type": "object"
     }
   },
   "examples": [ {} ],

@@ -500,14 +500,17 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/enum_to_const.h"
 #include "rules/modern_official_dialect_with_empty_fragment.h"
 #include "rules/modern_official_dialect_with_http.h"
+#include "rules/openapi_official_dialect_with_date.h"
 #include "rules/prefix_promoted_2020_12_keywords.h"
 #include "rules/prefix_promoted_draft_2019_09_keywords.h"
 #include "rules/prefix_promoted_draft_4_keywords.h"
 #include "rules/prefix_promoted_draft_6_keywords.h"
 #include "rules/prefix_promoted_draft_7_keywords.h"
+#include "rules/prefix_promoted_openapi_3_1_keywords.h"
 #include "rules/sanitize_draft_4_anchors.h"
 #include "rules/shadow_stray_dialect_declaration.h"
 #include "rules/upgrade_2019_09_to_2020_12.h"
+#include "rules/upgrade_2020_12_to_openapi_3_1.h"
 #include "rules/upgrade_draft_3_to_draft_4.h"
 #include "rules/upgrade_draft_4_to_draft_6.h"
 #include "rules/upgrade_draft_6_to_draft_7.h"
@@ -527,22 +530,24 @@ auto convert(sourcemeta::core::JSON &schema,
   // spelling the ladder does not name is one it cannot answer for, so these
   // run to completion first rather than alongside
   std::vector<Rule> spellings;
-  spellings.reserve(6);
+  spellings.reserve(7);
   spellings.push_back(make_rule<DialectOverrideBecomesDollarSchema>());
   spellings.push_back(make_rule<ShadowStrayDialectDeclaration>());
   spellings.push_back(make_rule<DraftOfficialDialectWithHttps>());
   spellings.push_back(make_rule<DraftOfficialDialectWithoutEmptyFragment>());
   spellings.push_back(make_rule<ModernOfficialDialectWithEmptyFragment>());
   spellings.push_back(make_rule<ModernOfficialDialectWithHttp>());
+  spellings.push_back(make_rule<OpenAPIOfficialDialectWithDate>());
 
   std::vector<Rule> rules;
-  rules.reserve(16);
+  rules.reserve(18);
   rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
   rules.push_back(make_rule<UpgradeDraft3ToDraft4>());
 
   if (target == ConvertTarget::Draft6 || target == ConvertTarget::Draft7 ||
       target == ConvertTarget::Draft201909 ||
-      target == ConvertTarget::Draft202012) {
+      target == ConvertTarget::Draft202012 ||
+      target == ConvertTarget::OpenAPI31) {
     rules.push_back(make_rule<PrefixPromotedDraft6Keywords>());
     rules.push_back(make_rule<SanitizeDraft4Anchors>());
     rules.push_back(make_rule<UpgradeDraft4ToDraft6>());
@@ -551,22 +556,30 @@ auto convert(sourcemeta::core::JSON &schema,
   }
 
   if (target == ConvertTarget::Draft7 || target == ConvertTarget::Draft201909 ||
-      target == ConvertTarget::Draft202012) {
+      target == ConvertTarget::Draft202012 ||
+      target == ConvertTarget::OpenAPI31) {
     rules.push_back(make_rule<PrefixPromotedDraft7Keywords>());
     rules.push_back(make_rule<UpgradeDraft6ToDraft7>());
   }
 
   if (target == ConvertTarget::Draft201909 ||
-      target == ConvertTarget::Draft202012) {
+      target == ConvertTarget::Draft202012 ||
+      target == ConvertTarget::OpenAPI31) {
     rules.push_back(make_rule<PrefixPromoted201909Keywords>());
     rules.push_back(make_rule<UpgradeDraft7To201909>());
     rules.push_back(make_rule<DefinitionsToDefs>());
     rules.push_back(make_rule<DependenciesToDependent>());
   }
 
-  if (target == ConvertTarget::Draft202012) {
+  if (target == ConvertTarget::Draft202012 ||
+      target == ConvertTarget::OpenAPI31) {
     rules.push_back(make_rule<PrefixPromoted202012Keywords>());
     rules.push_back(make_rule<Upgrade201909To202012>());
+  }
+
+  if (target == ConvertTarget::OpenAPI31) {
+    rules.push_back(make_rule<PrefixPromotedOpenAPI31Keywords>());
+    rules.push_back(make_rule<Upgrade202012ToOpenAPI31>());
   }
 
   apply(spellings, schema, walker, resolver, default_dialect, default_id, true);

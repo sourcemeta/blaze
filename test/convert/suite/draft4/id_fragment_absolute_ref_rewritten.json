@@ -35,6 +35,13 @@
       "type": "object",
       "$defs": { "foo": { "$anchor": "x-1foo", "type": "string" } },
       "properties": { "p": { "$ref": "https://example.com/schema#x-1foo" } }
+    },
+    "openapi3.1": {
+      "$id": "https://example.com/schema",
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "type": "object",
+      "$defs": { "foo": { "$anchor": "x-1foo", "type": "string" } },
+      "properties": { "p": { "$ref": "https://example.com/schema#x-1foo" } }
     }
   },
   "examples": [ {}, { "p": "s" } ],

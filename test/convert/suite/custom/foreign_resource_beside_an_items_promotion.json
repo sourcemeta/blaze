@@ -43,6 +43,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
       "location": "/items/0"
+    },
+    "openapi3.1": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/items/0"
     }
   }
 }

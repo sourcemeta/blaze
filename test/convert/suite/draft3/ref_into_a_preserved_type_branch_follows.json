@@ -29,6 +29,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "properties": { "foo": { "$ref": "#/anyOf/1" } },
       "anyOf": [ true, { "type": "object" } ]
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "properties": { "foo": { "$ref": "#/anyOf/1" } },
+      "anyOf": [ true, { "type": "object" } ]
     }
   },
   "examples": [ { "foo": {} }, {} ],

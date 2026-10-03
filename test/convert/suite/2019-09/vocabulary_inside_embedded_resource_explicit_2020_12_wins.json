@@ -32,6 +32,20 @@
         }
       },
       "type": "object"
+    },
+    "openapi3.1": {
+      "$id": "https://example.com/outer",
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$defs": {
+        "inner": {
+          "$id": "https://example.com/inner-meta",
+          "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+          "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": true
+          }
+        }
+      },
+      "type": "object"
     }
   },
   "examples": [ {} ],

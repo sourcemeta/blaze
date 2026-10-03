@@ -72,6 +72,18 @@
           "e"
         ]
       }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "dependentRequired": {
+        "a": [
+          "b",
+          "c"
+        ],
+        "d": [
+          "e"
+        ]
+      }
     }
   },
   "examples": [

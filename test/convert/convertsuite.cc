@@ -49,6 +49,16 @@ const std::vector<std::string> KNOWN_ERROR_TYPES{
 // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
 const sourcemeta::core::JSON NO_RESULTS{sourcemeta::core::JSON::make_object()};
 
+// Spelled out here, as `ladder_position` below spells out the ladder, so that
+// the suite says independently what it expects. OpenAPI 3.1 publishes its
+// dialect at three URIs naming documents that differ only in formatting, and a
+// document on any of them sits on the last rung
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+constexpr std::array<std::string_view, 3> OPENAPI_3_1_DIALECTS{
+    {"https://spec.openapis.org/oas/3.1/dialect/base",
+     "https://spec.openapis.org/oas/3.1/dialect/2024-10-25",
+     "https://spec.openapis.org/oas/3.1/dialect/2024-11-10"}};
+
 auto expect_known(const std::string_view kind, const std::string_view name,
                   const std::vector<std::string> &known) -> void {
   auto actual{sourcemeta::core::JSON::make_object()};
@@ -101,7 +111,7 @@ auto ladder_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
 
 // Every target that conversion takes, as a fixture has to account for all of
 // them rather than for the ones whoever wrote it happened to think of
-constexpr std::array<Target, 5> TARGETS{
+constexpr std::array<Target, 6> TARGETS{
     {{.name = "draft4",
       .value = sourcemeta::blaze::ConvertTarget::Draft4,
       .position = 2},
@@ -116,12 +126,15 @@ constexpr std::array<Target, 5> TARGETS{
       .position = 5},
      {.name = "2020-12",
       .value = sourcemeta::blaze::ConvertTarget::Draft202012,
-      .position = 6}}};
+      .position = 6},
+     {.name = "openapi3.1",
+      .value = sourcemeta::blaze::ConvertTarget::OpenAPI31,
+      .position = 7}}};
 
 // The same names again, as a fixture names its targets in text
 // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-const std::vector<std::string> TARGET_NAMES{"draft4", "draft6", "draft7",
-                                            "2019-09", "2020-12"};
+const std::vector<std::string> TARGET_NAMES{"draft4",  "draft6",  "draft7",
+                                            "2019-09", "2020-12", "openapi3.1"};
 
 // Conversion decides where a keyword goes as much as whether it is there at
 // all, so the order of the result is part of what a fixture blesses. Both
@@ -582,6 +595,16 @@ auto dialect_rung(const sourcemeta::core::JSON &document,
   const auto location{frame.traverse(sourcemeta::core::EMPTY_WEAK_POINTER)};
   if (!location.has_value()) {
     return 0;
+  }
+
+  // The OpenAPI dialect declares 2020-12 as its own `$schema`, so core frames a
+  // document on it with a 2020-12 base dialect and the base dialect cannot say
+  // which of the two rungs the document sits on. A dated spelling answers the
+  // same rung, as the conversion settles one onto the undated spelling rather
+  // than treating it as a dialect of its own
+  if (std::ranges::find(OPENAPI_3_1_DIALECTS, location.value().get().dialect) !=
+      OPENAPI_3_1_DIALECTS.cend()) {
+    return 7;
   }
 
   return ladder_position(location.value().get().base_dialect);

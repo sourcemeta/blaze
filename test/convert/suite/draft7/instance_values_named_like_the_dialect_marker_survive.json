@@ -36,6 +36,18 @@
           "enum": [ { "x-sourcemeta-dialect-override-subschema": "data" }, 1 ]
         }
       }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$id": "https://example.com/x",
+      "properties": {
+        "a": {
+          "const": { "x-sourcemeta-dialect-override-subschema": "data" }
+        },
+        "b": {
+          "enum": [ { "x-sourcemeta-dialect-override-subschema": "data" }, 1 ]
+        }
+      }
     }
   },
   "examples": [

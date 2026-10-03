@@ -49,6 +49,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
       "location": "/$defs/f"
+    },
+    "openapi3.1": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/$defs/f"
     }
   }
 }

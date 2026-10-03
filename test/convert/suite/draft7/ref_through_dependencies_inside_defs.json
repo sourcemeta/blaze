@@ -26,6 +26,14 @@
       },
       "properties": { "x": { "$ref": "#/$defs/Outer/dependentSchemas/foo" } },
       "allOf": [ { "$ref": "#/$defs/Outer" } ]
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "$defs": {
+        "Outer": { "dependentSchemas": { "foo": { "type": "string" } } }
+      },
+      "properties": { "x": { "$ref": "#/$defs/Outer/dependentSchemas/foo" } },
+      "allOf": [ { "$ref": "#/$defs/Outer" } ]
     }
   },
   "examples": [ {}, { "x": "s" } ],
