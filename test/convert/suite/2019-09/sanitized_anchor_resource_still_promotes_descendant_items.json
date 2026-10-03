@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/root",
+    "unevaluatedItems": false,
+    "$defs": {
+      "r": {
+        "$id": "https://example.com/r",
+        "$anchor": "ns:x",
+        "properties": { "deep": { "items": [ { "type": "string" } ] } }
+      }
+    },
+    "properties": { "a": { "$ref": "https://example.com/r#ns:x" } }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": null,
+    "draft7": null,
+    "2019-09": null,
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "unevaluatedItems": false,
+      "$defs": {
+        "r": {
+          "$id": "https://example.com/r",
+          "$anchor": "ns-x",
+          "properties": { "deep": { "prefixItems": [ { "type": "string" } ] } }
+        }
+      },
+      "properties": { "a": { "$ref": "https://example.com/r#ns-x" } }
+    }
+  },
+  "examples": [ { "a": { "deep": [ "x" ] } }, {} ],
+  "counterExamples": [ { "a": { "deep": [ 1 ] } } ]
+}

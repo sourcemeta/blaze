@@ -8,6 +8,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME convert
     # Rules
     rules/definitions_to_defs.h
     rules/dependencies_to_dependent.h
+    rules/dialect_override_becomes_dollar_schema.h
     rules/draft_official_dialect_with_https.h
     rules/draft_official_dialect_without_empty_fragment.h
     rules/empty_object_as_true.h
@@ -21,7 +22,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME convert
     rules/prefix_promoted_draft_7_keywords.h
     rules/shadow_stray_dialect_declaration.h
     rules/upgrade_2019_09_to_2020_12.h
-    rules/upgrade_dialect_override_cleanup.h
     rules/upgrade_draft_3_to_draft_4.h
     rules/upgrade_draft_4_to_draft_6.h
     rules/upgrade_draft_6_to_draft_7.h

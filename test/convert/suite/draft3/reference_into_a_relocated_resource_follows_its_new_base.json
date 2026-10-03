@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "extends": {
+      "id": "https://example.com/inner",
+      "extends": { "minLength": 2 }
+    },
+    "properties": { "a": { "$ref": "https://example.com/inner#/extends" } }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner#/allOf/0" } },
+      "allOf": [
+        { "id": "https://example.com/inner", "allOf": [ { "minLength": 2 } ] }
+      ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner#/allOf/0" } },
+      "allOf": [
+        { "$id": "https://example.com/inner", "allOf": [ { "minLength": 2 } ] }
+      ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner#/allOf/0" } },
+      "allOf": [
+        { "$id": "https://example.com/inner", "allOf": [ { "minLength": 2 } ] }
+      ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner#/allOf/0" } },
+      "allOf": [
+        { "$id": "https://example.com/inner", "allOf": [ { "minLength": 2 } ] }
+      ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner#/allOf/0" } },
+      "allOf": [
+        { "$id": "https://example.com/inner", "allOf": [ { "minLength": 2 } ] }
+      ]
+    }
+  },
+  "examples": [ { "a": "ab" }, {} ],
+  "counterExamples": [ { "a": "x" } ]
+}
