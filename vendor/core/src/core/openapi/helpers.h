@@ -18,7 +18,7 @@
 #include <set>              // std::set
 #include <span>             // std::span
 #include <string_view>      // std::string_view
-#include <utility>          // std::pair, std::unreachable
+#include <utility>          // std::pair, std::move
 #include <vector>           // std::vector
 
 namespace sourcemeta::core {
@@ -34,86 +34,6 @@ using OpenAPIOperationKind = OpenAPIFrame::OperationKind;
 using OpenAPIReference = OpenAPIFrame::Reference;
 using OpenAPIOperation = OpenAPIFrame::Operation;
 using OpenAPIDiscriminator = OpenAPIFrame::Discriminator;
-
-// What a frame exports each of these as, which is the name a fixture
-// records rather than the enumerator behind it
-inline auto openapi_kind_name(const OpenAPIObjectKind kind) noexcept
-    -> JSON::StringView {
-  switch (kind) {
-    case OpenAPIObjectKind::Document:
-      return "openapi"sv;
-    case OpenAPIObjectKind::PathItem:
-      return "path-item"sv;
-    case OpenAPIObjectKind::Parameter:
-      return "parameter"sv;
-    case OpenAPIObjectKind::RequestBody:
-      return "request-body"sv;
-    case OpenAPIObjectKind::Response:
-      return "response"sv;
-    case OpenAPIObjectKind::Example:
-      return "example"sv;
-    case OpenAPIObjectKind::Header:
-      return "header"sv;
-    case OpenAPIObjectKind::Link:
-      return "link"sv;
-    case OpenAPIObjectKind::Callbacks:
-      return "callback"sv;
-    case OpenAPIObjectKind::SecurityScheme:
-      return "security-scheme"sv;
-    case OpenAPIObjectKind::Info:
-      return "info"sv;
-    case OpenAPIObjectKind::Contact:
-      return "contact"sv;
-    case OpenAPIObjectKind::License:
-      return "license"sv;
-    case OpenAPIObjectKind::Server:
-      return "server"sv;
-    case OpenAPIObjectKind::ServerVariable:
-      return "server-variable"sv;
-    case OpenAPIObjectKind::Components:
-      return "components"sv;
-    case OpenAPIObjectKind::Paths:
-      return "paths"sv;
-    case OpenAPIObjectKind::Operation:
-      return "operation"sv;
-    case OpenAPIObjectKind::ExternalDocumentation:
-      return "external-documentation"sv;
-    case OpenAPIObjectKind::MediaType:
-      return "media-type"sv;
-    case OpenAPIObjectKind::Encoding:
-      return "encoding"sv;
-    case OpenAPIObjectKind::Responses:
-      return "responses"sv;
-    case OpenAPIObjectKind::Tag:
-      return "tag"sv;
-    case OpenAPIObjectKind::Reference:
-      return "reference"sv;
-    case OpenAPIObjectKind::Schema:
-      return "schema"sv;
-    case OpenAPIObjectKind::OAuthFlows:
-      return "oauth-flows"sv;
-    case OpenAPIObjectKind::OAuthFlow:
-      return "oauth-flow"sv;
-    case OpenAPIObjectKind::SecurityRequirement:
-      return "security-requirement"sv;
-  }
-
-  std::unreachable();
-}
-inline auto
-openapi_operation_kind_name(const OpenAPIOperationKind kind) noexcept
-    -> JSON::StringView {
-  switch (kind) {
-    case OpenAPIOperationKind::Path:
-      return "path"sv;
-    case OpenAPIOperationKind::Webhook:
-      return "webhook"sv;
-    case OpenAPIOperationKind::Callback:
-      return "callback"sv;
-  }
-
-  std::unreachable();
-}
 
 // OpenAPI Specification 3.1.1, Section 4.9: "The field name MUST begin with
 // `x-`, for example, `x-internal-id`"
@@ -620,8 +540,8 @@ inline auto openapi_canonical_base(const std::string_view input)
 // so. What a reference reaches twice as the same kind is no conflict
 inline auto openapi_record(OpenAPIWalk &walk, const Pointer &pointer,
                            const OpenAPIObjectKind kind,
-                           JSON::String dialect = {}, JSON::String base = {})
-    -> void {
+                           JSON::String default_dialect = {},
+                           JSON::String base = {}) -> void {
   auto uri{openapi_location_uri(walk.base, pointer)};
   const auto known{walk.locations.find(uri)};
   // Reading one place twice records it once, so what an allowance is spent on
@@ -639,11 +559,12 @@ inline auto openapi_record(OpenAPIWalk &walk, const Pointer &pointer,
                        "This place is read as more than one kind of Object"};
   }
 
-  walk.locations.insert_or_assign(std::move(uri),
-                                  OpenAPILocation{.type = kind,
-                                                  .pointer = pointer,
-                                                  .dialect = std::move(dialect),
-                                                  .base = std::move(base)});
+  walk.locations.insert_or_assign(
+      std::move(uri),
+      OpenAPILocation{.type = kind,
+                      .pointer = pointer,
+                      .default_dialect = std::move(default_dialect),
+                      .base = std::move(base)});
 }
 
 inline auto openapi_expect_object(const JSON &value, const Pointer &location,
