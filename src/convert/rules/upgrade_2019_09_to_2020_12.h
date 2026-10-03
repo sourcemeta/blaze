@@ -67,7 +67,7 @@ public:
         location_inside_contains_wrapper(schema, location);
 
     this->resource_has_recursive_anchor_ =
-        compute_resource_has_recursive_anchor(root, frame, location);
+        this->resource_has_recursive_anchor(root, frame, location, site);
     this->anchor_at_resource_root_ = is_resource_root(frame, location);
     if (needs_dynamic_anchor_name(schema)) {
       this->dynamic_anchor_name_ = compute_dynamic_anchor_name(root);
@@ -127,6 +127,12 @@ public:
       -> void override {
     [[maybe_unused]] const auto planned{this->load(site)};
     assert(planned);
+
+    // Cleared before anything may return, because the driver reads what this
+    // records straight after and would otherwise journal the moves of whatever
+    // position was rewritten before this one, as moves of this one
+    this->renames_.clear();
+
     // Renaming this resource's anchors is what the pass does here, and it
     // held the subschemas under it back while doing so. Moving the dialect as
     // well would leave them reading as the target while their own rung work is
@@ -135,8 +141,6 @@ public:
       apply_anchor_sanitization(schema);
       return;
     }
-
-    this->renames_.clear();
 
     if (schema.defines("$recursiveAnchor") &&
         schema.at("$recursiveAnchor").is_boolean()) {
