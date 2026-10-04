@@ -15,10 +15,14 @@ public:
     const auto *schema_keyword{schema.try_at("$schema")};
     ONLY_CONTINUE_IF(schema_keyword && schema_keyword->is_string());
     const auto &dialect{schema_keyword->to_string()};
+    // Only the spellings this rule owns. The dated 3.1 URIs are absent on
+    // purpose: `OpenAPIOfficialDialectWithDate` is registered ahead of this
+    // rule and strips the empty fragment before comparing, so it settles one
+    // of those onto the undated URI whether or not a fragment was written,
+    // and this rule's condition is asked again right before its transform.
+    // Listing them here would be a branch nothing can reach
     ONLY_CONTINUE_IF(
         dialect == "https://spec.openapis.org/oas/3.1/dialect/base#" ||
-        dialect == "https://spec.openapis.org/oas/3.1/dialect/2024-10-25#" ||
-        dialect == "https://spec.openapis.org/oas/3.1/dialect/2024-11-10#" ||
         dialect == "https://spec.openapis.org/oas/3.2/dialect/2025-09-17#");
     return true;
   }
