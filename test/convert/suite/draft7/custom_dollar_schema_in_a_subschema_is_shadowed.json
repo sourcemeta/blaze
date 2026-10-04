@@ -76,6 +76,16 @@
           "prefixItems": [ { "type": "integer" } ]
         }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": {
+          "x-$schema": "https://example.com/meta",
+          "prefixItems": [ { "type": "integer" } ]
+        }
+      }
     }
   },
   "examples": [ {}, { "a": [ 1 ] } ],

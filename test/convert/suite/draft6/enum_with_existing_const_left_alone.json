@@ -26,6 +26,11 @@
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
       "const": "only",
       "enum": [ "other" ]
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "const": "only",
+      "enum": [ "other" ]
     }
   },
   "examples": [],

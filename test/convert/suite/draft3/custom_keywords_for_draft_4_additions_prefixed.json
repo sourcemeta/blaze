@@ -76,6 +76,17 @@
       "x-anyOf": "x",
       "x-oneOf": "x",
       "x-not": "x"
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "x-multipleOf": 1,
+      "x-maxProperties": 1,
+      "x-minProperties": 1,
+      "x-allOf": "x",
+      "x-anyOf": "x",
+      "x-oneOf": "x",
+      "x-not": "x"
     }
   },
   "examples": [ {}, { "foo": 1 }, { "foo": 1, "bar": 2 } ],

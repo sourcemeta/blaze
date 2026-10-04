@@ -98,6 +98,30 @@
         "q": { "type": "string", "format": "relative-json-pointer" },
         "z": { "type": "string", "format": "my-acme-format" }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "properties": {
+        "a": { "type": "string", "format": "hostname" },
+        "b": { "type": "string", "format": "ipv4" },
+        "c": { "type": "string", "format": "ipv6" },
+        "d": { "type": "string", "format": "email" },
+        "e": { "type": "string", "format": "uri" },
+        "f": { "type": "string", "format": "date-time" },
+        "g": { "type": "string", "format": "uri-reference" },
+        "h": { "type": "string", "format": "uri-template" },
+        "i": { "type": "string", "format": "json-pointer" },
+        "j": { "type": "string", "format": "date" },
+        "k": { "type": "string", "format": "time" },
+        "l": { "type": "string", "format": "regex" },
+        "m": { "type": "string", "format": "idn-email" },
+        "n": { "type": "string", "format": "idn-hostname" },
+        "o": { "type": "string", "format": "iri" },
+        "p": { "type": "string", "format": "iri-reference" },
+        "q": { "type": "string", "format": "relative-json-pointer" },
+        "z": { "type": "string", "format": "my-acme-format" }
+      }
     }
   },
   "examples": [ {}, { "a": "example.com", "d": "x@example.com" } ],

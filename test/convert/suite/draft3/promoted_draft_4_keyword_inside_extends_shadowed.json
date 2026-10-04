@@ -27,6 +27,10 @@
     "openapi3.1": {
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
       "allOf": [ { "x-minProperties": 1 } ]
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "allOf": [ { "x-minProperties": 1 } ]
     }
   },
   "examples": [ {}, { "a": 1 } ],

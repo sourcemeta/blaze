@@ -66,6 +66,27 @@
           }
         }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "$id": "https://example.com/root",
+      "$dynamicAnchor": "x-meta",
+      "properties": {
+        "a": { "$dynamicRef": "#x-meta" },
+        "t": { "$anchor": "meta", "type": "string" },
+        "c": { "$ref": "https://example.com/inner" }
+      },
+      "$defs": {
+        "inner": {
+          "$id": "https://example.com/inner",
+          "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+          "$dynamicAnchor": "x-meta",
+          "properties": {
+            "b": { "$dynamicRef": "#x-meta" },
+            "u": { "type": "integer" }
+          }
+        }
+      }
     }
   },
   "examples": [ {}, { "t": "x" }, { "a": { "t": "x" } }, { "c": { "u": 1 } } ],

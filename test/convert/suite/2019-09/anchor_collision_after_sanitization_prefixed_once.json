@@ -39,6 +39,18 @@
         "a": { "$anchor": "x-ns-foo", "type": "string" },
         "b": { "$anchor": "ns-foo", "type": "number" }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "properties": {
+        "viaColon": { "$ref": "#x-ns-foo" },
+        "viaDash": { "$ref": "#ns-foo" }
+      },
+      "$defs": {
+        "a": { "$anchor": "x-ns-foo", "type": "string" },
+        "b": { "$anchor": "ns-foo", "type": "number" }
+      }
     }
   },
   "examples": [ {}, { "viaColon": "s", "viaDash": 1 } ],

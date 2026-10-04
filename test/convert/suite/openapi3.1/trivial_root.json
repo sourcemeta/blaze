@@ -9,7 +9,11 @@
     "draft7": null,
     "2019-09": null,
     "2020-12": null,
-    "openapi3.1": null
+    "openapi3.1": null,
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "string"
+    }
   },
   "examples": [ "foo", "" ],
   "counterExamples": [ 1, null ]

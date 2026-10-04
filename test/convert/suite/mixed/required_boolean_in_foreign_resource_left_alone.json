@@ -56,6 +56,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/bare",
       "location": "/$defs/three/properties/p"
+    },
+    "openapi3.2": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/bare",
+      "location": "/$defs/three/properties/p"
     }
   }
 }

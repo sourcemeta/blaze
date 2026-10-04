@@ -46,6 +46,11 @@
       "type": "unsupported-metaschema",
       "identifier": "https://example.com/dialect-inner",
       "location": "/definitions/inner"
+    },
+    "openapi3.2": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://example.com/dialect-inner",
+      "location": "/definitions/inner"
     }
   }
 }

@@ -50,6 +50,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
       "location": "/definitions/contact"
+    },
+    "openapi3.2": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/contact"
     }
   }
 }

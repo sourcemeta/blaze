@@ -18,6 +18,11 @@
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
       "properties": { "x": { "$ref": "#/$defs/additionalItems" } },
       "$defs": { "additionalItems": { "type": "string" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "properties": { "x": { "$ref": "#/$defs/additionalItems" } },
+      "$defs": { "additionalItems": { "type": "string" } }
     }
   },
   "examples": [ { "x": "a" }, {} ],

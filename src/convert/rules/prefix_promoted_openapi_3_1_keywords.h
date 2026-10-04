@@ -14,11 +14,12 @@ public:
     // half, a subschema of a document already on the OpenAPI dialect declares
     // no dialect of its own, reads as sitting below the rung, and has the
     // keyword that is doing its job renamed out from under it
-    ONLY_CONTINUE_IF(
-        vocabularies.contains(
-            SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE) &&
-        !vocabularies.contains(SchemaVocabularies::Known::OPENAPI_3_1_BASE) &&
-        schema.is_object());
+    ONLY_CONTINUE_IF(vocabularies.contains(
+                         SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE) &&
+                     !vocabularies.contains_any(
+                         {SchemaVocabularies::Known::OPENAPI_3_1_BASE,
+                          SchemaVocabularies::Known::OPENAPI_3_2_BASE}) &&
+                     schema.is_object());
 
     ONLY_CONTINUE_IF(
         promoted_keyword_is_author_data(schema, OPENAPI_3_1_DIALECT));

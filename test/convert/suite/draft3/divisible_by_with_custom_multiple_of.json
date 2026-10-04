@@ -41,6 +41,12 @@
       "type": "number",
       "multipleOf": 2,
       "x-multipleOf": "i-was-custom-in-draft-3"
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "number",
+      "multipleOf": 2,
+      "x-multipleOf": "i-was-custom-in-draft-3"
     }
   },
   "examples": [ 4 ],

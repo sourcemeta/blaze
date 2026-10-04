@@ -51,6 +51,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/foreign",
       "location": ""
+    },
+    "openapi3.2": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/foreign",
+      "location": ""
     }
   }
 }

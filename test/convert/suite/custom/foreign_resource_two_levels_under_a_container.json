@@ -53,6 +53,11 @@
       "type": "unsupported-dialect",
       "identifier": "https://example.com/meta",
       "location": "/definitions/wrapper/properties/deep"
+    },
+    "openapi3.2": {
+      "type": "unsupported-dialect",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/wrapper/properties/deep"
     }
   }
 }

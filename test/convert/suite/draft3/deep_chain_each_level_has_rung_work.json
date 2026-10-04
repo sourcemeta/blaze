@@ -112,6 +112,22 @@
           }
         }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "multipleOf": 1,
+      "properties": {
+        "a": {
+          "multipleOf": 2,
+          "properties": {
+            "b": {
+              "required": [ "c" ],
+              "properties": { "c": { "allOf": [ { "minimum": 1 } ] } },
+              "not": { "type": "string" }
+            }
+          }
+        }
+      }
     }
   },
   "examples": [ { "a": { "b": { "c": 5 } } } ],

@@ -39,6 +39,20 @@
           "not": { "not": { "contains": { "type": "integer" } } }
         }
       ]
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "unevaluatedItems": false,
+      "anyOf": [
+        {
+          "type": "array",
+          "not": { "not": { "contains": { "type": "string" } } }
+        },
+        {
+          "type": "array",
+          "not": { "not": { "contains": { "type": "integer" } } }
+        }
+      ]
     }
   },
   "examples": [],

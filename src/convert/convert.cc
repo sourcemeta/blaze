@@ -515,6 +515,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/upgrade_draft_4_to_draft_6.h"
 #include "rules/upgrade_draft_6_to_draft_7.h"
 #include "rules/upgrade_draft_7_to_draft_2019_09.h"
+#include "rules/upgrade_openapi_3_1_to_openapi_3_2.h"
 
 #undef ONLY_CONTINUE_IF
 
@@ -540,14 +541,15 @@ auto convert(sourcemeta::core::JSON &schema,
   spellings.push_back(make_rule<OpenAPIOfficialDialectWithDate>());
 
   std::vector<Rule> rules;
-  rules.reserve(18);
+  rules.reserve(20);
   rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
   rules.push_back(make_rule<UpgradeDraft3ToDraft4>());
 
   if (target == ConvertTarget::Draft6 || target == ConvertTarget::Draft7 ||
       target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
-      target == ConvertTarget::OpenAPI31) {
+      target == ConvertTarget::OpenAPI31 ||
+      target == ConvertTarget::OpenAPI32) {
     rules.push_back(make_rule<PrefixPromotedDraft6Keywords>());
     rules.push_back(make_rule<SanitizeDraft4Anchors>());
     rules.push_back(make_rule<UpgradeDraft4ToDraft6>());
@@ -557,14 +559,16 @@ auto convert(sourcemeta::core::JSON &schema,
 
   if (target == ConvertTarget::Draft7 || target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
-      target == ConvertTarget::OpenAPI31) {
+      target == ConvertTarget::OpenAPI31 ||
+      target == ConvertTarget::OpenAPI32) {
     rules.push_back(make_rule<PrefixPromotedDraft7Keywords>());
     rules.push_back(make_rule<UpgradeDraft6ToDraft7>());
   }
 
   if (target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
-      target == ConvertTarget::OpenAPI31) {
+      target == ConvertTarget::OpenAPI31 ||
+      target == ConvertTarget::OpenAPI32) {
     rules.push_back(make_rule<PrefixPromoted201909Keywords>());
     rules.push_back(make_rule<UpgradeDraft7To201909>());
     rules.push_back(make_rule<DefinitionsToDefs>());
@@ -572,14 +576,20 @@ auto convert(sourcemeta::core::JSON &schema,
   }
 
   if (target == ConvertTarget::Draft202012 ||
-      target == ConvertTarget::OpenAPI31) {
+      target == ConvertTarget::OpenAPI31 ||
+      target == ConvertTarget::OpenAPI32) {
     rules.push_back(make_rule<PrefixPromoted202012Keywords>());
     rules.push_back(make_rule<Upgrade201909To202012>());
   }
 
-  if (target == ConvertTarget::OpenAPI31) {
+  if (target == ConvertTarget::OpenAPI31 ||
+      target == ConvertTarget::OpenAPI32) {
     rules.push_back(make_rule<PrefixPromotedOpenAPI31Keywords>());
     rules.push_back(make_rule<Upgrade202012ToOpenAPI31>());
+  }
+
+  if (target == ConvertTarget::OpenAPI32) {
+    rules.push_back(make_rule<UpgradeOpenAPI31ToOpenAPI32>());
   }
 
   apply(spellings, schema, walker, resolver, default_dialect, default_id, true);

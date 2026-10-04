@@ -30,6 +30,15 @@
         "https://example.com/vocab/custom-optional": false
       },
       "type": "object"
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://example.com/vocab/custom-required": true,
+        "https://example.com/vocab/custom-optional": false
+      },
+      "type": "object"
     }
   },
   "examples": [ {} ],

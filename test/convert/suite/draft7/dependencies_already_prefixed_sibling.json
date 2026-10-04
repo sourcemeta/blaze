@@ -22,6 +22,11 @@
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
       "dependentRequired": { "foo": [ "bar" ] },
       "x-dependentSchemas": { "qux": { "type": "string" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "dependentRequired": { "foo": [ "bar" ] },
+      "x-dependentSchemas": { "qux": { "type": "string" } }
     }
   },
   "examples": [ {}, { "foo": 1, "bar": 2 } ],

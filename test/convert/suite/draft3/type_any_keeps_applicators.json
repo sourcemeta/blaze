@@ -28,6 +28,10 @@
     "openapi3.1": {
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
       "properties": { "foo": { "type": "string" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "properties": { "foo": { "type": "string" } }
     }
   },
   "examples": [ {}, { "foo": "s" }, "x" ],

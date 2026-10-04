@@ -19,6 +19,11 @@
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
       "type": "object",
       "dependentRequired": { "a": [ "b" ] }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "dependentRequired": { "a": [ "b" ] }
     }
   },
   "examples": [ {}, { "a": 1, "b": 2 } ],

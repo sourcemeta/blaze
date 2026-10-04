@@ -31,6 +31,16 @@
         { "type": "array" },
         { "not": { "not": { "contains": { "type": "string" } } } }
       ]
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "array",
+      "unevaluatedItems": false,
+      "not": { "type": "null" },
+      "allOf": [
+        { "type": "array" },
+        { "not": { "not": { "contains": { "type": "string" } } } }
+      ]
     }
   },
   "examples": [],

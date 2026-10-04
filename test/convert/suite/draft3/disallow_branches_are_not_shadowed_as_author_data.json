@@ -58,6 +58,15 @@
           "not": { "anyOf": [ { "type": "string" }, { "type": "object" } ] }
         }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "properties": { "ref": { "$ref": "#/$defs/d0" } },
+      "$defs": {
+        "d0": {
+          "not": { "anyOf": [ { "type": "string" }, { "type": "object" } ] }
+        }
+      }
     }
   },
   "examples": [ { "ref": null }, { "ref": 1 } ],

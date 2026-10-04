@@ -36,6 +36,12 @@
       "type": "object",
       "properties": { "a": { "$ref": "#foo-bar" } },
       "$defs": { "foo": { "$anchor": "foo-bar", "type": "string" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "properties": { "a": { "$ref": "#foo-bar" } },
+      "$defs": { "foo": { "$anchor": "foo-bar", "type": "string" } }
     }
   },
   "examples": [ {}, { "a": "s" } ],

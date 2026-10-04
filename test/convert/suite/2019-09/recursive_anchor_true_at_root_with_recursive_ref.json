@@ -63,6 +63,27 @@
           "$dynamicAnchor": "meta"
         }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "$id": "https://example.com/strict-tree",
+      "$dynamicAnchor": "meta",
+      "$ref": "https://example.com/tree",
+      "unevaluatedProperties": false,
+      "$defs": {
+        "tree": {
+          "$id": "https://example.com/tree",
+          "type": "object",
+          "properties": {
+            "data": true,
+            "children": {
+              "type": "array",
+              "items": { "$dynamicRef": "#meta" }
+            }
+          },
+          "$dynamicAnchor": "meta"
+        }
+      }
     }
   },
   "examples": [ { "data": 1 }, { "data": 1, "children": [ { "data": 2 } ] } ],

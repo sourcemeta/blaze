@@ -119,3 +119,27 @@ TEST(false_to_openapi_3_1_with_default_dialect_draft4) {
   UPGRADE_BOOLEAN_WITH_DIALECT("false", OpenAPI31,
                                "http://json-schema.org/draft-04/schema#");
 }
+
+TEST(true_to_openapi_3_2) { UPGRADE_BOOLEAN("true", OpenAPI32); }
+
+TEST(false_to_openapi_3_2) { UPGRADE_BOOLEAN("false", OpenAPI32); }
+
+TEST(true_to_openapi_3_2_with_default_dialect_openapi_3_1) {
+  UPGRADE_BOOLEAN_WITH_DIALECT(
+      "true", OpenAPI32, "https://spec.openapis.org/oas/3.1/dialect/base");
+}
+
+TEST(false_to_openapi_3_2_with_default_dialect_openapi_3_1) {
+  UPGRADE_BOOLEAN_WITH_DIALECT(
+      "false", OpenAPI32, "https://spec.openapis.org/oas/3.1/dialect/base");
+}
+
+TEST(true_to_openapi_3_2_with_default_dialect_draft4) {
+  UPGRADE_BOOLEAN_WITH_DIALECT("true", OpenAPI32,
+                               "http://json-schema.org/draft-04/schema#");
+}
+
+TEST(false_to_openapi_3_2_with_default_dialect_draft4) {
+  UPGRADE_BOOLEAN_WITH_DIALECT("false", OpenAPI32,
+                               "http://json-schema.org/draft-04/schema#");
+}

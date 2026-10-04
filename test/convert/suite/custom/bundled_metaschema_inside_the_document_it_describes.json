@@ -41,6 +41,11 @@
       "type": "unsupported-metaschema",
       "identifier": "https://example.com/c",
       "location": "/definitions/c"
+    },
+    "openapi3.2": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://example.com/c",
+      "location": "/definitions/c"
     }
   }
 }

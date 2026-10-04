@@ -44,6 +44,9 @@ enum class ConvertTarget : std::uint8_t {
 
   /// The OpenAPI 3.1 Schema Object dialect
   OpenAPI31,
+
+  /// The OpenAPI 3.2 Schema Object dialect
+  OpenAPI32,
 };
 
 /// @ingroup convert
@@ -52,8 +55,9 @@ enum class ConvertTarget : std::uint8_t {
 /// is. A document that describes itself or that carries the meta-schema
 /// something in it declares raises `ConvertUnsupportedMetaschemaError`. The
 /// dialects this conversion walks through are the official JSON Schema ones up
-/// to 2020-12, and then the OpenAPI 3.1 Schema Object dialect, which is
-/// 2020-12 plus a vocabulary of its own. A document that sits on any other
+/// to 2020-12, and then the OpenAPI 3.1 and OpenAPI 3.2 Schema Object
+/// dialects, each of which is 2020-12 plus a vocabulary of its own. A document
+/// that sits on any other
 /// dialect raises `ConvertUnsupportedDialectError` whatever the requested
 /// target is, as this
 /// conversion has no rules for moving a schema off such a dialect and will not

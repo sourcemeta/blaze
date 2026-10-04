@@ -38,6 +38,11 @@
       "type": "unsupported-metaschema",
       "identifier": "https://json-schema.org/draft/2020-12/schema",
       "location": ""
+    },
+    "openapi3.2": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "location": ""
     }
   }
 }
