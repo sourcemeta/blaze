@@ -501,6 +501,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/modern_official_dialect_with_empty_fragment.h"
 #include "rules/modern_official_dialect_with_http.h"
 #include "rules/openapi_official_dialect_with_date.h"
+#include "rules/openapi_official_dialect_with_empty_fragment.h"
 #include "rules/prefix_promoted_2020_12_keywords.h"
 #include "rules/prefix_promoted_draft_2019_09_keywords.h"
 #include "rules/prefix_promoted_draft_4_keywords.h"
@@ -531,7 +532,7 @@ auto convert(sourcemeta::core::JSON &schema,
   // spelling the ladder does not name is one it cannot answer for, so these
   // run to completion first rather than alongside
   std::vector<Rule> spellings;
-  spellings.reserve(7);
+  spellings.reserve(8);
   spellings.push_back(make_rule<DialectOverrideBecomesDollarSchema>());
   spellings.push_back(make_rule<ShadowStrayDialectDeclaration>());
   spellings.push_back(make_rule<DraftOfficialDialectWithHttps>());
@@ -539,6 +540,7 @@ auto convert(sourcemeta::core::JSON &schema,
   spellings.push_back(make_rule<ModernOfficialDialectWithEmptyFragment>());
   spellings.push_back(make_rule<ModernOfficialDialectWithHttp>());
   spellings.push_back(make_rule<OpenAPIOfficialDialectWithDate>());
+  spellings.push_back(make_rule<OpenAPIOfficialDialectWithEmptyFragment>());
 
   std::vector<Rule> rules;
   rules.reserve(20);

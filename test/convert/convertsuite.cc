@@ -144,13 +144,12 @@ const std::vector<std::string> TARGET_NAMES{
     "draft4",  "draft6",     "draft7",    "2019-09",
     "2020-12", "openapi3.1", "openapi3.2"};
 
-// A document on any spelling of the OpenAPI dialect sits on the last rung. The
-// empty fragment does not change which dialect a URI names
-auto names_openapi_3_1_dialect(const std::string_view dialect) -> bool {
-  const auto candidate{
-      dialect.ends_with('#') ? dialect.substr(0, dialect.size() - 1) : dialect};
-  return std::ranges::find(OPENAPI_3_1_DIALECTS, candidate) !=
-         OPENAPI_3_1_DIALECTS.cend();
+// The empty fragment does not change which dialect a URI names, and conversion
+// strips one before placing a dialect on the ladder. Every spelling comparison
+// below goes through this, or the suite would rank a document on a rung the
+// conversion does not agree with
+auto without_empty_fragment(const std::string_view uri) -> std::string_view {
+  return uri.ends_with('#') ? uri.substr(0, uri.size() - 1) : uri;
 }
 
 // Conversion decides where a keyword goes as much as whether it is there at
@@ -619,11 +618,13 @@ auto dialect_rung(const sourcemeta::core::JSON &document,
   // which of the two rungs the document sits on. A dated spelling answers the
   // same rung, as the conversion settles one onto the undated spelling rather
   // than treating it as a dialect of its own
-  if (names_openapi_3_1_dialect(location.value().get().dialect)) {
+  const auto declared{without_empty_fragment(location.value().get().dialect)};
+  if (std::ranges::find(OPENAPI_3_1_DIALECTS, declared) !=
+      OPENAPI_3_1_DIALECTS.cend()) {
     return 7;
   }
 
-  if (location.value().get().dialect == OPENAPI_3_2_DIALECT) {
+  if (declared == OPENAPI_3_2_DIALECT) {
     return 8;
   }
 
