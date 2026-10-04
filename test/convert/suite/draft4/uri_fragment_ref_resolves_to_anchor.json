@@ -36,6 +36,12 @@
       "type": "object",
       "$defs": { "Outer": { "$anchor": "tag", "type": "string" } },
       "properties": { "x": { "$ref": "#tag" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "$defs": { "Outer": { "$anchor": "tag", "type": "string" } },
+      "properties": { "x": { "$ref": "#tag" } }
     }
   },
   "examples": [ {}, { "x": "s" } ],

@@ -56,6 +56,14 @@
       "allOf": [
         { "$id": "https://example.com/inner", "allOf": [ { "minLength": 2 } ] }
       ]
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "$id": "https://example.com/root",
+      "properties": { "a": { "$ref": "https://example.com/inner#/allOf/0" } },
+      "allOf": [
+        { "$id": "https://example.com/inner", "allOf": [ { "minLength": 2 } ] }
+      ]
     }
   },
   "examples": [ { "a": "ab" }, {} ],

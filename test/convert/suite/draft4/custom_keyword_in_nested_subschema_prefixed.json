@@ -36,6 +36,12 @@
       "$id": "https://example.com/root",
       "type": "object",
       "properties": { "foo": { "type": "string", "x-contains": "i-was-custom-in-draft-4" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "$id": "https://example.com/root",
+      "type": "object",
+      "properties": { "foo": { "type": "string", "x-contains": "i-was-custom-in-draft-4" } }
     }
   },
   "examples": [ {}, { "foo": "s" } ],

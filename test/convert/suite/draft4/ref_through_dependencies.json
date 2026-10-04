@@ -30,6 +30,11 @@
       "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
       "dependentSchemas": { "foo": { "type": "string" } },
       "properties": { "x": { "$ref": "#/dependentSchemas/foo" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "dependentSchemas": { "foo": { "type": "string" } },
+      "properties": { "x": { "$ref": "#/dependentSchemas/foo" } }
     }
   },
   "examples": [ {}, { "x": "s" } ],

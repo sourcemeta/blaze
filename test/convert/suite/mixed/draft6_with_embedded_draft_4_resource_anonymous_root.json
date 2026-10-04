@@ -60,6 +60,16 @@
           "type": "string"
         }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "properties": {
+        "embedded": {
+          "$id": "https://example.com/inner",
+          "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+          "type": "string"
+        }
+      }
     }
   },
   "examples": [ {}, { "embedded": "s" }, "anything" ],

@@ -35,6 +35,11 @@
       "type": "invalid-reference",
       "identifier": "https://example.com/x#/dependencies",
       "location": "/properties/v/$ref"
+    },
+    "openapi3.2": {
+      "type": "invalid-reference",
+      "identifier": "https://example.com/x#/dependencies",
+      "location": "/properties/v/$ref"
     }
   }
 }

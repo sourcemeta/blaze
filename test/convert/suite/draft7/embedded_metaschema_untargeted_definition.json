@@ -46,6 +46,11 @@
       "type": "unsupported-metaschema",
       "identifier": "https://example.com/my-dialect",
       "location": "/definitions/meta"
+    },
+    "openapi3.2": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://example.com/my-dialect",
+      "location": "/definitions/meta"
     }
   }
 }

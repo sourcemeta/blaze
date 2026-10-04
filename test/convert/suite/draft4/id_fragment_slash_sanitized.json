@@ -36,6 +36,12 @@
       "type": "object",
       "properties": { "a": { "$ref": "#with-slash" } },
       "$defs": { "foo": { "$anchor": "with-slash", "type": "string" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "properties": { "a": { "$ref": "#with-slash" } },
+      "$defs": { "foo": { "$anchor": "with-slash", "type": "string" } }
     }
   },
   "examples": [ {}, { "a": "s" } ],

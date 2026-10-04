@@ -27,6 +27,14 @@
       "not": { "type": "null" },
       "$defs": { "alias": { "$ref": "#/allOf/0/not/not/contains" } },
       "allOf": [ { "not": { "not": { "contains": { "type": "string" } } } } ]
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "array",
+      "unevaluatedItems": false,
+      "not": { "type": "null" },
+      "$defs": { "alias": { "$ref": "#/allOf/0/not/not/contains" } },
+      "allOf": [ { "not": { "not": { "contains": { "type": "string" } } } } ]
     }
   },
   "examples": [],

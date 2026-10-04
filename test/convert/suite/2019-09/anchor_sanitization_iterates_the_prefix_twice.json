@@ -45,6 +45,20 @@
         "taken": { "$anchor": "a-b", "minimum": 10 },
         "alsoTaken": { "$anchor": "x-a-b", "type": "boolean" }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "$id": "https://example.com/root",
+      "properties": {
+        "a": { "$ref": "#x-x-a-b" },
+        "b": { "$ref": "#a-b" },
+        "c": { "$ref": "#x-a-b" }
+      },
+      "$defs": {
+        "colon": { "$anchor": "x-x-a-b", "minLength": 3 },
+        "taken": { "$anchor": "a-b", "minimum": 10 },
+        "alsoTaken": { "$anchor": "x-a-b", "type": "boolean" }
+      }
     }
   },
   "examples": [ { "a": "abc", "b": 11, "c": true }, {} ],

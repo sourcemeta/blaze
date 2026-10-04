@@ -47,6 +47,11 @@
       "type": "unsupported-metaschema",
       "identifier": "https://example.com/meta",
       "location": "/definitions/meta"
+    },
+    "openapi3.2": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://example.com/meta",
+      "location": "/definitions/meta"
     }
   }
 }

@@ -16,6 +16,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME convert
     rules/modern_official_dialect_with_empty_fragment.h
     rules/modern_official_dialect_with_http.h
     rules/openapi_official_dialect_with_date.h
+    rules/openapi_official_dialect_with_empty_fragment.h
     rules/prefix_promoted_2020_12_keywords.h
     rules/prefix_promoted_draft_2019_09_keywords.h
     rules/prefix_promoted_draft_4_keywords.h
@@ -28,7 +29,8 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME convert
     rules/upgrade_draft_3_to_draft_4.h
     rules/upgrade_draft_4_to_draft_6.h
     rules/upgrade_draft_6_to_draft_7.h
-    rules/upgrade_draft_7_to_draft_2019_09.h)
+    rules/upgrade_draft_7_to_draft_2019_09.h
+    rules/upgrade_openapi_3_1_to_openapi_3_2.h)
 
 if(BLAZE_INSTALL)
   sourcemeta_library_install(NAMESPACE sourcemeta PROJECT blaze NAME convert)

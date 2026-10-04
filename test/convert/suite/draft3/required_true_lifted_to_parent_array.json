@@ -68,6 +68,16 @@
         "age": { "type": "number" },
         "email": { "type": "string" }
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "required": [ "name", "email" ],
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "number" },
+        "email": { "type": "string" }
+      }
     }
   },
   "examples": [ { "name": "a", "email": "b" }, { "name": "a", "email": "b", "age": 1 } ],

@@ -31,6 +31,12 @@
       "type": "string",
       "x-if": true,
       "x-then": { "type": "integer" }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "string",
+      "x-if": true,
+      "x-then": { "type": "integer" }
     }
   },
   "examples": [ "x", "abc" ],

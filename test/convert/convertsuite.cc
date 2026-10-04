@@ -59,6 +59,10 @@ constexpr std::array<std::string_view, 3> OPENAPI_3_1_DIALECTS{
      "https://spec.openapis.org/oas/3.1/dialect/2024-10-25",
      "https://spec.openapis.org/oas/3.1/dialect/2024-11-10"}};
 
+// OpenAPI 3.2 publishes its dialect at one dated URI with no undated alias
+constexpr std::string_view OPENAPI_3_2_DIALECT{
+    "https://spec.openapis.org/oas/3.2/dialect/2025-09-17"};
+
 auto expect_known(const std::string_view kind, const std::string_view name,
                   const std::vector<std::string> &known) -> void {
   auto actual{sourcemeta::core::JSON::make_object()};
@@ -111,7 +115,7 @@ auto ladder_position(const sourcemeta::core::SchemaBaseDialect base_dialect)
 
 // Every target that conversion takes, as a fixture has to account for all of
 // them rather than for the ones whoever wrote it happened to think of
-constexpr std::array<Target, 6> TARGETS{
+constexpr std::array<Target, 7> TARGETS{
     {{.name = "draft4",
       .value = sourcemeta::blaze::ConvertTarget::Draft4,
       .position = 2},
@@ -129,25 +133,28 @@ constexpr std::array<Target, 6> TARGETS{
       .position = 6},
      {.name = "openapi3.1",
       .value = sourcemeta::blaze::ConvertTarget::OpenAPI31,
-      .position = 7}}};
+      .position = 7},
+     {.name = "openapi3.2",
+      .value = sourcemeta::blaze::ConvertTarget::OpenAPI32,
+      .position = 8}}};
 
 // The same names again, as a fixture names its targets in text
 // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-const std::vector<std::string> TARGET_NAMES{"draft4",  "draft6",  "draft7",
-                                            "2019-09", "2020-12", "openapi3.1"};
+const std::vector<std::string> TARGET_NAMES{
+    "draft4",  "draft6",     "draft7",    "2019-09",
+    "2020-12", "openapi3.1", "openapi3.2"};
 
-// A document on any spelling of the OpenAPI dialect sits on the last rung. The
-// empty fragment does not change which dialect a URI names
-auto names_openapi_3_1_dialect(const std::string_view dialect) -> bool {
-  const auto candidate{
-      dialect.ends_with('#') ? dialect.substr(0, dialect.size() - 1) : dialect};
-  return std::ranges::find(OPENAPI_3_1_DIALECTS, candidate) !=
-         OPENAPI_3_1_DIALECTS.cend();
+// The empty fragment does not change which dialect a URI names, and conversion
+// strips one before placing a dialect on the ladder. Every spelling comparison
+// below goes through this, or the suite would rank a document on a rung the
+// conversion does not agree with
+auto without_empty_fragment(const std::string_view uri) -> std::string_view {
+  return uri.ends_with('#') ? uri.substr(0, uri.size() - 1) : uri;
 }
 
 // Conversion decides where a keyword goes as much as whether it is there at
 // all, so the order of the result is part of what a fixture blesses. Both
-// sides carry the target they came from, as a fixture accounts for six of
+// sides carry the target they came from, as a fixture accounts for seven of
 // them and a bare pair of schemas does not say which one went wrong
 auto expect_equal_with_ordering(const std::string_view target,
                                 const sourcemeta::core::JSON &actual,
@@ -611,8 +618,14 @@ auto dialect_rung(const sourcemeta::core::JSON &document,
   // which of the two rungs the document sits on. A dated spelling answers the
   // same rung, as the conversion settles one onto the undated spelling rather
   // than treating it as a dialect of its own
-  if (names_openapi_3_1_dialect(location.value().get().dialect)) {
+  const auto declared{without_empty_fragment(location.value().get().dialect)};
+  if (std::ranges::find(OPENAPI_3_1_DIALECTS, declared) !=
+      OPENAPI_3_1_DIALECTS.cend()) {
     return 7;
+  }
+
+  if (declared == OPENAPI_3_2_DIALECT) {
+    return 8;
   }
 
   return ladder_position(location.value().get().base_dialect);

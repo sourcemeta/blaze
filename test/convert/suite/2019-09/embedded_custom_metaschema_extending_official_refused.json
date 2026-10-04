@@ -45,6 +45,11 @@
       "type": "unsupported-metaschema",
       "identifier": "https://json-schema.org/draft/2019-09/schema",
       "location": "/$defs/meta"
+    },
+    "openapi3.2": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2019-09/schema",
+      "location": "/$defs/meta"
     }
   }
 }

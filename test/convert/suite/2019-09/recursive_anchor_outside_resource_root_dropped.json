@@ -21,6 +21,12 @@
       "type": "object",
       "properties": { "child": { "type": "string" } },
       "additionalProperties": { "$dynamicRef": "#" }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "properties": { "child": { "type": "string" } },
+      "additionalProperties": { "$dynamicRef": "#" }
     }
   },
   "examples": [ {}, { "child": "s" }, { "extra": {} } ],

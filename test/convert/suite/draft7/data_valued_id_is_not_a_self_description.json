@@ -30,6 +30,13 @@
       "id": "http://json-schema.org/draft-07/schema#",
       "type": "object",
       "properties": { "a": { "type": "string" } }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "$id": "https://example.com/plain",
+      "id": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": { "a": { "type": "string" } }
     }
   },
   "examples": [ {}, { "a": "s" } ],

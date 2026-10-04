@@ -13,10 +13,11 @@ public:
     // vocabulary alone does not say the document is still below this rung.
     // Without the second half the rule would claim work on a document already
     // on the dialect and write the same `$schema` straight back
-    ONLY_CONTINUE_IF(
-        vocabularies.contains(
-            SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE) &&
-        !vocabularies.contains(SchemaVocabularies::Known::OPENAPI_3_1_BASE));
+    ONLY_CONTINUE_IF(vocabularies.contains(
+                         SchemaVocabularies::Known::JSON_SCHEMA_2020_12_CORE) &&
+                     !vocabularies.contains_any(
+                         {SchemaVocabularies::Known::OPENAPI_3_1_BASE,
+                          SchemaVocabularies::Known::OPENAPI_3_2_BASE}));
 
     return at_dialect_declaration(schema, site);
   }

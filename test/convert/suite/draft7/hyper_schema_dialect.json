@@ -34,6 +34,11 @@
       "type": "unsupported-dialect",
       "identifier": "http://json-schema.org/draft-07/hyper-schema#",
       "location": ""
+    },
+    "openapi3.2": {
+      "type": "unsupported-dialect",
+      "identifier": "http://json-schema.org/draft-07/hyper-schema#",
+      "location": ""
     }
   }
 }

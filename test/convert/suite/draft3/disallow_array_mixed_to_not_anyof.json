@@ -60,6 +60,15 @@
           { "type": "object", "properties": { "foo": { "type": "string" } } }
         ]
       }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "not": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "object", "properties": { "foo": { "type": "string" } } }
+        ]
+      }
     }
   },
   "examples": [ 1, true, { "foo": 1 } ],

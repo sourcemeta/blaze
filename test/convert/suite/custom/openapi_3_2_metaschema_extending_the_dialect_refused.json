@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/meta",
+    "$vocabulary": {
+      "https://json-schema.org/draft/2020-12/vocab/core": true,
+      "https://json-schema.org/draft/2020-12/vocab/applicator": true
+    },
+    "allOf": [
+      { "$ref": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17" }
+    ]
+  },
+  "errors": {
+    "draft4": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "location": ""
+    },
+    "draft6": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "location": ""
+    },
+    "draft7": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "location": ""
+    },
+    "2019-09": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "location": ""
+    },
+    "2020-12": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "location": ""
+    },
+    "openapi3.1": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "location": ""
+    },
+    "openapi3.2": {
+      "type": "unsupported-metaschema",
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "location": ""
+    }
+  }
+}
