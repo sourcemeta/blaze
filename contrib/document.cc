@@ -15,13 +15,25 @@ auto main(int argc, char *argv[]) -> int {
     return EXIT_FAILURE;
   }
 
-  const auto schema{sourcemeta::core::read_json(argv[1])};
+  const auto html{argc == 3};
+  if (html && std::string{argv[2]} != "--html") {
+    std::cerr << "Unknown option: " << argv[2] << "\n";
+    std::cerr << "Usage: " << argv[0] << " <schema.json> [--html]\n";
+    return EXIT_FAILURE;
+  }
+
   try {
+    // Reading the schema belongs inside here too. It throws on a file that is
+    // missing or is not JSON, and that is as much a failure of this command as
+    // a schema it cannot describe.
+    const auto schema{sourcemeta::core::read_json(argv[1])};
     const auto documentation{sourcemeta::blaze::to_documentation(
         schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver)};
-    if (argc == 3 && std::string{argv[2]} == "--html") {
-      std::cout << sourcemeta::blaze::to_html(documentation) << "\n";
+    if (html) {
+      std::string page;
+      sourcemeta::blaze::to_html(documentation, page);
+      std::cout << page << "\n";
     } else {
       sourcemeta::core::prettify(documentation, std::cout);
       std::cout << "\n";
@@ -29,6 +41,9 @@ auto main(int argc, char *argv[]) -> int {
   } catch (const sourcemeta::blaze::DocumentationError &error) {
     std::cerr << sourcemeta::core::to_string(error.location()) << ": "
               << error.what() << "\n";
+    return EXIT_FAILURE;
+  } catch (const std::exception &error) {
+    std::cerr << error.what() << "\n";
     return EXIT_FAILURE;
   }
 

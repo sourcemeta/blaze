@@ -28,7 +28,8 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <string> // std::string
+#include <string>      // std::string
+#include <string_view> // std::string_view
 
 namespace sourcemeta::blaze {
 
@@ -36,8 +37,8 @@ namespace sourcemeta::blaze {
 ///
 /// The address of the table format this module writes. A document states it as
 /// its `$schema`, and it names the version of the format too.
-SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT
-extern const char *const DOCUMENTATION_FORMAT;
+constexpr std::string_view DOCUMENTATION_FORMAT{
+    "tag:sourcemeta.com,2026:table-format/2"};
 
 /// @ingroup documentation
 ///
@@ -94,11 +95,16 @@ to_documentation(const sourcemeta::core::JSON &schema,
 ///   "root": { "kind": "string" }
 /// })JSON");
 ///
-/// const auto page{sourcemeta::blaze::to_html(documentation)};
+/// std::string page;
+/// sourcemeta::blaze::to_html(documentation, page);
 /// assert(!page.empty());
 /// ```
-[[nodiscard]] SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT auto
-to_html(const sourcemeta::core::JSON &documentation) -> std::string;
+///
+/// The page is appended to the given string, so a caller that already has a
+/// buffer does not pay for another one.
+SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT auto
+to_html(const sourcemeta::core::JSON &documentation, std::string &output)
+    -> void;
 
 } // namespace sourcemeta::blaze
 

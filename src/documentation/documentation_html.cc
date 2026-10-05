@@ -1,5 +1,6 @@
 #include <sourcemeta/blaze/documentation.h>
 
+#include <sourcemeta/core/html_escape.h>
 #include <sourcemeta/core/json.h>
 
 #include <cassert>     // assert
@@ -25,6 +26,8 @@ using sourcemeta::core::JSON;
 // own and the module carries no further dependency.
 class Page {
 public:
+  explicit Page(std::string &into) : output_{into} {}
+
   auto open(const std::string_view tag) -> Page & {
     this->output_ += '<';
     this->output_ += tag;
@@ -67,33 +70,12 @@ public:
     return this->close();
   }
 
-  [[nodiscard]] auto str() const -> const std::string & {
-    return this->output_;
-  }
-
 private:
   auto escape(const std::string_view content) -> void {
-    for (const auto character : content) {
-      switch (character) {
-        case '&':
-          this->output_ += "&amp;";
-          break;
-        case '<':
-          this->output_ += "&lt;";
-          break;
-        case '>':
-          this->output_ += "&gt;";
-          break;
-        case '"':
-          this->output_ += "&quot;";
-          break;
-        default:
-          this->output_ += character;
-      }
-    }
+    sourcemeta::core::html_escape_append(this->output_, content);
   }
 
-  std::string output_;
+  std::string &output_;
   std::vector<std::string> stack_;
 };
 
@@ -218,14 +200,17 @@ auto plain(const JSON &value) -> std::string {
   }
 
   if (value.is_real()) {
+    // A stream would round to six significant digits and state a bound the
+    // schema does not have. Core writes the shortest form that reads back as
+    // the same number.
     std::ostringstream number;
-    number << value.to_real();
+    sourcemeta::core::stringify(value, number);
     return number.str();
   }
 
   // A reader is not shown JSON, so a value with parts of its own is named
   // rather than written out.
-  return value.is_array() ? "a list of values" : "a group of fields";
+  return value.is_array() ? "a list of values" : "a group of properties";
 }
 
 auto number_of(const JSON &value) -> std::string { return plain(value); }
@@ -238,7 +223,7 @@ auto word_for(const std::string &kind) -> std::string {
       {"integer", "a whole number"},
       {"boolean", "yes or no"},
       {"null", "nothing"},
-      {"object", "a group of fields"},
+      {"object", "a group of properties"},
       {"array", "a list"},
       {"enum", "one of a few values"},
       {"choice", "one of several forms"},
@@ -342,21 +327,23 @@ auto notes_of(const JSON &value) -> std::vector<std::string> {
     const auto &count{value.at("fieldCount")};
     if (count.defines("min") && count.defines("max")) {
       notes.emplace_back("between " + number_of(count.at("min")) + " and " +
-                         number_of(count.at("max")) + " fields");
+                         number_of(count.at("max")) + " properties");
     } else if (count.defines("min")) {
-      notes.emplace_back("at least " + number_of(count.at("min")) + " fields");
+      notes.emplace_back("at least " + number_of(count.at("min")) +
+                         " properties");
     } else if (count.defines("max")) {
-      notes.emplace_back("at most " + number_of(count.at("max")) + " fields");
+      notes.emplace_back("at most " + number_of(count.at("max")) +
+                         " properties");
     }
   }
 
   if (value.defines("keys")) {
     const auto &keys{value.at("keys")};
     if (keys.is_object() && keys.defines("pattern")) {
-      notes.emplace_back("every field is named like " +
+      notes.emplace_back("every property is named like " +
                          keys.at("pattern").to_string());
     } else {
-      notes.emplace_back("the field names are limited");
+      notes.emplace_back("the property names are limited");
     }
   }
 
@@ -381,7 +368,7 @@ auto notes_of(const JSON &value) -> std::vector<std::string> {
   }
 
   if (value.defines("discriminator")) {
-    notes.emplace_back("the field " +
+    notes.emplace_back("the property " +
                        value.at("discriminator").at("field").to_string() +
                        " says which shape the rest follows");
   }
@@ -391,7 +378,7 @@ auto notes_of(const JSON &value) -> std::vector<std::string> {
   }
 
   if (value.defines("closed")) {
-    notes.emplace_back("no other fields");
+    notes.emplace_back("no other properties");
   }
 
   if (value.defines("deprecated")) {
@@ -473,10 +460,14 @@ auto write_notes_cell(Page &html, const JSON &value) -> void {
   }
 }
 
+auto has_body(const JSON &value) -> bool;
+auto write_detail(Page &html, const std::string &heading, const JSON &value,
+                  const Names &names) -> void;
+
 auto write_fields(Page &html, const JSON &value, const Names &names) -> void {
   html.open("table", "class", "sourcemeta-blaze-documentation");
   html.open("tr");
-  html.cell("th", "Field");
+  html.cell("th", "Property");
   html.cell("th", "What may go in it");
   html.cell("th", "Required");
   html.cell("th", "Notes");
@@ -517,7 +508,7 @@ auto write_fields(Page &html, const JSON &value, const Names &names) -> void {
     for (const auto &entry : value.at("patternFields").as_array()) {
       html.open("tr");
       html.open("td");
-      html.text("every field named like ");
+      html.text("every property named like ");
       html.cell("code", entry.at("pattern").to_string());
       html.close();
       html.open("td");
@@ -533,7 +524,7 @@ auto write_fields(Page &html, const JSON &value, const Names &names) -> void {
 
   if (value.is_object() && value.defines("otherFields")) {
     html.open("tr");
-    html.cell("td", "every other field");
+    html.cell("td", "every other property");
     html.open("td");
     write_value_cell(html, value.at("otherFields"), names);
     html.close();
@@ -545,9 +536,99 @@ auto write_fields(Page &html, const JSON &value, const Names &names) -> void {
   }
 
   html.close();
+
+  // A property whose value is a group of its own could only be named in the
+  // table. What it holds is written out under the table rather than lost.
+  if (value.is_object() && value.defines("fields")) {
+    for (const auto &field : value.at("fields").as_array()) {
+      if (field.defines("value") && has_body(field.at("value"))) {
+        write_detail(html, field.at("name").to_string(), field.at("value"),
+                     names);
+      }
+    }
+  }
+
+  if (value.is_object() && value.defines("patternFields")) {
+    for (const auto &entry : value.at("patternFields").as_array()) {
+      if (has_body(entry.at("value"))) {
+        write_detail(html, entry.at("pattern").to_string(), entry.at("value"),
+                     names);
+      }
+    }
+  }
+
+  if (value.is_object() && value.defines("otherFields") &&
+      has_body(value.at("otherFields"))) {
+    write_detail(html, "every other property", value.at("otherFields"), names);
+  }
+}
+auto write_body(Page &html, const JSON &value, const Names &names) -> void;
+auto write_rest(Page &html, const JSON &value, const Names &names) -> void;
+
+// Whether naming this value in a cell leaves anything unsaid. A reference is
+// named rather than opened, because the shape it names is written out once of
+// its own accord.
+auto has_body(const JSON &value) -> bool {
+  if (!value.is_object()) {
+    return false;
+  }
+
+  const auto kind{kind_of(value)};
+  if (kind == "object") {
+    return value.defines("fields") || value.defines("patternFields") ||
+           value.defines("otherFields");
+  }
+
+  if (kind == "array") {
+    // What an entry must be is worth a section of its own even when the entry
+    // is a plain value, since the cell above has no room for its rules.
+    if (value.defines("item") &&
+        (has_body(value.at("item")) || !notes_of(value.at("item")).empty())) {
+      return true;
+    }
+
+    if (value.defines("contains") && has_body(value.at("contains"))) {
+      return true;
+    }
+
+    if (value.defines("slots")) {
+      return true;
+    }
+  }
+
+  // A value that says little itself may carry everything in what it must also
+  // match, which is where a choice of forms usually sits.
+  if (value.defines("also")) {
+    for (const auto &other : value.at("also").as_array()) {
+      if (has_body(other)) {
+        return true;
+      }
+    }
+  }
+
+  if (value.defines("not") && has_body(value.at("not"))) {
+    return true;
+  }
+
+  return value.defines("options") || value.defines("conditions");
 }
 
-auto write_rest(Page &html, const JSON &value, const Names &names) -> void;
+// What a value holds, under a heading of its own, so nothing is left in a cell
+// that could not fit it.
+auto write_detail(Page &html, const std::string &heading, const JSON &value,
+                  const Names &names) -> void {
+  html.open("section", "class", "sourcemeta-blaze-documentation");
+  html.open("h3");
+  html.cell("code", heading);
+  html.close();
+  const auto description{text_of(value, "description")};
+  if (!description.empty()) {
+    html.cell("p", description);
+  }
+
+  write_body(html, value, names);
+  html.close();
+}
 
 auto write_body(Page &html, const JSON &value, const Names &names) -> void {
   const auto kind{kind_of(value)};
@@ -565,10 +646,28 @@ auto write_body(Page &html, const JSON &value, const Names &names) -> void {
     return;
   }
 
-  if (kind == "array" && value.is_object() && value.defines("item") &&
-      kind_of(value.at("item")) == "object") {
-    html.cell("p", "Every entry of the list holds these fields.");
-    write_fields(html, value.at("item"), names);
+  if (kind == "array" && value.is_object() && value.defines("item")) {
+    const auto &item{value.at("item")};
+    if (kind_of(item) == "object") {
+      html.cell("p", "Every entry of the list holds these properties.");
+      write_fields(html, item, names);
+    } else {
+      html.open("p");
+      html.text("Every entry of the list is ");
+      write_value_cell(html, item, names);
+      const auto item_notes{notes_of(item)};
+      if (!item_notes.empty()) {
+        html.text(", ");
+        write_notes_cell(html, item);
+      }
+
+      html.text(".");
+      html.close();
+      if (has_body(item)) {
+        write_body(html, item, names);
+      }
+    }
+
     write_rest(html, value, names);
     return;
   }
@@ -615,6 +714,12 @@ auto write_rest(Page &html, const JSON &value, const Names &names) -> void {
         write_notes_cell(html, option);
       }
 
+      // A form that is a group of its own is shown, rather than named and
+      // left for the reader to guess at.
+      if (has_body(option)) {
+        write_body(html, option, names);
+      }
+
       html.close();
     }
 
@@ -641,14 +746,42 @@ auto write_rest(Page &html, const JSON &value, const Names &names) -> void {
     html.text(".");
     html.close();
   }
+
+  if (value.defines("conditions")) {
+    for (const auto &condition : value.at("conditions").as_array()) {
+      html.open("section", "class", "sourcemeta-blaze-documentation");
+      html.cell("h3", "In a certain case");
+      html.open("p");
+      html.text("When it is ");
+      write_value_cell(html, condition.at("when"), names);
+      html.text(":");
+      html.close();
+      if (has_body(condition.at("when"))) {
+        write_body(html, condition.at("when"), names);
+      }
+
+      if (condition.defines("then")) {
+        html.cell("p", "Then it must also be:");
+        write_body(html, condition.at("then"), names);
+      }
+
+      if (condition.defines("otherwise")) {
+        html.cell("p", "Otherwise it must be:");
+        write_body(html, condition.at("otherwise"), names);
+      }
+
+      html.close();
+    }
+  }
 }
 
 } // namespace
 
 namespace sourcemeta::blaze {
 
-auto to_html(const sourcemeta::core::JSON &documentation) -> std::string {
-  Page html;
+auto to_html(const sourcemeta::core::JSON &documentation, std::string &output)
+    -> void {
+  Page html{output};
   Names names;
   if (documentation.is_object() && documentation.defines("shapes")) {
     for (const auto &shape : documentation.at("shapes").as_array()) {
@@ -695,7 +828,6 @@ auto to_html(const sourcemeta::core::JSON &documentation) -> std::string {
   }
 
   html.close();
-  return html.str();
 }
 
 } // namespace sourcemeta::blaze
