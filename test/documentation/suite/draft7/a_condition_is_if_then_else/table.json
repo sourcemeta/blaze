@@ -1,0 +1,60 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "http://json-schema.org/draft-07/schema#",
+  "root": {
+    "kind": "object",
+    "fields": [
+      {
+        "name": "kind",
+        "value": {
+          "kind": "string"
+        }
+      }
+    ],
+    "conditions": [
+      {
+        "when": {
+          "kind": "object",
+          "fields": [
+            {
+              "name": "kind",
+              "required": true,
+              "value": {
+                "kind": "enum",
+                "values": [ "gift" ]
+              }
+            }
+          ],
+          "otherTypesAllowed": true
+        },
+        "then": {
+          "kind": "object",
+          "fields": [
+            {
+              "name": "note",
+              "required": true,
+              "value": {
+                "kind": "string"
+              }
+            }
+          ],
+          "otherTypesAllowed": true
+        },
+        "otherwise": {
+          "kind": "object",
+          "fields": [
+            {
+              "name": "plain",
+              "required": true,
+              "value": {
+                "kind": "boolean"
+              }
+            }
+          ],
+          "otherTypesAllowed": true
+        }
+      }
+    ]
+  }
+}
