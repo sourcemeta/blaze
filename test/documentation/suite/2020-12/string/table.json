@@ -1,0 +1,9 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "A name",
+  "description": "What someone is called",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "string"
+  }
+}

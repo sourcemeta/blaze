@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "The identifier",
+      "default": "none",
+      "examples": [
+        "abc"
+      ],
+      "deprecated": true,
+      "readOnly": true
+    }
+  }
+}
