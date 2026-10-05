@@ -1,7 +1,7 @@
 sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME documentation
   FOLDER "Blaze/Documentation"
   PRIVATE_HEADERS error.h
-  SOURCES documentation.cc documentation_html.cc)
+  SOURCES documentation.cc documentation_value.cc documentation_html.cc)
 
 if(BLAZE_INSTALL)
   sourcemeta_library_install(NAMESPACE sourcemeta PROJECT blaze NAME documentation)
