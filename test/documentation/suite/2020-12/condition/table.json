@@ -1,0 +1,35 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "conditions": [
+      {
+        "when": {
+          "kind": "object",
+          "fields": [
+            {
+              "name": "kind",
+              "value": {
+                "kind": "enum",
+                "values": [ "wide" ]
+              }
+            }
+          ],
+          "otherTypesAllowed": true
+        },
+        "then": {
+          "kind": "object",
+          "fields": [
+            {
+              "name": "width",
+              "required": true
+            }
+          ],
+          "otherTypesAllowed": true
+        }
+      }
+    ]
+  }
+}
