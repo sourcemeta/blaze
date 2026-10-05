@@ -1,0 +1,24 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "fields": [
+      {
+        "name": "id",
+        "required": true,
+        "value": {
+          "kind": "string"
+        }
+      },
+      {
+        "name": "count",
+        "value": {
+          "kind": "integer"
+        }
+      }
+    ],
+    "closed": true
+  }
+}
