@@ -7,9 +7,10 @@
 
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <exception> // std::exception
-#include <string>    // std::string
-#include <utility>   // std::move
+#include <exception>   // std::exception
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <utility>     // std::move
 
 namespace sourcemeta::blaze {
 
@@ -17,6 +18,7 @@ namespace sourcemeta::blaze {
 // safe.
 // https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
 #if defined(_MSC_VER)
+#pragma warning(push)
 #pragma warning(disable : 4251 4275)
 #endif
 
@@ -27,11 +29,22 @@ namespace sourcemeta::blaze {
 class SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT DocumentationError
     : public std::exception {
 public:
-  DocumentationError(std::string message, sourcemeta::core::Pointer location)
-      : message_{std::move(message)}, location_{std::move(location)} {}
+  /// The message is a fixed sentence, so it cannot be built out of whatever
+  /// the schema happened to hold. What the sentence is about, such as the
+  /// keyword at fault, is the subject.
+  DocumentationError(const char *message, sourcemeta::core::Pointer location,
+                     std::string subject = "")
+      : message_{message}, location_{std::move(location)},
+        subject_{std::move(subject)} {}
 
   [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_.c_str();
+    return this->message_;
+  }
+
+  /// What the message is about, such as the keyword that cannot be described.
+  /// Empty when the message speaks for itself.
+  [[nodiscard]] auto subject() const noexcept -> std::string_view {
+    return this->subject_;
   }
 
   /// Where in the schema the trouble is
@@ -41,9 +54,14 @@ public:
   }
 
 private:
-  std::string message_;
+  const char *message_;
   sourcemeta::core::Pointer location_;
+  std::string subject_;
 };
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 } // namespace sourcemeta::blaze
 

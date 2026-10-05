@@ -137,8 +137,12 @@ auto official_dialect(const std::string_view declared)
   return std::nullopt;
 }
 
-auto fail(const std::string &message, const Pointer &location) -> void {
-  throw sourcemeta::blaze::DocumentationError{message, location};
+// The message is a fixed sentence. Whatever the sentence is about, such as
+// the keyword at fault, travels beside it rather than inside it.
+auto fail(const char *message, const Pointer &location,
+          std::string subject = "") -> void {
+  throw sourcemeta::blaze::DocumentationError{message, location,
+                                              std::move(subject)};
 }
 
 auto defines(const JSON &subschema, const std::string &keyword) -> bool {
@@ -203,7 +207,7 @@ auto count_of(const JSON &subschema, const std::string &keyword,
 
   const auto &count{subschema.at(keyword)};
   if (!count.is_integer() || count.to_integer() < 0) {
-    fail("The `" + keyword + "` keyword must be a count", pointer);
+    fail("This keyword must be a count", pointer, keyword);
   }
 }
 
@@ -239,13 +243,6 @@ auto accepts_null(const JSON &value) -> bool {
 }
 
 } // namespace
-
-namespace sourcemeta::blaze {
-
-const char *const DOCUMENTATION_FORMAT =
-    "tag:sourcemeta.com,2026:table-format/2";
-
-} // namespace sourcemeta::blaze
 
 namespace {
 
@@ -303,7 +300,9 @@ auto accepted_by(const JSON &entry, const JSON &subschema,
   }
 
   if (entry.is_string()) {
-    const auto length{static_cast<std::int64_t>(entry.to_string().size())};
+    // `minLength` and `maxLength` count characters, not bytes, and
+    // `JSON::size` is the logical length the specification means.
+    const auto length{static_cast<std::int64_t>(entry.size())};
     if (defines(subschema, "minLength") &&
         subschema.at("minLength").is_integer() &&
         length < subschema.at("minLength").to_integer()) {
@@ -324,44 +323,68 @@ auto accepted_by(const JSON &entry, const JSON &subschema,
   }
 
   if (entry.is_integer() || entry.is_real()) {
-    const auto number{entry.is_integer()
-                          ? static_cast<double>(entry.to_integer())
-                          : entry.to_real()};
-    const auto bound = [&subschema](const std::string &keyword,
-                                    double &into) -> bool {
+    // Two whole numbers are compared as whole numbers. Going through `double`
+    // would make distinct integers past the range it holds exactly look equal,
+    // and a value the schema rejects would be kept as one it accepts.
+    const auto side = [&entry](const JSON &limit) -> int {
+      if (entry.is_integer() && limit.is_integer()) {
+        const auto one{entry.to_integer()};
+        const auto other{limit.to_integer()};
+        return one < other ? -1 : (one > other ? 1 : 0);
+      }
+
+      const auto one{entry.is_integer()
+                         ? static_cast<double>(entry.to_integer())
+                         : entry.to_real()};
+      const auto other{limit.is_integer()
+                           ? static_cast<double>(limit.to_integer())
+                           : limit.to_real()};
+      return one < other ? -1 : (one > other ? 1 : 0);
+    };
+
+    const auto bound =
+        [&subschema](const std::string &keyword) -> const JSON * {
       if (!defines(subschema, keyword)) {
-        return false;
+        return nullptr;
       }
 
       const auto &value{subschema.at(keyword)};
-      if (value.is_integer()) {
-        into = static_cast<double>(value.to_integer());
-        return true;
-      }
-
-      if (value.is_real()) {
-        into = value.to_real();
-        return true;
-      }
-
-      return false;
+      return value.is_integer() || value.is_real() ? &value : nullptr;
     };
 
-    double limit{0};
-    if (bound("minimum", limit) && number < limit) {
-      return Verdict::No;
+    // Before Draft 6 an exclusive bound is a flag beside the bound itself,
+    // rather than a number of its own.
+    const auto flagged = [&subschema,
+                          rank](const std::string &keyword) -> bool {
+      return rank < Rank::Draft6 && defines(subschema, keyword) &&
+             subschema.at(keyword).is_boolean() &&
+             subschema.at(keyword).to_boolean();
+    };
+
+    const auto *low{bound("minimum")};
+    if (low != nullptr) {
+      const auto where{side(*low)};
+      if (where < 0 || (where == 0 && flagged("exclusiveMinimum"))) {
+        return Verdict::No;
+      }
     }
 
-    if (bound("maximum", limit) && number > limit) {
-      return Verdict::No;
+    const auto *high{bound("maximum")};
+    if (high != nullptr) {
+      const auto where{side(*high)};
+      if (where > 0 || (where == 0 && flagged("exclusiveMaximum"))) {
+        return Verdict::No;
+      }
     }
 
     if (rank >= Rank::Draft6) {
-      if (bound("exclusiveMinimum", limit) && number <= limit) {
+      const auto *above{bound("exclusiveMinimum")};
+      if (above != nullptr && side(*above) <= 0) {
         return Verdict::No;
       }
 
-      if (bound("exclusiveMaximum", limit) && number >= limit) {
+      const auto *below{bound("exclusiveMaximum")};
+      if (below != nullptr && side(*below) >= 0) {
         return Verdict::No;
       }
     }
@@ -448,7 +471,7 @@ auto requires_field(const JSON::String &name) -> JSON {
 
 auto requires_fields(const JSON &names, const Pointer &pointer) -> JSON {
   if (!names.is_array()) {
-    fail("A list of field names was expected", pointer);
+    fail("A list of property names was expected", pointer);
   }
 
   if (names.empty()) {
@@ -472,8 +495,6 @@ auto requires_fields(const JSON &names, const Pointer &pointer) -> JSON {
   object.assign("fields", std::move(fields));
   return object;
 }
-
-// ------------------------------------------------------------------ the facts
 
 auto string_facts(Context &context, JSON &value, const JSON &subschema,
                   const Pointer &pointer) -> void {
@@ -524,18 +545,18 @@ auto number_facts(JSON &value, const JSON &subschema, const Pointer &pointer,
     range.assign("max", subschema.at("maximum"));
   }
 
-  // In draft 4, the exclusive KEYWORDS are flags on the bounds; from draft 6
+  // In Draft 4, the exclusive KEYWORDS are flags on the bounds; from Draft 6
   // they are bounds of their own.
   if (defines(subschema, "exclusiveMinimum")) {
     const auto &exclusive{subschema.at("exclusiveMinimum")};
     if (rank < Rank::Draft6) {
       if (!exclusive.is_boolean()) {
-        fail("The `exclusiveMinimum` keyword must be a boolean in draft 4",
+        fail("The `exclusiveMinimum` keyword must be a boolean in Draft 4",
              pointer);
       }
 
       if (exclusive.to_boolean() && !range.defines("min")) {
-        fail("The `exclusiveMinimum` keyword needs a `minimum` in draft 4",
+        fail("The `exclusiveMinimum` keyword needs a `minimum` in Draft 4",
              pointer);
       }
 
@@ -561,12 +582,12 @@ auto number_facts(JSON &value, const JSON &subschema, const Pointer &pointer,
     const auto &exclusive{subschema.at("exclusiveMaximum")};
     if (rank < Rank::Draft6) {
       if (!exclusive.is_boolean()) {
-        fail("The `exclusiveMaximum` keyword must be a boolean in draft 4",
+        fail("The `exclusiveMaximum` keyword must be a boolean in Draft 4",
              pointer);
       }
 
       if (exclusive.to_boolean() && !range.defines("max")) {
-        fail("The `exclusiveMaximum` keyword needs a `maximum` in draft 4",
+        fail("The `exclusiveMaximum` keyword needs a `maximum` in Draft 4",
              pointer);
       }
 
@@ -609,10 +630,9 @@ auto number_facts(JSON &value, const JSON &subschema, const Pointer &pointer,
                              bound.to_real() > static_cast<double>(EXACT) ||
                              bound.to_real() < -static_cast<double>(EXACT)))};
     if (past_exact) {
-      fail(std::string{"The `"} + keyword +
-               "` keyword is past the numbers JSON holds exactly, so the "
-               "format cannot state it",
-           pointer);
+      fail("This keyword is past the numbers JSON holds exactly, so the "
+           "format cannot state it",
+           pointer, keyword);
     }
   }
 
@@ -657,7 +677,9 @@ auto name_allowed(const JSON &keys, const JSON::String &name) -> bool {
 
   if (keys.defines("length")) {
     const auto &length{keys.at("length")};
-    const auto size{static_cast<std::int64_t>(name.size())};
+    // Counted the way the specification counts, in characters.
+    const auto size{
+        static_cast<std::int64_t>(sourcemeta::core::JSON::size(name))};
     if (length.defines("min") && length.at("min").is_integer() &&
         size < length.at("min").to_integer()) {
       return false;
@@ -678,17 +700,17 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
   if (defines(subschema, "required")) {
     const auto &names{subschema.at("required")};
     if (!names.is_array()) {
-      fail("The `required` keyword must be a list of field names", pointer);
+      fail("The `required` keyword must be a list of property names", pointer);
     }
 
     for (const auto &name : names.as_array()) {
       if (!name.is_string()) {
-        fail("A required field name must be a string", pointer);
+        fail("A required property name must be a string", pointer);
       }
 
       if (!required.insert(name.to_string()).second) {
-        fail("The `required` keyword names " + name.to_string() + " twice",
-             pointer);
+        fail("The `required` keyword names this property twice", pointer,
+             name.to_string());
       }
     }
   }
@@ -947,8 +969,6 @@ auto array_facts(Context &context, JSON &value, const JSON &subschema,
   }
 }
 
-// ------------------------------------------------------------------- the kind
-
 auto kind_of(const JSON::String &name, const Pointer &pointer) -> std::string {
   if (name == "string" || name == "number" || name == "integer" ||
       name == "boolean" || name == "object" || name == "array" ||
@@ -956,8 +976,8 @@ auto kind_of(const JSON::String &name, const Pointer &pointer) -> std::string {
     return name;
   }
 
-  fail("The `type` keyword names " + name + ", which is not a JSON type",
-       pointer);
+  fail("The `type` keyword names something that is not a JSON type", pointer,
+       name);
   return "any";
 }
 
@@ -1050,16 +1070,13 @@ auto fill_kind(Context &context, JSON &value, const JSON &subschema,
   }
 }
 
-// ------------------------------------------------------------- the references
-
 auto reference_of(Context &context, const JSON &subschema,
                   const Pointer &pointer) -> std::optional<JSON> {
   for (const auto *keyword : {"$dynamicRef", "$recursiveRef"}) {
     if (defines(subschema, keyword)) {
-      fail(std::string{"The `"} + keyword +
-               "` keyword names a place that depends on where it is used, "
-               "which the format cannot state exactly",
-           pointer);
+      fail("This keyword names a place that depends on where it is used, "
+           "which the format cannot state exactly",
+           pointer, keyword);
     }
   }
 
@@ -1126,8 +1143,6 @@ auto reference_of(Context &context, const JSON &subschema,
   return value;
 }
 
-// ------------------------------------------------------------ the whole value
-
 auto annotations(JSON &value, const JSON &subschema, const Rank rank) -> void {
   copy_if_present(subschema, "title", value, "title");
   copy_if_present(subschema, "description", value, "description");
@@ -1168,8 +1183,7 @@ auto branches(Context &context, JSON &value, const JSON &subschema,
 
   const auto &members{subschema.at(keyword)};
   if (!members.is_array() || members.empty()) {
-    fail("The `" + keyword + "` keyword must be a non-empty list of schemas",
-         pointer);
+    fail("This keyword must be a non-empty list of schemas", pointer, keyword);
   }
 
   std::vector<JSON> options;
@@ -1283,10 +1297,9 @@ auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
   // What the format cannot state exactly is refused rather than guessed at.
   for (const auto *keyword : {"unevaluatedProperties", "unevaluatedItems"}) {
     if (defines(subschema, keyword) && context.rank >= Rank::Draft2019) {
-      fail(std::string{"The `"} + keyword +
-               "` keyword depends on what the rest of the schema happened to "
-               "describe, which the format cannot state exactly",
-           pointer);
+      fail("This keyword depends on what the rest of the schema happened to "
+           "describe, which the format cannot state exactly",
+           pointer, keyword);
     }
   }
 
@@ -1316,7 +1329,7 @@ auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
 
         const auto kind{kind_of(entry.to_string(), pointer)};
         if (!seen.insert(kind).second) {
-          fail("The `type` keyword names " + kind + " twice", pointer);
+          fail("The `type` keyword names a type twice", pointer, kind);
         }
 
         kinds.push_back(kind);
@@ -1362,6 +1375,7 @@ auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
         fail("The `enum` keyword must be a non-empty list of values", pointer);
       }
 
+      allowed.reserve(listed.array_size());
       for (const auto &entry : listed.as_array()) {
         allowed.push_back(entry);
       }
@@ -1386,6 +1400,7 @@ auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
     }
 
     std::vector<JSON> kept;
+    kept.reserve(allowed.size());
     auto certain{true};
     for (const auto &entry : allowed) {
       const auto verdict{accepted_by(entry, subschema, kinds, context.rank)};
@@ -1405,8 +1420,8 @@ auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
     } else {
       value = make_value("enum");
       auto values{JSON::make_array()};
-      for (const auto &entry : kept) {
-        values.push_back(entry);
+      for (auto &entry : kept) {
+        values.push_back(std::move(entry));
       }
 
       value.assign("values", std::move(values));
@@ -1519,8 +1534,8 @@ auto rank_of(const sourcemeta::core::SchemaBaseDialect base_dialect,
     case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4:
       return Rank::Draft4;
     default:
-      fail("This module describes JSON Schema draft 4, 6 and 7, 2019-09 and "
-           "2020-12, and not hyper-schema",
+      fail("This module describes JSON Schema Draft 4, 6 and 7, 2019-09 and "
+           "2020-12, and not HyperSchema",
            pointer);
       return Rank::Draft2020;
   }
@@ -1611,8 +1626,7 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
     frame.emplace(sourcemeta::core::SchemaFrame::Mode::References, canonical,
                   walker, resolver);
   } catch (const std::exception &error) {
-    fail(std::string{"The schema could not be read: "} + error.what(),
-         root_pointer);
+    fail("The schema could not be read", root_pointer, error.what());
   }
 
   const auto root_location{frame->root_location()};
@@ -1622,6 +1636,30 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
   }
 
   const auto rank{rank_of(root_location->get().base_dialect, root_pointer)};
+
+  // One dialect for the whole document. A resource of its own may declare a
+  // different one, and then a keyword means something else, or nothing at all,
+  // from one part of the schema to the next. `prefixItems` inside a Draft 7
+  // resource is not a rule, and reading it as one would state something the
+  // schema does not say.
+  const auto root_dialect{root_location->get().base_dialect};
+  frame->for_each_subschema([root_dialect](const auto &location) {
+    if (location.base_dialect != root_dialect) {
+      Pointer where;
+      for (const auto &token : location.pointer) {
+        if (token.is_property()) {
+          where.push_back(token.to_property());
+        } else {
+          where.push_back(token.to_index());
+        }
+      }
+
+      fail("This resource is written in a different dialect from the rest of "
+           "the schema, which the format cannot state exactly",
+           where);
+    }
+  });
+
   Context context{.root = canonical,
                   .walker = walker,
                   .resolver = resolver,

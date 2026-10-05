@@ -17,7 +17,10 @@ if(NOT Core_FOUND)
   # subset of them, and consumers otherwise end up with a pile of libraries
   # they have no use for, plus the OpenSSL and cURL dependencies that some of
   # them bring in
-  set(SOURCEMETA_CORE_HTML OFF CACHE BOOL "unused by Blaze")
+  # The documentation library writes HTML, and uses Core for the escaping
+  # rather than rolling its own
+  set(SOURCEMETA_CORE_HTML ${BLAZE_DOCUMENTATION} CACHE BOOL
+    "used by the Blaze documentation library")
   set(SOURCEMETA_CORE_HTTP OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_JOSE OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_JSONPATH OFF CACHE BOOL "unused by Blaze")
