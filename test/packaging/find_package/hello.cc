@@ -13,8 +13,9 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <cstdlib>  // EXIT_SUCCESS
+#include <cstdlib>  // EXIT_SUCCESS, EXIT_FAILURE
 #include <iostream> // std::cerr
+#include <string>   // std::string
 
 auto main() -> int {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -69,7 +70,9 @@ auto main() -> int {
   const auto documentation{sourcemeta::blaze::to_documentation(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver)};
-  if (sourcemeta::blaze::to_html(documentation).empty()) {
+  std::string page;
+  sourcemeta::blaze::to_html(documentation, page);
+  if (page.empty()) {
     std::cerr << "Documentation rendering failed\n";
     return EXIT_FAILURE;
   }
