@@ -1,0 +1,8 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "http://json-schema.org/draft-07/schema#",
+  "root": {
+    "kind": "object"
+  }
+}

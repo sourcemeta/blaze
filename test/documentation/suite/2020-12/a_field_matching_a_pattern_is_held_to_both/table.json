@@ -1,0 +1,29 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "fields": [
+      {
+        "name": "abc",
+        "value": {
+          "kind": "string",
+          "also": [
+            {
+              "kind": "integer"
+            }
+          ]
+        }
+      }
+    ],
+    "patternFields": [
+      {
+        "pattern": "^a",
+        "value": {
+          "kind": "integer"
+        }
+      }
+    ]
+  }
+}
