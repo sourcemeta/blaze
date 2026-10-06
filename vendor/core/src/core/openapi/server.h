@@ -60,7 +60,13 @@ inline auto openapi_check_server_variable(const JSON &value,
           "The Server Variable Object enumeration must be an array"};
     }
 
-    if (enumeration->empty()) {
+    // 3.0 asks for the same thing without requiring it. Its first three
+    // releases say nothing of emptiness at all, and the last two say "The
+    // array SHOULD NOT be empty", the later of which was published the same
+    // day as the 3.1.1 wording above. The two lines were maintained together
+    // and chose different strengths, so an empty array is conforming under 3.0
+    // and turning one down there would refuse a document the revision admits
+    if (walk.version >= OpenAPIVersion::OPENAPI_3_1 && enumeration->empty()) {
       throw OpenAPIError{
           openapi_child(base, "enum"sv),
           "The Server Variable Object enumeration must not be empty"};
@@ -96,8 +102,13 @@ inline auto openapi_check_server_variable(const JSON &value,
   // OpenAPI Specification 3.1.1, Section 4.8.6: "If the `enum` is defined, the
   // value MUST exist in the enum's values". The published meta-schema does not
   // check this, and the fixture the OpenAPI Initiative ships for an empty
-  // enumeration says so in a comment, so the prose is what this follows
-  if (enumeration != nullptr &&
+  // enumeration says so in a comment, so the prose is what this follows.
+  //
+  // 3.0 holds the two fields to no such relation. Its first three releases
+  // state none, and the last two say "If the `enum` is defined, the value
+  // SHOULD exist in the enum's values", so a default outside the enumeration
+  // is conforming there
+  if (walk.version >= OpenAPIVersion::OPENAPI_3_1 && enumeration != nullptr &&
       !std::ranges::any_of(enumeration->as_array(),
                            [default_value](const JSON &option) -> bool {
                              return option.to_string() == default_value;
@@ -361,13 +372,18 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
   // document, not the feature set" and goes on: "The patch version SHOULD NOT
   // be considered by tooling, making no distinction between `3.1.0` and
   // `3.1.1`". So reading this one as a clarification of what 3.1 always meant
-  // is what that rule asks for.
+  // is what that rule asks for. No release of 3.0 carries that sentence, and
+  // the last of them was published the same day as 3.1.1, so the line that
+  // had the clarification to make did not make it there. What 3.0 says of
+  // this field is "**REQUIRED**. A URL to the target host", and nothing in
+  // any of its releases forbids either character.
   //
   // A query begins at the first `?` and a fragment at the first `#`, so either
   // character in the template starts one, whether or not it sits inside a
   // variable expression. A percent-encoded one is neither and is left alone
-  if (address.find('?') != JSON::StringView::npos ||
-      address.find('#') != JSON::StringView::npos) {
+  if (walk.version >= OpenAPIVersion::OPENAPI_3_1 &&
+      (address.find('?') != JSON::StringView::npos ||
+       address.find('#') != JSON::StringView::npos)) {
     throw OpenAPIError{
         openapi_child(base, "url"sv),
         "The Server Object URL must carry no query and no fragment"};
@@ -392,7 +408,7 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
   // amount of parsing can rescue unreported. That is under-reporting rather
   // than a wrong refusal, and closing it would turn down documents accepted
   // until now, so it waits for a release that can carry it
-  if (walk.version == OpenAPIVersion::OPENAPI_3_2) {
+  if (walk.version >= OpenAPIVersion::OPENAPI_3_2) {
     if (!openapi_is_server_url_template(address)) {
       throw OpenAPIError{openapi_child(base, "url"sv),
                          "The Server Object URL must take the form of a "

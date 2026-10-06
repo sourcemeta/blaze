@@ -33,8 +33,11 @@ constexpr auto JSONSCHEMA_HASH_RECURSIVE_ANCHOR{
 constexpr auto JSONSCHEMA_HASH_VOCABULARY{JSON::Object::hash("$vocabulary"sv)};
 constexpr auto JSONSCHEMA_HASH_DEFS{JSON::Object::hash("$defs"sv)};
 constexpr auto JSONSCHEMA_HASH_DEFINITIONS{JSON::Object::hash("definitions"sv)};
+constexpr auto EXTENSION_DEFINITIONS_KEYWORD{"x-definitions"sv};
+constexpr auto DIALECT_OVERRIDE_KEYWORD{
+    "x-sourcemeta-dialect-override-subschema"sv};
 constexpr auto JSONSCHEMA_HASH_DIALECT_OVERRIDE{
-    JSON::Object::hash("x-sourcemeta-dialect-override-subschema"sv)};
+    JSON::Object::hash(DIALECT_OVERRIDE_KEYWORD)};
 
 /// A keyword whose name is only known once the base dialect is, paired with
 /// the hash of that name so that looking it up does not have to hash it again
@@ -100,6 +103,76 @@ inline auto id_keyword(const SchemaBaseDialect base_dialect) -> SchemaKeyword {
 
   assert(false);
   return {.name = "$id"sv, .hash = JSONSCHEMA_HASH_ID};
+}
+
+// Whether the dialect in force gives a keyword any meaning at all, which is
+// what the vocabularies it draws on say rather than what its base dialect
+// happens to name
+inline auto dialect_defines(const SchemaWalker &walker,
+                            const SchemaVocabularies &vocabularies,
+                            const std::string_view keyword) -> bool {
+  return walker(keyword, vocabularies).type != SchemaKeywordType::Unknown;
+}
+
+// A base dialect names the keyword that introduces an identifier, but a
+// dialect built on top of it may leave that keyword out of its own
+// vocabularies, in which case nothing the schema writes can introduce one.
+// Every dialect the specifications define keeps the two in step, so this only
+// parts ways for a custom dialect that drops the keyword
+inline auto dialect_defines_identifier(const SchemaWalker &walker,
+                                       const SchemaVocabularies &vocabularies,
+                                       const SchemaBaseDialect base_dialect)
+    -> bool {
+  return dialect_defines(walker, vocabularies, id_keyword(base_dialect).name);
+}
+
+// A schema may pin a meta-schema that it carries within itself, so looking
+// there before the resolver is what keeps a document that describes itself
+// from being read against whatever else answers to that name. The result
+// borrows both of them, so it must not outlive either
+inline auto resolver_with_embedded(const sourcemeta::core::JSON &schema,
+                                   const SchemaResolver &resolver)
+    -> SchemaResolver {
+  return [&schema,
+          &resolver](const std::string_view target) -> SchemaResolverResult {
+    const auto *embedded{
+        sourcemeta::core::metaschema_try_embedded(schema, target, resolver)};
+    if (embedded != nullptr) {
+      return *embedded;
+    }
+
+    return resolver(target);
+  };
+}
+
+inline auto vocabularies_with_embedded(const sourcemeta::core::JSON &schema,
+                                       const SchemaResolver &resolver,
+                                       const SchemaBaseDialect base_dialect,
+                                       const std::string_view dialect)
+    -> SchemaVocabularies {
+  return sourcemeta::core::vocabularies(
+      resolver_with_embedded(schema, resolver), base_dialect, dialect);
+}
+
+// Every name this implementation knows for a location reserved for schema
+// definitions, in the order a dialect that reserves more than one prefers them
+constexpr auto DEFINITIONS_KEYWORDS{std::to_array<std::string_view>(
+    {"$defs", "definitions", EXTENSION_DEFINITIONS_KEYWORD})};
+
+// Which of those names the dialect in force actually reserves. Asking its own
+// vocabularies rather than its base dialect is what keeps a dialect that drops
+// or renames the location from being handed the one its base dialect would use
+inline auto definitions_keyword(const SchemaWalker &walker,
+                                const SchemaVocabularies &vocabularies)
+    -> std::string_view {
+  for (const auto candidate : DEFINITIONS_KEYWORDS) {
+    if (walker(candidate, vocabularies).type ==
+        SchemaKeywordType::LocationMembers) {
+      return candidate;
+    }
+  }
+
+  return {};
 }
 
 inline auto definitions_keyword(const SchemaBaseDialect base_dialect)

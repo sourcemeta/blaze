@@ -147,7 +147,7 @@ inline auto openapi_check_paths(const JSON &document, OpenAPIWalk &walk)
     // percent-decode using [RFC3986] rules", a path being appended to a server
     // URL to make one. The grammar is the whole of what the specification says
     // a path template is, and it is read for nothing but the shape
-    if (walk.version == OpenAPIVersion::OPENAPI_3_2) {
+    if (walk.version >= OpenAPIVersion::OPENAPI_3_2) {
       if (!openapi_is_path_template(entry.first)) {
         throw OpenAPIError{location,
                            "The Paths Object keys must take the form of a "
