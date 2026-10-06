@@ -1,0 +1,4467 @@
+[
+  {
+    "description": "nullable_string_null_1",
+    "schema": { "type": "string", "nullable": true },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_string_match_1",
+    "schema": { "type": "string", "nullable": true },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string and it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string and it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_string_mismatch_1",
+    "schema": { "type": "string", "nullable": true },
+    "instance": 42,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string but it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "nullable_integer_null_1",
+    "schema": { "type": "integer", "nullable": true },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or integer and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or integer and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_integer_match_1",
+    "schema": { "type": "integer", "nullable": true },
+    "instance": 7,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or integer and it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or integer and it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "nullable_integer_mismatch_1",
+    "schema": { "type": "integer", "nullable": true },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or integer but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or integer but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_number_null_1",
+    "schema": { "type": "number", "nullable": true },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or number and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or number and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_number_match_1",
+    "schema": { "type": "number", "nullable": true },
+    "instance": 1.5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or number and it was of type number"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or number and it was of type number"
+      ]
+    }
+  },
+  {
+    "description": "nullable_number_mismatch_1",
+    "schema": { "type": "number", "nullable": true },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or number but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or number but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_boolean_null_1",
+    "schema": { "type": "boolean", "nullable": true },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or boolean and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or boolean and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_boolean_match_1",
+    "schema": { "type": "boolean", "nullable": true },
+    "instance": true,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or boolean and it was of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or boolean and it was of type boolean"
+      ]
+    }
+  },
+  {
+    "description": "nullable_boolean_mismatch_1",
+    "schema": { "type": "boolean", "nullable": true },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or boolean but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or boolean but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_array_null_1",
+    "schema": { "type": "array", "nullable": true },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_array_match_1",
+    "schema": { "type": "array", "nullable": true },
+    "instance": [ 1 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array and it was of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array and it was of type array"
+      ]
+    }
+  },
+  {
+    "description": "nullable_array_mismatch_1",
+    "schema": { "type": "array", "nullable": true },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_null_1",
+    "schema": { "type": "object", "nullable": true },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_match_1",
+    "schema": { "type": "object", "nullable": true },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type object"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_mismatch_1",
+    "schema": { "type": "object", "nullable": true },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_false_string_null_1",
+    "schema": { "type": "string", "nullable": false },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_false_string_match_1",
+    "schema": { "type": "string", "nullable": false },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_without_type_null_1",
+    "schema": { "nullable": true },
+    "instance": null,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "nullable_without_type_integer_1",
+    "schema": { "nullable": true },
+    "instance": 42,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "nullable_beside_enum_null_1",
+    "schema": { "type": "string", "nullable": true, "enum": [ "a", "b" ] },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The null value null was expected to equal one of the given declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The null value null was expected to equal one of the following values: \"a\", and \"b\""
+      ]
+    }
+  },
+  {
+    "description": "nullable_beside_enum_match_1",
+    "schema": { "type": "string", "nullable": true, "enum": [ "a", "b" ] },
+    "instance": "a",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to equal one of the given declared values",
+        "The value was expected to be of type null, or string and it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to equal one of the 2 declared values",
+        "The value was expected to be of type null, or string and it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_array_with_maxitems_over_1",
+    "schema": { "type": "array", "nullable": true, "maxItems": 2 },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items but it contained 3 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items but it contained 3 items"
+      ]
+    }
+  },
+  {
+    "description": "nullable_array_with_maxitems_within_1",
+    "schema": { "type": "array", "nullable": true, "maxItems": 2 },
+    "instance": [ 1 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items and it contained 1 item",
+        "The value was expected to be of type null, or array and it was of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items and it contained 1 item",
+        "The value was expected to be of type null, or array and it was of type array"
+      ]
+    }
+  },
+  {
+    "description": "nullable_array_with_maxitems_null_1",
+    "schema": { "type": "array", "nullable": true, "maxItems": 2 },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_array_with_minitems_under_1",
+    "schema": { "type": "array", "nullable": true, "minItems": 2 },
+    "instance": [ 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items but it contained 1 item"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items but it contained 1 item"
+      ]
+    }
+  },
+  {
+    "description": "nullable_array_with_minitems_null_1",
+    "schema": { "type": "array", "nullable": true, "minItems": 2 },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or array and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_maxproperties_over_1",
+    "schema": { "type": "object", "nullable": true, "maxProperties": 1 },
+    "instance": { "a": 1, "b": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_maxproperties_null_1",
+    "schema": { "type": "object", "nullable": true, "maxProperties": 1 },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_minproperties_under_1",
+    "schema": { "type": "object", "nullable": true, "minProperties": 2 },
+    "instance": { "a": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 2 properties but it contained 1 property: \"a\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 2 properties but it contained 1 property: \"a\""
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_minproperties_null_1",
+    "schema": { "type": "object", "nullable": true, "minProperties": 2 },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "discriminator_1",
+    "schema": { "discriminator": { "propertyName": "petType" } },
+    "instance": { "petType": "dog", "name": "Rex" },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "xml_1",
+    "schema": {
+      "xml": {
+        "name": "pet",
+        "namespace": "http://example.com/schema",
+        "prefix": "ex",
+        "attribute": false,
+        "wrapped": true
+      }
+    },
+    "instance": { "name": "Rex" },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "external_docs_1",
+    "schema": {
+      "externalDocs": {
+        "url": "https://example.com/docs",
+        "description": "Find more info here"
+      }
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "example_1",
+    "schema": { "example": { "name": "Rex", "petType": "dog" } },
+    "instance": { "name": "Fluffy", "petType": "cat" },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "read_only_1",
+    "schema": { "type": "string", "readOnly": true },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "write_only_1",
+    "schema": { "type": "string", "writeOnly": true },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "deprecated_1",
+    "schema": { "type": "string", "deprecated": true },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "extension_member_ignored_1",
+    "schema": { "type": "string", "x-internal": { "anything": true } },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "extension_member_ignored_failure_1",
+    "schema": { "type": "string", "x-internal": { "anything": true } },
+    "instance": 42,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "enum_with_duplicate_values_1",
+    "schema": { "enum": [ "a", "a", "b" ] },
+    "instance": "a",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to equal one of the 2 declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to equal one of the 2 declared values"
+      ]
+    }
+  },
+  {
+    "description": "enum_with_duplicate_values_failure_1",
+    "schema": { "enum": [ "a", "a", "b" ] },
+    "instance": "c",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"c\" was expected to equal one of the following values: \"a\", and \"b\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"c\" was expected to equal one of the following values: \"a\", and \"b\""
+      ]
+    }
+  },
+  {
+    "description": "ref_into_extension_definitions_1",
+    "schema": {
+      "type": "object",
+      "properties": { "a": { "$ref": "#/x-definitions/Name" } },
+      "x-definitions": { "Name": { "type": "string" } }
+    },
+    "instance": { "a": "Rex" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ "AssertionTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ true, "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "ref_into_extension_definitions_failure_1",
+    "schema": {
+      "type": "object",
+      "properties": { "a": { "$ref": "#/x-definitions/Name" } },
+      "x-definitions": { "Name": { "type": "string" } }
+    },
+    "instance": { "a": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ "AssertionTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ false, "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "ref_overrides_siblings_1",
+    "schema": {
+      "type": "object",
+      "properties": { "a": { "$ref": "#/x-definitions/Name", "maxLength": 1 } },
+      "x-definitions": { "Name": { "type": "string" } }
+    },
+    "instance": { "a": "Rex" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ "AssertionTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+        [ true, "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "exclusive_maximum_boundary_1",
+    "schema": { "type": "integer", "maximum": 5, "exclusiveMaximum": true },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be less than the integer 5, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be less than the integer 5, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "exclusive_maximum_under_1",
+    "schema": { "type": "integer", "maximum": 5, "exclusiveMaximum": true },
+    "instance": 4,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/maximum", "#/maximum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 4 was expected to be less than the integer 5",
+        "The value was expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/maximum", "#/maximum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 4 was expected to be less than the integer 5",
+        "The value was expected to be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "exclusive_minimum_boundary_1",
+    "schema": { "type": "integer", "minimum": 5, "exclusiveMinimum": true },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeIntegerLowerBoundStrict", "", "#", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeIntegerLowerBoundStrict", "", "#", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an integer above the given minimum"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be greater than the integer 5, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "exclusive_minimum_over_1",
+    "schema": { "type": "integer", "minimum": 5, "exclusiveMinimum": true },
+    "instance": 6,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeIntegerLowerBoundStrict", "", "#", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeIntegerLowerBoundStrict", "", "#", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an integer above the given minimum"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 6 was expected to be greater than the integer 5",
+        "The value was expected to be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "exclusive_maximum_without_sibling_1",
+    "schema": { "exclusiveMaximum": true },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "nullable_string_with_maxlength_over_1",
+    "schema": { "type": "string", "nullable": true, "maxLength": 2 },
+    "instance": "xxx",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+      ]
+    }
+  },
+  {
+    "description": "nullable_string_with_maxlength_within_1",
+    "schema": { "type": "string", "nullable": true, "maxLength": 2 },
+    "instance": "xx",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters",
+        "The value was expected to be of type null, or string and it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters",
+        "The value was expected to be of type null, or string and it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_string_with_maxlength_null_1",
+    "schema": { "type": "string", "nullable": true, "maxLength": 2 },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_string_with_minlength_under_1",
+    "schema": { "type": "string", "nullable": true, "minLength": 2 },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+      ]
+    }
+  },
+  {
+    "description": "nullable_string_with_minlength_null_1",
+    "schema": { "type": "string", "nullable": true, "minLength": 2 },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or string and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_required_null_1",
+    "schema": { "type": "object", "nullable": true, "required": [ "a" ] },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_required_missing_1",
+    "schema": { "type": "object", "nullable": true, "required": [ "a" ] },
+    "instance": { "b": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"a\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"a\""
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_required_present_1",
+    "schema": { "type": "object", "nullable": true, "required": [ "a" ] },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefines", "/required", "#/required", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"a\"",
+        "The value was expected to be of type null, or object and it was of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefines", "/required", "#/required", "" ],
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/required", "#/required", "" ],
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"a\"",
+        "The value was expected to be of type null, or object and it was of type object"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_properties_null_1",
+    "schema": {
+      "type": "object",
+      "nullable": true,
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_with_properties_mismatch_1",
+    "schema": {
+      "type": "object",
+      "nullable": true,
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": { "a": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+      ],
+      "post": [
+        [ false, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "nullable_object_closed_null_1",
+    "schema": {
+      "type": "object",
+      "nullable": true,
+      "additionalProperties": false,
+      "required": [ "a" ],
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": null,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type null, or object and it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "all_of_empty_1",
+    "schema": { "allOf": [] },
+    "instance": 1,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "any_of_empty_1",
+    "schema": { "anyOf": [] },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/anyOf", "#/anyOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/anyOf", "#/anyOf", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/anyOf", "#/anyOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/anyOf", "#/anyOf", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    }
+  },
+  {
+    "description": "one_of_empty_1",
+    "schema": { "oneOf": [] },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/oneOf", "#/oneOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionFail", "/oneOf", "#/oneOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    }
+  },
+  {
+    "description": "format_uri_ignored_1",
+    "schema": { "format": "uri" },
+    "instance": "not a uri at all",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "format_int32_ignored_1",
+    "schema": { "format": "int32" },
+    "instance": "not a number at all",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "type_1",
+    "schema": { "type": "string" },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "type_1_hyperschema",
+    "schema": { "type": "string" },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "type_2",
+    "schema": { "type": "string" },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "type_5",
+    "schema": { "type": "number" },
+    "instance": "3.14",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "enum_1",
+    "schema": { "enum": [ 1, {}, "foo" ] },
+    "instance": {},
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {} was expected to equal one of the 3 declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {} was expected to equal one of the 3 declared values"
+      ]
+    }
+  },
+  {
+    "description": "enum_3",
+    "schema": { "enum": [ 1 ] },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1"
+      ]
+    }
+  },
+  {
+    "description": "enum_2",
+    "schema": { "enum": [ 1, {}, "foo" ] },
+    "instance": { "foo": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {\"foo\":1} was expected to equal one of the following values: 1, \"foo\", and {}"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The object value {\"foo\":1} was expected to equal one of the following values: 1, \"foo\", and {}"
+      ]
+    }
+  },
+  {
+    "description": "enum_18",
+    "schema": { "type": "string", "enum": [ "foo", "bar", "baz" ] },
+    "instance": "xxxx",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxxx\" was expected to equal one of the given declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxxx\" was expected to equal one of the following values: \"bar\", \"baz\", and \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "ref_6",
+    "schema": { "type": "object", "properties": { "foo": { "$ref": "#" } } },
+    "instance": { "foo": {} },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "#/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "#/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ "LogicalWhenType", "/properties/foo/$ref/properties", "#/properties", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/$ref/type", "#/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LogicalWhenType", "/properties/foo/$ref/properties", "#/properties", "/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "#/type", "/foo" ],
+        [ true, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object",
+        "The object value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "ref_7",
+    "schema": {
+      "properties": {
+        "a": { "$ref": "#" },
+        "b": { "$ref": "#" },
+        "c": { "$ref": "#" },
+        "d": { "$ref": "#" },
+        "e": { "$ref": "#" },
+        "f": { "$ref": "#" }
+      }
+    },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the 6 defined properties subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the 6 defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "properties_1",
+    "schema": {
+      "properties": { "foo": { "type": "string" }, "bar": { "type": "integer" } }
+    },
+    "instance": { "bar": 2, "foo": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ false, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type string but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+        [ false, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type string but it was of type integer",
+        "The object value was expected to validate against the defined properties subschemas"
+      ]
+    }
+  },
+  {
+    "description": "properties_16",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "foo", "bar" ],
+      "properties": { "foo": {}, "bar": { "type": "object" } }
+    },
+    "instance": "baz",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactlyStrict", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactlyStrict", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that only defines properties \"bar\", and \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "properties_14",
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "a": { "type": "string" },
+        "b": { "type": "string" },
+        "c": { "type": "string" },
+        "d": { "type": "string" },
+        "e": { "type": "string" },
+        "f": { "type": "string" },
+        "g": { "type": "string" },
+        "h": { "type": "string" },
+        "i": { "type": "string" },
+        "j": { "type": "string" },
+        "k": { "type": "string" },
+        "l": { "type": "string" },
+        "m": { "type": "string" },
+        "n": { "type": "string" },
+        "o": { "type": "string" },
+        "p": { "type": "string" },
+        "q": { "type": "string" },
+        "r": { "type": "string" },
+        "s": { "type": "string" },
+        "t": { "type": "string" },
+        "u": { "type": "string" },
+        "v": { "type": "string" },
+        "w": { "type": "string" },
+        "x": { "type": "string" },
+        "y": { "type": "string" },
+        "z": { "type": "string" }
+      }
+    },
+    "instance": { "f": "foo" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionPropertyTypeStrict", "/properties/f/type", "#/properties/f/type", "/f" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/f/type", "#/properties/f/type", "/f" ],
+        [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "Every object value was expected to validate against one of the 26 defined properties subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/properties/f/type", "#/properties/f/type", "/f" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/f/type", "#/properties/f/type", "/f" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the 26 defined properties subschemas",
+        "The object value was not expected to define additional properties"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_1",
+    "schema": { "additionalProperties": { "type": "integer" } },
+    "instance": { "bar": 2, "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+      ],
+      "descriptions": [
+        "The object properties were expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+        [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+        [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+        [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+      ]
+    }
+  },
+  {
+    "description": "properties_17",
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "foo", "bar", "baz" ],
+      "properties": {
+        "foo": { "type": "string" },
+        "bar": { "type": "array" },
+        "baz": { "type": "object" }
+      }
+    },
+    "instance": "baz",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that only defines the 3 given properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_13",
+    "schema": {
+      "required": [ "foo", "bar" ],
+      "additionalProperties": false,
+      "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
+    },
+    "instance": { "foo": true, "bar": false, "baz": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_16",
+    "schema": {
+      "items": {
+        "type": "object",
+        "required": [ "foo", "bar" ],
+        "additionalProperties": false,
+        "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
+      }
+    },
+    "instance": [ { "foo": true, "bar": false } ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+        [ "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+        [ "AssertionTypeStrict", "/items/properties/bar/type", "#/items/properties/bar/type", "/0/bar" ],
+        [ "AssertionTypeStrict", "/items/properties/foo/type", "#/items/properties/foo/type", "/0/foo" ],
+        [ "LoopPropertiesExcept", "/items/additionalProperties", "#/items/additionalProperties", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/properties/bar/type", "#/items/properties/bar/type", "/0/bar" ],
+        [ true, "AssertionTypeStrict", "/items/properties/foo/type", "#/items/properties/foo/type", "/0/foo" ],
+        [ true, "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+        [ true, "LoopPropertiesExcept", "/items/additionalProperties", "#/items/additionalProperties", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"bar\", and \"foo\"",
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type boolean",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "additionalProperties_17",
+    "schema": {
+      "items": {
+        "type": "object",
+        "required": [ "foo", "bar" ],
+        "additionalProperties": false,
+        "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
+      }
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ true, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_3",
+    "schema": { "items": { "type": "string" } },
+    "instance": [ "foo", 5, "baz" ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ false, "LoopItemsTypeStrict", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The array items were expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+        [ false, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type string but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_integer_bounded_2",
+    "schema": { "items": { "type": "number", "minimum": 0, "maximum": 100 } },
+    "instance": [ 10, 200, 50 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsIntegerBounded", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ false, "LoopItemsIntegerBounded", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be a number within the given range"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+        [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+        [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+        [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+        [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+        [ false, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ],
+        [ false, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be less than or equal to the integer 100",
+        "The integer value 10 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type number",
+        "The integer value 200 was expected to be less than or equal to the integer 100",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "required_1",
+    "schema": { "required": [ "foo" ] },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "required_2",
+    "schema": { "required": [ "foo" ] },
+    "instance": { "foo": 1, "bar": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefines", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define the property \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "required_3",
+    "schema": { "required": [ "foo", "baz" ] },
+    "instance": { "foo": 1, "bar": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDefinesAll", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesAll", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define properties \"baz\", and \"foo\" but did not define the property \"baz\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAll", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesAll", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to define properties \"baz\", and \"foo\" but did not define the property \"baz\""
+      ]
+    }
+  },
+  {
+    "description": "assertion_object_properties_simple_2",
+    "schema": {
+      "type": "object",
+      "required": [ "a", "b" ],
+      "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+    },
+    "instance": { "a": "hello" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines properties \"a\", and \"b\""
+      ]
+    }
+  },
+  {
+    "description": "allOf_1",
+    "schema": { "allOf": [ { "type": "object" }, { "required": [ "foo", "bar" ] } ] },
+    "instance": { "foo": 1, "bar": 2 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+        [ "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+        [ true, "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define properties \"bar\", and \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+        [ "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+        [ true, "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ],
+        [ true, "LogicalAnd", "/allOf", "#/allOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define properties \"bar\", and \"foo\"",
+        "The object value was expected to validate against the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "allOf_2",
+    "schema": { "allOf": [ { "type": "object" }, { "required": [ "foo", "bar" ] } ] },
+    "instance": { "foo": 1, "baz": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+        [ "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+        [ false, "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define properties \"bar\", and \"foo\" but did not define the property \"bar\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+        [ "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+        [ false, "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ],
+        [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object",
+        "The object value was expected to define properties \"bar\", and \"foo\" but did not define the property \"bar\"",
+        "The object value was expected to validate against the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "anyOf_1",
+    "schema": {
+      "anyOf": [ { "type": "string" }, { "type": "integer" }, { "type": "number" } ]
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number, or string and it was of type number"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+        [ "AssertionTypeStrictAny", "/anyOf/2/type", "#/anyOf/2/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+        [ true, "AssertionTypeStrict", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+        [ true, "AssertionTypeStrictAny", "/anyOf/2/type", "#/anyOf/2/type", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type number",
+        "The integer value was expected to validate against at least one of the 3 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "anyOf_3",
+    "schema": {
+      "anyOf": [
+        {
+          "properties": {
+            "version": { "enum": [ 1 ] },
+            "one": { "items": { "type": "integer" } },
+            "two": { "items": { "type": "boolean" } },
+            "three": { "items": { "type": "object" } },
+            "four": { "items": { "type": "integer" } },
+            "five": { "items": { "type": "boolean" } },
+            "six": { "items": { "type": "object" } },
+            "seven": { "items": { "type": "object" } },
+            "eight": { "items": { "type": "object" } },
+            "nine": { "items": { "type": "object" } },
+            "then": { "items": { "type": "object" } }
+          }
+        },
+        {
+          "properties": { "version": { "enum": [ 2 ] }, "one": { "type": "string" } }
+        },
+        {
+          "properties": {
+            "version": { "enum": [ 3 ] },
+            "one": { "items": { "type": "integer" } },
+            "two": { "items": { "type": "boolean" } },
+            "three": { "items": { "type": "object" } }
+          }
+        }
+      ]
+    },
+    "instance": { "version": 2, "one": "two" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionEqual", "/anyOf/0/properties/version/enum", "#/anyOf/0/properties/version/enum", "/version" ],
+        [ "AssertionEqual", "/anyOf/1/properties/version/enum", "#/anyOf/1/properties/version/enum", "/version" ],
+        [ "AssertionPropertyTypeStrict", "/anyOf/1/properties/one/type", "#/anyOf/1/properties/one/type", "/one" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/anyOf/0/properties/version/enum", "#/anyOf/0/properties/version/enum", "/version" ],
+        [ true, "AssertionEqual", "/anyOf/1/properties/version/enum", "#/anyOf/1/properties/version/enum", "/version" ],
+        [ true, "AssertionPropertyTypeStrict", "/anyOf/1/properties/one/type", "#/anyOf/1/properties/one/type", "/one" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1",
+        "The integer value 2 was expected to equal the integer constant 2",
+        "The value was expected to be of type string",
+        "The object value was expected to validate against at least one of the 3 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ "AssertionEqual", "/anyOf/0/properties/version/enum", "#/anyOf/0/properties/version/enum", "/version" ],
+        [ "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ "AssertionEqual", "/anyOf/1/properties/version/enum", "#/anyOf/1/properties/version/enum", "/version" ],
+        [ "AssertionTypeStrict", "/anyOf/1/properties/one/type", "#/anyOf/1/properties/one/type", "/one" ],
+        [ "LogicalWhenType", "/anyOf/2/properties", "#/anyOf/2/properties", "" ],
+        [ "AssertionEqual", "/anyOf/2/properties/version/enum", "#/anyOf/2/properties/version/enum", "/version" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/anyOf/0/properties/version/enum", "#/anyOf/0/properties/version/enum", "/version" ],
+        [ false, "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
+        [ true, "AssertionEqual", "/anyOf/1/properties/version/enum", "#/anyOf/1/properties/version/enum", "/version" ],
+        [ true, "AssertionTypeStrict", "/anyOf/1/properties/one/type", "#/anyOf/1/properties/one/type", "/one" ],
+        [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
+        [ false, "AssertionEqual", "/anyOf/2/properties/version/enum", "#/anyOf/2/properties/version/enum", "/version" ],
+        [ false, "LogicalWhenType", "/anyOf/2/properties", "#/anyOf/2/properties", "" ],
+        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The integer value 2 was expected to equal the integer constant 2",
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The integer value 2 was expected to equal the integer constant 3",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was expected to validate against at least one of the 3 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "anyOf_2",
+    "schema": {
+      "anyOf": [ { "type": "string" }, { "type": "integer" }, { "type": "number" } ]
+    },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type number, or string but it was of type boolean"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+        [ "AssertionTypeStrictAny", "/anyOf/2/type", "#/anyOf/2/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+        [ false, "AssertionTypeStrictAny", "/anyOf/2/type", "#/anyOf/2/type", "" ],
+        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type boolean",
+        "The value was expected to be of type integer but it was of type boolean",
+        "The value was expected to be of type number but it was of type boolean",
+        "The boolean value was expected to validate against at least one of the 3 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "oneOf_1",
+    "schema": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "integer" },
+        { "type": "number" },
+        { "type": "boolean" }
+      ]
+    },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ false, "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ],
+        [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type integer but it was of type string",
+        "The value was expected to be of type number but it was of type string",
+        "The value was expected to be of type boolean but it was of type string",
+        "The string value was expected to validate against one and only one of the 4 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ false, "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ],
+        [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The value was expected to be of type integer but it was of type string",
+        "The value was expected to be of type number but it was of type string",
+        "The value was expected to be of type boolean but it was of type string",
+        "The string value was expected to validate against one and only one of the 4 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "oneOf_2",
+    "schema": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "integer" },
+        { "type": "number" },
+        { "type": "boolean" }
+      ]
+    },
+    "instance": 3.14,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ true, "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ],
+        [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type number",
+        "The value was expected to be of type integer but it was of type number",
+        "The value was expected to be of type number",
+        "The value was expected to be of type boolean but it was of type number",
+        "The number value was expected to validate against one and only one of the 4 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ true, "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ],
+        [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type number",
+        "The value was expected to be of type integer but it was of type number",
+        "The value was expected to be of type number",
+        "The value was expected to be of type boolean but it was of type number",
+        "The number value was expected to validate against one and only one of the 4 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "oneOf_3",
+    "schema": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "integer" },
+        { "type": "number" },
+        { "type": "boolean" }
+      ]
+    },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ true, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ true, "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type number",
+        "The integer value was expected to validate against one and only one of the 4 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ true, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ true, "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ],
+        [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The value was expected to be of type integer",
+        "The value was expected to be of type number",
+        "The value was expected to be of type boolean but it was of type integer",
+        "The integer value was expected to validate against one and only one of the 4 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "oneOf_7",
+    "schema": { "oneOf": [ { "type": "string" }, { "type": "integer" } ] },
+    "instance": true,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type boolean",
+        "The value was expected to be of type integer but it was of type boolean",
+        "The boolean value was expected to validate against one and only one of the 2 given subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+        [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+        [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type boolean",
+        "The value was expected to be of type integer but it was of type boolean",
+        "The boolean value was expected to validate against one and only one of the 2 given subschemas"
+      ]
+    }
+  },
+  {
+    "description": "not_1",
+    "schema": { "not": { "type": "string" } },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalNot", "/not", "#/not", "" ],
+        [ "AssertionTypeStrict", "/not/type", "#/not/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/not/type", "#/not/type", "" ],
+        [ true, "LogicalNot", "/not", "#/not", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to not validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalNot", "/not", "#/not", "" ],
+        [ "AssertionTypeStrict", "/not/type", "#/not/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/not/type", "#/not/type", "" ],
+        [ true, "LogicalNot", "/not", "#/not", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type integer",
+        "The integer value was expected to not validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "not_3",
+    "schema": {
+      "not": {
+        "properties": { "foo": { "type": "boolean" } },
+        "additionalProperties": { "type": "integer" }
+      }
+    },
+    "instance": { "foo": true, "bar": false },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LogicalNot", "/not", "#/not", "" ],
+        [ "AssertionPropertyTypeStrict", "/not/properties/foo/type", "#/not/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/not/additionalProperties", "#/not/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/not/additionalProperties/type", "#/not/additionalProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/not/properties/foo/type", "#/not/properties/foo/type", "/foo" ],
+        [ false, "AssertionTypeStrict", "/not/additionalProperties/type", "#/not/additionalProperties/type", "/bar" ],
+        [ false, "LoopPropertiesExcept", "/not/additionalProperties", "#/not/additionalProperties", "" ],
+        [ true, "LogicalNot", "/not", "#/not", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The value was expected to be of type integer but it was of type boolean",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The object value was expected to not validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalNot", "/not", "#/not", "" ],
+        [ "LogicalWhenType", "/not/properties", "#/not/properties", "" ],
+        [ "AssertionTypeStrict", "/not/properties/foo/type", "#/not/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/not/additionalProperties", "#/not/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/not/additionalProperties/type", "#/not/additionalProperties/type", "/bar" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/not/properties/foo/type", "#/not/properties/foo/type", "/foo" ],
+        [ true, "LogicalWhenType", "/not/properties", "#/not/properties", "" ],
+        [ false, "AssertionTypeStrict", "/not/additionalProperties/type", "#/not/additionalProperties/type", "/bar" ],
+        [ false, "LoopPropertiesExcept", "/not/additionalProperties", "#/not/additionalProperties", "" ],
+        [ true, "LogicalNot", "/not", "#/not", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type boolean",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type integer but it was of type boolean",
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The object value was expected to not validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "not_2",
+    "schema": { "not": { "type": "string" } },
+    "instance": "foo",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LogicalNot", "/not", "#/not", "" ],
+        [ "AssertionTypeStrict", "/not/type", "#/not/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/not/type", "#/not/type", "" ],
+        [ false, "LogicalNot", "/not", "#/not", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to not validate against the given subschema, but it did"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalNot", "/not", "#/not", "" ],
+        [ "AssertionTypeStrict", "/not/type", "#/not/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/not/type", "#/not/type", "" ],
+        [ false, "LogicalNot", "/not", "#/not", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to not validate against the given subschema, but it did"
+      ]
+    }
+  },
+  {
+    "description": "maxProperties_1",
+    "schema": { "maxProperties": 2 },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "maxProperties_2",
+    "schema": { "maxProperties": 2 },
+    "instance": { "bar": 2, "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 2 properties and it contained 2 properties: \"bar\", and \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 2 properties and it contained 2 properties: \"bar\", and \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "maxProperties_3",
+    "schema": { "maxProperties": 2 },
+    "instance": { "bar": 2, "baz": 3, "foo": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 2 properties but it contained 3 properties: \"bar\", \"baz\", and \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 2 properties but it contained 3 properties: \"bar\", \"baz\", and \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "maxProperties_5",
+    "schema": { "type": "object", "maxProperties": 2 },
+    "instance": { "bar": 2, "foo": 1, "baz": 3 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an object of at most 2 properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 2 properties but it contained 3 properties: \"bar\", \"baz\", and \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "enum_16",
+    "schema": { "type": "object", "minProperties": 1, "enum": [ { "foo": 1 } ] },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
+        "The value was expected to consist of an object of at least 1 property"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
+        "The object value was expected to contain at least 1 property and it contained 1 property: \"foo\"",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "minProperties_1",
+    "schema": { "minProperties": 2 },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "minProperties_3",
+    "schema": { "minProperties": 2 },
+    "instance": { "foo": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 2 properties but it contained 1 property: \"foo\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 2 properties but it contained 1 property: \"foo\""
+      ]
+    }
+  },
+  {
+    "description": "object_inverted_bounds",
+    "schema": { "type": "object", "minProperties": 3, "maxProperties": 1 },
+    "instance": { "a": 1, "b": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+      ]
+    }
+  },
+  {
+    "description": "uniqueItems_1",
+    "schema": { "uniqueItems": true },
+    "instance": [],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to not contain duplicate items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to not contain duplicate items"
+      ]
+    }
+  },
+  {
+    "description": "uniqueItems_2",
+    "schema": { "uniqueItems": false },
+    "instance": [],
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "uniqueItems_4",
+    "schema": { "uniqueItems": true },
+    "instance": [ 2, 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "descriptions": [
+        "The array value contained the following duplicate item: 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "descriptions": [
+        "The array value contained the following duplicate item: 2"
+      ]
+    }
+  },
+  {
+    "description": "uniqueItems_6",
+    "schema": { "uniqueItems": true },
+    "instance": [ 2, 1, 2, 3, 2, 2, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "descriptions": [
+        "The array value contained the following duplicate item: 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+      ],
+      "descriptions": [
+        "The array value contained the following duplicate item: 2"
+      ]
+    }
+  },
+  {
+    "description": "maxItems_1",
+    "schema": { "maxItems": 2 },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "maxItems_2",
+    "schema": { "maxItems": 2 },
+    "instance": [ 1, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items and it contained 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items and it contained 2 items"
+      ]
+    }
+  },
+  {
+    "description": "maxItems_3",
+    "schema": { "maxItems": 2 },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items but it contained 3 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items but it contained 3 items"
+      ]
+    }
+  },
+  {
+    "description": "maxItems_6",
+    "schema": { "type": "array", "maxItems": 2 },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeArrayUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at most 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items but it contained 3 items"
+      ]
+    }
+  },
+  {
+    "description": "enum_15",
+    "schema": { "type": "array", "minItems": 1, "enum": [ [ 1 ] ] },
+    "instance": [ 1 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value [1] was expected to equal the array constant [1]",
+        "The value was expected to consist of an array of at least 1 item"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value [1] was expected to equal the array constant [1]",
+        "The array value was expected to contain at least 1 item and it contained 1 item",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "minItems_1",
+    "schema": { "minItems": 2 },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "minItems_3",
+    "schema": { "minItems": 2 },
+    "instance": [ 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items but it contained 1 item"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items but it contained 1 item"
+      ]
+    }
+  },
+  {
+    "description": "loop_items_integer_bounded_sized_2",
+    "schema": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 0, "maximum": 100 },
+      "minItems": 1
+    },
+    "instance": [],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at least 1 item"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array value was expected to validate against the given subschema",
+        "The array value was expected to contain at least 1 item but it contained 0 items"
+      ]
+    }
+  },
+  {
+    "description": "pattern_1",
+    "schema": { "pattern": "^x" },
+    "instance": "xxx",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionRegex", "/pattern", "#/pattern", "" ]
+      ],
+      "post": [
+        [ true, "AssertionRegex", "/pattern", "#/pattern", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxx\" was expected to match the regular expression \"^x\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionRegex", "/pattern", "#/pattern", "" ]
+      ],
+      "post": [
+        [ true, "AssertionRegex", "/pattern", "#/pattern", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxx\" was expected to match the regular expression \"^x\""
+      ]
+    }
+  },
+  {
+    "description": "pattern_3",
+    "schema": { "pattern": "^x" },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "pattern_2",
+    "schema": { "pattern": "^x" },
+    "instance": "aaa",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionRegex", "/pattern", "#/pattern", "" ]
+      ],
+      "post": [
+        [ false, "AssertionRegex", "/pattern", "#/pattern", "" ]
+      ],
+      "descriptions": [
+        "The string value \"aaa\" was expected to match the regular expression \"^x\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionRegex", "/pattern", "#/pattern", "" ]
+      ],
+      "post": [
+        [ false, "AssertionRegex", "/pattern", "#/pattern", "" ]
+      ],
+      "descriptions": [
+        "The string value \"aaa\" was expected to match the regular expression \"^x\""
+      ]
+    }
+  },
+  {
+    "description": "maxLength_1",
+    "schema": { "maxLength": 2 },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "maxLength_2",
+    "schema": { "maxLength": 2 },
+    "instance": "xx",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters"
+      ]
+    }
+  },
+  {
+    "description": "maxLength_3",
+    "schema": { "maxLength": 2 },
+    "instance": "xxx",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+      ]
+    }
+  },
+  {
+    "description": "maxLength_5",
+    "schema": { "type": "string", "maxLength": 2 },
+    "instance": "xxx",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStringUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStringUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at most 2 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+      ]
+    }
+  },
+  {
+    "description": "enum_14",
+    "schema": { "type": "string", "minLength": 1, "enum": [ "foo" ] },
+    "instance": "foo",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The value was expected to consist of a string of at least 1 character"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"foo\" was expected to equal the string constant \"foo\"",
+        "The string value \"foo\" was expected to consist of at least 1 character and it consisted of 3 characters",
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "minLength_1",
+    "schema": { "minLength": 2 },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "minLength_3",
+    "schema": { "minLength": 2 },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+      ]
+    }
+  },
+  {
+    "description": "string_inverted_bounds",
+    "schema": { "type": "string", "minLength": 3, "maxLength": 1 },
+    "instance": "abcd",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"abcd\" was expected to consist of at most 1 character but it consisted of 4 characters"
+      ]
+    }
+  },
+  {
+    "description": "format_uri_1",
+    "schema": { "format": "uri" },
+    "instance": 6,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "format_uri_2",
+    "schema": { "format": "uri" },
+    "instance": "https://www.example.com",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "maximum_1",
+    "schema": { "maximum": 2 },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "maximum_2",
+    "schema": { "maximum": 2 },
+    "instance": 1.9,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.9 was expected to be less than or equal to the integer 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.9 was expected to be less than or equal to the integer 2"
+      ]
+    }
+  },
+  {
+    "description": "maximum_4",
+    "schema": { "maximum": 2 },
+    "instance": 2.1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The number value 2.1 was expected to be less than or equal to the integer 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The number value 2.1 was expected to be less than or equal to the integer 2"
+      ]
+    }
+  },
+  {
+    "description": "maximum_8",
+    "schema": { "maximum": 5 },
+    "instance": 10,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be less than or equal to the integer 5"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be less than or equal to the integer 5"
+      ]
+    }
+  },
+  {
+    "description": "minimum_1",
+    "schema": { "minimum": 2 },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "minimum_2",
+    "schema": { "minimum": 2 },
+    "instance": 2.1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The number value 2.1 was expected to be greater than or equal to the integer 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The number value 2.1 was expected to be greater than or equal to the integer 2"
+      ]
+    }
+  },
+  {
+    "description": "minimum_4",
+    "schema": { "minimum": 2 },
+    "instance": 1.8,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.8 was expected to be greater than or equal to the integer 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.8 was expected to be greater than or equal to the integer 2"
+      ]
+    }
+  },
+  {
+    "description": "minimum_9",
+    "schema": { "minimum": 5 },
+    "instance": 3,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to be greater than or equal to the integer 5"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to be greater than or equal to the integer 5"
+      ]
+    }
+  },
+  {
+    "description": "multipleOf_1",
+    "schema": { "multipleOf": 3 },
+    "instance": "foo",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "multipleOf_2",
+    "schema": { "multipleOf": 3 },
+    "instance": 6,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 6 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 6 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "multipleOf_3",
+    "schema": { "multipleOf": 3 },
+    "instance": 7,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 7 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 7 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "multipleOf_8",
+    "schema": { "multipleOf": 3 },
+    "instance": 10,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 3"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 3"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMaximum_1",
+    "schema": { "maximum": 2, "exclusiveMaximum": true },
+    "instance": 1.9,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.9 was expected to be less than the integer 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.9 was expected to be less than the integer 2"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMaximum_3",
+    "schema": { "maximum": 2, "exclusiveMaximum": false },
+    "instance": 2,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to be less than or equal to the integer 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to be less than or equal to the integer 2"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMaximum_2",
+    "schema": { "maximum": 2, "exclusiveMaximum": true },
+    "instance": 2,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to be less than the integer 2, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to be less than the integer 2, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMaximum_5",
+    "schema": { "maximum": 5, "exclusiveMaximum": true },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be less than the integer 5, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be less than the integer 5, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMinimum_1",
+    "schema": { "minimum": 2, "exclusiveMinimum": true },
+    "instance": 2.1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The number value 2.1 was expected to be greater than the integer 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The number value 2.1 was expected to be greater than the integer 2"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMinimum_3",
+    "schema": { "minimum": 2, "exclusiveMinimum": false },
+    "instance": 2,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to be greater than or equal to the integer 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to be greater than or equal to the integer 2"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMinimum_2",
+    "schema": { "minimum": 2, "exclusiveMinimum": true },
+    "instance": 2,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to be greater than the integer 2, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to be greater than the integer 2, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "exclusiveMinimum_5",
+    "schema": { "minimum": 5, "exclusiveMinimum": true },
+    "instance": 5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be greater than the integer 5, but they were equal"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be greater than the integer 5, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "annotation_keyword",
+    "schema": { "title": "foo" },
+    "instance": "foo bar",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "metadata",
+    "schema": { "title": "My title", "description": "My description", "default": 1 },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  }
+]

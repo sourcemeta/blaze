@@ -1,0 +1,200 @@
+[
+  {
+    "description": "patternproperties_not_in_dialect",
+    "schema": { "type": "object", "patternProperties": { "^x": { "type": "string" } } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/patternProperties"
+    }
+  },
+  {
+    "description": "dependencies_not_in_dialect",
+    "schema": { "type": "object", "dependencies": { "a": [ "b" ] } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/dependencies"
+    }
+  },
+  {
+    "description": "additionalitems_not_in_dialect",
+    "schema": { "type": "array", "items": { "type": "string" }, "additionalItems": false },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/additionalItems"
+    }
+  },
+  {
+    "description": "definitions_not_in_dialect",
+    "schema": { "type": "string", "definitions": { "Name": { "type": "string" } } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/definitions"
+    }
+  },
+  {
+    "description": "defs_not_in_dialect",
+    "schema": { "type": "string", "$defs": { "Name": { "type": "string" } } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/$defs"
+    }
+  },
+  {
+    "description": "const_not_in_dialect",
+    "schema": { "const": 1 },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/const"
+    }
+  },
+  {
+    "description": "contains_not_in_dialect",
+    "schema": { "type": "array", "contains": { "type": "string" } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/contains"
+    }
+  },
+  {
+    "description": "if_not_in_dialect",
+    "schema": { "if": { "type": "string" } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/if"
+    }
+  },
+  {
+    "description": "propertynames_not_in_dialect",
+    "schema": { "type": "object", "propertyNames": { "maxLength": 2 } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/propertyNames"
+    }
+  },
+  {
+    "description": "unevaluatedproperties_not_in_dialect",
+    "schema": { "type": "object", "unevaluatedProperties": false },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/unevaluatedProperties"
+    }
+  },
+  {
+    "description": "id_not_in_dialect",
+    "schema": { "type": "string", "id": "https://example.com/schema" },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/id"
+    }
+  },
+  {
+    "description": "schema_keyword_not_in_dialect",
+    "schema": { "type": "string", "$comment": "hello" },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/$comment"
+    }
+  },
+  {
+    "description": "type_null",
+    "schema": { "type": "null" },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/type"
+    }
+  },
+  {
+    "description": "type_array_of_names",
+    "schema": { "type": [ "string", "number" ] },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/type"
+    }
+  },
+  {
+    "description": "type_unknown_name",
+    "schema": { "type": "foo" },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/type"
+    }
+  },
+  {
+    "description": "items_tuple",
+    "schema": { "items": [ { "type": "string" } ] },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
+    }
+  },
+  {
+    "description": "items_boolean",
+    "schema": { "items": true },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
+    }
+  },
+  {
+    "description": "required_empty",
+    "schema": { "required": [] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
+  },
+  {
+    "description": "maxitems_real",
+    "schema": { "maxItems": 3.0 },
+    "error": {
+      "message": "This keyword was expected to be set to an integer",
+      "base": "",
+      "location": "/maxItems"
+    }
+  },
+  {
+    "description": "exclusive_maximum_number",
+    "schema": { "maximum": 5, "exclusiveMaximum": 5 },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/exclusiveMaximum"
+    }
+  },
+  {
+    "description": "enum_empty",
+    "schema": { "enum": [] },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of values",
+      "base": "",
+      "location": "/enum"
+    }
+  },
+  {
+    "description": "nullable_not_a_boolean",
+    "schema": { "type": "string", "nullable": "true" },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/nullable"
+    }
+  }
+]

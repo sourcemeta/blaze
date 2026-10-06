@@ -245,6 +245,26 @@ static auto register_tests(const std::filesystem::path &path,
 auto main(int argc, char **argv) -> int {
   try {
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_openapi_3_0_2024_10_18.json",
+                   "Evaluator_trace_OpenAPI_3_0_2024_10_18",
+                   "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+                   "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect");
+    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                             "evaluator_openapi_3_0_2024_10_18_invalid.json",
+                         "Evaluator_error_OpenAPI_3_0_2024_10_18",
+                         "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+                         "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_openapi_3_0_2021_09_28.json",
+                   "Evaluator_trace_OpenAPI_3_0_2021_09_28",
+                   "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect",
+                   "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect");
+    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                             "evaluator_openapi_3_0_2021_09_28_invalid.json",
+                         "Evaluator_error_OpenAPI_3_0_2021_09_28",
+                         "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect",
+                         "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_openapi_3_1.json",
                    "Evaluator_trace_OpenAPI_3_1",
                    "https://spec.openapis.org/oas/3.1/dialect/base", "");

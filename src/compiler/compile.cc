@@ -31,17 +31,24 @@ auto is_metaschema_reference(const sourcemeta::core::WeakPointer &origin)
 
 // Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
 // only places they accept a boolean are `additionalProperties` and
-// `additionalItems`, whose own definitions spell that out
+// `additionalItems`, whose own definitions spell that out. The OpenAPI 3.0
+// Schema Object has none either, and offers a boolean at
+// `additionalProperties` alone
 auto booleans_are_schemas(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
   return !vocabularies.contains_any(
       {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
-       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER});
+       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
+       Known::OPENAPI_3_0_BASE});
 }
 
 // Draft 4 and earlier spell these as flags on a sibling bound rather than as
-// bounds of their own, and their meta-schemas ask for that sibling to be there
+// bounds of their own, and their meta-schemas ask for that sibling to be
+// there. The OpenAPI 3.0 Schema Object is deliberately absent: it spells them
+// as flags the way Draft 4 does, but its meta-schema declares no dependency
+// between a flag and the bound it modifies, so one standing on its own is
+// well-formed there and merely has nothing to modify
 auto exclusive_bounds_need_a_sibling(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
@@ -96,7 +103,8 @@ auto keyword_shape_error(
       return value.is_string() ? nullptr : EXPECTED_STRING;
     }
     if (keyword == "uniqueItems" || keyword == "deprecated" ||
-        keyword == "readOnly" || keyword == "writeOnly") {
+        keyword == "readOnly" || keyword == "writeOnly" ||
+        keyword == "nullable") {
       return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
     }
     if (keyword == "examples") {
@@ -117,7 +125,8 @@ auto keyword_shape_error(
                    JSON_SCHEMA_DRAFT_3_HYPER,
                sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4,
                sourcemeta::core::SchemaVocabularies::Known::
-                   JSON_SCHEMA_DRAFT_4_HYPER})
+                   JSON_SCHEMA_DRAFT_4_HYPER,
+               sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE})
               ? (value.is_boolean() ? nullptr : EXPECTED_BOOLEAN)
               : (value.is_number() ? nullptr : EXPECTED_NUMBER));
     }

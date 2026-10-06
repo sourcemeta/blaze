@@ -1,0 +1,47 @@
+[
+  {
+    "description": "patternproperties_not_in_dialect",
+    "schema": { "type": "object", "patternProperties": { "^x": { "type": "string" } } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/patternProperties"
+    }
+  },
+  {
+    "description": "type_null",
+    "schema": { "type": "null" },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/type"
+    }
+  },
+  {
+    "description": "items_tuple",
+    "schema": { "items": [ { "type": "string" } ] },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
+    }
+  },
+  {
+    "description": "required_empty",
+    "schema": { "required": [] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
+  },
+  {
+    "description": "nullable_not_a_boolean",
+    "schema": { "type": "string", "nullable": "true" },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/nullable"
+    }
+  }
+]

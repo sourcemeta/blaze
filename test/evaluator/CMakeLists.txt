@@ -8,6 +8,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
     evaluator_draft6_test.cc
     evaluator_draft7_test.cc
     evaluator_embedded_test.cc
+    evaluator_openapi_3_0_test.cc
     evaluator_openapi_3_1_test.cc
     evaluator_openapi_3_2_test.cc
     evaluator_sourcemeta_v1_test.cc
