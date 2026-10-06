@@ -1,0 +1,137 @@
+[
+  {
+    "description": "patternproperties_not_in_dialect",
+    "schema": { "type": "object", "patternProperties": { "^x": { "type": "string" } } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/patternProperties"
+    }
+  },
+  {
+    "description": "type_null",
+    "schema": { "type": "null" },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/type"
+    }
+  },
+  {
+    "description": "items_tuple",
+    "schema": { "items": [ { "type": "string" } ] },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/items"
+    }
+  },
+  {
+    "description": "required_empty",
+    "schema": { "required": [] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
+  },
+  {
+    "description": "nullable_not_a_boolean",
+    "schema": { "type": "string", "nullable": "true" },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/nullable"
+    }
+  },
+  {
+    "description": "anchor_not_in_dialect",
+    "schema": { "$anchor": "a" },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/$anchor"
+    }
+  },
+  {
+    "description": "extension_prefix_is_case_sensitive",
+    "schema": { "X-Foo": 1 },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/X-Foo"
+    }
+  },
+  {
+    "description": "enum_empty",
+    "schema": { "enum": [] },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of values",
+      "base": "",
+      "location": "/enum"
+    }
+  },
+  {
+    "description": "multiple_of_zero",
+    "schema": { "multipleOf": 0 },
+    "error": {
+      "message": "This keyword was expected to be set to a number greater than zero",
+      "base": "",
+      "location": "/multipleOf"
+    }
+  },
+  {
+    "description": "properties_boolean_schema",
+    "schema": { "properties": { "a": true } },
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/properties"
+    }
+  },
+  {
+    "description": "discriminator_not_an_object",
+    "schema": { "discriminator": [] },
+    "error": {
+      "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/discriminator"
+    }
+  },
+  {
+    "description": "xml_not_an_object",
+    "schema": { "xml": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/xml"
+    }
+  },
+  {
+    "description": "external_docs_not_an_object",
+    "schema": { "externalDocs": "x" },
+    "error": {
+      "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/externalDocs"
+    }
+  },
+  {
+    "description": "prohibited_keyword_under_type_pruned_properties",
+    "schema": { "type": "string", "properties": { "a": { "if": {} } } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/properties"
+    }
+  },
+  {
+    "description": "type_array_of_names",
+    "schema": { "type": [ "string", "number" ] },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/type"
+    }
+  }
+]

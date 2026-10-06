@@ -139,7 +139,8 @@ enum class ValueStringType : std::uint8_t {
   RelativeJSONPointer,
   UUID,
   Regex,
-  Color
+  Color,
+  Base64
 };
 
 /// @ingroup evaluator

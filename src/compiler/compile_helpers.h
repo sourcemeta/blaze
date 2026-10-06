@@ -339,8 +339,9 @@ inline auto bound_is_representable(const sourcemeta::core::JSON &value)
 }
 
 // Draft 3 to 7 let `$ref` replace every sibling keyword, so nothing those
-// siblings say ever takes effect. Core's schema walker frames nothing under
-// one either, which is what keeps such a sibling from compiling at all
+// siblings say ever takes effect, and the OpenAPI 3.0 Schema Object answers
+// with Draft 4 here. Core's schema walker frames nothing under one of those
+// drafts either, which is what keeps such a sibling from compiling at all
 inline auto ref_overrides_sibling_keywords(const SchemaContext &schema_context)
     -> bool {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
@@ -350,7 +351,8 @@ inline auto ref_overrides_sibling_keywords(const SchemaContext &schema_context)
              {Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
               Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
               Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
-              Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER});
+              Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
+              Known::OPENAPI_3_0_BASE});
 }
 
 // Note that the size keywords that let the type level fuse their bound accept
@@ -637,7 +639,8 @@ inline auto required_properties(const SchemaContext &schema_context)
       schema_context.vocabularies.contains(
           Known::JSON_SCHEMA_2019_09_VALIDATION) ||
       schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2020_12_VALIDATION)};
+          Known::JSON_SCHEMA_2020_12_VALIDATION) ||
+      schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE)};
 
   ValueStringSet result;
 
