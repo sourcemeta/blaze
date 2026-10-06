@@ -198,6 +198,7 @@ auto sourcemeta::core::identify(const sourcemeta::core::JSON &schema,
 
 auto sourcemeta::core::schema_reidentify(sourcemeta::core::JSON &schema,
                                          std::string_view new_identifier,
+                                         const SchemaWalker &walker,
                                          const SchemaResolver &resolver,
                                          std::string_view default_dialect)
     -> void {
@@ -205,6 +206,22 @@ auto sourcemeta::core::schema_reidentify(sourcemeta::core::JSON &schema,
       sourcemeta::core::base_dialect(schema, resolver, default_dialect)};
   if (!resolved_base_dialect.has_value()) {
     throw sourcemeta::core::SchemaUnknownBaseDialectError();
+  }
+
+  // Writing the keyword anyway would leave an identifier that every reader of
+  // this dialect goes on to ignore, which is worse than refusing outright
+  const auto effective_dialect{
+      sourcemeta::core::dialect(schema, default_dialect)};
+  if (!sourcemeta::core::dialect_defines_identifier(
+          walker,
+          sourcemeta::core::vocabularies_with_embedded(
+              schema, resolver, resolved_base_dialect.value(),
+              effective_dialect),
+          resolved_base_dialect.value())) {
+    throw sourcemeta::core::SchemaKeywordError(
+        sourcemeta::core::id_keyword(resolved_base_dialect.value()).name,
+        new_identifier,
+        "The dialect of the schema does not support identification");
   }
 
   schema_reidentify(schema, new_identifier, resolved_base_dialect.value());
@@ -241,7 +258,7 @@ auto sourcemeta::core::dialect(const sourcemeta::core::JSON &schema,
 
   if (allow_dialect_override && schema.is_object()) {
     const auto *override_value{
-        schema.try_at("x-sourcemeta-dialect-override-subschema"sv,
+        schema.try_at(sourcemeta::core::DIALECT_OVERRIDE_KEYWORD,
                       sourcemeta::core::JSONSCHEMA_HASH_DIALECT_OVERRIDE)};
     if ((override_value != nullptr) && override_value->is_string() &&
         !override_value->to_string().empty()) {
@@ -503,6 +520,16 @@ auto pre_vocabulary_dialect_to_known(const std::string_view dialect)
   if (dialect == "http://json-schema.org/draft-00/schema#") {
     return SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_0;
   }
+
+  // The OpenAPI v3.0 Schema Object describes itself through a Draft 4
+  // meta-schema, so it lands on a base dialect that predates vocabularies and
+  // has no way of declaring one. Its keyword set is neither a subset nor a
+  // superset of Draft 4, so it stands on its own rather than extending it
+  if (dialect == "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect" ||
+      dialect == "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect") {
+    return SchemaVocabularies::Known::OPENAPI_3_0_BASE;
+  }
+
   return std::nullopt;
 }
 

@@ -395,6 +395,17 @@ auto collect_path_parameter_names(
   return true;
 }
 
+// Of the 3.0 releases only the last two carry this requirement, 3.0.3 being
+// where "Each template expression in the path MUST correspond to a path
+// parameter that is included in the Path Item itself and/or in each of the
+// Path Item's Operations" arrives. It is held to every 3.0 description all the
+// same, because every release says of itself that "The patch version SHOULD
+// NOT be considered by tooling" and the last one says a patch release
+// "address[es] errors in, or provide[s] clarifications to, this document, not
+// the feature set". A requirement a later patch of the same revision spells
+// out is therefore what that revision always asked for, and reading it as
+// arriving mid-revision would make the feature set turn on a component the
+// specification asks tooling to disregard
 auto check_path_templates(
     const sourcemeta::core::OpenAPIWalk &walk,
     const sourcemeta::core::JSON::String &endpoint,
@@ -491,6 +502,38 @@ auto openapi_kind_name(const OpenAPIObjectKind kind) noexcept
   }
 
   std::unreachable();
+}
+
+// What framing a document under a given retrieval URI would key every place of
+// it by. It is defined here, beside the frame it answers for, because the two
+// agreeing is the whole of what it is for
+auto openapi_base(const JSON &document, const std::string_view retrieval)
+    -> JSON::String {
+  auto base{openapi_canonical_base(retrieval)};
+
+  // Only 3.2 defines `$self`, and a document of any earlier revision has the
+  // field turned down by its own field table, so nothing before that revision
+  // establishes a base of its own. A document declaring a revision this module
+  // does not recognise never reaches the field either, as framing turns it down
+  // over the revision first
+  const auto version{openapi_version(document)};
+  if (!version.has_value() || version.value() < OpenAPIVersion::OPENAPI_3_2) {
+    return base;
+  }
+
+  // Framing holds this to being a URI reference and throws when it is not,
+  // reporting the base it had settled on by then, which is the one established
+  // here. So a `$self` that framing refuses is one this hands back the
+  // retrieval URI for rather than one it has to refuse in turn
+  const auto *self{document.try_at("$self", OPENAPI_HASH_SELF)};
+  if (self == nullptr || !self->is_string() ||
+      !URI::is_uri_reference(self->to_string())) {
+    return base;
+  }
+
+  auto established{openapi_document_base(self->to_string(), base)};
+  return established.has_value() ? std::move(established.value())
+                                 : std::move(base);
 }
 
 auto openapi_operation_kind_name(const OpenAPIOperationKind kind) noexcept
