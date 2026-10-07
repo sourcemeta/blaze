@@ -6376,5 +6376,105 @@
         "The value was expected to be an object that defines the property \"a\""
       ]
     }
+  },
+  {
+    "description": "type_integer_lower_bound_over_int64_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "integer",
+      "minimum": 0
+    },
+    "instance": 12345678901234567890123456789012345678901234,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeIntegerLowerBound", "", "#", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an integer above the given minimum"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 12345678901234567890123456789012345678901234 was expected to be greater than or equal to the integer 0",
+        "The value was expected to be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "type_integer_lower_bound_under_int64_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "integer",
+      "minimum": 0
+    },
+    "instance": -12345678901234567890123456789012345678901234,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeIntegerLowerBound", "", "#", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an integer above the given minimum"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value -12345678901234567890123456789012345678901234 was expected to be greater than or equal to the integer 0"
+      ]
+    }
+  },
+  {
+    "description": "type_integer_bounded_over_int64_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "integer",
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": 12345678901234567890123456789012345678901234,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeIntegerBounded", "", "#", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeIntegerBounded", "", "#", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an integer within the given range"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 12345678901234567890123456789012345678901234 was expected to be less than or equal to the integer 10"
+      ]
+    }
   }
 ]

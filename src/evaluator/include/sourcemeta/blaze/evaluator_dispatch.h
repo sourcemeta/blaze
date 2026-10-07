@@ -14,8 +14,6 @@
 #include <sourcemeta/core/uritemplate.h>
 
 #include <cassert> // assert
-#include <cmath>   // std::trunc
-#include <limits>  // std::numeric_limits
 
 // TODO(C++23): Replace SOURCEMETA_ASSUME with [[assume]] when available
 // across all compilers (Clang 19, GCC 13)
@@ -246,26 +244,13 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
   }
 }
 
-// Whether an integral number is one that `as_integer` can convert. That
-// accessor throws rather than saturating, so a bound comparison has to ask this
-// first. A value it answers false for lies beyond everything a 64-bit bound can
-// express, so its sign alone settles the comparison. The conditions mirror the
-// ones `as_integer` throws on, or the two could disagree
-inline auto fits_integer(const JSON &instance) noexcept -> bool {
+// An integral number that no 64-bit integer can hold cannot be narrowed to one
+// to be compared, and `as_integer` throws rather than saturating, so the
+// comparison happens in a domain wide enough to hold any of them instead
+inline auto as_decimal(const JSON &instance) -> Decimal {
   assert(instance.is_integral());
-  if (instance.is_integer()) {
-    return true;
-  }
-
-  if (instance.is_real()) {
-    const auto truncated{std::trunc(instance.to_real())};
-    return truncated >= static_cast<JSON::Real>(
-                            std::numeric_limits<JSON::Integer>::min()) &&
-           truncated < static_cast<JSON::Real>(
-                           std::numeric_limits<JSON::Integer>::max());
-  }
-
-  return instance.to_decimal().to_integral().is_int64();
+  return instance.is_decimal() ? instance.to_decimal()
+                               : Decimal{instance.to_real()};
 }
 
 template <typename T>
@@ -868,14 +853,8 @@ INSTRUCTION_DIRECT(AssertionTypeIntegerBounded, ValueIntegerBounds) {
     return integer >= value.first && integer <= value.second;
   }
   if (target.is_integral()) {
-    // Beyond the 64-bit range the value is outside both bounds at once,
-    // whichever side it falls on
-    if (!fits_integer(target)) {
-      return false;
-    }
-
-    const auto integer{target.as_integer()};
-    return integer >= value.first && integer <= value.second;
+    const auto decimal{as_decimal(target)};
+    return decimal >= Decimal{value.first} && decimal <= Decimal{value.second};
   }
   return false;
 }
@@ -907,13 +886,7 @@ INSTRUCTION_DIRECT(AssertionTypeIntegerLowerBound, ValueIntegerBounds) {
     return target.to_integer() >= value.first;
   }
   if (target.is_integral()) {
-    // Beyond the 64-bit range no minimum of that width can separate the value
-    // from the bound, so its sign does: above every one of them, or below
-    if (!fits_integer(target)) {
-      return target.is_positive();
-    }
-
-    return target.as_integer() >= value.first;
+    return as_decimal(target) >= Decimal{value.first};
   }
   return false;
 }
