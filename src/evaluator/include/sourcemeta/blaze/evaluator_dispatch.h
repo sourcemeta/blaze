@@ -246,11 +246,14 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
 
 // An integral number that no 64-bit integer can hold cannot be narrowed to one
 // to be compared, and `as_integer` throws rather than saturating, so the
-// comparison happens in a domain wide enough to hold any of them instead
+// comparison happens in a domain wide enough to hold any of them instead.
+// A real converts through `exact_from` because the constructor spells a double
+// with 17 significant digits, which is too few to tell apart two integers that
+// a bound of this width can sit between
 inline auto as_decimal(const JSON &instance) -> Decimal {
   assert(instance.is_integral());
   return instance.is_decimal() ? instance.to_decimal()
-                               : Decimal{instance.to_real()};
+                               : Decimal::exact_from(instance.to_real());
 }
 
 template <typename T>
