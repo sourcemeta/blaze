@@ -13,6 +13,8 @@
 #include <sourcemeta/core/time.h>
 #include <sourcemeta/core/uritemplate.h>
 
+#include <cassert> // assert
+
 // TODO(C++23): Replace SOURCEMETA_ASSUME with [[assume]] when available
 // across all compilers (Clang 19, GCC 13)
 #if defined(__clang__)
@@ -240,6 +242,18 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
     default:
       return real_type;
   }
+}
+
+// An integral number that no 64-bit integer can hold cannot be narrowed to one
+// to be compared, and `as_integer` throws rather than saturating, so the
+// comparison happens in a domain wide enough to hold any of them instead.
+// A real converts through `exact_from` because the constructor spells a double
+// with 17 significant digits, which is too few to tell apart two integers that
+// a bound of this width can sit between
+inline auto as_decimal(const JSON &instance) -> Decimal {
+  assert(instance.is_integral());
+  return instance.is_decimal() ? instance.to_decimal()
+                               : Decimal::exact_from(instance.to_real());
 }
 
 template <typename T>
@@ -842,8 +856,8 @@ INSTRUCTION_DIRECT(AssertionTypeIntegerBounded, ValueIntegerBounds) {
     return integer >= value.first && integer <= value.second;
   }
   if (target.is_integral()) {
-    const auto integer{target.as_integer()};
-    return integer >= value.first && integer <= value.second;
+    const auto decimal{as_decimal(target)};
+    return decimal >= Decimal{value.first} && decimal <= Decimal{value.second};
   }
   return false;
 }
@@ -875,7 +889,7 @@ INSTRUCTION_DIRECT(AssertionTypeIntegerLowerBound, ValueIntegerBounds) {
     return target.to_integer() >= value.first;
   }
   if (target.is_integral()) {
-    return target.as_integer() >= value.first;
+    return as_decimal(target) >= Decimal{value.first};
   }
   return false;
 }
@@ -890,6 +904,13 @@ INSTRUCTION_HANDLER(AssertionTypeIntegerLowerBound) {
 INSTRUCTION_DIRECT(AssertionTypeIntegerLowerBoundStrict, ValueIntegerBounds) {
   if (target.is_integer()) {
     return target.to_integer() >= value.first;
+  }
+  // An integer too large for 64 bits is held as a decimal, which the strict
+  // type check still reads as an integer when it was written as digits alone.
+  // The bounded counterpart needs no such branch, as a value out of that range
+  // cannot sit within bounds of that width either way
+  if (effective_type_strict_real(target) == JSON::Type::Integer) {
+    return target.to_decimal() >= Decimal{value.first};
   }
   return false;
 }
