@@ -34,7 +34,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      7,
+      8,
       false,
       false,
       [
@@ -74,7 +74,7 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      7,
+      8,
       false,
       false,
       [
@@ -134,7 +134,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      7,
+      8,
       false,
       false,
       [
@@ -176,7 +176,7 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      7,
+      8,
       false,
       false,
       [
@@ -262,7 +262,7 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      7,
+      8,
       false,
       true,
       [
@@ -311,7 +311,7 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      7,
+      8,
       false,
       true,
       [

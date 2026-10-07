@@ -99,6 +99,7 @@ export const CONTROL_GROUP_WHEN_TYPE = 97;
 export const CONTROL_EVALUATE = 98;
 export const CONTROL_DYNAMIC_ANCHOR_JUMP = 99;
 export const CONTROL_JUMP = 100;
+export const ASSERTION_NUMBER_INTEGER_BOUNDED = 101;
 
 export const INSTRUCTION_NAMES = {
   "AssertionFail": ASSERTION_FAIL,
@@ -202,6 +203,7 @@ export const INSTRUCTION_NAMES = {
   "ControlEvaluate": CONTROL_EVALUATE,
   "ControlDynamicAnchorJump": CONTROL_DYNAMIC_ANCHOR_JUMP,
   "ControlJump": CONTROL_JUMP,
+  "AssertionNumberIntegerBounded": ASSERTION_NUMBER_INTEGER_BOUNDED,
   "Annotation": -1
 };
 

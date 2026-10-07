@@ -1084,6 +1084,12 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionNumberIntegerBounded) {
+    return "The number value was expected to be an integer within the given "
+           "range";
+  }
+
+  if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionObjectPropertiesSimple) {
     return "The object value was expected to validate against the defined "
            "property subschemas";

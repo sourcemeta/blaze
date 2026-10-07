@@ -7,7 +7,7 @@ import {
   CONTROL_JUMP, CONTROL_DYNAMIC_ANCHOR_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 7;
+const JSON_VERSION = 8;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -1379,6 +1379,16 @@ function AssertionDivisible(instruction, instance, depth, template, evaluator) {
 
 function AssertionTypeIntegerBounded(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
+  if (evaluator.callbackMode) evaluator.callbackPush(instruction);
+  const range = instruction[6];
+  const __result = (typeof target === 'bigint' || Number.isInteger(target)) && target >= range[0] && target <= range[1];
+  if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
+  return __result;
+};
+
+function AssertionNumberIntegerBounded(instruction, instance, depth, template, evaluator) {
+  const target = resolveInstance(instance, instruction[2]);
+  if (typeof target !== 'number' && typeof target !== 'bigint') return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const range = instruction[6];
   const __result = (typeof target === 'bigint' || Number.isInteger(target)) && target >= range[0] && target <= range[1];
@@ -2762,7 +2772,8 @@ const handlers = [
   ControlGroupWhenType,                       // 97
   ControlEvaluate,                            // 98
   ControlDynamicAnchorJump,                   // 99
-  ControlJump                                 // 100
+  ControlJump,                                // 100
+  AssertionNumberIntegerBounded               // 101
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {
@@ -3946,6 +3957,13 @@ function AssertionTypeIntegerBounded_fast(instruction, instance, depth, template
   return (typeof target === 'bigint' || Number.isInteger(target)) && target >= range[0] && target <= range[1];
 }
 
+function AssertionNumberIntegerBounded_fast(instruction, instance, depth, template, evaluator) {
+  const target = resolveInstance(instance, instruction[2]);
+  if (typeof target !== 'number' && typeof target !== 'bigint') return true;
+  const range = instruction[6];
+  return (typeof target === 'bigint' || Number.isInteger(target)) && target >= range[0] && target <= range[1];
+}
+
 function AssertionTypeIntegerBoundedStrict_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
   const range = instruction[6];
@@ -4061,6 +4079,7 @@ fastHandlers[90] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
 fastHandlers[91] = LoopItemsIntegerBounded_fast;
 fastHandlers[92] = LoopItemsIntegerBoundedSized_fast;
 fastHandlers[99] = ControlDynamicAnchorJump_fast;
+fastHandlers[101] = AssertionNumberIntegerBounded_fast;
 
 import { describe } from './describe.mjs';
 

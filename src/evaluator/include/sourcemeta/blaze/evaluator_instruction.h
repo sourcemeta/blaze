@@ -120,7 +120,8 @@ enum class InstructionIndex : std::uint8_t {
   ControlGroupWhenType,
   ControlEvaluate,
   ControlDynamicAnchorJump,
-  ControlJump
+  ControlJump,
+  AssertionNumberIntegerBounded
 };
 
 /// @ingroup evaluator
@@ -226,7 +227,8 @@ constexpr std::string_view INSTRUCTION_NAMES[] = {
     "ControlGroupWhenType",
     "ControlEvaluate",
     "ControlDynamicAnchorJump",
-    "ControlJump"};
+    "ControlJump",
+    "AssertionNumberIntegerBounded"};
 
 /// @ingroup evaluator
 /// Check if a given instruction type corresponds to an annotation

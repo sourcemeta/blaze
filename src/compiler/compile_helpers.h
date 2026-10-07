@@ -254,6 +254,18 @@ inline auto is_numeric_integer_type_check(const Instruction &instruction)
              sourcemeta::core::JSON::Type::Integer;
 }
 
+// A multiple of one admits exactly the integers, so it bounds a number the way
+// an integer type check does, without saying anything about the type
+inline auto is_numeric_integral_multiple_check(const Instruction &instruction)
+    -> bool {
+  if (instruction.type != InstructionIndex::AssertionDivisible) {
+    return false;
+  }
+
+  const auto &divisor{std::get<ValueJSON>(instruction.value)};
+  return divisor.is_integer() && divisor.to_integer() == 1;
+}
+
 inline auto is_numeric_bound_check(const Instruction &instruction) -> bool {
   return instruction.type == InstructionIndex::AssertionGreaterEqual ||
          instruction.type == InstructionIndex::AssertionGreater ||

@@ -207,7 +207,9 @@ inline auto fuse_numeric_bounds(Instructions &instructions,
   for (std::size_t type_index = 0; type_index < instructions.size();
        ++type_index) {
     const auto &type_instruction{instructions[type_index]};
-    if (!is_numeric_integer_type_check(type_instruction)) {
+    const auto anchors_on_type{is_numeric_integer_type_check(type_instruction)};
+    if (!anchors_on_type &&
+        !is_numeric_integral_multiple_check(type_instruction)) {
       continue;
     }
 
@@ -255,7 +257,16 @@ inline auto fuse_numeric_bounds(Instructions &instructions,
     InstructionIndex fused_type;
     Value fused_value;
 
-    if (minimum.has_value() && maximum.has_value()) {
+    if (!anchors_on_type) {
+      // Without a type check to absorb there is no lower-bound-only form to
+      // fall back on, as the instruction has to carry both ends of the range
+      if (!minimum.has_value() || !maximum.has_value()) {
+        continue;
+      }
+
+      fused_type = InstructionIndex::AssertionNumberIntegerBounded;
+      fused_value = ValueIntegerBounds{minimum.value(), maximum.value()};
+    } else if (minimum.has_value() && maximum.has_value()) {
       fused_type = is_strict
                        ? InstructionIndex::AssertionTypeIntegerBoundedStrict
                        : InstructionIndex::AssertionTypeIntegerBounded;

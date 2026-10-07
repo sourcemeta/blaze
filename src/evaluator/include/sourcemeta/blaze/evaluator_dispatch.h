@@ -922,6 +922,27 @@ INSTRUCTION_HANDLER(AssertionTypeIntegerLowerBoundStrict) {
   EVALUATE_END(AssertionTypeIntegerLowerBoundStrict);
 }
 
+INSTRUCTION_DIRECT(AssertionNumberIntegerBounded, ValueIntegerBounds) {
+  if (target.is_integer()) {
+    const auto integer{target.to_integer()};
+    return integer >= value.first && integer <= value.second;
+  }
+
+  if (target.is_integral()) {
+    const auto decimal{as_decimal(target)};
+    return decimal >= Decimal{value.first} && decimal <= Decimal{value.second};
+  }
+
+  return false;
+}
+
+INSTRUCTION_HANDLER(AssertionNumberIntegerBounded) {
+  EVALUATE_BEGIN_NON_STRING(AssertionNumberIntegerBounded, target.is_number());
+  result = DIRECT(AssertionNumberIntegerBounded, target,
+                  assume_value_copy<ValueIntegerBounds>(instruction.value));
+  EVALUATE_END(AssertionNumberIntegerBounded);
+}
+
 INSTRUCTION_HANDLER(AssertionStringType) {
   EVALUATE_BEGIN_IF_STRING(AssertionStringType);
   const auto value{assume_value_copy<ValueStringType>(instruction.value)};
@@ -2847,7 +2868,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[101] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[102] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2948,7 +2969,8 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[101] = {
     ControlGroupWhenType,
     ControlEvaluate,
     ControlDynamicAnchorJump,
-    ControlJump};
+    ControlJump,
+    AssertionNumberIntegerBounded};
 
 template <bool Track, bool Dynamic, bool HasCallback>
 inline auto
