@@ -207,19 +207,33 @@ auto process_context(ExpansionState &state, ActiveContext &active_context,
           ExpansionState::MAXIMUM_REMOTE_CONTEXTS) {
         throw JSONLDError("Context overflow", location);
       }
-      if (state.resolver == nullptr || !*state.resolver) {
-        throw JSONLDError("Loading remote context failed", location);
-      }
-      const auto document{resolve(*state.resolver, reference)};
-      if (!document.has_value()) {
-        throw JSONLDError("Loading remote context failed", location);
-      }
-      const auto *context_entry{
-          document->is_object()
-              ? document->try_at(KEYWORD_CONTEXT, KEYWORD_CONTEXT_HASH)
-              : nullptr};
-      if (context_entry == nullptr) {
-        throw JSONLDError("Invalid remote context", location);
+      // Step 5.2.4: "If context was previously dereferenced, then the
+      // processor MUST NOT do a further dereference, and context is set to the
+      // previously established internal representation", with the note that
+      // "Only the @context entry need be retained", which is why the cache
+      // holds that entry rather than the document (JSON-LD 1.1 API Section 5.1
+      // step 5.2.4)
+      const auto dereferenced{state.remote_documents.find(reference)};
+      const JSON *context_entry{nullptr};
+      if (dereferenced != state.remote_documents.cend()) {
+        context_entry = &dereferenced->second;
+      } else {
+        if (state.resolver == nullptr || !*state.resolver) {
+          throw JSONLDError("Loading remote context failed", location);
+        }
+        const auto document{resolve(*state.resolver, reference)};
+        if (!document.has_value()) {
+          throw JSONLDError("Loading remote context failed", location);
+        }
+        const auto *loaded{
+            document->is_object()
+                ? document->try_at(KEYWORD_CONTEXT, KEYWORD_CONTEXT_HASH)
+                : nullptr};
+        if (loaded == nullptr) {
+          throw JSONLDError("Invalid remote context", location);
+        }
+        context_entry =
+            &state.remote_documents.emplace(reference, *loaded).first->second;
       }
       state.remote_context_chain.push_back(reference);
       try {

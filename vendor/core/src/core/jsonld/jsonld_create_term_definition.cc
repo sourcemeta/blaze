@@ -102,7 +102,15 @@ auto create_term_definition(ExpansionState &state,
   if (is_keyword(term)) {
     if (term == KEYWORD_TYPE && value.is_object() && !state.processing_1_0) {
       TermDefinition type_definition;
+      // Step 12 creates the definition "initializing prefix flag to false,
+      // protected to protected", which context processing step 5.13 supplies
+      // as "the value of the @protected entry from context, if any", and step
+      // 13 then sets the flag "to the value of this entry", so an entry of the
+      // definition overrides the context default in either direction (JSON-LD
+      // 1.1 API Section 5.1.1 steps 12 and 13, Section 5.1 step 5.13)
+      type_definition.is_protected = state.context_protected;
       bool has_container{false};
+      bool has_protected{false};
       bool invalid_entry{false};
       for (const auto &entry : value.as_object()) {
         if (entry.key_equals(KEYWORD_PROTECTED, KEYWORD_PROTECTED_HASH)) {
@@ -111,6 +119,7 @@ auto create_term_definition(ExpansionState &state,
                               {KEYWORD_PROTECTED});
           }
           type_definition.is_protected = entry.second.to_boolean();
+          has_protected = true;
         } else if (entry.key_equals(KEYWORD_CONTAINER,
                                     KEYWORD_CONTAINER_HASH) &&
                    entry.second.is_string()) {
@@ -125,23 +134,26 @@ auto create_term_definition(ExpansionState &state,
           invalid_entry = true;
         }
       }
-      // A redefinition of a protected @type is rejected before the shape of
-      // the new definition is validated.
-      const auto existing_type{active_context.terms.find(KEYWORD_TYPE)};
-      if (existing_type != active_context.terms.cend() &&
-          existing_type->second.is_protected && !state.protected_override) {
-        if (!same_definition(existing_type->second, type_definition)) {
-          throw JSONLDError("Protected term redefinition", term_pointer);
-        }
-        type_definition.is_protected = true;
-      } else if (invalid_entry || !has_container) {
+      // Step 4: the value of a @type definition "MUST be a map with only
+      // either or both of the following entries: An entry for @container with
+      // value @set. An entry for @protected", so either one alone is enough
+      // and only a map carrying neither is an error. The shape is settled here
+      // because step 4 precedes step 8, which reads the previous definition,
+      // and step 29, which compares against it (JSON-LD 1.1 API Section 5.1.1
+      // step 4)
+      if (invalid_entry || (!has_container && !has_protected)) {
         throw JSONLDError("Keyword redefinition", term_pointer);
-      } else if (!type_definition.is_protected) {
-        type_definition.is_protected = state.context_protected;
       }
-      active_context.terms[JSON::String{KEYWORD_TYPE}] =
-          std::move(type_definition);
-      defined[term] = true;
+
+      std::optional<TermDefinition> previous_type;
+      const auto existing_type{active_context.terms.find(KEYWORD_TYPE)};
+      if (existing_type != active_context.terms.cend()) {
+        previous_type = existing_type->second;
+      }
+
+      finalize_definition(state, active_context, defined,
+                          JSON::String{KEYWORD_TYPE}, term_pointer,
+                          previous_type, std::move(type_definition));
       return;
     }
     throw JSONLDError("Keyword redefinition", term_pointer);
@@ -473,11 +485,20 @@ auto create_term_definition(ExpansionState &state,
                             {KEYWORD_CONTAINER});
         }
       }
-      // A type-map container may only coerce its keys to identifiers.
-      if (container_type && definition.type_mapping.has_value() &&
-          definition.type_mapping.value() != KEYWORD_ID &&
-          definition.type_mapping.value() != KEYWORD_VOCAB) {
-        throw JSONLDError("Invalid type mapping", term_pointer, {KEYWORD_TYPE});
+      // Step 21.4.1: "If type mapping in definition is undefined, set it to
+      // @id", then step 21.4.2: "If type mapping in definition is neither @id
+      // nor @vocab, an invalid type mapping error has been detected and
+      // processing is aborted". The default is what coerces a non-map value of
+      // the term to an identifier (JSON-LD 1.1 API Section 5.1.1 steps 21.4.1
+      // and 21.4.2)
+      if (container_type) {
+        if (!definition.type_mapping.has_value()) {
+          definition.type_mapping = JSON::String{KEYWORD_ID};
+        } else if (definition.type_mapping.value() != KEYWORD_ID &&
+                   definition.type_mapping.value() != KEYWORD_VOCAB) {
+          throw JSONLDError("Invalid type mapping", term_pointer,
+                            {KEYWORD_TYPE});
+        }
       }
     }
 
