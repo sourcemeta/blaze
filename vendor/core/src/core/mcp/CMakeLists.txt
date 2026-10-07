@@ -1,4 +1,5 @@
 sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME mcp
+  PRIVATE_HEADERS capabilities.h error.h protocol.h results.h
   SOURCES mcp.cc)
 
 target_link_libraries(sourcemeta_core_mcp PUBLIC sourcemeta::core::json)

@@ -94,6 +94,15 @@ struct ExpansionState {
   // API Section 5.1 step 5.2.2)
   bool validate_scoped_context{true};
   std::vector<JSON::String> remote_context_chain;
+  // The `@context` entry of every remote context already dereferenced in this
+  // expansion, keyed by the reference that loaded it. Step 5.2.4: "If context
+  // was previously dereferenced, then the processor MUST NOT do a further
+  // dereference, and context is set to the previously established internal
+  // representation: set context document to the previously dereferenced
+  // document, and set loaded context to the value of the @context entry from
+  // the document in context document", whose note adds that "Only the
+  // @context entry need be retained" (JSON-LD 1.1 API Section 5.1 step 5.2.4)
+  std::map<JSON::String, JSON, std::less<>> remote_documents;
   std::optional<JSON::String> document_base;
   // When a scoped context is processed after the fact, remote references in it
   // resolve against the URL of the document that defined the term.

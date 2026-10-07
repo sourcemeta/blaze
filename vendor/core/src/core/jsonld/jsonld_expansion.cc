@@ -358,6 +358,17 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
                                             false, true, nullptr, nullptr,
                                             EMPTY_WEAK_POINTER)};
 
+    // Step 13.4.1: "If active property equals @reverse, an invalid reverse
+    // property map error has been detected and processing is aborted". It is
+    // the first substep of step 13.4, so it precedes every other keyword
+    // branch, step 13.4.14's deferral of @nest included (JSON-LD 1.1 API
+    // Section 5.1.2 step 13.4.1)
+    if (expanded_property.has_value() &&
+        is_keyword(expanded_property.value()) && active_property.has_value() &&
+        active_property.value() == KEYWORD_REVERSE) {
+      throw JSONLDError("Invalid reverse property map", entry_pointer);
+    }
+
     if (expanded_property.has_value() &&
         expanded_property.value() == KEYWORD_NEST) {
       if (entry.second.is_array()) {
@@ -381,15 +392,6 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
     const auto &name{expanded_property.value()};
     if (!name.contains(':') && !is_keyword(name)) {
       continue;
-    }
-
-    // JSON-LD 1.1 allows no keyword apart from `@context` in a reverse
-    // property map, which the loop skips before reaching here. This is the only
-    // place the rule needs enforcing, as the map is expanded entry by entry
-    // through here before anything reads the keys it produced
-    if (is_keyword(name) && active_property.has_value() &&
-        active_property.value() == KEYWORD_REVERSE) {
-      throw JSONLDError("Invalid reverse property map", entry_pointer);
     }
 
     // The @type and @included exemption from colliding keywords does not apply
@@ -770,6 +772,17 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
       for (const auto &[index_key, index_value] :
            sorted_entries(entry.second)) {
         const JSON::String &index{*index_key};
+        // Step 13.8.3.4 initialises "expanded index to the result of IRI
+        // expanding index", and every step that goes on to add index metadata
+        // requires that "expanded index is not @none", so an alias of the
+        // keyword suppresses the metadata exactly as the keyword does
+        // (JSON-LD 1.1 API Section 5.1.2 steps 13.8.3.4 and 13.8.3.7.2 to
+        // 13.8.3.7.5)
+        const auto expanded_index{expand_iri(state, active_context, index,
+                                             false, true, nullptr, nullptr,
+                                             EMPTY_WEAK_POINTER)};
+        const bool index_is_none{expanded_index.has_value() &&
+                                 expanded_index.value() == KEYWORD_NONE};
         auto index_items{
             into_array(expand(state, active_context, property, *index_value,
                               entry_pointer.concat(index), true))};
@@ -781,7 +794,7 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
             continue;
           }
 
-          if (index != KEYWORD_NONE) {
+          if (!index_is_none) {
             if (property_valued) {
               if (item.is_object() &&
                   item.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH)) {

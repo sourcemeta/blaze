@@ -282,6 +282,24 @@ public:
     return total_stripped;
   }
 
+  // A divisor that the word base is a multiple of divides each word in place,
+  // carrying what one word leaves over into the word below, the same way that
+  // stripping a trailing zero does. The caller establishes that the whole
+  // number divides evenly, which the word base being a multiple of the divisor
+  // reduces to the lowest word doing so
+  auto divide_by_base_factor(const std::uint64_t divisor) -> void {
+    std::uint64_t borrow = 0;
+    for (auto index = this->length; index > 0; index--) {
+      const auto word = this->words[index - 1];
+      this->words[index - 1] = (word / divisor) + (borrow * (BASE / divisor));
+      borrow = word % divisor;
+    }
+
+    if (this->length > 1 && this->words[this->length - 1] == 0) {
+      this->length--;
+    }
+  }
+
   [[nodiscard]] auto compare(const BigCoefficient &other) const -> int {
     if (this->length != other.length) {
       return this->length < other.length ? -1 : 1;
