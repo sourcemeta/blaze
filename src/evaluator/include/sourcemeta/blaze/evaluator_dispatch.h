@@ -2909,6 +2909,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[102] = {
     AssertionTypeIntegerBoundedStrict,
     AssertionTypeIntegerLowerBound,
     AssertionTypeIntegerLowerBoundStrict,
+    AssertionNumberIntegerBounded,
     AssertionStringType,
     AssertionPropertyType,
     AssertionPropertyTypeEvaluate,
@@ -2969,8 +2970,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[102] = {
     ControlGroupWhenType,
     ControlEvaluate,
     ControlDynamicAnchorJump,
-    ControlJump,
-    AssertionNumberIntegerBounded};
+    ControlJump};
 
 template <bool Track, bool Dynamic, bool HasCallback>
 inline auto

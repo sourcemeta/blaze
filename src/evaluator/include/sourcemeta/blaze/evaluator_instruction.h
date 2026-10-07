@@ -60,6 +60,7 @@ enum class InstructionIndex : std::uint8_t {
   AssertionTypeIntegerBoundedStrict,
   AssertionTypeIntegerLowerBound,
   AssertionTypeIntegerLowerBoundStrict,
+  AssertionNumberIntegerBounded,
   AssertionStringType,
   AssertionPropertyType,
   AssertionPropertyTypeEvaluate,
@@ -120,8 +121,7 @@ enum class InstructionIndex : std::uint8_t {
   ControlGroupWhenType,
   ControlEvaluate,
   ControlDynamicAnchorJump,
-  ControlJump,
-  AssertionNumberIntegerBounded
+  ControlJump
 };
 
 /// @ingroup evaluator
@@ -167,6 +167,7 @@ constexpr std::string_view INSTRUCTION_NAMES[] = {
     "AssertionTypeIntegerBoundedStrict",
     "AssertionTypeIntegerLowerBound",
     "AssertionTypeIntegerLowerBoundStrict",
+    "AssertionNumberIntegerBounded",
     "AssertionStringType",
     "AssertionPropertyType",
     "AssertionPropertyTypeEvaluate",
@@ -227,8 +228,7 @@ constexpr std::string_view INSTRUCTION_NAMES[] = {
     "ControlGroupWhenType",
     "ControlEvaluate",
     "ControlDynamicAnchorJump",
-    "ControlJump",
-    "AssertionNumberIntegerBounded"};
+    "ControlJump"};
 
 /// @ingroup evaluator
 /// Check if a given instruction type corresponds to an annotation

@@ -80,7 +80,7 @@ TEST(example_2) {
       [
         [
           [
-            68,
+            69,
             [ "additionalProperties" ],
             [],
             "#/additionalProperties",
@@ -182,7 +182,7 @@ TEST(example_4) {
       [
         [
           [
-            68,
+            69,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -268,7 +268,7 @@ TEST(example_5) {
       [
         [
           [
-            50,
+            51,
             [ "foo%" ],
             [],
             "https://example.com/top#/foo%25",
@@ -317,7 +317,7 @@ TEST(example_6) {
       [
         [
           [
-            68,
+            69,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -335,7 +335,7 @@ TEST(example_6) {
                 [ 8, 4 ]
               ],
               [
-                53,
+                54,
                 [],
                 [],
                 "https://example.com/top#/additionalProperties",
