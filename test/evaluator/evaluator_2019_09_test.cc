@@ -294,6 +294,59 @@ TEST(format_date_time_invalid_with_tweak_fast) {
       "3339 date-time");
 }
 
+TEST(format_date_time_valid_with_tweak_and_default_dialect_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date-time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"2026-05-15T14:00:00Z"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 2, "https://json-schema.org/draft/2019-09/schema",
+      tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "date-time");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a "
+      "valid RFC 3339 date-time");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The logical type of the instance was expected to be \"date-time\"");
+}
+
+TEST(format_date_time_invalid_with_tweak_and_default_dialect_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date-time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"not-a-date"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, "https://json-schema.org/draft/2019-09/schema",
+      tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"not-a-date\" was expected to represent a valid RFC "
+      "3339 date-time");
+}
+
 TEST(format_date_time_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2019-09/schema",
