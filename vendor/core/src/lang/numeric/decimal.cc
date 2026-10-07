@@ -17,6 +17,7 @@
 #include <stdexcept>   // std::out_of_range
 #include <string>      // std::string, std::stof, std::stod
 #include <string_view> // std::string_view
+#include <utility>     // std::cmp_greater
 #include <vector>      // std::vector
 
 namespace {
@@ -473,16 +474,6 @@ void check_rounded_exponent(const std::int64_t exponent,
   const auto rounded{exponent + precision_excess(digits)};
   if (rounded > std::numeric_limits<std::int32_t>::max() ||
       rounded < std::numeric_limits<std::int32_t>::min()) {
-    throw sourcemeta::core::NumericOverflowError{};
-  }
-}
-
-void check_exponent_overflow(std::int32_t left_exponent,
-                             std::int32_t right_exponent) {
-  if (left_exponent == std::numeric_limits<std::int32_t>::max() ||
-      left_exponent == std::numeric_limits<std::int32_t>::min() ||
-      right_exponent == std::numeric_limits<std::int32_t>::max() ||
-      right_exponent == std::numeric_limits<std::int32_t>::min()) {
     throw sourcemeta::core::NumericOverflowError{};
   }
 }
@@ -1001,7 +992,10 @@ auto Decimal::is_integral() const -> bool {
     auto big = coefficient_as_big(this->coefficient_, this->coefficient_high_,
                                   this->flags_);
     auto stripped = big.strip_trailing_zeros();
-    return stripped >= -this->exponent_;
+    // The bottom of the exponent range has no positive counterpart of the same
+    // width, so the positions it stands for are counted more widely
+    return static_cast<std::int64_t>(stripped) >=
+           -static_cast<std::int64_t>(this->exponent_);
   }
 
   auto coefficient = this->coefficient_;
@@ -1061,8 +1055,10 @@ auto Decimal::to_integral() const -> Decimal {
   if ((this->flags_ & FLAG_BIG) != 0) {
     auto digit_string = coefficient_to_digit_string(
         this->coefficient_, this->coefficient_high_, this->flags_);
-    auto number_of_digits = static_cast<std::int32_t>(digit_string.size());
-    auto digits_to_remove = -this->exponent_;
+    auto number_of_digits = static_cast<std::int64_t>(digit_string.size());
+    // The bottom of the exponent range has no positive counterpart of the same
+    // width, so the positions to remove are counted more widely
+    const auto digits_to_remove{-static_cast<std::int64_t>(this->exponent_)};
 
     if (digits_to_remove > number_of_digits) {
       Decimal result;
@@ -1094,10 +1090,12 @@ auto Decimal::to_integral() const -> Decimal {
   }
 
   auto coefficient = this->coefficient_;
-  auto digits_to_remove = -this->exponent_;
+  // The bottom of the exponent range has no positive counterpart of the same
+  // width, so the positions to remove are counted more widely
+  const auto digits_to_remove{-static_cast<std::int64_t>(this->exponent_)};
 
-  if (static_cast<std::uint32_t>(digits_to_remove) >
-      digit_count(static_cast<std::uint64_t>(coefficient))) {
+  if (std::cmp_greater(digits_to_remove,
+                       digit_count(static_cast<std::uint64_t>(coefficient)))) {
     Decimal result;
     if ((this->flags_ & FLAG_SIGN) != 0) {
       result.flags_ = FLAG_SIGN;
@@ -1106,21 +1104,21 @@ auto Decimal::to_integral() const -> Decimal {
     return result;
   }
 
-  std::int64_t divisor = 1;
-  for (std::int32_t index = 0; index < digits_to_remove; index++) {
-    divisor *= 10;
-  }
-
-  auto quotient = coefficient / divisor;
-  auto remainder = coefficient % divisor;
-  auto half = divisor / 2;
+  // An addition stores a sum of two compact coefficients, which reaches one
+  // digit further than either of them, and dropping that many positions calls
+  // for a power of ten that only an unsigned integer holds
+  const auto divisor{POWERS_OF_10[static_cast<std::size_t>(digits_to_remove)]};
+  const auto magnitude{static_cast<std::uint64_t>(coefficient)};
+  auto quotient = magnitude / divisor;
+  const auto remainder = magnitude % divisor;
+  const auto half = divisor / 2;
 
   if (remainder > half || (remainder == half && quotient % 2 != 0)) {
     quotient++;
   }
 
   Decimal result;
-  result.coefficient_ = quotient;
+  result.coefficient_ = static_cast<std::int64_t>(quotient);
   result.exponent_ = 0;
   if ((this->flags_ & FLAG_SIGN) != 0) {
     result.flags_ = FLAG_SIGN;
@@ -1163,17 +1161,21 @@ auto Decimal::divisible_by(const Decimal &divisor) const -> bool {
           static_cast<std::uint64_t>(this->coefficient_) % divisor_value;
     }
 
+    // Two exponents at opposite ends of their range are further apart than
+    // that range can hold, so the distance between them is measured more
+    // widely
     if (this->exponent_ >= divisor.exponent_) {
-      auto difference =
-          static_cast<std::uint32_t>(this->exponent_ - divisor.exponent_);
-      auto pow_mod = modular_pow10(difference, divisor_value);
+      const auto difference{static_cast<std::uint64_t>(
+          static_cast<std::int64_t>(this->exponent_) - divisor.exponent_)};
+      auto pow_mod =
+          modular_pow10(static_cast<std::uint32_t>(difference), divisor_value);
       return static_cast<std::uint64_t>(
                  static_cast<sourcemeta::core::uint128_t>(dividend_mod) *
                  pow_mod % divisor_value) == 0;
     }
 
-    auto difference =
-        static_cast<std::uint32_t>(divisor.exponent_ - this->exponent_);
+    const auto difference{static_cast<std::uint64_t>(
+        static_cast<std::int64_t>(divisor.exponent_) - this->exponent_)};
     if (difference > 36) {
       return false;
     }
@@ -1191,7 +1193,7 @@ auto Decimal::divisible_by(const Decimal &divisor) const -> bool {
 
     auto diff_left = difference;
     while (diff_left > 0) {
-      auto chunk = std::min(diff_left, static_cast<std::uint32_t>(19));
+      auto chunk = std::min(diff_left, static_cast<std::uint64_t>(19));
       auto power = POWERS_OF_10[chunk];
       if (static_cast<std::uint64_t>(remaining % power) != 0) {
         return false;
@@ -1870,8 +1872,6 @@ auto Decimal::operator+=(const Decimal &other) -> Decimal & {
     return *this;
   }
 
-  check_exponent_overflow(this->exponent_, other.exponent_);
-
   // The General Decimal Arithmetic Specification states that for addition "the
   // exponent of the result is the minimum of the exponents of the two
   // operands", and that "the sign of a zero result is 0 unless either both
@@ -1915,9 +1915,12 @@ auto Decimal::operator+=(const Decimal &other) -> Decimal & {
   auto result_exponent = std::min(this->exponent_, other.exponent_);
 
   if (!needs_big) {
+    // Two exponents at opposite ends of their range are further apart than
+    // that range can hold, so the distance between them is measured more
+    // widely
     if (this->exponent_ < other.exponent_) {
-      auto difference =
-          static_cast<std::uint32_t>(other.exponent_ - this->exponent_);
+      const auto difference{static_cast<std::uint64_t>(
+          static_cast<std::int64_t>(other.exponent_) - this->exponent_)};
       if (difference <= 18) {
         auto scaled =
             static_cast<sourcemeta::core::uint128_t>(right_coefficient) *
@@ -1933,8 +1936,8 @@ auto Decimal::operator+=(const Decimal &other) -> Decimal & {
       }
 
     } else if (other.exponent_ < this->exponent_) {
-      auto difference =
-          static_cast<std::uint32_t>(this->exponent_ - other.exponent_);
+      const auto difference{static_cast<std::uint64_t>(
+          static_cast<std::int64_t>(this->exponent_) - other.exponent_)};
       if (difference <= 18) {
         auto scaled =
             static_cast<sourcemeta::core::uint128_t>(left_coefficient) *
@@ -2042,8 +2045,6 @@ auto Decimal::operator*=(const Decimal &other) -> Decimal & {
 
     return *this;
   }
-
-  check_exponent_overflow(this->exponent_, other.exponent_);
 
   bool result_negative = ((this->flags_ ^ other.flags_) & FLAG_SIGN) != 0;
   auto result_exponent_64 =
