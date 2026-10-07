@@ -38,6 +38,7 @@ static std::map<std::string_view, std::size_t> global_steps_count;
 auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::core::Options options;
   options.flag("fast", {"f"});
+  options.option("dialect", {"d"});
 
   try {
     options.parse(argc, argv);
@@ -49,7 +50,7 @@ auto main(int argc, char **argv) noexcept -> int {
   const auto &positional{options.positional()};
   if (positional.size() < 2) {
     std::cerr << "Usage: " << argv[0]
-              << " [--fast] <schema.json> <instance.json>\n";
+              << " [--fast] [--dialect <uri>] <schema.json> <instance.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -57,13 +58,18 @@ auto main(int argc, char **argv) noexcept -> int {
                       ? sourcemeta::blaze::Mode::FastValidation
                       : sourcemeta::blaze::Mode::Exhaustive};
 
+  const std::string_view default_dialect{options.contains("dialect") &&
+                                                 !options.at("dialect").empty()
+                                             ? options.at("dialect").front()
+                                             : ""};
+
   try {
     const auto schema{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(0)})};
     const auto schema_template{sourcemeta::blaze::compile(
         schema, sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, mode)};
+        sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
     const auto instance{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
 
@@ -93,6 +99,7 @@ auto main(int argc, char **argv) noexcept -> int {
           std::cout << "   at \"";
           sourcemeta::core::stringify(entry.instance_location, std::cout);
           std::cout << "\"\n";
+          std::cout << "   of \"" << entry.keyword_location << "\"\n";
 
           if (entry.type == sourcemeta::blaze::TraceOutput::EntryType::Push) {
             global_steps_count[entry.name] += 1;
