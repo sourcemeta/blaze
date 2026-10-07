@@ -122,34 +122,43 @@ TEST(with_default_id) {
   EXPECT_TRUE(result);
 }
 
+TEST(boolean_true_exhaustive) {
+  const sourcemeta::core::JSON schema{true};
+
+  const sourcemeta::core::JSON instance{"foo bar"};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_WITH_DEFAULT_DIALECT(
+      schema, instance, 0, "https://json-schema.org/draft/2020-12/schema");
+}
+
+TEST(boolean_false_exhaustive) {
+  const sourcemeta::core::JSON schema{false};
+
+  const sourcemeta::core::JSON instance{"foo bar"};
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, "https://json-schema.org/draft/2020-12/schema");
+
+  EVALUATE_TRACE_PRE(0, AssertionFail, "", "", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionFail, "", "", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "No instance is expected to succeed against the false schema");
+}
+
 TEST(boolean_true) {
   const sourcemeta::core::JSON schema{true};
 
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation,
-      "https://json-schema.org/draft/2020-12/schema")};
-
   const sourcemeta::core::JSON instance{"foo bar"};
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 0)
-  EXPECT_TRUE(result);
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_WITH_DEFAULT_DIALECT(
+      schema, instance, 0, "https://json-schema.org/draft/2020-12/schema");
 }
 
 TEST(boolean_false) {
   const sourcemeta::core::JSON schema{false};
 
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation,
-      "https://json-schema.org/draft/2020-12/schema")};
-
   const sourcemeta::core::JSON instance{"foo bar"};
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
-  EXPECT_FALSE(result);
+  EVALUATE_WITH_TRACE_FAST_FAILURE_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, "https://json-schema.org/draft/2020-12/schema");
 
   EVALUATE_TRACE_PRE(0, AssertionFail, "", "", "");
   EVALUATE_TRACE_POST_FAILURE(0, AssertionFail, "", "", "");

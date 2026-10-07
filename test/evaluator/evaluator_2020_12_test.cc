@@ -1418,6 +1418,52 @@ TEST(prop_type_integer_lower_bound_4_exhaustive) {
                                "against the single defined property subschema");
 }
 
+TEST(format_date_time_valid_with_tweak_and_default_dialect_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date-time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"2026-05-15T14:00:00Z"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, "https://json-schema.org/draft/2020-12/schema",
+      tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a "
+      "valid RFC 3339 date-time");
+}
+
+TEST(format_date_time_invalid_with_tweak_and_default_dialect_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date-time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"not-a-date"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, "https://json-schema.org/draft/2020-12/schema",
+      tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"not-a-date\" was expected to represent a valid RFC "
+      "3339 date-time");
+}
+
 TEST(format_date_time_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
