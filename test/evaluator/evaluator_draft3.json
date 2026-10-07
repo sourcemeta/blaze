@@ -20162,5 +20162,267 @@
         "The string value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "nullable_is_not_a_keyword_type_null_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "nullable": true
+    },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string but it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_is_not_a_keyword_type_match_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "nullable": true
+    },
+    "instance": "hello",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "nullable_is_not_a_keyword_maxlength_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "nullable": true,
+      "maxLength": 2
+    },
+    "instance": "xxx",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStringUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStringUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at most 2 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+      ]
+    }
+  },
+  {
+    "description": "nullable_is_not_a_keyword_minlength_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "string",
+      "nullable": true,
+      "minLength": 2
+    },
+    "instance": "x",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStringBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at least 2 characters"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+      ]
+    }
+  },
+  {
+    "description": "nullable_is_not_a_keyword_maxitems_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "array",
+      "nullable": true,
+      "maxItems": 2
+    },
+    "instance": [ 1, 2, 3 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayUpper", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeArrayUpper", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at most 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at most 2 items but it contained 3 items"
+      ]
+    }
+  },
+  {
+    "description": "nullable_is_not_a_keyword_minitems_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "array",
+      "nullable": true,
+      "minItems": 2
+    },
+    "instance": [ 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at least 2 items"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items but it contained 1 item"
+      ]
+    }
+  },
+  {
+    "description": "nullable_is_not_a_keyword_properties_null_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "nullable": true,
+      "properties": { "a": { "type": "string" } }
+    },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "nullable_is_not_a_keyword_required_null_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "type": "object",
+      "nullable": true,
+      "properties": { "a": { "type": "string", "required": true } }
+    },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the defined property subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDefinesStrict", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDefinesStrict", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be an object that defines the property \"a\""
+      ]
+    }
   }
 ]
