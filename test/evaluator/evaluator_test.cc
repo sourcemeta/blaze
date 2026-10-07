@@ -122,7 +122,27 @@ TEST(with_default_id) {
   EXPECT_TRUE(result);
 }
 
-TEST(integer_lower_bound_real_beyond_exact_integer_range) {
+TEST(integer_lower_bound_real_beyond_integer_range) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer",
+    "minimum": 0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{1.0e19};
+  EXPECT_TRUE(instance.is_real());
+  EXPECT_TRUE(instance.is_integral());
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "", "#", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "", "#", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer above the given minimum");
+}
+
+TEST(integer_lower_bound_real_needs_exact_decimal_conversion) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "integer",

@@ -905,6 +905,13 @@ INSTRUCTION_DIRECT(AssertionTypeIntegerLowerBoundStrict, ValueIntegerBounds) {
   if (target.is_integer()) {
     return target.to_integer() >= value.first;
   }
+  // An integer too large for 64 bits is held as a decimal, which the strict
+  // type check still reads as an integer when it was written as digits alone.
+  // The bounded counterpart needs no such branch, as a value out of that range
+  // cannot sit within bounds of that width either way
+  if (effective_type_strict_real(target) == JSON::Type::Integer) {
+    return target.to_decimal() >= Decimal{value.first};
+  }
   return false;
 }
 
