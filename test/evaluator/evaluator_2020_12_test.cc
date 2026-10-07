@@ -1458,6 +1458,10 @@ TEST(format_date_time_invalid_with_tweak_and_default_dialect_fast) {
   EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
   EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
                               "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"not-a-date\" was expected to represent a valid RFC "
+      "3339 date-time");
 }
 
 TEST(format_date_time_valid_with_tweak_fast) {
