@@ -263,7 +263,17 @@ inline auto is_numeric_integral_multiple_check(const Instruction &instruction)
   }
 
   const auto &divisor{std::get<ValueJSON>(instruction.value)};
-  return divisor.is_integer() && divisor.to_integer() == 1;
+  if (!divisor.is_integral()) {
+    return false;
+  }
+
+  // A real or decimal may spell an integer too large to represent, and such a
+  // divisor is never one, so a failed conversion just means no fusion
+  try {
+    return divisor.as_integer() == 1;
+  } catch (const std::out_of_range &) {
+    return false;
+  }
 }
 
 inline auto is_numeric_bound_check(const Instruction &instruction) -> bool {

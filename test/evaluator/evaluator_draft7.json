@@ -6672,5 +6672,41 @@
         "The integer value 11 was expected to be less than the integer 11, but they were equal"
       ]
     }
+  },
+  {
+    "description": "multiple_of_one_bounded_under_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "multipleOf": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": -1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value -1 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value -1 was expected to be less than or equal to the integer 10",
+        "The integer value -1 was expected to be greater than or equal to the integer 0"
+      ]
+    }
   }
 ]
