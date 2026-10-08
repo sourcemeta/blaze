@@ -2800,7 +2800,7 @@ const handlers = [
   ControlGroupWhenType, // 99
   ControlEvaluate, // 100
   ControlDynamicAnchorJump, // 101
-  ControlJump                                 // 101
+  ControlJump                                 // 102
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {

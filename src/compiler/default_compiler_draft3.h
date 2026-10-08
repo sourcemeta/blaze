@@ -2983,6 +2983,22 @@ auto compiler_draft3_validation_divisibleby(
                    schema_context.schema.at(dynamic_context.keyword)})};
 }
 
+// The formats that the OpenAPI 3.1 and 3.2 specifications define for numbers,
+// which the rest of this compiler treats apart from the string ones
+auto is_openapi_numeric_format(const SchemaContext &schema_context,
+                               const sourcemeta::core::JSON &format) -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  if (!format.is_string() ||
+      (!schema_context.vocabularies.contains(Known::OPENAPI_3_1_BASE) &&
+       !schema_context.vocabularies.contains(Known::OPENAPI_3_2_BASE))) {
+    return false;
+  }
+
+  const auto &name{format.to_string()};
+  return name == "int32" || name == "int64" || name == "float" ||
+         name == "double";
+}
+
 auto compiler_draft3_validation_format(const Context &context,
                                        const SchemaContext &schema_context,
                                        const DynamicContext &dynamic_context,
@@ -3015,17 +3031,12 @@ auto compiler_draft3_validation_format(const Context &context,
 
     const auto &name{format.to_string()};
 
-    const auto is_openapi{
-        schema_context.vocabularies.contains(Known::OPENAPI_3_1_BASE) ||
-        schema_context.vocabularies.contains(Known::OPENAPI_3_2_BASE)};
-
     // These are the only formats the OpenAPI 3.1 and 3.2 specifications
     // define themselves, and supporting any other entry of the Format
     // Registry they defer to is strictly optional
     // TODO: Consider asserting the numeric and string formats that the
     // OpenAPI Format Registry defines
-    if (is_openapi && (name == "int32" || name == "int64" || name == "float" ||
-                       name == "double")) {
+    if (is_openapi_numeric_format(schema_context, format)) {
       Instructions instructions;
       if (name == "int32") {
         instructions.push_back(make(
@@ -3132,6 +3143,15 @@ auto compiler_draft3_validation_format(const Context &context,
              schema_context, dynamic_context,
              sourcemeta::core::JSON{
                  schema_context.schema.at(dynamic_context.keyword)})};
+
+    // A format that applies to numbers cannot have its annotation grouped by
+    // the instance type, so emit it the way the assertion path does rather
+    // than collect it for strings alone
+    if (is_openapi_numeric_format(
+            schema_context,
+            schema_context.schema.at(dynamic_context.keyword))) {
+      return children;
+    }
 
     return {make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
                  context, schema_context, relative_dynamic_context(),
