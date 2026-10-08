@@ -1331,10 +1331,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBoundStrict", "", "#", "" ]
+        [ "AssertionTypeIntegerLowerBoundStrict", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerLowerBoundStrict", "", "#", "" ]
+        [ false, "AssertionTypeIntegerLowerBoundStrict", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -1359,10 +1359,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBoundStrict", "", "#", "" ]
+        [ "AssertionTypeIntegerLowerBoundStrict", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerLowerBoundStrict", "", "#", "" ]
+        [ true, "AssertionTypeIntegerLowerBoundStrict", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"

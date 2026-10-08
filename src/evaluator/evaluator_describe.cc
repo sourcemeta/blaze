@@ -2388,6 +2388,9 @@ auto describe(const bool valid, const Instruction &step,
       case ValueStringType::Color:
         message << " CSS 2 color";
         break;
+      case ValueStringType::Base64:
+        message << " RFC 4648 Base64 string";
+        break;
       default:
         return unknown();
     }

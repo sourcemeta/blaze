@@ -34,26 +34,642 @@ TEST(explicit_schema_overrides_the_default_dialect_fast) {
       "type null");
 }
 
-TEST(format_assertion_tweak_is_unsupported_fast) {
+TEST(format_byte_valid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "format": "uri"
+    "format": "byte"
   })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("Zm9vYmFy")JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
 
-  try {
-    [[maybe_unused]] const auto compiled_schema{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
-                                   sourcemeta::blaze::default_schema_compiler,
-                                   sourcemeta::blaze::Mode::FastValidation,
-                                   OPENAPI_3_0_DIALECT, "", "", tweaks)};
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_EQ(std::string{error.what()},
-              "The format assertion tweak not supported in this dialect");
-    EXPECT_EQ(error.base().recompose(), "");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/format");
-  }
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"Zm9vYmFy\" was expected to "
+                               "represent a valid RFC 4648 Base64 string");
+}
+
+TEST(format_byte_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "byte"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("Zm9vYmF")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"Zm9vYmF\" was expected to "
+                               "represent a valid RFC 4648 Base64 string");
+}
+
+TEST(format_date_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("2026-10-08")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"2026-10-08\" was expected "
+                               "to represent a valid RFC 3339 full-date");
+}
+
+TEST(format_date_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("not-a-date")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"not-a-date\" was expected "
+                               "to represent a valid RFC 3339 full-date");
+}
+
+TEST(format_date_time_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date-time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("2026-10-08T00:00:00Z")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"2026-10-08T00:00:00Z\" was expected to represent a "
+      "valid RFC 3339 date-time");
+}
+
+TEST(format_date_time_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date-time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("nope")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"nope\" was expected to "
+                               "represent a valid RFC 3339 date-time");
+}
+
+TEST(format_email_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("a@b.com")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"a@b.com\" was expected to "
+                               "represent a valid email address");
+}
+
+TEST(format_email_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "email"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("nope")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"nope\" was expected to "
+                               "represent a valid email address");
+}
+
+TEST(format_hostname_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "hostname"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("example.com")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"example.com\" was expected "
+                               "to represent a valid hostname");
+}
+
+TEST(format_ipv4_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "ipv4"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("1.2.3.4")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"1.2.3.4\" was expected to "
+                               "represent a valid IPv4 address");
+}
+
+TEST(format_ipv4_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "ipv4"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("999.1.1.1")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"999.1.1.1\" was expected to "
+                               "represent a valid IPv4 address");
+}
+
+TEST(format_ipv6_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "ipv6"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("::1")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"::1\" was expected to "
+                               "represent a valid IPv6 address");
+}
+
+TEST(format_uri_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "uri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("https://x.com")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"https://x.com\" was "
+                               "expected to represent a valid URI");
+}
+
+TEST(format_uri_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "uri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("://bad")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid URI");
+}
+
+TEST(format_int32_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(5)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/format", "#/format",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberIntegerBounded, "/format",
+                              "#/format", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 5 was expected to be an "
+                               "integer between -2147483648 and 2147483647");
+}
+
+TEST(format_int32_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(2147483648)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/format", "#/format",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberIntegerBounded, "/format",
+                              "#/format", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 2147483648 was expected to be an integer between "
+      "-2147483648 and 2147483647");
+}
+
+TEST(format_int32_fractional_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(1.5)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/format", "#/format",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberIntegerBounded, "/format",
+                              "#/format", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 1.5 was expected to be an "
+                               "integer between -2147483648 and 2147483647");
+}
+
+TEST(format_int64_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "int64"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(9223372036854775807)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/format", "#/format",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberIntegerBounded, "/format",
+                              "#/format", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 9223372036854775807 was expected to be an integer "
+      "between -9223372036854775808 and 9223372036854775807");
+}
+
+TEST(format_int64_beyond_range_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "int64"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(9223372036854775808)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/format", "#/format",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberIntegerBounded, "/format",
+                              "#/format", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 9223372036854775808 was expected to be an integer "
+      "between -9223372036854775808 and 9223372036854775807");
+}
+
+TEST(format_float_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "float"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(0.5)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.5 was expected to be exactly representable as an "
+      "IEEE 754 single precision floating point number");
+}
+
+TEST(format_float_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "float"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.14 was expected to be exactly representable as an "
+      "IEEE 754 single precision floating point number");
+}
+
+TEST(format_double_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "double"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.14 was expected to be exactly representable as an "
+      "IEEE 754 double precision floating point number");
+}
+
+TEST(format_double_beyond_range_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "double"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(1e300)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 1e+300 was expected to be exactly representable as an "
+      "IEEE 754 double precision floating point number");
+}
+
+TEST(format_binary_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "binary"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("any sequence of octets")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 0, OPENAPI_3_0_DIALECT, tweaks);
+}
+
+TEST(format_password_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "password"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("hunter2")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 0, OPENAPI_3_0_DIALECT, tweaks);
+}
+
+TEST(format_int32_ignores_non_numbers_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("5")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 0, OPENAPI_3_0_DIALECT, tweaks);
+}
+
+TEST(format_uuid_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "uuid"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("not-a-uuid")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 0, OPENAPI_3_0_DIALECT, tweaks);
+}
+
+TEST(format_time_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("00:00:00")JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 0, OPENAPI_3_0_DIALECT, tweaks);
+}
+
+TEST(format_int8_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "int8"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(5)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 0, OPENAPI_3_0_DIALECT, tweaks);
+}
+
+TEST(format_uri_is_ignored_without_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "uri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_WITH_DEFAULT_DIALECT(schema, instance, 0,
+                                                        OPENAPI_3_0_DIALECT);
+}
+
+TEST(format_byte_with_x_format_assertion_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "byte",
+    "x-format-assertion": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"Zm9vYmF"};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_WITH_DEFAULT_DIALECT(schema, instance, 1,
+                                                        OPENAPI_3_0_DIALECT);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"Zm9vYmF\" was expected to represent a valid RFC "
+      "4648 Base64 string");
 }

@@ -3271,7 +3271,51 @@ auto compiler_draft3_validation_format(const Context &context,
       schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7) ||
       schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7_HYPER)};
 
-  if (is_draft7) {
+  if (schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE)) {
+    // OpenAPI 3.0 defines these two for numbers, so they cannot resolve to a
+    // string logical type like the rest of this chain does
+    if (name == "int32" || name == "int64") {
+      return {make(
+          sourcemeta::blaze::InstructionIndex::AssertionNumberIntegerBounded,
+          context, schema_context, dynamic_context,
+          name == "int32"
+              ? ValueIntegerBounds{std::numeric_limits<std::int32_t>::min(),
+                                   std::numeric_limits<std::int32_t>::max()}
+              : ValueIntegerBounds{std::numeric_limits<std::int64_t>::min(),
+                                   std::numeric_limits<std::int64_t>::max()})};
+    }
+
+    if (name == "float" || name == "double") {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionNumberType,
+                   context, schema_context, dynamic_context,
+                   name == "float" ? ValueNumberType::Float
+                                   : ValueNumberType::Double)};
+    }
+
+    if (name == "date-time") {
+      type = ValueStringType::DateTime;
+    } else if (name == "date") {
+      type = ValueStringType::Date;
+    } else if (name == "byte") {
+      type = ValueStringType::Base64;
+    } else if (name == "email") {
+      // The Schema Object is a subset of JSON Schema Draft Wright-00, whose
+      // own formats apply alongside the ones the specification tabulates
+      type = ValueStringType::Email;
+    } else if (name == "hostname") {
+      type = ValueStringType::Hostname;
+    } else if (name == "ipv4") {
+      type = ValueStringType::IPv4;
+    } else if (name == "ipv6") {
+      type = ValueStringType::IPv6;
+    } else if (name == "uri") {
+      type = ValueStringType::URI;
+    } else {
+      // Every string is a sequence of octets, which is all `binary` asks for,
+      // and `password` is a hint to obscure the value rather than a constraint
+      return {};
+    }
+  } else if (is_draft7) {
     if (name == "date-time") {
       type = ValueStringType::DateTime;
     } else if (name == "date") {
