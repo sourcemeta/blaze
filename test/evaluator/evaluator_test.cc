@@ -135,8 +135,10 @@ TEST(integer_lower_bound_real_beyond_integer_range) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "", "#", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "", "#", "");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "/minimum", "#/minimum",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "/minimum",
+                              "#/minimum", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer above the given minimum");
@@ -155,8 +157,10 @@ TEST(integer_lower_bound_real_needs_exact_decimal_conversion) {
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "", "#", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "", "#", "");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "/minimum", "#/minimum",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "/minimum",
+                              "#/minimum", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer above the given minimum");

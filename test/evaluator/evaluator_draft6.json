@@ -3482,10 +3482,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ true, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3521,10 +3521,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ false, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3554,10 +3554,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ true, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3593,10 +3593,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ true, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3632,10 +3632,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ false, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3671,10 +3671,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ false, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3703,10 +3703,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ true, "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -3738,10 +3738,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ false, "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -3770,10 +3770,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ false, "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -3804,10 +3804,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ true, "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3844,10 +3844,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ false, "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3878,10 +3878,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ false, "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3915,10 +3915,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ true, "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3955,10 +3955,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ true, "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -3995,10 +3995,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ false, "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -4035,10 +4035,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerBounded", "", "#/properties", "/x" ]
+        [ false, "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"
@@ -4090,10 +4090,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerLowerBound", "", "#/properties", "/x" ]
+        [ true, "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -4127,10 +4127,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerLowerBound", "", "#/properties", "/x" ]
+        [ false, "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -4161,10 +4161,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerLowerBound", "", "#/properties", "/x" ]
+        [ true, "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -4198,10 +4198,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#/properties", "/x" ]
+        [ "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerLowerBound", "", "#/properties", "/x" ]
+        [ false, "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -7473,10 +7473,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ true, "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -7508,10 +7508,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerLowerBound", "", "#", "" ]
+        [ false, "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer above the given minimum"
@@ -7541,10 +7541,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionTypeIntegerBounded", "", "#", "" ]
+        [ false, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The value was expected to be an integer within the given range"

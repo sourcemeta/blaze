@@ -661,6 +661,17 @@ auto extract_integer_bounds(const Instructions &children)
   return {minimum, maximum};
 }
 
+auto integer_lower_bound_extra_index(const Instructions &children)
+    -> std::size_t {
+  for (const auto &child : children) {
+    if (child.type == InstructionIndex::AssertionGreaterEqual) {
+      return child.extra_index;
+    }
+  }
+
+  return 0;
+}
+
 auto compiler_draft3_applicator_properties_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &current,
@@ -941,10 +952,13 @@ auto compiler_draft3_applicator_properties_with_options(
                   ? InstructionIndex::AssertionTypeIntegerBoundedStrict
                   : InstructionIndex::AssertionTypeIntegerBounded;
           auto instance_location = substeps.front().relative_instance_location;
+          const auto minimum_extra_index{
+              integer_lower_bound_extra_index(substeps)};
           substeps.clear();
           auto fused = make(index, context, schema_context,
                             relative_dynamic_context(), bounds);
           fused.relative_instance_location = std::move(instance_location);
+          fused.extra_index = minimum_extra_index;
           substeps.push_back(std::move(fused));
         } else if (is_integer_type_lower_bound_pattern(substeps)) {
           const auto minimum = extract_integer_lower_bound(substeps);
@@ -953,11 +967,14 @@ auto compiler_draft3_applicator_properties_with_options(
                   ? InstructionIndex::AssertionTypeIntegerLowerBoundStrict
                   : InstructionIndex::AssertionTypeIntegerLowerBound;
           auto instance_location = substeps.front().relative_instance_location;
+          const auto minimum_extra_index{
+              integer_lower_bound_extra_index(substeps)};
           substeps.clear();
           auto fused =
               make(index, context, schema_context, relative_dynamic_context(),
                    ValueIntegerBounds{minimum, 0});
           fused.relative_instance_location = std::move(instance_location);
+          fused.extra_index = minimum_extra_index;
           substeps.push_back(std::move(fused));
         } else if (substeps.size() == 2) {
           bool has_items_bounded{false};

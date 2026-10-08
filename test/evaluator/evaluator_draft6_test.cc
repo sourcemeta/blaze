@@ -1353,8 +1353,10 @@ TEST(type_integer_bounded_5) {
   const sourcemeta::core::JSON instance{3.0};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBounded, "", "#", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerBounded, "", "#", "");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBounded, "/minimum", "#/minimum",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerBounded, "/minimum",
+                              "#/minimum", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer within the given range");
@@ -1370,8 +1372,10 @@ TEST(type_integer_lower_bound_3) {
   const sourcemeta::core::JSON instance{5.0};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "", "#", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "", "#", "");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "/minimum", "#/minimum",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "/minimum",
+                              "#/minimum", "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer above the given minimum");
@@ -1389,9 +1393,11 @@ TEST(prop_type_integer_bounded_6) {
       sourcemeta::core::parse_json(R"JSON({ "x": 3.0 })JSON")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBounded, "", "#/properties", "/x");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerBounded, "",
-                              "#/properties", "/x");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBounded, "/properties/x/minimum",
+                     "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerBounded,
+                              "/properties/x/minimum", "#/properties/x/minimum",
+                              "/x");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
@@ -1454,10 +1460,11 @@ TEST(prop_type_integer_lower_bound_4) {
       sourcemeta::core::parse_json(R"JSON({ "x": 5.0 })JSON")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "", "#/properties",
-                     "/x");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound, "",
-                              "#/properties", "/x");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBound, "/properties/x/minimum",
+                     "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeIntegerLowerBound,
+                              "/properties/x/minimum", "#/properties/x/minimum",
+                              "/x");
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
