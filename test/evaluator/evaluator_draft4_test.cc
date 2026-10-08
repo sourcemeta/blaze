@@ -1239,10 +1239,11 @@ TEST(prop_type_integer_bounded_strict_real_3_0_fails) {
       sourcemeta::core::parse_json(R"JSON({ "x": 3.0 })JSON")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict, "", "#/properties",
-                     "/x");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict, "",
-                              "#/properties", "/x");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict,
+                     "/properties/x/minimum", "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict,
+                              "/properties/x/minimum", "#/properties/x/minimum",
+                              "/x");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer within the given range");
@@ -1260,10 +1261,11 @@ TEST(prop_type_integer_bounded_strict_real_3_5_fails) {
       sourcemeta::core::parse_json(R"JSON({ "x": 3.5 })JSON")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict, "", "#/properties",
-                     "/x");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict, "",
-                              "#/properties", "/x");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict,
+                     "/properties/x/minimum", "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict,
+                              "/properties/x/minimum", "#/properties/x/minimum",
+                              "/x");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer within the given range");
@@ -1281,10 +1283,11 @@ TEST(prop_type_integer_lower_bound_strict_real_5_0_fails) {
       sourcemeta::core::parse_json(R"JSON({ "x": 5.0 })JSON")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBoundStrict, "",
-                     "#/properties", "/x");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerLowerBoundStrict, "",
-                              "#/properties", "/x");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBoundStrict,
+                     "/properties/x/minimum", "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerLowerBoundStrict,
+                              "/properties/x/minimum", "#/properties/x/minimum",
+                              "/x");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer above the given minimum");
@@ -1302,10 +1305,11 @@ TEST(prop_type_integer_lower_bound_strict_real_5_5_fails) {
       sourcemeta::core::parse_json(R"JSON({ "x": 5.5 })JSON")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBoundStrict, "",
-                     "#/properties", "/x");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerLowerBoundStrict, "",
-                              "#/properties", "/x");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerLowerBoundStrict,
+                     "/properties/x/minimum", "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerLowerBoundStrict,
+                              "/properties/x/minimum", "#/properties/x/minimum",
+                              "/x");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer above the given minimum");
@@ -1324,10 +1328,11 @@ TEST(prop_type_integer_bounded_strict_decimal_3_0_fails) {
                   sourcemeta::core::JSON{sourcemeta::core::Decimal{"3.0"}});
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
 
-  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict, "", "#/properties",
-                     "/x");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict, "",
-                              "#/properties", "/x");
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict,
+                     "/properties/x/minimum", "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict,
+                              "/properties/x/minimum", "#/properties/x/minimum",
+                              "/x");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer within the given range");
