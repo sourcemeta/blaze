@@ -256,6 +256,21 @@ inline auto as_decimal(const JSON &instance) -> Decimal {
                                : Decimal::exact_from(instance.to_real());
 }
 
+inline auto integer_within_bounds(const JSON &target,
+                                  const ValueIntegerBounds &value) -> bool {
+  if (target.is_integer()) {
+    const auto integer{target.to_integer()};
+    return integer >= value.first && integer <= value.second;
+  }
+
+  if (target.is_integral()) {
+    const auto decimal{as_decimal(target)};
+    return decimal >= Decimal{value.first} && decimal <= Decimal{value.second};
+  }
+
+  return false;
+}
+
 template <typename T>
 inline auto assume_value(const Value &variant) noexcept -> const T & {
   const auto *pointer{std::get_if<T>(&variant)};
@@ -851,15 +866,7 @@ INSTRUCTION_HANDLER(AssertionDivisible) {
 }
 
 INSTRUCTION_DIRECT(AssertionTypeIntegerBounded, ValueIntegerBounds) {
-  if (target.is_integer()) {
-    const auto integer{target.to_integer()};
-    return integer >= value.first && integer <= value.second;
-  }
-  if (target.is_integral()) {
-    const auto decimal{as_decimal(target)};
-    return decimal >= Decimal{value.first} && decimal <= Decimal{value.second};
-  }
-  return false;
+  return integer_within_bounds(target, value);
 }
 
 INSTRUCTION_HANDLER(AssertionTypeIntegerBounded) {
@@ -920,6 +927,17 @@ INSTRUCTION_HANDLER(AssertionTypeIntegerLowerBoundStrict) {
   result = DIRECT(AssertionTypeIntegerLowerBoundStrict, target,
                   assume_value_copy<ValueIntegerBounds>(instruction.value));
   EVALUATE_END(AssertionTypeIntegerLowerBoundStrict);
+}
+
+INSTRUCTION_DIRECT(AssertionNumberIntegerBounded, ValueIntegerBounds) {
+  return integer_within_bounds(target, value);
+}
+
+INSTRUCTION_HANDLER(AssertionNumberIntegerBounded) {
+  EVALUATE_BEGIN_NON_STRING(AssertionNumberIntegerBounded, target.is_number());
+  result = DIRECT(AssertionNumberIntegerBounded, target,
+                  assume_value_copy<ValueIntegerBounds>(instruction.value));
+  EVALUATE_END(AssertionNumberIntegerBounded);
 }
 
 INSTRUCTION_HANDLER(AssertionStringType) {
@@ -2847,7 +2865,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[101] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[102] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2888,6 +2906,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[101] = {
     AssertionTypeIntegerBoundedStrict,
     AssertionTypeIntegerLowerBound,
     AssertionTypeIntegerLowerBoundStrict,
+    AssertionNumberIntegerBounded,
     AssertionStringType,
     AssertionPropertyType,
     AssertionPropertyTypeEvaluate,

@@ -18,6 +18,7 @@ import {
   ASSERTION_UNIQUE, ASSERTION_DIVISIBLE,
   ASSERTION_TYPE_INTEGER_BOUNDED, ASSERTION_TYPE_INTEGER_BOUNDED_STRICT,
   ASSERTION_TYPE_INTEGER_LOWER_BOUND, ASSERTION_TYPE_INTEGER_LOWER_BOUND_STRICT,
+  ASSERTION_NUMBER_INTEGER_BOUNDED,
   ASSERTION_STRING_TYPE,
   ASSERTION_PROPERTY_TYPE, ASSERTION_PROPERTY_TYPE_EVALUATE,
   ASSERTION_PROPERTY_TYPE_STRICT, ASSERTION_PROPERTY_TYPE_STRICT_EVALUATE,
@@ -830,6 +831,13 @@ export function describe(valid, instruction, evaluatePath,
   if (opcode === ASSERTION_TYPE_INTEGER_LOWER_BOUND ||
       opcode === ASSERTION_TYPE_INTEGER_LOWER_BOUND_STRICT) {
     return 'The value was expected to be an integer above the given minimum';
+  }
+
+  if (opcode === ASSERTION_NUMBER_INTEGER_BOUNDED) {
+    return 'The ' + valueTypeName(target) + ' value ' +
+      stringifyValue(target) +
+      ' was expected to be an integer between ' + value[0] +
+      ' and ' + value[1];
   }
 
   if (opcode === ASSERTION_OBJECT_PROPERTIES_SIMPLE) {

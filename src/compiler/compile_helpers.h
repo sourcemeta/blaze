@@ -9,6 +9,7 @@
 #include <cassert>    // assert
 #include <functional> // std::cref
 #include <iterator>   // std::distance
+#include <limits>     // std::numeric_limits
 #include <optional>   // std::optional
 #include <regex>      // std::regex, std::regex_match, std::smatch
 #include <stdexcept>  // std::out_of_range
@@ -254,6 +255,28 @@ inline auto is_numeric_integer_type_check(const Instruction &instruction)
              sourcemeta::core::JSON::Type::Integer;
 }
 
+// A multiple of one admits exactly the integers, so it bounds a number the way
+// an integer type check does, without saying anything about the type
+inline auto is_numeric_integral_multiple_check(const Instruction &instruction)
+    -> bool {
+  if (instruction.type != InstructionIndex::AssertionDivisible) {
+    return false;
+  }
+
+  const auto &divisor{std::get<ValueJSON>(instruction.value)};
+  if (!divisor.is_integral()) {
+    return false;
+  }
+
+  // A real or decimal may spell an integer too large to represent, and such a
+  // divisor is never one, so a failed conversion just means no fusion
+  try {
+    return divisor.as_integer() == 1;
+  } catch (const std::out_of_range &) {
+    return false;
+  }
+}
+
 inline auto is_numeric_bound_check(const Instruction &instruction) -> bool {
   return instruction.type == InstructionIndex::AssertionGreaterEqual ||
          instruction.type == InstructionIndex::AssertionGreater ||
@@ -277,12 +300,22 @@ inline auto merge_integer_bound(const Instruction &instruction,
   if (instruction.type == InstructionIndex::AssertionGreaterEqual) {
     minimum = minimum.has_value() ? std::max(minimum.value(), value) : value;
   } else if (instruction.type == InstructionIndex::AssertionGreater) {
+    // Tightening the bound past the representable range would wrap around, so
+    // leave such a bound to the standalone instruction that can still hold it
+    if (value == std::numeric_limits<std::int64_t>::max()) {
+      return false;
+    }
+
     const auto adjusted{value + 1};
     minimum =
         minimum.has_value() ? std::max(minimum.value(), adjusted) : adjusted;
   } else if (instruction.type == InstructionIndex::AssertionLessEqual) {
     maximum = maximum.has_value() ? std::min(maximum.value(), value) : value;
   } else if (instruction.type == InstructionIndex::AssertionLess) {
+    if (value == std::numeric_limits<std::int64_t>::min()) {
+      return false;
+    }
+
     const auto adjusted{value - 1};
     maximum =
         maximum.has_value() ? std::min(maximum.value(), adjusted) : adjusted;

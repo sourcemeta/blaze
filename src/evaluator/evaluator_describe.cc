@@ -1084,6 +1084,17 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionNumberIntegerBounded) {
+    std::ostringstream message;
+    const auto &value{instruction_value<ValueIntegerBounds>(step)};
+    message << "The " << value_type_name(target) << " value ";
+    describe_stringify(target, message);
+    message << " was expected to be an integer between " << value.first
+            << " and " << value.second;
+    return message.str();
+  }
+
+  if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionObjectPropertiesSimple) {
     return "The object value was expected to validate against the defined "
            "property subschemas";

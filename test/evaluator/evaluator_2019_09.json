@@ -11603,5 +11603,237 @@
         "The integer value 12345678901234567890123456789012345678901234 was expected to be less than or equal to the integer 10"
       ]
     }
+  },
+  {
+    "description": "multiple_of_one_bounded_within_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "multipleOf": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ],
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ],
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be divisible by the integer 1",
+        "The integer value 5 was expected to be less than or equal to the integer 10",
+        "The integer value 5 was expected to be greater than or equal to the integer 0"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_bounded_over_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "multipleOf": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": 11,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 11 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ],
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ],
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 11 was expected to be divisible by the integer 1",
+        "The integer value 11 was expected to be less than or equal to the integer 10"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_bounded_fractional_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "multipleOf": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": 1.5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.5 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.5 was expected to be divisible by the integer 1"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_bounded_string_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "multipleOf": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": "x",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "multiple_of_one_exclusive_bounded_upper_edge_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "multipleOf": 1,
+      "exclusiveMaximum": 11,
+      "exclusiveMinimum": -1
+    },
+    "instance": 10,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ],
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ],
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "post": [
+        [ true, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ],
+        [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ],
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be less than the integer 11",
+        "The integer value 10 was expected to be greater than the integer -1",
+        "The integer value 10 was expected to be divisible by the integer 1"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_exclusive_bounded_over_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "multipleOf": 1,
+      "exclusiveMaximum": 11,
+      "exclusiveMinimum": -1
+    },
+    "instance": 11,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 11 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 11 was expected to be less than the integer 11, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_bounded_under_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "multipleOf": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": -1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value -1 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ],
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ],
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+        [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value -1 was expected to be divisible by the integer 1",
+        "The integer value -1 was expected to be less than or equal to the integer 10",
+        "The integer value -1 was expected to be greater than or equal to the integer 0"
+      ]
+    }
   }
 ]
