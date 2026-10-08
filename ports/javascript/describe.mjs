@@ -834,7 +834,10 @@ export function describe(valid, instruction, evaluatePath,
   }
 
   if (opcode === ASSERTION_NUMBER_INTEGER_BOUNDED) {
-    return 'The number value was expected to be an integer within the given range';
+    return 'The ' + valueTypeName(target) + ' value ' +
+      stringifyValue(target) +
+      ' was expected to be an integer between ' + value[0] +
+      ' and ' + value[1];
   }
 
   if (opcode === ASSERTION_OBJECT_PROPERTIES_SIMPLE) {

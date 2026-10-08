@@ -20424,5 +20424,126 @@
         "The value was expected to be an object that defines the property \"a\""
       ]
     }
+  },
+  {
+    "description": "multiple_of_one_bounded_within_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNumberIntegerBounded", "", "#", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+        [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+        [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be divisible by the integer 1",
+        "The integer value 5 was expected to be less than or equal to the integer 10",
+        "The integer value 5 was expected to be greater than or equal to the integer 0"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_bounded_over_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": 11,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+      ],
+      "descriptions": [
+        "The integer value 11 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 11 was expected to be divisible by the integer 1",
+        "The integer value 11 was expected to be less than or equal to the integer 10"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_bounded_fractional_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": 1.5,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.5 was expected to be an integer between 0 and 10"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "post": [
+        [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+      ],
+      "descriptions": [
+        "The number value 1.5 was expected to be divisible by the integer 1"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_bounded_string_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 1,
+      "maximum": 10,
+      "minimum": 0
+    },
+    "instance": "x",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]

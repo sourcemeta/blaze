@@ -1085,8 +1085,13 @@ auto describe(const bool valid, const Instruction &step,
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionNumberIntegerBounded) {
-    return "The number value was expected to be an integer within the given "
-           "range";
+    std::ostringstream message;
+    const auto &value{instruction_value<ValueIntegerBounds>(step)};
+    message << "The " << value_type_name(target) << " value ";
+    describe_stringify(target, message);
+    message << " was expected to be an integer between " << value.first
+            << " and " << value.second;
+    return message.str();
   }
 
   if (step.type ==
