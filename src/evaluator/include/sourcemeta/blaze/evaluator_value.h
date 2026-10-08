@@ -189,13 +189,19 @@ using ValueObjectProperties = std::vector<
     std::tuple<ValueString, sourcemeta::core::JSON::Object::hash_type, bool>>;
 
 /// @ingroup evaluator
-using Value = std::variant<
-    ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty, ValueStrings,
-    ValueStringSet, ValueTypes, ValueType, ValueRegex, ValueUnsignedInteger,
-    ValueRange, ValueBoolean, ValueNamedIndexes, ValueStringType,
-    ValueStringMap, ValuePropertyFilter, ValueIndexPair, ValuePointer,
-    ValueTypedProperties, ValueStringHashes, ValueTypedHashes,
-    ValueIntegerBounds, ValueIntegerBoundsWithSize, ValueObjectProperties>;
+/// Represents a compiler step number logical type
+enum class ValueNumberType : std::uint8_t { Float, Double };
+
+/// @ingroup evaluator
+using Value =
+    std::variant<ValueNone, ValueJSON, ValueSet, ValueString, ValueProperty,
+                 ValueStrings, ValueStringSet, ValueTypes, ValueType,
+                 ValueRegex, ValueUnsignedInteger, ValueRange, ValueBoolean,
+                 ValueNamedIndexes, ValueStringType, ValueStringMap,
+                 ValuePropertyFilter, ValueIndexPair, ValuePointer,
+                 ValueTypedProperties, ValueStringHashes, ValueTypedHashes,
+                 ValueIntegerBounds, ValueIntegerBoundsWithSize,
+                 ValueObjectProperties, ValueNumberType>;
 
 } // namespace sourcemeta::blaze
 

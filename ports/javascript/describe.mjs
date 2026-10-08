@@ -19,6 +19,7 @@ import {
   ASSERTION_TYPE_INTEGER_BOUNDED, ASSERTION_TYPE_INTEGER_BOUNDED_STRICT,
   ASSERTION_TYPE_INTEGER_LOWER_BOUND, ASSERTION_TYPE_INTEGER_LOWER_BOUND_STRICT,
   ASSERTION_NUMBER_INTEGER_BOUNDED,
+  ASSERTION_NUMBER_TYPE,
   ASSERTION_STRING_TYPE,
   ASSERTION_PROPERTY_TYPE, ASSERTION_PROPERTY_TYPE_EVALUATE,
   ASSERTION_PROPERTY_TYPE_STRICT, ASSERTION_PROPERTY_TYPE_STRICT_EVALUATE,
@@ -703,6 +704,12 @@ export function describe(valid, instruction, evaluatePath,
       return message;
     }
 
+    if (keyword === 'x-format-assertion' && typeof annotation === 'boolean') {
+      return annotation
+        ? 'A sibling `format` keyword was expected to be enforced as an assertion'
+        : 'A sibling `format` keyword was expected to be collected as an annotation';
+    }
+
     return 'The unrecognized keyword ' + escapeString(keyword) +
       ' was collected as the annotation ' + stringifyValue(annotation);
   }
@@ -831,6 +838,14 @@ export function describe(valid, instruction, evaluatePath,
   if (opcode === ASSERTION_TYPE_INTEGER_LOWER_BOUND ||
       opcode === ASSERTION_TYPE_INTEGER_LOWER_BOUND_STRICT) {
     return 'The value was expected to be an integer above the given minimum';
+  }
+
+  if (opcode === ASSERTION_NUMBER_TYPE) {
+    return 'The ' + valueTypeName(target) + ' value ' +
+      stringifyValue(target) +
+      ' was expected to be exactly representable as a ' +
+      (value === 0 ? 'single' : 'double') +
+      ' precision floating point number';
   }
 
   if (opcode === ASSERTION_NUMBER_INTEGER_BOUNDED) {
