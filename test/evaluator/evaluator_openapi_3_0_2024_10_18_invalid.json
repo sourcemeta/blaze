@@ -196,5 +196,74 @@
       "base": "",
       "location": "/nullable"
     }
+  },
+  {
+    "description": "prohibited_keyword_under_type_pruned_properties",
+    "schema": { "type": "string", "properties": { "a": { "if": {} } } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/properties"
+    }
+  },
+  {
+    "description": "prohibited_keyword_under_type_pruned_items",
+    "schema": { "type": "string", "items": { "if": {} } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/items"
+    }
+  },
+  {
+    "description": "prohibited_keyword_under_type_pruned_additional_properties",
+    "schema": {
+      "type": "string",
+      "additionalProperties": { "patternProperties": { "a": {} } }
+    },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/additionalProperties"
+    }
+  },
+  {
+    "description": "prohibited_keyword_nested_under_type_pruned_properties",
+    "schema": {
+      "type": "string",
+      "properties": { "a": { "properties": { "b": { "if": {} } } } }
+    },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/properties"
+    }
+  },
+  {
+    "description": "discriminator_not_an_object",
+    "schema": { "discriminator": [] },
+    "error": {
+      "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/discriminator"
+    }
+  },
+  {
+    "description": "xml_not_an_object",
+    "schema": { "xml": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/xml"
+    }
+  },
+  {
+    "description": "external_docs_not_an_object",
+    "schema": { "externalDocs": "x" },
+    "error": {
+      "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/externalDocs"
+    }
   }
 ]

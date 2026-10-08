@@ -117,6 +117,59 @@ static constexpr auto UNSUPPORTED_VALUE_FOR_DIALECT{
     "The value this keyword is set to is not supported by this dialect"};
 static constexpr auto PROHIBITED_KEYWORD_FOR_DIALECT{
     "This keyword is prohibited by this dialect"};
+// A subschema that `narrows_type_away` drops is never compiled, so the refusal
+// at the end of the dispatch table never reaches its members. Walk them here,
+// as a member this dialect does not define is an error rather than one more
+// keyword to pass by. The dialect is closed, so the applicators below are the
+// complete set of places a further subschema can sit
+static inline auto assert_members_are_permitted(
+    const sourcemeta::core::JSON &schema,
+    const sourcemeta::blaze::Context &context,
+    const sourcemeta::blaze::SchemaContext &schema_context) -> void {
+  if (!schema.is_object()) {
+    return;
+  }
+
+  // A Reference Object ignores whatever sits beside `$ref`, so those members
+  // answer to no keyword set
+  if (schema.defines("$ref")) {
+    return;
+  }
+
+  for (const auto &entry : schema.as_object()) {
+    if (entry.first.starts_with("x-")) {
+      continue;
+    }
+
+    if (context.walker(entry.first, schema_context.vocabularies).type ==
+        sourcemeta::core::SchemaKeywordType::Unknown) {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base,
+          absolute_schema_location(context, schema_context),
+          PROHIBITED_KEYWORD_FOR_DIALECT);
+    }
+
+    if (entry.first == "not" || entry.first == "items" ||
+        entry.first == "additionalProperties") {
+      assert_members_are_permitted(entry.second, context, schema_context);
+    } else if (entry.first == "allOf" || entry.first == "anyOf" ||
+               entry.first == "oneOf") {
+      if (entry.second.is_array()) {
+        for (const auto &element : entry.second.as_array()) {
+          assert_members_are_permitted(element, context, schema_context);
+        }
+      }
+    } else if (entry.first == "properties") {
+      if (entry.second.is_object()) {
+        for (const auto &property : entry.second.as_object()) {
+          assert_members_are_permitted(property.second, context,
+                                       schema_context);
+        }
+      }
+    }
+  }
+}
+
 static constexpr auto EXPECTED_UNIQUE_VALUES{
     "This keyword was expected to be set to a non-empty array of unique "
     "values"};
@@ -202,19 +255,9 @@ auto all_are_schemas(const sourcemeta::core::JSON &value,
 // that does not satisfy that is not a constraint at all, so we ignore it
 // rather than compile part of it or turn it into a failure
 auto is_schema_array(const sourcemeta::core::JSON &value,
-                     const bool allow_boolean, const bool allow_empty = false)
-    -> bool {
-  return value.is_array() && (allow_empty || !value.empty()) &&
+                     const bool allow_boolean) -> bool {
+  return value.is_array() && !value.empty() &&
          all_are_schemas(value, allow_boolean);
-}
-
-// Draft 4 onwards give `allOf`, `anyOf` and `oneOf` a `minItems` of one, so an
-// empty array is malformed there. The OpenAPI 3.0 Schema Object constrains
-// only the member type, leaving an empty one well-formed and vacuously true
-auto in_place_applicators_may_be_empty(
-    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  return vocabularies.contains(Known::OPENAPI_3_0_BASE);
 }
 
 // Draft 3 describes `type` and `disallow` as a type name or an array of unique
@@ -745,6 +788,11 @@ auto compiler_draft3_applicator_properties_with_options(
   }
 
   if (narrows_type_away(schema_context.schema, {"object"})) {
+    for (const auto &entry :
+         schema_context.schema.at(dynamic_context.keyword).as_object()) {
+      assert_members_are_permitted(entry.second, context, schema_context);
+    }
+
     return {};
   }
 
@@ -1401,6 +1449,9 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
     const DynamicContext &dynamic_context, const bool annotate,
     const bool track_evaluation) -> Instructions {
   if (narrows_type_away(schema_context.schema, {"object"})) {
+    assert_members_are_permitted(
+        schema_context.schema.at(dynamic_context.keyword), context,
+        schema_context);
     return {};
   }
 
@@ -1753,6 +1804,9 @@ auto compiler_draft3_applicator_items_with_options(
   }
 
   if (narrows_type_away(schema_context.schema, {"array"})) {
+    assert_members_are_permitted(
+        schema_context.schema.at(dynamic_context.keyword), context,
+        schema_context);
     return {};
   }
 
@@ -3311,8 +3365,9 @@ auto compiler_draft3_validation_format(const Context &context,
     } else if (name == "uri") {
       type = ValueStringType::URI;
     } else {
-      // Every string is a sequence of octets, which is all `binary` asks for,
-      // and `password` is a hint to obscure the value rather than a constraint
+      // `binary` stands for unencoded binary data, which a JSON string cannot
+      // carry, and `password` is a hint to obscure the value, so neither of
+      // the two remaining formats constrains the instance
       return {};
     }
   } else if (is_draft7) {

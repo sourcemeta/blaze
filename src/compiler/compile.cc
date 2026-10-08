@@ -79,6 +79,8 @@ auto keyword_shape_error(
       "This keyword was expected to be set to a boolean"};
   static constexpr auto EXPECTED_NUMBER{
       "This keyword was expected to be set to a number"};
+  static constexpr auto EXPECTED_OBJECT{
+      "This keyword was expected to be set to an object"};
   static constexpr auto EXPECTED_NON_NEGATIVE_INTEGER{
       "This keyword was expected to be set to a non-negative integer"};
   static constexpr auto EXPECTED_SCHEMA{
@@ -109,6 +111,12 @@ auto keyword_shape_error(
     }
     if (keyword == "examples") {
       return value.is_array() ? nullptr : EXPECTED_ARRAY;
+    }
+    // The OpenAPI dialects define these three as objects of their own. Their
+    // contents do not affect validation, so only the shape is held here
+    if (keyword == "discriminator" || keyword == "xml" ||
+        keyword == "externalDocs") {
+      return value.is_object() ? nullptr : EXPECTED_OBJECT;
     }
     if (keyword == "maxContains" || keyword == "minContains") {
       // These only exist from 2019-09 onwards, where a number whose fractional

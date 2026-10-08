@@ -530,7 +530,7 @@ TEST(format_double_valid_with_tweak_fast) {
       "IEEE 754 double precision floating point number");
 }
 
-TEST(format_double_beyond_range_with_tweak_fast) {
+TEST(format_double_not_representable_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "format": "double"
   })JSON")};
@@ -672,4 +672,72 @@ TEST(format_byte_with_x_format_assertion_fast) {
       instance, 0,
       "The string value \"Zm9vYmF\" was expected to represent a valid RFC "
       "4648 Base64 string");
+}
+
+// The OpenAPI 3.0 meta-schema inlines Draft 4's `schemaArray` without carrying
+// over its `minItems` of one, so it accepts an empty array where the
+// specification these keywords come from requires at least one element. The
+// trace suites cross-check every case against the meta-schema, so the three
+// that follow can only live here
+TEST(all_of_empty_is_malformed) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "allOf": []
+  })JSON")};
+
+  try {
+    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler,
+        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_EQ(std::string{error.what()},
+              "This keyword was expected to be set to a non-empty array of "
+              "valid schemas");
+    EXPECT_EQ(error.base().recompose(), "");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/allOf");
+  }
+}
+
+TEST(any_of_empty_is_malformed) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "anyOf": []
+  })JSON")};
+
+  try {
+    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler,
+        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_EQ(std::string{error.what()},
+              "This keyword was expected to be set to a non-empty array of "
+              "valid schemas");
+    EXPECT_EQ(error.base().recompose(), "");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/anyOf");
+  }
+}
+
+TEST(one_of_empty_is_malformed) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "oneOf": []
+  })JSON")};
+
+  try {
+    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler,
+        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_EQ(std::string{error.what()},
+              "This keyword was expected to be set to a non-empty array of "
+              "valid schemas");
+    EXPECT_EQ(error.base().recompose(), "");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/oneOf");
+  }
 }
