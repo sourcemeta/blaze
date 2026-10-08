@@ -13957,10 +13957,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "post": [
-        [ true, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ true, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
         "The integer value 5 was expected to be an integer between 0 and 10"
@@ -13996,10 +13996,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "post": [
-        [ true, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ true, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
         "The integer value 0 was expected to be an integer between 0 and 10"
@@ -14035,10 +14035,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "post": [
-        [ true, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ true, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
         "The integer value 10 was expected to be an integer between 0 and 10"
@@ -14074,10 +14074,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ false, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
         "The integer value 11 was expected to be an integer between 0 and 10"
@@ -14107,10 +14107,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ false, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
         "The integer value -1 was expected to be an integer between 0 and 10"
@@ -14143,10 +14143,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ false, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
         "The number value 1.5 was expected to be an integer between 0 and 10"
@@ -14182,10 +14182,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "post": [
-        [ true, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ true, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
         "The integer value 0 was expected to be an integer between 0 and 10"
@@ -14221,10 +14221,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ false, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
         "The integer value -1 was expected to be an integer between 0 and 10"
@@ -14255,11 +14255,11 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ],
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ],
         [ "AssertionType", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "AssertionNumberIntegerBounded", "", "#", "" ],
+        [ true, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ],
         [ true, "AssertionType", "/type", "#/type", "" ]
       ],
       "descriptions": [
@@ -14301,10 +14301,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The number value 1.5 was expected to be an integer between 0 and 10"
@@ -14335,10 +14335,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The integer value 11 was expected to be an integer between 0 and 10"
@@ -14409,11 +14409,11 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ],
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ],
         [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "AssertionNumberIntegerBounded", "", "#", "" ],
+        [ true, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ],
         [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
       ],
       "descriptions": [
@@ -14455,10 +14455,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "", "#", "" ]
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
         "The number value 1.5 was expected to be an integer between 0 and 10"
@@ -14486,10 +14486,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "/properties/a", "#/properties/a", "/a" ]
+        [ "AssertionNumberIntegerBounded", "/properties/a/minimum", "#/properties/a/minimum", "/a" ]
       ],
       "post": [
-        [ true, "AssertionNumberIntegerBounded", "/properties/a", "#/properties/a", "/a" ]
+        [ true, "AssertionNumberIntegerBounded", "/properties/a/minimum", "#/properties/a/minimum", "/a" ]
       ],
       "descriptions": [
         "The integer value 5 was expected to be an integer between 0 and 10"
@@ -14529,10 +14529,10 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "AssertionNumberIntegerBounded", "/properties/a", "#/properties/a", "/a" ]
+        [ "AssertionNumberIntegerBounded", "/properties/a/minimum", "#/properties/a/minimum", "/a" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "/properties/a", "#/properties/a", "/a" ]
+        [ false, "AssertionNumberIntegerBounded", "/properties/a/minimum", "#/properties/a/minimum", "/a" ]
       ],
       "descriptions": [
         "The integer value 11 was expected to be an integer between 0 and 10"
@@ -14591,10 +14591,10 @@
     "fast": {
       "pre": [
         [ "LoopItemsFrom", "/items", "#/items", "" ],
-        [ "AssertionNumberIntegerBounded", "/items", "#/items", "/0" ]
+        [ "AssertionNumberIntegerBounded", "/items/minimum", "#/items/minimum", "/0" ]
       ],
       "post": [
-        [ true, "AssertionNumberIntegerBounded", "/items", "#/items", "/0" ],
+        [ true, "AssertionNumberIntegerBounded", "/items/minimum", "#/items/minimum", "/0" ],
         [ true, "LoopItemsFrom", "/items", "#/items", "" ]
       ],
       "descriptions": [
@@ -14640,10 +14640,10 @@
     "fast": {
       "pre": [
         [ "LoopItemsFrom", "/items", "#/items", "" ],
-        [ "AssertionNumberIntegerBounded", "/items", "#/items", "/0" ]
+        [ "AssertionNumberIntegerBounded", "/items/minimum", "#/items/minimum", "/0" ]
       ],
       "post": [
-        [ false, "AssertionNumberIntegerBounded", "/items", "#/items", "/0" ],
+        [ false, "AssertionNumberIntegerBounded", "/items/minimum", "#/items/minimum", "/0" ],
         [ false, "LoopItemsFrom", "/items", "#/items", "" ]
       ],
       "descriptions": [
