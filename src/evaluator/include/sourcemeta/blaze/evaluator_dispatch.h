@@ -940,6 +940,19 @@ INSTRUCTION_HANDLER(AssertionNumberIntegerBounded) {
   EVALUATE_END(AssertionNumberIntegerBounded);
 }
 
+INSTRUCTION_HANDLER(AssertionNumberType) {
+  EVALUATE_BEGIN_NON_STRING(AssertionNumberType, target.is_number());
+  switch (assume_value_copy<ValueNumberType>(instruction.value)) {
+    case ValueNumberType::Float:
+      result = target.is_float();
+      break;
+    case ValueNumberType::Double:
+      result = target.is_double();
+      break;
+  }
+  EVALUATE_END(AssertionNumberType);
+}
+
 INSTRUCTION_HANDLER(AssertionStringType) {
   EVALUATE_BEGIN_IF_STRING(AssertionStringType);
   const auto value{assume_value_copy<ValueStringType>(instruction.value)};
@@ -2865,7 +2878,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[102] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[103] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -2907,6 +2920,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[102] = {
     AssertionTypeIntegerLowerBound,
     AssertionTypeIntegerLowerBoundStrict,
     AssertionNumberIntegerBounded,
+    AssertionNumberType,
     AssertionStringType,
     AssertionPropertyType,
     AssertionPropertyTypeEvaluate,

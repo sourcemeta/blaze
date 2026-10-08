@@ -831,5 +831,58 @@
         "The integer value -1 was expected to be greater than or equal to the integer 0"
       ]
     }
+  },
+  {
+    "description": "format_double_annotation_on_number_1",
+    "schema": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "format": "double"
+    },
+    "instance": 1.5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/format", "#/format", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/format", "#/format", "", "double" ]
+      ],
+      "descriptions": [
+        "The logical type of the instance was expected to be \"double\""
+      ]
+    }
+  },
+  {
+    "description": "format_uri_annotation_on_number_1",
+    "schema": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "format": "uri"
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "format_int32_without_assertion_1",
+    "schema": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "format": "int32"
+    },
+    "instance": 2147483648,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/format", "#/format", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/format", "#/format", "", "int32" ]
+      ],
+      "descriptions": [
+        "The logical type of the instance was expected to be \"int32\""
+      ]
+    }
   }
 ]

@@ -2302,6 +2302,23 @@ auto describe(const bool valid, const Instruction &step,
     return message.str();
   }
 
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionNumberType) {
+    std::ostringstream message;
+    message << "The " << value_type_name(target) << " value ";
+    describe_stringify(target, message);
+    message << " was expected to be exactly representable as an IEEE 754 ";
+    switch (instruction_value<ValueNumberType>(step)) {
+      case ValueNumberType::Float:
+        message << "single precision floating point number";
+        break;
+      case ValueNumberType::Double:
+        message << "double precision floating point number";
+        break;
+    }
+
+    return message.str();
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionStringType) {
     assert(target.is_string());
     std::ostringstream message;

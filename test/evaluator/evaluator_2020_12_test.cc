@@ -6300,3 +6300,55 @@ TEST(multiple_of_real_one_exclusive_bounded_2) {
       instance, 0,
       "The integer value 11 was expected to be an integer between 0 and 10");
 }
+
+TEST(format_int32_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("2147483648")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
+}
+
+TEST(format_float_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "float"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.14};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
+}
+
+TEST(openapi_format_int32_is_not_asserted_with_assertion_vocabulary_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("2147483648")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(schema, instance, 0, "",
+                                            test_resolver);
+}
+
+TEST(openapi_format_float_is_not_asserted_with_assertion_vocabulary_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "float"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.14};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(schema, instance, 0, "",
+                                            test_resolver);
+}

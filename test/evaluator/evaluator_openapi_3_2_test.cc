@@ -159,3 +159,133 @@ TEST(format_uri_non_string_with_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
                                                  tweaks);
 }
+
+TEST(format_int32_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/format", "#/format",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberIntegerBounded, "/format",
+                              "#/format", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The integer value 5 was expected to be an "
+                               "integer between -2147483648 and 2147483647");
+}
+
+TEST(format_int32_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("2147483648")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/format", "#/format",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberIntegerBounded, "/format",
+                              "#/format", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 2147483648 was expected to be an integer between "
+      "-2147483648 and 2147483647");
+}
+
+TEST(format_float_invalid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "float"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.14};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.14 was expected to be "
+                               "exactly representable as an IEEE "
+                               "754 single precision floating point number");
+}
+
+TEST(format_double_valid_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "double"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{3.14};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 3.14 was expected to be "
+                               "exactly representable as an IEEE "
+                               "754 double precision floating point number");
+}
+
+TEST(format_int32_is_ignored_without_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("2147483648")};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
+}
+
+TEST(format_byte_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "byte"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"not base64 at all!"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
+}
+
+TEST(format_uint32_is_not_asserted_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "uint32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("4294967296")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
+}
