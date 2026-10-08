@@ -14668,5 +14668,71 @@
         "Every item in the array value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "multiple_of_one_exclusive_maximum_at_int64_min_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "multipleOf": 1,
+      "minimum": 0,
+      "exclusiveMaximum": -9223372036854775808
+    },
+    "instance": 0,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to be less than the integer -9223372036854775808"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to be less than the integer -9223372036854775808"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_exclusive_minimum_at_int64_max_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "multipleOf": 1,
+      "maximum": 10,
+      "exclusiveMinimum": 9223372036854775807
+    },
+    "instance": 0,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to be greater than the integer 9223372036854775807"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to be greater than the integer 9223372036854775807"
+      ]
+    }
   }
 ]

@@ -20584,5 +20584,125 @@
         "The integer value -1 was expected to be greater than or equal to the integer 0"
       ]
     }
+  },
+  {
+    "description": "multiple_of_one_boolean_exclusive_bounded_within_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 1,
+      "minimum": 0,
+      "exclusiveMinimum": true,
+      "maximum": 10,
+      "exclusiveMaximum": true
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be an integer between 1 and 9"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ "AssertionLess", "/maximum", "#/maximum", "" ],
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ true, "AssertionLess", "/maximum", "#/maximum", "" ],
+        [ true, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 5 was expected to be divisible by the integer 1",
+        "The integer value 5 was expected to be less than the integer 10",
+        "The integer value 5 was expected to be greater than the integer 0"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_boolean_exclusive_bounded_lower_edge_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 1,
+      "minimum": 0,
+      "exclusiveMinimum": true,
+      "maximum": 10,
+      "exclusiveMaximum": true
+    },
+    "instance": 0,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to be an integer between 1 and 9"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ "AssertionLess", "/maximum", "#/maximum", "" ],
+        [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ true, "AssertionLess", "/maximum", "#/maximum", "" ],
+        [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to be divisible by the integer 1",
+        "The integer value 0 was expected to be less than the integer 10",
+        "The integer value 0 was expected to be greater than the integer 0, but they were equal"
+      ]
+    }
+  },
+  {
+    "description": "multiple_of_one_boolean_exclusive_bounded_upper_edge_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "divisibleBy": 1,
+      "minimum": 0,
+      "exclusiveMinimum": true,
+      "maximum": 10,
+      "exclusiveMaximum": true
+    },
+    "instance": 10,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be an integer between 1 and 9"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+        [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 10 was expected to be divisible by the integer 1",
+        "The integer value 10 was expected to be less than the integer 10, but they were equal"
+      ]
+    }
   }
 ]

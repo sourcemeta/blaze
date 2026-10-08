@@ -6260,3 +6260,43 @@ TEST(multiple_of_real_two_bounded_1) {
       "The integer value 4 was expected to be greater than or equal to the "
       "integer 0");
 }
+
+TEST(multiple_of_real_one_exclusive_bounded_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "multipleOf": 1.0,
+    "exclusiveMaximum": 11,
+    "exclusiveMinimum": -1
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{10};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberIntegerBounded,
+                              "/exclusiveMinimum", "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 10 was expected to be an integer between 0 and 10");
+}
+
+TEST(multiple_of_real_one_exclusive_bounded_2) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "multipleOf": 1.0,
+    "exclusiveMaximum": 11,
+    "exclusiveMinimum": -1
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{11};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberIntegerBounded,
+                              "/exclusiveMinimum", "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 11 was expected to be an integer between 0 and 10");
+}

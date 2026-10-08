@@ -9,6 +9,7 @@
 #include <cassert>    // assert
 #include <functional> // std::cref
 #include <iterator>   // std::distance
+#include <limits>     // std::numeric_limits
 #include <optional>   // std::optional
 #include <regex>      // std::regex, std::regex_match, std::smatch
 #include <stdexcept>  // std::out_of_range
@@ -299,12 +300,22 @@ inline auto merge_integer_bound(const Instruction &instruction,
   if (instruction.type == InstructionIndex::AssertionGreaterEqual) {
     minimum = minimum.has_value() ? std::max(minimum.value(), value) : value;
   } else if (instruction.type == InstructionIndex::AssertionGreater) {
+    // Tightening the bound past the representable range would wrap around, so
+    // leave such a bound to the standalone instruction that can still hold it
+    if (value == std::numeric_limits<std::int64_t>::max()) {
+      return false;
+    }
+
     const auto adjusted{value + 1};
     minimum =
         minimum.has_value() ? std::max(minimum.value(), adjusted) : adjusted;
   } else if (instruction.type == InstructionIndex::AssertionLessEqual) {
     maximum = maximum.has_value() ? std::min(maximum.value(), value) : value;
   } else if (instruction.type == InstructionIndex::AssertionLess) {
+    if (value == std::numeric_limits<std::int64_t>::min()) {
+      return false;
+    }
+
     const auto adjusted{value - 1};
     maximum =
         maximum.has_value() ? std::min(maximum.value(), adjusted) : adjusted;
