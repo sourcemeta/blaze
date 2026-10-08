@@ -843,7 +843,7 @@ export function describe(valid, instruction, evaluatePath,
   if (opcode === ASSERTION_NUMBER_TYPE) {
     return 'The ' + valueTypeName(target) + ' value ' +
       stringifyValue(target) +
-      ' was expected to be exactly representable as a ' +
+      ' was expected to be exactly representable as an IEEE 754 ' +
       (value === 0 ? 'single' : 'double') +
       ' precision floating point number';
   }

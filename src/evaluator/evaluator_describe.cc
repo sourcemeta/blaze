@@ -2306,7 +2306,7 @@ auto describe(const bool valid, const Instruction &step,
     std::ostringstream message;
     message << "The " << value_type_name(target) << " value ";
     describe_stringify(target, message);
-    message << " was expected to be exactly representable as a ";
+    message << " was expected to be exactly representable as an IEEE 754 ";
     switch (instruction_value<ValueNumberType>(step)) {
       case ValueNumberType::Float:
         message << "single precision floating point number";
