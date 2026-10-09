@@ -265,5 +265,185 @@
       "base": "",
       "location": "/externalDocs"
     }
+  },
+  {
+    "description": "required_duplicate_entries",
+    "schema": { "required": [ "a", "a" ] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
+  },
+  {
+    "description": "required_non_string_entry",
+    "schema": { "required": [ 1 ] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/required"
+    }
+  },
+  {
+    "description": "multiple_of_zero",
+    "schema": { "multipleOf": 0 },
+    "error": {
+      "message": "This keyword was expected to be set to a number greater than zero",
+      "base": "",
+      "location": "/multipleOf"
+    }
+  },
+  {
+    "description": "multiple_of_negative",
+    "schema": { "multipleOf": -1 },
+    "error": {
+      "message": "This keyword was expected to be set to a number greater than zero",
+      "base": "",
+      "location": "/multipleOf"
+    }
+  },
+  {
+    "description": "min_length_negative",
+    "schema": { "minLength": -1 },
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/minLength"
+    }
+  },
+  {
+    "description": "min_length_real",
+    "schema": { "minLength": 2.0 },
+    "error": {
+      "message": "This keyword was expected to be set to an integer",
+      "base": "",
+      "location": "/minLength"
+    }
+  },
+  {
+    "description": "properties_boolean_schema",
+    "schema": { "properties": { "a": true } },
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/properties"
+    }
+  },
+  {
+    "description": "additional_properties_not_a_schema",
+    "schema": { "additionalProperties": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/additionalProperties"
+    }
+  },
+  {
+    "description": "not_boolean_schema",
+    "schema": { "not": true },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/not"
+    }
+  },
+  {
+    "description": "enum_not_an_array",
+    "schema": { "enum": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to an array",
+      "base": "",
+      "location": "/enum"
+    }
+  },
+  {
+    "description": "pattern_not_a_string",
+    "schema": { "pattern": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to a string",
+      "base": "",
+      "location": "/pattern"
+    }
+  },
+  {
+    "description": "unique_items_not_a_boolean",
+    "schema": { "uniqueItems": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/uniqueItems"
+    }
+  },
+  {
+    "description": "anchor_not_in_dialect",
+    "schema": { "$anchor": "a" },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/$anchor"
+    }
+  },
+  {
+    "description": "dynamic_ref_not_in_dialect",
+    "schema": { "$dynamicRef": "#a" },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/$dynamicRef"
+    }
+  },
+  {
+    "description": "prefix_items_not_in_dialect",
+    "schema": { "prefixItems": [ {} ] },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/prefixItems"
+    }
+  },
+  {
+    "description": "dependent_schemas_not_in_dialect",
+    "schema": { "dependentSchemas": {} },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/dependentSchemas"
+    }
+  },
+  {
+    "description": "then_not_in_dialect",
+    "schema": { "then": {} },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/then"
+    }
+  },
+  {
+    "description": "else_not_in_dialect",
+    "schema": { "else": {} },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/else"
+    }
+  },
+  {
+    "description": "extension_prefix_is_case_sensitive",
+    "schema": { "X-Foo": 1 },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/X-Foo"
+    }
+  },
+  {
+    "description": "unprefixed_member_not_in_dialect",
+    "schema": { "xfoo": 1 },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/xfoo"
+    }
   }
 ]

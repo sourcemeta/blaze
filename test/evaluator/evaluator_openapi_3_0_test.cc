@@ -810,3 +810,98 @@ TEST(malformed_nullable_without_ref_is_rejected_fast) {
     EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/nullable");
   }
 }
+
+// `date` and `date-time` name different RFC 3339 productions, so neither
+// accepts the other's shape
+TEST(format_date_rejects_a_date_time_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"2026-10-08T00:00:00Z"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"2026-10-08T00:00:00Z\" was expected to represent a "
+      "valid RFC 3339 full-date");
+}
+
+TEST(format_date_time_rejects_a_date_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "date-time"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"2026-10-08"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"2026-10-08\" was expected to represent a valid RFC "
+      "3339 date-time");
+}
+
+// The specification names RFC 4648 Section 4, whose alphabet is not the
+// Section 5 one that spells the last two characters as `-` and `_`
+TEST(format_byte_rejects_base64url_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "byte"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"a-_b"};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"a-_b\" was expected to represent a valid RFC 4648 "
+      "Base64 string");
+}
+
+// The specification counts `1` and `1.0` as the same integer, so a real with
+// no fractional part satisfies a format defined for signed integers
+TEST(format_int32_accepts_an_integral_real_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "int32"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(5.0)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberIntegerBounded, "/format", "#/format",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberIntegerBounded, "/format",
+                              "#/format", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The number value 5.0 was expected to be an "
+                               "integer between -2147483648 and 2147483647");
+}
