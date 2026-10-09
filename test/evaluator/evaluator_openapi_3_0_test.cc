@@ -513,7 +513,7 @@ TEST(format_double_valid_with_tweak_fast) {
   })JSON")};
 
   const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
+      sourcemeta::core::parse_json(R"JSON(0.5)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -526,7 +526,7 @@ TEST(format_double_valid_with_tweak_fast) {
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The number value 3.14 was expected to be exactly representable as an "
+      "The number value 0.5 was expected to be exactly representable as an "
       "IEEE 754 double precision floating point number");
 }
 
@@ -740,4 +740,29 @@ TEST(one_of_empty_is_malformed) {
     EXPECT_EQ(error.base().recompose(), "");
     EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/oneOf");
   }
+}
+
+// A decimal literal is only a binary64 value when it lands on one exactly, so
+// the ones an API typically carries do not satisfy this format
+TEST(format_double_rejects_an_inexact_decimal_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "double"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
+      schema, instance, 1, OPENAPI_3_0_DIALECT, tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.14 was expected to be exactly representable as an "
+      "IEEE 754 double precision floating point number");
 }
