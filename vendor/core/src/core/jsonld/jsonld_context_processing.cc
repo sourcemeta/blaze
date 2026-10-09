@@ -107,6 +107,18 @@ auto is_input_authored(const JSONLDError &error, const JSON &context,
   return token.is_property() && context.defines(token.to_property());
 }
 
+// The origin a context reached from the given location reports against. A
+// reference that sits inside content the input does not spell out keeps the
+// outermost input location, which is the only one the document has
+auto foreign_origin(const ExpansionState &state, const WeakPointer &location)
+    -> std::optional<Pointer> {
+  if (state.foreign_context_location.has_value()) {
+    return state.foreign_context_location;
+  }
+
+  return to_pointer(location);
+}
+
 } // namespace
 
 // Context Processing (JSON-LD 1.1 API Section 5.1)
@@ -236,6 +248,10 @@ auto process_context(ExpansionState &state, ActiveContext &active_context,
             &state.remote_documents.emplace(reference, *loaded).first->second;
       }
       state.remote_context_chain.push_back(reference);
+      // A scoped context the loaded document defines is processed again when
+      // its term comes into use, long after this location is out of reach, so
+      // the reference is recorded for it to report against
+      const ForeignContextScope origin{state, foreign_origin(state, location)};
       try {
         // A loaded remote context is processed with the default propagation.
         process_context(state, active_context, *context_entry, location);
@@ -335,6 +351,16 @@ auto process_context(ExpansionState &state, ActiveContext &active_context,
           merged.assign(entry.first, entry.second);
         }
       }
+      // The merged context holds entries from two documents, so a scoped
+      // context defined among the ones only the imported document carries is
+      // reported against the entry that merged them in, while the input's own
+      // entries keep their position
+      auto import_location{foreign_origin(state, location)};
+      if (!state.foreign_context_location.has_value()) {
+        import_location.value().push_back(JSON::String{KEYWORD_IMPORT});
+      }
+      const ForeignContextScope origin{state, std::move(import_location),
+                                       &context};
       try {
         process_context(state, active_context, merged, location, propagate);
       } catch (const JSONLDError &error) {
@@ -379,9 +405,17 @@ auto process_context(ExpansionState &state, ActiveContext &active_context,
         if (state.processing_1_0 && !vocabulary_string.contains(':')) {
           throw JSONLDError("Invalid vocab mapping", location, {KEYWORD_VOCAB});
         }
-        active_context.vocabulary =
-            expand_iri(state, active_context, vocabulary_string, true, true,
-                       nullptr, nullptr, EMPTY_WEAK_POINTER);
+        auto mapping{expand_iri(state, active_context, vocabulary_string, true,
+                                true, nullptr, nullptr, EMPTY_WEAK_POINTER)};
+        // Step 5.8.3: "If it is not an IRI, or a blank node identifier, an
+        // invalid vocab mapping error has been detected". The expansion is
+        // what has to pass, since a relative reference is admitted here and
+        // resolved against the base (JSON-LD 1.1 API Section 5.1 step 5.8.3)
+        if (!mapping.has_value() || (!URI::is_iri(mapping.value()) &&
+                                     !is_blank_node(mapping.value()))) {
+          throw JSONLDError("Invalid vocab mapping", location, {KEYWORD_VOCAB});
+        }
+        active_context.vocabulary = std::move(mapping);
       }
     }
 

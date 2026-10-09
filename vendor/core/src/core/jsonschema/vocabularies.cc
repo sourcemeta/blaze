@@ -137,10 +137,10 @@ auto sourcemeta::core::SchemaVocabularies::contains(
   }
 
   const auto maybe_known{uri_to_known_vocabulary(uri)};
-  // As a debug build check: Going through this branch is slow. If it is a
-  // known vocabulary, the consumer should be making use of the enum overload
-  // of this method
-  assert(!maybe_known.has_value());
+  // Naming one of the vocabularies this module knows by its URI is slower
+  // than naming it by its enumerator, which is what the other overload is
+  // for, but it is a documented way of asking and must answer rather than
+  // refuse
   if (maybe_known.has_value()) {
     return this->contains(maybe_known.value());
   }
@@ -209,10 +209,10 @@ auto sourcemeta::core::SchemaVocabularies::get(
   }
 
   const auto maybe_known{uri_to_known_vocabulary(uri)};
-  // As a debug build check: Going through this branch is slow. If it is a
-  // known vocabulary, the consumer should be making use of the enum overload
-  // of this method
-  assert(!maybe_known.has_value());
+  // Naming one of the vocabularies this module knows by its URI is slower
+  // than naming it by its enumerator, which is what the other overload is
+  // for, but it is a documented way of asking and must answer rather than
+  // refuse
   if (maybe_known.has_value()) {
     return this->get(maybe_known.value());
   }

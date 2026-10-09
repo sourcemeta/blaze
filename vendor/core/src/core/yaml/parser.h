@@ -18,7 +18,7 @@
 #include <string_view>   // std::string_view
 #include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
-#include <utility>       // std::move
+#include <utility>       // std::move, std::unreachable
 #include <vector>        // std::vector
 
 namespace sourcemeta::core::yaml {
@@ -36,8 +36,22 @@ struct CallbackRecord {
 struct AnchoredValue {
   JSON value;
   std::vector<CallbackRecord> callbacks;
-  std::size_t node_count;
+  std::size_t expanded_weight;
 };
+
+inline auto to_roundtrip_chomping(const BlockChomping chomping)
+    -> YAMLRoundTrip::Chomping {
+  switch (chomping) {
+    case BlockChomping::Clip:
+      return YAMLRoundTrip::Chomping::Clip;
+    case BlockChomping::Strip:
+      return YAMLRoundTrip::Chomping::Strip;
+    case BlockChomping::Keep:
+      return YAMLRoundTrip::Chomping::Keep;
+  }
+
+  std::unreachable();
+}
 
 class Parser {
 public:
@@ -113,15 +127,26 @@ public:
         [[unlikely]] {
       throw YAMLParseError{1, 1, "Empty YAML document"};
     } else if (token->type == TokenType::DocumentEnd) {
+      auto pos_before_pending{this->lexer_->position()};
       while (token.has_value() && token->type == TokenType::DocumentEnd) {
         this->document_ended_ = true;
+        pos_before_pending = this->lexer_->position();
         token = this->lexer_->next();
       }
       if (!token.has_value() || token->type == TokenType::StreamEnd)
           [[unlikely]] {
         throw YAMLParseError{1, 1, "Empty YAML document"};
       }
+      // A token handed back has not been read as far as the caller is
+      // concerned, so where the stream stands is where that token begins
+      // rather than where reading it left off. Without that the caller resumes
+      // part way into it and loses the text in between. Only a document marker
+      // carries where it began, so anything else is placed by what the stream
+      // stood at before it was read, which is how the other handback does it
       this->pending_tokens_.push_back(token.value());
+      this->pending_token_position_ = token->type == TokenType::DocumentStart
+                                          ? token->position
+                                          : pos_before_pending;
       return JSON{nullptr};
     }
 
@@ -218,10 +243,15 @@ public:
     // any, is not among the tokens seen here. YAML 1.2.2 Section 6.8.2: tag
     // directives are local to one document, so crossing that boundary begins a
     // fresh directive scope.
+    // The document read before this point is complete, so what applied to it
+    // goes out of scope here. Section 6.8.2 makes directives local to one
+    // document, and Section 9.1 has each document be "completely independent
+    // from the rest", which puts the anchors it declared out of reach of
+    // whatever follows. A fresh scope opens whether an end marker closed the
+    // last document or a directives end marker opens the next
+    this->tag_directives_.clear();
+    this->anchors_.clear();
     bool saw_document_end{this->document_ended_};
-    if (saw_document_end) {
-      this->tag_directives_.clear();
-    }
     while (token.has_value() && token->type == TokenType::DocumentEnd) {
       saw_document_end = true;
       this->tag_directives_.clear();
@@ -231,7 +261,14 @@ public:
       return;
     }
     while (token.has_value() && token->type != TokenType::StreamEnd) {
+      // Section 9.2: a document that is not terminated by a document end
+      // marker is followed by one that begins with a directives end marker, so
+      // crossing that marker opens a document just as the end marker closes
+      // one. Production 211 admits an explicit document directly after any
+      // other, with no suffix between them
+      bool opened_document{false};
       if (token->type == TokenType::DocumentStart) {
+        opened_document = true;
         token = this->next_token();
         if (!token.has_value() || token->type == TokenType::StreamEnd) {
           return;
@@ -252,14 +289,18 @@ public:
         this->process_directives(token.value());
         continue;
       }
-      if (!saw_document_end && token->type != TokenType::DocumentStart)
-          [[unlikely]] {
+      if (!saw_document_end && !opened_document &&
+          token->type != TokenType::DocumentStart) [[unlikely]] {
         throw YAMLParseError{token->line, token->column,
                              "Unexpected content after document"};
       }
       this->parse_value(token.value(), JSON::ParseContext::Root, 0,
                         EMPTY_PROPERTY);
       saw_document_end = false;
+      // That document is complete, so anything it declared stops applying
+      // before the next one reads its own
+      this->tag_directives_.clear();
+      this->anchors_.clear();
       token = this->next_token();
       while (token.has_value() && token->type == TokenType::DocumentEnd) {
         saw_document_end = true;
@@ -272,7 +313,7 @@ public:
   }
 
 private:
-  // Cap how many nodes alias expansion may materialise, so that a document
+  // Cap how much alias expansion may materialise, so that a document
   // cannot expand into a far larger one on attacker-controlled input. The
   // allowance grows with the text that stands ahead of the alias drawing on
   // it, as an expansion that outgrows the text calling for it by orders of
@@ -283,19 +324,19 @@ private:
   // documents that follow this one in a stream, from paying for an expansion it
   // takes no part in. The floor keeps short documents workable and the ceiling
   // keeps long ones from claiming an unbounded allowance
-  static constexpr std::size_t MAXIMUM_EXPANDED_NODES{10000000};
-  static constexpr std::size_t MINIMUM_EXPANDED_NODES{10000};
-  static constexpr std::size_t EXPANDED_NODES_PER_INPUT_BYTE{100};
+  static constexpr std::size_t MAXIMUM_EXPANDED_WEIGHT{20000000};
+  static constexpr std::size_t MINIMUM_EXPANDED_WEIGHT{20000};
+  static constexpr std::size_t EXPANDED_WEIGHT_PER_INPUT_BYTE{200};
 
   [[nodiscard]] static auto expansion_budget(const std::size_t input_read)
       -> std::size_t {
-    if (input_read > MAXIMUM_EXPANDED_NODES / EXPANDED_NODES_PER_INPUT_BYTE)
+    if (input_read > MAXIMUM_EXPANDED_WEIGHT / EXPANDED_WEIGHT_PER_INPUT_BYTE)
         [[unlikely]] {
-      return MAXIMUM_EXPANDED_NODES;
+      return MAXIMUM_EXPANDED_WEIGHT;
     }
 
-    return std::max(MINIMUM_EXPANDED_NODES,
-                    input_read * EXPANDED_NODES_PER_INPUT_BYTE);
+    return std::max(MINIMUM_EXPANDED_WEIGHT,
+                    input_read * EXPANDED_WEIGHT_PER_INPUT_BYTE);
   }
 
   // Cap the recursion depth of the value parser so that a deeply nested
@@ -317,17 +358,33 @@ private:
     auto operator=(DepthScope &&) -> DepthScope & = delete;
   };
 
-  auto count_expanded_nodes(const JSON &value) -> std::size_t {
+  // What an expansion costs is what materialising it takes, not how many
+  // places it fills. Charging a place alone lets one holding a long run of
+  // text be copied for the price of an empty one, which turns the allowance
+  // into a multiplier on that length. So a place costs one for itself and one
+  // more for each byte of text it carries, keeping what an expansion is
+  // charged in step with what it occupies
+  auto count_expanded_weight(const JSON &value) -> std::size_t {
     std::size_t total{1};
     if (value.is_array()) {
       for (const auto &element : value.as_array()) {
-        total += this->count_expanded_nodes(element);
+        total += this->count_expanded_weight(element);
       }
     } else if (value.is_object()) {
       for (const auto &entry : value.as_object()) {
-        total += this->count_expanded_nodes(entry.second);
+        total += entry.first.size() + this->count_expanded_weight(entry.second);
       }
+    } else if (value.is_string()) {
+      // What a copy occupies is counted in bytes, where the logical length
+      // counts the characters those bytes spell, so a character written in
+      // four of them would be charged as one
+      total += value.to_string().size();
+    } else if (value.is_decimal()) {
+      // A coefficient runs as wide as the digits it was written with, so one
+      // of them is no more a single unit than a run of text is
+      total += value.to_decimal().to_string().size();
     }
+
     return total;
   }
 
@@ -679,13 +736,16 @@ private:
         if (next.has_value()) {
           this->pending_tokens_.push_back(next.value());
         }
-        if ((this->roundtrip_ != nullptr) && anchor_name.has_value()) {
-          auto &style{this->roundtrip_->styles[this->pointer_stack_]};
-          style.anchor = std::string{anchor_name.value()};
-          if (anchor_inline_comment.has_value()) {
-            style.comment_inline = std::move(anchor_inline_comment);
-          }
+        // An empty node that carries an anchor is still a node, so it is
+        // announced and filed the same way as one ending any other place
+        // does. Doing only the part that records how it was written left it
+        // unannounced and left the anchor unresolvable further on
+        if (anchor_name.has_value()) {
+          this->register_anchored_empty(anchor_name.value(), empty_value, token,
+                                        context, index, property,
+                                        anchor_inline_comment);
         }
+
         this->record_tag(raw_tag, tag_before_anchor, empty_value);
         if ((this->roundtrip_ != nullptr) &&
             context != JSON::ParseContext::Root) {
@@ -706,9 +766,9 @@ private:
             empty_value = JSON{std::string{}};
           }
           if (anchor_name.has_value()) {
-            this->register_anchored_null(anchor_name.value(), token, context,
-                                         index, property,
-                                         anchor_inline_comment);
+            this->register_anchored_empty(anchor_name.value(), empty_value,
+                                          token, context, index, property,
+                                          anchor_inline_comment);
           }
           this->record_tag(raw_tag, tag_before_anchor, empty_value);
           if ((this->roundtrip_ != nullptr) &&
@@ -737,9 +797,9 @@ private:
             empty_value = JSON{std::string{}};
           }
           if (anchor_name.has_value()) {
-            this->register_anchored_null(anchor_name.value(), token, context,
-                                         index, property,
-                                         anchor_inline_comment);
+            this->register_anchored_empty(anchor_name.value(), empty_value,
+                                          token, context, index, property,
+                                          anchor_inline_comment);
           }
           this->record_tag(raw_tag, tag_before_anchor, empty_value);
           if ((this->roundtrip_ != nullptr) &&
@@ -836,7 +896,7 @@ private:
                 AnchoredValue{
                     .value = key_value,
                     .callbacks = std::move(this->current_anchor_callbacks_),
-                    .node_count = this->count_expanded_nodes(key_value)});
+                    .expanded_weight = this->count_expanded_weight(key_value)});
             this->current_anchor_callbacks_.clear();
             anchor_name.reset();
           }
@@ -924,7 +984,8 @@ private:
           std::string{anchor_name.value()},
           AnchoredValue{.value = result,
                         .callbacks = std::move(this->current_anchor_callbacks_),
-                        .node_count = this->count_expanded_nodes(result)});
+                        .expanded_weight =
+                            this->count_expanded_weight(result)});
       this->current_anchor_callbacks_.clear();
 
       if (this->roundtrip_ != nullptr) {
@@ -1194,14 +1255,15 @@ private:
       return JSON{Decimal{value}};
     }
 
-    const auto result{to_double(std::string{value})};
+    const auto result{to_double_exact(value)};
     if (!result.has_value()) {
       return JSON{Decimal{value}};
     }
 
     // YAML 1.2.2 Section 10.3.2 tags a dotted or explicitly floated value as a
     // float, so an integral-valued float stays a real rather than collapsing to
-    // an integer, matching the JSON parser where a dotted literal is a real
+    // an integer, matching the JSON parser where a dotted literal that the
+    // format holds exactly is a real
     return JSON{result.value()};
   }
 
@@ -1648,16 +1710,24 @@ private:
         key_present = true;
         current_key_line = token.line;
         current_key_column = token.column;
+        // How a key was written is recorded here as it is anywhere else. An
+        // explicit key read on this path recorded nothing at all, so one
+        // written as a block scalar, which only an explicit key can be, came
+        // back out as a quoted scalar on one line
+        this->record_key_scalar_style(key, token.scalar_style,
+                                      token.quoted_original);
 
         // YAML 1.2.2 Section 7.1: an anchor on an explicit key names that key
         // for later aliases, exactly as it would on any other node
         if (key_anchor.has_value()) {
           JSON key_value{this->resolve_scalar_node(token, key_tag)};
-          const auto key_node_count{this->count_expanded_nodes(key_value)};
+          const auto key_expanded_weight{
+              this->count_expanded_weight(key_value)};
           this->anchors_.insert_or_assign(
-              key_anchor.value(), AnchoredValue{.value = std::move(key_value),
-                                                .callbacks = {},
-                                                .node_count = key_node_count});
+              key_anchor.value(),
+              AnchoredValue{.value = std::move(key_value),
+                            .callbacks = {},
+                            .expanded_weight = key_expanded_weight});
         }
 
         if (seen_keys.contains(key)) [[unlikely]] {
@@ -1716,6 +1786,10 @@ private:
         if (!next.has_value() || next->type == TokenType::StreamEnd ||
             next->type == TokenType::DocumentEnd ||
             next->type == TokenType::DocumentStart) {
+          if (!key_present) {
+            note_implicit_key(seen_keys, key, token);
+          }
+
           result.assign(key, JSON{nullptr});
           if (!next.has_value()) {
             break;
@@ -1736,27 +1810,28 @@ private:
             token = next.value();
             continue;
           }
+
+          if (!key_present) {
+            note_implicit_key(seen_keys, key, token);
+          }
+
           result.assign(key, JSON{nullptr});
           token = next.value();
           continue;
         }
 
-        if (key_absent && next->type == TokenType::Scalar) {
-          key = this->resolve_scalar_key(next.value());
-          if (seen_keys.contains(key)) [[unlikely]] {
-            throw YAMLDuplicateKeyError{key, next->line, next->column};
-          }
-          seen_keys.insert(key);
-          result.assign(key, JSON{nullptr});
-          auto next_after_key{this->next_token()};
-          assert(next_after_key.has_value());
-          token = next_after_key.value();
-          continue;
-        }
-
+        // A value indicator with nothing before it carries an empty key, which
+        // Section 10.3.2 resolves to null and this module spells as the empty
+        // string. What follows the indicator is that key's value, not a key of
+        // its own, as Example 7.3 shows by reading a leading indicator into a
+        // null key holding the scalar beside it
         auto value{this->parse_value(next.value(), JSON::ParseContext::Property,
                                      0, key, current_key_line,
                                      current_key_column)};
+        if (!key_present) {
+          note_implicit_key(seen_keys, key, token);
+        }
+
         result.assign(key, std::move(value));
 
         auto after{this->next_token()};
@@ -1828,8 +1903,8 @@ private:
       callback_index++;
     }
 
-    this->expanded_nodes_ += anchored.node_count;
-    if (this->expanded_nodes_ > expansion_budget(input_read)) [[unlikely]] {
+    this->expanded_weight_ += anchored.expanded_weight;
+    if (this->expanded_weight_ > expansion_budget(input_read)) [[unlikely]] {
       throw YAMLParseError{token.line, token.column,
                            "Maximum YAML alias expansion exceeded"};
     }
@@ -2018,12 +2093,13 @@ private:
                                         next->quoted_original);
           if (explicit_key_anchor.has_value()) {
             JSON key_value{this->resolve_scalar_node(next.value())};
-            const auto key_node_count{this->count_expanded_nodes(key_value)};
+            const auto key_expanded_weight{
+                this->count_expanded_weight(key_value)};
             this->anchors_.insert_or_assign(
                 explicit_key_anchor.value(),
                 AnchoredValue{.value = std::move(key_value),
                               .callbacks = {},
-                              .node_count = key_node_count});
+                              .expanded_weight = key_expanded_weight});
           }
         }
 
@@ -2318,24 +2394,28 @@ private:
   }
 
   auto
-  register_anchored_null(const std::string_view anchor_name, const Token &token,
-                         const JSON::ParseContext context,
-                         const std::size_t index, const std::string &property,
-                         std::optional<std::string> &inline_comment) -> void {
+  // A tag can make an empty node stand for something other than null, so what
+  // is announced and what is filed are both taken from the value itself.
+  // Announcing null regardless told whoever is listening a different type from
+  // the one the node came back as
+  register_anchored_empty(const std::string_view anchor_name, const JSON &value,
+                          const Token &token, const JSON::ParseContext context,
+                          const std::size_t index, const std::string &property,
+                          std::optional<std::string> &inline_comment) -> void {
     this->recording_anchor_ = true;
     this->current_anchor_callbacks_.clear();
-    JSON null_value{nullptr};
-    this->invoke_callback(JSON::ParsePhase::Pre, JSON::Type::Null, token.line,
-                          token.column, context, index, property);
-    this->invoke_callback(JSON::ParsePhase::Post, JSON::Type::Null, token.line,
+    const auto type{value.type()};
+    this->invoke_callback(JSON::ParsePhase::Pre, type, token.line, token.column,
+                          context, index, property);
+    this->invoke_callback(JSON::ParsePhase::Post, type, token.line,
                           token.column, JSON::ParseContext::Root, 0,
                           EMPTY_PROPERTY);
     this->recording_anchor_ = false;
     this->anchors_.insert_or_assign(
         std::string{anchor_name},
-        AnchoredValue{.value = null_value,
+        AnchoredValue{.value = value,
                       .callbacks = std::move(this->current_anchor_callbacks_),
-                      .node_count = this->count_expanded_nodes(null_value)});
+                      .expanded_weight = this->count_expanded_weight(value)});
     this->current_anchor_callbacks_.clear();
     if (this->roundtrip_ != nullptr) {
       auto &style{this->roundtrip_->styles[this->pointer_stack_]};
@@ -2408,17 +2488,7 @@ private:
 
     if (token.scalar_style == ScalarStyle::Literal ||
         token.scalar_style == ScalarStyle::Folded) {
-      switch (token.chomping) {
-        case BlockChomping::Clip:
-          node_style.chomping = YAMLRoundTrip::Chomping::Clip;
-          break;
-        case BlockChomping::Strip:
-          node_style.chomping = YAMLRoundTrip::Chomping::Strip;
-          break;
-        case BlockChomping::Keep:
-          node_style.chomping = YAMLRoundTrip::Chomping::Keep;
-          break;
-      }
+      node_style.chomping = to_roundtrip_chomping(token.chomping);
 
       node_style.explicit_indent = token.explicit_indent;
       node_style.indent_before_chomping = token.indent_before_chomping;
@@ -2433,6 +2503,21 @@ private:
         node_style.comment_inline = std::move(block_comment);
       }
     }
+  }
+
+  // An empty key is a key like any other, so naming it twice names the same
+  // key twice. It is recorded where the entry is committed rather than where
+  // the indicator is read, since an indicator that turns out to open an
+  // explicit key commits nothing and would otherwise mark a key the mapping
+  // never holds as one it has already seen
+  static auto note_implicit_key(std::unordered_set<std::string> &seen_keys,
+                                const std::string &key, const Token &token)
+      -> void {
+    if (seen_keys.contains(key)) [[unlikely]] {
+      throw YAMLDuplicateKeyError{key, token.line, token.column};
+    }
+
+    seen_keys.insert(key);
   }
 
   auto record_key_scalar_style(const std::string &key, const ScalarStyle style,
@@ -2455,10 +2540,21 @@ private:
         this->roundtrip_->key_styles[this->pointer_stack_] =
             YAMLRoundTrip::ScalarStyle::DoubleQuoted;
         break;
-      default:
+      // A block scalar key is left to be written as a quoted scalar. What one
+      // stands for rests on the indicator, the chomping and the folding it was
+      // written with together, and writing it back without all three carries a
+      // different key than the one that was read
+      case ScalarStyle::Literal:
+      case ScalarStyle::Folded:
         break;
     }
-    if (!quoted_original.empty()) {
+    // A key is written back without the indicator that can open an explicit
+    // one, so text spanning lines cannot be replayed as it was read. Keeping
+    // it would put a line break inside a key that nothing marks as explicit,
+    // which is not a document that can be read again, where writing the key
+    // out afresh keeps it to one line
+    if (!quoted_original.empty() &&
+        quoted_original.find('\n') == std::string_view::npos) {
       this->roundtrip_->key_quoted_contents[this->pointer_stack_] =
           std::string{quoted_original};
     }
@@ -2485,7 +2581,7 @@ private:
   std::unordered_map<std::string, AnchoredValue> anchors_;
   bool recording_anchor_{false};
   bool indent_width_detected_{false};
-  std::size_t expanded_nodes_{0};
+  std::size_t expanded_weight_{0};
   std::vector<CallbackRecord> current_anchor_callbacks_;
   std::deque<Token> pending_tokens_;
   std::optional<std::size_t> pending_token_position_;

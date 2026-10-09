@@ -4,12 +4,23 @@
 #include <sourcemeta/core/uri.h>
 
 #include <algorithm> // std::ranges::sort
+#include <cstddef>   // std::size_t
 #include <optional>  // std::optional
 #include <utility>   // std::move
 
 namespace sourcemeta::core {
 
 namespace {
+
+// The location of one member of an array-valued @container entry, so that a
+// combination spelled across several members names the one at fault
+auto container_member_pointer(const WeakPointer &term_pointer,
+                              const std::size_t index) -> Pointer {
+  auto result{to_pointer(term_pointer)};
+  result.push_back(JSON::String{KEYWORD_CONTAINER});
+  result.push_back(index);
+  return result;
+}
 
 // Whether the given value is a valid @container value.
 auto is_valid_container(const JSON::StringView value) -> bool {
@@ -49,8 +60,12 @@ auto finalize_definition(ExpansionState &state, ActiveContext &active_context,
     if (!same_definition(previous.value(), candidate)) {
       throw JSONLDError("Protected term redefinition", term_pointer);
     }
-    // A redefinition with the same definition retains the protected flag.
-    candidate.is_protected = true;
+    // Step 29.2: "Set definition to previous definition to retain the value of
+    // protected", so a redefinition that says the same thing leaves what was
+    // already there, origin included (JSON-LD 1.1 API Section 5.1.1 step 29.2)
+    active_context.terms[term] = previous.value();
+    defined[term] = true;
+    return;
   }
   active_context.terms[term] = std::move(candidate);
   defined[term] = true;
@@ -402,24 +417,29 @@ auto create_term_definition(ExpansionState &state,
           throw JSONLDError("Invalid container mapping", term_pointer,
                             {KEYWORD_CONTAINER});
         }
+        std::size_t container_index{0};
         for (const auto &item : container.as_array()) {
           if (!item.is_string()) {
-            throw JSONLDError("Invalid container mapping", term_pointer,
-                              {KEYWORD_CONTAINER});
+            throw JSONLDError(
+                "Invalid container mapping",
+                container_member_pointer(term_pointer, container_index));
           }
           const auto &item_string{item.to_string()};
           if (!is_valid_container(item_string)) {
-            throw JSONLDError("Invalid container mapping", term_pointer,
-                              {KEYWORD_CONTAINER});
+            throw JSONLDError(
+                "Invalid container mapping",
+                container_member_pointer(term_pointer, container_index));
           }
           // A keyword may not appear more than once in the container array.
           for (const auto &seen : definition.container) {
             if (seen == item_string) {
-              throw JSONLDError("Invalid container mapping", term_pointer,
-                                {KEYWORD_CONTAINER});
+              throw JSONLDError(
+                  "Invalid container mapping",
+                  container_member_pointer(term_pointer, container_index));
             }
           }
           definition.container.push_back(item_string);
+          container_index += 1;
         }
       } else if (container.is_string()) {
         const auto &container_string{container.to_string()};
@@ -566,6 +586,19 @@ auto create_term_definition(ExpansionState &state,
       }
       definition.context = *context_entry;
       definition.context_base = state.context_resolution_base();
+      // Step 21.7 keeps the local context of the definition to re-process when
+      // the term comes into use, so whatever it says wrong then belongs where
+      // it was written. Only a context the input spells out has entries of its
+      // own to point into, which a context merged from an import settles one
+      // term at a time (JSON-LD 1.1 API Section 5.1.1 step 21.7)
+      definition.context_authored =
+          !state.foreign_context_location.has_value() ||
+          (state.input_context != nullptr &&
+           state.input_context->defines(term));
+      definition.context_location =
+          definition.context_authored
+              ? to_pointer(term_pointer.concat(keyword_context()))
+              : state.foreign_context_location.value();
     }
 
     // The @reverse step of Create Term Definition sets the term definition and
@@ -627,7 +660,11 @@ auto create_term_definition(ExpansionState &state,
       const auto index_iri{expand_iri(state, active_context, index_string,
                                       false, true, &local_context, &defined,
                                       context_pointer)};
-      if (!index_iri.has_value() || is_keyword(index_iri.value())) {
+      // The expansion of the value has to name an IRI, which neither a
+      // keyword nor a term that stayed relative does (JSON-LD 1.1 API Section
+      // 5.1.1 step 21.2)
+      if (!index_iri.has_value() || is_keyword(index_iri.value()) ||
+          !URI::is_iri(index_iri.value())) {
         throw JSONLDError("Invalid term definition", term_pointer,
                           {KEYWORD_INDEX});
       }

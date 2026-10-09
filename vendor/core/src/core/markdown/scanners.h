@@ -45,7 +45,7 @@ inline auto scan_spacechars(const std::string_view input,
   return position - offset;
 }
 
-// An absolute URI of GFM section 6.9, right after the opening angle bracket
+// An absolute URI of GFM section 6.8, right after the opening angle bracket
 inline auto scan_autolink_uri(const std::string_view input,
                               const std::size_t offset) noexcept
     -> std::size_t {
@@ -88,7 +88,7 @@ inline auto scan_autolink_uri(const std::string_view input,
   return position + 1 - offset;
 }
 
-// An email address of GFM section 6.9, right after the opening angle bracket,
+// An email address of GFM section 6.8, right after the opening angle bracket,
 // which is a valid email address of the HTML Standard up to the closing angle
 // bracket
 inline auto scan_autolink_email(const std::string_view input,
@@ -180,7 +180,7 @@ scan_attribute_value_specification(const std::string_view input,
   return position - offset;
 }
 
-// An open tag or a closing tag of GFM section 6.6, right after the opening
+// An open tag or a closing tag of GFM section 6.10, right after the opening
 // angle bracket
 inline auto scan_html_tag(const std::string_view input,
                           const std::size_t offset) noexcept -> std::size_t {
@@ -495,7 +495,7 @@ inline auto scan_html_block_end(const std::string_view input,
   }
 }
 
-// A link title of GFM section 6.3, which "consists of either a sequence of zero
+// A link title of GFM section 6.6, which "consists of either a sequence of zero
 // or more characters between straight double-quote characters ("), including a
 // " character only if it is backslash-escaped, or a sequence of zero or more
 // characters between straight single-quote characters ('), including a '
@@ -512,7 +512,7 @@ inline auto scan_link_title(const std::string_view input,
   const auto closing{opening == '(' ? ')' : opening};
   for (auto position{offset + 1}; position < input.size(); ++position) {
     const auto character{input[position]};
-    // GFM section 2.4: "Any ASCII punctuation character may be
+    // GFM section 6.1: "Any ASCII punctuation character may be
     // backslash-escaped"
     if (character == '\\' && position + 1 < input.size() &&
         sourcemeta::core::is_punctuation(input[position + 1])) {

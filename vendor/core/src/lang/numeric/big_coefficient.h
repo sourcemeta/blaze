@@ -4,6 +4,7 @@
 #include <algorithm>   // std::max, std::copy, std::fill
 #include <array>       // std::array
 #include <bit>         // std::endian
+#include <cassert>     // assert
 #include <cstdint>     // std::int32_t, std::int64_t, std::uint32_t,
                        // std::uint64_t, std::uintptr_t, std::uint8_t
 #include <cstring>     // std::memcpy
@@ -966,6 +967,15 @@ auto round_to_precision(std::int64_t &coefficient,
     }
     if (round_up) {
       new_coefficient++;
+      // The round operation of the decimal arithmetic specification shortens
+      // the result by one digit and raises the exponent to match when the
+      // increment carries past the precision being rounded to. Leaving that
+      // out hands back one digit more than was asked for
+      if (digit_count(static_cast<std::uint64_t>(new_coefficient)) >
+          static_cast<std::uint32_t>(WORKING_PRECISION)) {
+        new_coefficient /= 10;
+        excess++;
+      }
     }
 
     coefficient = new_coefficient;
@@ -993,6 +1003,11 @@ auto round_to_precision(std::int64_t &coefficient,
   if (remainder > half ||
       (remainder == half && (residue || quotient % 2 != 0))) {
     quotient++;
+    if (digit_count(static_cast<std::uint64_t>(quotient)) >
+        static_cast<std::uint32_t>(WORKING_PRECISION)) {
+      quotient /= 10;
+      excess++;
+    }
   }
 
   coefficient = quotient;
@@ -1027,8 +1042,11 @@ auto coefficient_as_big(std::int64_t coefficient,
 void store_big_result(std::int64_t &coefficient,
                       std::uint64_t &coefficient_high, std::uint8_t &flags,
                       BigCoefficient result_big, bool result_negative) {
-  if (result_big.length <= 1 &&
-      result_big.words[0] <= static_cast<std::uint64_t>(COMPACT_MAX)) {
+  // Every limb is held below the base it counts in, which is the largest the
+  // narrow form takes plus one, so a lone limb always fits it and asking
+  // whether it does can only ever answer yes
+  assert(result_big.length == 0 || result_big.words[0] < BASE);
+  if (result_big.length <= 1) {
     coefficient = static_cast<std::int64_t>(result_big.words[0]);
     coefficient_high = 0;
     flags = result_negative ? FLAG_SIGN : 0;

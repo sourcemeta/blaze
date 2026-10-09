@@ -110,16 +110,21 @@ inline auto unescape_string(const char *data, const std::uint32_t length,
   return result;
 }
 
+// A number literal that the scanner accepts can still name a value outside the
+// range this module represents, and where it does the failure belongs at the
+// literal rather than at the start of the document
 inline auto construct_number(const char *data, const std::uint32_t length,
                              const std::uint8_t flags,
-                             const std::uint32_t significant_digits) -> JSON {
+                             const std::uint32_t significant_digits,
+                             const std::uint64_t line,
+                             const std::uint64_t column) -> JSON {
   if ((flags & TAPE_FLAG_NUMBER_EXPONENT) != 0) {
     try {
       return JSON{Decimal{std::string_view{data, length}}};
     } catch (const DecimalParseError &) {
-      throw JSONParseError(1, 1);
+      throw JSONParseError(line, column);
     } catch (const std::invalid_argument &) {
-      throw JSONParseError(1, 1);
+      throw JSONParseError(line, column);
     }
   }
 
@@ -129,23 +134,24 @@ inline auto construct_number(const char *data, const std::uint32_t length,
       try {
         return JSON{Decimal{std::string_view{data, length}}};
       } catch (const DecimalParseError &) {
-        throw JSONParseError(1, 1);
+        throw JSONParseError(line, column);
       } catch (const std::invalid_argument &) {
-        throw JSONParseError(1, 1);
+        throw JSONParseError(line, column);
       }
     }
 
     const std::string_view value{data, length};
-    const auto double_result{sourcemeta::core::to_double(value)};
+    const auto double_result{sourcemeta::core::to_double_exact(value)};
     if (double_result.has_value()) {
       return JSON{double_result.value()};
     }
+
     try {
       return JSON{Decimal{value}};
     } catch (const DecimalParseError &) {
-      throw JSONParseError(1, 1);
+      throw JSONParseError(line, column);
     } catch (const std::invalid_argument &) {
-      throw JSONParseError(1, 1);
+      throw JSONParseError(line, column);
     }
   }
 
@@ -163,18 +169,18 @@ inline auto construct_number(const char *data, const std::uint32_t length,
     try {
       return JSON{Decimal{value}};
     } catch (const DecimalParseError &) {
-      throw JSONParseError(1, 1);
+      throw JSONParseError(line, column);
     } catch (const std::invalid_argument &) {
-      throw JSONParseError(1, 1);
+      throw JSONParseError(line, column);
     }
   }
 
   try {
     return JSON{Decimal{std::string_view{data, length}}};
   } catch (const DecimalParseError &) {
-    throw JSONParseError(1, 1);
+    throw JSONParseError(line, column);
   } catch (const std::invalid_argument &) {
-    throw JSONParseError(1, 1);
+    throw JSONParseError(line, column);
   }
 }
 
@@ -261,7 +267,8 @@ inline auto construct_json(const char *buffer,
     }
     case TapeType::Number: {
       auto value = internal::construct_number(
-          buffer + entry.offset, entry.length, entry.flags, entry.count);
+          buffer + entry.offset, entry.length, entry.flags, entry.count,
+          entry.line, entry.column);
       if (value.is_integer()) {
         CALLBACK_PRE(Integer, entry, JSON::ParseContext::Root, 0,
                      empty_property);
@@ -382,7 +389,7 @@ do_construct_array_item: {
       const auto current_index{frames.back().get().size()};
       auto value = internal::construct_number(
           buffer + item_entry.offset, item_entry.length, item_entry.flags,
-          item_entry.count);
+          item_entry.count, item_entry.line, item_entry.column);
       if (value.is_integer()) {
         CALLBACK_PRE(Integer, item_entry, JSON::ParseContext::Index,
                      current_index, empty_property);
@@ -549,7 +556,7 @@ do_construct_object_value: {
     case TapeType::Number: {
       auto value = internal::construct_number(
           buffer + value_entry.offset, value_entry.length, value_entry.flags,
-          value_entry.count);
+          value_entry.count, value_entry.line, value_entry.column);
       const auto value_type{value.type()};
       frames.back().get().assign_assume_new(std::move(key), std::move(value),
                                             key_hash);

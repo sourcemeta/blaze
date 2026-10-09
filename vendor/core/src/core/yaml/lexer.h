@@ -271,6 +271,14 @@ public:
       }
       this->advance(1);
       this->last_was_quoted_scalar_ = false;
+      // Section 8.2.1 indents the compact content that shares a line with its
+      // indicator by spaces, and a value indicator opens such a line just as a
+      // sequence entry or an explicit key does, so a tab separating it from a
+      // nested block indicator is invalid the same way
+      if (this->flow_level_ == 0) {
+        this->after_block_indicator_ = true;
+      }
+
       return Token{.type = TokenType::BlockMappingValue,
                    .value = ":",
                    .line = current_line,

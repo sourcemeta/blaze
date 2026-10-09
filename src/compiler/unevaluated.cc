@@ -136,7 +136,9 @@ auto find_adjacent_dependencies(
         for (std::size_t index = 0; index < property.second.size(); index++) {
           find_adjacent_dependencies(
               current, schema, frame, walker, resolver, keywords, root,
-              frame.traverse(entry, make_weak_pointer(property.first, index)),
+              frame.traverse(entry, make_weak_pointer(property.first, index))
+                  .value()
+                  .get(),
               is_static, visited, result);
         }
 
@@ -148,7 +150,9 @@ auto find_adjacent_dependencies(
           for (std::size_t index = 0; index < property.second.size(); index++) {
             find_adjacent_dependencies(
                 current, schema, frame, walker, resolver, keywords, root,
-                frame.traverse(entry, make_weak_pointer(property.first, index)),
+                frame.traverse(entry, make_weak_pointer(property.first, index))
+                    .value()
+                    .get(),
                 false, visited, result);
           }
         }
@@ -162,8 +166,10 @@ auto find_adjacent_dependencies(
         if ((property.second.is_object() || property.second.is_boolean())) {
           find_adjacent_dependencies(
               current, schema, frame, walker, resolver, keywords, root,
-              frame.traverse(entry, make_weak_pointer(property.first)), false,
-              visited, result);
+              frame.traverse(entry, make_weak_pointer(property.first))
+                  .value()
+                  .get(),
+              false, visited, result);
         }
 
         break;
@@ -172,15 +178,19 @@ auto find_adjacent_dependencies(
           for (std::size_t index = 0; index < property.second.size(); index++) {
             find_adjacent_dependencies(
                 current, schema, frame, walker, resolver, keywords, root,
-                frame.traverse(entry, make_weak_pointer(property.first, index)),
+                frame.traverse(entry, make_weak_pointer(property.first, index))
+                    .value()
+                    .get(),
                 false, visited, result);
           }
         } else if ((property.second.is_object() ||
                     property.second.is_boolean())) {
           find_adjacent_dependencies(
               current, schema, frame, walker, resolver, keywords, root,
-              frame.traverse(entry, make_weak_pointer(property.first)), false,
-              visited, result);
+              frame.traverse(entry, make_weak_pointer(property.first))
+                  .value()
+                  .get(),
+              false, visited, result);
         }
 
         break;
@@ -189,8 +199,11 @@ auto find_adjacent_dependencies(
           for (const auto &pair : property.second.as_object()) {
             find_adjacent_dependencies(
                 current, schema, frame, walker, resolver, keywords, root,
-                frame.traverse(entry,
-                               make_weak_pointer(property.first, pair.first)),
+                frame
+                    .traverse(entry,
+                              make_weak_pointer(property.first, pair.first))
+                    .value()
+                    .get(),
                 false, visited, result);
           }
         }

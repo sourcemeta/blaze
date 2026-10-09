@@ -4,7 +4,7 @@
 #include <sourcemeta/core/uri.h>
 
 #include <algorithm> // std::ranges::sort
-#include <cstddef>   // std::size_t
+#include <cstddef>   // std::size_t, std::ptrdiff_t
 #include <optional>  // std::optional
 #include <utility>   // std::move, std::pair
 #include <vector>    // std::vector
@@ -48,6 +48,118 @@ auto merge(JSON &object, const JSON::StringView name, JSON &&values) -> void {
   } else {
     object.assign(name, std::move(values));
   }
+}
+
+// Whether an expanded member is one that the position it landed in forbids
+auto is_not_node_object(const JSON &item) -> bool {
+  return !item.is_object() || item.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH) ||
+         item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH) ||
+         item.defines(KEYWORD_SET, KEYWORD_SET_HASH);
+}
+
+auto is_value_object(const JSON &item) -> bool {
+  return item.is_object() && item.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH);
+}
+
+auto is_value_or_list_object(const JSON &item) -> bool {
+  return item.is_object() && (item.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH) ||
+                              item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH));
+}
+
+auto is_list_object(const JSON &item) -> bool {
+  return item.is_object() && item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH);
+}
+
+using ForbiddenMember = bool (*)(const JSON &);
+
+// Whether an expansion holds a member its position forbids. A null expansion
+// carried nothing over, so it is never the one at fault
+auto holds_forbidden_member(const JSON &expanded,
+                            const ForbiddenMember forbidden) -> bool {
+  if (expanded.is_null()) {
+    return false;
+  }
+
+  if (expanded.is_array()) {
+    for (const auto &item : expanded.as_array()) {
+      if (forbidden(item)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  return forbidden(expanded);
+}
+
+// Declared ahead of the member tracer below, which needs it to reproduce the
+// context an offending member was originally expanded under
+auto apply_scoped_context(ExpansionState &state, ActiveContext &context,
+                          const TermDefinition &definition) -> void;
+
+// The position the offending member was written at, found by descending
+// through the arrays and set objects that flatten into the expansion.
+// Expansion does not retain which input each expanded member came from, so the
+// members are expanded again to find it, which only ever happens on the way
+// out of an error. Locating a member must not change what is reported, so
+// whatever that re-expansion runs into costs no more than the precision of the
+// position
+auto forbidden_member_pointer(
+    ExpansionState &state, ActiveContext &active_context,
+    const std::optional<JSON::String> &active_property, const JSON &member,
+    const WeakPointer &pointer, const ForbiddenMember forbidden) -> Pointer {
+  try {
+    if (member.is_array()) {
+      std::size_t index{0};
+      for (const auto &item : member.as_array()) {
+        const WeakPointer item_pointer{pointer.concat(index)};
+        if (holds_forbidden_member(expand(state, active_context,
+                                          active_property, item, item_pointer),
+                                   forbidden)) {
+          return forbidden_member_pointer(state, active_context,
+                                          active_property, item, item_pointer,
+                                          forbidden);
+        }
+        index += 1;
+      }
+    } else if (member.is_object()) {
+      // A set object hands its members to the enclosing position, and the
+      // context of the property or of the member itself may be what names the
+      // keyword, so both are layered on before the keys are read, the way they
+      // are when the member is expanded
+      ActiveContext effective{active_context};
+      if (active_property.has_value()) {
+        const auto definition{
+            active_context.terms.find(active_property.value())};
+        if (definition != active_context.terms.cend() &&
+            definition->second.context.has_value()) {
+          effective.previous = nullptr;
+          apply_scoped_context(state, effective, definition->second);
+        }
+      }
+      if (member.defines(KEYWORD_CONTEXT, KEYWORD_CONTEXT_HASH)) {
+        process_context(state, effective,
+                        member.at(KEYWORD_CONTEXT, KEYWORD_CONTEXT_HASH),
+                        pointer.concat(keyword_context()));
+      }
+      for (const auto &entry : member.as_object()) {
+        const auto expanded_key{expand_iri(state, effective, entry.first, false,
+                                           true, nullptr, nullptr,
+                                           EMPTY_WEAK_POINTER)};
+        if (expanded_key.has_value() && expanded_key.value() == KEYWORD_SET) {
+          return forbidden_member_pointer(
+              state, effective, active_property, entry.second,
+              pointer.concat(entry.first), forbidden);
+        }
+      }
+    }
+  } catch (const JSONLDError &) {
+    // The enclosing position stands when the member cannot be narrowed down
+    return to_pointer(pointer);
+  }
+
+  return to_pointer(pointer);
 }
 
 auto container_includes(const TermDefinition *const definition,
@@ -100,31 +212,81 @@ auto offending_entry(ExpansionState &state, ActiveContext &active_context,
   return result;
 }
 
-// Locate a violation at the entry that caused it, falling back to the map
-// itself when that entry was merged in from a nested map instead.
+// The input locations of the members that expanded into the keywords whose
+// combination is only judged once the whole element is expanded. A keyword may
+// arrive from a nested property, whose object sits elsewhere in the input, so
+// where it came from cannot be recovered from the element alone
+struct KeywordOrigins {
+  std::optional<WeakPointer> value;
+  std::optional<WeakPointer> type;
+  std::optional<WeakPointer> collection;
+};
+
+// Where a keyword the element carries was written, or the element itself when
+// nothing recorded it
+auto origin_pointer(const std::optional<WeakPointer> &origin,
+                    const WeakPointer &pointer) -> Pointer {
+  return to_pointer(origin.has_value() ? origin.value() : pointer);
+}
+
+// Locate a violation at the entry that caused it, falling back to where
+// whatever contributed that entry was written when it was merged in from a
+// nested map instead
 auto offending_pointer(ExpansionState &state, ActiveContext &active_context,
                        const JSON &element, const WeakPointer &pointer,
-                       const JSON::StringView name) -> Pointer {
-  auto result{to_pointer(pointer)};
+                       const JSON::StringView name,
+                       const std::optional<WeakPointer> &origin = std::nullopt)
+    -> Pointer {
   const auto *const entry{
       offending_entry(state, active_context, element, name)};
-  if (entry != nullptr) {
-    result.push_back(*entry);
+  if (entry == nullptr) {
+    return origin_pointer(origin, pointer);
   }
+
+  auto result{to_pointer(pointer)};
+  result.push_back(*entry);
   return result;
 }
 
-// Layer a term's own context over the given one, reporting what it says wrong
-// at the input location the term was defined in
+// Process a term's own context over the given one, reporting what it says
+// wrong where the context was written rather than wherever the term came into
+// use. A context whose entries the input does not spell out has no position of
+// its own to point into, so everything it says wrong collapses to the
+// reference that brought it
+auto process_deferred_scoped_context(ExpansionState &state,
+                                     ActiveContext &context,
+                                     const TermDefinition &definition,
+                                     const bool propagate) -> void {
+  const ContextBaseScope base{state, definition.context_base};
+  // A definition that came from elsewhere restores that origin, so the terms
+  // its context defines in turn are located the same way
+  const ForeignContextScope origin{
+      state, definition.context_authored
+                 ? std::nullopt
+                 : std::optional<Pointer>{definition.context_location}};
+  try {
+    process_context(state, context, definition.context.value(),
+                    to_weak_pointer(definition.context_location), propagate);
+  } catch (const JSONLDError &error) {
+    if (definition.context_authored) {
+      throw;
+    }
+    throw JSONLDError(error.what(), definition.context_location);
+  }
+}
+
+// Layer a property-scoped context over the given one, which overrides
+// protected terms (JSON-LD 1.1 API Section 5.1.2 step 8)
 auto apply_scoped_context(ExpansionState &state, ActiveContext &context,
-                          const TermDefinition &definition,
-                          const WeakPointer &pointer) -> void {
+                          const TermDefinition &definition) -> void {
   const auto saved_override{state.protected_override};
-  const auto saved_base{state.context_base_override};
   state.protected_override = true;
-  state.context_base_override = definition.context_base;
-  process_context(state, context, definition.context.value(), pointer);
-  state.context_base_override = saved_base;
+  try {
+    process_deferred_scoped_context(state, context, definition, true);
+  } catch (...) {
+    state.protected_override = saved_override;
+    throw;
+  }
   state.protected_override = saved_override;
 }
 
@@ -147,6 +309,7 @@ auto nest_defines_value(ExpansionState &state, ActiveContext &active_context,
 // mutating it in place. Mutually recursive with expand_object.
 auto expand_entries(ExpansionState &state, ActiveContext &active_context,
                     const ActiveContext &type_context, JSON &result,
+                    KeywordOrigins &origins,
                     const std::optional<JSON::String> &active_property,
                     const JSON &source, const WeakPointer &source_pointer)
     -> void;
@@ -162,42 +325,44 @@ auto expand_object(ExpansionState &state, ActiveContext active_context,
   // are applied.
   const ActiveContext type_context{active_context};
 
-  // Type-scoped contexts (JSON-LD 1.1 API Section 5.1.2 step 11). The values
-  // are referenced from the input element, never copied.
+  // Type-scoped contexts. The entries that bear a type are visited in
+  // lexicographical key order and the values of each are ordered within it, so
+  // which type's context prevails follows the input keys rather than one
+  // ordering across all of them. The values are referenced from the input
+  // element, never copied (JSON-LD 1.1 API Section 5.1.2 step 11)
   std::vector<JSON::StringView> type_values;
-  for (const auto &entry : element.as_object()) {
-    const auto expanded{expand_iri(state, active_context, entry.first, false,
-                                   true, nullptr, nullptr, EMPTY_WEAK_POINTER)};
+  for (const auto &[key, value] : sorted_entries(element)) {
+    const auto expanded{expand_iri(state, active_context, *key, false, true,
+                                   nullptr, nullptr, EMPTY_WEAK_POINTER)};
     if (!expanded.has_value() || expanded.value() != KEYWORD_TYPE) {
       continue;
     }
-    if (entry.second.is_array()) {
-      for (const auto &item : entry.second.as_array()) {
+    const auto entry_first{static_cast<std::ptrdiff_t>(type_values.size())};
+    if (value->is_array()) {
+      for (const auto &item : value->as_array()) {
         if (item.is_string()) {
           type_values.push_back(item.to_string());
         }
       }
-    } else if (entry.second.is_string()) {
-      type_values.push_back(entry.second.to_string());
+    } else if (value->is_string()) {
+      type_values.push_back(value->to_string());
     }
+    std::ranges::sort(type_values.begin() + entry_first, type_values.end());
   }
-  std::ranges::sort(type_values);
   for (const auto &type : type_values) {
     // Each type-scoped context is resolved against the context that preceded
     // type-scoped processing, so one type's context cannot hide another's.
     const auto definition{type_context.terms.find(type)};
     if (definition != type_context.terms.cend() &&
         definition->second.context.has_value()) {
-      const auto &scoped{definition->second.context.value()};
-      const auto saved_base{state.context_base_override};
-      state.context_base_override = definition->second.context_base;
-      process_context(state, active_context, scoped, pointer, false);
-      state.context_base_override = saved_base;
+      process_deferred_scoped_context(state, active_context, definition->second,
+                                      false);
     }
   }
 
-  expand_entries(state, active_context, type_context, result, active_property,
-                 element, pointer);
+  KeywordOrigins origins;
+  expand_entries(state, active_context, type_context, result, origins,
+                 active_property, element, pointer);
 
   // An empty reverse map carries no information.
   if (const auto *reverse{result.try_at(KEYWORD_REVERSE, KEYWORD_REVERSE_HASH)};
@@ -218,8 +383,7 @@ auto expand_object(ExpansionState &state, ActiveContext active_context,
     // 1.1 API Section 5.1.2 step 13.4.7.1)
     if (is_json && state.processing_1_0) {
       throw JSONLDError("Invalid value object value",
-                        offending_pointer(state, active_context, element,
-                                          pointer, KEYWORD_VALUE));
+                        origin_pointer(origins.value, pointer));
     }
     for (const auto &entry : result.as_object()) {
       if (!entry.key_equals(KEYWORD_VALUE, KEYWORD_VALUE_HASH) &&
@@ -246,22 +410,19 @@ auto expand_object(ExpansionState &state, ActiveContext active_context,
     if (result.defines(KEYWORD_LANGUAGE, KEYWORD_LANGUAGE_HASH) &&
         !content.is_string()) {
       throw JSONLDError("Invalid language-tagged value",
-                        offending_pointer(state, active_context, element,
-                                          pointer, KEYWORD_VALUE));
+                        origin_pointer(origins.value, pointer));
     }
     // The datatype of a typed value must be an IRI, which a blank node
     // identifier is not (JSON-LD 1.1 API Section 5.1.2 step 15.5)
     if (has_type && !is_json &&
         (type_string == nullptr || !URI::is_iri(*type_string))) {
       throw JSONLDError("Invalid typed value",
-                        offending_pointer(state, active_context, element,
-                                          pointer, KEYWORD_TYPE));
+                        origin_pointer(origins.type, pointer));
     }
     if (!is_json && !content.is_string() && !content.is_number() &&
         !content.is_boolean()) {
       throw JSONLDError("Invalid value object value",
-                        offending_pointer(state, active_context, element,
-                                          pointer, KEYWORD_VALUE));
+                        origin_pointer(origins.value, pointer));
     }
   } else if (const auto *type_entry{
                  result.try_at(KEYWORD_TYPE, KEYWORD_TYPE_HASH)};
@@ -279,7 +440,8 @@ auto expand_object(ExpansionState &state, ActiveContext active_context,
     // (JSON-LD 1.1 API Section 5.1.2 step 17.1).
     if (result.defines(KEYWORD_LIST, KEYWORD_LIST_HASH) &&
         result.defines(KEYWORD_SET, KEYWORD_SET_HASH)) {
-      throw JSONLDError("Invalid set or list object", pointer);
+      throw JSONLDError("Invalid set or list object",
+                        origin_pointer(origins.collection, pointer));
     }
 
     for (const auto &entry : result.as_object()) {
@@ -288,7 +450,8 @@ auto expand_object(ExpansionState &state, ActiveContext active_context,
           !entry.key_equals(KEYWORD_INDEX, KEYWORD_INDEX_HASH)) {
         throw JSONLDError("Invalid set or list object",
                           offending_pointer(state, active_context, element,
-                                            pointer, entry.first));
+                                            pointer, entry.first,
+                                            origins.collection));
       }
     }
   }
@@ -332,6 +495,7 @@ auto expand_object(ExpansionState &state, ActiveContext active_context,
 
 auto expand_entries(ExpansionState &state, ActiveContext &active_context,
                     const ActiveContext &type_context, JSON &result,
+                    KeywordOrigins &origins,
                     const std::optional<JSON::String> &active_property,
                     const JSON &source, const WeakPointer &source_pointer)
     -> void {
@@ -421,10 +585,13 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
 
     if (name == KEYWORD_TYPE) {
       if (entry.second.is_array()) {
+        std::size_t type_index{0};
         for (const auto &item : entry.second.as_array()) {
           if (!item.is_string()) {
-            throw JSONLDError("Invalid type value", entry_pointer);
+            throw JSONLDError("Invalid type value",
+                              entry_pointer.concat(type_index));
           }
+          type_index += 1;
         }
       } else if (!entry.second.is_string()) {
         throw JSONLDError("Invalid type value", entry_pointer);
@@ -446,10 +613,12 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
       } else {
         expanded_type = expand_type(state, type_context, entry.second);
       }
-      // A lone @type value that does not expand to an IRI carries nothing.
+      // A lone @type value that does not expand to an IRI carries nothing,
+      // which includes carrying no blame for what the element ends up with
       if (expanded_type.is_null()) {
         continue;
       }
+      origins.type = entry_pointer;
       if (result.defines(KEYWORD_TYPE, KEYWORD_TYPE_HASH)) {
         auto merged{
             into_array(std::move(result.at(KEYWORD_TYPE, KEYWORD_TYPE_HASH)))};
@@ -466,6 +635,7 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
     }
 
     if (name == KEYWORD_VALUE) {
+      origins.value = entry_pointer;
       result.assign_assume_new(JSON::String{KEYWORD_VALUE}, JSON{entry.second},
                                KEYWORD_VALUE_HASH);
       continue;
@@ -501,6 +671,17 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
         continue;
       }
 
+      // A set object expands its value as it stands rather than as an array,
+      // so a null value expands to null and the collapse below leaves nothing
+      // for the enclosing property to carry (JSON-LD 1.1 API Section 5.1.2
+      // steps 13.4.12 and 18.2)
+      if (name == KEYWORD_SET && entry.second.is_null()) {
+        origins.collection = source_pointer;
+        result.assign(name, JSON{nullptr});
+        continue;
+      }
+
+      origins.collection = source_pointer;
       auto elements{JSON::make_array()};
       const auto values{into_array(JSON{entry.second})};
       std::size_t value_index{0};
@@ -521,9 +702,11 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
       }
       if (name == KEYWORD_LIST && state.processing_1_0) {
         for (const auto &item : elements.as_array()) {
-          if (item.is_object() &&
-              item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH)) {
-            throw JSONLDError("List of lists", entry_pointer);
+          if (is_list_object(item)) {
+            throw JSONLDError("List of lists",
+                              forbidden_member_pointer(
+                                  state, active_context, active_property,
+                                  entry.second, entry_pointer, is_list_object));
           }
         }
       }
@@ -546,15 +729,43 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
       if (state.processing_1_0) {
         continue;
       }
-      auto included{into_array(expand(state, active_context, std::nullopt,
-                                      entry.second, entry_pointer))};
-      for (const auto &item : included.as_array()) {
-        if (!item.is_object() ||
-            item.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH) ||
-            item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH) ||
-            item.defines(KEYWORD_SET, KEYWORD_SET_HASH)) {
-          throw JSONLDError("Invalid @included value", entry_pointer);
+      // Step 13.4.7.2 expands the value with a null active property, which
+      // would drop the free-floating values step 13.4.7.3 has to reject, so
+      // the official suite requires a value that is a scalar, a value object,
+      // or a list object to be an error rather than nothing (suite entries
+      // #tin07 to #tin09). The keyword stands in as the active property so
+      // that nothing is dropped before being judged, which also keeps the
+      // identifier-only node references that the step admits. Each member is
+      // expanded on its own, so what goes wrong names the input position it
+      // came from (JSON-LD 1.1 API Section 5.1.2 steps 13.4.7.2 and 13.4.7.3)
+      auto included{JSON::make_array()};
+      const bool from_array{entry.second.is_array()};
+      const auto members{into_array(JSON{entry.second})};
+      std::size_t member_index{0};
+      for (const auto &member : members.as_array()) {
+        const WeakPointer member_pointer{
+            from_array ? entry_pointer.concat(member_index) : entry_pointer};
+        auto expanded_member{expand(state, active_context,
+                                    JSON::String{KEYWORD_INCLUDED}, member,
+                                    member_pointer)};
+        // A null member of an array carries nothing over, the way step 5.2.3
+        // drops one from any array, whereas a lone null value is no included
+        // block at all and is held to the same account as any other member
+        // (JSON-LD 1.1 Section 9.13, JSON-LD 1.1 API Section 5.1.2 step 5.2.3)
+        auto member_items{from_array && expanded_member.is_null()
+                              ? JSON::make_array()
+                              : into_array(std::move(expanded_member))};
+        for (auto &item : member_items.as_array()) {
+          if (is_not_node_object(item)) {
+            throw JSONLDError(
+                "Invalid @included value",
+                forbidden_member_pointer(state, active_context,
+                                         JSON::String{KEYWORD_INCLUDED}, member,
+                                         member_pointer, is_not_node_object));
+          }
+          included.push_back(std::move(item));
         }
+        member_index += 1;
       }
       merge(result, KEYWORD_INCLUDED, std::move(included));
       continue;
@@ -590,9 +801,7 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
           } else {
             const auto reverse_values{into_array(JSON{reverse_entry.second})};
             for (const auto &item : reverse_values.as_array()) {
-              if (item.is_object() &&
-                  (item.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH) ||
-                   item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH))) {
+              if (is_value_or_list_object(item)) {
                 // The map carries its own context into how its keys expand, so
                 // what it says wrong is located against that same context,
                 // which is only worth putting together to report it. Reading
@@ -611,10 +820,35 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
                   }
                 }
 
+                // Several keys of the map may reach the same reverse
+                // property, and what they carry is merged before it is
+                // inspected, so each is expanded again to find the one that
+                // holds the offending member
+                for (const auto &[input_key, input_value] :
+                     sorted_entries(entry.second)) {
+                  const auto input_property{
+                      expand_iri(state, reverse_context, *input_key, false,
+                                 true, nullptr, nullptr, EMPTY_WEAK_POINTER)};
+                  if (!input_property.has_value() ||
+                      input_property.value() != reverse_property) {
+                    continue;
+                  }
+                  const WeakPointer input_pointer{
+                      entry_pointer.concat(*input_key)};
+                  if (holds_forbidden_member(expand(state, reverse_context,
+                                                    *input_key, *input_value,
+                                                    input_pointer),
+                                             is_value_or_list_object)) {
+                    throw JSONLDError("Invalid reverse property value",
+                                      forbidden_member_pointer(
+                                          state, reverse_context, *input_key,
+                                          *input_value, input_pointer,
+                                          is_value_or_list_object));
+                  }
+                }
+
                 throw JSONLDError("Invalid reverse property value",
-                                  offending_pointer(state, reverse_context,
-                                                    entry.second, entry_pointer,
-                                                    reverse_property));
+                                  entry_pointer);
               }
             }
             merge(reverse_map, reverse_property,
@@ -702,15 +936,19 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
                                         KEYWORD_ID_HASH);
               }
             } else if (property_valued) {
-              auto combined{into_array(expand_value(
-                  state, active_context, definition->index, JSON{index}))};
-              if (graph.defines(index_property.value())) {
-                for (auto &existing :
-                     graph.at(index_property.value()).as_array()) {
-                  combined.push_back(existing);
+              // A term that no longer names anything carries no metadata
+              // (JSON-LD 1.1 API Section 5.1.2 step 13.8.3.7.2)
+              if (index_property.has_value()) {
+                auto combined{into_array(expand_value(
+                    state, active_context, definition->index, JSON{index}))};
+                if (graph.defines(index_property.value())) {
+                  for (auto &existing :
+                       graph.at(index_property.value()).as_array()) {
+                    combined.push_back(existing);
+                  }
                 }
+                graph.assign(index_property.value(), std::move(combined));
               }
-              graph.assign(index_property.value(), std::move(combined));
             } else if (!graph.defines(KEYWORD_INDEX, KEYWORD_INDEX_HASH)) {
               graph.assign_assume_new(JSON::String{KEYWORD_INDEX}, JSON{index},
                                       KEYWORD_INDEX_HASH);
@@ -731,14 +969,20 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
         const bool is_none{language == KEYWORD_NONE ||
                            (expanded_language.has_value() &&
                             expanded_language.value() == KEYWORD_NONE)};
+        const WeakPointer language_pointer{entry_pointer.concat(language)};
+        const bool language_array{language_value->is_array()};
         auto language_items{into_array(JSON{*language_value})};
+        std::size_t language_index{0};
         for (auto &item : language_items.as_array()) {
+          const WeakPointer item_pointer{
+              language_array ? language_pointer.concat(language_index)
+                             : language_pointer};
+          language_index += 1;
           if (item.is_null()) {
             continue;
           }
           if (!item.is_string()) {
-            throw JSONLDError("Invalid language map value",
-                              entry_pointer.concat(language));
+            throw JSONLDError("Invalid language map value", item_pointer);
           }
           auto value{JSON::make_object()};
           value.assign_assume_new(JSON::String{KEYWORD_VALUE}, JSON{item},
@@ -796,21 +1040,29 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
 
           if (!index_is_none) {
             if (property_valued) {
-              if (item.is_object() &&
-                  item.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH)) {
-                throw JSONLDError("Invalid value object",
-                                  entry_pointer.concat(index));
-              }
-              // The index value is prepended to any existing values.
-              auto combined{into_array(expand_value(
-                  state, active_context, definition->index, JSON{index}))};
-              if (item.defines(index_property.value())) {
-                for (auto &existing :
-                     item.at(index_property.value()).as_array()) {
-                  combined.push_back(existing);
+              // A term that no longer names anything carries no metadata, and
+              // the value object check that follows the addition does not
+              // apply when nothing was added (JSON-LD 1.1 API Section 5.1.2
+              // step 13.8.3.7.2)
+              if (index_property.has_value()) {
+                if (is_value_object(item)) {
+                  throw JSONLDError(
+                      "Invalid value object",
+                      forbidden_member_pointer(
+                          state, active_context, property, *index_value,
+                          entry_pointer.concat(index), is_value_object));
                 }
+                // The index value is prepended to any existing values.
+                auto combined{into_array(expand_value(
+                    state, active_context, definition->index, JSON{index}))};
+                if (item.defines(index_property.value())) {
+                  for (auto &existing :
+                       item.at(index_property.value()).as_array()) {
+                    combined.push_back(existing);
+                  }
+                }
+                item.assign(index_property.value(), std::move(combined));
               }
-              item.assign(index_property.value(), std::move(combined));
             } else if (!item.defines(KEYWORD_INDEX, KEYWORD_INDEX_HASH)) {
               item.assign_assume_new(JSON::String{KEYWORD_INDEX}, JSON{index},
                                      KEYWORD_INDEX_HASH);
@@ -851,12 +1103,8 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
           const auto type_definition{base_context.terms.find(index)};
           if (type_definition != base_context.terms.cend() &&
               type_definition->second.context.has_value()) {
-            const auto saved_base{state.context_base_override};
-            state.context_base_override = type_definition->second.context_base;
-            process_context(state, entry_context,
-                            type_definition->second.context.value(),
-                            entry_pointer.concat(index));
-            state.context_base_override = saved_base;
+            process_deferred_scoped_context(state, entry_context,
+                                            type_definition->second, true);
             entry_context.previous = nullptr;
           }
         }
@@ -869,8 +1117,7 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
         if (!by_id && definition->context.has_value()) {
           reference_scope = entry_context;
           reference_scope.previous = nullptr;
-          apply_scoped_context(state, reference_scope, *definition,
-                               entry_pointer);
+          apply_scoped_context(state, reference_scope, *definition);
           reference_context = &reference_scope;
         }
 
@@ -968,9 +1215,11 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
       expanded_value = into_array(std::move(expanded_value));
       if (state.processing_1_0) {
         for (const auto &item : expanded_value.as_array()) {
-          if (item.is_object() &&
-              item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH)) {
-            throw JSONLDError("List of lists", entry_pointer);
+          if (is_list_object(item)) {
+            throw JSONLDError("List of lists",
+                              forbidden_member_pointer(
+                                  state, active_context, property, entry.second,
+                                  entry_pointer, is_list_object));
           }
         }
       }
@@ -987,10 +1236,11 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
     if (definition != nullptr && definition->reverse) {
       const auto reverse_items{into_array(JSON{expanded_value})};
       for (const auto &item : reverse_items.as_array()) {
-        if (item.is_object() &&
-            (item.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH) ||
-             item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH))) {
-          throw JSONLDError("Invalid reverse property value", entry_pointer);
+        if (is_value_or_list_object(item)) {
+          throw JSONLDError("Invalid reverse property value",
+                            forbidden_member_pointer(
+                                state, active_context, property, entry.second,
+                                entry_pointer, is_value_or_list_object));
         }
       }
       const auto *existing_reverse{
@@ -1022,7 +1272,7 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
       // Process the scoped context into a copy so the term that owns it is not
       // freed while it is being read.
       nested = active_context;
-      apply_scoped_context(state, nested, definition->second, nest_pointer);
+      apply_scoped_context(state, nested, definition->second);
       nested.previous = nullptr;
     }
 
@@ -1035,8 +1285,8 @@ auto expand_entries(ExpansionState &state, ActiveContext &active_context,
       throw JSONLDError("Invalid @nest value", element_pointer);
     }
 
-    expand_entries(state, nest_context, type_context, result, active_property,
-                   *nest_entry.value, element_pointer);
+    expand_entries(state, nest_context, type_context, result, origins,
+                   active_property, *nest_entry.value, element_pointer);
   }
 }
 
@@ -1077,7 +1327,7 @@ auto expand(ExpansionState &state, ActiveContext &active_context,
     if (scoped_definition != nullptr) {
       ActiveContext scoped{active_context};
       scoped.previous = nullptr;
-      apply_scoped_context(state, scoped, *scoped_definition, pointer);
+      apply_scoped_context(state, scoped, *scoped_definition);
       return expand_value(state, scoped, active_property, element);
     }
 
@@ -1113,9 +1363,11 @@ auto expand(ExpansionState &state, ActiveContext &active_context,
     if (container_includes(definition, KEYWORD_LIST)) {
       if (state.processing_1_0) {
         for (const auto &item : result.as_array()) {
-          if (item.is_object() &&
-              item.defines(KEYWORD_LIST, KEYWORD_LIST_HASH)) {
-            throw JSONLDError("List of lists", pointer);
+          if (is_list_object(item)) {
+            throw JSONLDError(
+                "List of lists",
+                forbidden_member_pointer(state, active_context, active_property,
+                                         element, pointer, is_list_object));
           }
         }
       }
@@ -1164,7 +1416,7 @@ auto expand(ExpansionState &state, ActiveContext &active_context,
     // an enclosing type-scoped revert. It may, however, set its own revert
     // when it specifies @propagate: false.
     scoped.previous = nullptr;
-    apply_scoped_context(state, scoped, *scoped_definition, pointer);
+    apply_scoped_context(state, scoped, *scoped_definition);
     current = &scoped;
   }
 

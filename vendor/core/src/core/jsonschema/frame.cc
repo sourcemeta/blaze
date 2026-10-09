@@ -163,10 +163,17 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
                                                    "Invalid anchor value");
       }
 
+      // A plain anchor names a fragment and nothing more. Section 8.2.3 gives
+      // it no dynamic behaviour, which Section 8.2.4.2.2 reserves for the
+      // recursive one, and Section 8.2.3.2 of the later revision makes a
+      // reference to a fragment that no dynamic anchor created behave as a
+      // plain one. A dialect declaring this core alongside a later one has
+      // already recorded the same name from the later vocabulary, so finding
+      // it again only means it is already known, never that it also acts as an
+      // extension point
       bool found = false;
-      for (auto &entry : result) {
+      for (const auto &entry : result) {
         if (entry.first == anchor_view) {
-          entry.second = AnchorType::All;
           found = true;
           break;
         }
@@ -1250,7 +1257,6 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                       : "Identifiers must not contain non-empty fragments");
             }
 
-            const bool maybe_relative_is_absolute{maybe_relative.is_absolute()};
             maybe_relative.resolve_from(base).canonicalize();
             const sourcemeta::core::JSON::String new_id{
                 maybe_relative.recompose()};
@@ -1262,8 +1268,14 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
               throw_already_exists(new_id);
             }
 
-            if (!maybe_relative_is_absolute ||
-                maybe_match == this->locations_.cend()) {
+            // Two bases that differ only in their last segment resolve the
+            // same relative identifier to the same place, because merging a
+            // relative reference drops everything after the base's last
+            // slash. The check above has already refused a match that sits
+            // somewhere else, so a match here is this very place under the
+            // name it already goes by, and storing it again would only
+            // collide with itself
+            if (maybe_match == this->locations_.cend()) {
               assert(entry.common.base_dialect.has_value());
 
               store(this->locations_, max_locations,
@@ -2044,28 +2056,23 @@ auto SchemaFrame::uri(
     const Location &location,
     const sourcemeta::core::WeakPointer &relative_schema_location) const
     -> sourcemeta::core::JSON::String {
+  // An empty base leaves an empty fragment in place, which recomposes to a
+  // lone number sign, while the names this frame files its places under drop
+  // it. Without settling the two the name built here never matches the one
+  // the place was filed as
   return sourcemeta::core::to_uri(
              this->relative_instance_location(location).concat(
                  relative_schema_location),
              location.base)
+      .canonicalize()
       .recompose();
 }
 
 auto SchemaFrame::traverse(
     const Location &location,
     const sourcemeta::core::WeakPointer &relative_schema_location) const
-    -> const Location & {
-  const auto new_uri{this->uri(location, relative_schema_location)};
-  const auto static_match{
-      this->locations_.find({SchemaReferenceType::Static, new_uri})};
-  if (static_match != this->locations_.cend()) {
-    return static_match->second;
-  }
-
-  const auto dynamic_match{
-      this->locations_.find({SchemaReferenceType::Dynamic, new_uri})};
-  assert(dynamic_match != this->locations_.cend());
-  return dynamic_match->second;
+    -> std::optional<std::reference_wrapper<const Location>> {
+  return this->traverse(this->uri(location, relative_schema_location));
 }
 
 auto SchemaFrame::traverse(const std::string_view uri) const
