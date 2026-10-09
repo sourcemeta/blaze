@@ -1739,7 +1739,7 @@
   {
     "description": "format_int32_ignored_1",
     "schema": { "format": "int32" },
-    "instance": "not a number at all",
+    "instance": 2147483648,
     "valid": true,
     "fast": {},
     "exhaustive": {}
