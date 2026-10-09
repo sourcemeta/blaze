@@ -905,3 +905,26 @@ TEST(format_int32_accepts_an_integral_real_with_tweak_fast) {
                                "The number value 5.0 was expected to be an "
                                "integer between -2147483648 and 2147483647");
 }
+
+// Widening a scalar type with `nullable` must not loosen the type itself, and
+// this rung keeps Draft 4's rule that a real is no integer. The JavaScript
+// port cannot carry this case, as `JSON.parse` renders `2.0` as `2`
+TEST(nullable_integer_rejects_an_integral_real_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "integer",
+    "nullable": true
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(2.0)JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_WITH_DEFAULT_DIALECT(schema, instance, 1,
+                                                        OPENAPI_3_0_DIALECT);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrictAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type null, or integer but it was of "
+      "type number");
+}

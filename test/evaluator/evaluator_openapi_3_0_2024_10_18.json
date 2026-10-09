@@ -4547,34 +4547,6 @@
     }
   },
   {
-    "description": "nullable_integer_rejects_an_integral_real_1",
-    "schema": { "type": "integer", "nullable": true },
-    "instance": 2.0,
-    "valid": false,
-    "fast": {
-      "pre": [
-        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type null, or integer but it was of type number"
-      ]
-    },
-    "exhaustive": {
-      "pre": [
-        [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
-      ],
-      "post": [
-        [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
-      ],
-      "descriptions": [
-        "The value was expected to be of type null, or integer but it was of type number"
-      ]
-    }
-  },
-  {
     "description": "nullable_in_properties_null_1",
     "schema": { "properties": { "a": { "type": "string", "nullable": true } } },
     "instance": { "a": null },
