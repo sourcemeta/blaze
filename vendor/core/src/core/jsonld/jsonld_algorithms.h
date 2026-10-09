@@ -11,6 +11,7 @@
 #include <memory>      // std::shared_ptr
 #include <optional>    // std::optional
 #include <string_view> // std::string_view
+#include <utility>     // std::move
 #include <vector>      // std::vector
 
 namespace sourcemeta::core {
@@ -33,6 +34,13 @@ struct TermDefinition {
   bool has_direction{false};
   std::optional<JSON> context;
   std::optional<JSON::String> context_base;
+  // Where what the scoped context says wrong is reported when it is processed
+  // after the fact, which is where it was written rather than wherever the
+  // term later comes into use
+  Pointer context_location;
+  // Whether the input spells out the entries of the scoped context at that
+  // location, as opposed to only the reference that brought them in
+  bool context_authored{false};
   std::optional<JSON::String> index;
   std::optional<JSON::String> index_iri;
   std::optional<JSON::String> nest;
@@ -107,6 +115,16 @@ struct ExpansionState {
   // When a scoped context is processed after the fact, remote references in it
   // resolve against the URL of the document that defined the term.
   std::optional<JSON::String> context_base_override;
+  // Where to report what the context currently being processed says wrong when
+  // the input does not spell out its entries: one fetched by reference, one
+  // merged in from an import, and the expansion context the caller supplies
+  // are each named by what brought them rather than by their own entries.
+  // Absent while the input's own context is being processed
+  std::optional<Pointer> foreign_context_location;
+  // While a context merged from an @import is being processed, the entries the
+  // input itself spells out. Those terms are located by their own scoped
+  // context, unlike the ones the imported document contributed
+  const JSON *input_context{nullptr};
   // Protected-term state for the context currently being processed.
   bool context_protected{false};
   bool protected_override{false};
@@ -126,6 +144,55 @@ struct ExpansionState {
     }
     return this->document_base;
   }
+};
+
+// RAII guard for where the context being processed reports what it says wrong,
+// restoring the enclosing origin, and which of its entries the input itself
+// spells out, on every exit path
+struct ForeignContextScope {
+  ExpansionState &state;
+  std::optional<Pointer> previous_location;
+  const JSON *previous_input;
+
+  ForeignContextScope(ExpansionState &value, std::optional<Pointer> location,
+                      const JSON *const input = nullptr)
+      : state{value},
+        previous_location{std::move(value.foreign_context_location)},
+        previous_input{value.input_context} {
+    this->state.foreign_context_location = std::move(location);
+    this->state.input_context = input;
+  }
+
+  ~ForeignContextScope() {
+    this->state.foreign_context_location = std::move(this->previous_location);
+    this->state.input_context = this->previous_input;
+  }
+
+  ForeignContextScope(const ForeignContextScope &) = delete;
+  auto operator=(const ForeignContextScope &) -> ForeignContextScope & = delete;
+  ForeignContextScope(ForeignContextScope &&) = delete;
+  auto operator=(ForeignContextScope &&) -> ForeignContextScope & = delete;
+};
+
+// RAII guard for the base that the remote references of the context being
+// processed resolve against, restoring the enclosing one on every exit path
+struct ContextBaseScope {
+  ExpansionState &state;
+  std::optional<JSON::String> previous;
+
+  ContextBaseScope(ExpansionState &value, std::optional<JSON::String> base)
+      : state{value}, previous{std::move(value.context_base_override)} {
+    this->state.context_base_override = std::move(base);
+  }
+
+  ~ContextBaseScope() {
+    this->state.context_base_override = std::move(this->previous);
+  }
+
+  ContextBaseScope(const ContextBaseScope &) = delete;
+  auto operator=(const ContextBaseScope &) -> ContextBaseScope & = delete;
+  ContextBaseScope(ContextBaseScope &&) = delete;
+  auto operator=(ContextBaseScope &&) -> ContextBaseScope & = delete;
 };
 
 // Tracks, while a context is being processed, which terms have been fully

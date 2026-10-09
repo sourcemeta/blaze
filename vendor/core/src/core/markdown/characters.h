@@ -174,10 +174,10 @@ inline auto decode_character_references(std::string &output,
   return true;
 }
 
-// Resolve the backslash escapes of GFM section 2.4 and the character
-// references of GFM section 6.5 in one pass from left to right, so that an
+// Resolve the backslash escapes of GFM section 6.1 and the character
+// references of GFM section 6.2 in one pass from left to right, so that an
 // escaped ampersand stays literal rather than opening a character reference,
-// as GFM section 2.4 example 310 requires
+// as GFM section 6.1 example 310 requires
 inline auto decode_escapes_and_references(std::string &output,
                                           const std::string_view input)
     -> void {

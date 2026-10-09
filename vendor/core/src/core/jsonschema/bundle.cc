@@ -213,7 +213,25 @@ auto embed_schema(JSON &root, const Pointer &container,
       current->assign_if_missing(token.to_property(), JSON::make_object());
       current = &current->at(token.to_property());
     } else {
-      assert(current->is_array() && current->size() >= token.to_index());
+      // Neither of these can be left to a check that only runs in debug: the
+      // step above makes a missing place hold names, so reading a position out
+      // of it in a release build reads storage that was never written
+      //
+      // A place that holds names cannot be stepped into by position at all,
+      // which is a different thing from a position that reaches past what a
+      // place holds, so the two are told apart the way the step below tells
+      // the kind of a place apart
+      if (!current->is_array()) {
+        throw SchemaContainerError(container,
+                                   "Could not bundle to a container that is "
+                                   "not an array");
+      }
+
+      if (current->size() <= token.to_index()) {
+        throw SchemaContainerError(
+            container, "Could not bundle to a container that does not exist");
+      }
+
       current = &current->at(token.to_index());
     }
   }

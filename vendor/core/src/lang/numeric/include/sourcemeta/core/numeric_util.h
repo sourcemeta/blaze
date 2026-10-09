@@ -425,6 +425,16 @@ constexpr auto is_representable_as(const Integer value) -> bool {
              std::numeric_limits<Real>::digits;
 }
 
+// The narrowing in the function below is reached only for a magnitude the
+// guard before it admits. A caller naming a constant too large for the
+// narrower format has that cast folded where the guard is not yet in play,
+// though, and the fold is reported as an overflow. The push sits ahead of the
+// documentation so that nothing comes between it and what it documents
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4756)
+#endif
+
 /// @ingroup numeric
 /// Check whether a floating-point value is exactly one of the values a
 /// narrower IEEE 754-2019 binary interchange format holds. The magnitude is
@@ -466,6 +476,10 @@ auto is_representable_as(const Wider value) -> bool {
     return static_cast<Wider>(static_cast<Real>(value)) == value;
   }
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 } // namespace sourcemeta::core
 

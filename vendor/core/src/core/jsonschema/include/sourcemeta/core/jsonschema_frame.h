@@ -272,7 +272,7 @@ public:
   [[nodiscard]] auto
   traverse(const Location &location,
            const sourcemeta::core::WeakPointer &relative_schema_location) const
-      -> const Location &;
+      -> std::optional<std::reference_wrapper<const Location>>;
 
   /// Get the location associated with a given URI
   [[nodiscard]] auto traverse(const std::string_view uri) const

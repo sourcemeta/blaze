@@ -8,7 +8,6 @@
 #include "parser.h"
 #include "stringify.h"
 
-#include <cassert>     // assert
 #include <cstdint>     // std::uint64_t
 #include <filesystem>  // std::filesystem
 #include <istream>     // std::basic_istream
@@ -16,7 +15,7 @@
 #include <optional>    // std::optional, std::nullopt
 #include <ostream>     // std::basic_ostream
 #include <type_traits> // std::conditional_t
-#include <utility>     // std::cmp_greater, std::move
+#include <utility>     // std::cmp_greater, std::move, std::unreachable
 #include <vector>      // std::vector
 
 namespace sourcemeta::core {
@@ -45,19 +44,34 @@ static auto internal_parse_json(const char *&cursor, const char *end,
   if constexpr (ShouldThrow) {
     if (callback || track_positions) {
       scan_json<true>(cursor, end, buffer_start, line, column, tape);
+      construct_json(buffer_start, tape, callback, output);
     } else {
-      // Re-scan with position tracking on failure for a precise error message
+      // Re-scan with position tracking on failure for a precise error message.
+      // Turning what was read into a value fails over a literal that naming it
+      // alone cannot settle, such as one past the range that can be held, so
+      // the retry has to cover that second phase as well. Leaving it out of
+      // the retry reports every such failure at the start of the document.
+      //
+      // Counting positions all along would spare the retry, but it would
+      // charge every document that parses for what only a document that fails
+      // needs, and this is the path everything else goes through. So a failure
+      // reads the input a second time and builds a second time, which is twice
+      // the work on a document that is about to be thrown away. What is
+      // counted never decides what is accepted, so the second attempt fails in
+      // the same place as the first and differs only in being able to say
+      // where that place is
       try {
         scan_json<false>(cursor, end, buffer_start, line, column, tape);
+        construct_json(buffer_start, tape, callback, output);
       } catch (const JSONParseError &) {
         cursor = buffer_start;
         tape.clear();
         line = 1;
         column = 0;
         scan_json<true>(cursor, end, buffer_start, line, column, tape);
+        construct_json(buffer_start, tape, callback, output);
       }
     }
-    construct_json(buffer_start, tape, callback, output);
   } else {
     // Both the scanning and the construction phases signal failure by throwing,
     // so a single boundary around them reports either as no value
@@ -313,11 +327,9 @@ auto operator<<(std::basic_ostream<JSON::Char, JSON::CharTraits> &stream,
       return stream << "array";
     case sourcemeta::core::JSON::Type::Object:
       return stream << "object";
-    default:
-      // Should never happen, but some compilers are not happy without this
-      assert(false);
-      return stream;
   }
+
+  std::unreachable();
 }
 
 } // namespace sourcemeta::core

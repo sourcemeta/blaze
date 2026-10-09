@@ -76,9 +76,19 @@ auto expand_iri(ExpansionState &state, ActiveContext &active_context,
   }
 
   if (document_relative && active_context.base.has_value()) {
-    return URI::from_iri(value)
-        .resolve_from(URI::from_iri(active_context.base.value()))
-        .recompose();
+    // The base is read outside what follows, as a caller that supplies one the
+    // parser cannot read is answered with that rather than with an identifier
+    // left unresolved
+    const auto base{URI::from_iri(active_context.base.value())};
+    // Expansion builds identifiers without validating them, so a value the
+    // parser cannot read is carried through as it stands rather than
+    // surfacing as an exception of another module's kind (JSON-LD 1.1 API
+    // Section 5.2 step 5)
+    try {
+      return URI::from_iri(value).resolve_from(base).recompose();
+    } catch (const URIParseError &) {
+      return value;
+    }
   }
 
   return value;

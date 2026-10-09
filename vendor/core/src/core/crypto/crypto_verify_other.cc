@@ -178,8 +178,8 @@ auto to_curve_parameters(const EllipticCurve curve) -> EllipticCurveParameters {
   return curve_p521();
 }
 
-// FIPS 186-4 Section 6.4 step 2, deriving the integer e from the leftmost bits
-// of the message digest, truncated to the bit length of the order
+// FIPS 186-5 Section 6.4.2 step 3, deriving the integer e from the leftmost
+// bits of the message digest, truncated to the bit length of the order
 auto digest_to_integer(const SignatureHashFunction hash,
                        const std::string_view message,
                        const std::size_t order_bits) -> CurveBignum {
@@ -268,7 +268,7 @@ auto verify_pss(const SignatureHashFunction hash,
   return emsa_pss_verify(hash, message, encoded_message, encoded_bits);
 }
 
-// ECDSA verification (FIPS 186-4 Section 6.4) over the raw public point
+// ECDSA verification (FIPS 186-5 Section 6.4.2) over the raw public point
 auto verify_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
                   const std::string_view coordinate_x,
                   const std::string_view coordinate_y,
@@ -288,7 +288,7 @@ auto verify_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
   const auto s{
       bignum_from_bytes<CURVE_BIGNUM_CAPACITY>(signature.substr(field_bytes))};
 
-  // FIPS 186-4 Section 6.4.2 step 1: both integers must lie in [1, n - 1]
+  // FIPS 186-5 Section 6.4.2 step 1: both integers must lie in [1, n - 1]
   if (bignum_is_zero(r) || bignum_compare(r, parameters.order) >= 0 ||
       bignum_is_zero(s) || bignum_compare(s, parameters.order) >= 0) {
     return false;
@@ -330,13 +330,13 @@ auto verify_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
   const auto point{point_double_scalar_multiply(u1, generator, u2, public_point,
                                                 parameters)};
 
-  // FIPS 186-4 Section 6.4.2 step 6: reject when the combination is the point
+  // FIPS 186-5 Section 6.4.2 step 6: reject when the combination is the point
   // at infinity
   if (point_is_infinity(point)) {
     return false;
   }
 
-  // FIPS 186-4 Section 6.4.2 step 7: the signature is valid when the affine x
+  // FIPS 186-5 Section 6.4.2 step 9: the signature is valid when the affine x
   // coordinate, reduced modulo the order, equals r
   auto candidate{point_affine_x(point, parameters)};
   bignum_reduce(candidate, parameters.order);
