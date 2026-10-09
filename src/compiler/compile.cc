@@ -43,6 +43,20 @@ auto booleans_are_schemas(
        Known::OPENAPI_3_0_BASE});
 }
 
+// Draft 7 and earlier let `$ref` override whatever sits beside it, so such a
+// sibling is not a keyword of the schema at all and nothing about it, not even
+// its shape, is this compiler's business
+auto ref_overrides_siblings(
+    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return vocabularies.contains_any(
+      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
+       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
+       Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
+       Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
+       Known::OPENAPI_3_0_BASE});
+}
+
 // Draft 4 and earlier spell these as flags on a sibling bound rather than as
 // bounds of their own, and their meta-schemas ask for that sibling to be
 // there. The OpenAPI 3.0 Schema Object is deliberately absent: it spells them
@@ -309,11 +323,16 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
     const auto *shape_error{keyword_shape_error(
         keyword, metadata.type, official, schema_context.schema.at(keyword),
         allow_boolean, schema_context.vocabularies)};
+    static const sourcemeta::core::JSON::String KEYWORD_REF{"$ref"};
+    const auto overridden_by_ref{
+        keyword != KEYWORD_REF && schema_context.schema.defines(KEYWORD_REF) &&
+        ref_overrides_siblings(schema_context.vocabularies)};
+
     // Draft 3 spells these as flags on a sibling bound rather than as bounds of
     // their own, and its meta-schema asks for that sibling to be there
     static const sourcemeta::core::JSON::String KEYWORD_MINIMUM{"minimum"};
     static const sourcemeta::core::JSON::String KEYWORD_MAXIMUM{"maximum"};
-    if (official &&
+    if (!overridden_by_ref && official &&
         exclusive_bounds_need_a_sibling(schema_context.vocabularies) &&
         ((keyword == "exclusiveMinimum" &&
           !schema_context.schema.defines(KEYWORD_MINIMUM)) ||
@@ -328,7 +347,7 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
           "This keyword was expected to accompany the bound it applies to");
     }
 
-    if (shape_error != nullptr) [[unlikely]] {
+    if (!overridden_by_ref && shape_error != nullptr) [[unlikely]] {
       throw sourcemeta::blaze::CompilerError(
           schema_context.base,
           absolute_schema_location(

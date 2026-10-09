@@ -766,3 +766,47 @@ TEST(format_double_rejects_an_inexact_decimal_with_tweak_fast) {
       "The number value 3.14 was expected to be exactly representable as an "
       "IEEE 754 double precision floating point number");
 }
+
+// `$ref` overrides whatever sits beside it on this rung, so a sibling is not a
+// keyword of the schema and its shape is never held against it
+TEST(malformed_nullable_beside_ref_is_ignored_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "x-definitions": {
+      "A": { "type": "integer" }
+    },
+    "allOf": [
+      { "$ref": "#/x-definitions/A", "nullable": "not a boolean" }
+    ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS_WITH_DEFAULT_DIALECT(schema, instance, 1,
+                                                        OPENAPI_3_0_DIALECT);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/allOf/0/$ref/type",
+                     "#/x-definitions/A/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/allOf/0/$ref/type",
+                              "#/x-definitions/A/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+}
+
+TEST(malformed_nullable_without_ref_is_rejected_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "nullable": "not a boolean"
+  })JSON")};
+
+  try {
+    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler,
+        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_EQ(std::string{error.what()},
+              "This keyword was expected to be set to a boolean");
+    EXPECT_EQ(error.base().recompose(), "");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/nullable");
+  }
+}
