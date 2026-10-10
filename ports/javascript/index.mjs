@@ -2469,8 +2469,8 @@ function LoopItemsPropertiesExactlyTypeStrictHash(instruction, instance, depth, 
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const target = resolveInstance(instance, instruction[2]);
   if (!Array.isArray(target)) {
-    if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
-    return false;
+    if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
+    return true;
   }
   const expectedType = instruction[6][0];
   const entries = instruction[6][1][0];
@@ -3911,7 +3911,7 @@ function LoopItemsUnevaluated_fast(instruction, instance, depth, template, evalu
 
 function LoopItemsPropertiesExactlyTypeStrictHash_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
-  if (!Array.isArray(target)) return false;
+  if (!Array.isArray(target)) return true;
   const expectedType = instruction[6][0];
   const entries = instruction[6][1][0];
   const expectedCount = entries.length;

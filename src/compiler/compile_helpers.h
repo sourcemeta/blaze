@@ -610,7 +610,8 @@ inline auto required_properties(const SchemaContext &schema_context)
       schema_context.vocabularies.contains(
           Known::JSON_SCHEMA_2019_09_VALIDATION) ||
       schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2020_12_VALIDATION)};
+          Known::JSON_SCHEMA_2020_12_VALIDATION) ||
+      schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE)};
 
   ValueStringSet result;
 

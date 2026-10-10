@@ -18,6 +18,15 @@ function resolveInstructionType(name) {
   return opcode;
 }
 
+// A dialect that cannot declare itself, because its own meta-schema spares no
+// `$schema` member, has to be named from the outside
+const SUITE_DEFAULT_DIALECTS = {
+  evaluator_openapi_3_0_2021_09_28:
+    'tag:spec.openapis.org,2021-09-28:oas/3.0/dialect',
+  evaluator_openapi_3_0_2024_10_18:
+    'tag:spec.openapis.org,2024-10-18:oas/3.0/dialect'
+};
+
 // This port is a JavaScript evaluator, not a compiler: it borrows the C++
 // compiler to obtain a template. The `_invalid` suites assert which schemas
 // that compiler refuses, which exercises nothing here
@@ -45,7 +54,8 @@ for (const file of suiteFiles) {
         it(testName, () => {
           const template = compileSchema(filePath, {
             mode,
-            path: `/${testIndex}/schema`
+            path: `/${testIndex}/schema`,
+            defaultDialect: SUITE_DEFAULT_DIALECTS[suiteName]
           });
 
           const evaluator = new Blaze(template);
@@ -140,7 +150,8 @@ for (const file of suiteFiles) {
           it(`${testName}_callbackless`, () => {
             const template = compileSchema(filePath, {
               mode,
-              path: `/${testIndex}/schema`
+              path: `/${testIndex}/schema`,
+              defaultDialect: SUITE_DEFAULT_DIALECTS[suiteName]
             });
 
             const evaluator = new Blaze(template);

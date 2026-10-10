@@ -155,7 +155,8 @@ auto run_trace_test(const sourcemeta::core::JSON &data,
 }
 auto run_error_test(const sourcemeta::core::JSON &data,
                     const std::string &metaschema,
-                    const std::string &default_dialect) -> void {
+                    const std::string &default_dialect,
+                    const sourcemeta::blaze::Mode mode) -> void {
   const auto &expected{data.at("error")};
   EXPECT_FALSE(matches_metaschema(metaschema, data.at("schema")));
 
@@ -163,8 +164,7 @@ auto run_error_test(const sourcemeta::core::JSON &data,
     sourcemeta::blaze::compile(
         data.at("schema"), sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::FastValidation, default_dialect);
+        sourcemeta::blaze::default_schema_compiler, mode, default_dialect);
     FAIL();
   } catch (const sourcemeta::blaze::CompilerError &error) {
     EXPECT_EQ(std::string{error.what()}, expected.at("message").to_string());
@@ -196,11 +196,21 @@ static auto register_error_tests(const std::filesystem::path &path,
     assert(test_case.is_object());
     assert(test_case.defines("description"));
     assert(test_case.defines("error"));
-    sourcemeta::core::test_register(
-        suite_name, test_case.at("description").to_string(), __FILE__, __LINE__,
-        [test_case, metaschema, default_dialect]() -> void {
-          run_error_test(test_case, metaschema, default_dialect);
-        });
+    const auto &description{test_case.at("description").to_string()};
+
+    // Whether a schema is well-formed is a property of its dialect rather than
+    // of the mode it compiles in, so both modes have to refuse the same ones
+    for (const auto &[mode_suffix, mode] :
+         {std::pair<const char *, sourcemeta::blaze::Mode>{
+              "_fast", sourcemeta::blaze::Mode::FastValidation},
+          std::pair<const char *, sourcemeta::blaze::Mode>{
+              "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
+      sourcemeta::core::test_register(
+          suite_name, description + mode_suffix, __FILE__, __LINE__,
+          [test_case, metaschema, default_dialect, mode]() -> void {
+            run_error_test(test_case, metaschema, default_dialect, mode);
+          });
+    }
   }
 }
 
@@ -244,6 +254,26 @@ static auto register_tests(const std::filesystem::path &path,
 
 auto main(int argc, char **argv) -> int {
   try {
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_openapi_3_0_2024_10_18.json",
+                   "Evaluator_trace_OpenAPI_3_0_2024_10_18",
+                   "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+                   "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect");
+    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                             "evaluator_openapi_3_0_2024_10_18_invalid.json",
+                         "Evaluator_error_OpenAPI_3_0_2024_10_18",
+                         "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+                         "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect");
+    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                       "evaluator_openapi_3_0_2021_09_28.json",
+                   "Evaluator_trace_OpenAPI_3_0_2021_09_28",
+                   "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect",
+                   "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect");
+    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                             "evaluator_openapi_3_0_2021_09_28_invalid.json",
+                         "Evaluator_error_OpenAPI_3_0_2021_09_28",
+                         "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect",
+                         "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect");
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_openapi_3_1.json",
                    "Evaluator_trace_OpenAPI_3_1",

@@ -113,9 +113,83 @@ static constexpr auto EXPECTED_NON_NEGATIVE{
 static constexpr auto EXPECTED_TYPE_NAMES{
     "This keyword was expected to be set to a known type name, or to a "
     "non-empty array of unique ones"};
+static constexpr auto UNSUPPORTED_VALUE_FOR_DIALECT{
+    "The value this keyword is set to is not supported by this dialect"};
+static constexpr auto PROHIBITED_KEYWORD_FOR_DIALECT{
+    "This keyword is prohibited by this dialect"};
+// A subschema that `narrows_type_away` drops is never compiled, so the refusal
+// at the end of the dispatch table never reaches its members. Walk them here,
+// as a member this dialect does not define is an error rather than one more
+// keyword to pass by. The dialect is closed, so the applicators below are the
+// complete set of places a further subschema can sit
+static inline auto assert_members_are_permitted(
+    const sourcemeta::core::JSON &schema,
+    const sourcemeta::blaze::Context &context,
+    const sourcemeta::blaze::SchemaContext &schema_context,
+    const std::uint64_t depth = 0) -> void {
+  if (depth >= context.tweaks.max_depth) [[unlikely]] {
+    throw sourcemeta::blaze::CompilerDepthLimitError{context.tweaks.max_depth};
+  }
+
+  // The OpenAPI 3.0 Schema Object is the only dialect here that treats a
+  // member it does not define as an error, so it is the only one whose pruned
+  // subschemas have anything to answer for
+  if (!schema_context.vocabularies.contains(
+          sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE)) {
+    return;
+  }
+
+  if (!schema.is_object()) {
+    return;
+  }
+
+  // A Reference Object ignores whatever sits beside `$ref`, so those members
+  // answer to no keyword set
+  if (schema.defines("$ref")) {
+    return;
+  }
+
+  for (const auto &entry : schema.as_object()) {
+    if (entry.first.starts_with("x-")) {
+      continue;
+    }
+
+    if (context.walker(entry.first, schema_context.vocabularies).type ==
+        sourcemeta::core::SchemaKeywordType::Unknown) {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base,
+          absolute_schema_location(context, schema_context),
+          PROHIBITED_KEYWORD_FOR_DIALECT);
+    }
+
+    if (entry.first == "not" || entry.first == "items" ||
+        entry.first == "additionalProperties") {
+      assert_members_are_permitted(entry.second, context, schema_context,
+                                   depth + 1);
+    } else if (entry.first == "allOf" || entry.first == "anyOf" ||
+               entry.first == "oneOf") {
+      if (entry.second.is_array()) {
+        for (const auto &element : entry.second.as_array()) {
+          assert_members_are_permitted(element, context, schema_context,
+                                       depth + 1);
+        }
+      }
+    } else if (entry.first == "properties") {
+      if (entry.second.is_object()) {
+        for (const auto &property : entry.second.as_object()) {
+          assert_members_are_permitted(property.second, context, schema_context,
+                                       depth + 1);
+        }
+      }
+    }
+  }
+}
+
 static constexpr auto EXPECTED_UNIQUE_VALUES{
     "This keyword was expected to be set to a non-empty array of unique "
     "values"};
+static constexpr auto EXPECTED_NON_EMPTY_VALUES{
+    "This keyword was expected to be set to a non-empty array of values"};
 static constexpr auto EXPECTED_SCHEMA_OBJECT{
     "Every value of this keyword was expected to be a valid schema"};
 static constexpr auto EXPECTED_DEPENDENCIES{
@@ -124,24 +198,85 @@ static constexpr auto EXPECTED_DEPENDENCIES{
 
 // Draft 3 and Draft 4 read "integer" as a number written without a fractional
 // part, so a bound like `2.0` is not one there. Draft 6 onwards widened it to
-// any number whose fractional part is zero
+// any number whose fractional part is zero. The OpenAPI 3.0 Schema Object
+// answers with Draft 4, as its meta-schema is a Draft 4 document
 auto integral_reals_are_integers(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
   return !vocabularies.contains_any(
       {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
-       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER});
+       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
+       Known::OPENAPI_3_0_BASE});
+}
+
+// A number too large to hold as a 64-bit integer is kept as a decimal, where
+// whether it is an integer stays a question about how the literal was written
+// rather than about how it came to be stored
+auto is_dialect_integer(
+    const sourcemeta::core::JSON &value,
+    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
+  if (!value.is_integral()) {
+    return false;
+  }
+
+  return integral_reals_are_integers(vocabularies) || value.is_integer() ||
+         (value.is_decimal() && value.to_decimal().is_integer());
+}
+
+// A bound too large to hold sits so far beyond any instance that we ignore it,
+// the way `unsigned_integer_property` already does for the fused forms, rather
+// than let the conversion raise
+auto bound_is_representable(const sourcemeta::core::JSON &value) -> bool {
+  try {
+    [[maybe_unused]] const auto result{value.as_integer()};
+    return true;
+  } catch (const std::out_of_range &) {
+    return false;
+  }
 }
 
 // Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
 // only places they accept a boolean are `additionalProperties` and
-// `additionalItems`, whose own definitions spell that out
+// `additionalItems`, whose own definitions spell that out. The OpenAPI 3.0
+// Schema Object has none either, and offers a boolean at
+// `additionalProperties` alone
 auto booleans_are_schemas(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
   return !vocabularies.contains_any(
       {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
-       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER});
+       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
+       Known::OPENAPI_3_0_BASE});
+}
+
+// OpenAPI 3.0 bans `type: "null"` and offers `nullable` in its place, which
+// widens a sibling `type` and nothing else. It takes effect only where `type`
+// is present, so on its own it constrains nothing, and it does not relax any
+// other keyword, so a null instance still has to satisfy every sibling.
+// The vocabulary has to be in play, or a member by that name in a dialect that
+// gives it no meaning would be read as author data one moment and as a keyword
+// the next
+auto is_nullable(const sourcemeta::core::SchemaVocabularies &vocabularies,
+                 const sourcemeta::core::JSON &schema) -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return vocabularies.contains(Known::OPENAPI_3_0_BASE) && schema.is_object() &&
+         schema.defines("nullable") && schema.at("nullable").is_boolean() &&
+         schema.at("nullable").to_boolean();
+}
+
+// Whether a sibling `type` names this type and may be taken as a guarantee
+// about the instance. A scalar `type` normally is one, which lets the compiler
+// specialise on it, either by folding another keyword's bound into the type
+// assertion or by emitting an instruction that assumes the instance's shape.
+// `nullable` widens it to also admit null, so there it guarantees nothing and
+// every such specialisation has to stand down
+auto assume_type(const sourcemeta::core::SchemaVocabularies &vocabularies,
+                 const sourcemeta::core::JSON &schema,
+                 const std::string_view name) -> bool {
+  return schema.is_object() && schema.defines("type") &&
+         schema.at("type").is_string() &&
+         schema.at("type").to_string() == name &&
+         !is_nullable(vocabularies, schema);
 }
 
 auto is_schema(const sourcemeta::core::JSON &value, const bool allow_boolean)
@@ -161,9 +296,20 @@ auto all_are_schemas(const sourcemeta::core::JSON &value,
 // that does not satisfy that is not a constraint at all, so we ignore it
 // rather than compile part of it or turn it into a failure
 auto is_schema_array(const sourcemeta::core::JSON &value,
-                     const bool allow_boolean) -> bool {
-  return value.is_array() && !value.empty() &&
+                     const bool allow_boolean, const bool allow_empty = false)
+    -> bool {
+  return value.is_array() && (allow_empty || !value.empty()) &&
          all_are_schemas(value, allow_boolean);
+}
+
+// Draft 4 onwards give `allOf`, `anyOf` and `oneOf` a `minItems` of one, so an
+// empty array is malformed there. The OpenAPI 3.0 Schema Object constrains
+// only the member type, leaving an empty one well-formed, and an empty
+// conjunction or disjunction has a settled meaning of its own
+auto in_place_applicators_may_be_empty(
+    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return vocabularies.contains(Known::OPENAPI_3_0_BASE);
 }
 
 // Draft 3 describes `type` and `disallow` as a type name or an array of unique
@@ -324,10 +470,8 @@ auto compile_required_assertions(const Context &context,
     return {};
   }
 
-  const auto assume_object{schema_context.schema.defines("type") &&
-                           schema_context.schema.at("type").is_string() &&
-                           schema_context.schema.at("type").to_string() ==
-                               "object"};
+  const auto assume_object{assume_type(schema_context.vocabularies,
+                                       schema_context.schema, "object")};
 
   if (properties_set.empty()) {
     return {};
@@ -465,7 +609,10 @@ auto properties_as_loop(const Context &context,
       schema_context.vocabularies.contains(
           Known::JSON_SCHEMA_2019_09_VALIDATION) ||
       schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2020_12_VALIDATION);
+          Known::JSON_SCHEMA_2020_12_VALIDATION) ||
+      schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE);
+  // `const` is deliberately absent from the OpenAPI 3.0 dialect below, which
+  // has `enum` but no `const` of its own
   const auto imports_const =
       schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_6) ||
       schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7) ||
@@ -693,6 +840,11 @@ auto compiler_draft3_applicator_properties_with_options(
   }
 
   if (narrows_type_away(schema_context.schema, {"object"})) {
+    for (const auto &entry :
+         schema_context.schema.at(dynamic_context.keyword).as_object()) {
+      assert_members_are_permitted(entry.second, context, schema_context);
+    }
+
     return {};
   }
 
@@ -752,10 +904,8 @@ auto compiler_draft3_applicator_properties_with_options(
                                            ? dynamic_context
                                            : relative_dynamic_context()};
 
-  const auto assume_object{schema_context.schema.defines("type") &&
-                           schema_context.schema.at("type").is_string() &&
-                           schema_context.schema.at("type").to_string() ==
-                               "object"};
+  const auto assume_object{assume_type(schema_context.vocabularies,
+                                       schema_context.schema, "object")};
 
   ValueStringSet required{required_properties(schema_context)};
 
@@ -1306,10 +1456,8 @@ auto compiler_draft3_applicator_patternproperties(
 inline auto
 properties_enforce_closed_object(const Context &context,
                                  const SchemaContext &schema_context) -> bool {
-  const bool assume_object{schema_context.schema.defines("type") &&
-                           schema_context.schema.at("type").is_string() &&
-                           schema_context.schema.at("type").to_string() ==
-                               "object"};
+  const bool assume_object{assume_type(schema_context.vocabularies,
+                                       schema_context.schema, "object")};
   if (!assume_object || !schema_context.schema.defines("properties") ||
       !schema_context.schema.at("properties").is_object()) {
     return false;
@@ -1353,6 +1501,9 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
     const DynamicContext &dynamic_context, const bool annotate,
     const bool track_evaluation) -> Instructions {
   if (narrows_type_away(schema_context.schema, {"object"})) {
+    assert_members_are_permitted(
+        schema_context.schema.at(dynamic_context.keyword), context,
+        schema_context);
     return {};
   }
 
@@ -1705,6 +1856,9 @@ auto compiler_draft3_applicator_items_with_options(
   }
 
   if (narrows_type_away(schema_context.schema, {"array"})) {
+    assert_members_are_permitted(
+        schema_context.schema.at(dynamic_context.keyword), context,
+        schema_context);
     return {};
   }
 
@@ -1953,6 +2107,15 @@ auto compiler_draft3_validation_enum(const Context &context,
         EXPECTED_UNIQUE_VALUES);
   }
 
+  // The OpenAPI 3.0 Schema Object asks for at least one value, and is alone in
+  // permitting duplicates among them
+  if (schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE) &&
+      schema_context.schema.at(dynamic_context.keyword).empty()) {
+    throw sourcemeta::blaze::CompilerError(
+        schema_context.base, absolute_schema_location(context, schema_context),
+        EXPECTED_NON_EMPTY_VALUES);
+  }
+
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
     return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
                  schema_context, dynamic_context, ValueNone{})};
@@ -1973,14 +2136,19 @@ auto compiler_draft3_validation_enum(const Context &context,
   sourcemeta::core::PropertyHashJSON<ValueString> hasher;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
+    // The OpenAPI 3.0 Schema Object permits duplicate options, and the
+    // comparison below weighs these hashes against the deduplicated set of
+    // options, so a repeated option must not be counted twice
+    if (!options.insert(option).second) {
+      continue;
+    }
+
     if (option.is_string()) {
       const auto hash{hasher(option.to_string())};
       if (hasher.is_perfect(hash)) {
         perfect_string_hashes.emplace_back(option.to_string(), hash);
       }
     }
-
-    options.insert(option);
   }
 
   // Only apply this optimisation on fast validation, as it
@@ -2019,12 +2187,16 @@ auto compiler_draft3_validation_maxlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   // Draft 3 asks only that `maxLength` be an integer, unlike the bounds
@@ -2058,9 +2230,8 @@ auto compiler_draft3_validation_maxlength(const Context &context,
   // property name, so there we must still emit them ourselves
   if (context.mode == Mode::FastValidation &&
       !schema_context.is_property_name &&
-      schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() == "string") {
+      assume_type(schema_context.vocabularies, schema_context.schema,
+                  "string")) {
     return {};
   }
 
@@ -2078,12 +2249,16 @@ auto compiler_draft3_validation_minlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
@@ -2101,9 +2276,8 @@ auto compiler_draft3_validation_minlength(const Context &context,
   // property name, so there we must still emit them ourselves
   if (context.mode == Mode::FastValidation &&
       !schema_context.is_property_name &&
-      schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() == "string") {
+      assume_type(schema_context.vocabularies, schema_context.schema,
+                  "string")) {
     return {};
   }
 
@@ -2122,12 +2296,16 @@ auto compiler_draft3_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
@@ -2142,9 +2320,8 @@ auto compiler_draft3_validation_maxitems(const Context &context,
 
   // We'll handle it at the type level as an optimization
   if (context.mode == Mode::FastValidation &&
-      schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() == "array") {
+      assume_type(schema_context.vocabularies, schema_context.schema,
+                  "array")) {
     return {};
   }
 
@@ -2161,12 +2338,16 @@ auto compiler_draft3_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
@@ -2181,9 +2362,8 @@ auto compiler_draft3_validation_minitems(const Context &context,
 
   // We'll handle it at the type level as an optimization
   if (context.mode == Mode::FastValidation &&
-      schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() == "array") {
+      assume_type(schema_context.vocabularies, schema_context.schema,
+                  "array")) {
     return {};
   }
 
@@ -2262,6 +2442,33 @@ auto compiler_draft3_validation_minimum(const Context &context,
                    schema_context.schema.at(dynamic_context.keyword)})};
 }
 
+// Whether the name was one this function knows, so that callers can tell an
+// unrecognised name apart from one that set no bit
+auto assign_type_bit(sourcemeta::blaze::ValueTypes &types,
+                     const std::string_view name) -> bool {
+  if (name == "null") {
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
+  } else if (name == "boolean") {
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Boolean));
+  } else if (name == "object") {
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Object));
+  } else if (name == "array") {
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Array));
+  } else if (name == "number") {
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Real));
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
+  } else if (name == "integer") {
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
+  } else if (name == "string") {
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::String));
+  } else {
+    return false;
+  }
+
+  return true;
+}
+
 auto compiler_draft3_validation_type(const Context &context,
                                      const SchemaContext &schema_context,
                                      const DynamicContext &dynamic_context,
@@ -2272,6 +2479,32 @@ auto compiler_draft3_validation_type(const Context &context,
   const auto is_draft3{
       schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3) ||
       schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3_HYPER)};
+
+  // This dialect types `type` as a string drawn from six names. It has no
+  // array form and no null type, offering `nullable` in place of the latter.
+  // `assign_type_bit` answers for the seven JSON Schema names, so the null one
+  // has to be ruled out separately
+  if (schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE)) {
+    ValueTypes recognised{};
+    if (!value.is_string() || value.to_string() == "null" ||
+        !assign_type_bit(recognised, value.to_string())) {
+      throw sourcemeta::blaze::CompilerError(
+          schema_context.base,
+          absolute_schema_location(context, schema_context),
+          UNSUPPORTED_VALUE_FOR_DIALECT);
+    }
+
+    // A scalar `type` widened by `nullable` is the array form in all but
+    // spelling, so it takes the same instruction and skips the scalar fast
+    // paths below, none of which can express a bound alongside a second
+    // permitted type
+    if (is_nullable(schema_context.vocabularies, schema_context.schema)) {
+      ValueTypes types{recognised};
+      types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
+                   context, schema_context, dynamic_context, types)};
+    }
+  }
 
   if (is_draft3) {
     if (value.is_string() && value.to_string() == "any") {
@@ -2520,7 +2753,12 @@ auto compiler_draft3_validation_type(const Context &context,
                    context, schema_context, dynamic_context, types)};
     }
     if (type == "integer") {
+      // Equality reads a number by its value rather than by how it is stored,
+      // so an all-integer set of options still admits an instance written with
+      // a fractional part. Only a dialect that counts such a number as an
+      // integer can let the set stand in for this assertion
       if (context.mode == Mode::FastValidation &&
+          integral_reals_are_integers(schema_context.vocabularies) &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
           std::ranges::all_of(schema_context.schema.at("enum").as_array(),
@@ -2652,24 +2890,7 @@ auto compiler_draft3_validation_type(const Context &context,
         continue;
       }
 
-      const auto &type_string{element.to_string()};
-      if (type_string == "null") {
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
-      } else if (type_string == "boolean") {
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Boolean));
-      } else if (type_string == "object") {
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Object));
-      } else if (type_string == "array") {
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Array));
-      } else if (type_string == "number") {
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Real));
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-      } else if (type_string == "integer") {
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
-      } else if (type_string == "string") {
-        types.set(std::to_underlying(sourcemeta::core::JSON::Type::String));
-      } else if (!is_draft3) {
+      if (!assign_type_bit(types, element.to_string()) && !is_draft3) {
         throw sourcemeta::blaze::CompilerError(
             schema_context.base,
             absolute_schema_location(context, schema_context),
@@ -3021,7 +3242,6 @@ auto compiler_draft3_validation_format(const Context &context,
       schema_context.schema.at("x-format-assertion").to_boolean()};
 
   const auto assert_active{context.tweaks.format_assertion || force_assertion};
-
   if ((is_2019_09_format && assert_active) || is_2020_12_format_assertion ||
       (is_2020_12_format_annotation && assert_active)) {
     const auto &format{schema_context.schema.at(dynamic_context.keyword)};
@@ -3183,7 +3403,52 @@ auto compiler_draft3_validation_format(const Context &context,
       schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7) ||
       schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7_HYPER)};
 
-  if (is_draft7) {
+  if (schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE)) {
+    // OpenAPI 3.0 defines these two for numbers, so they cannot resolve to a
+    // string logical type like the rest of this chain does
+    if (name == "int32" || name == "int64") {
+      return {make(
+          sourcemeta::blaze::InstructionIndex::AssertionNumberIntegerBounded,
+          context, schema_context, dynamic_context,
+          name == "int32"
+              ? ValueIntegerBounds{std::numeric_limits<std::int32_t>::min(),
+                                   std::numeric_limits<std::int32_t>::max()}
+              : ValueIntegerBounds{std::numeric_limits<std::int64_t>::min(),
+                                   std::numeric_limits<std::int64_t>::max()})};
+    }
+
+    if (name == "float" || name == "double") {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionNumberType,
+                   context, schema_context, dynamic_context,
+                   name == "float" ? ValueNumberType::Float
+                                   : ValueNumberType::Double)};
+    }
+
+    if (name == "date-time") {
+      type = ValueStringType::DateTime;
+    } else if (name == "date") {
+      type = ValueStringType::Date;
+    } else if (name == "byte") {
+      type = ValueStringType::Base64;
+    } else if (name == "email") {
+      // The Schema Object is a subset of JSON Schema Draft Wright-00, whose
+      // own formats apply alongside the ones the specification tabulates
+      type = ValueStringType::Email;
+    } else if (name == "hostname") {
+      type = ValueStringType::Hostname;
+    } else if (name == "ipv4") {
+      type = ValueStringType::IPv4;
+    } else if (name == "ipv6") {
+      type = ValueStringType::IPv6;
+    } else if (name == "uri") {
+      type = ValueStringType::URI;
+    } else {
+      // `binary` stands for unencoded binary data, which a JSON string cannot
+      // carry, and `password` is a hint to obscure the value, so neither of
+      // the two remaining formats constrains the instance
+      return {};
+    }
+  } else if (is_draft7) {
     if (name == "date-time") {
       type = ValueStringType::DateTime;
     } else if (name == "date") {

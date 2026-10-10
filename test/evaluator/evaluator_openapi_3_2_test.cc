@@ -137,7 +137,8 @@ TEST(format_uri_non_string_with_tweak_fast) {
     "format": "uri"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -151,7 +152,8 @@ TEST(format_uri_non_string_with_tweak_exhaustive) {
     "format": "uri"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -212,7 +214,8 @@ TEST(format_float_invalid_with_tweak_fast) {
     "format": "float"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -234,7 +237,8 @@ TEST(format_double_valid_with_tweak_fast) {
     "format": "double"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(0.5)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -245,7 +249,7 @@ TEST(format_double_valid_with_tweak_fast) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The number value 3.14 was expected to be "
+                               "The number value 0.5 was expected to be "
                                "exactly representable as an IEEE "
                                "754 double precision floating point number");
 }

@@ -1020,6 +1020,9 @@ INSTRUCTION_HANDLER(AssertionStringType) {
     case ValueStringType::Color:
       result = is_css2_color(target);
       break;
+    case ValueStringType::Base64:
+      result = sourcemeta::core::is_base64(target);
+      break;
     default:
       std::unreachable();
   }
@@ -2536,11 +2539,11 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
   // Otherwise why emit this instruction?
   assert(!value.second.first.empty());
 
+  result = true;
+
   if (!target.is_array()) [[unlikely]] {
     EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
   }
-
-  result = true;
 
   const auto hashes_size{value.second.first.size()};
   for (const auto &item : target.as_array()) {
@@ -2647,6 +2650,7 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
   assert(!value.second.first.empty());
 
   if (!target.is_array()) [[unlikely]] {
+    result = true;
     EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
   }
 

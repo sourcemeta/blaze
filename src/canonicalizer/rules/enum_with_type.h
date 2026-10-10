@@ -76,6 +76,20 @@ public:
                  (integer_matches_integral && item.is_integral());
         }));
 
+    // The options are compared by value rather than by how a number is
+    // stored, so they also admit an instance written with a fractional part.
+    // Where this assertion excludes such a number, it is doing work the
+    // options cannot do on their own and so has to stay
+    ONLY_CONTINUE_IF(integer_matches_integral ||
+                     !current_types.test(std::to_underlying(
+                         sourcemeta::core::JSON::Type::Integer)) ||
+                     current_types.test(std::to_underlying(
+                         sourcemeta::core::JSON::Type::Real)) ||
+                     std::ranges::none_of(enum_value->as_array(),
+                                          [](const auto &item) -> auto {
+                                            return item.is_number();
+                                          }));
+
     return true;
   }
 
