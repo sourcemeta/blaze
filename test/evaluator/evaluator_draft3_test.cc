@@ -2761,3 +2761,27 @@ TEST(type_any_keeps_properties_failure) {
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "foo": 1 })JSON")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
 }
+
+TEST(type_integer_beside_enum_rejects_an_integral_real_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "enum": [ 1 ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(1.0)JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 2, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 1.0 was expected to equal the integer constant 1");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to be of type integer but it was of type number");
+}

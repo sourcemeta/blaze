@@ -44,8 +44,10 @@ auto compiler_draft4_applicator_allof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
-                       booleans_are_schemas(schema_context.vocabularies))) {
+  if (!is_schema_array(
+          schema_context.schema.at(dynamic_context.keyword),
+          booleans_are_schemas(schema_context.vocabularies),
+          in_place_applicators_may_be_empty(schema_context.vocabularies))) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_SCHEMA_ARRAY);
@@ -92,8 +94,10 @@ auto compiler_draft4_applicator_anyof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
-                       booleans_are_schemas(schema_context.vocabularies))) {
+  if (!is_schema_array(
+          schema_context.schema.at(dynamic_context.keyword),
+          booleans_are_schemas(schema_context.vocabularies),
+          in_place_applicators_may_be_empty(schema_context.vocabularies))) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_SCHEMA_ARRAY);
@@ -176,8 +180,10 @@ auto compiler_draft4_applicator_oneof(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
-                       booleans_are_schemas(schema_context.vocabularies))) {
+  if (!is_schema_array(
+          schema_context.schema.at(dynamic_context.keyword),
+          booleans_are_schemas(schema_context.vocabularies),
+          in_place_applicators_may_be_empty(schema_context.vocabularies))) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_SCHEMA_ARRAY);
@@ -249,12 +255,16 @@ auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
@@ -289,12 +299,16 @@ auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {

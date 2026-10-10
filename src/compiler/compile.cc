@@ -95,6 +95,9 @@ auto keyword_shape_error(
       "This keyword was expected to be set to a number"};
   static constexpr auto EXPECTED_OBJECT{
       "This keyword was expected to be set to an object"};
+  static constexpr auto EXPECTED_DIALECT_OBJECT{
+      "This keyword was expected to be set to an object of the shape this "
+      "dialect defines"};
   static constexpr auto EXPECTED_NON_NEGATIVE_INTEGER{
       "This keyword was expected to be set to a non-negative integer"};
   static constexpr auto EXPECTED_SCHEMA{
@@ -126,11 +129,78 @@ auto keyword_shape_error(
     if (keyword == "examples") {
       return value.is_array() ? nullptr : EXPECTED_ARRAY;
     }
-    // The OpenAPI dialects define these three as objects of their own. Their
-    // contents do not affect validation, so only the shape is held here
+    // The OpenAPI dialects define these three as objects of their own. What
+    // follows is what their meta-schemas state, other than the `format`
+    // annotations two of their members carry, which assert nothing by default
     if (keyword == "discriminator" || keyword == "xml" ||
         keyword == "externalDocs") {
-      return value.is_object() ? nullptr : EXPECTED_OBJECT;
+      if (!value.is_object()) {
+        return EXPECTED_OBJECT;
+      }
+
+      // Each OpenAPI version defines these objects for itself, and the later
+      // ones carry members this does not know about, so only the dialect this
+      // was written against is held to the shape below
+      if (!vocabularies.contains(
+              sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE)) {
+        return nullptr;
+      }
+
+      if (keyword == "discriminator") {
+        const auto *property_name{value.try_at("propertyName")};
+        if (property_name == nullptr || !property_name->is_string()) {
+          return EXPECTED_DIALECT_OBJECT;
+        }
+
+        const auto *mapping{value.try_at("mapping")};
+        if (mapping != nullptr &&
+            (!mapping->is_object() ||
+             std::ranges::any_of(mapping->as_object(),
+                                 [](const auto &entry) -> bool {
+                                   return !entry.second.is_string();
+                                 }))) {
+          return EXPECTED_DIALECT_OBJECT;
+        }
+
+        // Unlike the other two, this one its meta-schema leaves open
+        return nullptr;
+      }
+
+      if (keyword == "externalDocs") {
+        const auto *url{value.try_at("url")};
+        if (url == nullptr || !url->is_string()) {
+          return EXPECTED_DIALECT_OBJECT;
+        }
+      }
+
+      for (const auto &entry : value.as_object()) {
+        if (entry.first.starts_with("x-")) {
+          continue;
+        }
+
+        const auto expected_string{
+            keyword == "externalDocs"
+                ? (entry.first == "description" || entry.first == "url")
+                : (entry.first == "name" || entry.first == "namespace" ||
+                   entry.first == "prefix")};
+        const auto expected_boolean{
+            keyword == "xml" &&
+            (entry.first == "attribute" || entry.first == "wrapped")};
+        if (expected_string) {
+          if (!entry.second.is_string()) {
+            return EXPECTED_DIALECT_OBJECT;
+          }
+        } else if (expected_boolean) {
+          if (!entry.second.is_boolean()) {
+            return EXPECTED_DIALECT_OBJECT;
+          }
+        } else {
+          // Both of their meta-schemas close them to the members they name
+          return EXPECTED_DIALECT_OBJECT;
+        }
+      }
+
+      return nullptr;
     }
     if (keyword == "maxContains" || keyword == "minContains") {
       // These only exist from 2019-09 onwards, where a number whose fractional

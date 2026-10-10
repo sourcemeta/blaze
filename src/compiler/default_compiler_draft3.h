@@ -125,7 +125,20 @@ static constexpr auto PROHIBITED_KEYWORD_FOR_DIALECT{
 static inline auto assert_members_are_permitted(
     const sourcemeta::core::JSON &schema,
     const sourcemeta::blaze::Context &context,
-    const sourcemeta::blaze::SchemaContext &schema_context) -> void {
+    const sourcemeta::blaze::SchemaContext &schema_context,
+    const std::uint64_t depth = 0) -> void {
+  if (depth >= context.tweaks.max_depth) [[unlikely]] {
+    throw sourcemeta::blaze::CompilerDepthLimitError{context.tweaks.max_depth};
+  }
+
+  // The OpenAPI 3.0 Schema Object is the only dialect here that treats a
+  // member it does not define as an error, so it is the only one whose pruned
+  // subschemas have anything to answer for
+  if (!schema_context.vocabularies.contains(
+          sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE)) {
+    return;
+  }
+
   if (!schema.is_object()) {
     return;
   }
@@ -151,19 +164,21 @@ static inline auto assert_members_are_permitted(
 
     if (entry.first == "not" || entry.first == "items" ||
         entry.first == "additionalProperties") {
-      assert_members_are_permitted(entry.second, context, schema_context);
+      assert_members_are_permitted(entry.second, context, schema_context,
+                                   depth + 1);
     } else if (entry.first == "allOf" || entry.first == "anyOf" ||
                entry.first == "oneOf") {
       if (entry.second.is_array()) {
         for (const auto &element : entry.second.as_array()) {
-          assert_members_are_permitted(element, context, schema_context);
+          assert_members_are_permitted(element, context, schema_context,
+                                       depth + 1);
         }
       }
     } else if (entry.first == "properties") {
       if (entry.second.is_object()) {
         for (const auto &property : entry.second.as_object()) {
-          assert_members_are_permitted(property.second, context,
-                                       schema_context);
+          assert_members_are_permitted(property.second, context, schema_context,
+                                       depth + 1);
         }
       }
     }
@@ -192,6 +207,32 @@ auto integral_reals_are_integers(
       {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
        Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
        Known::OPENAPI_3_0_BASE});
+}
+
+// A number too large to hold as a 64-bit integer is kept as a decimal, where
+// whether it is an integer stays a question about how the literal was written
+// rather than about how it came to be stored
+auto is_dialect_integer(
+    const sourcemeta::core::JSON &value,
+    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
+  if (!value.is_integral()) {
+    return false;
+  }
+
+  return integral_reals_are_integers(vocabularies) || value.is_integer() ||
+         (value.is_decimal() && value.to_decimal().is_integer());
+}
+
+// A bound too large to hold sits so far beyond any instance that we ignore it,
+// the way `unsigned_integer_property` already does for the fused forms, rather
+// than let the conversion raise
+auto bound_is_representable(const sourcemeta::core::JSON &value) -> bool {
+  try {
+    [[maybe_unused]] const auto result{value.as_integer()};
+    return true;
+  } catch (const std::out_of_range &) {
+    return false;
+  }
 }
 
 // Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
@@ -255,9 +296,20 @@ auto all_are_schemas(const sourcemeta::core::JSON &value,
 // that does not satisfy that is not a constraint at all, so we ignore it
 // rather than compile part of it or turn it into a failure
 auto is_schema_array(const sourcemeta::core::JSON &value,
-                     const bool allow_boolean) -> bool {
-  return value.is_array() && !value.empty() &&
+                     const bool allow_boolean, const bool allow_empty = false)
+    -> bool {
+  return value.is_array() && (allow_empty || !value.empty()) &&
          all_are_schemas(value, allow_boolean);
+}
+
+// Draft 4 onwards give `allOf`, `anyOf` and `oneOf` a `minItems` of one, so an
+// empty array is malformed there. The OpenAPI 3.0 Schema Object constrains
+// only the member type, leaving an empty one well-formed, and an empty
+// conjunction or disjunction has a settled meaning of its own
+auto in_place_applicators_may_be_empty(
+    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return vocabularies.contains(Known::OPENAPI_3_0_BASE);
 }
 
 // Draft 3 describes `type` and `disallow` as a type name or an array of unique
@@ -2084,14 +2136,19 @@ auto compiler_draft3_validation_enum(const Context &context,
   sourcemeta::core::PropertyHashJSON<ValueString> hasher;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
+    // The OpenAPI 3.0 Schema Object permits duplicate options, and the
+    // comparison below weighs these hashes against the deduplicated set of
+    // options, so a repeated option must not be counted twice
+    if (!options.insert(option).second) {
+      continue;
+    }
+
     if (option.is_string()) {
       const auto hash{hasher(option.to_string())};
       if (hasher.is_perfect(hash)) {
         perfect_string_hashes.emplace_back(option.to_string(), hash);
       }
     }
-
-    options.insert(option);
   }
 
   // Only apply this optimisation on fast validation, as it
@@ -2130,12 +2187,16 @@ auto compiler_draft3_validation_maxlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   // Draft 3 asks only that `maxLength` be an integer, unlike the bounds
@@ -2188,12 +2249,16 @@ auto compiler_draft3_validation_minlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
@@ -2231,12 +2296,16 @@ auto compiler_draft3_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
@@ -2269,12 +2338,16 @@ auto compiler_draft3_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
+  }
+
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
@@ -2680,7 +2753,12 @@ auto compiler_draft3_validation_type(const Context &context,
                    context, schema_context, dynamic_context, types)};
     }
     if (type == "integer") {
+      // Equality reads a number by its value rather than by how it is stored,
+      // so an all-integer set of options still admits an instance written with
+      // a fractional part. Only a dialect that counts such a number as an
+      // integer can let the set stand in for this assertion
       if (context.mode == Mode::FastValidation &&
+          integral_reals_are_integers(schema_context.vocabularies) &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
           std::ranges::all_of(schema_context.schema.at("enum").as_array(),

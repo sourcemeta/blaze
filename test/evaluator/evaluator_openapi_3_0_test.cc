@@ -674,74 +674,6 @@ TEST(format_byte_with_x_format_assertion_fast) {
       "4648 Base64 string");
 }
 
-// The OpenAPI 3.0 meta-schema inlines Draft 4's `schemaArray` without carrying
-// over its `minItems` of one, so it accepts an empty array where the
-// specification these keywords come from requires at least one element. The
-// trace suites cross-check every case against the meta-schema, so the three
-// that follow can only live here
-TEST(all_of_empty_is_malformed) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "allOf": []
-  })JSON")};
-
-  try {
-    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_EQ(std::string{error.what()},
-              "This keyword was expected to be set to a non-empty array of "
-              "valid schemas");
-    EXPECT_EQ(error.base().recompose(), "");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/allOf");
-  }
-}
-
-TEST(any_of_empty_is_malformed) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "anyOf": []
-  })JSON")};
-
-  try {
-    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_EQ(std::string{error.what()},
-              "This keyword was expected to be set to a non-empty array of "
-              "valid schemas");
-    EXPECT_EQ(error.base().recompose(), "");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/anyOf");
-  }
-}
-
-TEST(one_of_empty_is_malformed) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "oneOf": []
-  })JSON")};
-
-  try {
-    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_EQ(std::string{error.what()},
-              "This keyword was expected to be set to a non-empty array of "
-              "valid schemas");
-    EXPECT_EQ(error.base().recompose(), "");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/oneOf");
-  }
-}
-
 // A decimal literal is only a binary64 value when it lands on one exactly, so
 // the ones an API typically carries do not satisfy this format
 TEST(format_double_rejects_an_inexact_decimal_with_tweak_fast) {
@@ -927,4 +859,28 @@ TEST(nullable_integer_rejects_an_integral_real_fast) {
       instance, 0,
       "The value was expected to be of type null, or integer but it was of "
       "type number");
+}
+
+TEST(type_integer_beside_enum_rejects_an_integral_real_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "integer",
+    "enum": [ 1 ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(1.0)JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_WITH_DEFAULT_DIALECT(schema, instance, 2,
+                                                        OPENAPI_3_0_DIALECT);
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionTypeStrict, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 1.0 was expected to equal the integer constant 1");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The value was expected to be of type integer but it was of type number");
 }
