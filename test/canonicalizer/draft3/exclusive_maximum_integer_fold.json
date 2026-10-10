@@ -1,0 +1,15 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "maximum": 10,
+    "exclusiveMaximum": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": { "type": "integer", "maximum": 9, "divisibleBy": 1 }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "enum": [ 1, "a", null ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/3" }
+        ]
+      },
+      "1": { "enum": [ 1 ] },
+      "2": { "enum": [ "a" ] },
+      "3": { "enum": [ null ] }
+    }
+  }
+}

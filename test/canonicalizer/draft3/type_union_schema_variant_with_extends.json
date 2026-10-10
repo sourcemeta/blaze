@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "array", { "type": "object" } ],
+    "extends": {
+      "type": "object",
+      "properties": { "foo": { "type": "string" } }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "extends": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/4" }
+        ]
+      },
+      "1": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/3" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/2" }
+      },
+      "2": {},
+      "3": { "type": "string", "minLength": 0 },
+      "4": {
+        "type": [ { "$ref": "#/definitions/5" }, { "$ref": "#/definitions/6" } ]
+      },
+      "5": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/2" },
+        "minItems": 0
+      },
+      "6": {
+        "type": "object",
+        "patternProperties": {},
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/2" }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [
+      { "type": "object", "properties": { "a": { "type": "string" } } }
+    ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": { "disallow": [ { "$ref": "#/definitions/1" } ] },
+      "1": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/3" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/2" }
+      },
+      "2": {},
+      "3": { "type": "string", "minLength": 0 }
+    }
+  }
+}

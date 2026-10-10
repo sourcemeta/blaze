@@ -1,0 +1,19 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "array"
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/1" },
+        "minItems": 0
+      },
+      "1": {}
+    }
+  }
+}

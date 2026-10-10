@@ -25,3 +25,23 @@ target_compile_definitions(sourcemeta_blaze_canonicalizer_unit
   PRIVATE SCHEMAS_PATH="${PROJECT_SOURCE_DIR}/schemas")
 
 set_tests_properties(blaze.canonicalizer PROPERTIES TIMEOUT 90)
+
+# Complete draft 3 canonicalization tests, expressed as JSON fixtures
+sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer_suite
+  SOURCES canonicalizersuite.cc)
+target_compile_definitions(sourcemeta_blaze_canonicalizer_suite_unit
+  PRIVATE CANONICALIZER_SUITE_PATH="${PROJECT_SOURCE_DIR}/test/canonicalizer")
+target_compile_definitions(sourcemeta_blaze_canonicalizer_suite_unit
+  PRIVATE SCHEMAS_PATH="${PROJECT_SOURCE_DIR}/schemas")
+target_link_libraries(sourcemeta_blaze_canonicalizer_suite_unit
+  PRIVATE sourcemeta::core::json)
+target_link_libraries(sourcemeta_blaze_canonicalizer_suite_unit
+  PRIVATE sourcemeta::core::jsonschema)
+target_link_libraries(sourcemeta_blaze_canonicalizer_suite_unit
+  PRIVATE sourcemeta::blaze::canonicalizer)
+target_link_libraries(sourcemeta_blaze_canonicalizer_suite_unit
+  PRIVATE sourcemeta::blaze::compiler)
+target_link_libraries(sourcemeta_blaze_canonicalizer_suite_unit
+  PRIVATE sourcemeta::blaze::evaluator)
+
+set_tests_properties(blaze.canonicalizer_suite PROPERTIES TIMEOUT 90)

@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "string", "any" ],
+    "properties": { "foo": { "type": "string" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/6" },
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/7" }
+        ]
+      },
+      "1": { "enum": [ null ] },
+      "2": { "enum": [ false, true ] },
+      "3": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/5" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/4" }
+      },
+      "4": {},
+      "5": { "type": "string", "minLength": 0 },
+      "6": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/4" },
+        "minItems": 0
+      },
+      "7": { "type": "number" }
+    }
+  }
+}

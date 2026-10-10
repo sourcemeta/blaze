@@ -1,0 +1,66 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "array", "additionalItems": { "type": "string" } },
+      { "type": "array", "minItems": 3 }
+    ],
+    "items": [ { "type": "integer" } ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "extends": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/5" }
+        ]
+      },
+      "1": {
+        "type": [ { "$ref": "#/definitions/2" }, { "$ref": "#/definitions/4" } ]
+      },
+      "2": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/3" },
+        "minItems": 0
+      },
+      "3": {},
+      "4": {
+        "type": "array",
+        "minItems": 3,
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/3" }
+      },
+      "5": {
+        "type": [
+          { "$ref": "#/definitions/6" },
+          { "$ref": "#/definitions/7" },
+          { "$ref": "#/definitions/8" },
+          { "$ref": "#/definitions/9" },
+          { "$ref": "#/definitions/11" },
+          { "$ref": "#/definitions/12" }
+        ]
+      },
+      "6": { "enum": [ null ] },
+      "7": { "enum": [ false, true ] },
+      "8": {
+        "type": "object",
+        "patternProperties": {},
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "9": {
+        "type": "array",
+        "items": [ { "$ref": "#/definitions/10" } ],
+        "uniqueItems": false,
+        "minItems": 0,
+        "additionalItems": { "$ref": "#/definitions/3" }
+      },
+      "10": { "type": "integer", "divisibleBy": 1 },
+      "11": { "type": "string", "minLength": 0 },
+      "12": { "type": "number" }
+    }
+  }
+}

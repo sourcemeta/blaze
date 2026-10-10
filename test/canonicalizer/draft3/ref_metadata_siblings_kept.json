@@ -1,0 +1,27 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "bar": { "$ref": "#", "title": "A ref", "description": "Refers to root" }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "bar": { "$ref": "#/definitions/2" } },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": {},
+      "2": {
+        "$ref": "#/definitions/0",
+        "title": "A ref",
+        "description": "Refers to root"
+      }
+    }
+  }
+}

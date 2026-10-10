@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [ { "minLength": 3 } ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "extends": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/8" },
+          { "$ref": "#/definitions/10" },
+          { "$ref": "#/definitions/12" }
+        ]
+      },
+      "1": { "disallow": [ { "$ref": "#/definitions/2" } ] },
+      "2": { "enum": [ null ] },
+      "3": { "disallow": [ { "$ref": "#/definitions/4" } ] },
+      "4": { "enum": [ false, true ] },
+      "5": { "disallow": [ { "$ref": "#/definitions/6" } ] },
+      "6": {
+        "type": "object",
+        "patternProperties": {},
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/7" }
+      },
+      "7": {},
+      "8": { "disallow": [ { "$ref": "#/definitions/9" } ] },
+      "9": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/7" },
+        "minItems": 0
+      },
+      "10": { "disallow": [ { "$ref": "#/definitions/11" } ] },
+      "11": { "type": "string", "minLength": 3 },
+      "12": { "disallow": [ { "$ref": "#/definitions/13" } ] },
+      "13": { "type": "number" }
+    }
+  }
+}

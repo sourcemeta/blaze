@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "enum": [ "s", 1, true, null, { "k": 1 }, [ 1 ] ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/4" },
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/6" }
+        ]
+      },
+      "1": { "enum": [ "s" ] },
+      "2": { "enum": [ 1 ] },
+      "3": { "enum": [ true ] },
+      "4": { "enum": [ null ] },
+      "5": { "enum": [ { "k": 1 } ] },
+      "6": { "enum": [ [ 1 ] ] }
+    }
+  }
+}

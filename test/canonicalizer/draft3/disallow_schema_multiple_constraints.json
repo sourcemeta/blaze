@@ -1,0 +1,14 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [ { "type": "string", "minLength": 3, "maxLength": 10 } ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": { "disallow": [ { "$ref": "#/definitions/1" } ] },
+      "1": { "type": "string", "minLength": 3, "maxLength": 10 }
+    }
+  }
+}

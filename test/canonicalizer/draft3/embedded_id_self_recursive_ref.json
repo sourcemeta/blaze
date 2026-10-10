@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "id": "https://example.com/embedded",
+        "type": "object",
+        "properties": { "bar": { "$ref": "#" } }
+      }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/2" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": {},
+      "2": {
+        "type": "object",
+        "properties": { "bar": { "$ref": "#/definitions/2" } },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      }
+    }
+  }
+}
