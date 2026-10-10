@@ -1011,11 +1011,16 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
       }
     }};
 
+    // The entries are written in the order they are numbered, so that the same
+    // graph always comes out spelled the same way. Following the order the
+    // groups were named in would instead follow where the nodes came from, and
+    // a document already in graph form names its nodes after the entries it
+    // holds, leaving `10` ahead of `2`
     auto merged{sourcemeta::core::JSON::make_object()};
-    for (const auto &group : position) {
-      auto body{relabel(bodies.at(representative.at(group.first)))};
+    for (std::size_t index = 0; index < walked.size(); index++) {
+      auto body{relabel(bodies.at(representative.at(walked.at(index))))};
       unique(body);
-      merged.assign(std::to_string(group.second), std::move(body));
+      merged.assign(std::to_string(index), std::move(body));
     }
 
     const auto next{position.at(classes.at(collapsed_entry))};

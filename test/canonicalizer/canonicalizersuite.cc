@@ -102,15 +102,8 @@ auto run_canonicalizer_test(const sourcemeta::core::JSON &test,
   EXPECT_TRUE(evaluator.validate(compiled_metaschema(dialect), document));
 
   // A canonical form that is not a fixpoint would mean the same schema has
-  // more than one canonical spelling
-  //
-  // TODO: Compare the order here too, as `expect_equal_with_ordering` does
-  // above. Handed a document that is already in graph form, the canonicaliser
-  // re-spells `definitions` in lexicographic key order, so one with ten or
-  // more entries comes back with `10` ahead of `2`. That is a BUG, as it gives
-  // such a document two canonical spellings, and holding the order here today
-  // would write it down as the intended outcome
-  EXPECT_EQ(canonicalize_schema(document), document);
+  // more than one canonical spelling, down to the order the result comes in
+  expect_equal_with_ordering(canonicalize_schema(document), document);
 }
 
 auto register_tests(const std::filesystem::path &directory) -> std::size_t {
