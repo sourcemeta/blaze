@@ -1,0 +1,91 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "object",
+        "properties": {
+          "x": { "type": "object", "properties": { "y": { "type": "string" } } }
+        }
+      },
+      "b": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "object",
+            "properties": { "y": { "type": "integer" } }
+          }
+        }
+      }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/2" } ]
+          },
+          "b": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/5" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": {},
+      "2": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/3" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "3": {
+        "type": "object",
+        "properties": {
+          "y": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/4" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "4": { "type": "string", "minLength": 0 },
+      "5": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/6" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "6": {
+        "type": "object",
+        "properties": {
+          "y": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/7" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "7": { "type": "integer", "divisibleBy": 1 }
+    }
+  }
+}

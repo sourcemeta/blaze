@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "additionalProperties": false
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "additionalProperties": { "$ref": "#/definitions/1" },
+        "patternProperties": {},
+        "properties": {}
+      },
+      "1": false
+    }
+  }
+}

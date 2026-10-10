@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "object",
+        "properties": { "deep": { "enum": [ 1, "a", null ] } }
+      },
+      "b": { "$ref": "#/properties/a/properties/deep" }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/2" } ]
+          },
+          "b": { "$ref": "#/definitions/3" }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": {},
+      "2": {
+        "type": "object",
+        "properties": {
+          "deep": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/3" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "3": {
+        "type": [
+          { "$ref": "#/definitions/4" },
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/6" }
+        ]
+      },
+      "4": { "enum": [ 1 ] },
+      "5": { "enum": [ "a" ] },
+      "6": { "enum": [ null ] }
+    }
+  }
+}

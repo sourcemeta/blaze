@@ -1,0 +1,23 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "definitions": { "x": { "id": "https://example.com/x", "type": "integer" } },
+    "properties": { "r": { "$ref": "https://example.com/x" } },
+    "type": "object"
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "properties": { "r": { "$ref": "#/definitions/2" } },
+        "type": "object",
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": {},
+      "2": { "type": "integer", "divisibleBy": 1 }
+    }
+  }
+}

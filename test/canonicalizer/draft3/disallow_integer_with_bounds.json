@@ -1,0 +1,16 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [
+      { "type": "integer", "minimum": 1, "maximum": 9, "divisibleBy": 3 }
+    ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": { "disallow": [ { "$ref": "#/definitions/1" } ] },
+      "1": { "type": "integer", "minimum": 1, "maximum": 9, "divisibleBy": 3 }
+    }
+  }
+}

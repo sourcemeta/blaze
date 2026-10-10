@@ -1,0 +1,22 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "enum": [ 1, 2 ],
+    "disallow": "string"
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "extends": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/3" }
+        ]
+      },
+      "1": { "disallow": [ { "$ref": "#/definitions/2" } ] },
+      "2": { "type": "string", "minLength": 0 },
+      "3": { "enum": [ 1, 2 ] }
+    }
+  }
+}

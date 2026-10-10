@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "object", "patternProperties": { "^a": {} } },
+      { "type": "object", "patternProperties": { "^b": {} } }
+    ],
+    "properties": { "id": { "type": "integer" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": [ { "$ref": "#/definitions/1" }, { "$ref": "#/definitions/4" } ]
+      },
+      "1": {
+        "type": "object",
+        "patternProperties": { "^a": { "$ref": "#/definitions/2" } },
+        "properties": {
+          "id": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/3" } ]
+          }
+        },
+        "additionalProperties": { "$ref": "#/definitions/2" }
+      },
+      "2": {},
+      "3": { "type": "integer", "divisibleBy": 1 },
+      "4": {
+        "type": "object",
+        "patternProperties": { "^b": { "$ref": "#/definitions/2" } },
+        "properties": {
+          "id": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/3" } ]
+          }
+        },
+        "additionalProperties": { "$ref": "#/definitions/2" }
+      }
+    }
+  }
+}

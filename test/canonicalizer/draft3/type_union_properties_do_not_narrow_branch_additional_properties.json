@@ -1,0 +1,70 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "object", "additionalProperties": { "type": "integer" } },
+      { "type": "object", "patternProperties": { "^a": { "type": "integer" } } }
+    ],
+    "properties": { "a": { "type": "string" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "extends": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/6" }
+        ]
+      },
+      "1": {
+        "type": [ { "$ref": "#/definitions/2" }, { "$ref": "#/definitions/4" } ]
+      },
+      "2": {
+        "type": "object",
+        "additionalProperties": { "$ref": "#/definitions/3" },
+        "patternProperties": {},
+        "properties": {}
+      },
+      "3": { "type": "integer", "divisibleBy": 1 },
+      "4": {
+        "type": "object",
+        "patternProperties": { "^a": { "$ref": "#/definitions/3" } },
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/5" }
+      },
+      "5": {},
+      "6": {
+        "type": [
+          { "$ref": "#/definitions/7" },
+          { "$ref": "#/definitions/8" },
+          { "$ref": "#/definitions/9" },
+          { "$ref": "#/definitions/11" },
+          { "$ref": "#/definitions/10" },
+          { "$ref": "#/definitions/12" }
+        ]
+      },
+      "7": { "enum": [ null ] },
+      "8": { "enum": [ false, true ] },
+      "9": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/10" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/5" }
+      },
+      "10": { "type": "string", "minLength": 0 },
+      "11": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/5" },
+        "minItems": 0
+      },
+      "12": { "type": "number" }
+    }
+  }
+}

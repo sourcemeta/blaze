@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": { "id": "#foo", "enum": [ 1, "a" ] },
+      "b": { "$ref": "#foo" }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/2" } ]
+          },
+          "b": { "$ref": "#/definitions/2" }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": {},
+      "2": {
+        "type": [ { "$ref": "#/definitions/3" }, { "$ref": "#/definitions/4" } ]
+      },
+      "3": { "enum": [ 1 ] },
+      "4": { "enum": [ "a" ] }
+    }
+  }
+}

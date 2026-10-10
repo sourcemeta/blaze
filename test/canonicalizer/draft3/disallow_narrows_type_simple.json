@@ -1,0 +1,12 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "string", "number" ],
+    "disallow": [ "string" ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": { "type": "number" } }
+  }
+}

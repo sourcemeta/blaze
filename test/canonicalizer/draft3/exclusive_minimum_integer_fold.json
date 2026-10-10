@@ -1,0 +1,15 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "exclusiveMinimum": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": { "type": "integer", "minimum": 1, "divisibleBy": 1 }
+    }
+  }
+}

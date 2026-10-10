@@ -1,0 +1,18 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/x",
+    "enum": [ 1, "a" ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": [ { "$ref": "#/definitions/1" }, { "$ref": "#/definitions/2" } ]
+      },
+      "1": { "enum": [ 1 ] },
+      "2": { "enum": [ "a" ] }
+    }
+  }
+}

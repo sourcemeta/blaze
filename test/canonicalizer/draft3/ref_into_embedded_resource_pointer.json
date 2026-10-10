@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "a": {
+        "id": "https://example.com/embedded",
+        "type": "object",
+        "properties": { "x": { "type": "string" } }
+      },
+      "b": { "$ref": "https://example.com/embedded#/properties/x" }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/2" } ]
+          },
+          "b": { "$ref": "#/definitions/3" }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": {},
+      "2": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/3" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "3": { "type": "string", "minLength": 0 }
+    }
+  }
+}
