@@ -3955,13 +3955,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -5152,13 +5155,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "", null ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -5262,13 +5268,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "", null ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -5371,13 +5380,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -5477,13 +5489,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "", null ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -5586,13 +5601,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "", null ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -5695,13 +5713,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "", null ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -5804,13 +5825,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "", null ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -5913,13 +5937,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "", null ]
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "Every item in the array was expected to be an object whose required properties were of type string"
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
       ]
     },
     "exhaustive": {
@@ -6920,6 +6947,471 @@
     "description": "items_closed_three_object_properties_failure_1",
     "schema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
+      "items": {
+        "type": "object",
+        "properties": {
+          "a": { "type": "string" },
+          "b": { "type": "string" },
+          "c": { "type": "string" }
+        },
+        "required": [ "a", "b", "c" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": [ 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ false, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ false, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_object_properties_with_array_type_rejects_null_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+        "required": [ "a", "b" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array but it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_object_properties_with_array_type_rejects_an_object_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+        "required": [ "a", "b" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": { "a": "s", "b": "s" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array but it was of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type object"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_object_properties_with_array_type_rejects_a_number_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+        "required": [ "a", "b" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_object_properties_with_array_type_success_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+        "required": [ "a", "b" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": [ { "a": "s", "b": "s" } ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+        [ "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+        [ "AssertionTypeStrict", "/items/properties/a/type", "#/items/properties/a/type", "/0/a" ],
+        [ "AssertionTypeStrict", "/items/properties/b/type", "#/items/properties/b/type", "/0/b" ],
+        [ "LoopPropertiesExcept", "/items/additionalProperties", "#/items/additionalProperties", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/properties/a/type", "#/items/properties/a/type", "/0/a" ],
+        [ true, "AssertionTypeStrict", "/items/properties/b/type", "#/items/properties/b/type", "/0/b" ],
+        [ true, "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+        [ true, "LoopPropertiesExcept", "/items/additionalProperties", "#/items/additionalProperties", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"a\", and \"b\"",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_object_properties_with_array_type_failure_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+        "required": [ "a", "b" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": [ 1 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+      ],
+      "post": [
+        [ false, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ false, "LoopItems", "/items", "#/items", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type object but it was of type integer",
+        "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_three_object_properties_with_array_type_rejects_null_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "a": { "type": "string" },
+          "b": { "type": "string" },
+          "c": { "type": "string" }
+        },
+        "required": [ "a", "b", "c" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": null,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array but it was of type null"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type null"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_three_object_properties_with_array_type_rejects_an_object_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "a": { "type": "string" },
+          "b": { "type": "string" },
+          "c": { "type": "string" }
+        },
+        "required": [ "a", "b", "c" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": { "a": "s", "b": "s", "c": "s" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array but it was of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type object"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_three_object_properties_with_array_type_rejects_a_number_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "a": { "type": "string" },
+          "b": { "type": "string" },
+          "c": { "type": "string" }
+        },
+        "required": [ "a", "b", "c" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": 1,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array but it was of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type array but it was of type integer"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_three_object_properties_with_array_type_success_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "a": { "type": "string" },
+          "b": { "type": "string" },
+          "c": { "type": "string" }
+        },
+        "required": [ "a", "b", "c" ],
+        "additionalProperties": false
+      }
+    },
+    "instance": [ { "a": "s", "b": "s", "c": "s" } ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "Every item in the array was expected to be an object whose required properties were of type string",
+        "The value was expected to be of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopItems", "/items", "#/items", "" ],
+        [ "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+        [ "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+        [ "AssertionTypeStrict", "/items/properties/a/type", "#/items/properties/a/type", "/0/a" ],
+        [ "AssertionTypeStrict", "/items/properties/b/type", "#/items/properties/b/type", "/0/b" ],
+        [ "AssertionTypeStrict", "/items/properties/c/type", "#/items/properties/c/type", "/0/c" ],
+        [ "LoopPropertiesExcept", "/items/additionalProperties", "#/items/additionalProperties", "/0" ],
+        [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/properties/a/type", "#/items/properties/a/type", "/0/a" ],
+        [ true, "AssertionTypeStrict", "/items/properties/b/type", "#/items/properties/b/type", "/0/b" ],
+        [ true, "AssertionTypeStrict", "/items/properties/c/type", "#/items/properties/c/type", "/0/c" ],
+        [ true, "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+        [ true, "LoopPropertiesExcept", "/items/additionalProperties", "#/items/additionalProperties", "/0" ],
+        [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+        [ true, "LoopItems", "/items", "#/items", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to only define properties \"a\", \"b\", and \"c\"",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the defined properties subschemas",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object",
+        "Every item in the array value was expected to validate against the given subschema",
+        "The value was expected to be of type array"
+      ]
+    }
+  },
+  {
+    "description": "items_closed_three_object_properties_with_array_type_failure_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
       "items": {
         "type": "object",
         "properties": {
