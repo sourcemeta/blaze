@@ -77,17 +77,23 @@ auto check_shape(const sourcemeta::core::JSON &test) -> void {
   // A boolean schema has no keyword to canonicalise and no object to compare,
   // so it belongs in a hand-written test rather than here
   EXPECT_TRUE(test.at("schema").is_object());
-  EXPECT_TRUE(test.at("expected").is_object() || test.at("expected").is_null());
+  EXPECT_TRUE(test.at("expected").is_object());
+
+  // Canonicalisation rewrites a document within the dialect it is written in,
+  // so both documents say which dialect that is and both say the same one. A
+  // result on another dialect would be a document about something else
+  EXPECT_TRUE(test.at("schema").defines("$schema"));
+  EXPECT_TRUE(test.at("schema").at("$schema").is_string());
+  EXPECT_TRUE(test.at("expected").defines("$schema"));
+  EXPECT_EQ(test.at("expected").at("$schema"), test.at("schema").at("$schema"));
 }
 
 auto run_canonicalizer_test(const sourcemeta::core::JSON &test,
                             const std::string &dialect) -> void {
   check_shape(test);
 
-  const auto &schema{test.at("schema")};
-  const auto &expected{test.at("expected")};
-  const auto document{canonicalize_schema(schema)};
-  expect_equal_with_ordering(document, expected.is_null() ? schema : expected);
+  const auto document{canonicalize_schema(test.at("schema"))};
+  expect_equal_with_ordering(document, test.at("expected"));
 
   // The canonicaliser must never emit a document that the canonical
   // meta-schema of its dialect rejects, so a fixture has no way of saying
@@ -105,13 +111,6 @@ auto run_canonicalizer_test(const sourcemeta::core::JSON &test,
   // such a document two canonical spellings, and holding the order here today
   // would write it down as the intended outcome
   EXPECT_EQ(canonicalize_schema(document), document);
-
-  // A fixture that carries a document of its own claims a rewrite, so `null`
-  // is the only way to say that canonicalisation leaves the input alone. A
-  // copy of the input left behind would otherwise silently stop matching it
-  if (!expected.is_null()) {
-    EXPECT_NE(prettify(document), prettify(schema));
-  }
 }
 
 auto register_tests(const std::filesystem::path &directory) -> std::size_t {
