@@ -1072,6 +1072,23 @@ export function describe(valid, instruction, evaluatePath,
         'string is short enough to satisfy a negative maximum length';
     }
 
+    // The lower bounds below compile the same way when the bound is too large
+    // to hold, as nothing can be big enough to satisfy one
+    if (keyword === 'minLength') {
+      return 'The value was expected to be of a type other than string, as no ' +
+        'string is long enough to satisfy a minimum length that large';
+    }
+
+    if (keyword === 'minItems') {
+      return 'The value was expected to be of a type other than array, as no ' +
+        'array has enough items to satisfy a minimum size that large';
+    }
+
+    if (keyword === 'minProperties') {
+      return 'The value was expected to be of a type other than object, as no ' +
+        'object has enough properties to satisfy a minimum size that large';
+    }
+
     return describeNotTypesCheck(valid, targetType, value);
   }
 

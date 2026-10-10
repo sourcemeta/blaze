@@ -20805,7 +20805,7 @@
         [ false, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type string but it was of type string"
+        "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
       ]
     },
     "exhaustive": {
@@ -20816,7 +20816,7 @@
         [ false, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type string but it was of type string"
+        "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
       ]
     }
   },
@@ -20836,7 +20836,7 @@
         [ true, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type string"
+        "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
       ]
     },
     "exhaustive": {
@@ -20847,7 +20847,7 @@
         [ true, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type string"
+        "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
       ]
     }
   },
@@ -20878,7 +20878,7 @@
         [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type array but it was of type array"
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large"
       ]
     },
     "exhaustive": {
@@ -20889,7 +20889,7 @@
         [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type array but it was of type array"
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large"
       ]
     }
   },
@@ -20932,7 +20932,7 @@
         [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type array but it was of type array"
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large"
       ]
     },
     "exhaustive": {
@@ -20943,7 +20943,7 @@
         [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type array but it was of type array"
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large"
       ]
     }
   },
@@ -20998,7 +20998,7 @@
         [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type array",
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large",
         "The value was expected to be of type array but it was of type string"
       ]
     },
@@ -21012,7 +21012,7 @@
         [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "The value was expected to NOT be of type array",
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large",
         "The value was expected to be of type array but it was of type string"
       ]
     }
