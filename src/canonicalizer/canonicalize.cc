@@ -538,15 +538,13 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
                                   default_id,
                                   core::SchemaFrame::IdentifierMode::Fallback};
 
-    // Hyper-schema is left out, unlike identifier elimination above. Its
-    // `links` hold link descriptions rather than subschemas, so lifting them
-    // into `definitions` and referring to them would say something the
-    // document never said. The canonical form this pass produces is the one
-    // `canonical-draft3.json` describes, and that is Draft 3 proper
+    // Hyper-schema comes this far too. Nothing its vocabulary declares takes
+    // part in whether an instance is valid, so the rules have dropped all of
+    // it by now, and what is left is Draft 3 proper however the document
+    // spells its dialect
     if (frame.any_subschema(
             [](const core::SchemaFrame::Location &location) -> bool {
-              return location.base_dialect !=
-                     core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3;
+              return !is_draft3(location.base_dialect);
             })) {
       return;
     }
@@ -651,6 +649,12 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
     return {.entry = std::nullopt, .outside = std::nullopt};
   }};
 
+  // A reference whose chain goes round in circles without ever reaching a
+  // subschema that says anything never gets to assert anything either, so it
+  // is the empty schema written the long way round. Each one is replaced by an
+  // empty schema and the pass starts over, since the document it framed has
+  // changed underneath it. Every round takes a reference away, so this ends
+  std::vector<core::Pointer> vacuous;
   for (const auto &entry : links) {
     const auto destination{resolve(entry.second)};
     if (destination.entry.has_value()) {
@@ -658,12 +662,17 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
     } else if (destination.outside.has_value()) {
       outside_targets.emplace_back(entry.first, destination.outside.value());
     } else {
-      // The chain goes round in circles without ever reaching a subschema that
-      // says anything. There is no entry for such a reference to point at, and
-      // dropping it would change what the document means, so the graph form
-      // does not apply here
-      return;
+      vacuous.push_back(entry.first.initial());
     }
+  }
+
+  if (!vacuous.empty()) {
+    for (const auto &pointer : vacuous) {
+      core::set(schema, pointer, sourcemeta::core::JSON::make_object());
+    }
+
+    lift_subschemas(schema, walker, resolver, default_dialect, default_id);
+    return;
   }
 
   // The innermost node that contains the given pointer, if any
@@ -1115,6 +1124,7 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 #include "rules/flatten_nested_allof.h"
 #include "rules/flatten_nested_anyof.h"
 #include "rules/flatten_nested_extends.h"
+#include "rules/hyper_schema_keywords_drop.h"
 #include "rules/if_then_else_implicit.h"
 #include "rules/if_without_then_else.h"
 #include "rules/ignored_metaschema.h"
@@ -1197,6 +1207,7 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<MinimumCanEqualTrueDrop>());
   rules.push_back(make_rule<MaximumCanEqualTrueDrop>());
   rules.push_back(make_rule<CommentDrop>());
+  rules.push_back(make_rule<HyperSchemaKeywordsDrop>());
   rules.push_back(make_rule<DeprecatedFalseDrop>());
   rules.push_back(make_rule<RecursiveAnchorFalseDrop>());
   rules.push_back(make_rule<UnevaluatedItemsToItems>());

@@ -1,0 +1,29 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+    "type": "object",
+    "links": [
+      { "rel": "full", "href": "{id}", "targetSchema": { "type": "string" } }
+    ],
+    "properties": { "a": { "type": "string" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/hyper-schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "required": false,
+            "extends": [ { "$ref": "#/definitions/2" } ]
+          }
+        },
+        "patternProperties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": {},
+      "2": { "type": "string", "minLength": 0 }
+    }
+  }
+}
