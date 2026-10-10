@@ -12,7 +12,6 @@
 #include <initializer_list> // std::initializer_list
 #include <limits>           // std::numeric_limits
 #include <set>              // std::set
-#include <stdexcept>        // std::out_of_range
 #include <utility>          // std::move, std::to_underlying
 
 #include "compile_helpers.h"
@@ -146,18 +145,6 @@ auto is_dialect_integer(
 
   return integral_reals_are_integers(vocabularies) || value.is_integer() ||
          (value.is_decimal() && value.to_decimal().is_integer());
-}
-
-// Whether the bound fits the integer the instructions carry. One that does not
-// sits beyond the size of anything that can be held in memory, which the
-// keyword compilers below say outright rather than let the conversion raise
-auto bound_is_representable(const sourcemeta::core::JSON &value) -> bool {
-  try {
-    [[maybe_unused]] const auto result{value.as_integer()};
-    return true;
-  } catch (const std::out_of_range &) {
-    return false;
-  }
 }
 
 // Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
@@ -2134,9 +2121,15 @@ auto compiler_draft3_validation_minlength(const Context &context,
   }
 
   // A bound too large to hold is beyond the length of anything that can
-  // exist, so no string can meet it, and nothing else is affected
+  // exist, so no string can meet it, and nothing else is affected. A property
+  // name is always a string, which leaves the type check nothing to spare
   if (!bound_is_representable(
           schema_context.schema.at(dynamic_context.keyword))) {
+    if (schema_context.is_property_name) {
+      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
+                   schema_context, dynamic_context, ValueNone{})};
+    }
+
     ValueTypes types;
     types.set(std::to_underlying(sourcemeta::core::JSON::Type::String));
     return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
@@ -2232,9 +2225,14 @@ auto compiler_draft3_validation_minitems(const Context &context,
   }
 
   // A bound too large to hold is beyond the size of anything that can
-  // exist, so no array can meet it, and nothing else is affected
+  // exist, so no array can meet it, and nothing else is affected. A property
+  // name is always a string, which no array bound applies to
   if (!bound_is_representable(
           schema_context.schema.at(dynamic_context.keyword))) {
+    if (schema_context.is_property_name) {
+      return {};
+    }
+
     ValueTypes types;
     types.set(std::to_underlying(sourcemeta::core::JSON::Type::Array));
     return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,

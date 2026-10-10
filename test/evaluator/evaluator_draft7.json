@@ -7776,5 +7776,84 @@
         "The value was expected to be of type array but it was of type string"
       ]
     }
+  },
+  {
+    "description": "unrepresentable_min_length_in_property_names_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "propertyNames": { "minLength": 99999999999999999999 }
+    },
+    "instance": { "a": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ],
+        [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object property \"a\" was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ],
+        [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object property \"a\" was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_length_in_property_names_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "propertyNames": { "minLength": 99999999999999999999 }
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "post": [
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The object is empty and no properties were expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "post": [
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The object is empty and no properties were expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_items_in_property_names_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "propertyNames": { "minItems": 99999999999999999999 }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]

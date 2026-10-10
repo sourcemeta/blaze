@@ -298,9 +298,14 @@ auto compiler_draft4_validation_minproperties(
   }
 
   // A bound too large to hold is beyond the size of anything that can
-  // exist, so no object can meet it, and nothing else is affected
+  // exist, so no object can meet it, and nothing else is affected. A property
+  // name is always a string, which no object bound applies to
   if (!bound_is_representable(
           schema_context.schema.at(dynamic_context.keyword))) {
+    if (schema_context.is_property_name) {
+      return {};
+    }
+
     ValueTypes types;
     types.set(std::to_underlying(sourcemeta::core::JSON::Type::Object));
     return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
