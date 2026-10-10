@@ -15018,5 +15018,343 @@
         "The integer value 3 was expected to equal one of the following values: 1, and 2"
       ]
     }
+  },
+  {
+    "description": "unrepresentable_max_length_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxLength": 99999999999999999999
+    },
+    "instance": "a",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "unrepresentable_min_length_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minLength": 99999999999999999999
+    },
+    "instance": "a",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_length_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minLength": 99999999999999999999
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_max_items_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxItems": 99999999999999999999
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "unrepresentable_min_items_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minItems": 99999999999999999999
+    },
+    "instance": [],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_max_properties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "maxProperties": 99999999999999999999
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "unrepresentable_min_properties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minProperties": 99999999999999999999
+    },
+    "instance": {},
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than object, as no object has enough properties to satisfy a minimum size that large"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than object, as no object has enough properties to satisfy a minimum size that large"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_items_with_array_type_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "minItems": 99999999999999999999
+    },
+    "instance": [],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_max_length_with_string_type_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "maxLength": 99999999999999999999
+    },
+    "instance": "a",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_items_with_array_type_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "minItems": 99999999999999999999
+    },
+    "instance": "a",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large",
+        "The value was expected to be of type array but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large",
+        "The value was expected to be of type array but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_length_in_property_names_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "propertyNames": { "minLength": 99999999999999999999 }
+    },
+    "instance": { "a": 1 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ],
+        [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object property \"a\" was expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+        [ "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ],
+        [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "No instance is expected to succeed against the false schema",
+        "The object property \"a\" was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_length_in_property_names_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "propertyNames": { "minLength": 99999999999999999999 }
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "post": [
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The object is empty and no properties were expected to validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "post": [
+        [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+      ],
+      "descriptions": [
+        "The object is empty and no properties were expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_items_in_property_names_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "propertyNames": { "minItems": 99999999999999999999 }
+    },
+    "instance": { "a": 1 },
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
   }
 ]

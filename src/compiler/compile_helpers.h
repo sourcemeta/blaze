@@ -326,6 +326,18 @@ inline auto merge_integer_bound(const Instruction &instruction,
   return true;
 }
 
+// Whether the bound fits the integer the instructions carry. One that does not
+// sits beyond the size of anything that can be held in memory, so the keyword
+// compilers say such a bound outright rather than convert a value that does
+// not fit. The comparison reads the number by its value, so it holds whichever
+// way the literal came to be stored
+inline auto bound_is_representable(const sourcemeta::core::JSON &value)
+    -> bool {
+  static const sourcemeta::core::JSON LIMIT{
+      std::numeric_limits<sourcemeta::core::JSON::Integer>::max()};
+  return value <= LIMIT;
+}
+
 // Note that the size keywords that let the type level fuse their bound accept
 // any integral number, including reals with no fractional part like `2.0`, so
 // this must recognise those too or the fused bound would be silently dropped
