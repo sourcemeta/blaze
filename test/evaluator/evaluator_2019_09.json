@@ -12580,5 +12580,222 @@
         "Every item in the array value was expected to validate against the given subschema"
       ]
     }
+  },
+  {
+    "description": "enum_duplicate_option_with_integer_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "a", "a", 1 ]
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values"
+      ]
+    }
+  },
+  {
+    "description": "enum_duplicate_option_with_integer_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "a", "a", 1 ]
+    },
+    "instance": "a",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to equal one of the 2 declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to equal one of the 2 declared values"
+      ]
+    }
+  },
+  {
+    "description": "enum_duplicate_option_with_integer_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "a", "a", 1 ]
+    },
+    "instance": 2,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal one of the following values: 1, and \"a\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal one of the following values: 1, and \"a\""
+      ]
+    }
+  },
+  {
+    "description": "enum_duplicate_option_with_imperfect_hash_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "a", "a", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ]
+    },
+    "instance": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" was expected to equal one of the 2 declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" was expected to equal one of the 2 declared values"
+      ]
+    }
+  },
+  {
+    "description": "enum_duplicate_option_with_imperfect_hash_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "a", "a", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ]
+    },
+    "instance": "b",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"b\" was expected to equal one of the following values: \"a\", and \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"b\" was expected to equal one of the following values: \"a\", and \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\""
+      ]
+    }
+  },
+  {
+    "description": "enum_duplicate_option_strings_only_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "a", "a" ]
+    },
+    "instance": "a",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to equal the given constant"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to equal the string constant \"a\""
+      ]
+    }
+  },
+  {
+    "description": "enum_duplicate_option_strings_only_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "enum": [ "a", "a" ]
+    },
+    "instance": "b",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"b\" was expected to equal the given constant"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The string value \"b\" was expected to equal the string constant \"a\""
+      ]
+    }
   }
 ]
