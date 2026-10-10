@@ -151,9 +151,9 @@ auto compiler_draft6_validation_type(const Context &context,
 
       // A preceding array loop at this location already rejects a non-array,
       // so the type assertion is redundant. The array size bounds are only
-      // redundant when there are none to enforce, as this loop is the only
-      // one that also checks the item count. Only a loop that truly rejects
-      // a non-array qualifies: every item loop other than this one holds
+      // redundant when there are none to enforce, as the loop may be
+      // carrying bounds fused from a different schema. Only a loop that
+      // truly rejects a non-array qualifies: every other item loop holds
       // vacuously on a non-array, as `items` asserts nothing on one
       if (context.mode == Mode::FastValidation && minimum == 0 &&
           !maximum.has_value() && !current.empty() &&
