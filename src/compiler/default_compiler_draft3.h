@@ -1973,14 +1973,19 @@ auto compiler_draft3_validation_enum(const Context &context,
   sourcemeta::core::PropertyHashJSON<ValueString> hasher;
   for (const auto &option :
        schema_context.schema.at(dynamic_context.keyword).as_array()) {
+    // 2019-09 onwards no longer asks for the options to be unique, and the
+    // comparison below weighs these hashes against the deduplicated set of
+    // options, so a repeated option must not be counted twice
+    if (!options.insert(option).second) {
+      continue;
+    }
+
     if (option.is_string()) {
       const auto hash{hasher(option.to_string())};
       if (hasher.is_perfect(hash)) {
         perfect_string_hashes.emplace_back(option.to_string(), hash);
       }
     }
-
-    options.insert(option);
   }
 
   // Only apply this optimisation on fast validation, as it
