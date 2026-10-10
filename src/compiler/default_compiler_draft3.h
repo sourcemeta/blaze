@@ -2525,7 +2525,12 @@ auto compiler_draft3_validation_type(const Context &context,
                    context, schema_context, dynamic_context, types)};
     }
     if (type == "integer") {
+      // Equality reads a number by its value rather than by how it is
+      // written, so an all-integer set of options still admits an instance
+      // written with a fractional part. Only a dialect that counts such a
+      // number as an integer can let the options stand in for this assertion
       if (context.mode == Mode::FastValidation &&
+          integral_reals_are_integers(schema_context.vocabularies) &&
           schema_context.schema.defines("enum") &&
           schema_context.schema.at("enum").is_array() &&
           std::ranges::all_of(schema_context.schema.at("enum").as_array(),

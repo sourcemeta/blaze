@@ -14951,5 +14951,72 @@
         "The string value \"b\" was expected to equal the string constant \"a\""
       ]
     }
+  },
+  {
+    "description": "integer_type_with_integral_enum_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "integer",
+      "enum": [ 1, 2 ]
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values",
+        "The value was expected to be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "integer_type_with_integral_enum_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "integer",
+      "enum": [ 1, 2 ]
+    },
+    "instance": 3,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to equal one of the following values: 1, and 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to equal one of the following values: 1, and 2"
+      ]
+    }
   }
 ]
