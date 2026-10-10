@@ -2525,16 +2525,11 @@ auto compiler_draft3_validation_type(const Context &context,
                    context, schema_context, dynamic_context, types)};
     }
     if (type == "integer") {
-      if (context.mode == Mode::FastValidation &&
-          schema_context.schema.defines("enum") &&
-          schema_context.schema.at("enum").is_array() &&
-          std::ranges::all_of(schema_context.schema.at("enum").as_array(),
-                              [](const auto &candidate) -> auto {
-                                return candidate.is_integer();
-                              })) {
-        return {};
-      }
-
+      // Draft 4 and earlier have no shortcut for an all-integer `enum` here,
+      // unlike every other type name. Equality reads a number by its value
+      // rather than by how it is written, so the options admit an instance
+      // carrying a fractional part, which these dialects do not count as an
+      // integer, and so this assertion always has work left to do
       return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
                    context, schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Integer)};

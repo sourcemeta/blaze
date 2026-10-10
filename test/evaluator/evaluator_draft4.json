@@ -4789,13 +4789,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionEqual", "/enum", "#/enum", "" ]
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "post": [
-        [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "The integer value 3 was expected to equal the integer constant 3"
+        "The integer value 3 was expected to equal the integer constant 3",
+        "The value was expected to be of type integer"
       ]
     },
     "exhaustive": {
@@ -13695,6 +13698,76 @@
       "descriptions": [
         "The value was expected to be of type object but it was of type integer",
         "Every item in the array value was expected to validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "integer_type_with_integral_enum_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "integer",
+      "enum": [ 1, 2 ]
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values",
+        "The value was expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values",
+        "The value was expected to be of type integer"
+      ]
+    }
+  },
+  {
+    "description": "integer_type_with_integral_enum_2",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "integer",
+      "enum": [ 1, 2 ]
+    },
+    "instance": 3,
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to equal one of the following values: 1, and 2"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 3 was expected to equal one of the following values: 1, and 2"
       ]
     }
   }
