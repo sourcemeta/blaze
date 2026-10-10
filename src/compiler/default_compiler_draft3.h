@@ -12,6 +12,7 @@
 #include <initializer_list> // std::initializer_list
 #include <limits>           // std::numeric_limits
 #include <set>              // std::set
+#include <stdexcept>        // std::out_of_range
 #include <utility>          // std::move, std::to_underlying
 
 #include "compile_helpers.h"
@@ -131,6 +132,32 @@ auto integral_reals_are_integers(
   return !vocabularies.contains_any(
       {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
        Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER});
+}
+
+// A number too large to hold as a 64-bit integer is kept as a decimal, where
+// whether it is an integer stays a question about how the literal was written
+// rather than about how it came to be stored
+auto is_dialect_integer(
+    const sourcemeta::core::JSON &value,
+    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
+  if (!value.is_integral()) {
+    return false;
+  }
+
+  return integral_reals_are_integers(vocabularies) || value.is_integer() ||
+         (value.is_decimal() && value.to_decimal().is_integer());
+}
+
+// Whether the bound fits the integer the instructions carry. One that does not
+// sits beyond the size of anything that can be held in memory, which the
+// keyword compilers below say outright rather than let the conversion raise
+auto bound_is_representable(const sourcemeta::core::JSON &value) -> bool {
+  try {
+    [[maybe_unused]] const auto result{value.as_integer()};
+    return true;
+  } catch (const std::out_of_range &) {
+    return false;
+  }
 }
 
 // Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
@@ -2024,9 +2051,8 @@ auto compiler_draft3_validation_maxlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
@@ -2069,6 +2095,13 @@ auto compiler_draft3_validation_maxlength(const Context &context,
     return {};
   }
 
+  // A bound too large to hold sits beyond the length of anything that can
+  // exist, so every string meets it and there is nothing left to assert
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
+  }
+
   return {make(
       sourcemeta::blaze::InstructionIndex::AssertionStringSizeLess, context,
       schema_context, dynamic_context,
@@ -2083,9 +2116,8 @@ auto compiler_draft3_validation_minlength(const Context &context,
                                           const DynamicContext &dynamic_context,
                                           const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
@@ -2099,6 +2131,16 @@ auto compiler_draft3_validation_minlength(const Context &context,
 
   if (narrows_type_away(schema_context.schema, {"string"})) {
     return {};
+  }
+
+  // A bound too large to hold is beyond the length of anything that can
+  // exist, so no string can meet it, and nothing else is affected
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    ValueTypes types;
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::String));
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
+                 context, schema_context, dynamic_context, types)};
   }
 
   // We'll handle it at the type level as an optimization. Note that the type
@@ -2127,9 +2169,8 @@ auto compiler_draft3_validation_maxitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
@@ -2153,6 +2194,13 @@ auto compiler_draft3_validation_maxitems(const Context &context,
     return {};
   }
 
+  // A bound too large to hold sits beyond the size of anything that can
+  // exist, so every array meets it and there is nothing left to assert
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
+  }
+
   return {make(
       sourcemeta::blaze::InstructionIndex::AssertionArraySizeLess, context,
       schema_context, dynamic_context,
@@ -2166,9 +2214,8 @@ auto compiler_draft3_validation_minitems(const Context &context,
                                          const SchemaContext &schema_context,
                                          const DynamicContext &dynamic_context,
                                          const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
@@ -2182,6 +2229,16 @@ auto compiler_draft3_validation_minitems(const Context &context,
 
   if (narrows_type_away(schema_context.schema, {"array"})) {
     return {};
+  }
+
+  // A bound too large to hold is beyond the size of anything that can
+  // exist, so no array can meet it, and nothing else is affected
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    ValueTypes types;
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Array));
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
+                 context, schema_context, dynamic_context, types)};
   }
 
   // We'll handle it at the type level as an optimization

@@ -231,9 +231,8 @@ auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
@@ -259,6 +258,13 @@ auto compiler_draft4_validation_maxproperties(
     return {};
   }
 
+  // A bound too large to hold sits beyond the size of anything that can
+  // exist, so every object meets it and there is nothing left to assert
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    return {};
+  }
+
   return {make(
       sourcemeta::blaze::InstructionIndex::AssertionObjectSizeLess, context,
       schema_context, dynamic_context,
@@ -272,9 +278,8 @@ auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_integral() ||
-      (!integral_reals_are_integers(schema_context.vocabularies) &&
-       !schema_context.schema.at(dynamic_context.keyword).is_integer())) {
+  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
+                          schema_context.vocabularies)) {
     throw sourcemeta::blaze::CompilerError(
         schema_context.base, absolute_schema_location(context, schema_context),
         EXPECTED_INTEGER);
@@ -290,6 +295,16 @@ auto compiler_draft4_validation_minproperties(
       schema_context.schema.at("type").is_string() &&
       schema_context.schema.at("type").to_string() != "object") {
     return {};
+  }
+
+  // A bound too large to hold is beyond the size of anything that can
+  // exist, so no object can meet it, and nothing else is affected
+  if (!bound_is_representable(
+          schema_context.schema.at(dynamic_context.keyword))) {
+    ValueTypes types;
+    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Object));
+    return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
+                 context, schema_context, dynamic_context, types)};
   }
 
   // We'll handle it at the type level as an optimization

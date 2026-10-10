@@ -12864,5 +12864,264 @@
         "The integer value 3 was expected to equal one of the following values: 1, and 2"
       ]
     }
+  },
+  {
+    "description": "unrepresentable_max_length_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "maxLength": 99999999999999999999
+    },
+    "instance": "a",
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "unrepresentable_min_length_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minLength": 99999999999999999999
+    },
+    "instance": "a",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string but it was of type string"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_length_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minLength": 99999999999999999999
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type string"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_max_items_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "maxItems": 99999999999999999999
+    },
+    "instance": [],
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "unrepresentable_min_items_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minItems": 99999999999999999999
+    },
+    "instance": [],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array but it was of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array but it was of type array"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_max_properties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "maxProperties": 99999999999999999999
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {},
+    "exhaustive": {}
+  },
+  {
+    "description": "unrepresentable_min_properties_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "minProperties": 99999999999999999999
+    },
+    "instance": {},
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type object but it was of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type object but it was of type object"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_items_with_array_type_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "array",
+      "minItems": 99999999999999999999
+    },
+    "instance": [],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array but it was of type array"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array but it was of type array"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_max_length_with_string_type_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "string",
+      "maxLength": 99999999999999999999
+    },
+    "instance": "a",
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    }
+  },
+  {
+    "description": "unrepresentable_min_items_with_array_type_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "array",
+      "minItems": 99999999999999999999
+    },
+    "instance": "a",
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array",
+        "The value was expected to be of type array but it was of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+        [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to NOT be of type array",
+        "The value was expected to be of type array but it was of type string"
+      ]
+    }
   }
 ]
