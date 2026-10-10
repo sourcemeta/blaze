@@ -170,6 +170,102 @@ auto walk_up_in_place_applicators(const sourcemeta::core::JSON &root,
                  is_in_place_applicator, matches);
 }
 
+// Every scope a location sits inside of, following only in-place applicators,
+// so that a reference landing on any of them is one that reaches this location
+// without moving through the instance
+inline auto
+in_place_scopes(const SchemaFrame &frame, const SchemaFrame::Location &location,
+                const SchemaWalker &walker, const SchemaResolver &resolver)
+    -> std::set<sourcemeta::core::WeakPointer> {
+  std::set<sourcemeta::core::WeakPointer> result{location.pointer};
+  auto current_pointer{location.pointer};
+  auto current_parent{location.parent};
+
+  while (current_parent.has_value()) {
+    const auto &parent_pointer{current_parent.value()};
+    const auto relative{current_pointer.resolve_from(parent_pointer)};
+    if (relative.empty() || !relative.at(0).is_property()) {
+      break;
+    }
+
+    const auto parent{frame.traverse(parent_pointer)};
+    if (!parent.has_value()) {
+      break;
+    }
+
+    const auto &parent_vocabularies{
+        frame.vocabularies(parent.value().get(), resolver)};
+    if (!is_in_place_applicator(
+            walker(relative.at(0).to_property(), parent_vocabularies).type)) {
+      break;
+    }
+
+    result.insert(parent_pointer);
+    current_pointer = parent_pointer;
+    current_parent = parent.value().get().parent;
+  }
+
+  return result;
+}
+
+// The lexical walk stops at a subschema nothing encloses, which is what a
+// definition under `$defs` looks like. Whichever scope references that
+// definition still sees the annotations it produces, so a keyword that reads
+// them, such as `unevaluatedItems`, can sit on the far side of the reference.
+// This repeats the walk from every scope that reaches this location through a
+// reference, so such a keyword is found wherever it hides
+template <typename MatchCallback>
+auto walk_up_in_place_applicators_across_references(
+    const sourcemeta::core::JSON &root, const SchemaFrame &frame,
+    const SchemaFrame::Location &location, const SchemaWalker &walker,
+    const SchemaResolver &resolver, const MatchCallback &matches) -> bool {
+  std::vector<std::reference_wrapper<const SchemaFrame::Location>> pending{
+      std::cref(location)};
+  std::set<sourcemeta::core::WeakPointer> visited{location.pointer};
+
+  while (!pending.empty()) {
+    const auto &current{pending.back().get()};
+    pending.pop_back();
+
+    // The caller already checked the location it asked about, but a scope we
+    // arrived at through a reference still has to be checked on its own
+    if (current.pointer != location.pointer &&
+        matches(sourcemeta::core::get(root, current.pointer),
+                frame.vocabularies(current, resolver))) {
+      return true;
+    }
+
+    if (walk_up_in_place_applicators(root, frame, current, walker, resolver,
+                                     matches)
+            .has_value()) {
+      return true;
+    }
+
+    const auto scopes{in_place_scopes(frame, current, walker, resolver)};
+    frame.for_each_reference(
+        [&](const SchemaReferenceType,
+            const sourcemeta::core::WeakPointer &origin,
+            const SchemaFrame::Reference &reference) -> void {
+          const auto destination{frame.traverse(reference.destination)};
+          if (!destination.has_value() ||
+              !std::ranges::contains(scopes,
+                                     destination.value().get().pointer)) {
+            return;
+          }
+
+          const auto source{frame.traverse(origin.initial())};
+          if (!source.has_value() ||
+              !visited.insert(source.value().get().pointer).second) {
+            return;
+          }
+
+          pending.emplace_back(std::cref(source.value().get()));
+        });
+  }
+
+  return false;
+}
+
 #define ONLY_CONTINUE_IF(condition)                                            \
   if (!(condition)) {                                                          \
     return false;                                                              \

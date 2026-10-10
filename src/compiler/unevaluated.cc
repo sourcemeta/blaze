@@ -2,6 +2,7 @@
 #include <sourcemeta/core/jsonschema.h>
 
 #include "compile_helpers.h"
+#include "unevaluated.h"
 
 #include <set>     // std::set
 #include <utility> // std::pair
