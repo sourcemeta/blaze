@@ -5,7 +5,7 @@
     "discriminator": {
       "propertyName": "petType",
       "mapping": {
-        "dog": "#/x-definitions/Dog"
+        "dog": "#/components/schemas/Dog"
       },
       "x-note": "kept"
     }
@@ -17,7 +17,7 @@
       "x-discriminator": {
         "propertyName": "petType",
         "mapping": {
-          "dog": "#/x-definitions/Dog"
+          "dog": "#/components/schemas/Dog"
         },
         "x-note": "kept"
       }
@@ -28,7 +28,7 @@
       "x-discriminator": {
         "propertyName": "petType",
         "mapping": {
-          "dog": "#/x-definitions/Dog"
+          "dog": "#/components/schemas/Dog"
         },
         "x-note": "kept"
       }
@@ -39,7 +39,7 @@
       "x-discriminator": {
         "propertyName": "petType",
         "mapping": {
-          "dog": "#/x-definitions/Dog"
+          "dog": "#/components/schemas/Dog"
         },
         "x-note": "kept"
       }
@@ -50,7 +50,7 @@
       "x-discriminator": {
         "propertyName": "petType",
         "mapping": {
-          "dog": "#/x-definitions/Dog"
+          "dog": "#/components/schemas/Dog"
         },
         "x-note": "kept"
       }
@@ -61,7 +61,7 @@
       "x-discriminator": {
         "propertyName": "petType",
         "mapping": {
-          "dog": "#/x-definitions/Dog"
+          "dog": "#/components/schemas/Dog"
         },
         "x-note": "kept"
       }
@@ -72,7 +72,7 @@
       "discriminator": {
         "propertyName": "petType",
         "mapping": {
-          "dog": "#/x-definitions/Dog"
+          "dog": "#/components/schemas/Dog"
         },
         "x-note": "kept"
       }
@@ -83,7 +83,7 @@
       "discriminator": {
         "propertyName": "petType",
         "mapping": {
-          "dog": "#/x-definitions/Dog"
+          "dog": "#/components/schemas/Dog"
         },
         "x-note": "kept"
       }

@@ -4,7 +4,8 @@ public:
       : SchemaTransformRule{"upgrade_openapi_3_0_to_draft_4"},
         keeps_read_only_{names_read_only(target)},
         keeps_deprecated_{names_deprecated(target)},
-        keeps_openapi_annotations_{names_openapi_annotations(target)} {};
+        keeps_openapi_annotations_{names_openapi_annotations(target)},
+        keeps_default_mapping_{target == ConvertTarget::OpenAPI32} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -110,23 +111,6 @@ public:
       }
     }
 
-    // Core reads this marker as the dialect of the position carrying it, ahead
-    // of any `$schema` beside it, so one naming OpenAPI 3.0 has to go as the
-    // document stops being written in it. Left behind, it would keep framing an
-    // output that now declares Draft 4 as the dialect it has just left, which
-    // reads a `type` array and a `$schema` as keywords it prohibits.
-    //
-    // `DialectOverrideBecomesDollarSchema` settles a marker naming a rung by
-    // writing the `$schema` it stands for, and cannot do that here: the
-    // OpenAPI 3.0 Schema Object defines no keyword to declare its own dialect
-    // with, so there is no `$schema` to settle it into. Clearing it ahead of
-    // this rule would take with it the only thing saying what the document is
-    const auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-    if (override_value != nullptr && override_value->is_string() &&
-        names_openapi_3_0_dialect(override_value->to_string())) {
-      schema.erase(DIALECT_OVERRIDE_KEYWORD);
-    }
-
     bump_dialect(schema, site, DRAFT_4_URL);
   }
 
@@ -194,6 +178,10 @@ private:
   static constexpr std::array<std::string_view, 8> KEYWORDS{
       {"nullable", "discriminator", "xml", "externalDocs", "example",
        "deprecated", "readOnly", "writeOnly"}};
+
+  // Where a `mapping` entry names a schema inside the container this edge moves
+  // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+  static inline const std::string MAPPING_INTO_DEFINITIONS{"#/x-definitions/"};
 
   // Each of these modifies the bound beside it, which Draft 4 requires to be
   // there and OpenAPI 3.0 does not
@@ -293,14 +281,41 @@ private:
     // stated more loosely by 3.0 than by the dialects above it, so only this
     // one has a shape to answer for
     if (keyword == "discriminator") {
-      return is_expressible_discriminator(
-          subschema.at(sourcemeta::core::JSON::String{keyword}));
+      const auto &discriminator{
+          subschema.at(sourcemeta::core::JSON::String{keyword})};
+      return this->is_expressible_discriminator(discriminator) &&
+             mapping_survives_the_move(discriminator);
     }
 
     // `nullable` is not among them: no OpenAPI dialect above 3.0 has it, as a
     // type union says it there instead
     return keyword == "xml" || keyword == "externalDocs" ||
            keyword == "example";
+  }
+
+  // A `mapping` value may name a schema by reference, and the frame indexes no
+  // such reference, so nothing follows one when the schema it names moves. The
+  // one member this edge moves is the subschema container, so a mapping naming
+  // a position inside it would be left pointing where nothing is any more.
+  // Carrying that across as a keyword would publish a discriminator that lies
+  // about where its branches are, so it goes across as author data instead,
+  // which at least reads as the record of the author's intent that it is
+  static auto
+  mapping_survives_the_move(const sourcemeta::core::JSON &discriminator)
+      -> bool {
+    const auto *mapping{discriminator.try_at("mapping")};
+    if (mapping == nullptr || !mapping->is_object()) {
+      return true;
+    }
+
+    for (const auto &entry : mapping->as_object()) {
+      if (entry.second.is_string() &&
+          entry.second.to_string().starts_with(MAPPING_INTO_DEFINITIONS)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   // OpenAPI 3.0 leaves its Discriminator Object open, naming `propertyName` and
@@ -310,23 +325,27 @@ private:
   // author data it has to be there rather than as a keyword that would make the
   // output invalid against the dialect it declares.
   //
-  // The two members asked about are 3.1's, which is the narrower of the two
-  // shapes: 3.2 also names `defaultMapping`. A discriminator carrying that one
-  // is shadowed even where 3.2 could read it, which costs a little fidelity at
-  // one target for a member that only exists two versions after the dialect
-  // being converted from
-  static auto
-  is_expressible_discriminator(const sourcemeta::core::JSON &discriminator)
-      -> bool {
+  // Which members are asked about depends on the target, because the two
+  // shapes differ: 3.1 names `propertyName` and `mapping`, and 3.2 names
+  // `defaultMapping` as well. A discriminator carrying that one is a
+  // discriminator 3.2 reads and 3.1 does not
+  [[nodiscard]] auto is_expressible_discriminator(
+      const sourcemeta::core::JSON &discriminator) const -> bool {
     if (!discriminator.is_object()) {
       return false;
     }
 
     for (const auto &entry : discriminator.as_object()) {
-      if (entry.first != "propertyName" && entry.first != "mapping" &&
-          !entry.first.starts_with("x-")) {
-        return false;
+      if (entry.first == "propertyName" || entry.first == "mapping" ||
+          entry.first.starts_with("x-")) {
+        continue;
       }
+
+      if (entry.first == "defaultMapping" && this->keeps_default_mapping_) {
+        continue;
+      }
+
+      return false;
     }
 
     return true;
@@ -499,6 +518,7 @@ private:
   const bool keeps_read_only_;
   const bool keeps_deprecated_;
   const bool keeps_openapi_annotations_;
+  const bool keeps_default_mapping_;
   mutable std::unordered_map<std::string, std::string> renames_;
   mutable std::vector<Relocation> relocations_;
 };

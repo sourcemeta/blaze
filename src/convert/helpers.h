@@ -432,16 +432,22 @@ inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
 inline auto bump_dialect(sourcemeta::core::JSON &schema, const Site &site,
                          const std::string_view dialect) -> void {
   // Core reads the override marker as the dialect of the position carrying it,
-  // ahead of any `$schema` beside it and wherever that position is. So a
-  // position whose dialect comes from one has its dialect moved by writing the
-  // marker: a `$schema` written here instead would not be the thing read, and
-  // the position would keep the dialect it had while its keywords moved
+  // ahead of any `$schema` beside it and wherever that position is
   if (schema.is_object()) {
     auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-    if (override_value != nullptr && is_own_dialect_override(*override_value) &&
-        !at_dialect_declaration(schema, site)) {
-      *override_value = sourcemeta::core::JSON{dialect};
-      return;
+    if (override_value != nullptr && override_value->is_string() &&
+        names_ladder_dialect(override_value->to_string())) {
+      // Where nothing else is read, the dialect moves by writing the marker. A
+      // `$schema` written here instead would not be the thing read, and the
+      // position would keep the dialect it had while its keywords moved on
+      if (!at_dialect_declaration(schema, site)) {
+        *override_value = sourcemeta::core::JSON{dialect};
+        return;
+      }
+
+      // Here a `$schema` is read, and the marker would go on overriding it, so
+      // the marker gives way to the declaration that now says the same thing
+      schema.erase(DIALECT_OVERRIDE_KEYWORD);
     }
   }
 
