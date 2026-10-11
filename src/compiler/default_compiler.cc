@@ -8,16 +8,69 @@
 #include "default_compiler_draft7.h"
 #include "default_compiler_openapi.h"
 
+#include <algorithm>     // std::ranges::any_of
 #include <cassert>       // assert
 #include <string>        // std::string
 #include <unordered_set> // std::unordered_set
 
+namespace {
+
+// Draft 3 to 7 let `$ref` replace every sibling keyword, so nothing those
+// siblings say ever takes effect
+auto ref_overrides_sibling_keywords(
+    const sourcemeta::blaze::SchemaContext &schema_context) -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return schema_context.schema.is_object() &&
+         schema_context.schema.defines("$ref") &&
+         schema_context.vocabularies.contains_any(
+             {Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
+              Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
+              Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
+              Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER});
+}
+
+// Whether the value could be a schema. Every boolean counts as one, as the
+// only question here is whether anything would have to compile at all, and a
+// dialect that admits no boolean schema settles such a value long before this
+auto may_be_a_schema(const sourcemeta::core::JSON &value) -> bool {
+  return value.is_object() || value.is_boolean();
+}
+
+// Whether a schema sits where a keyword of this kind holds one
+auto holds_schema(const sourcemeta::core::SchemaKeywordType type,
+                  const sourcemeta::core::JSON &value) -> bool {
+  switch (type) {
+    case sourcemeta::core::SchemaKeywordType::Unknown:
+    case sourcemeta::core::SchemaKeywordType::Assertion:
+    case sourcemeta::core::SchemaKeywordType::Annotation:
+    case sourcemeta::core::SchemaKeywordType::Reference:
+    case sourcemeta::core::SchemaKeywordType::Other:
+    case sourcemeta::core::SchemaKeywordType::Comment:
+      return false;
+    // These name the schemas they hold rather than being one themselves
+    case sourcemeta::core::SchemaKeywordType::LocationMembers:
+    case sourcemeta::core::SchemaKeywordType::
+        ApplicatorMembersTraversePropertyStatic:
+    case sourcemeta::core::SchemaKeywordType::
+        ApplicatorMembersTraversePropertyRegex:
+    case sourcemeta::core::SchemaKeywordType::ApplicatorMembersInPlaceSome:
+      return value.is_object() &&
+             std::ranges::any_of(value.as_object(),
+                                 [](const auto &entry) -> bool {
+                                   return may_be_a_schema(entry.second);
+                                 });
+    default:
+      return may_be_a_schema(value) ||
+             (value.is_array() &&
+              std::ranges::any_of(value.as_array(), may_be_a_schema));
+  }
+}
+
 // NOLINTNEXTLINE(google-readability-function-size,hicpp-function-size,readability-function-size)
-auto sourcemeta::blaze::default_schema_compiler(
-    const sourcemeta::blaze::Context &context,
-    const sourcemeta::blaze::SchemaContext &schema_context,
-    const sourcemeta::blaze::DynamicContext &dynamic_context,
-    const sourcemeta::blaze::Instructions &current)
+auto dispatch_keyword(const sourcemeta::blaze::Context &context,
+                      const sourcemeta::blaze::SchemaContext &schema_context,
+                      const sourcemeta::blaze::DynamicContext &dynamic_context,
+                      const sourcemeta::blaze::Instructions &current)
     -> sourcemeta::blaze::Instructions {
   assert(!dynamic_context.keyword.empty());
 
@@ -68,13 +121,6 @@ auto sourcemeta::blaze::default_schema_compiler(
       dynamic_context.keyword == (_keyword)) {                                 \
     return internal::handler(context, schema_context, dynamic_context,         \
                              current);                                         \
-  }
-
-#define STOP_IF_SIBLING_KEYWORD(vocabulary, _keyword)                          \
-  if (schema_context.vocabularies.contains(vocabulary) &&                      \
-      schema_context.schema.is_object() &&                                     \
-      schema_context.schema.defines(_keyword)) {                               \
-    return {};                                                                 \
   }
 
   // ********************************************
@@ -293,8 +339,6 @@ auto sourcemeta::blaze::default_schema_compiler(
 
   COMPILE_ANY(Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
               "$ref", compiler_draft3_core_ref);
-  STOP_IF_SIBLING_KEYWORD(Known::JSON_SCHEMA_DRAFT_7, "$ref");
-  STOP_IF_SIBLING_KEYWORD(Known::JSON_SCHEMA_DRAFT_7_HYPER, "$ref");
 
   // Any
   COMPILE_ANY(Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
@@ -382,8 +426,6 @@ auto sourcemeta::blaze::default_schema_compiler(
 
   COMPILE_ANY(Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
               "$ref", compiler_draft3_core_ref);
-  STOP_IF_SIBLING_KEYWORD(Known::JSON_SCHEMA_DRAFT_6, "$ref");
-  STOP_IF_SIBLING_KEYWORD(Known::JSON_SCHEMA_DRAFT_6_HYPER, "$ref");
 
   // Any
   COMPILE_ANY(Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
@@ -468,8 +510,6 @@ auto sourcemeta::blaze::default_schema_compiler(
 
   COMPILE_ANY(Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
               "$ref", compiler_draft3_core_ref);
-  STOP_IF_SIBLING_KEYWORD(Known::JSON_SCHEMA_DRAFT_4, "$ref");
-  STOP_IF_SIBLING_KEYWORD(Known::JSON_SCHEMA_DRAFT_4_HYPER, "$ref");
 
   // Applicators
   COMPILE_ANY(Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
@@ -541,8 +581,6 @@ auto sourcemeta::blaze::default_schema_compiler(
 
   COMPILE_ANY(Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
               "$ref", compiler_draft3_core_ref);
-  STOP_IF_SIBLING_KEYWORD(Known::JSON_SCHEMA_DRAFT_3, "$ref");
-  STOP_IF_SIBLING_KEYWORD(Known::JSON_SCHEMA_DRAFT_3_HYPER, "$ref");
 
   // Applicators
   COMPILE_ANY(Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
@@ -611,7 +649,6 @@ auto sourcemeta::blaze::default_schema_compiler(
 
 #undef COMPILE
 #undef COMPILE_ANY
-#undef STOP_IF_SIBLING_KEYWORD
 
   if ((schema_context.vocabularies.contains(Known::JSON_SCHEMA_2019_09_CORE) ||
        schema_context.vocabularies.contains(Known::JSON_SCHEMA_2020_12_CORE)) &&
@@ -638,4 +675,35 @@ auto sourcemeta::blaze::default_schema_compiler(
   }
 
   return {};
+}
+
+} // namespace
+
+auto sourcemeta::blaze::default_schema_compiler(
+    const sourcemeta::blaze::Context &context,
+    const sourcemeta::blaze::SchemaContext &schema_context,
+    const sourcemeta::blaze::DynamicContext &dynamic_context,
+    const sourcemeta::blaze::Instructions &current)
+    -> sourcemeta::blaze::Instructions {
+  if (ref_overrides_sibling_keywords(schema_context)) {
+    const auto &metadata{
+        context.walker(dynamic_context.keyword, schema_context.vocabularies)};
+    if (metadata.type != sourcemeta::core::SchemaKeywordType::Reference) {
+      // Whether the shape an overridden keyword takes is one its dialect
+      // allows at all is still for the keyword compiler to judge, so such a
+      // keyword compiles for that judgement alone and what it makes is thrown
+      // away. One holding a schema is where that stops, as core's schema
+      // walker frames nothing under an overridden keyword, and an unframed
+      // schema is not one this compiler can be handed
+      if (!holds_schema(metadata.type,
+                        schema_context.schema.at(dynamic_context.keyword))) {
+        [[maybe_unused]] const auto discarded{dispatch_keyword(
+            context, schema_context, dynamic_context, current)};
+      }
+
+      return {};
+    }
+  }
+
+  return dispatch_keyword(context, schema_context, dynamic_context, current);
 }

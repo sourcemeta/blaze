@@ -22,5 +22,209 @@
       "base": "",
       "location": "/propertyNames/type"
     }
+  },
+  {
+    "description": "ref_sibling_max_length_real",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "maxLength": 1.5 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an integer",
+      "base": "",
+      "location": "/properties/n/maxLength"
+    }
+  },
+  {
+    "description": "ref_sibling_min_length_negative",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "minLength": -1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a non-negative number",
+      "base": "",
+      "location": "/properties/n/minLength"
+    }
+  },
+  {
+    "description": "ref_sibling_max_items_string",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "maxItems": "1" } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an integer",
+      "base": "",
+      "location": "/properties/n/maxItems"
+    }
+  },
+  {
+    "description": "ref_sibling_min_items_real",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "minItems": 1.5 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an integer",
+      "base": "",
+      "location": "/properties/n/minItems"
+    }
+  },
+  {
+    "description": "ref_sibling_pattern_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "pattern": 1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a string",
+      "base": "",
+      "location": "/properties/n/pattern"
+    }
+  },
+  {
+    "description": "ref_sibling_maximum_string",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "maximum": "1" } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a number",
+      "base": "",
+      "location": "/properties/n/maximum"
+    }
+  },
+  {
+    "description": "ref_sibling_enum_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "enum": 1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an array",
+      "base": "",
+      "location": "/properties/n/enum"
+    }
+  },
+  {
+    "description": "ref_sibling_enum_duplicate_options",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "enum": [ 1, 1 ] } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of unique values",
+      "base": "",
+      "location": "/properties/n/enum"
+    }
+  },
+  {
+    "description": "ref_sibling_type_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "type": 123 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/properties/n/type"
+    }
+  },
+  {
+    "description": "ref_sibling_type_duplicate_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "type": [ "string", "string" ] } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/properties/n/type"
+    }
+  },
+  {
+    "description": "ref_sibling_dependencies_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "dependencies": 1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/properties/n/dependencies"
+    }
+  },
+  {
+    "description": "ref_sibling_dependencies_integer_value",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "dependencies": { "a": 1 } } }
+    },
+    "error": {
+      "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+      "base": "",
+      "location": "/properties/n/dependencies"
+    }
+  },
+  {
+    "description": "ref_sibling_max_properties_real",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "maxProperties": 1.5 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an integer",
+      "base": "",
+      "location": "/properties/n/maxProperties"
+    }
+  },
+  {
+    "description": "ref_sibling_multiple_of_zero",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "multipleOf": 0 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a number greater than zero",
+      "base": "",
+      "location": "/properties/n/multipleOf"
+    }
+  },
+  {
+    "description": "ref_sibling_required_duplicate_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "required": [ "a", "a" ] } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an array of unique property names",
+      "base": "",
+      "location": "/properties/n/required"
+    }
+  },
+  {
+    "description": "ref_sibling_any_of_integer_elements",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "anyOf": [ 1 ] } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/properties/n/anyOf"
+    }
+  },
+  {
+    "description": "ref_sibling_one_of_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": { "n": { "$ref": "#", "oneOf": 1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/properties/n/oneOf"
+    }
   }
 ]
