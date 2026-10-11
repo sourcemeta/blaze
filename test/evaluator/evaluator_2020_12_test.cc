@@ -6568,8 +6568,8 @@ TEST(unevaluated_items_root_self_reference_exhaustive) {
 TEST(unevaluated_properties_all_of_self_reference_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [{"$ref": "#"}],
-    "properties": {"a": true},
+    "allOf": [ { "$ref": "#" } ],
+    "properties": { "a": true },
     "unevaluatedProperties": false
   })JSON")};
 
@@ -6598,8 +6598,8 @@ TEST(unevaluated_properties_all_of_self_reference_fast) {
 TEST(unevaluated_properties_all_of_self_reference_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "allOf": [{"$ref": "#"}],
-    "properties": {"a": true},
+    "allOf": [ { "$ref": "#" } ],
+    "properties": { "a": true },
     "unevaluatedProperties": false
   })JSON")};
 
@@ -6628,8 +6628,8 @@ TEST(unevaluated_properties_all_of_self_reference_exhaustive) {
 TEST(unevaluated_properties_any_of_self_reference_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "anyOf": [{"$ref": "#"}],
-    "properties": {"a": true},
+    "anyOf": [ { "$ref": "#" } ],
+    "properties": { "a": true },
     "unevaluatedProperties": false
   })JSON")};
 
@@ -6658,8 +6658,8 @@ TEST(unevaluated_properties_any_of_self_reference_fast) {
 TEST(unevaluated_properties_any_of_self_reference_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "anyOf": [{"$ref": "#"}],
-    "properties": {"a": true},
+    "anyOf": [ { "$ref": "#" } ],
+    "properties": { "a": true },
     "unevaluatedProperties": false
   })JSON")};
 
@@ -6688,8 +6688,8 @@ TEST(unevaluated_properties_any_of_self_reference_exhaustive) {
 TEST(unevaluated_properties_if_self_reference_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "if": {"$ref": "#"},
-    "properties": {"a": true},
+    "if": { "$ref": "#" },
+    "properties": { "a": true },
     "unevaluatedProperties": false
   })JSON")};
 
@@ -6718,8 +6718,8 @@ TEST(unevaluated_properties_if_self_reference_fast) {
 TEST(unevaluated_properties_if_self_reference_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "if": {"$ref": "#"},
-    "properties": {"a": true},
+    "if": { "$ref": "#" },
+    "properties": { "a": true },
     "unevaluatedProperties": false
   })JSON")};
 
@@ -6748,8 +6748,8 @@ TEST(unevaluated_properties_if_self_reference_exhaustive) {
 TEST(unevaluated_properties_then_self_reference_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "then": {"$ref": "#"},
-    "properties": {"a": true},
+    "then": { "$ref": "#" },
+    "properties": { "a": true },
     "unevaluatedProperties": false,
     "if": true
   })JSON")};
@@ -6779,8 +6779,8 @@ TEST(unevaluated_properties_then_self_reference_fast) {
 TEST(unevaluated_properties_then_self_reference_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "then": {"$ref": "#"},
-    "properties": {"a": true},
+    "then": { "$ref": "#" },
+    "properties": { "a": true },
     "unevaluatedProperties": false,
     "if": true
   })JSON")};
@@ -6810,8 +6810,8 @@ TEST(unevaluated_properties_then_self_reference_exhaustive) {
 TEST(unevaluated_properties_else_self_reference_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "else": {"$ref": "#"},
-    "properties": {"a": true},
+    "else": { "$ref": "#" },
+    "properties": { "a": true },
     "unevaluatedProperties": false,
     "if": false
   })JSON")};
@@ -6841,8 +6841,8 @@ TEST(unevaluated_properties_else_self_reference_fast) {
 TEST(unevaluated_properties_else_self_reference_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "else": {"$ref": "#"},
-    "properties": {"a": true},
+    "else": { "$ref": "#" },
+    "properties": { "a": true },
     "unevaluatedProperties": false,
     "if": false
   })JSON")};
@@ -6873,8 +6873,8 @@ TEST(unevaluated_properties_mutual_definitions_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
-      "a": {"$ref": "#/$defs/b", "properties": {"a": true}},
-      "b": {"$ref": "#/$defs/a", "properties": {"a": true}}
+      "a": { "$ref": "#/$defs/b", "properties": { "a": true } },
+      "b": { "$ref": "#/$defs/a", "properties": { "a": true } }
     },
     "$ref": "#/$defs/a",
     "unevaluatedProperties": false
@@ -6906,8 +6906,8 @@ TEST(unevaluated_properties_mutual_definitions_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
-      "a": {"$ref": "#/$defs/b", "properties": {"a": true}},
-      "b": {"$ref": "#/$defs/a", "properties": {"a": true}}
+      "a": { "$ref": "#/$defs/b", "properties": { "a": true } },
+      "b": { "$ref": "#/$defs/a", "properties": { "a": true } }
     },
     "$ref": "#/$defs/a",
     "unevaluatedProperties": false
@@ -6939,8 +6939,8 @@ TEST(unevaluated_items_mutual_definitions_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
-      "a": {"$ref": "#/$defs/b", "prefixItems": [true]},
-      "b": {"$ref": "#/$defs/a", "prefixItems": [true]}
+      "a": { "$ref": "#/$defs/b", "prefixItems": [ true ] },
+      "b": { "$ref": "#/$defs/a", "prefixItems": [ true ] }
     },
     "$ref": "#/$defs/a",
     "unevaluatedItems": false
@@ -6972,8 +6972,8 @@ TEST(unevaluated_items_mutual_definitions_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$defs": {
-      "a": {"$ref": "#/$defs/b", "prefixItems": [true]},
-      "b": {"$ref": "#/$defs/a", "prefixItems": [true]}
+      "a": { "$ref": "#/$defs/b", "prefixItems": [ true ] },
+      "b": { "$ref": "#/$defs/a", "prefixItems": [ true ] }
     },
     "$ref": "#/$defs/a",
     "unevaluatedItems": false
@@ -7004,7 +7004,7 @@ TEST(unevaluated_items_mutual_definitions_exhaustive) {
 TEST(unevaluated_properties_not_self_reference_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "not": {"$ref": "#"},
+    "not": { "$ref": "#" },
     "unevaluatedProperties": false
   })JSON")};
 
@@ -7033,7 +7033,7 @@ TEST(unevaluated_properties_not_self_reference_fast) {
 TEST(unevaluated_properties_not_self_reference_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "not": {"$ref": "#"},
+    "not": { "$ref": "#" },
     "unevaluatedProperties": false
   })JSON")};
 

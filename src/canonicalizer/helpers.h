@@ -170,42 +170,47 @@ auto walk_up_in_place_applicators(const sourcemeta::core::JSON &root,
                  is_in_place_applicator, matches);
 }
 
-// Every scope a location sits inside of, following only in-place applicators,
-// so that a reference landing on any of them is one that reaches this location
-// without moving through the instance
-inline auto
-in_place_scopes(const SchemaFrame &frame, const SchemaFrame::Location &location,
-                const SchemaWalker &walker, const SchemaResolver &resolver)
-    -> std::set<sourcemeta::core::WeakPointer> {
-  std::set<sourcemeta::core::WeakPointer> result{location.pointer};
+// Walk up the in-place applicator chain of a location once, reporting whether
+// any ancestor matches and collecting every scope the walk passes through on
+// the way. A reference landing on any of those scopes is one that reaches this
+// location without moving through the instance, which is what makes them worth
+// collecting. The two answers come from the same walk because the chain and
+// the predicate that bounds it are the same either way
+template <typename MatchCallback>
+auto walk_up_in_place_applicators_collecting_scopes(
+    const sourcemeta::core::JSON &root, const SchemaFrame &frame,
+    const SchemaFrame::Location &location, const SchemaWalker &walker,
+    const SchemaResolver &resolver, const MatchCallback &matches,
+    std::set<sourcemeta::core::WeakPointer> &scopes) -> bool {
+  scopes.insert(location.pointer);
   auto current_pointer{location.pointer};
   auto current_parent{location.parent};
 
   while (current_parent.has_value()) {
     const auto &parent_pointer{current_parent.value()};
-    const auto relative{current_pointer.resolve_from(parent_pointer)};
-    if (relative.empty() || !relative.at(0).is_property()) {
-      break;
-    }
-
+    const auto relative_pointer{current_pointer.resolve_from(parent_pointer)};
+    assert(!relative_pointer.empty() && relative_pointer.at(0).is_property());
     const auto parent{frame.traverse(parent_pointer)};
-    if (!parent.has_value()) {
-      break;
-    }
-
+    assert(parent.has_value());
     const auto &parent_vocabularies{
         frame.vocabularies(parent.value().get(), resolver)};
     if (!is_in_place_applicator(
-            walker(relative.at(0).to_property(), parent_vocabularies).type)) {
-      break;
+            walker(relative_pointer.at(0).to_property(), parent_vocabularies)
+                .type)) {
+      return false;
     }
 
-    result.insert(parent_pointer);
+    if (matches(sourcemeta::core::get(root, parent_pointer),
+                parent_vocabularies)) {
+      return true;
+    }
+
+    scopes.insert(parent_pointer);
     current_pointer = parent_pointer;
     current_parent = parent.value().get().parent;
   }
 
-  return result;
+  return false;
 }
 
 // The lexical walk stops at a subschema nothing encloses, which is what a
@@ -235,21 +240,19 @@ auto walk_up_in_place_applicators_across_references(
       return true;
     }
 
-    if (walk_up_in_place_applicators(root, frame, current, walker, resolver,
-                                     matches)
-            .has_value()) {
+    std::set<sourcemeta::core::WeakPointer> scopes;
+    if (walk_up_in_place_applicators_collecting_scopes(
+            root, frame, current, walker, resolver, matches, scopes)) {
       return true;
     }
 
-    const auto scopes{in_place_scopes(frame, current, walker, resolver)};
     frame.for_each_reference(
         [&](const SchemaReferenceType,
             const sourcemeta::core::WeakPointer &origin,
             const SchemaFrame::Reference &reference) -> void {
           const auto destination{frame.traverse(reference.destination)};
           if (!destination.has_value() ||
-              !std::ranges::contains(scopes,
-                                     destination.value().get().pointer)) {
+              !scopes.contains(destination.value().get().pointer)) {
             return;
           }
 
