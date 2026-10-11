@@ -254,26 +254,25 @@ static auto register_tests(const std::filesystem::path &path,
 
 auto main(int argc, char **argv) -> int {
   try {
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_openapi_3_0_2024_10_18.json",
-                   "Evaluator_trace_OpenAPI_3_0_2024_10_18",
-                   "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
-                   "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect");
-    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                             "evaluator_openapi_3_0_2024_10_18_invalid.json",
-                         "Evaluator_error_OpenAPI_3_0_2024_10_18",
-                         "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
-                         "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_openapi_3_0_2021_09_28.json",
-                   "Evaluator_trace_OpenAPI_3_0_2021_09_28",
-                   "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect",
-                   "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect");
-    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                             "evaluator_openapi_3_0_2021_09_28_invalid.json",
-                         "Evaluator_error_OpenAPI_3_0_2021_09_28",
-                         "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect",
-                         "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect");
+    // The two dated OpenAPI 3.0 dialects answer with the same Schema Object
+    // definition, so one suite says what both of them mean. What differs
+    // between the documents they come from describes the rest of an OpenAPI
+    // document, which a schema of this dialect never reaches
+    for (const auto &[label, dialect] :
+         {std::pair<const char *, const char *>{
+              "2024_10_18", "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect"},
+          std::pair<const char *, const char *>{
+              "2021_09_28",
+              "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect"}}) {
+      register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                         "evaluator_openapi_3_0.json",
+                     std::string{"Evaluator_trace_OpenAPI_3_0_"} + label,
+                     dialect, dialect);
+      register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
+                               "evaluator_openapi_3_0_invalid.json",
+                           std::string{"Evaluator_error_OpenAPI_3_0_"} + label,
+                           dialect, dialect);
+    }
     register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
                        "evaluator_openapi_3_1.json",
                    "Evaluator_trace_OpenAPI_3_1",
