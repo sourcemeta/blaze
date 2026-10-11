@@ -203,7 +203,7 @@ inline auto fold_nullable_into_type(sourcemeta::core::JSON &schema) -> void {
   if (type->is_string()) {
     auto names{sourcemeta::core::JSON::make_array()};
     names.push_back(*type);
-    names.push_back(NULL_TYPE);
+    names.push_back_if_unique(NULL_TYPE);
     *type = std::move(names);
     return;
   }

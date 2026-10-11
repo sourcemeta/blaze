@@ -75,9 +75,17 @@ auto main(int argc, char *argv[]) -> int {
                                              ? options.at("dialect").front()
                                              : ""};
 
-  sourcemeta::blaze::convert(document, sourcemeta::core::schema_walker,
-                             sourcemeta::core::schema_resolver,
-                             convert_target.value(), default_dialect);
+  // Conversion refuses a document it cannot carry by throwing, and a tool that
+  // lets that reach the runtime reports it as an abort with no message worth
+  // reading
+  try {
+    sourcemeta::blaze::convert(document, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               convert_target.value(), default_dialect);
+  } catch (const std::exception &error) {
+    std::cerr << "error: " << error.what() << "\n";
+    return EXIT_FAILURE;
+  }
 
   sourcemeta::core::prettify(document, std::cout);
   std::cout << "\n";

@@ -1,0 +1,89 @@
+{
+  "defaultDialect": "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+  "schema": {
+    "items": {
+      "$ref": "#/x-definitions/b"
+    },
+    "x-definitions": {
+      "b": true
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "items": {
+        "$ref": "#/definitions/b"
+      },
+      "definitions": {
+        "b": {}
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "items": {
+        "$ref": "#/definitions/b"
+      },
+      "definitions": {
+        "b": true
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "items": {
+        "$ref": "#/definitions/b"
+      },
+      "definitions": {
+        "b": true
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": {
+        "$ref": "#/$defs/b"
+      },
+      "$defs": {
+        "b": true
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": {
+        "$ref": "#/$defs/b"
+      },
+      "$defs": {
+        "b": true
+      }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "items": {
+        "$ref": "#/$defs/b"
+      },
+      "$defs": {
+        "b": true
+      }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "items": {
+        "$ref": "#/$defs/b"
+      },
+      "$defs": {
+        "b": true
+      }
+    }
+  },
+  "examples": [
+    [
+      1
+    ],
+    [
+      "x"
+    ],
+    [],
+    [
+      null
+    ]
+  ],
+  "counterExamples": []
+}
