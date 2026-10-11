@@ -18,6 +18,16 @@ function resolveInstructionType(name) {
   return opcode;
 }
 
+// A dialect that cannot declare itself, because its own meta-schema spares no
+// `$schema` member, has to be named from the outside. A suite that stands for
+// more than one of them runs once per dialect, the way the C++ suite does
+const SUITE_DEFAULT_DIALECTS = {
+  evaluator_openapi_3_0: [
+    ['2024_10_18', 'tag:spec.openapis.org,2024-10-18:oas/3.0/dialect'],
+    ['2021_09_28', 'tag:spec.openapis.org,2021-09-28:oas/3.0/dialect']
+  ]
+};
+
 // This port is a JavaScript evaluator, not a compiler: it borrows the C++
 // compiler to obtain a template. The `_invalid` suites assert which schemas
 // that compiler refuses, which exercises nothing here
@@ -33,122 +43,128 @@ for (const file of suiteFiles) {
   const tests = JSON.parse(readFileSync(filePath, 'utf8'), reviver);
   console.log(`   ${tests.length} test entries`);
 
-  describe(suiteName, () => {
-    for (let testIndex = 0; testIndex < tests.length; testIndex++) {
-      const testCase = tests[testIndex];
+  const dialects = SUITE_DEFAULT_DIALECTS[suiteName] ?? [[null, undefined]];
 
-      for (const mode of ['fast', 'exhaustive']) {
-        if (!testCase[mode]) continue;
-        const modeData = testCase[mode];
-        const testName = `${testCase.description}_${mode}`;
+  for (const [label, defaultDialect] of dialects) {
+    describe(label === null ? suiteName : `${suiteName}_${label}`, () => {
+      for (let testIndex = 0; testIndex < tests.length; testIndex++) {
+        const testCase = tests[testIndex];
 
-        it(testName, () => {
-          const template = compileSchema(filePath, {
-            mode,
-            path: `/${testIndex}/schema`
-          });
+        for (const mode of ['fast', 'exhaustive']) {
+          if (!testCase[mode]) continue;
+          const modeData = testCase[mode];
+          const testName = `${testCase.description}_${mode}`;
 
-          const evaluator = new Blaze(template);
-          const tracePre = [];
-          const tracePost = [];
-
-          const result = evaluator.validate(testCase.instance, (type, valid, instruction, evaluatePath, instanceLocation, annotation) => {
-            if (type === 'pre') {
-              tracePre.push({ opcode: instruction[0], evaluatePath, keywordLocation: instruction[3], instanceLocation });
-            } else {
-              tracePost.push({ valid, opcode: instruction[0], evaluatePath, keywordLocation: instruction[3], instanceLocation, annotation, instruction });
-            }
-          });
-
-          assert.equal(result, testCase.valid, `Validation result mismatch`);
-
-          const expectedPre = modeData.pre || [];
-          const expectedPost = modeData.post || [];
-
-          assert.equal(tracePre.length, expectedPre.length,
-            `Pre trace count: expected ${expectedPre.length}, got ${tracePre.length}`);
-          assert.equal(tracePost.length, expectedPost.length,
-            `Post trace count: expected ${expectedPost.length}, got ${tracePost.length}`);
-
-          for (let index = 0; index < expectedPre.length; index++) {
-            const expected = expectedPre[index];
-            const actual = tracePre[index];
-            const expectedType = resolveInstructionType(expected[0]);
-
-            if (expectedType === -1) {
-              assert.ok(ANNOTATION_OPCODES.has(actual.opcode),
-                `Pre[${index}] type: expected Annotation, got opcode ${actual.opcode}`);
-            } else {
-              assert.equal(actual.opcode, expectedType,
-                `Pre[${index}] type: expected ${expected[0]} (${expectedType}), got ${actual.opcode}`);
-            }
-
-            assert.equal(actual.evaluatePath, expected[1],
-              `Pre[${index}] evaluatePath: expected "${expected[1]}", got "${actual.evaluatePath}"`);
-            assert.equal(actual.keywordLocation, expected[2],
-              `Pre[${index}] keywordLocation: expected "${expected[2]}", got "${actual.keywordLocation}"`);
-            assert.equal(actual.instanceLocation, expected[3],
-              `Pre[${index}] instanceLocation: expected "${expected[3]}", got "${actual.instanceLocation}"`);
-          }
-
-          for (let index = 0; index < expectedPost.length; index++) {
-            const expected = expectedPost[index];
-            const actual = tracePost[index];
-            const expectedValid = expected[0];
-            const expectedType = resolveInstructionType(expected[1]);
-
-            assert.equal(actual.valid, expectedValid,
-              `Post[${index}] valid: expected ${expectedValid}, got ${actual.valid}`);
-
-            if (expectedType === -1) {
-              assert.ok(ANNOTATION_OPCODES.has(actual.opcode),
-                `Post[${index}] type: expected Annotation, got opcode ${actual.opcode}`);
-            } else {
-              assert.equal(actual.opcode, expectedType,
-                `Post[${index}] type: expected ${expected[1]} (${expectedType}), got ${actual.opcode}`);
-            }
-
-            assert.equal(actual.evaluatePath, expected[2],
-              `Post[${index}] evaluatePath: expected "${expected[2]}", got "${actual.evaluatePath}"`);
-            assert.equal(actual.keywordLocation, expected[3],
-              `Post[${index}] keywordLocation: expected "${expected[3]}", got "${actual.keywordLocation}"`);
-            assert.equal(actual.instanceLocation, expected[4],
-              `Post[${index}] instanceLocation: expected "${expected[4]}", got "${actual.instanceLocation}"`);
-
-            if (expected.length > 5) {
-              assert.ok(isDeepStrictEqual(actual.annotation, expected[5]),
-                `Post[${index}] annotation: expected ${JSON.stringify(expected[5])}, got ${JSON.stringify(actual.annotation)}`);
-            }
-          }
-
-          const expectedDescriptions = modeData.descriptions || [];
-          assert.equal(tracePost.length, expectedDescriptions.length,
-            `Description count: expected ${expectedDescriptions.length}, got ${tracePost.length}`);
-          for (let index = 0; index < expectedDescriptions.length; index++) {
-            const post = tracePost[index];
-            const actual = describeInstruction(
-              post.valid, post.instruction,
-              post.evaluatePath, post.instanceLocation,
-              testCase.instance, post.annotation
-            );
-            assert.equal(actual, expectedDescriptions[index],
-              `Description[${index}]: expected ${JSON.stringify(expectedDescriptions[index])}, got ${JSON.stringify(actual)}`);
-          }
-        });
-
-        if (mode === 'fast') {
-          it(`${testName}_callbackless`, () => {
+          it(testName, () => {
             const template = compileSchema(filePath, {
               mode,
-              path: `/${testIndex}/schema`
+              path: `/${testIndex}/schema`,
+              defaultDialect
             });
 
             const evaluator = new Blaze(template);
-            const result = evaluator.validate(testCase.instance);
-            assert.equal(result, testCase.valid, `Callbackless validation result mismatch`);
+            const tracePre = [];
+            const tracePost = [];
+
+            const result = evaluator.validate(testCase.instance, (type, valid, instruction, evaluatePath, instanceLocation, annotation) => {
+              if (type === 'pre') {
+                tracePre.push({ opcode: instruction[0], evaluatePath, keywordLocation: instruction[3], instanceLocation });
+              } else {
+                tracePost.push({ valid, opcode: instruction[0], evaluatePath, keywordLocation: instruction[3], instanceLocation, annotation, instruction });
+              }
+            });
+
+            assert.equal(result, testCase.valid, `Validation result mismatch`);
+
+            const expectedPre = modeData.pre || [];
+            const expectedPost = modeData.post || [];
+
+            assert.equal(tracePre.length, expectedPre.length,
+              `Pre trace count: expected ${expectedPre.length}, got ${tracePre.length}`);
+            assert.equal(tracePost.length, expectedPost.length,
+              `Post trace count: expected ${expectedPost.length}, got ${tracePost.length}`);
+
+            for (let index = 0; index < expectedPre.length; index++) {
+              const expected = expectedPre[index];
+              const actual = tracePre[index];
+              const expectedType = resolveInstructionType(expected[0]);
+
+              if (expectedType === -1) {
+                assert.ok(ANNOTATION_OPCODES.has(actual.opcode),
+                  `Pre[${index}] type: expected Annotation, got opcode ${actual.opcode}`);
+              } else {
+                assert.equal(actual.opcode, expectedType,
+                  `Pre[${index}] type: expected ${expected[0]} (${expectedType}), got ${actual.opcode}`);
+              }
+
+              assert.equal(actual.evaluatePath, expected[1],
+                `Pre[${index}] evaluatePath: expected "${expected[1]}", got "${actual.evaluatePath}"`);
+              assert.equal(actual.keywordLocation, expected[2],
+                `Pre[${index}] keywordLocation: expected "${expected[2]}", got "${actual.keywordLocation}"`);
+              assert.equal(actual.instanceLocation, expected[3],
+                `Pre[${index}] instanceLocation: expected "${expected[3]}", got "${actual.instanceLocation}"`);
+            }
+
+            for (let index = 0; index < expectedPost.length; index++) {
+              const expected = expectedPost[index];
+              const actual = tracePost[index];
+              const expectedValid = expected[0];
+              const expectedType = resolveInstructionType(expected[1]);
+
+              assert.equal(actual.valid, expectedValid,
+                `Post[${index}] valid: expected ${expectedValid}, got ${actual.valid}`);
+
+              if (expectedType === -1) {
+                assert.ok(ANNOTATION_OPCODES.has(actual.opcode),
+                  `Post[${index}] type: expected Annotation, got opcode ${actual.opcode}`);
+              } else {
+                assert.equal(actual.opcode, expectedType,
+                  `Post[${index}] type: expected ${expected[1]} (${expectedType}), got ${actual.opcode}`);
+              }
+
+              assert.equal(actual.evaluatePath, expected[2],
+                `Post[${index}] evaluatePath: expected "${expected[2]}", got "${actual.evaluatePath}"`);
+              assert.equal(actual.keywordLocation, expected[3],
+                `Post[${index}] keywordLocation: expected "${expected[3]}", got "${actual.keywordLocation}"`);
+              assert.equal(actual.instanceLocation, expected[4],
+                `Post[${index}] instanceLocation: expected "${expected[4]}", got "${actual.instanceLocation}"`);
+
+              if (expected.length > 5) {
+                assert.ok(isDeepStrictEqual(actual.annotation, expected[5]),
+                  `Post[${index}] annotation: expected ${JSON.stringify(expected[5])}, got ${JSON.stringify(actual.annotation)}`);
+              }
+            }
+
+            const expectedDescriptions = modeData.descriptions || [];
+            assert.equal(tracePost.length, expectedDescriptions.length,
+              `Description count: expected ${expectedDescriptions.length}, got ${tracePost.length}`);
+            for (let index = 0; index < expectedDescriptions.length; index++) {
+              const post = tracePost[index];
+              const actual = describeInstruction(
+                post.valid, post.instruction,
+                post.evaluatePath, post.instanceLocation,
+                testCase.instance, post.annotation
+              );
+              assert.equal(actual, expectedDescriptions[index],
+                `Description[${index}]: expected ${JSON.stringify(expectedDescriptions[index])}, got ${JSON.stringify(actual)}`);
+            }
           });
+
+          if (mode === 'fast') {
+            it(`${testName}_callbackless`, () => {
+              const template = compileSchema(filePath, {
+                mode,
+                path: `/${testIndex}/schema`,
+                defaultDialect
+              });
+
+              const evaluator = new Blaze(template);
+              const result = evaluator.validate(testCase.instance);
+              assert.equal(result, testCase.valid, `Callbackless validation result mismatch`);
+            });
+          }
         }
       }
-    }
-  });
+    });
+  }
 }

@@ -20,7 +20,11 @@ inline auto is_in_place_applicator(const SchemaKeywordType type) -> bool {
 // an `enum` of integral values cannot. Draft 6 onwards widened it to any
 // number whose fractional part is zero, and the dialects before Draft 3 read
 // it that way too. Kept in step with `integral_reals_are_integers` in the
-// compiler, which decides the same question when evaluating
+// compiler, which decides the same question when evaluating, other than the
+// OpenAPI 3.0 Schema Object that the compiler's copy also names. No rule here
+// reaches that dialect, as every one of them asks for a JSON Schema
+// vocabulary, so adding it would be a line no test could hold. A rule that
+// does come to reach it needs it here too
 inline auto integral_reals_are_integers(const SchemaVocabularies &vocabularies)
     -> bool {
   return !vocabularies.contains_any(
