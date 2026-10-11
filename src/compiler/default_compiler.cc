@@ -15,30 +15,25 @@
 
 namespace {
 
-// Draft 3 to 7 let `$ref` replace every sibling keyword, so nothing those
-// siblings say ever takes effect
-auto ref_overrides_sibling_keywords(
-    const sourcemeta::blaze::SchemaContext &schema_context) -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  return schema_context.schema.is_object() &&
-         schema_context.schema.defines("$ref") &&
-         schema_context.vocabularies.contains_any(
-             {Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
-              Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
-              Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
-              Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER});
+// Whether any element of the array is a schema
+auto any_element_is_a_schema(const sourcemeta::core::JSON &value,
+                             const bool allow_boolean) -> bool {
+  return value.is_array() &&
+         std::ranges::any_of(value.as_array(),
+                             [allow_boolean](const auto &element) -> bool {
+                               return is_schema(element, allow_boolean);
+                             });
 }
 
-// Whether the value could be a schema. Every boolean counts as one, as the
-// only question here is whether anything would have to compile at all, and a
-// dialect that admits no boolean schema settles such a value long before this
-auto may_be_a_schema(const sourcemeta::core::JSON &value) -> bool {
-  return value.is_object() || value.is_boolean();
-}
-
-// Whether a schema sits where a keyword of this kind holds one
+// Whether a schema sits where a keyword of this kind holds one, and so would
+// have to compile. A single schema is enough to settle it, as several of these
+// keywords let a schema stand beside a value that is not one: Draft 3 `type`
+// lists type names among its subschemas, and `dependencies` lists property
+// names among them, so asking that every member or element be a schema would
+// hand a schema to a compiler that cannot be given one
 auto holds_schema(const sourcemeta::core::SchemaKeywordType type,
-                  const sourcemeta::core::JSON &value) -> bool {
+                  const sourcemeta::core::JSON &value, const bool allow_boolean)
+    -> bool {
   switch (type) {
     case sourcemeta::core::SchemaKeywordType::Unknown:
     case sourcemeta::core::SchemaKeywordType::Assertion:
@@ -47,7 +42,7 @@ auto holds_schema(const sourcemeta::core::SchemaKeywordType type,
     case sourcemeta::core::SchemaKeywordType::Other:
     case sourcemeta::core::SchemaKeywordType::Comment:
       return false;
-    // These name the schemas they hold rather than being one themselves
+    // The schemas are the members
     case sourcemeta::core::SchemaKeywordType::LocationMembers:
     case sourcemeta::core::SchemaKeywordType::
         ApplicatorMembersTraversePropertyStatic:
@@ -55,14 +50,26 @@ auto holds_schema(const sourcemeta::core::SchemaKeywordType type,
         ApplicatorMembersTraversePropertyRegex:
     case sourcemeta::core::SchemaKeywordType::ApplicatorMembersInPlaceSome:
       return value.is_object() &&
-             std::ranges::any_of(value.as_object(),
-                                 [](const auto &entry) -> bool {
-                                   return may_be_a_schema(entry.second);
-                                 });
+             std::ranges::any_of(
+                 value.as_object(), [allow_boolean](const auto &entry) -> bool {
+                   return is_schema(entry.second, allow_boolean);
+                 });
+    // The schemas are the elements, and the value itself is never one
+    case sourcemeta::core::SchemaKeywordType::ApplicatorElementsTraverseItem:
+    case sourcemeta::core::SchemaKeywordType::ApplicatorElementsInPlace:
+    case sourcemeta::core::SchemaKeywordType::ApplicatorElementsInPlaceSome:
+    case sourcemeta::core::SchemaKeywordType::
+        ApplicatorElementsInPlaceSomeNegate:
+      return any_element_is_a_schema(value, allow_boolean);
+    // Either the value is the schema, or its elements are
+    case sourcemeta::core::SchemaKeywordType::
+        ApplicatorValueOrElementsTraverseAnyItemOrItem:
+    case sourcemeta::core::SchemaKeywordType::ApplicatorValueOrElementsInPlace:
+      return is_schema(value, allow_boolean) ||
+             any_element_is_a_schema(value, allow_boolean);
+    // The value is the schema
     default:
-      return may_be_a_schema(value) ||
-             (value.is_array() &&
-              std::ranges::any_of(value.as_array(), may_be_a_schema));
+      return is_schema(value, allow_boolean);
   }
 }
 
@@ -694,9 +701,17 @@ auto sourcemeta::blaze::default_schema_compiler(
       // keyword compiles for that judgement alone and what it makes is thrown
       // away. One holding a schema is where that stops, as core's schema
       // walker frames nothing under an overridden keyword, and an unframed
-      // schema is not one this compiler can be handed
+      // schema is not one this compiler can be handed.
+      //
+      // Draft 3 has no boolean schemas, but its own definitions of these two
+      // keywords accept a boolean in place of one
+      const auto allow_boolean{
+          booleans_are_schemas(schema_context.vocabularies) ||
+          dynamic_context.keyword == "additionalProperties" ||
+          dynamic_context.keyword == "additionalItems"};
       if (!holds_schema(metadata.type,
-                        schema_context.schema.at(dynamic_context.keyword))) {
+                        schema_context.schema.at(dynamic_context.keyword),
+                        allow_boolean)) {
         [[maybe_unused]] const auto discarded{dispatch_keyword(
             context, schema_context, dynamic_context, current)};
       }

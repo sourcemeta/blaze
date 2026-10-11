@@ -683,5 +683,53 @@
       "base": "",
       "location": "/properties/n/oneOf"
     }
+  },
+  {
+    "description": "ref_sibling_dependencies_boolean_value",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "dependencies": { "a": true } } }
+    },
+    "error": {
+      "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+      "base": "",
+      "location": "/properties/n/dependencies"
+    }
+  },
+  {
+    "description": "ref_sibling_type_object",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "type": {} } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+      "base": "",
+      "location": "/properties/n/type"
+    }
+  },
+  {
+    "description": "ref_sibling_any_of_object",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "anyOf": {} } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/properties/n/anyOf"
+    }
+  },
+  {
+    "description": "ref_sibling_any_of_boolean_elements",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "anyOf": [ true ] } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "base": "",
+      "location": "/properties/n/anyOf"
+    }
   }
 ]

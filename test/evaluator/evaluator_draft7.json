@@ -8012,5 +8012,51 @@
         "The object value was expected to validate against the single defined property subschema"
       ]
     }
+  },
+  {
+    "description": "ref_sibling_closed_properties_ignored",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": { "t": { "type": "string" } },
+      "properties": {
+        "x": {
+          "$ref": "#/definitions/t",
+          "type": "object",
+          "required": [ "a", "b" ],
+          "additionalProperties": false,
+          "properties": { "a": { "$ref": "#" }, "b": {} }
+        }
+      }
+    },
+    "instance": { "x": "abc" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionPropertyTypeStrict", "/properties/x/$ref/type", "#/definitions/t/type", "/x" ]
+      ],
+      "post": [
+        [ true, "AssertionPropertyTypeStrict", "/properties/x/$ref/type", "#/definitions/t/type", "/x" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/x/$ref", "#/properties/x/$ref", "/x" ],
+        [ "AssertionTypeStrict", "/properties/x/$ref/type", "#/definitions/t/type", "/x" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStrict", "/properties/x/$ref/type", "#/definitions/t/type", "/x" ],
+        [ true, "ControlJump", "/properties/x/$ref", "#/properties/x/$ref", "/x" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type string",
+        "The string value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
   }
 ]
