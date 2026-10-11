@@ -3023,6 +3023,154 @@
       }
     },
     {
+      "description": "Object with only default is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "default": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "A title beside the keywords of a node is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ],
+            "title": "Something"
+          }
+        }
+      }
+    },
+    {
+      "description": "A description beside the keywords of a node is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ],
+            "description": "Something"
+          }
+        }
+      }
+    },
+    {
+      "description": "A default beside the keywords of a node is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ],
+            "default": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "A title on an object node is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": {
+              "$ref": "#/definitions/0"
+            },
+            "title": "Something"
+          }
+        }
+      }
+    },
+    {
+      "description": "A title on a reference node is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/0",
+            "title": "Something"
+          }
+        }
+      }
+    },
+    {
+      "description": "A title on the document itself is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "title": "Something",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ]
+          }
+        }
+      }
+    },
+    {
+      "description": "An extension keyword on a node is allowed",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ],
+            "x-foo": "bar"
+          }
+        }
+      }
+    },
+    {
       "description": "Object with only $schema is rejected",
       "valid": false,
       "data": {
