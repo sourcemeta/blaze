@@ -18,6 +18,7 @@
 #include "compile_helpers.h"
 #include "keyword_iterator.h"
 #include "postprocess.h"
+#include "unevaluated.h"
 
 namespace {
 

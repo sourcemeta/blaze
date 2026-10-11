@@ -187,6 +187,105 @@ auto walk_up_in_place_applicators(const sourcemeta::core::JSON &root,
                  is_in_place_applicator, matches);
 }
 
+// Walk up the in-place applicator chain of a location once, reporting whether
+// any ancestor matches and collecting every scope the walk passes through on
+// the way. A reference landing on any of those scopes is one that reaches this
+// location without moving through the instance, which is what makes them worth
+// collecting. The two answers come from the same walk because the chain and
+// the predicate that bounds it are the same either way
+template <typename MatchCallback>
+auto walk_up_in_place_applicators_collecting_scopes(
+    const sourcemeta::core::JSON &root, const SchemaFrame &frame,
+    const SchemaFrame::Location &location, const SchemaWalker &walker,
+    const SchemaResolver &resolver, const MatchCallback &matches,
+    std::set<sourcemeta::core::WeakPointer> &scopes) -> bool {
+  scopes.insert(location.pointer);
+  auto current_pointer{location.pointer};
+  auto current_parent{location.parent};
+
+  while (current_parent.has_value()) {
+    const auto &parent_pointer{current_parent.value()};
+    const auto relative_pointer{current_pointer.resolve_from(parent_pointer)};
+    assert(!relative_pointer.empty() && relative_pointer.at(0).is_property());
+    const auto parent{frame.traverse(parent_pointer)};
+    assert(parent.has_value());
+    const auto &parent_vocabularies{
+        frame.vocabularies(parent.value().get(), resolver)};
+    if (!is_in_place_applicator(
+            walker(relative_pointer.at(0).to_property(), parent_vocabularies)
+                .type)) {
+      return false;
+    }
+
+    if (matches(sourcemeta::core::get(root, parent_pointer),
+                parent_vocabularies)) {
+      return true;
+    }
+
+    scopes.insert(parent_pointer);
+    current_pointer = parent_pointer;
+    current_parent = parent.value().get().parent;
+  }
+
+  return false;
+}
+
+// The lexical walk stops at a subschema nothing encloses, which is what a
+// definition under `$defs` looks like. Whichever scope references that
+// definition still sees the annotations it produces, so a keyword that reads
+// them, such as `unevaluatedItems`, can sit on the far side of the reference.
+// This repeats the walk from every scope that reaches this location through a
+// reference, so such a keyword is found wherever it hides
+template <typename MatchCallback>
+auto walk_up_in_place_applicators_across_references(
+    const sourcemeta::core::JSON &root, const SchemaFrame &frame,
+    const SchemaFrame::Location &location, const SchemaWalker &walker,
+    const SchemaResolver &resolver, const MatchCallback &matches) -> bool {
+  std::vector<std::reference_wrapper<const SchemaFrame::Location>> pending{
+      std::cref(location)};
+  std::set<sourcemeta::core::WeakPointer> visited{location.pointer};
+
+  while (!pending.empty()) {
+    const auto &current{pending.back().get()};
+    pending.pop_back();
+
+    // The caller already checked the location it asked about, but a scope we
+    // arrived at through a reference still has to be checked on its own
+    if (current.pointer != location.pointer &&
+        matches(sourcemeta::core::get(root, current.pointer),
+                frame.vocabularies(current, resolver))) {
+      return true;
+    }
+
+    std::set<sourcemeta::core::WeakPointer> scopes;
+    if (walk_up_in_place_applicators_collecting_scopes(
+            root, frame, current, walker, resolver, matches, scopes)) {
+      return true;
+    }
+
+    frame.for_each_reference(
+        [&](const SchemaReferenceType,
+            const sourcemeta::core::WeakPointer &origin,
+            const SchemaFrame::Reference &reference) -> void {
+          const auto destination{frame.traverse(reference.destination)};
+          if (!destination.has_value() ||
+              !scopes.contains(destination.value().get().pointer)) {
+            return;
+          }
+
+          const auto source{frame.traverse(origin.initial())};
+          if (!source.has_value() ||
+              !visited.insert(source.value().get().pointer).second) {
+            return;
+          }
+
+          pending.emplace_back(std::cref(source.value().get()));
+        });
+  }
+
+  return false;
+}
+
 #define ONLY_CONTINUE_IF(condition)                                            \
   if (!(condition)) {                                                          \
     return false;                                                              \

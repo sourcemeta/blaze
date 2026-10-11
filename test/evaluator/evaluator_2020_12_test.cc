@@ -6448,3 +6448,613 @@ TEST(min_contains_exponent_spelling_satisfied_fast) {
       "The array value was expected to contain at least 2 items that validate "
       "against the given subschema");
 }
+
+TEST(unevaluated_properties_root_self_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#",
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_root_self_reference_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#",
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_items_root_self_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#",
+    "unevaluatedItems": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_items_root_self_reference_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#",
+    "unevaluatedItems": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_all_of_self_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [ { "$ref": "#" } ],
+    "properties": { "a": true },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_all_of_self_reference_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [ { "$ref": "#" } ],
+    "properties": { "a": true },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_any_of_self_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [ { "$ref": "#" } ],
+    "properties": { "a": true },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_any_of_self_reference_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [ { "$ref": "#" } ],
+    "properties": { "a": true },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_if_self_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "$ref": "#" },
+    "properties": { "a": true },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_if_self_reference_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "$ref": "#" },
+    "properties": { "a": true },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_then_self_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "then": { "$ref": "#" },
+    "properties": { "a": true },
+    "unevaluatedProperties": false,
+    "if": true
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_then_self_reference_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "then": { "$ref": "#" },
+    "properties": { "a": true },
+    "unevaluatedProperties": false,
+    "if": true
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_else_self_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "else": { "$ref": "#" },
+    "properties": { "a": true },
+    "unevaluatedProperties": false,
+    "if": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_else_self_reference_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "else": { "$ref": "#" },
+    "properties": { "a": true },
+    "unevaluatedProperties": false,
+    "if": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_mutual_definitions_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "a": { "$ref": "#/$defs/b", "properties": { "a": true } },
+      "b": { "$ref": "#/$defs/a", "properties": { "a": true } }
+    },
+    "$ref": "#/$defs/a",
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_mutual_definitions_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "a": { "$ref": "#/$defs/b", "properties": { "a": true } },
+      "b": { "$ref": "#/$defs/a", "properties": { "a": true } }
+    },
+    "$ref": "#/$defs/a",
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_items_mutual_definitions_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "a": { "$ref": "#/$defs/b", "prefixItems": [ true ] },
+      "b": { "$ref": "#/$defs/a", "prefixItems": [ true ] }
+    },
+    "$ref": "#/$defs/a",
+    "unevaluatedItems": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_items_mutual_definitions_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "a": { "$ref": "#/$defs/b", "prefixItems": [ true ] },
+      "b": { "$ref": "#/$defs/a", "prefixItems": [ true ] }
+    },
+    "$ref": "#/$defs/a",
+    "unevaluatedItems": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_not_self_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "not": { "$ref": "#" },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
+
+TEST(unevaluated_properties_not_self_reference_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "not": { "$ref": "#" },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+
+  // The reference makes no progress on the instance, so evaluation can only
+  // stop by running into the depth limit
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  sourcemeta::blaze::Evaluator evaluator;
+  try {
+    evaluator.validate(compiled_schema, instance);
+    FAIL();
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
+                               "likely due to infinite recursion");
+  } catch (...) {
+    FAIL();
+  }
+}
