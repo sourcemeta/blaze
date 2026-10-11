@@ -216,6 +216,63 @@ inline auto fold_nullable_into_type(sourcemeta::core::JSON &schema) -> void {
   }
 }
 
+// Draft 4 reads `enum` as a set and requires its members to be unique, while
+// the OpenAPI 3.0 Schema Object states `uniqueItems: false` for it outright. A
+// repeated option says nothing a single one does not, so a document carrying
+// one would otherwise reach a dialect that cannot read it back
+inline auto deduplicate_enum(sourcemeta::core::JSON &schema) -> void {
+  auto *options{schema.try_at("enum")};
+  if (options == nullptr || !options->is_array()) {
+    return;
+  }
+
+  auto unique{sourcemeta::core::JSON::make_array()};
+  for (const auto &option : options->as_array()) {
+    if (!unique.contains(option)) {
+      unique.push_back(option);
+    }
+  }
+
+  if (unique.size() != options->size()) {
+    *options = std::move(unique);
+  }
+}
+
+// Draft 4 requires at least one branch in each of these, while the OpenAPI 3.0
+// Schema Object places no bound on them at all.
+//
+// An empty `allOf` asserts nothing of the instance and goes. An empty `anyOf`
+// or `oneOf` is satisfied by no instance whatever, which Draft 4 has no boolean
+// schema to say and spells as a `not` of the schema every instance satisfies.
+// That goes into `allOf`, whose meaning is already the conjunction this needs,
+// so a `not` the author wrote is left exactly as it stands
+inline auto fold_empty_applicators(sourcemeta::core::JSON &schema) -> void {
+  static const std::array<std::string_view, 2> UNSATISFIABLE_WHEN_EMPTY{
+      {"anyOf", "oneOf"}};
+
+  for (const auto &keyword : UNSATISFIABLE_WHEN_EMPTY) {
+    const sourcemeta::core::JSON::String name{keyword};
+    const auto *branches{schema.try_at(name)};
+    if (branches == nullptr || !branches->is_array() || !branches->empty()) {
+      continue;
+    }
+
+    schema.erase(name);
+    if (!schema.defines("allOf") || !schema.at("allOf").is_array()) {
+      schema.assign("allOf", sourcemeta::core::JSON::make_array());
+    }
+
+    auto nothing{sourcemeta::core::JSON::make_object()};
+    nothing.assign("not", sourcemeta::core::JSON::make_object());
+    schema.at("allOf").push_back(std::move(nothing));
+  }
+
+  if (schema.defines("allOf") && schema.at("allOf").is_array() &&
+      schema.at("allOf").empty()) {
+    schema.erase("allOf");
+  }
+}
+
 // The OpenAPI 3.2 dialect, which declares the same four keywords as 3.1 with
 // strictly more permissive constraints, so the rung above only has a dialect
 // to move. OpenAPI 3.2 publishes one dated URI with no undated alias, so there

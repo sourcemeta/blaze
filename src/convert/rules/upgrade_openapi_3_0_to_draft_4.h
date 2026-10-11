@@ -16,7 +16,8 @@ public:
         schema.is_object());
 
     return this->has_pending_openapi_3_0_pattern(schema) ||
-           schema.defines(DEFINITIONS) || at_dialect_declaration(schema, site);
+           holds_movable_definitions(schema) || holds_pending_shape(schema) ||
+           at_dialect_declaration(schema, site);
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Site &site) const
@@ -28,6 +29,12 @@ public:
     // by the time the annotations are renamed and one it declines is still
     // there to be renamed with them
     fold_nullable_into_type(schema);
+
+    // Two shapes the OpenAPI 3.0 Schema Object permits that Draft 4 does not,
+    // which are the only two its dialect states more loosely than Draft 4's own
+    // meta-schema does
+    deduplicate_enum(schema);
+    fold_empty_applicators(schema);
 
     for (const auto &keyword : KEYWORDS) {
       const std::string keyword_name{keyword};
@@ -45,6 +52,23 @@ public:
     }
 
     move_definitions(schema, this->relocations_);
+
+    // Core reads this marker as the dialect of the position carrying it, ahead
+    // of any `$schema` beside it, so one naming OpenAPI 3.0 has to go as the
+    // document stops being written in it. Left behind, it would keep framing an
+    // output that now declares Draft 4 as the dialect it has just left, which
+    // reads a `type` array and a `$schema` as keywords it prohibits.
+    //
+    // `DialectOverrideBecomesDollarSchema` settles a marker naming a rung by
+    // writing the `$schema` it stands for, and cannot do that here: the
+    // OpenAPI 3.0 Schema Object defines no keyword to declare its own dialect
+    // with, so there is no `$schema` to settle it into. Clearing it ahead of
+    // this rule would take with it the only thing saying what the document is
+    const auto *override{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+    if (override != nullptr && override->is_string() &&
+        names_openapi_3_0_dialect(override->to_string())) {
+      schema.erase(DIALECT_OVERRIDE_KEYWORD);
+    }
 
     bump_dialect(schema, site, DRAFT_4_URL);
   }
@@ -119,17 +143,74 @@ private:
     return keyword == "deprecated" && this->keeps_deprecated_;
   }
 
+  // Whether a shape only the OpenAPI 3.0 dialect admits is still here. Both are
+  // rewritten by the transform, so the answer turns false once it has run
+  static auto holds_pending_shape(const sourcemeta::core::JSON &schema)
+      -> bool {
+    const auto *options{schema.try_at("enum")};
+    if (options != nullptr && options->is_array()) {
+      auto seen{sourcemeta::core::JSON::make_array()};
+      for (const auto &option : options->as_array()) {
+        if (seen.contains(option)) {
+          return true;
+        }
+
+        seen.push_back(option);
+      }
+    }
+
+    for (const auto &keyword : {"allOf", "anyOf", "oneOf"}) {
+      const auto *branches{
+          schema.try_at(sourcemeta::core::JSON::String{keyword})};
+      if (branches != nullptr && branches->is_array() && branches->empty()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // The extension prefix constrains nothing, so a member of this one holds
+  // whatever its author put there, while `definitions` reads every member of
+  // itself as a schema. Only what is one has somewhere to go
+  static auto holds_schema(const sourcemeta::core::JSON &entry) -> bool {
+    return entry.is_object() || entry.is_boolean();
+  }
+
+  static auto holds_movable_definitions(const sourcemeta::core::JSON &schema)
+      -> bool {
+    if (!schema.defines(DEFINITIONS) || !schema.at(DEFINITIONS).is_object()) {
+      return false;
+    }
+
+    for (const auto &entry : schema.at(DEFINITIONS).as_object()) {
+      if (holds_schema(entry.second)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   // Draft 4 keeps under `definitions` what the OpenAPI 3.0 Schema Object keeps
   // here, and reads nothing of a schema under a member it does not know, so
-  // every entry moves and the references reaching one follow it
+  // every entry that is a schema moves and the references reaching one follow
+  // it. Anything else stays where it was rather than being carried somewhere
+  // that would read it as a schema it is not
   static auto move_definitions(sourcemeta::core::JSON &schema,
                                std::vector<Relocation> &relocations) -> void {
-    if (!schema.defines(DEFINITIONS) || !schema.at(DEFINITIONS).is_object()) {
+    if (!holds_movable_definitions(schema)) {
       return;
     }
 
     auto moved{sourcemeta::core::JSON::make_object()};
+    auto kept{sourcemeta::core::JSON::make_object()};
     for (const auto &entry : schema.at(DEFINITIONS).as_object()) {
+      if (!holds_schema(entry.second)) {
+        kept.assign(entry.first, entry.second);
+        continue;
+      }
+
       relocations.emplace_back(
           sourcemeta::core::Pointer{DEFINITIONS, entry.first},
           sourcemeta::core::Pointer{"definitions", entry.first});
@@ -137,6 +218,10 @@ private:
     }
 
     schema.erase(DEFINITIONS);
+    if (!kept.empty()) {
+      schema.assign(DEFINITIONS, std::move(kept));
+    }
+
     schema.assign("definitions", std::move(moved));
   }
 

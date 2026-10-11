@@ -554,14 +554,22 @@ auto convert(sourcemeta::core::JSON &schema,
 
   // Whether this conversion starts from OpenAPI 3.0, which only the caller can
   // say: the Schema Object admits no `$schema` member of its own, so a document
-  // written in that dialect is always named from the outside. That also makes
-  // the answer hold for every resource in it, since nothing inside can declare
-  // a dialect either.
+  // written in that dialect is always named from the outside. A document that
+  // does name its own dialect is not using the default one, whatever was passed
+  // alongside it, so the answer is no there however the default reads.
+  //
+  // The answer then holds for every resource in the document and not just its
+  // root, because nothing nested in an OpenAPI 3.0 Schema Object can declare a
+  // dialect either. A `$schema` written inside one is author data, which
+  // `ShadowStrayDialectDeclaration` carries across as such rather than reading
+  // as an embedded resource of its own.
   //
   // What it buys is the three keywords the fork carries across as themselves.
   // Each is author data to the rung that promotes it, and shadowing it there
   // would undo the fork, so the two rules that would are told to leave it be
-  const auto from_openapi_3_0{names_openapi_3_0_dialect(default_dialect)};
+  const auto from_openapi_3_0{
+      names_openapi_3_0_dialect(default_dialect) &&
+      !(schema.is_object() && schema.defines("$schema"))};
 
   rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
   rules.push_back(make_rule<UpgradeDraft3ToDraft4>());

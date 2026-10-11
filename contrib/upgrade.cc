@@ -30,6 +30,14 @@ static auto parse_target(const std::string_view target)
     return sourcemeta::blaze::ConvertTarget::Draft202012;
   }
 
+  if (target == "openapi3.1") {
+    return sourcemeta::blaze::ConvertTarget::OpenAPI31;
+  }
+
+  if (target == "openapi3.2") {
+    return sourcemeta::blaze::ConvertTarget::OpenAPI32;
+  }
+
   return std::nullopt;
 }
 
@@ -42,8 +50,9 @@ auto main(int argc, char *argv[]) -> int {
   const auto &files{options.positional()};
   if (files.size() != 1 || !options.contains("target")) {
     std::cerr << "Usage: " << argv[0]
-              << " -t|--target <draft4|draft6|draft7|2019-09|2020-12> "
-                 "[-d|--dialect <uri>] <schema.json>\n";
+              << " -t|--target "
+                 "<draft4|draft6|draft7|2019-09|2020-12|openapi3.1|openapi3.2>"
+                 " [-d|--dialect <uri>] <schema.json>\n";
     return EXIT_FAILURE;
   }
 
