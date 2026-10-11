@@ -13,11 +13,8 @@ inline auto is_in_place_applicator(const SchemaKeywordType type) -> bool {
          type == SchemaKeywordType::ApplicatorValueInPlaceNegate;
 }
 
-// Walk up from a schema location, continuing as long as the traversal
-// predicate returns true for each keyword type encountered. Returns a
-// reference to the pointer of the ancestor where the match callback returned
-// true, or nullopt if no match was found or the traversal predicate stopped
-// the walk.
+// TODO: Move upstream, so that the compiler can share this predicate rather
+// than repeating the same check
 // Draft 3 and Draft 4 read "integer" as a number written without a fractional
 // part, so `3.0` is not one there, and `type: "integer"` says something that
 // an `enum` of integral values cannot. Draft 6 onwards widened it to any
@@ -134,6 +131,11 @@ inline auto into_unsatisfiable(sourcemeta::core::JSON &schema,
   }
 }
 
+// Walk up from a schema location, continuing as long as the traversal
+// predicate returns true for each keyword type encountered. Returns a
+// reference to the pointer of the ancestor where the match callback returned
+// true, or nullopt if no match was found or the traversal predicate stopped
+// the walk.
 template <typename TraversePredicate, typename MatchCallback>
 auto walk_up(const sourcemeta::core::JSON &root, const SchemaFrame &frame,
              const SchemaFrame::Location &location, const SchemaWalker &walker,
