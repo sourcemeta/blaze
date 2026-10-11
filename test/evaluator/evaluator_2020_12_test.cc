@@ -6352,3 +6352,99 @@ TEST(openapi_format_float_is_not_asserted_with_assertion_vocabulary_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(schema, instance, 0, "",
                                             test_resolver);
 }
+
+TEST(max_contains_exponent_spelling_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "integer" },
+    "maxContains": 1e0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2 ]")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3, "");
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/contains/type", "#/contains/type",
+                     "/0");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to contain exactly 1 item that validates "
+      "against the given subschema");
+}
+
+TEST(min_contains_exponent_spelling_unsatisfied_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "integer" },
+    "minContains": 3e0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2 ]")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3, "");
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/contains/type", "#/contains/type",
+                     "/0");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_FAILURE(2, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to contain at least 3 items that validate "
+      "against the given subschema");
+}
+
+TEST(min_contains_exponent_spelling_satisfied_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "integer" },
+    "minContains": 2e0
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json("[ 1, 2 ]")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 3, "");
+
+  EVALUATE_TRACE_PRE(0, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_PRE(1, AssertionType, "/contains/type", "#/contains/type",
+                     "/0");
+  EVALUATE_TRACE_PRE(2, AssertionType, "/contains/type", "#/contains/type",
+                     "/1");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionType, "/contains/type",
+                              "#/contains/type", "/0");
+  EVALUATE_TRACE_POST_SUCCESS(1, AssertionType, "/contains/type",
+                              "#/contains/type", "/1");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopContains, "/contains", "#/contains", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type integer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array value was expected to contain at least 2 items that validate "
+      "against the given subschema");
+}
