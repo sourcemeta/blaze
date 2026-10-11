@@ -14,9 +14,6 @@
 
 #include "compile_helpers.h"
 
-// TODO: Eventually this file should dissapear and move this analysis as part of
-// framing
-
 namespace sourcemeta::blaze {
 
 // NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
@@ -64,7 +61,7 @@ inline auto find_adjacent_dependencies(
     const sourcemeta::core::SchemaFrame::Location &root,
     const sourcemeta::core::SchemaFrame::Location &entry, const bool is_static,
     std::set<std::pair<sourcemeta::core::WeakPointer, bool>> &visited,
-    sourcemeta::blaze::SchemaUnevaluatedEntry &result) -> void {
+    SchemaUnevaluatedEntry &result) -> void {
   // A schema may reference itself, directly or through a chain of in-place
   // applicators. Following such a cycle forever exhausts the stack, so we cut
   // it as soon as we meet a location already on the path we came in through.
@@ -262,12 +259,12 @@ inline auto register_under_all_bases(
       });
 }
 
-// TODO: Refactor this entire function using `sourcemeta::core::SchemaFrame`'s
-// new `Instances` mode. We can loop over every subschema that defines
-// `unevaluatedProperties` or `unevaluatedItems`, find all other subschemas with
-// the same unresolved instance location (static dependency) or conditional
-// equivalent unresolved instance location (dynamic dependency) and see if those
-// ones define any of the dependent keywords.
+// TODO: Refactor this entire function using `SchemaFrame`'s new `Instances`
+// mode. We can loop over every subschema that defines `unevaluatedProperties`
+// or `unevaluatedItems`, find all other subschemas with the same unresolved
+// instance location (static dependency) or conditional equivalent unresolved
+// instance location (dynamic dependency) and see if those ones define any of
+// the dependent keywords.
 inline auto unevaluated(const sourcemeta::core::JSON &schema,
                         const sourcemeta::core::SchemaFrame &frame,
                         const sourcemeta::core::SchemaWalker &walker,
