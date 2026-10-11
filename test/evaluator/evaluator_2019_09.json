@@ -13202,5 +13202,249 @@
     "valid": true,
     "fast": {},
     "exhaustive": {}
+  },
+  {
+    "description": "max_contains_fractional_spelling_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "type": "integer" },
+      "maxContains": 1.0
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The array value was expected to contain exactly 1 item that validates against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type integer",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain exactly 1 item that validates against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "min_contains_fractional_spelling_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "type": "integer" },
+      "minContains": 3.0
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/1" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The value was expected to be of type integer",
+        "The array value was expected to contain at least 3 items that validate against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ false, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type integer",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 3 items that validate against the given subschema"
+      ]
+    }
+  },
+  {
+    "description": "unreachable_min_contains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "type": "integer" },
+      "minContains": 99999999999999999999
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough matching items to satisfy a minimum count that large"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough matching items to satisfy a minimum count that large"
+      ]
+    }
+  },
+  {
+    "description": "unreachable_min_contains_2",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "type": "integer" },
+      "minContains": 99999999999999999999
+    },
+    "instance": {},
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough matching items to satisfy a minimum count that large"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough matching items to satisfy a minimum count that large"
+      ]
+    }
+  },
+  {
+    "description": "unreachable_min_contains_3",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "type": "integer" },
+      "minContains": 99999999999999999999,
+      "unevaluatedItems": false
+    },
+    "instance": [ 1, 2 ],
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough matching items to satisfy a minimum count that large"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ false, "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of a type other than array, as no array has enough matching items to satisfy a minimum count that large"
+      ]
+    }
+  },
+  {
+    "description": "unreachable_max_contains_1",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "contains": { "type": "integer" },
+      "maxContains": 99999999999999999999
+    },
+    "instance": [ 1, 2 ],
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/0" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopContains", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ "Annotation", "/contains", "#/contains", "" ],
+        [ "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+        [ "Annotation", "/contains", "#/contains", "" ]
+      ],
+      "post": [
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+        [ true, "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+        [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+        [ true, "LoopContains", "/contains", "#/contains", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer",
+        "The item at index 0 of the array value successfully validated against the containment check subschema",
+        "The value was expected to be of type integer",
+        "The item at index 1 of the array value successfully validated against the containment check subschema",
+        "The array value was expected to contain at least 1 item that validates against the given subschema"
+      ]
+    }
   }
 ]

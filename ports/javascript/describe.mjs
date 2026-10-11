@@ -1089,6 +1089,13 @@ export function describe(valid, instruction, evaluatePath,
         'object has enough properties to satisfy a minimum size that large';
     }
 
+    // `contains` compiles the same way when its `minContains` is too large to
+    // hold, as no array has that many items for the subschema to match
+    if (keyword === 'contains') {
+      return 'The value was expected to be of a type other than array, as no ' +
+        'array has enough matching items to satisfy a minimum count that large';
+    }
+
     return describeNotTypesCheck(valid, targetType, value);
   }
 

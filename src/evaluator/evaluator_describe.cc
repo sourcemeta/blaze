@@ -1746,6 +1746,14 @@ auto describe(const bool valid, const Instruction &step,
              "large";
     }
 
+    // `contains` compiles the same way when its `minContains` is too large to
+    // hold, as no array has that many items for the subschema to match
+    if (keyword == "contains") {
+      return "The value was expected to be of a type other than array, as no "
+             "array has enough matching items to satisfy a minimum count that "
+             "large";
+    }
+
     std::ostringstream message;
     describe_not_types_check(valid, target.type(),
                              instruction_value<ValueTypes>(step), message);
