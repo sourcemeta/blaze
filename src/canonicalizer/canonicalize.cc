@@ -1178,6 +1178,7 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 #include "rules/type_with_applicator_to_extends.h"
 #include "rules/unevaluated_items_to_items.h"
 #include "rules/unevaluated_properties_to_additional_properties.h"
+#include "rules/unknown_keywords_drop.h"
 #include "rules/unknown_keywords_prefix.h"
 #include "rules/unknown_local_ref.h"
 #include "rules/unknown_type_names.h"
@@ -1276,6 +1277,7 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<DraftRefSiblings>());
   rules.push_back(make_rule<DynamicRefToStaticRef>());
   rules.push_back(make_rule<UnknownKeywordsPrefix>());
+  rules.push_back(make_rule<UnknownKeywordsDrop>());
   rules.push_back(make_rule<UnknownLocalRef>());
   rules.push_back(make_rule<RequiredPropertiesInProperties>());
   rules.push_back(make_rule<OrphanDefinitions>());
