@@ -516,6 +516,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
 #include "rules/upgrade_draft_4_to_draft_6.h"
 #include "rules/upgrade_draft_6_to_draft_7.h"
 #include "rules/upgrade_draft_7_to_draft_2019_09.h"
+#include "rules/upgrade_openapi_3_0_to_draft_4.h"
 #include "rules/upgrade_openapi_3_1_to_openapi_3_2.h"
 
 #undef ONLY_CONTINUE_IF
@@ -544,6 +545,13 @@ auto convert(sourcemeta::core::JSON &schema,
 
   std::vector<Rule> rules;
   rules.reserve(20);
+
+  // A document on the OpenAPI 3.0 dialect forks here rather than standing on a
+  // rung. Every target below reaches it through Draft 4, which is the base
+  // dialect its Schema Object extends, so this runs ahead of the ladder and
+  // the rungs carry on from there
+  rules.push_back(make_rule<UpgradeOpenAPI30ToDraft4>());
+
   rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
   rules.push_back(make_rule<UpgradeDraft3ToDraft4>());
 

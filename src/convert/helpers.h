@@ -146,6 +146,76 @@ inline auto is_metaschema_target(const sourcemeta::core::JSON &schema,
 constexpr std::string_view OPENAPI_3_1_DIALECT{
     "https://spec.openapis.org/oas/3.1/dialect/base"};
 
+// The OpenAPI 3.0 Schema Object dialect, which the conversion reads as a
+// source and never writes. It is not a rung: its Schema Object extends the
+// Draft 4 base dialect while OpenAPI 3.1's extends 2020-12, so it sits below
+// Draft 4 by base dialect and below 3.1 by product version, and those two
+// orderings disagree. A document on it forks instead, reaching an OpenAPI
+// target through 3.1 and a JSON Schema target through Draft 4.
+//
+// Both dated spellings are listed and neither is canonical. Unlike OpenAPI
+// 3.1's three URIs, these name two documents that genuinely differ, so there
+// is nothing here for `normalized_official_dialect` to fold. They differ only
+// in the parts of an OpenAPI document that a Schema Object never reaches,
+// which is why one set of rules serves both
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+constexpr std::array<std::string_view, 2> OPENAPI_3_0_DIALECTS{
+    {"tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+     "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect"}};
+
+// Whether the dialect is one of those, asked of the spelling as written. A tag
+// URI carries no fragment and no scheme the spelling rules fold, so what the
+// document says is already the only spelling there is
+inline auto names_openapi_3_0_dialect(const std::string_view dialect) -> bool {
+  return std::ranges::find(OPENAPI_3_0_DIALECTS, dialect) !=
+         OPENAPI_3_0_DIALECTS.cend();
+}
+
+// Fold an OpenAPI 3.0 `nullable` into the `type` beside it, which is the one
+// member of that dialect carrying an assertion rather than an annotation. Both
+// targets of the fork accept a type array, so the same rewrite serves each.
+//
+// The keyword takes effect only where `type` is explicitly defined within the
+// same Schema Object, which the specification states outright, so one standing
+// alone constrained nothing and goes without leaving a type behind. Turning it
+// into `{"type": ["null"]}` would invent a constraint the author never wrote.
+//
+// A `nullable` that a `$ref` suppressed is left untouched, whatever it says.
+// Such a keyword never applied, and the caller shadows it along with every
+// other sibling instead. That is what lets this serve a target where `$ref`
+// still suppresses its siblings and one where it no longer does
+inline auto fold_nullable_into_type(sourcemeta::core::JSON &schema) -> void {
+  const auto *nullable{schema.try_at("nullable")};
+  if (nullable == nullptr || !nullable->is_boolean() ||
+      schema.defines("$ref")) {
+    return;
+  }
+
+  const auto permits_null{nullable->to_boolean()};
+  schema.erase("nullable");
+
+  auto *type{schema.try_at("type")};
+  if (!permits_null || type == nullptr) {
+    return;
+  }
+
+  static const sourcemeta::core::JSON NULL_TYPE{"null"};
+  if (type->is_string()) {
+    auto names{sourcemeta::core::JSON::make_array()};
+    names.push_back(*type);
+    names.push_back(NULL_TYPE);
+    *type = std::move(names);
+    return;
+  }
+
+  // An array here is not a shape OpenAPI 3.0 permits, as its `type` takes a
+  // single name. Carrying one anyway costs a line and keeps the rewrite from
+  // depending on a check that runs elsewhere
+  if (type->is_array() && !type->contains(NULL_TYPE)) {
+    type->push_back(NULL_TYPE);
+  }
+}
+
 // The OpenAPI 3.2 dialect, which declares the same four keywords as 3.1 with
 // strictly more permissive constraints, so the rung above only has a dialect
 // to move. OpenAPI 3.2 publishes one dated URI with no undated alias, so there
@@ -313,11 +383,13 @@ inline auto names_official_metaschema(const std::string_view uri) -> bool {
       });
 }
 
-// A dialect the ladder does not name is one the conversion has no rules for,
-// whether it belongs to a draft older than the ladder starts at or to a
-// meta-schema of the caller's own
+// Whether the conversion has rules for moving a schema off this dialect. A
+// dialect it does not name is one it has no rules for, whether that is a draft
+// older than the ladder starts at or a meta-schema of the caller's own. Every
+// rung qualifies, and so does OpenAPI 3.0, which forks off the ladder rather
+// than standing on it
 inline auto names_ladder_dialect(const std::string_view dialect) -> bool {
-  return dialect_position(dialect) > 0;
+  return dialect_position(dialect) > 0 || names_openapi_3_0_dialect(dialect);
 }
 
 // Core reads this keyword as a dialect too, so it may well be a keyword the
