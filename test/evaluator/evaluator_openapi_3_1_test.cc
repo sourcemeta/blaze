@@ -167,7 +167,8 @@ TEST(format_uri_non_string_with_tweak_fast) {
     "format": "uri"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -181,7 +182,8 @@ TEST(format_uri_non_string_with_tweak_exhaustive) {
     "format": "uri"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -280,7 +282,8 @@ TEST(format_float_valid_with_tweak_fast) {
     "format": "float"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{0.5};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(0.5)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -302,7 +305,8 @@ TEST(format_float_invalid_with_tweak_fast) {
     "format": "float"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -324,7 +328,8 @@ TEST(format_double_valid_with_tweak_fast) {
     "format": "double"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(0.5)JSON")};
 
   sourcemeta::blaze::Tweaks tweaks;
   tweaks.format_assertion = true;
@@ -335,7 +340,7 @@ TEST(format_double_valid_with_tweak_fast) {
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionNumberType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The number value 3.14 was expected to be "
+                               "The number value 0.5 was expected to be "
                                "exactly representable as an IEEE "
                                "754 double precision floating point number");
 }
@@ -468,7 +473,8 @@ TEST(format_float_invalid_with_assertion_vocabulary_fast) {
     "format": "float"
   })JSON")};
 
-  const sourcemeta::core::JSON instance{3.14};
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
   EVALUATE_WITH_TRACE_FAST_FAILURE_RESOLVER(schema, instance, 1, "",
                                             test_resolver);
 
@@ -509,4 +515,27 @@ TEST(format_uint32_is_not_asserted_with_assertion_vocabulary_fast) {
       sourcemeta::core::parse_json("4294967296")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(schema, instance, 0, "",
                                             test_resolver);
+}
+
+TEST(format_double_rejects_an_inexact_decimal_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+    "format": "double"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(3.14)JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
+
+  EVALUATE_TRACE_PRE(0, AssertionNumberType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionNumberType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.14 was expected to be exactly representable as an "
+      "IEEE 754 double precision floating point number");
 }

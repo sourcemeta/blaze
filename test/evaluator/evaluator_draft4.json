@@ -14308,5 +14308,43 @@
         "The value was expected to be of type integer"
       ]
     }
+  },
+  {
+    "description": "type_integer_beside_enum_accepts_an_integer_1",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "integer",
+      "enum": [ 1 ]
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The value was expected to be of type integer"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqual", "/enum", "#/enum", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The value was expected to be of type integer"
+      ]
+    }
   }
 ]
