@@ -27,7 +27,7 @@
       },
       "definitions": {
         "e": {
-          "x-definitions": "author data",
+          "x-x-definitions": "author data",
           "definitions": {
             "str": {
               "type": "string"
@@ -45,7 +45,7 @@
       },
       "definitions": {
         "e": {
-          "x-definitions": "author data",
+          "x-x-definitions": "author data",
           "definitions": {
             "str": {
               "type": "string"
@@ -63,7 +63,7 @@
       },
       "definitions": {
         "e": {
-          "x-definitions": "author data",
+          "x-x-definitions": "author data",
           "definitions": {
             "str": {
               "type": "string"
@@ -81,7 +81,7 @@
       },
       "$defs": {
         "e": {
-          "x-definitions": "author data",
+          "x-x-definitions": "author data",
           "$defs": {
             "str": {
               "type": "string"
@@ -99,7 +99,7 @@
       },
       "$defs": {
         "e": {
-          "x-definitions": "author data",
+          "x-x-definitions": "author data",
           "$defs": {
             "str": {
               "type": "string"
@@ -117,7 +117,7 @@
       },
       "$defs": {
         "e": {
-          "x-definitions": "author data",
+          "x-x-definitions": "author data",
           "$defs": {
             "str": {
               "type": "string"
@@ -135,7 +135,7 @@
       },
       "$defs": {
         "e": {
-          "x-definitions": "author data",
+          "x-x-definitions": "author data",
           "$defs": {
             "str": {
               "type": "string"
