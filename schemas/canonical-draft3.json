@@ -19,16 +19,7 @@
   ],
   "$ref": "#/$defs/document",
   "$defs": {
-    "metadata": {
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "default": true
-      },
+    "extensions": {
       "patternProperties": {
         "^x-": true
       }
@@ -119,7 +110,7 @@
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "$ref" ],
           "properties": {
@@ -130,7 +121,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "enum" ],
           "properties": {
@@ -175,7 +166,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type", "minLength" ],
           "properties": {
@@ -200,7 +191,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type", "divisibleBy" ],
           "properties": {
@@ -221,7 +212,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type" ],
           "properties": {
@@ -248,7 +239,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [
             "type",
@@ -279,7 +270,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type", "items", "minItems", "uniqueItems" ],
           "properties": {
@@ -304,7 +295,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [
             "type",
@@ -342,7 +333,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type" ],
           "properties": {
@@ -357,7 +348,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "extends" ],
           "properties": {
@@ -372,7 +363,7 @@
           "unevaluatedProperties": false
         },
         {
-          "$ref": "#/$defs/metadata",
+          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "disallow" ],
           "properties": {

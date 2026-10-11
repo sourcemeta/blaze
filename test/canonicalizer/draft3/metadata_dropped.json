@@ -1,0 +1,16 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "title": "A string",
+    "description": "Says nothing about the instance",
+    "default": "x"
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": { "type": "string", "minLength": 0 } }
+  },
+  "examples": [ "", "x" ],
+  "counterExamples": [ null, true, 1, 1.5, [], {} ]
+}

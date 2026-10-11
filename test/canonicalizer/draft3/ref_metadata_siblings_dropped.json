@@ -12,16 +12,11 @@
     "definitions": {
       "0": {
         "type": "object",
-        "properties": { "bar": { "$ref": "#/definitions/2" } },
+        "properties": { "bar": { "$ref": "#/definitions/0" } },
         "patternProperties": {},
         "additionalProperties": { "$ref": "#/definitions/1" }
       },
-      "1": {},
-      "2": {
-        "$ref": "#/definitions/0",
-        "title": "A ref",
-        "description": "Refers to root"
-      }
+      "1": {}
     }
   },
   "examples": [ {}, { "bar": {} }, { "bar": { "bar": {} } }, { "other": 1 } ],

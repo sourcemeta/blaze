@@ -1138,6 +1138,7 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 #include "rules/maximum_can_equal_integer_fold.h"
 #include "rules/maximum_can_equal_true_drop.h"
 #include "rules/maximum_real_for_integer.h"
+#include "rules/metadata_keywords_drop.h"
 #include "rules/min_contains_without_contains.h"
 #include "rules/min_items_given_min_contains.h"
 #include "rules/min_length_implicit.h"
@@ -1208,6 +1209,7 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<MaximumCanEqualTrueDrop>());
   rules.push_back(make_rule<CommentDrop>());
   rules.push_back(make_rule<HyperSchemaKeywordsDrop>());
+  rules.push_back(make_rule<MetadataKeywordsDrop>());
   rules.push_back(make_rule<DeprecatedFalseDrop>());
   rules.push_back(make_rule<RecursiveAnchorFalseDrop>());
   rules.push_back(make_rule<UnevaluatedItemsToItems>());
