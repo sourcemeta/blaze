@@ -546,6 +546,12 @@ auto convert(sourcemeta::core::JSON &schema,
   std::vector<Rule> rules;
   rules.reserve(20);
 
+  // Again here, and not only among the spellings above: a marker that said
+  // something when the pass began can stop saying anything once a rung has
+  // moved the resource holding it to the dialect the marker names, and a
+  // conversion that left it behind would not be done with the document
+  rules.push_back(make_rule<DialectOverrideBecomesDollarSchema>());
+
   // A document on the OpenAPI 3.0 dialect forks here rather than standing on a
   // rung. Every target below reaches it through Draft 4, which is the base
   // dialect its Schema Object extends, so this runs ahead of the ladder and

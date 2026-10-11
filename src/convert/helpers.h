@@ -74,20 +74,6 @@ inline auto assign_before_first_key(sourcemeta::core::JSON &schema,
   schema.try_assign_before(key, value, first);
 }
 
-inline auto bump_dialect(sourcemeta::core::JSON &schema, const Site &site,
-                         const std::string_view dialect) -> void {
-  if (!at_dialect_declaration(schema, site)) {
-    return;
-  }
-
-  if (schema.defines("$schema")) {
-    schema.assign("$schema", sourcemeta::core::JSON{dialect});
-    return;
-  }
-
-  assign_before_first_key(schema, "$schema", sourcemeta::core::JSON{dialect});
-}
-
 inline auto current_dialect_or_override(const sourcemeta::core::JSON &schema)
     -> std::string_view {
   return declared_dialect(schema);
@@ -441,6 +427,34 @@ inline auto names_ladder_dialect(const std::string_view dialect) -> bool {
 inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
     -> bool {
   return value.is_string() && dialect_position(value.to_string()) > 0;
+}
+
+inline auto bump_dialect(sourcemeta::core::JSON &schema, const Site &site,
+                         const std::string_view dialect) -> void {
+  // Core reads the override marker as the dialect of the position carrying it,
+  // ahead of any `$schema` beside it and wherever that position is. So a
+  // position whose dialect comes from one has its dialect moved by writing the
+  // marker: a `$schema` written here instead would not be the thing read, and
+  // the position would keep the dialect it had while its keywords moved
+  if (schema.is_object()) {
+    auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+    if (override_value != nullptr && is_own_dialect_override(*override_value) &&
+        !at_dialect_declaration(schema, site)) {
+      *override_value = sourcemeta::core::JSON{dialect};
+      return;
+    }
+  }
+
+  if (!at_dialect_declaration(schema, site)) {
+    return;
+  }
+
+  if (schema.defines("$schema")) {
+    schema.assign("$schema", sourcemeta::core::JSON{dialect});
+    return;
+  }
+
+  assign_before_first_key(schema, "$schema", sourcemeta::core::JSON{dialect});
 }
 
 // Whether an identifier and a dialect name the same thing once both are
