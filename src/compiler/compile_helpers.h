@@ -338,6 +338,21 @@ inline auto bound_is_representable(const sourcemeta::core::JSON &value)
   return value <= LIMIT;
 }
 
+// Draft 3 to 7 let `$ref` replace every sibling keyword, so nothing those
+// siblings say ever takes effect. Core's schema walker frames nothing under
+// one either, which is what keeps such a sibling from compiling at all
+inline auto ref_overrides_sibling_keywords(const SchemaContext &schema_context)
+    -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return schema_context.schema.is_object() &&
+         schema_context.schema.defines("$ref") &&
+         schema_context.vocabularies.contains_any(
+             {Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
+              Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
+              Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
+              Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER});
+}
+
 // Note that the size keywords that let the type level fuse their bound accept
 // any integral number, including reals with no fractional part like `2.0`, so
 // this must recognise those too or the fused bound would be silently dropped

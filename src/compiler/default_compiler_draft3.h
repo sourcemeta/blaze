@@ -234,6 +234,14 @@ compile_properties(const sourcemeta::blaze::Context &context,
                    const sourcemeta::blaze::DynamicContext &dynamic_context,
                    const sourcemeta::blaze::Instructions &)
     -> std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>> {
+  // The keywords that fuse with `properties` reach it from the side, past the
+  // point where an overridden keyword is dropped. A `properties` that `$ref`
+  // overrides enforces nothing, and nothing under it is framed, so there is
+  // neither anything to compile here nor anything to fuse with
+  if (ref_overrides_sibling_keywords(schema_context)) {
+    return {};
+  }
+
   std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>>
       properties;
   for (const auto &entry : schema_context.schema.at("properties").as_object()) {
