@@ -32,108 +32,129 @@
       "data": [ 1, 2, 3 ]
     },
     {
-      "description": "$ref alone is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo"
-      }
-    },
-    {
-      "description": "$ref with title is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "title": "A reference"
-      }
-    },
-    {
-      "description": "$ref with description is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "description": "Refers to foo"
-      }
-    },
-    {
-      "description": "$ref with default is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "default": 42
-      }
-    },
-    {
-      "description": "$ref with all annotations is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "title": "Ref",
-        "description": "A ref",
-        "default": null
-      }
-    },
-    {
-      "description": "$ref with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "x-note": "important"
-      }
-    },
-    {
       "description": "$ref as non-string is rejected",
       "valid": false,
       "data": {
-        "$ref": 42
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": 42
+          }
+        }
       }
     },
     {
       "description": "$ref with type sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
-        "type": "string"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/foo",
+            "type": "string"
+          }
+        }
       }
     },
     {
       "description": "$ref with properties sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
-        "properties": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/foo",
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "$ref with enum sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
-        "enum": [ 1 ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/foo",
+            "enum": [ 1 ]
+          }
+        }
       }
     },
     {
       "description": "$ref with $schema sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
-        "$schema": "http://json-schema.org/draft-04/schema#"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/foo",
+            "$schema": "http://json-schema.org/draft-04/schema#"
+          }
+        }
       }
     },
     {
       "description": "$ref with id sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
-        "id": "https://example.com"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/foo",
+            "id": "https://example.com"
+          }
+        }
       }
     },
     {
       "description": "$ref with definitions sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {}
+          "0": {
+            "$ref": "#/definitions/foo",
+            "definitions": {
+              "x": {}
+            }
+          }
         }
       }
     },
@@ -141,961 +162,1124 @@
       "description": "$ref with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/foo",
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "$ref with allOf sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
-        ]
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/foo",
+            "allOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "$ref with minimum sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
-        "minimum": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/foo",
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "$ref with minLength sibling is rejected",
       "valid": false,
       "data": {
-        "$ref": "#/definitions/foo",
-        "minLength": 0
-      }
-    },
-    {
-      "description": "Enum with booleans is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ false, true ]
-      }
-    },
-    {
-      "description": "Enum with null is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ null ]
-      }
-    },
-    {
-      "description": "Enum with values is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2, 3 ]
-      }
-    },
-    {
-      "description": "Enum with title is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1 ],
-        "title": "One"
-      }
-    },
-    {
-      "description": "Enum with description is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ "a" ],
-        "description": "A value"
-      }
-    },
-    {
-      "description": "Enum with default is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2 ],
-        "default": 1
-      }
-    },
-    {
-      "description": "Enum with $schema is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1 ],
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "Enum with id is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1 ],
-        "id": "https://example.com/e"
-      }
-    },
-    {
-      "description": "Enum with definitions is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1 ],
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {}
+          "0": {
+            "$ref": "#/definitions/foo",
+            "minLength": 0
+          }
         }
-      }
-    },
-    {
-      "description": "Enum with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2 ],
-        "x-source": "config"
       }
     },
     {
       "description": "Empty enum is rejected",
       "valid": false,
       "data": {
-        "enum": []
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": []
+          }
+        }
       }
     },
     {
       "description": "Enum with duplicate values is rejected",
       "valid": false,
       "data": {
-        "enum": [ 1, 1 ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1, 1 ]
+          }
+        }
       }
     },
     {
       "description": "Enum with type sibling is rejected",
       "valid": false,
       "data": {
-        "enum": [ 1, 2 ],
-        "type": "integer"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1, 2 ],
+            "type": "integer"
+          }
+        }
       }
     },
     {
       "description": "Enum with properties sibling is rejected",
       "valid": false,
       "data": {
-        "enum": [ 1, 2 ],
-        "properties": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1, 2 ],
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "Enum with minimum sibling is rejected",
       "valid": false,
       "data": {
-        "enum": [ 1, 2 ],
-        "minimum": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1, 2 ],
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "Enum with minLength sibling is rejected",
       "valid": false,
       "data": {
-        "enum": [ "a" ],
-        "minLength": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ "a" ],
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "Enum with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "enum": [ 1 ],
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ],
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "Enum with items sibling is rejected",
       "valid": false,
       "data": {
-        "enum": [ 1 ],
-        "items": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ],
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "Enum with empty definitions is rejected",
       "valid": false,
       "data": {
-        "enum": [ 1 ],
-        "definitions": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ],
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Enum definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "enum": [ 1 ],
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "enum": [ 1 ],
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
         }
-      }
-    },
-    {
-      "description": "String with minLength is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0
-      }
-    },
-    {
-      "description": "String with all keywords is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "maxLength": 100,
-        "pattern": "^[a-z]+$",
-        "format": "email"
-      }
-    },
-    {
-      "description": "String with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "title": "Name",
-        "description": "A name",
-        "default": "unknown"
-      }
-    },
-    {
-      "description": "String with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "String with id is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "id": "https://example.com/s"
-      }
-    },
-    {
-      "description": "String with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "definitions": {
-          "x": {}
-        }
-      }
-    },
-    {
-      "description": "String with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "x-custom": "value"
       }
     },
     {
       "description": "String without minLength is rejected",
       "valid": false,
       "data": {
-        "type": "string"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string"
+          }
+        }
       }
     },
     {
       "description": "String with negative minLength is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": -1
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": -1
+          }
+        }
       }
     },
     {
       "description": "String with float minLength is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 1.5
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 1.5
+          }
+        }
       }
     },
     {
       "description": "String with negative maxLength is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 0,
-        "maxLength": -1
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": -1
+          }
+        }
       }
     },
     {
       "description": "String with numeric keywords is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 0,
-        "minimum": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0,
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "String with object keywords is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 0,
-        "properties": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0,
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "String with array keywords is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 0,
-        "items": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0,
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "String with enum sibling is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 0,
-        "enum": [ "a" ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0,
+            "enum": [ "a" ]
+          }
+        }
       }
     },
     {
       "description": "String with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 0,
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0,
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "String with empty definitions is rejected",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 0,
-        "definitions": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0,
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "String definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "type": "string",
-        "minLength": 0,
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "type": "string",
+            "minLength": 0,
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
         }
-      }
-    },
-    {
-      "description": "Integer with multipleOf is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1
-      }
-    },
-    {
-      "description": "Integer with bounds is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "minimum": 0,
-        "maximum": 100
-      }
-    },
-    {
-      "description": "Integer with folded exclusive bounds is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "minimum": 1,
-        "maximum": 99
-      }
-    },
-    {
-      "description": "Integer with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "title": "Age",
-        "description": "Years",
-        "default": 0
-      }
-    },
-    {
-      "description": "Integer with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "Integer with id is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "id": "https://example.com/i"
-      }
-    },
-    {
-      "description": "Integer with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "definitions": {
-          "x": {}
-        }
-      }
-    },
-    {
-      "description": "Integer with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "x-source": "db"
       }
     },
     {
       "description": "Integer without multipleOf is rejected",
       "valid": false,
       "data": {
-        "type": "integer"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer"
+          }
+        }
       }
     },
     {
       "description": "Integer with multipleOf zero is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 0
+          }
+        }
       }
     },
     {
       "description": "Integer with negative multipleOf is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": -1
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": -1
+          }
+        }
       }
     },
     {
       "description": "Integer with exclusiveMinimum is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "minimum": 0,
-        "exclusiveMinimum": true
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        }
       }
     },
     {
       "description": "Integer with exclusiveMaximum is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "maximum": 100,
-        "exclusiveMaximum": true
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "maximum": 100,
+            "exclusiveMaximum": true
+          }
+        }
       }
     },
     {
       "description": "Integer with string keywords is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "minLength": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "Integer with object keywords is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "properties": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "Integer with array keywords is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "items": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "Integer with enum sibling is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "enum": [ 1 ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "enum": [ 1 ]
+          }
+        }
       }
     },
     {
       "description": "Integer with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "Integer with empty definitions is rejected",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "definitions": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Integer definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "type": "integer",
-        "multipleOf": 1,
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "type": "integer",
+            "multipleOf": 1,
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
         }
-      }
-    },
-    {
-      "description": "Number alone is canonical",
-      "valid": true,
-      "data": {
-        "type": "number"
-      }
-    },
-    {
-      "description": "Number with bounds is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 1.5
-      }
-    },
-    {
-      "description": "Number with multipleOf is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "multipleOf": 0.1
-      }
-    },
-    {
-      "description": "Number with exclusiveMinimum is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "minimum": 0,
-        "exclusiveMinimum": true
-      }
-    },
-    {
-      "description": "Number with exclusiveMaximum is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "maximum": 100,
-        "exclusiveMaximum": true
-      }
-    },
-    {
-      "description": "Number with all keywords is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "multipleOf": 0.5,
-        "minimum": 0,
-        "maximum": 100,
-        "exclusiveMinimum": true,
-        "exclusiveMaximum": true
-      }
-    },
-    {
-      "description": "Number with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "title": "Score",
-        "description": "A score",
-        "default": 0
-      }
-    },
-    {
-      "description": "Number with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "Number with id is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "id": "https://example.com/n"
-      }
-    },
-    {
-      "description": "Number with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "definitions": {
-          "x": {}
-        }
-      }
-    },
-    {
-      "description": "Number with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "x-unit": "meters"
       }
     },
     {
       "description": "Number with multipleOf zero is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "multipleOf": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "multipleOf": 0
+          }
+        }
       }
     },
     {
       "description": "Number with negative multipleOf is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "multipleOf": -0.5
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "multipleOf": -0.5
+          }
+        }
       }
     },
     {
       "description": "Number with exclusiveMinimum as number is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "exclusiveMinimum": 5
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "exclusiveMinimum": 5
+          }
+        }
       }
     },
     {
       "description": "Number with exclusiveMaximum as number is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "exclusiveMaximum": 10
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "exclusiveMaximum": 10
+          }
+        }
       }
     },
     {
       "description": "Number with string keywords is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "minLength": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "Number with object keywords is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "properties": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "Number with array keywords is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "items": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "Number with enum sibling is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "enum": [ 1 ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "enum": [ 1 ]
+          }
+        }
       }
     },
     {
       "description": "Number with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "Number with empty definitions is rejected",
       "valid": false,
       "data": {
-        "type": "number",
-        "definitions": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Number definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "type": "number",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "type": "number",
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
         }
-      }
-    },
-    {
-      "description": "Object with all required keywords is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0
-      }
-    },
-    {
-      "description": "Object with all keywords is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 0
-          }
-        },
-        "patternProperties": {
-          "^x-": {}
-        },
-        "additionalProperties": false,
-        "required": [ "name" ],
-        "minProperties": 1,
-        "maxProperties": 10
-      }
-    },
-    {
-      "description": "Object with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "title": "Obj",
-        "description": "An object",
-        "default": {}
-      }
-    },
-    {
-      "description": "Object with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "Object with id is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "id": "https://example.com/o"
-      }
-    },
-    {
-      "description": "Object with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "definitions": {
-          "x": {}
-        }
-      }
-    },
-    {
-      "description": "Object with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "x-db": "users"
       }
     },
     {
       "description": "Object without properties is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0
+          }
+        }
       }
     },
     {
       "description": "Object without minProperties is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true
+          }
+        }
       }
     },
     {
       "description": "Object without patternProperties is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "additionalProperties": true,
-        "minProperties": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true,
+            "minProperties": 0
+          }
+        }
       }
     },
     {
       "description": "Object without additionalProperties is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "minProperties": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "minProperties": 0
+          }
+        }
       }
     },
     {
       "description": "Object with string keywords is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "minLength": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "Object with array keywords is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "items": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "Object with numeric keywords is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "minimum": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "Object with enum sibling is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "enum": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "enum": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "Object with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "Object with dependencies is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "dependencies": {
-          "foo": [ "bar" ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "dependencies": {
+              "foo": [ "bar" ]
+            }
+          }
         }
       }
     },
@@ -1103,308 +1287,395 @@
       "description": "Object with empty required is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "required": []
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "required": []
+          }
+        }
       }
     },
     {
       "description": "Object with empty definitions is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
-        "definitions": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Recursive object properties must be canonical",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "boolean"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
           }
-        },
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "boolean"
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0
+          }
+        }
       }
     },
     {
       "description": "Recursive object patternProperties must be canonical",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {
-          "^x-": {
-            "type": "boolean"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
           }
-        },
-        "additionalProperties": true,
-        "minProperties": 0
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {
+              "^x-": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": true,
+            "minProperties": 0
+          }
+        }
       }
     },
     {
       "description": "Recursive object additionalProperties must be canonical",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": {
-          "type": "boolean"
-        },
-        "minProperties": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "minProperties": 0
+          }
+        }
       }
     },
     {
       "description": "Object definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "minProperties": 0,
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": true,
+            "minProperties": 0,
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
         }
-      }
-    },
-    {
-      "description": "Array with schema items is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {
-          "type": "string",
-          "minLength": 0
-        }
-      }
-    },
-    {
-      "description": "Array with empty schema items is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": true,
-        "items": {}
       }
     },
     {
       "description": "Array with false items is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": false
-      }
-    },
-    {
-      "description": "Array with all keywords (schema items) is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "maxItems": 10,
-        "uniqueItems": true,
-        "items": {}
-      }
-    },
-    {
-      "description": "Array schema items with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "title": "List",
-        "description": "A list",
-        "default": []
-      }
-    },
-    {
-      "description": "Array schema items with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "Array schema items with id is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "id": "https://example.com/a"
-      }
-    },
-    {
-      "description": "Array schema items with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {}
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": false
+          }
         }
-      }
-    },
-    {
-      "description": "Array schema items with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "x-max": 100
       }
     },
     {
       "description": "Array without minItems is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "uniqueItems": false,
-        "items": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "uniqueItems": false,
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "Array without items is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false
+          }
+        }
       }
     },
     {
       "description": "Array without uniqueItems is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "items": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "Array schema items with additionalItems is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {
-          "type": "string",
-          "minLength": 0
-        },
-        "additionalItems": true
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {
+              "type": "string",
+              "minLength": 0
+            },
+            "additionalItems": true
+          }
+        }
       }
     },
     {
       "description": "Array with string keywords is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "minLength": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {},
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "Array with object keywords is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "properties": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {},
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "Array with numeric keywords is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "minimum": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {},
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "Array with enum sibling is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "enum": [
-          []
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {},
+            "enum": [
+              []
+            ]
+          }
+        }
       }
     },
     {
       "description": "Array with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {},
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "Array schema items with empty definitions is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
-        "definitions": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {},
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Recursive array schema items must be canonical",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {
-          "type": "boolean"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {
+              "type": "boolean"
+            }
+          }
         }
       }
     },
@@ -1412,103 +1683,24 @@
       "description": "Array schema items definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": {},
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {},
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
-        }
-      }
-    },
-    {
-      "description": "Array with tuple items and additionalItems is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": true
-      }
-    },
-    {
-      "description": "Array with all keywords (tuple items) is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "maxItems": 5,
-        "uniqueItems": true,
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          }
-        ],
-        "additionalItems": {
-          "type": "number"
-        }
-      }
-    },
-    {
-      "description": "Array tuple items with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          }
-        ],
-        "additionalItems": true,
-        "title": "Pair"
-      }
-    },
-    {
-      "description": "Array tuple items with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": false,
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "Array tuple items with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": true,
-        "definitions": {
-          "x": {}
         }
       }
     },
@@ -1516,403 +1708,506 @@
       "description": "Array tuple without additionalItems is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
-        ]
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ]
+          }
+        }
       }
     },
     {
       "description": "Array with empty tuple items is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [],
-        "additionalItems": true
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": [],
+            "additionalItems": true
+          }
+        }
       }
     },
     {
       "description": "Array tuple without uniqueItems is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "items": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
         ],
-        "additionalItems": true
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "items": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "additionalItems": true
+          }
+        }
       }
     },
     {
       "description": "Array tuple without minItems is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "uniqueItems": false,
-        "items": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
         ],
-        "additionalItems": true
+        "definitions": {
+          "0": {
+            "type": "array",
+            "uniqueItems": false,
+            "items": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "additionalItems": true
+          }
+        }
       }
     },
     {
       "description": "Array tuple with numeric keywords is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
         ],
-        "additionalItems": true,
-        "minimum": 0
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "additionalItems": true,
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "Array tuple with empty definitions is rejected",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
         ],
-        "additionalItems": true,
-        "definitions": {}
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "additionalItems": true,
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Recursive tuple items must be canonical",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "boolean"
+            "$ref": "#/definitions/0"
           }
         ],
-        "additionalItems": true
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": [
+              {
+                "type": "boolean"
+              }
+            ],
+            "additionalItems": true
+          }
+        }
       }
     },
     {
       "description": "Recursive tuple additionalItems must be canonical",
       "valid": false,
       "data": {
-        "type": "array",
-        "minItems": 0,
-        "uniqueItems": false,
-        "items": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
-        ],
-        "additionalItems": {
-          "type": "boolean"
-        }
-      }
-    },
-    {
-      "description": "anyOf with canonical branches is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
-      }
-    },
-    {
-      "description": "anyOf with title is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "title": "Wrapper"
-      }
-    },
-    {
-      "description": "anyOf with description is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "description": "A union"
-      }
-    },
-    {
-      "description": "anyOf with default is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "default": "foo"
-      }
-    },
-    {
-      "description": "anyOf with $schema is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "anyOf with id is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "id": "https://example.com/u"
-      }
-    },
-    {
-      "description": "anyOf with definitions is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "$ref": "#/definitions/a"
-          },
-          {}
         ],
         "definitions": {
-          "a": {
-            "type": "string",
-            "minLength": 0
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "additionalItems": {
+              "type": "boolean"
+            }
           }
         }
-      }
-    },
-    {
-      "description": "anyOf with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "x-gen": "tool"
       }
     },
     {
       "description": "Empty anyOf is rejected",
       "valid": false,
       "data": {
-        "anyOf": []
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": []
+          }
+        }
       }
     },
     {
       "description": "anyOf with type sibling is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "anyOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "required": [ "a" ]
+            "$ref": "#/definitions/0"
           }
-        ]
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "anyOf": [
+              {
+                "required": [ "a" ]
+              }
+            ]
+          }
+        }
       }
     },
     {
       "description": "anyOf with properties sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
         ],
-        "properties": {}
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "anyOf with $ref sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
         ],
-        "$ref": "#/definitions/a"
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "$ref": "#/definitions/a"
+          }
+        }
       }
     },
     {
       "description": "anyOf with minimum sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "number"
+            "$ref": "#/definitions/0"
           }
         ],
-        "minimum": 0
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "type": "number"
+              }
+            ],
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "anyOf with minLength sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
         ],
-        "minLength": 0
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "anyOf with items sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string",
-            "minLength": 0
+            "$ref": "#/definitions/0"
           }
         ],
-        "items": {}
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 0
+              }
+            ],
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "anyOf with allOf sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
-          {}
-        ],
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
-        ]
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {}
+            ],
+            "allOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "anyOf with oneOf sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "oneOf": [
-          {}
-        ]
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {}
+            ],
+            "oneOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "anyOf with not sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "not": {}
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {}
+            ],
+            "not": {}
+          }
+        }
       }
     },
     {
       "description": "anyOf with enum sibling is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "enum": [ 1 ]
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {}
+            ],
+            "enum": [ 1 ]
+          }
+        }
       }
     },
     {
       "description": "anyOf with empty definitions is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "definitions": {}
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {}
+            ],
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Recursive anyOf branches must be canonical",
       "valid": false,
       "data": {
-        "anyOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string"
-          },
-          {
-            "type": "number"
+            "$ref": "#/definitions/0"
           }
-        ]
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        }
       }
     },
     {
       "description": "anyOf definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "anyOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "anyOf": [
+              {}
+            ],
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
         }
       }
@@ -1921,252 +2216,266 @@
       "description": "anyOf with single branch is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "anyOf with duplicate branches is rejected",
       "valid": false,
       "data": {
-        "anyOf": [
-          {},
-          {}
-        ]
-      }
-    },
-    {
-      "description": "allOf with canonical branches is canonical",
-      "valid": true,
-      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
           {
-            "$ref": "#/definitions/base"
-          },
-          {
-            "type": "object",
-            "properties": {},
-            "patternProperties": {},
-            "additionalProperties": true,
-            "minProperties": 0
+            "$ref": "#/definitions/0"
           }
-        ]
-      }
-    },
-    {
-      "description": "allOf with title is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "title": "Wrapper"
-      }
-    },
-    {
-      "description": "allOf with description is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "description": "Combined"
-      }
-    },
-    {
-      "description": "allOf with default is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "default": {}
-      }
-    },
-    {
-      "description": "allOf with $schema is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "allOf with id is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "id": "https://example.com/c"
-      }
-    },
-    {
-      "description": "allOf with definitions is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {
-            "$ref": "#/definitions/a"
-          },
-          {}
         ],
         "definitions": {
-          "a": {
-            "type": "number"
+          "0": {
+            "anyOf": [
+              {},
+              {}
+            ]
           }
         }
-      }
-    },
-    {
-      "description": "allOf with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "x-note": "combined"
       }
     },
     {
       "description": "Empty allOf is rejected",
       "valid": false,
       "data": {
-        "allOf": []
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "allOf": []
+          }
+        }
       }
     },
     {
       "description": "allOf with type sibling is rejected",
       "valid": false,
       "data": {
-        "type": "object",
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
           {
-            "$ref": "#/definitions/base"
+            "$ref": "#/definitions/0"
           }
-        ]
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/definitions/base"
+              }
+            ]
+          }
+        }
       }
     },
     {
       "description": "allOf with properties sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
           {
-            "$ref": "#/definitions/base"
+            "$ref": "#/definitions/0"
           }
         ],
-        "properties": {}
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/base"
+              }
+            ],
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "allOf with $ref sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "$ref": "#/definitions/a"
+        "definitions": {
+          "0": {
+            "allOf": [
+              {}
+            ],
+            "$ref": "#/definitions/a"
+          }
+        }
       }
     },
     {
       "description": "allOf with minimum sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
           {
-            "type": "number"
+            "$ref": "#/definitions/0"
           }
         ],
-        "minimum": 0
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "type": "number"
+              }
+            ],
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "allOf with minLength sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "minLength": 0
+        "definitions": {
+          "0": {
+            "allOf": [
+              {}
+            ],
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "allOf with items sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "items": {}
+        "definitions": {
+          "0": {
+            "allOf": [
+              {}
+            ],
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "allOf with anyOf sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "anyOf": [
-          {}
-        ]
+        "definitions": {
+          "0": {
+            "allOf": [
+              {}
+            ],
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "allOf with oneOf sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "oneOf": [
-          {}
-        ]
+        "definitions": {
+          "0": {
+            "allOf": [
+              {}
+            ],
+            "oneOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "allOf with not sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "not": {}
+        "definitions": {
+          "0": {
+            "allOf": [
+              {}
+            ],
+            "not": {}
+          }
+        }
       }
     },
     {
       "description": "allOf with enum sibling is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "enum": [ 1 ]
+        "definitions": {
+          "0": {
+            "allOf": [
+              {}
+            ],
+            "enum": [ 1 ]
+          }
+        }
       }
     },
     {
@@ -2183,11 +2492,21 @@
       "description": "Recursive allOf branches must be canonical",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
           {
-            "type": "string"
+            "$ref": "#/definitions/0"
           }
-        ]
+        ],
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "type": "string"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -2208,283 +2527,330 @@
       "description": "allOf with single branch is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
-        ]
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "allOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "allOf with duplicate branches is rejected",
       "valid": false,
       "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {},
-          {}
-        ]
-      }
-    },
-    {
-      "description": "oneOf with canonical branches is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
           {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
+            "$ref": "#/definitions/0"
           }
-        ]
-      }
-    },
-    {
-      "description": "oneOf with title is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "title": "Wrapper"
-      }
-    },
-    {
-      "description": "oneOf with description is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "description": "Exclusive"
-      }
-    },
-    {
-      "description": "oneOf with default is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "default": "x"
-      }
-    },
-    {
-      "description": "oneOf with $schema is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "oneOf with id is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "id": "https://example.com/x"
-      }
-    },
-    {
-      "description": "oneOf with definitions is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {
-            "$ref": "#/definitions/a"
-          },
-          {}
         ],
         "definitions": {
-          "a": {
-            "type": "number"
+          "0": {
+            "allOf": [
+              {},
+              {}
+            ]
           }
         }
-      }
-    },
-    {
-      "description": "oneOf with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {},
-          {
-            "not": {}
-          }
-        ],
-        "x-mode": "strict"
       }
     },
     {
       "description": "Empty oneOf is rejected",
       "valid": false,
       "data": {
-        "oneOf": []
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "oneOf": []
+          }
+        }
       }
     },
     {
       "description": "oneOf with type sibling is rejected",
       "valid": false,
       "data": {
-        "type": "object",
-        "oneOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "required": [ "a" ]
+            "$ref": "#/definitions/0"
           }
-        ]
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "oneOf": [
+              {
+                "required": [ "a" ]
+              }
+            ]
+          }
+        }
       }
     },
     {
       "description": "oneOf with properties sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "properties": {}
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "oneOf with $ref sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "$ref": "#/definitions/a"
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "$ref": "#/definitions/a"
+          }
+        }
       }
     },
     {
       "description": "oneOf with minimum sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "number"
+            "$ref": "#/definitions/0"
           }
         ],
-        "minimum": 0
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {
+                "type": "number"
+              }
+            ],
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "oneOf with minLength sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "minLength": 0
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "oneOf with items sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "items": {}
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "oneOf with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "anyOf": [
-          {}
-        ]
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "oneOf with allOf sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
-        ],
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
-        ]
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "allOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "oneOf with not sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "not": {}
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "not": {}
+          }
+        }
       }
     },
     {
       "description": "oneOf with enum sibling is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "enum": [ 1 ]
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "enum": [ 1 ]
+          }
+        }
       }
     },
     {
       "description": "oneOf with empty definitions is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
-        "definitions": {}
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Recursive oneOf branches must be canonical",
       "valid": false,
       "data": {
-        "oneOf": [
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
           {
-            "type": "string"
-          },
-          {
-            "type": "number"
+            "$ref": "#/definitions/0"
           }
-        ]
+        ],
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        }
       }
     },
     {
       "description": "oneOf definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
         ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "oneOf": [
+              {}
+            ],
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
         }
       }
@@ -2493,193 +2859,258 @@
       "description": "oneOf with single branch is rejected",
       "valid": false,
       "data": {
-        "oneOf": [
-          {}
-        ]
-      }
-    },
-    {
-      "description": "not with empty schema is canonical",
-      "valid": true,
-      "data": {
-        "not": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "not with false is rejected",
       "valid": false,
       "data": {
-        "not": false
-      }
-    },
-    {
-      "description": "not with schema is canonical",
-      "valid": true,
-      "data": {
-        "not": {
-          "type": "string",
-          "minLength": 0
-        }
-      }
-    },
-    {
-      "description": "not with title is canonical",
-      "valid": true,
-      "data": {
-        "not": {},
-        "title": "Impossible"
-      }
-    },
-    {
-      "description": "not with description is canonical",
-      "valid": true,
-      "data": {
-        "not": {},
-        "description": "Negated"
-      }
-    },
-    {
-      "description": "not with default is canonical",
-      "valid": true,
-      "data": {
-        "not": {},
-        "default": null
-      }
-    },
-    {
-      "description": "not with $schema is canonical",
-      "valid": true,
-      "data": {
-        "not": {},
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      }
-    },
-    {
-      "description": "not with id is canonical",
-      "valid": true,
-      "data": {
-        "not": {},
-        "id": "https://example.com/not"
-      }
-    },
-    {
-      "description": "not with definitions is canonical",
-      "valid": true,
-      "data": {
-        "not": {},
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {}
+          "0": {
+            "not": false
+          }
         }
-      }
-    },
-    {
-      "description": "not with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "not": {},
-        "x-reason": "legacy"
       }
     },
     {
       "description": "not with type sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "type": "string"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "type": "string"
+          }
+        }
       }
     },
     {
       "description": "not with properties sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "properties": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "properties": {}
+          }
+        }
       }
     },
     {
       "description": "not with $ref sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "$ref": "#/definitions/a"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "$ref": "#/definitions/a"
+          }
+        }
       }
     },
     {
       "description": "not with minimum sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "minimum": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "minimum": 0
+          }
+        }
       }
     },
     {
       "description": "not with minLength sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "minLength": 0
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "minLength": 0
+          }
+        }
       }
     },
     {
       "description": "not with items sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "items": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "items": {}
+          }
+        }
       }
     },
     {
       "description": "not with anyOf sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "anyOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "anyOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "not with allOf sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
+        "$schema": "http://json-schema.org/draft-04/schema#",
         "allOf": [
-          {}
-        ]
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "allOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "not with oneOf sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "oneOf": [
-          {}
-        ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "oneOf": [
+              {}
+            ]
+          }
+        }
       }
     },
     {
       "description": "not with enum sibling is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "enum": [ 1 ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "enum": [ 1 ]
+          }
+        }
       }
     },
     {
       "description": "not with empty definitions is rejected",
       "valid": false,
       "data": {
-        "not": {},
-        "definitions": {}
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {},
+            "definitions": {}
+          }
+        }
       }
     },
     {
       "description": "Recursive not subschema must be canonical",
       "valid": false,
       "data": {
-        "not": {
-          "type": "boolean"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {
+              "type": "boolean"
+            }
+          }
         }
       }
     },
@@ -2687,10 +3118,20 @@
       "description": "not definitions subschemas must be canonical",
       "valid": false,
       "data": {
-        "not": {},
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
         "definitions": {
-          "x": {
-            "type": "boolean"
+          "0": {
+            "not": {},
+            "definitions": {
+              "x": {
+                "type": "boolean"
+              }
+            }
           }
         }
       }
@@ -2699,132 +3140,854 @@
       "description": "type boolean is rejected (must be enum)",
       "valid": false,
       "data": {
-        "type": "boolean"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "boolean"
+          }
+        }
       }
     },
     {
       "description": "type null is rejected (must be enum)",
       "valid": false,
       "data": {
-        "type": "null"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "null"
+          }
+        }
       }
     },
     {
       "description": "type array is rejected (must be anyOf)",
       "valid": false,
       "data": {
-        "type": [ "string", "number" ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": [ "string", "number" ]
+          }
+        }
       }
-    },
-    {
-      "description": "Empty object is canonical (accept all)",
-      "valid": true,
-      "data": {}
     },
     {
       "description": "Object with only title is rejected",
       "valid": false,
       "data": {
-        "title": "Something"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "title": "Something"
+          }
+        }
       }
     },
     {
       "description": "Object with only description is rejected",
       "valid": false,
       "data": {
-        "description": "Nothing"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "description": "Nothing"
+          }
+        }
       }
     },
     {
       "description": "Object with only $schema is rejected",
       "valid": false,
       "data": {
-        "$schema": "http://json-schema.org/draft-04/schema#"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$schema": "http://json-schema.org/draft-04/schema#"
+          }
+        }
       }
     },
     {
       "description": "Object with only id is rejected",
       "valid": false,
       "data": {
-        "id": "https://example.com"
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "id": "https://example.com"
+          }
+        }
       }
     },
     {
       "description": "Object with only definitions is rejected",
       "valid": false,
       "data": {
-        "definitions": {
-          "x": {}
-        }
-      }
-    },
-    {
-      "description": "Full canonical root schema",
-      "valid": true,
-      "data": {
         "$schema": "http://json-schema.org/draft-04/schema#",
-        "id": "https://example.com/person",
-        "type": "object",
-        "title": "Person",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "age": {
-            "type": "integer",
-            "multipleOf": 1,
-            "minimum": 0
-          },
-          "email": {
-            "type": "string",
-            "minLength": 0,
-            "format": "email"
-          },
-          "tags": {
-            "type": "array",
-            "minItems": 0,
-            "uniqueItems": false,
-            "items": {
-              "type": "string",
-              "minLength": 0
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "definitions": {
+              "x": {}
             }
           }
-        },
-        "patternProperties": {},
-        "additionalProperties": true,
-        "required": [ "name" ],
-        "minProperties": 1,
-        "definitions": {
-          "address": {
-            "type": "object",
-            "properties": {},
-            "patternProperties": {},
-            "additionalProperties": true,
-            "minProperties": 0
-          }
         }
-      }
-    },
-    {
-      "description": "Enum with a single type is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ "a", "b" ]
-      }
-    },
-    {
-      "description": "Enum mixing integers and reals is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2.5 ]
       }
     },
     {
       "description": "Enum with mixed types is rejected",
       "valid": false,
       "data": {
-        "enum": [ 1, "two", true, null ]
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1, "two", true, null ]
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of a string node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of an integer node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of a number node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of an enum node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1, 2, 3 ]
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of an object node with required names",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "required": [ "a" ],
+            "minProperties": 1,
+            "properties": {
+              "a": {
+                "$ref": "#/definitions/1"
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of an object node closed to other properties",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {
+              "a": {
+                "$ref": "#/definitions/1"
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": false
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of an array node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of a tuple array node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": [
+              {
+                "$ref": "#/definitions/1"
+              }
+            ],
+            "additionalItems": true
+          },
+          "1": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of an anyOf node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          },
+          "2": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of an allOf node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 2
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of a oneOf node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          },
+          "2": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of a not node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "not": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": {
+            "type": "integer",
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of a shared node referenced twice",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {
+              "a": {
+                "$ref": "#/definitions/1"
+              },
+              "b": {
+                "$ref": "#/definitions/1"
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of a self-referencing node",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {
+              "child": {
+                "$ref": "#/definitions/0"
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form of a reference that leaves the document",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {
+              "a": {
+                "$ref": "#/definitions/1"
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": true
+          },
+          "1": {
+            "$ref": "https://example.com/dir/other.json"
+          }
+        }
+      }
+    },
+    {
+      "description": "A bare schema is no longer canonical",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    {
+      "description": "A document without definitions is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ]
+      }
+    },
+    {
+      "description": "A document without a wrapper is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "definitions": {
+          "0": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "A wrapper naming more than one entry is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          },
+          {
+            "$ref": "#/definitions/1"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number"
+          },
+          "1": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "A keyword beside the wrapper is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "number",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "A wrapper that leaves the document is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "https://example.com/other.json"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "A wrapper that does not name an entry is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0/properties/a"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "An entry named anything but a position is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number"
+          },
+          "foo": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "An entry name with a leading zero is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number"
+          },
+          "01": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "An entry holding a nested subschema is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 0
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "description": "An edge with a sibling keyword is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {
+              "$ref": "#/definitions/1",
+              "minLength": 0
+            }
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "An entry that is a boolean is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "minProperties": 0,
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": true
+        }
+      }
+    },
+    {
+      "description": "An edge that leaves the document is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {
+              "$ref": "https://example.com/other.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "An entry that is nothing but a local reference is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/1"
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "A local reference beside what it cannot override is an entry",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#/definitions/1",
+            "title": "Name"
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "An entry that is a reference out of the document is accepted",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "https://example.com/other.json"
+          }
+        }
+      }
+    },
+    {
+      "description": "A wrapper that does not point at the first entry is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/3"
+          }
+        ],
+        "definitions": {
+          "3": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
       }
     }
   ]

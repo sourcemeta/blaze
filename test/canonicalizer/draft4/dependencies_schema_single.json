@@ -1,0 +1,98 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "dependencies": { "foo": { "required": [ "bar" ] } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/7" }
+        ]
+      },
+      "1": {
+        "anyOf": [
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/5" }
+        ]
+      },
+      "2": { "not": { "$ref": "#/definitions/3" } },
+      "3": {
+        "type": "object",
+        "required": [ "foo" ],
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "foo": { "$ref": "#/definitions/4" } },
+        "additionalProperties": true
+      },
+      "4": {},
+      "5": {
+        "allOf": [
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/6" }
+        ]
+      },
+      "6": {
+        "required": [ "bar" ],
+        "type": "object",
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "bar": { "$ref": "#/definitions/4" } },
+        "additionalProperties": true
+      },
+      "7": {
+        "type": "object",
+        "patternProperties": {},
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": true
+      }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "bar": 1 },
+    { "bar": "x" },
+    { "bar": {} },
+    { "bar": { "bar": "x" } },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "foo": 1, "bar": 1 }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "foo": 1 }
+  ]
+}

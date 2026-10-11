@@ -1,0 +1,116 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": { "pos": { "type": "integer", "minimum": 0 } },
+    "type": "object",
+    "not": { "required": [ "forbidden" ] },
+    "anyOf": [ { "required": [ "a" ] }, { "required": [ "b" ] } ],
+    "properties": { "x": { "$ref": "#/definitions/pos" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/4" },
+          { "$ref": "#/definitions/7" }
+        ]
+      },
+      "1": { "not": { "$ref": "#/definitions/2" } },
+      "2": {
+        "required": [ "forbidden" ],
+        "type": "object",
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "forbidden": { "$ref": "#/definitions/3" } },
+        "additionalProperties": true
+      },
+      "3": {},
+      "4": {
+        "anyOf": [
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/6" }
+        ]
+      },
+      "5": {
+        "required": [ "a" ],
+        "type": "object",
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "a": { "$ref": "#/definitions/3" } },
+        "additionalProperties": true
+      },
+      "6": {
+        "required": [ "b" ],
+        "type": "object",
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "b": { "$ref": "#/definitions/3" } },
+        "additionalProperties": true
+      },
+      "7": {
+        "type": "object",
+        "properties": { "x": { "$ref": "#/definitions/8" } },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "8": { "type": "integer", "minimum": 0, "multipleOf": 1 }
+    }
+  },
+  "examples": [
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": -1 },
+    { "a": 0 },
+    { "a": { "a": "x" } },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": -1, "b": -1, "forbidden": -1, "x": -1 },
+    { "a": 0, "b": 0, "forbidden": 0, "x": 0 },
+    { "a": 1, "b": 1, "forbidden": 1, "x": 1 },
+    { "a": "x", "b": "x", "forbidden": "x", "x": "x" },
+    [ -1 ],
+    [ -1, -1 ],
+    [ 0 ],
+    [ 0, 0 ],
+    [ 1, 1 ],
+    { "a": {}, "b": {}, "forbidden": {}, "x": {} },
+    { "x": "x" },
+    { "x": -1 },
+    { "a": 1, "x": -1 },
+    { "b": 1, "x": -1 },
+    { "forbidden": 1, "x": -1 },
+    { "x": 1 },
+    { "x": "other" }
+  ]
+}

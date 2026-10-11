@@ -4,7 +4,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     canonicalizer_2019_09_test.cc
     canonicalizer_draft7_test.cc
     canonicalizer_draft6_test.cc
-    canonicalizer_draft4_test.cc
     canonicalizer_draft2_test.cc
     canonicalizer_draft1_test.cc
     canonicalizer_draft0_test.cc

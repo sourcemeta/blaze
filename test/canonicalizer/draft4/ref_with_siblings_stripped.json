@@ -1,0 +1,64 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": { "foo": { "type": "string" } },
+    "type": "object",
+    "properties": { "bar": { "$ref": "#/definitions/foo", "type": "integer" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "bar": { "$ref": "#/definitions/1" } },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "1": { "type": "string", "minLength": 0 }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "bar": "x" },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "bar": "other" }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    { "bar": 1 },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "bar": {} },
+    { "bar": { "bar": "x" } },
+    { "bar": -1 }
+  ]
+}

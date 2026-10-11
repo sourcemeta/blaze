@@ -1,0 +1,123 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "anyOf": [
+      {
+        "properties": {
+          "version": { "enum": [ 1 ] },
+          "data": { "type": "string" }
+        }
+      },
+      {
+        "properties": {
+          "version": { "enum": [ 2 ] },
+          "data": { "type": "integer" }
+        }
+      }
+    ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "anyOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/6" },
+          { "$ref": "#/definitions/4" },
+          { "$ref": "#/definitions/8" },
+          { "$ref": "#/definitions/9" }
+        ]
+      },
+      "1": { "enum": [ null ] },
+      "2": { "enum": [ false, true ] },
+      "3": {
+        "type": "object",
+        "properties": {
+          "version": { "$ref": "#/definitions/5" },
+          "data": { "$ref": "#/definitions/4" }
+        },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "4": { "type": "string", "minLength": 0 },
+      "5": { "enum": [ 1 ] },
+      "6": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/7" },
+        "minItems": 0
+      },
+      "7": {},
+      "8": { "type": "number" },
+      "9": {
+        "type": "object",
+        "properties": {
+          "version": { "$ref": "#/definitions/11" },
+          "data": { "$ref": "#/definitions/10" }
+        },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "10": { "type": "integer", "multipleOf": 1 },
+      "11": { "enum": [ 2 ] }
+    }
+  },
+  "examples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "data": 1 },
+    { "data": 2, "version": 2 },
+    { "data": 2 },
+    { "data": "x" },
+    [ 1, 1 ],
+    [ 2 ],
+    [ 2, 2 ],
+    { "data": "x", "version": 1 },
+    { "data": 1, "version": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "data": -1 },
+    { "data": "other" }
+  ],
+  "counterExamples": [
+    { "data": 1, "version": 1 },
+    { "data": "x", "version": "x" },
+    { "data": {}, "version": {} },
+    { "data": { "data": "x" } },
+    { "data": -1, "version": 1 },
+    { "data": "x", "version": "other" },
+    { "version": "other" },
+    { "data": "other", "version": 2 },
+    { "data": 1, "version": "other" }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": { "name": { "type": "string" } },
+    "anyOf": [
+      { "type": "object", "required": [ "name" ] },
+      { "type": "object", "required": [ "age" ] }
+    ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/5" }
+        ]
+      },
+      "1": {
+        "anyOf": [
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/4" }
+        ]
+      },
+      "2": {
+        "type": "object",
+        "required": [ "name" ],
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "name": { "$ref": "#/definitions/3" } },
+        "additionalProperties": true
+      },
+      "3": {},
+      "4": {
+        "type": "object",
+        "required": [ "age" ],
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "age": { "$ref": "#/definitions/3" } },
+        "additionalProperties": true
+      },
+      "5": {
+        "type": "object",
+        "properties": { "name": { "$ref": "#/definitions/6" } },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "6": { "type": "string", "minLength": 0 }
+    }
+  },
+  "examples": [
+    { "age": 1 },
+    { "age": "x", "name": "x" },
+    { "age": "x" },
+    { "age": { "age": "x" } },
+    { "name": "x" }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "age": 1, "name": 1 },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "age": {}, "name": {} },
+    { "name": -1 },
+    { "age": 1, "name": -1 }
+  ]
+}

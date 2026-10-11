@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 9223372036854775807,
+    "exclusiveMinimum": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "integer",
+        "minimum": 9.223372036854775808e+18,
+        "multipleOf": 1
+      }
+    }
+  },
+  "examples": [],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    1.5,
+    "",
+    "x",
+    "foo bar",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ 1, 1 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "a": 1, "b": 2 },
+    { "b": 2 }
+  ]
+}
