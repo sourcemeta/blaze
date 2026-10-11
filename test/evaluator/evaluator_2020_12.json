@@ -19311,5 +19311,40 @@
         "The array value was expected to validate against at least one of the 2 given subschemas"
       ]
     }
+  },
+  {
+    "description": "enum_integral_real_options_with_integer_type",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "integer",
+      "enum": [ 1.0, 2.0 ]
+    },
+    "instance": 1,
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ "AssertionType", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+        [ true, "AssertionType", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal one of the 2 declared values",
+        "The value was expected to be of type integer"
+      ]
+    }
   }
 ]

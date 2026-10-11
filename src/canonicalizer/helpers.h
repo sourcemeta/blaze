@@ -30,6 +30,105 @@ inline auto integral_reals_are_integers(const SchemaVocabularies &vocabularies)
        SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4_HYPER});
 }
 
+// Whether an instance of a type the schema admits can equal this value.
+// Equality reads a number by its value, so an integral number matches however
+// it was written, which makes this a different question from whether the value
+// is itself of an admitted type: an option of `1.0` is what an instance of `1`
+// equals, and that instance is an integer in every dialect
+inline auto type_can_equal(const sourcemeta::core::JSON::TypeSet &types,
+                           const sourcemeta::core::JSON &value) -> bool {
+  using Type = sourcemeta::core::JSON::Type;
+  if (!value.is_number()) {
+    return types.test(std::to_underlying(value.type()));
+  }
+
+  return (value.is_integral() &&
+          types.test(std::to_underlying(Type::Integer))) ||
+         types.test(std::to_underlying(Type::Real)) ||
+         types.test(std::to_underlying(Type::Decimal));
+}
+
+// Whether every instance that can equal this value is of a type the schema
+// admits, which is what leaves `type` with nothing to say that the value does
+// not. Draft 3 and Draft 4 do not read a number written with a fractional part
+// as an integer, so `type: "integer"` still turns away the `1.0` and the `1e0`
+// that an option of `1` lets through
+inline auto type_always_equals(const sourcemeta::core::JSON::TypeSet &types,
+                               const sourcemeta::core::JSON &value,
+                               const SchemaVocabularies &vocabularies) -> bool {
+  using Type = sourcemeta::core::JSON::Type;
+  if (!value.is_number()) {
+    return types.test(std::to_underlying(value.type()));
+  }
+
+  // A number written with a fractional or an exponent part is stored as a real
+  // or as a decimal, so a type that names every number covers each spelling,
+  // and only an integral value also has an integer one to cover
+  if (types.test(std::to_underlying(Type::Real)) &&
+      types.test(std::to_underlying(Type::Decimal))) {
+    return !value.is_integral() ||
+           types.test(std::to_underlying(Type::Integer));
+  }
+
+  return value.is_integral() && types.test(std::to_underlying(Type::Integer)) &&
+         integral_reals_are_integers(vocabularies);
+}
+
+// Whether the `type` of a schema says nothing its `enum` options do not, which
+// is what lets the type go. Draft 3 reads a bare `any` and an empty subschema
+// as holding for every instance, so neither says anything, while a subschema
+// this cannot read may say something the options do not
+inline auto type_is_implied_by_enum(const sourcemeta::core::JSON &type,
+                                    const sourcemeta::core::JSON &options,
+                                    const SchemaVocabularies &vocabularies)
+    -> bool {
+  if (vocabularies.contains_any(
+          {SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
+           SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3_HYPER})) {
+    if (type.is_string() && type.to_string() == "any") {
+      return true;
+    }
+
+    if (type.is_array()) {
+      bool has_tautology{false};
+      bool has_unknown_subschema{false};
+      for (const auto &entry : type.as_array()) {
+        if (entry.is_string() && entry.to_string() == "any") {
+          has_tautology = true;
+          break;
+        }
+
+        if (entry.is_object()) {
+          if (entry.empty()) {
+            has_tautology = true;
+            break;
+          }
+
+          has_unknown_subschema = true;
+        }
+      }
+
+      if (has_tautology) {
+        return true;
+      }
+
+      if (has_unknown_subschema) {
+        return false;
+      }
+    }
+  }
+
+  const auto types{parse_schema_type(type)};
+  if (!types.any()) {
+    return false;
+  }
+
+  return std::ranges::all_of(
+      options.as_array(), [&types, &vocabularies](const auto &option) -> bool {
+        return type_always_equals(types, option, vocabularies);
+      });
+}
+
 // Whether a `type` value only consists of simple type names that can be
 // parsed into a complete set of instance types. Draft 0 to Draft 3 unions
 // may contain subschemas or `any`, in which case the parsed set is an

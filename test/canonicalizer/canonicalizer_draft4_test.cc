@@ -779,6 +779,136 @@ TEST(enum_with_type_matching) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
+TEST(enum_integers_keep_integer_type) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "enum": [ 1, 2 ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "type": "integer",
+        "multipleOf": 1
+      },
+      {
+        "enum": [ 1, 2 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(enum_integral_real_with_integer_type_is_satisfiable) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "enum": [ 1.0 ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "type": "integer",
+        "multipleOf": 1
+      },
+      {
+        "enum": [ 1.0 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(enum_integral_real_option_not_filtered_by_integer_type) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "enum": [ 1.0, 2 ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "type": "integer",
+        "multipleOf": 1
+      },
+      {
+        "enum": [ 1.0, 2 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(enum_large_integer_keeps_integer_type) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "enum": [ 99999999999999999999 ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "type": "integer",
+        "multipleOf": 1
+      },
+      {
+        "enum": [ 99999999999999999999 ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
+TEST(enum_with_type_union_keeps_integer) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": [ "integer", "string" ],
+    "enum": [ 1, "a" ]
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      {
+        "anyOf": [
+          {
+            "type": "integer",
+            "multipleOf": 1
+          },
+          {
+            "type": "string",
+            "minLength": 0
+          }
+        ]
+      },
+      {
+        "anyOf": [
+          {
+            "enum": [ 1 ]
+          },
+          {
+            "enum": [ "a" ]
+          }
+        ]
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
+}
+
 TEST(equal_numeric_bounds_number) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
