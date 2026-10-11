@@ -7058,3 +7058,22 @@ TEST(unevaluated_properties_not_self_reference_exhaustive) {
     FAIL();
   }
 }
+
+TEST(type_integer_beside_enum_accepts_an_integral_real_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer",
+    "enum": [ 1 ]
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(1.0)JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionEqual, "/enum", "#/enum", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 1.0 was expected to equal the integer constant 1");
+}
