@@ -355,6 +355,18 @@ inline auto ref_overrides_sibling_keywords(const SchemaContext &schema_context)
               Known::OPENAPI_3_0_BASE});
 }
 
+// The OpenAPI 3.0 Schema Object spells a reference as a Reference Object, whose
+// every other member the specification says to ignore. The shape of such a
+// member is therefore not this dialect's to judge at all, and its own
+// meta-schema agrees: it accepts whatever stands beside a `$ref`. Every other
+// dialect here lets `$ref` override its siblings without excusing them from
+// being well-formed, which their meta-schemas do go on to check
+inline auto ref_object_ignores_siblings(
+    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
+  return vocabularies.contains(
+      sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE);
+}
+
 // Note that the size keywords that let the type level fuse their bound accept
 // any integral number, including reals with no fractional part like `2.0`, so
 // this must recognise those too or the fused bound would be silently dropped

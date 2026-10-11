@@ -795,7 +795,9 @@ auto sourcemeta::blaze::default_schema_compiler(
       // keyword compiles for that judgement alone and what it makes is thrown
       // away. One holding a schema is where that stops, as core's schema
       // walker frames nothing under an overridden keyword, and an unframed
-      // schema is not one this compiler can be handed.
+      // schema is not one this compiler can be handed. The dialect that reads
+      // a reference as an object of its own stops earlier still, as there the
+      // sibling is not merely overridden but ignored.
       //
       // Draft 3 has no boolean schemas, but its own definitions of these two
       // keywords accept a boolean in place of one
@@ -803,7 +805,8 @@ auto sourcemeta::blaze::default_schema_compiler(
           booleans_are_schemas(schema_context.vocabularies) ||
           dynamic_context.keyword == "additionalProperties" ||
           dynamic_context.keyword == "additionalItems"};
-      if (!holds_schema(metadata.type,
+      if (!ref_object_ignores_siblings(schema_context.vocabularies) &&
+          !holds_schema(metadata.type,
                         schema_context.schema.at(dynamic_context.keyword),
                         allow_boolean)) {
         [[maybe_unused]] const auto discarded{dispatch_keyword(
