@@ -16,6 +16,7 @@ public:
         schema.is_object());
 
     return this->has_pending_openapi_3_0_pattern(schema) ||
+           holds_promoted_keyword(schema) ||
            holds_movable_definitions(schema) || holds_pending_shape(schema) ||
            at_dialect_declaration(schema, site);
   }
@@ -37,18 +38,17 @@ public:
     fold_empty_applicators(schema);
 
     for (const auto &keyword : KEYWORDS) {
-      const std::string keyword_name{keyword};
-      if (!schema.defines(keyword_name) || this->carries_as_keyword(keyword)) {
+      if (this->carries_as_keyword(keyword)) {
         continue;
       }
 
-      std::string prefixed_name{"x-" + keyword_name};
-      while (schema.defines(prefixed_name)) {
-        prefixed_name.insert(0, "x-");
-      }
+      this->shadow(schema, keyword);
+    }
 
-      this->renames_.emplace(keyword_name, prefixed_name);
-      schema.rename(keyword_name, std::move(prefixed_name));
+    // Before the move below, so that the member it vacates is free and an
+    // author's own `definitions` is already out of the way
+    for (const auto &keyword : PROMOTED_BY_DRAFT_4) {
+      this->shadow(schema, keyword);
     }
 
     move_definitions(schema, this->relocations_);
@@ -105,6 +105,41 @@ private:
       {"nullable", "discriminator", "xml", "externalDocs", "example",
        "deprecated", "readOnly", "writeOnly"}};
 
+  // The other direction: what Draft 4 names that the OpenAPI 3.0 Schema Object
+  // does not, so a document carrying one carries author data that the target
+  // would start reading as a keyword. `id` is the one that matters most, as
+  // Draft 4 takes it for the identifier that every reference in the document
+  // resolves against.
+  //
+  // Only a Reference Object can carry one of these, since the Schema Object
+  // closes itself to additional properties and admits only the extension
+  // prefix, while a Reference Object constrains nothing beyond its `$ref`.
+  // `$schema` is left out because it is the one of the six that names a
+  // dialect, which `ShadowStrayDialectDeclaration` already answers for
+  // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+  static inline const std::array<std::string_view, 5> PROMOTED_BY_DRAFT_4{
+      {"id", "definitions", "dependencies", "patternProperties",
+       "additionalItems"}};
+
+  // Carry a member across as the author data it is, under a name the target
+  // reads as nothing. A name already taken gains another prefix rather than
+  // overwriting what is there
+  auto shadow(sourcemeta::core::JSON &schema,
+              const std::string_view keyword) const -> void {
+    const std::string keyword_name{keyword};
+    if (!schema.defines(keyword_name)) {
+      return;
+    }
+
+    std::string prefixed_name{"x-" + keyword_name};
+    while (schema.defines(prefixed_name)) {
+      prefixed_name.insert(0, "x-");
+    }
+
+    this->renames_.emplace(keyword_name, prefixed_name);
+    schema.rename(keyword_name, std::move(prefixed_name));
+  }
+
   // Whether this subschema still carries something of the dialect that the
   // transform will act on. Each of those is either consumed or shadowed, so the
   // answer turns false once it has run and the conversion stops finding work
@@ -143,20 +178,24 @@ private:
     return keyword == "deprecated" && this->keeps_deprecated_;
   }
 
+  static auto holds_promoted_keyword(const sourcemeta::core::JSON &schema)
+      -> bool {
+    for (const auto &keyword : PROMOTED_BY_DRAFT_4) {
+      if (schema.defines(sourcemeta::core::JSON::String{keyword})) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   // Whether a shape only the OpenAPI 3.0 dialect admits is still here. Both are
   // rewritten by the transform, so the answer turns false once it has run
   static auto holds_pending_shape(const sourcemeta::core::JSON &schema)
       -> bool {
     const auto *options{schema.try_at("enum")};
-    if (options != nullptr && options->is_array()) {
-      auto seen{sourcemeta::core::JSON::make_array()};
-      for (const auto &option : options->as_array()) {
-        if (seen.contains(option)) {
-          return true;
-        }
-
-        seen.push_back(option);
-      }
+    if (options != nullptr && options->is_array() && !options->unique()) {
+      return true;
     }
 
     for (const auto &keyword : {"allOf", "anyOf", "oneOf"}) {
@@ -174,7 +213,7 @@ private:
   // whatever its author put there, while `definitions` reads every member of
   // itself as a schema. Only what is one has somewhere to go
   static auto holds_schema(const sourcemeta::core::JSON &entry) -> bool {
-    return entry.is_object() || entry.is_boolean();
+    return entry.is_object();
   }
 
   static auto holds_movable_definitions(const sourcemeta::core::JSON &schema)

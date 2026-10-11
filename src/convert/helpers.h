@@ -222,20 +222,16 @@ inline auto fold_nullable_into_type(sourcemeta::core::JSON &schema) -> void {
 // one would otherwise reach a dialect that cannot read it back
 inline auto deduplicate_enum(sourcemeta::core::JSON &schema) -> void {
   auto *options{schema.try_at("enum")};
-  if (options == nullptr || !options->is_array()) {
+  if (options == nullptr || !options->is_array() || options->unique()) {
     return;
   }
 
-  auto unique{sourcemeta::core::JSON::make_array()};
+  auto distinct{sourcemeta::core::JSON::make_array()};
   for (const auto &option : options->as_array()) {
-    if (!unique.contains(option)) {
-      unique.push_back(option);
-    }
+    distinct.push_back_if_unique(option);
   }
 
-  if (unique.size() != options->size()) {
-    *options = std::move(unique);
-  }
+  *options = std::move(distinct);
 }
 
 // Draft 4 requires at least one branch in each of these, while the OpenAPI 3.0

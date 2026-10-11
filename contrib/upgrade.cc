@@ -60,7 +60,8 @@ auto main(int argc, char *argv[]) -> int {
   const auto convert_target{parse_target(target)};
   if (!convert_target.has_value()) {
     std::cerr << "Error: unknown target dialect '" << target
-              << "'. Supported: draft4, draft6, draft7, 2019-09, 2020-12\n";
+              << "'. Supported: draft4, draft6, draft7, 2019-09, 2020-12, "
+                 "openapi3.1, openapi3.2\n";
     return EXIT_FAILURE;
   }
 
