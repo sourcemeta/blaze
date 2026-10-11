@@ -3,7 +3,8 @@ public:
   UpgradeOpenAPI30ToDraft4(const ConvertTarget target)
       : SchemaTransformRule{"upgrade_openapi_3_0_to_draft_4"},
         keeps_read_only_{target >= ConvertTarget::Draft7},
-        keeps_deprecated_{target >= ConvertTarget::Draft201909} {};
+        keeps_deprecated_{target >= ConvertTarget::Draft201909},
+        keeps_openapi_annotations_{target >= ConvertTarget::OpenAPI31} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -105,9 +106,10 @@ private:
   // What the OpenAPI 3.0 Schema Object adds that Draft 4 has no word for, less
   // the `nullable` the rewrite above consumes. Every one of these annotates
   // rather than asserts, so shadowing one changes no verdict, and Draft 4 reads
-  // an `x-` member as the unknown keyword it is. Three of them are shadowed
-  // only where the target cannot express them, which `carries_as_keyword`
-  // settles
+  // an `x-` member as the unknown keyword it is. All but `nullable` are
+  // shadowed only where the target has no word for them, which
+  // `carries_as_keyword` settles: three became keywords of a later draft, and
+  // four are named by the OpenAPI dialects above 3.0
   // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
   static inline const std::array<std::string_view, 8> KEYWORDS{
       {"nullable", "discriminator", "xml", "externalDocs", "example",
@@ -183,7 +185,16 @@ private:
       return this->keeps_read_only_;
     }
 
-    return keyword == "deprecated" && this->keeps_deprecated_;
+    if (keyword == "deprecated") {
+      return this->keeps_deprecated_;
+    }
+
+    // The four the OpenAPI dialects name for themselves, which 3.1 and 3.2
+    // declare with the meaning 3.0 gave them. `nullable` is not among them: no
+    // OpenAPI dialect above 3.0 has it, as a type union says it there instead
+    return this->keeps_openapi_annotations_ &&
+           (keyword == "discriminator" || keyword == "xml" ||
+            keyword == "externalDocs" || keyword == "example");
   }
 
   static auto holds_promoted_keyword(const sourcemeta::core::JSON &schema)
@@ -280,6 +291,7 @@ private:
 
   const bool keeps_read_only_;
   const bool keeps_deprecated_;
+  const bool keeps_openapi_annotations_;
   mutable std::unordered_map<std::string, std::string> renames_;
   mutable std::vector<Relocation> relocations_;
 };

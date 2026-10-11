@@ -618,7 +618,11 @@ auto convert(sourcemeta::core::JSON &schema,
 
   if (target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromotedOpenAPI31Keywords>());
+    rules.push_back(make_rule<PrefixPromotedOpenAPI31Keywords>(
+        from_openapi_3_0
+            ? std::vector<std::string_view>{"example", "discriminator",
+                                            "externalDocs", "xml"}
+            : std::vector<std::string_view>{}));
     rules.push_back(make_rule<Upgrade202012ToOpenAPI31>());
   }
 
