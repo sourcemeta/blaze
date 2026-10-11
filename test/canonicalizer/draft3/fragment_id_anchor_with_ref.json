@@ -26,5 +26,7 @@
       "1": {},
       "2": { "type": "string", "minLength": 0 }
     }
-  }
+  },
+  "examples": [ {}, { "a": "x" }, { "b": "y" }, { "a": "", "b": "" }, { "c": 1 } ],
+  "counterExamples": [ { "a": 1 }, { "b": 1 }, { "a": "x", "b": null }, 1, null, [], "x" ]
 }

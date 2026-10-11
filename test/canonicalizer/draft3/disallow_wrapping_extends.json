@@ -22,5 +22,7 @@
       "3": { "disallow": [ { "$ref": "#/definitions/4" } ] },
       "4": { "type": "string", "pattern": "^a", "minLength": 0 }
     }
-  }
+  },
+  "examples": [ "", "a", "ab", "xyz", null, 5 ],
+  "counterExamples": [ "abc", "abcd", "azzz" ]
 }

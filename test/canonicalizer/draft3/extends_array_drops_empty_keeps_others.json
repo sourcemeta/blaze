@@ -7,5 +7,7 @@
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": [ { "$ref": "#/definitions/0" } ],
     "definitions": { "0": { "type": "string", "minLength": 5 } }
-  }
+  },
+  "examples": [ "abcde", "abcdefgh" ],
+  "counterExamples": [ "", "abcd", null, true, 1.5, [ 1 ], { "a": 1 } ]
 }

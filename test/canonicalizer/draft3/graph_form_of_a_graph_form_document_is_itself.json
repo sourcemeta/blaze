@@ -44,5 +44,9 @@
       "1": {},
       "2": { "type": "string", "maxLength": 5, "minLength": 0 }
     }
-  }
+  },
+  "examples": [ {}, { "a": "x" }, { "b": "hello" }, { "a": "", "b": "12345" },
+    { "c": 1 } ],
+  "counterExamples": [ { "a": "123456" }, { "b": "123456" }, { "a": 1 }, { "b": null }, [],
+    "abc" ]
 }

@@ -49,5 +49,24 @@
       "5": { "enum": [ "a" ] },
       "6": { "enum": [ null ] }
     }
-  }
+  },
+  "examples": [
+    {},
+    { "a": { "deep": 1 } },
+    { "a": { "deep": "a" } },
+    { "a": { "deep": null } },
+    { "b": 1 },
+    { "b": null },
+    { "a": {}, "b": "a" }
+  ],
+  "counterExamples": [
+    { "a": { "deep": 2 } },
+    { "a": { "deep": "b" } },
+    { "a": { "deep": true } },
+    { "a": 1 },
+    { "b": 2 },
+    { "b": true },
+    { "b": [ 1 ] },
+    1
+  ]
 }

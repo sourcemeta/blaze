@@ -22,5 +22,9 @@
       "1": {},
       "2": { "enum": [ { "$ref": "#/definitions/999" } ] }
     }
-  }
+  },
+  "examples": [ {}, { "a": { "$ref": "#/definitions/999" } }, { "b": 1 } ],
+  "counterExamples": [ { "a": "#/definitions/999" }, { "a": {} },
+    { "a": { "$ref": "#/definitions/998" } },
+    { "a": { "$ref": "#/definitions/999", "x": 1 } }, { "a": null }, [] ]
 }

@@ -31,5 +31,7 @@
       },
       "4": { "type": "string", "minLength": 0 }
     }
-  }
+  },
+  "examples": [ [], [ 1, 2 ], {}, { "foo": "x" }, { "bar": 1 } ],
+  "counterExamples": [ null, true, 0, "x", { "foo": 1 }, { "foo": null, "bar": 2 } ]
 }

@@ -42,6 +42,28 @@ auto compiled_metaschema(const std::string &dialect)
       .first->second;
 }
 
+// The meta-schema a document names, compiled once. Resolving and compiling one
+// of these costs far more than evaluating it, and every fixture of a dialect
+// names the same one
+auto compiled_dialect(const sourcemeta::core::JSON::String &uri)
+    -> const sourcemeta::blaze::Template & {
+  static std::map<sourcemeta::core::JSON::String, sourcemeta::blaze::Template>
+      compiled;
+  const auto match{compiled.find(uri)};
+  if (match != compiled.cend()) {
+    return match->second;
+  }
+
+  return compiled
+      .emplace(uri,
+               sourcemeta::blaze::compile(
+                   canonicalizer_test_resolver(uri).value(),
+                   sourcemeta::core::schema_walker, canonicalizer_test_resolver,
+                   sourcemeta::blaze::default_schema_compiler,
+                   sourcemeta::blaze::Mode::FastValidation))
+      .first->second;
+}
+
 auto prettify(const sourcemeta::core::JSON &document) -> std::string {
   std::ostringstream stream;
   sourcemeta::core::prettify(document, stream);
@@ -65,14 +87,54 @@ auto canonicalize_schema(const sourcemeta::core::JSON &schema)
   return document;
 }
 
-// A fixture is the document to canonicalise and the document it canonicalises
-// to, and nothing else. Anything more would be an expectation the runner does
-// not read, which would otherwise go unnoticed
+// Whichever way a schema is spelled, it has to accept and reject the same
+// instances before and after canonicalisation, which is the whole promise of a
+// canonical form. Every disagreement is collected rather than asserted on the
+// spot, so that the report names the document and the instance instead of only
+// saying that something was false
+auto check_instances(const sourcemeta::core::JSON &test,
+                     const std::string_view side,
+                     const sourcemeta::core::JSON &schema,
+                     sourcemeta::core::JSON &disagreements) -> void {
+  const auto compiled{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, canonicalizer_test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  for (const auto &instance : test.at("examples").as_array()) {
+    if (!evaluator.validate(compiled, instance)) {
+      auto disagreement{sourcemeta::core::JSON::make_object()};
+      disagreement.assign("document", sourcemeta::core::JSON{side});
+      disagreement.assign("expected", sourcemeta::core::JSON{"valid"});
+      disagreement.assign("instance", instance);
+      disagreements.push_back(std::move(disagreement));
+    }
+  }
+
+  for (const auto &instance : test.at("counterExamples").as_array()) {
+    if (evaluator.validate(compiled, instance)) {
+      auto disagreement{sourcemeta::core::JSON::make_object()};
+      disagreement.assign("document", sourcemeta::core::JSON{side});
+      disagreement.assign("expected", sourcemeta::core::JSON{"invalid"});
+      disagreement.assign("instance", instance);
+      disagreements.push_back(std::move(disagreement));
+    }
+  }
+}
+
+// A fixture is the document to canonicalise, the document it canonicalises to,
+// and the instances that say what both of them mean. Anything more would be an
+// expectation the runner does not read, which would otherwise go unnoticed
 auto check_shape(const sourcemeta::core::JSON &test) -> void {
   EXPECT_TRUE(test.is_object());
-  EXPECT_EQ(test.size(), 2);
+  EXPECT_EQ(test.size(), 4);
   EXPECT_TRUE(test.defines("schema"));
   EXPECT_TRUE(test.defines("expected"));
+  EXPECT_TRUE(test.defines("examples"));
+  EXPECT_TRUE(test.defines("counterExamples"));
+  EXPECT_TRUE(test.at("examples").is_array());
+  EXPECT_TRUE(test.at("counterExamples").is_array());
 
   // A boolean schema has no keyword to canonicalise and no object to compare,
   // so it belongs in a hand-written test rather than here
@@ -93,12 +155,39 @@ auto run_canonicalizer_test(const sourcemeta::core::JSON &test,
   check_shape(test);
 
   const auto document{canonicalize_schema(test.at("schema"))};
+
+  // The instances have their say before any expectation about the shape of the
+  // result. An `expected` that turns out wrong would otherwise abort the test
+  // first and hide whether the document still means what it did, which is the
+  // one thing worth knowing
+  //
+  // A document that accepts every instance has no counter-example to give, and
+  // one that accepts none has no example. A fixture with neither says that no
+  // instance can be put to these documents at all, which is true of the ones
+  // that negate a reference to themselves: both documents are schemas of the
+  // dialect, and neither ever reaches a verdict
+  if (!test.at("examples").empty() || !test.at("counterExamples").empty()) {
+    auto disagreements{sourcemeta::core::JSON::make_array()};
+    check_instances(test, "schema", test.at("schema"), disagreements);
+    check_instances(test, "expected", document, disagreements);
+    EXPECT_EQ(disagreements, sourcemeta::core::JSON::make_array());
+  }
+
   expect_equal_with_ordering(document, test.at("expected"));
+
+  sourcemeta::blaze::Evaluator evaluator;
+
+  // Both documents are schemas of the dialect they name, which is what makes
+  // them schemas at all. A fixture that handed in anything else would have the
+  // canonicaliser answering for something nothing describes
+  const auto &dialect_metaschema{
+      compiled_dialect(test.at("schema").at("$schema").to_string())};
+  EXPECT_TRUE(evaluator.validate(dialect_metaschema, test.at("schema")));
+  EXPECT_TRUE(evaluator.validate(dialect_metaschema, document));
 
   // The canonicaliser must never emit a document that the canonical
   // meta-schema of its dialect rejects, so a fixture has no way of saying
   // that it did
-  sourcemeta::blaze::Evaluator evaluator;
   EXPECT_TRUE(evaluator.validate(compiled_metaschema(dialect), document));
 
   // A canonical form that is not a fixpoint would mean the same schema has

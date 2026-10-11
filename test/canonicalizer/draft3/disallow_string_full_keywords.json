@@ -24,5 +24,7 @@
         "format": "email"
       }
     }
-  }
+  },
+  "examples": [ "", "a", "abcdef", "bcde", 1, null ],
+  "counterExamples": [ "ab", "abc", "abcde", "a@b.c" ]
 }

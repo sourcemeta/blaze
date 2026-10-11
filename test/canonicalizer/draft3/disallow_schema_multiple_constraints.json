@@ -10,5 +10,7 @@
       "0": { "disallow": [ { "$ref": "#/definitions/1" } ] },
       "1": { "type": "string", "minLength": 3, "maxLength": 10 }
     }
-  }
+  },
+  "examples": [ "", "ab", "abcdefghijk", 1, null, [], {} ],
+  "counterExamples": [ "abc", "hello", "abcdefghij" ]
 }

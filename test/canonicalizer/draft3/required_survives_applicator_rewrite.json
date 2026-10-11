@@ -60,5 +60,13 @@
       "9": { "type": "number" },
       "10": { "type": "string", "minLength": 0 }
     }
-  }
+  },
+  "examples": [ { "foo": "ab" }, { "foo": "abcd" }, { "foo": "ab", "other": null } ],
+  "counterExamples": [
+    {},
+    { "other": "ab" },
+    { "foo": "" },
+    { "foo": "a" },
+    { "foo": 12 }
+  ]
 }

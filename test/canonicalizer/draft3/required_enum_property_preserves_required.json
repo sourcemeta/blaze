@@ -22,5 +22,18 @@
       "1": {},
       "2": { "enum": [ 1, 2 ] }
     }
-  }
+  },
+  "examples": [
+    { "foo": 1 },
+    { "foo": 2 },
+    { "foo": 1.0 },
+    { "foo": 2, "other": "x" }
+  ],
+  "counterExamples": [
+    {},
+    { "other": 1 },
+    { "foo": 3 },
+    { "foo": "1" },
+    { "foo": null }
+  ]
 }

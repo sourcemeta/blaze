@@ -24,5 +24,7 @@
       "1": {},
       "2": { "type": "string", "minLength": 0 }
     }
-  }
+  },
+  "examples": [ {}, { "a": 1 }, { "foo": "" }, { "foo": "x" } ],
+  "counterExamples": [ { "foo": 1 }, { "foo": null }, { "foo": [] }, null, [], "x" ]
 }

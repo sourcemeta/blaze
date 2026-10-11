@@ -11,5 +11,7 @@
       "1": { "disallow": [ { "$ref": "#/definitions/2" } ] },
       "2": { "type": "string", "minLength": 3 }
     }
-  }
+  },
+  "examples": [ "", "ab", 1, null, true, [], {} ],
+  "counterExamples": [ "abc", "abcd", "hello world" ]
 }

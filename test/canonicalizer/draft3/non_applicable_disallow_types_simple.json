@@ -18,5 +18,7 @@
       "2": { "enum": [ false, true ] },
       "3": { "type": "string", "minLength": 0 }
     }
-  }
+  },
+  "examples": [ "", "x", "1", "true" ],
+  "counterExamples": [ true, false, 0, 1.5, null, [], {}, [ "x" ] ]
 }

@@ -23,5 +23,7 @@
       "2": { "disallow": [ { "$ref": "#/definitions/3" } ] },
       "3": { "type": "string", "minLength": 0 }
     }
-  }
+  },
+  "examples": [ {}, { "a": 1 }, { "a": null }, { "a": [] }, { "b": "x" } ],
+  "counterExamples": [ { "a": "" }, { "a": "x" }, 1, "x", [], null ]
 }

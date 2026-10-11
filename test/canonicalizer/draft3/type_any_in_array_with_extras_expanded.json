@@ -37,5 +37,7 @@
       "7": { "type": "string", "minLength": 0 },
       "8": { "type": "number" }
     }
-  }
+  },
+  "examples": [ null, true, false, 0, 1.5, "", [ 1, 1 ], { "a": 1 } ],
+  "counterExamples": []
 }

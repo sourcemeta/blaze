@@ -46,5 +46,9 @@
         "additionalProperties": { "$ref": "#/definitions/1" }
       }
     }
-  }
+  },
+  "examples": [ {}, { "a": { "z": 1 } }, { "b": { "z": true } },
+    { "a": { "z": 1.5 }, "b": { "z": false } }, { "a": {} }, { "b": {} } ],
+  "counterExamples": [ { "a": { "z": true } }, { "b": { "z": 1 } }, { "a": { "z": "1" } },
+    { "b": { "z": "true" } }, { "a": { "z": 1 }, "b": { "z": 0 } }, 1 ]
 }

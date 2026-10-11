@@ -22,5 +22,7 @@
         "maximum": 10
       }
     }
-  }
+  },
+  "examples": [ 0, -1, 10.5, 11, "5", null ],
+  "counterExamples": [ 0.5, 1, 10 ]
 }

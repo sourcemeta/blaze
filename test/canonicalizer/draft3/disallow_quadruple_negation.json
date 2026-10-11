@@ -13,5 +13,7 @@
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": [ { "$ref": "#/definitions/0" } ],
     "definitions": { "0": { "type": "string", "minLength": 0 } }
-  }
+  },
+  "examples": [ "", "x" ],
+  "counterExamples": [ null, true, 0, 1.5, [], [ 1 ], {} ]
 }

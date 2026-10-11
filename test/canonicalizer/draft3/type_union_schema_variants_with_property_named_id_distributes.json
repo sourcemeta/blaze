@@ -39,5 +39,14 @@
         "additionalProperties": { "$ref": "#/definitions/2" }
       }
     }
-  }
+  },
+  "examples": [ {}, { "id": 1 }, { "id": -3, "a": "x" }, { "a": 1 }, { "b": true } ],
+  "counterExamples": [
+    { "id": "https://example.com/dup" },
+    { "id": 1.5 },
+    { "id": null },
+    null,
+    [ 1 ],
+    "x"
+  ]
 }

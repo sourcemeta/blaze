@@ -10,5 +10,7 @@
       "0": { "disallow": [ { "$ref": "#/definitions/1" } ] },
       "1": { "enum": [ null ] }
     }
-  }
+  },
+  "examples": [ 0, "", false, true, [], {}, "null" ],
+  "counterExamples": [ null ]
 }

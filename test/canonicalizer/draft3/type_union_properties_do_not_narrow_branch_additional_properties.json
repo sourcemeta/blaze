@@ -66,5 +66,7 @@
       },
       "12": { "type": "number" }
     }
-  }
+  },
+  "examples": [ {}, { "b": 1 }, { "b": "x" }, { "ab": 1 } ],
+  "counterExamples": [ null, [], "x", { "a": "x" }, { "a": 1 }, { "ab": "x" } ]
 }

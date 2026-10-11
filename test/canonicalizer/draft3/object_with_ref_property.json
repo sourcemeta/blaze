@@ -23,5 +23,19 @@
       "1": {},
       "2": { "type": "string", "minLength": 0 }
     }
-  }
+  },
+  "examples": [
+    {},
+    { "foo": "x" },
+    { "bar": {} },
+    { "bar": { "foo": "x" } },
+    { "bar": { "bar": { "foo": "y" } } }
+  ],
+  "counterExamples": [
+    { "foo": 1 },
+    { "bar": 1 },
+    { "bar": { "foo": 1 } },
+    { "bar": { "bar": { "foo": null } } },
+    []
+  ]
 }

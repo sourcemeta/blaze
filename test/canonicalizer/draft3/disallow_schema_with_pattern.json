@@ -10,5 +10,7 @@
       "0": { "disallow": [ { "$ref": "#/definitions/1" } ] },
       "1": { "type": "string", "pattern": "^x", "minLength": 0 }
     }
-  }
+  },
+  "examples": [ "", "y", "ax", 1, null, [], {} ],
+  "counterExamples": [ "x", "xy", "xyz" ]
 }

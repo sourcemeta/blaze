@@ -35,5 +35,7 @@
       "6": { "type": "string", "minLength": 0 },
       "7": { "type": "number", "minimum": 5 }
     }
-  }
+  },
+  "examples": [ null, true, "x", "4", [ 4 ], { "a": 4 }, 5, 7.5 ],
+  "counterExamples": [ 4, 0, -1, 4.999 ]
 }

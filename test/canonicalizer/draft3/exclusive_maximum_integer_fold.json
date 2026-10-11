@@ -11,5 +11,7 @@
     "definitions": {
       "0": { "type": "integer", "maximum": 9, "divisibleBy": 1 }
     }
-  }
+  },
+  "examples": [ -5, 0, 9 ],
+  "counterExamples": [ 10, 11, 9.5, "9", null, [], {} ]
 }

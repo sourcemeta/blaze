@@ -47,5 +47,7 @@
       "10": { "type": "string", "minLength": 3 },
       "11": { "type": "number" }
     }
-  }
+  },
+  "examples": [ "abc", "abcd" ],
+  "counterExamples": [ null, 0, "", "a", "ab", [ "abc" ] ]
 }

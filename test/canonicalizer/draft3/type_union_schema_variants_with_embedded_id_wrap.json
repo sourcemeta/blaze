@@ -68,5 +68,7 @@
       "11": { "type": "string", "minLength": 0 },
       "12": { "type": "number" }
     }
-  }
+  },
+  "examples": [ {}, { "foo": 1 }, { "foo": -7 }, { "a": true }, { "b": "x" } ],
+  "counterExamples": [ { "foo": "1" }, { "foo": 1.5 }, { "foo": null }, null, [], "x" ]
 }

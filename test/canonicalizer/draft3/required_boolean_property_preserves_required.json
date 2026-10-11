@@ -22,5 +22,13 @@
       "1": {},
       "2": { "enum": [ false, true ] }
     }
-  }
+  },
+  "examples": [ { "foo": true }, { "foo": false }, { "foo": true, "other": 1 } ],
+  "counterExamples": [
+    {},
+    { "other": 1 },
+    { "foo": "x" },
+    { "foo": null },
+    { "foo": 1 }
+  ]
 }

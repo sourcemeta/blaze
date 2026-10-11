@@ -19,5 +19,7 @@
       "1": {},
       "2": { "type": "integer", "divisibleBy": 1 }
     }
-  }
+  },
+  "examples": [ {}, { "r": 1 }, { "r": 0, "other": "x" }, { "other": null } ],
+  "counterExamples": [ { "r": 1.5 }, { "r": "1" }, { "r": null }, null, "x", 1, [] ]
 }

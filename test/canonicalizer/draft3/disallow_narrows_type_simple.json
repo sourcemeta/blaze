@@ -8,5 +8,7 @@
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": [ { "$ref": "#/definitions/0" } ],
     "definitions": { "0": { "type": "number" } }
-  }
+  },
+  "examples": [ 0, 1, 1.5, -3 ],
+  "counterExamples": [ "", "x", null, true, [], {} ]
 }

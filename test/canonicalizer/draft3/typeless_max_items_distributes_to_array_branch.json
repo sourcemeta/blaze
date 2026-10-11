@@ -36,5 +36,16 @@
       "6": { "type": "string", "minLength": 0 },
       "7": { "type": "number" }
     }
-  }
+  },
+  "examples": [
+    null,
+    true,
+    0,
+    "xxxxxxx",
+    {},
+    { "a": 1, "b": 2, "c": 3, "d": 4, "e": 5 },
+    [],
+    [ 1, 2, 3, 4 ]
+  ],
+  "counterExamples": [ [ 1, 2, 3, 4, 5 ], [ null, null, null, null, null, null ] ]
 }
