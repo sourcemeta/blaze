@@ -30,19 +30,29 @@ static auto parse_target(const std::string_view target)
     return sourcemeta::blaze::ConvertTarget::Draft202012;
   }
 
+  if (target == "openapi3.1") {
+    return sourcemeta::blaze::ConvertTarget::OpenAPI31;
+  }
+
+  if (target == "openapi3.2") {
+    return sourcemeta::blaze::ConvertTarget::OpenAPI32;
+  }
+
   return std::nullopt;
 }
 
 auto main(int argc, char *argv[]) -> int {
   sourcemeta::core::Options options;
   options.option("target", {"t"});
+  options.option("dialect", {"d"});
   options.parse(argc, argv);
 
   const auto &files{options.positional()};
   if (files.size() != 1 || !options.contains("target")) {
     std::cerr << "Usage: " << argv[0]
-              << " -t|--target <draft4|draft6|draft7|2019-09|2020-12> "
-                 "<schema.json>\n";
+              << " -t|--target "
+                 "<draft4|draft6|draft7|2019-09|2020-12|openapi3.1|openapi3.2>"
+                 " [-d|--dialect <uri>] <schema.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -50,15 +60,24 @@ auto main(int argc, char *argv[]) -> int {
   const auto convert_target{parse_target(target)};
   if (!convert_target.has_value()) {
     std::cerr << "Error: unknown target dialect '" << target
-              << "'. Supported: draft4, draft6, draft7, 2019-09, 2020-12\n";
+              << "'. Supported: draft4, draft6, draft7, 2019-09, 2020-12, "
+                 "openapi3.1, openapi3.2\n";
     return EXIT_FAILURE;
   }
 
   auto document{sourcemeta::core::read_json(files.front())};
 
+  // A dialect whose own meta-schema spares no `$schema` member, as the OpenAPI
+  // 3.0 Schema Object does, cannot be declared by the document that is written
+  // in it and has to be named from the outside
+  const std::string_view default_dialect{options.contains("dialect") &&
+                                                 !options.at("dialect").empty()
+                                             ? options.at("dialect").front()
+                                             : ""};
+
   sourcemeta::blaze::convert(document, sourcemeta::core::schema_walker,
                              sourcemeta::core::schema_resolver,
-                             convert_target.value());
+                             convert_target.value(), default_dialect);
 
   sourcemeta::core::prettify(document, std::cout);
   std::cout << "\n";

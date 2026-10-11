@@ -1,0 +1,131 @@
+{
+  "defaultDialect": "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+  "schema": {
+    "allOf": [
+      {
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "type": "string",
+        "maxLength": 3
+      }
+    ]
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "allOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "string",
+          "maxLength": 3
+        }
+      ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "allOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "string",
+          "maxLength": 3
+        }
+      ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "allOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "string",
+          "maxLength": 3
+        }
+      ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "allOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "string",
+          "maxLength": 3
+        }
+      ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "allOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "string",
+          "maxLength": 3
+        }
+      ]
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "allOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "string",
+          "maxLength": 3
+        }
+      ]
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "allOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "string",
+          "maxLength": 3
+        }
+      ]
+    }
+  },
+  "examples": [
+    "foo",
+    "ab"
+  ],
+  "counterExamples": [
+    "abcd",
+    null,
+    1
+  ]
+}

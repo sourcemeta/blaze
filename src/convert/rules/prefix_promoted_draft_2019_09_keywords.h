@@ -1,7 +1,9 @@
 class PrefixPromoted201909Keywords final : public SchemaTransformRule {
 public:
-  PrefixPromoted201909Keywords()
-      : SchemaTransformRule{"prefix_promoted_2019_09_keywords"} {};
+  PrefixPromoted201909Keywords(
+      std::vector<std::string_view> &&keywords_left_alone = {})
+      : SchemaTransformRule{"prefix_promoted_2019_09_keywords"},
+        keywords_left_alone_{std::move(keywords_left_alone)} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -17,7 +19,7 @@ public:
         promoted_keyword_is_author_data(schema, PROMOTING_DIALECT));
 
     for (const auto &keyword : KEYWORDS) {
-      if (schema.defines(keyword)) {
+      if (schema.defines(keyword) && !this->is_left_alone(keyword)) {
         return true;
       }
     }
@@ -30,7 +32,7 @@ public:
     this->renames_.clear();
     for (const auto &keyword : KEYWORDS) {
       const std::string keyword_name{keyword};
-      if (!schema.defines(keyword_name)) {
+      if (!schema.defines(keyword_name) || this->is_left_alone(keyword)) {
         continue;
       }
 
@@ -66,5 +68,14 @@ private:
        "unevaluatedProperties", "maxContains", "minContains", "contentSchema",
        "deprecated"}};
 
+  // A keyword the caller asked to carry across as the keyword it already was,
+  // rather than as the author data it would otherwise be read as
+  [[nodiscard]] auto is_left_alone(const std::string_view keyword) const
+      -> bool {
+    return std::ranges::find(this->keywords_left_alone_, keyword) !=
+           this->keywords_left_alone_.cend();
+  }
+
+  const std::vector<std::string_view> keywords_left_alone_;
   mutable std::unordered_map<std::string, std::string> renames_;
 };

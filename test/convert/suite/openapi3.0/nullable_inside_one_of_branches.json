@@ -1,0 +1,124 @@
+{
+  "defaultDialect": "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+  "schema": {
+    "oneOf": [
+      {
+        "type": "string",
+        "nullable": true
+      },
+      {
+        "type": "integer"
+      }
+    ]
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    }
+  },
+  "examples": [
+    "foo",
+    null,
+    1
+  ],
+  "counterExamples": [
+    true,
+    [],
+    {}
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "defaultDialect": "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "$ref": "#/x-definitions/S"
+      }
+    },
+    "x-definitions": {
+      "S": {
+        "type": "object",
+        "properties": {
+          "b": {
+            "$ref": "#/x-definitions/S/x-definitions/T"
+          }
+        },
+        "x-definitions": {
+          "T": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S"
+        }
+      },
+      "definitions": {
+        "S": {
+          "type": "object",
+          "properties": {
+            "b": {
+              "$ref": "#/definitions/S/definitions/T"
+            }
+          },
+          "definitions": {
+            "T": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S"
+        }
+      },
+      "definitions": {
+        "S": {
+          "type": "object",
+          "properties": {
+            "b": {
+              "$ref": "#/definitions/S/definitions/T"
+            }
+          },
+          "definitions": {
+            "T": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/S"
+        }
+      },
+      "definitions": {
+        "S": {
+          "type": "object",
+          "properties": {
+            "b": {
+              "$ref": "#/definitions/S/definitions/T"
+            }
+          },
+          "definitions": {
+            "T": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/S"
+        }
+      },
+      "$defs": {
+        "S": {
+          "type": "object",
+          "properties": {
+            "b": {
+              "$ref": "#/$defs/S/$defs/T"
+            }
+          },
+          "$defs": {
+            "T": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/S"
+        }
+      },
+      "$defs": {
+        "S": {
+          "type": "object",
+          "properties": {
+            "b": {
+              "$ref": "#/$defs/S/$defs/T"
+            }
+          },
+          "$defs": {
+            "T": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/S"
+        }
+      },
+      "$defs": {
+        "S": {
+          "type": "object",
+          "properties": {
+            "b": {
+              "$ref": "#/$defs/S/$defs/T"
+            }
+          },
+          "$defs": {
+            "T": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "type": "object",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/S"
+        }
+      },
+      "$defs": {
+        "S": {
+          "type": "object",
+          "properties": {
+            "b": {
+              "$ref": "#/$defs/S/$defs/T"
+            }
+          },
+          "$defs": {
+            "T": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "a": {
+        "b": "x"
+      }
+    },
+    {}
+  ],
+  "counterExamples": [
+    {
+      "a": {
+        "b": 1
+      }
+    },
+    {
+      "a": 1
+    }
+  ]
+}
