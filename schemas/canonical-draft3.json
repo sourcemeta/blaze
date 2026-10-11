@@ -19,11 +19,6 @@
   ],
   "$ref": "#/$defs/document",
   "$defs": {
-    "extensions": {
-      "patternProperties": {
-        "^x-": true
-      }
-    },
     "document": {
       "x-lint-exclude": "simple_properties_identifiers",
       "type": "object",
@@ -50,7 +45,7 @@
           }
         }
       },
-      "unevaluatedProperties": false
+      "additionalProperties": false
     },
     "edge": {
       "x-lint-exclude": "simple_properties_identifiers",
@@ -61,7 +56,7 @@
           "type": "string"
         }
       },
-      "unevaluatedProperties": false
+      "additionalProperties": false
     },
     "entry": {
       "x-lint-exclude": "simple_properties_identifiers",
@@ -73,7 +68,7 @@
           "pattern": "^#/definitions/(0|[1-9][0-9]*)$"
         }
       },
-      "unevaluatedProperties": false
+      "additionalProperties": false
     },
     "subproperty": {
       "anyOf": [
@@ -96,7 +91,7 @@
               }
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         }
       ]
     },
@@ -110,7 +105,6 @@
         },
         {
           "x-lint-exclude": "simple_properties_identifiers",
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "$ref" ],
           "properties": {
@@ -118,10 +112,9 @@
               "type": "string"
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "enum" ],
           "properties": {
@@ -163,10 +156,9 @@
               "uniqueItems": true
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type", "minLength" ],
           "properties": {
@@ -188,10 +180,9 @@
               "type": "string"
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type", "divisibleBy" ],
           "properties": {
@@ -209,10 +200,9 @@
               "type": "number"
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type" ],
           "properties": {
@@ -236,10 +226,9 @@
               "type": "boolean"
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [
             "type",
@@ -267,10 +256,9 @@
               "$ref": "#/$defs/edge"
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type", "items", "minItems", "uniqueItems" ],
           "properties": {
@@ -292,10 +280,9 @@
               "type": "boolean"
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [
             "type",
@@ -330,10 +317,9 @@
               "type": "boolean"
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "type" ],
           "properties": {
@@ -345,10 +331,9 @@
               }
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "extends" ],
           "properties": {
@@ -360,10 +345,9 @@
               }
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/extensions",
           "type": "object",
           "required": [ "disallow" ],
           "properties": {
@@ -376,7 +360,7 @@
               }
             }
           },
-          "unevaluatedProperties": false
+          "additionalProperties": false
         }
       ]
     }

@@ -3153,8 +3153,8 @@
       }
     },
     {
-      "description": "An extension keyword on a node is allowed",
-      "valid": true,
+      "description": "An extension keyword on a node is rejected",
+      "valid": false,
       "data": {
         "$schema": "http://json-schema.org/draft-03/schema#",
         "extends": [
@@ -3166,6 +3166,97 @@
           "0": {
             "enum": [ 1 ],
             "x-foo": "bar"
+          }
+        }
+      }
+    },
+    {
+      "description": "An unknown keyword on a node is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ],
+            "foo": "bar"
+          }
+        }
+      }
+    },
+    {
+      "description": "An extension keyword on the document itself is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "x-foo": "bar",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ]
+          }
+        }
+      }
+    },
+    {
+      "description": "An extension keyword on an edge is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {},
+            "patternProperties": {},
+            "additionalProperties": {
+              "$ref": "#/definitions/0",
+              "x-foo": "bar"
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "An extension keyword on the wrapper of a property is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {
+              "foo": {
+                "required": false,
+                "extends": [
+                  {
+                    "$ref": "#/definitions/0"
+                  }
+                ],
+                "x-foo": "bar"
+              }
+            },
+            "patternProperties": {},
+            "additionalProperties": {
+              "$ref": "#/definitions/0"
+            }
           }
         }
       }

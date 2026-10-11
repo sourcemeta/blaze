@@ -123,6 +123,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     rules/type_with_applicator_to_extends.h
     rules/unevaluated_items_to_items.h
     rules/unevaluated_properties_to_additional_properties.h
+    rules/unknown_keywords_drop.h
     rules/unknown_keywords_prefix.h
     rules/unknown_local_ref.h
     rules/unnecessary_allof_ref_wrapper_draft.h
