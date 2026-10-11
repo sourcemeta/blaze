@@ -8,6 +8,10 @@
   "expected": {
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": [ { "$ref": "#/definitions/0" } ],
-    "definitions": { "0": { "enum": [ 3 ] } }
-  }
+    "definitions": {
+      "0": { "type": "integer", "minimum": 3, "maximum": 3, "divisibleBy": 1 }
+    }
+  },
+  "examples": [ 3 ],
+  "counterExamples": [ 2, 4, 3.0, "3", null, true, [ 3 ], {} ]
 }

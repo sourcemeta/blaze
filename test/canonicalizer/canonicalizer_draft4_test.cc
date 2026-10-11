@@ -305,7 +305,7 @@ TEST(pattern_properties_additional_properties_false) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST(equal_numeric_bounds_to_enum_2) {
+TEST(equal_integer_bounds_stay_bounds) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "integer",
@@ -313,9 +313,14 @@ TEST(equal_numeric_bounds_to_enum_2) {
     "maximum": 3
   })JSON");
 
+  // Draft 4 reads an integer as a number written without a fractional part, so
+  // `enum: [ 3 ]` would accept the `3.0` that this document rejects
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "enum": [ 3 ]
+    "type": "integer",
+    "minimum": 3,
+    "maximum": 3,
+    "multipleOf": 1
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
@@ -1695,7 +1700,7 @@ TEST(object_additional_properties_false_named) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST(integer_exclusive_bounds_fold_then_equal_bounds_to_enum) {
+TEST(integer_exclusive_bounds_fold_to_equal_bounds) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "integer",
@@ -1707,7 +1712,10 @@ TEST(integer_exclusive_bounds_fold_then_equal_bounds_to_enum) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "enum": [ 5 ]
+    "type": "integer",
+    "minimum": 5,
+    "maximum": 5,
+    "multipleOf": 1
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
@@ -2181,7 +2189,10 @@ TEST(integer_both_exclusive_bounds_fold_to_single_value) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "enum": [ 1 ]
+    "type": "integer",
+    "minimum": 1,
+    "maximum": 1,
+    "multipleOf": 1
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
@@ -3461,7 +3472,7 @@ TEST(exclusive_minimum_fold_non_integral_exponential) {
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
 
-TEST(equal_bounds_to_enum_exponential) {
+TEST(equal_integer_bounds_exponential_stay_bounds) {
   auto document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "integer",
@@ -3471,7 +3482,10 @@ TEST(equal_bounds_to_enum_exponential) {
 
   const auto expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "enum": [ 10 ]
+    "type": "integer",
+    "minimum": 1e1,
+    "maximum": 1e1,
+    "multipleOf": 1
   })JSON");
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());

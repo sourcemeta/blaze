@@ -18,5 +18,7 @@
       "2": { "enum": [ "a" ] },
       "3": { "enum": [ null ] }
     }
-  }
+  },
+  "examples": [ 1, "a", null ],
+  "counterExamples": [ 2, "b", "1", true, false, [ 1 ], { "a": 1 } ]
 }

@@ -23,5 +23,13 @@
         "description": "Refers to root"
       }
     }
-  }
+  },
+  "examples": [ {}, { "bar": {} }, { "bar": { "bar": {} } }, { "other": 1 } ],
+  "counterExamples": [
+    { "bar": "x" },
+    { "bar": [] },
+    { "bar": { "bar": 1 } },
+    null,
+    []
+  ]
 }

@@ -62,5 +62,7 @@
       "11": { "type": "string", "minLength": 0 },
       "12": { "type": "number" }
     }
-  }
+  },
+  "examples": [ [], [ 1 ], [ 1, 2 ], [ 1, "x", null ] ],
+  "counterExamples": [ null, 0, "x", {}, [ "x" ], [ 1.5, 2 ] ]
 }

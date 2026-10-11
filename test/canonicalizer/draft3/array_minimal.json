@@ -15,5 +15,7 @@
       },
       "1": {}
     }
-  }
+  },
+  "examples": [ [], [ 1 ], [ 1, 1 ], [ null, "x", {} ] ],
+  "counterExamples": [ null, true, 0, "", {}, { "0": 1 } ]
 }

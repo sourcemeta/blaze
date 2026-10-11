@@ -7,5 +7,7 @@
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": [ { "$ref": "#/definitions/0" } ],
     "definitions": { "0": { "enum": [ "a", "b" ] } }
-  }
+  },
+  "examples": [ "a", "b" ],
+  "counterExamples": [ "c", "", "ab", null, 1, [ "a" ], { "a": 1 } ]
 }

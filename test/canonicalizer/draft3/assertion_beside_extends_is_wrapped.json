@@ -53,5 +53,7 @@
       },
       "10": { "type": "string", "maxLength": 5, "minLength": 0 }
     }
-  }
+  },
+  "examples": [ "x", "abc", "abcde", null, true, 0, [], {} ],
+  "counterExamples": [ "", "abcdef", "abcdefgh" ]
 }

@@ -35,5 +35,7 @@
       "6": { "type": "string", "pattern": "^x", "minLength": 0 },
       "7": { "type": "number" }
     }
-  }
+  },
+  "examples": [ null, true, 1.5, "x", "xyz", [ "y" ], { "a": "y" } ],
+  "counterExamples": [ "", "y", "ax", "X" ]
 }

@@ -50,5 +50,14 @@
         "additionalProperties": { "$ref": "#/definitions/1" }
       }
     }
-  }
+  },
+  "examples": [ {}, { "b": "" }, { "b": "x" }, { "a": 1 }, { "a": { "x": 1 } } ],
+  "counterExamples": [
+    { "b": 1 },
+    { "b": {} },
+    { "a": "x" },
+    { "a": {} },
+    { "a": { "x": "y" } },
+    []
+  ]
 }

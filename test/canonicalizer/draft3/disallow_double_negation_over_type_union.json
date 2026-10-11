@@ -13,5 +13,7 @@
       "1": { "type": "string", "minLength": 0 },
       "2": { "type": "number" }
     }
-  }
+  },
+  "examples": [ "", "x", 0, 1.5, -3 ],
+  "counterExamples": [ null, true, false, [], {}, [ 1 ] ]
 }

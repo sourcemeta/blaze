@@ -40,5 +40,11 @@
         "additionalProperties": { "$ref": "#/definitions/1" }
       }
     }
-  }
+  },
+  "examples": [ {}, { "a": {} }, { "b": {} }, { "a": { "next": { "next": {} } } },
+    { "b": { "next": { "next": { "next": {} } } } },
+    { "a": { "next": {} }, "b": { "next": {} } } ],
+  "counterExamples": [ { "a": { "next": 1 } }, { "b": { "next": 1 } },
+    { "a": { "next": { "next": "x" } } },
+    { "b": { "next": { "next": { "next": [] } } } }, { "a": 1 }, [] ]
 }

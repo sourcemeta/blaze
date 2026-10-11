@@ -31,5 +31,13 @@
       "5": { "disallow": [ { "$ref": "#/definitions/6" } ] },
       "6": { "type": "number" }
     }
-  }
+  },
+  "examples": [
+    {},
+    { "a": null },
+    { "a": true },
+    { "a": [ 1 ] },
+    { "b": "x" }
+  ],
+  "counterExamples": [ { "a": "" }, { "a": 0 }, { "a": 1.5 }, "x", 1, [] ]
 }

@@ -18,6 +18,21 @@ inline auto is_in_place_applicator(const SchemaKeywordType type) -> bool {
 // reference to the pointer of the ancestor where the match callback returned
 // true, or nullopt if no match was found or the traversal predicate stopped
 // the walk.
+// Draft 3 and Draft 4 read "integer" as a number written without a fractional
+// part, so `3.0` is not one there, and `type: "integer"` says something that
+// an `enum` of integral values cannot. Draft 6 onwards widened it to any
+// number whose fractional part is zero, and the dialects before Draft 3 read
+// it that way too. Kept in step with `integral_reals_are_integers` in the
+// compiler, which decides the same question when evaluating
+inline auto integral_reals_are_integers(const SchemaVocabularies &vocabularies)
+    -> bool {
+  return !vocabularies.contains_any(
+      {SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
+       SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3_HYPER,
+       SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4,
+       SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4_HYPER});
+}
+
 // Whether a `type` value only consists of simple type names that can be
 // parsed into a complete set of instance types. Draft 0 to Draft 3 unions
 // may contain subschemas or `any`, in which case the parsed set is an

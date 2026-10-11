@@ -34,5 +34,7 @@
         "properties": {}
       }
     }
-  }
+  },
+  "examples": [ {}, { "a": 1 }, { "a": "x" }, { "b": 1 }, { "b": "y" }, { "a": 1, "b": 2 } ],
+  "counterExamples": [ { "a": "x", "b": "y" }, null, true, 0, "x", [] ]
 }

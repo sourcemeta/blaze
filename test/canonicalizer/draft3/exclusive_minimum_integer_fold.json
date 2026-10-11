@@ -11,5 +11,7 @@
     "definitions": {
       "0": { "type": "integer", "minimum": 1, "divisibleBy": 1 }
     }
-  }
+  },
+  "examples": [ 1, 2, 100 ],
+  "counterExamples": [ 0, -1, 0.5, "1", null, true, [] ]
 }

@@ -27,5 +27,7 @@
       "1": { "type": "number", "minimum": 1 },
       "2": { "type": "number", "maximum": 9 }
     }
-  }
+  },
+  "examples": [ 1, 1.5, 5, 9 ],
+  "counterExamples": [ 0, 0.999, 9.5, 10, "5", null ]
 }

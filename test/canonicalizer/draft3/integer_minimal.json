@@ -7,5 +7,7 @@
     "$schema": "http://json-schema.org/draft-03/schema#",
     "extends": [ { "$ref": "#/definitions/0" } ],
     "definitions": { "0": { "type": "integer", "divisibleBy": 1 } }
-  }
+  },
+  "examples": [ 0, -3, 12 ],
+  "counterExamples": [ 1.5, 1.0, "1", null, [], {}, true ]
 }

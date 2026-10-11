@@ -24,5 +24,7 @@
       },
       "1": {}
     }
-  }
+  },
+  "examples": [ {}, { "y": 1 }, { "a": null, "b": [ 1 ] } ],
+  "counterExamples": [ null, true, 0, "x", [], [ {} ] ]
 }

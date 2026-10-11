@@ -24,5 +24,7 @@
         "additionalProperties": { "$ref": "#/definitions/2" }
       }
     }
-  }
+  },
+  "examples": [ [], [ 1 ], [ null, "x" ], {}, { "a": 1 } ],
+  "counterExamples": [ null, true, false, 0, 1.5, "", "x" ]
 }

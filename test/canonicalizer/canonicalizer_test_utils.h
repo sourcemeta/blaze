@@ -46,6 +46,33 @@ static auto canonicalizer_test_resolver(std::string_view identifier)
       "$id": "ref.schema.json",
       "$schema": "https://json-schema.org/draft/2020-12/schema"
     })JSON");
+    // The documents that the Draft 3 fixtures reach out of themselves for.
+    // Each says something of its own, so that an instance put to a document
+    // before and after canonicalisation is put to the same thing either way
+  } else if (identifier == "https://example.com/other.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "https://example.com/other.json",
+      "type": "string"
+    })JSON");
+  } else if (identifier == "https://example.com/dir/other.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "https://example.com/dir/other.json",
+      "type": "string"
+    })JSON");
+  } else if (identifier == "https://example.com/x.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "https://example.com/x.json",
+      "type": "number"
+    })JSON");
+  } else if (identifier == "https://example.com/y.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "id": "https://example.com/y.json",
+      "type": "boolean"
+    })JSON");
   } else if (identifier == "https://example.com/ref.json") {
     return sourcemeta::core::parse_json(R"JSON({
       "$id": "https://example.com/ref.json",

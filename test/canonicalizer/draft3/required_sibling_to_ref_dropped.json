@@ -16,5 +16,12 @@
       },
       "1": {}
     }
-  }
+  },
+  "examples": [ {}, { "foo": {} }, { "foo": { "foo": {} } }, { "other": 1 } ],
+  "counterExamples": [
+    { "foo": "x" },
+    { "foo": 1 },
+    { "foo": { "foo": [] } },
+    []
+  ]
 }
