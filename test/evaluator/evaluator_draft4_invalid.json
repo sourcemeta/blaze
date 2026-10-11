@@ -731,5 +731,89 @@
       "base": "",
       "location": "/properties/n/anyOf"
     }
+  },
+  {
+    "description": "ref_sibling_unique_items_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "uniqueItems": 1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/properties/n/uniqueItems"
+    }
+  },
+  {
+    "description": "ref_sibling_title_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "title": 1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a string",
+      "base": "",
+      "location": "/properties/n/title"
+    }
+  },
+  {
+    "description": "ref_sibling_properties_integer_value",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "properties": { "x": 1 } } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/properties/n/properties"
+    }
+  },
+  {
+    "description": "ref_sibling_additional_properties_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "additionalProperties": 1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema",
+      "base": "",
+      "location": "/properties/n/additionalProperties"
+    }
+  },
+  {
+    "description": "ref_sibling_items_integer",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "items": 1 } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to a valid schema or to an array of them",
+      "base": "",
+      "location": "/properties/n/items"
+    }
+  },
+  {
+    "description": "ref_sibling_all_of_integer_elements",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "allOf": [ 1 ] } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/properties/n/allOf"
+    }
+  },
+  {
+    "description": "ref_sibling_definitions_integer_value",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": { "n": { "$ref": "#", "definitions": { "x": 1 } } }
+    },
+    "error": {
+      "message": "This keyword was expected to be set to an object whose values are valid schemas",
+      "base": "",
+      "location": "/properties/n/definitions"
+    }
   }
 ]
