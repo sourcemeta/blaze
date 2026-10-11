@@ -36,6 +36,7 @@ public:
     // meta-schema does
     deduplicate_enum(schema);
     fold_empty_applicators(schema);
+    drop_unaccompanied_exclusive_bounds(schema);
 
     for (const auto &keyword : KEYWORDS) {
       if (this->carries_as_keyword(keyword)) {
@@ -45,13 +46,20 @@ public:
       this->shadow(schema, keyword);
     }
 
-    // Before the move below, so that the member it vacates is free and an
-    // author's own `definitions` is already out of the way
+    // Taken out before the shadowing below, so that what moves is the map the
+    // author wrote under this name and not a `definitions` that the shadowing
+    // has since put there. Doing it the other way round hands the shadowed
+    // member straight back to the move, which promotes the author's data to
+    // the keyword the shadowing was there to protect it from
+    auto definitions{take_definitions(schema, this->relocations_)};
+
     for (const auto &keyword : PROMOTED_BY_DRAFT_4) {
       this->shadow(schema, keyword);
     }
 
-    move_definitions(schema, this->relocations_);
+    if (!definitions.empty()) {
+      schema.assign("definitions", std::move(definitions));
+    }
 
     // Core reads this marker as the dialect of the position carrying it, ahead
     // of any `$schema` beside it, so one naming OpenAPI 3.0 has to go as the
@@ -198,6 +206,11 @@ private:
       return true;
     }
 
+    if ((schema.defines("exclusiveMinimum") && !schema.defines("minimum")) ||
+        (schema.defines("exclusiveMaximum") && !schema.defines("maximum"))) {
+      return true;
+    }
+
     for (const auto &keyword : {"allOf", "anyOf", "oneOf"}) {
       const auto *branches{
           schema.try_at(sourcemeta::core::JSON::String{keyword})};
@@ -233,16 +246,17 @@ private:
 
   // Draft 4 keeps under `definitions` what the OpenAPI 3.0 Schema Object keeps
   // here, and reads nothing of a schema under a member it does not know, so
-  // every entry that is a schema moves and the references reaching one follow
-  // it. Anything else stays where it was rather than being carried somewhere
-  // that would read it as a schema it is not
-  static auto move_definitions(sourcemeta::core::JSON &schema,
-                               std::vector<Relocation> &relocations) -> void {
+  // every entry that is a schema is taken out for the caller to place and the
+  // references reaching one follow it. Anything else stays where it was rather
+  // than being carried somewhere that would read it as a schema it is not
+  static auto take_definitions(sourcemeta::core::JSON &schema,
+                               std::vector<Relocation> &relocations)
+      -> sourcemeta::core::JSON {
+    auto moved{sourcemeta::core::JSON::make_object()};
     if (!holds_movable_definitions(schema)) {
-      return;
+      return moved;
     }
 
-    auto moved{sourcemeta::core::JSON::make_object()};
     auto kept{sourcemeta::core::JSON::make_object()};
     for (const auto &entry : schema.at(DEFINITIONS).as_object()) {
       if (!holds_schema(entry.second)) {
@@ -261,7 +275,7 @@ private:
       schema.assign(DEFINITIONS, std::move(kept));
     }
 
-    schema.assign("definitions", std::move(moved));
+    return moved;
   }
 
   const bool keeps_read_only_;

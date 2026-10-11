@@ -234,6 +234,21 @@ inline auto deduplicate_enum(sourcemeta::core::JSON &schema) -> void {
   *options = std::move(distinct);
 }
 
+// Draft 4 requires each of these to accompany the bound it modifies, while the
+// OpenAPI 3.0 Schema Object states no dependency between keywords at all. One
+// standing on its own modifies a bound that is not there, so it asserts
+// nothing of the instance and goes
+inline auto drop_unaccompanied_exclusive_bounds(sourcemeta::core::JSON &schema)
+    -> void {
+  if (schema.defines("exclusiveMinimum") && !schema.defines("minimum")) {
+    schema.erase("exclusiveMinimum");
+  }
+
+  if (schema.defines("exclusiveMaximum") && !schema.defines("maximum")) {
+    schema.erase("exclusiveMaximum");
+  }
+}
+
 // Draft 4 requires at least one branch in each of these, while the OpenAPI 3.0
 // Schema Object places no bound on them at all.
 //

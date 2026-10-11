@@ -6,7 +6,9 @@
       "a": {
         "$ref": "#/x-definitions/S",
         "definitions": {
-          "note": "keep"
+          "note": {
+            "type": "integer"
+          }
         }
       }
     },
@@ -24,7 +26,9 @@
         "a": {
           "$ref": "#/definitions/S",
           "x-definitions": {
-            "note": "keep"
+            "note": {
+              "type": "integer"
+            }
           }
         }
       },
@@ -41,7 +45,9 @@
         "a": {
           "$ref": "#/definitions/S",
           "x-definitions": {
-            "note": "keep"
+            "note": {
+              "type": "integer"
+            }
           }
         }
       },
@@ -58,7 +64,9 @@
         "a": {
           "$ref": "#/definitions/S",
           "x-definitions": {
-            "note": "keep"
+            "note": {
+              "type": "integer"
+            }
           }
         }
       },
@@ -75,7 +83,9 @@
         "a": {
           "$ref": "#/$defs/S",
           "x-definitions": {
-            "note": "keep"
+            "note": {
+              "type": "integer"
+            }
           }
         }
       },
@@ -92,7 +102,9 @@
         "a": {
           "$ref": "#/$defs/S",
           "x-definitions": {
-            "note": "keep"
+            "note": {
+              "type": "integer"
+            }
           }
         }
       },
@@ -109,7 +121,9 @@
         "a": {
           "$ref": "#/$defs/S",
           "x-definitions": {
-            "note": "keep"
+            "note": {
+              "type": "integer"
+            }
           }
         }
       },
@@ -126,7 +140,9 @@
         "a": {
           "$ref": "#/$defs/S",
           "x-definitions": {
-            "note": "keep"
+            "note": {
+              "type": "integer"
+            }
           }
         }
       },

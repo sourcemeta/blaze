@@ -6,7 +6,9 @@
       "a": {
         "$ref": "#/x-definitions/S",
         "definitions": {
-          "note": "keep"
+          "note": {
+            "type": "integer"
+          }
         },
         "x-definitions": {
           "T": {
@@ -28,8 +30,10 @@
       "properties": {
         "a": {
           "$ref": "#/definitions/S",
-          "x-x-definitions": {
-            "note": "keep"
+          "x-definitions": {
+            "note": {
+              "type": "integer"
+            }
           },
           "definitions": {
             "T": {
@@ -50,8 +54,10 @@
       "properties": {
         "a": {
           "$ref": "#/definitions/S",
-          "x-x-definitions": {
-            "note": "keep"
+          "x-definitions": {
+            "note": {
+              "type": "integer"
+            }
           },
           "definitions": {
             "T": {
@@ -72,8 +78,10 @@
       "properties": {
         "a": {
           "$ref": "#/definitions/S",
-          "x-x-definitions": {
-            "note": "keep"
+          "x-definitions": {
+            "note": {
+              "type": "integer"
+            }
           },
           "definitions": {
             "T": {
@@ -94,10 +102,12 @@
       "properties": {
         "a": {
           "$ref": "#/$defs/S",
-          "x-x-definitions": {
-            "note": "keep"
-          },
           "x-definitions": {
+            "note": {
+              "type": "integer"
+            }
+          },
+          "x-x-definitions": {
             "T": {
               "type": "integer"
             }
@@ -116,10 +126,12 @@
       "properties": {
         "a": {
           "$ref": "#/$defs/S",
-          "x-x-definitions": {
-            "note": "keep"
-          },
           "x-definitions": {
+            "note": {
+              "type": "integer"
+            }
+          },
+          "x-x-definitions": {
             "T": {
               "type": "integer"
             }
@@ -138,10 +150,12 @@
       "properties": {
         "a": {
           "$ref": "#/$defs/S",
-          "x-x-definitions": {
-            "note": "keep"
-          },
           "x-definitions": {
+            "note": {
+              "type": "integer"
+            }
+          },
+          "x-x-definitions": {
             "T": {
               "type": "integer"
             }
@@ -160,10 +174,12 @@
       "properties": {
         "a": {
           "$ref": "#/$defs/S",
-          "x-x-definitions": {
-            "note": "keep"
-          },
           "x-definitions": {
+            "note": {
+              "type": "integer"
+            }
+          },
+          "x-x-definitions": {
             "T": {
               "type": "integer"
             }
