@@ -1,7 +1,9 @@
 class UpgradeOpenAPI30ToDraft4 final : public SchemaTransformRule {
 public:
-  UpgradeOpenAPI30ToDraft4()
-      : SchemaTransformRule{"upgrade_openapi_3_0_to_draft_4"} {};
+  UpgradeOpenAPI30ToDraft4(const ConvertTarget target)
+      : SchemaTransformRule{"upgrade_openapi_3_0_to_draft_4"},
+        keeps_read_only_{target >= ConvertTarget::Draft7},
+        keeps_deprecated_{target >= ConvertTarget::Draft201909} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -13,9 +15,8 @@ public:
         vocabularies.contains(SchemaVocabularies::Known::OPENAPI_3_0_BASE) &&
         schema.is_object());
 
-    return has_pending_openapi_3_0_pattern(schema) ||
-           schema.defines(DEFINITIONS) ||
-           at_dialect_declaration(schema, site);
+    return this->has_pending_openapi_3_0_pattern(schema) ||
+           schema.defines(DEFINITIONS) || at_dialect_declaration(schema, site);
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Site &site) const
@@ -30,7 +31,7 @@ public:
 
     for (const auto &keyword : KEYWORDS) {
       const std::string keyword_name{keyword};
-      if (!schema.defines(keyword_name)) {
+      if (!schema.defines(keyword_name) || this->carries_as_keyword(keyword)) {
         continue;
       }
 
@@ -71,29 +72,51 @@ private:
 
   // What the OpenAPI 3.0 Schema Object adds that Draft 4 has no word for, less
   // the `nullable` the rewrite above consumes. Every one of these annotates
-  // rather than asserts, so shadowing them changes no verdict, and Draft 4
-  // reads an `x-` member as the unknown keyword it is.
-  //
-  // `readOnly` and `writeOnly` are native from Draft 7 and `deprecated` from
-  // 2019-09, so a caller asking for one of those targets gets `x-readOnly`
-  // where the keyword itself would have served. Repairing that would mean this
-  // edge reasoning about the target the caller finally asked for rather than
-  // the rung in front of it, which no other rule in this module does
+  // rather than asserts, so shadowing one changes no verdict, and Draft 4 reads
+  // an `x-` member as the unknown keyword it is. Three of them are shadowed
+  // only where the target cannot express them, which `carries_as_keyword`
+  // settles
   // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
   static inline const std::array<std::string_view, 8> KEYWORDS{
       {"nullable", "discriminator", "xml", "externalDocs", "example",
        "deprecated", "readOnly", "writeOnly"}};
 
-  // Whether this subschema still carries something of the dialect. Each of
-  // these is either consumed or shadowed by the transform, so the answer turns
-  // false once it has run and the conversion stops finding work here
-  static auto
-  has_pending_openapi_3_0_pattern(const sourcemeta::core::JSON &subschema)
+  // Whether this subschema still carries something of the dialect that the
+  // transform will act on. Each of those is either consumed or shadowed, so the
+  // answer turns false once it has run and the conversion stops finding work
+  // here. One carried across as itself is not work, or the answer would never
+  // turn false
+  [[nodiscard]] auto
+  has_pending_openapi_3_0_pattern(const sourcemeta::core::JSON &subschema) const
       -> bool {
-    return std::ranges::any_of(
-        KEYWORDS, [&subschema](const auto &keyword) -> bool {
-          return subschema.defines(sourcemeta::core::JSON::String{keyword});
-        });
+    for (const auto &keyword : KEYWORDS) {
+      if (subschema.defines(sourcemeta::core::JSON::String{keyword}) &&
+          !this->carries_as_keyword(keyword)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // Three of these became keywords of a later draft with the meaning OpenAPI
+  // 3.0 already gave them, so a target defining one takes it as it stands
+  // rather than as the author data the shadowing would make of it. `readOnly`
+  // and `writeOnly` are native from Draft 7 and `deprecated` from 2019-09.
+  //
+  // This is the one place in the module where a rule reads the target the
+  // caller finally asked for rather than the rung in front of it. It has to:
+  // Draft 4 cannot express any of the three, so what the waypoint should carry
+  // is only answerable from where the document is going. The cost is that
+  // converting by way of Draft 4 no longer reproduces the direct result for
+  // these three, which `convertsuite` records per fixture
+  [[nodiscard]] auto carries_as_keyword(const std::string_view keyword) const
+      -> bool {
+    if (keyword == "readOnly" || keyword == "writeOnly") {
+      return this->keeps_read_only_;
+    }
+
+    return keyword == "deprecated" && this->keeps_deprecated_;
   }
 
   // Draft 4 keeps under `definitions` what the OpenAPI 3.0 Schema Object keeps
@@ -117,6 +140,8 @@ private:
     schema.assign("definitions", std::move(moved));
   }
 
+  const bool keeps_read_only_;
+  const bool keeps_deprecated_;
   mutable std::unordered_map<std::string, std::string> renames_;
   mutable std::vector<Relocation> relocations_;
 };

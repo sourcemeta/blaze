@@ -37,9 +37,9 @@ namespace {
 using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool>;
 
 /// Construct a rule entry for the given rule type
-template <std::derived_from<SchemaTransformRule> T>
-[[nodiscard]] auto make_rule() -> Rule {
-  return {std::make_unique<T>(),
+template <std::derived_from<SchemaTransformRule> T, typename... Args>
+[[nodiscard]] auto make_rule(Args &&...arguments) -> Rule {
+  return {std::make_unique<T>(std::forward<Args>(arguments)...),
           std::is_same_v<typename T::writes_outside_itself, std::true_type>};
 }
 
@@ -550,7 +550,18 @@ auto convert(sourcemeta::core::JSON &schema,
   // rung. Every target below reaches it through Draft 4, which is the base
   // dialect its Schema Object extends, so this runs ahead of the ladder and
   // the rungs carry on from there
-  rules.push_back(make_rule<UpgradeOpenAPI30ToDraft4>());
+  rules.push_back(make_rule<UpgradeOpenAPI30ToDraft4>(target));
+
+  // Whether this conversion starts from OpenAPI 3.0, which only the caller can
+  // say: the Schema Object admits no `$schema` member of its own, so a document
+  // written in that dialect is always named from the outside. That also makes
+  // the answer hold for every resource in it, since nothing inside can declare
+  // a dialect either.
+  //
+  // What it buys is the three keywords the fork carries across as themselves.
+  // Each is author data to the rung that promotes it, and shadowing it there
+  // would undo the fork, so the two rules that would are told to leave it be
+  const auto from_openapi_3_0{names_openapi_3_0_dialect(default_dialect)};
 
   rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
   rules.push_back(make_rule<UpgradeDraft3ToDraft4>());
@@ -571,7 +582,10 @@ auto convert(sourcemeta::core::JSON &schema,
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromotedDraft7Keywords>());
+    rules.push_back(make_rule<PrefixPromotedDraft7Keywords>(
+        from_openapi_3_0
+            ? std::vector<std::string_view>{"readOnly", "writeOnly"}
+            : std::vector<std::string_view>{}));
     rules.push_back(make_rule<UpgradeDraft6ToDraft7>());
   }
 
@@ -579,7 +593,9 @@ auto convert(sourcemeta::core::JSON &schema,
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromoted201909Keywords>());
+    rules.push_back(make_rule<PrefixPromoted201909Keywords>(
+        from_openapi_3_0 ? std::vector<std::string_view>{"deprecated"}
+                         : std::vector<std::string_view>{}));
     rules.push_back(make_rule<UpgradeDraft7To201909>());
     rules.push_back(make_rule<DefinitionsToDefs>());
     rules.push_back(make_rule<DependenciesToDependent>());

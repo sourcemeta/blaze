@@ -152,6 +152,15 @@ auto without_empty_fragment(const std::string_view uri) -> std::string_view {
   return uri.ends_with('#') ? uri.substr(0, uri.size() - 1) : uri;
 }
 
+// The dialects conversion reads as a source without placing them on the
+// ladder. OpenAPI 3.0 is the only one today: its Schema Object extends Draft 4,
+// so core frames a document on it with a Draft 4 base dialect, and only the
+// dialect it declares tells the two apart
+// NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+constexpr std::array<std::string_view, 2> OFF_LADDER_DIALECTS{
+    {"tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+     "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect"}};
+
 // Conversion decides where a keyword goes as much as whether it is there at
 // all, so the order of the result is part of what a fixture blesses. Both
 // sides carry the target they came from, as a fixture accounts for seven of
@@ -558,6 +567,23 @@ auto check_metaschema(const std::string_view target,
 // target first and then on to a newer one has to land exactly where going
 // straight to the newer one does. Anything else means a step depends on state
 // that one of the two routes threw away
+// Whether the document the fixture starts from stands on the ladder, read from
+// the dialect it declares, or from the one the fixture names for it when the
+// dialect cannot be declared from within
+auto starts_on_ladder(const sourcemeta::core::JSON &test) -> bool {
+  const auto *declared{test.at("schema").is_object()
+                           ? test.at("schema").try_at("$schema")
+                           : nullptr};
+  const auto dialect{
+      declared != nullptr && declared->is_string() ? declared->to_string()
+      : test.defines("defaultDialect") ? test.at("defaultDialect").to_string()
+                                       : ""};
+
+  return std::ranges::find(OFF_LADDER_DIALECTS,
+                           without_empty_fragment(dialect)) ==
+         OFF_LADDER_DIALECTS.cend();
+}
+
 auto check_transitivity(
     const std::vector<std::optional<sourcemeta::core::JSON>> &converted,
     const sourcemeta::core::SchemaResolver &resolver, const Inputs &inputs)
@@ -848,7 +874,17 @@ auto run_convert_test(const sourcemeta::core::JSON &test) -> void {
         document);
   }
 
-  check_transitivity(converted, resolver, inputs);
+  // Transitivity is a property of the ladder. Every rung is lossless by
+  // design, so reaching a target by way of a lower one gives what reaching it
+  // directly gives. A source that forks onto the ladder has no such guarantee:
+  // OpenAPI 3.0 reaches a JSON Schema target through Draft 4, which has no word
+  // for three of the keywords it carries, so that waypoint has to shadow what a
+  // target defining them takes as the keyword it already was. Asking for the
+  // property there would only force the direct conversion down to whatever the
+  // lossy path can carry
+  if (starts_on_ladder(test)) {
+    check_transitivity(converted, resolver, inputs);
+  }
 }
 
 auto register_tests(const std::filesystem::path &directory) -> std::size_t {
