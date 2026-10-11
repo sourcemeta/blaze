@@ -68,7 +68,17 @@ auto is_schema(const sourcemeta::core::JSON &value, const bool allow_boolean)
 
 // The reason the keyword's value is not the shape the meta-schema asks for, or
 // `nullptr` when it is. The location the error carries names the keyword, so
-// these read as statements about it
+// these read as statements about it.
+//
+// What a dialect's meta-schema states is what settles this, rather than what
+// its prose asks for, so that a schema the meta-schema accepts is one that
+// compiles. A dialect whose prose carries a rule its meta-schema leaves
+// unencoded therefore goes unenforced here: OpenAPI 3.0 asks that `items` be
+// present whenever `type` is `"array"`, and that a Discriminator Object stand
+// beside a composite keyword, while its meta-schema expresses neither, and it
+// omits the lower bound that would keep `allOf`, `anyOf` and `oneOf` from
+// standing empty. Catching those belongs to a linter, which is free to be
+// stricter than the document the dialect publishes
 auto keyword_shape_error(
     const sourcemeta::core::JSON::String &keyword,
     const sourcemeta::core::SchemaKeywordType type, const bool known,

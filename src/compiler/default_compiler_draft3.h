@@ -199,7 +199,14 @@ static constexpr auto EXPECTED_DEPENDENCIES{
 // Draft 3 and Draft 4 read "integer" as a number written without a fractional
 // part, so a bound like `2.0` is not one there. Draft 6 onwards widened it to
 // any number whose fractional part is zero. The OpenAPI 3.0 Schema Object
-// answers with Draft 4, as its meta-schema is a Draft 4 document
+// answers with Draft 4, as its meta-schema is a Draft 4 document.
+//
+// Note that OpenAPI 3.0.4 says the opposite in prose, that "both `1` and
+// `1.0` are equivalent, and are both considered to be integers", reversing
+// what 3.0.3 said. We keep the Draft 4 reading for every dated OpenAPI 3.0
+// dialect regardless, because the Schema Object extends the Draft 4 base
+// dialect and so is the base dialect's question to answer, not a patch
+// release's to redefine
 auto integral_reals_are_integers(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
