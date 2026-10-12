@@ -3651,7 +3651,7 @@
             "type": "object",
             "properties": {
               "a": {
-                "$ref": "https://example.com/dir/other.json"
+                "$ref": "#/definitions/2"
               }
             },
             "patternProperties": {},
@@ -3659,7 +3659,10 @@
               "$ref": "#/definitions/1"
             }
           },
-          "1": {}
+          "1": {},
+          "2": {
+            "$ref": "https://example.com/dir/other.json"
+          }
         }
       }
     },
@@ -3893,6 +3896,28 @@
           "01": {
             "type": "string",
             "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "An edge that leaves the document is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "minItems": 0,
+            "uniqueItems": false,
+            "items": {
+              "$ref": "https://example.com/other.json"
+            }
           }
         }
       }

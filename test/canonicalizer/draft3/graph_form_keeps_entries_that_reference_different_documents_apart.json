@@ -26,7 +26,7 @@
           },
           "b": {
             "required": false,
-            "extends": [ { "$ref": "#/definitions/3" } ]
+            "extends": [ { "$ref": "#/definitions/4" } ]
           }
         },
         "patternProperties": {},
@@ -35,20 +35,34 @@
       "1": {},
       "2": {
         "type": "object",
-        "properties": { "z": { "$ref": "https://example.com/x.json" } },
+        "properties": { "z": { "$ref": "#/definitions/3" } },
         "patternProperties": {},
         "additionalProperties": { "$ref": "#/definitions/1" }
       },
-      "3": {
+      "3": { "$ref": "https://example.com/x.json" },
+      "4": {
         "type": "object",
-        "properties": { "z": { "$ref": "https://example.com/y.json" } },
+        "properties": { "z": { "$ref": "#/definitions/5" } },
         "patternProperties": {},
         "additionalProperties": { "$ref": "#/definitions/1" }
-      }
+      },
+      "5": { "$ref": "https://example.com/y.json" }
     }
   },
-  "examples": [ {}, { "a": { "z": 1 } }, { "b": { "z": true } },
-    { "a": { "z": 1.5 }, "b": { "z": false } }, { "a": {} }, { "b": {} } ],
-  "counterExamples": [ { "a": { "z": true } }, { "b": { "z": 1 } }, { "a": { "z": "1" } },
-    { "b": { "z": "true" } }, { "a": { "z": 1 }, "b": { "z": 0 } }, 1 ]
+  "examples": [
+    {},
+    { "a": { "z": 1 } },
+    { "b": { "z": true } },
+    { "a": { "z": 1.5 }, "b": { "z": false } },
+    { "a": {} },
+    { "b": {} }
+  ],
+  "counterExamples": [
+    { "a": { "z": true } },
+    { "b": { "z": 1 } },
+    { "a": { "z": "1" } },
+    { "b": { "z": "true" } },
+    { "a": { "z": 1 }, "b": { "z": 0 } },
+    1
+  ]
 }
