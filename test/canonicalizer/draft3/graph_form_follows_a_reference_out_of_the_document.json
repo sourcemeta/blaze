@@ -14,15 +14,29 @@
       "0": {
         "type": "object",
         "properties": {
-          "a": { "$ref": "https://example.com/other.json" },
-          "b": { "$ref": "https://example.com/other.json" }
+          "a": { "$ref": "#/definitions/2" },
+          "b": { "$ref": "#/definitions/2" }
         },
         "patternProperties": {},
         "additionalProperties": { "$ref": "#/definitions/1" }
       },
-      "1": {}
+      "1": {},
+      "2": { "$ref": "https://example.com/other.json" }
     }
   },
-  "examples": [ {}, { "a": "x" }, { "b": "y" }, { "a": "", "b": "" }, { "c": 1 } ],
-  "counterExamples": [ { "a": 1 }, { "b": 1 }, { "a": "x", "b": 2 }, { "b": null }, [], 1 ]
+  "examples": [
+    {},
+    { "a": "x" },
+    { "b": "y" },
+    { "a": "", "b": "" },
+    { "c": 1 }
+  ],
+  "counterExamples": [
+    { "a": 1 },
+    { "b": 1 },
+    { "a": "x", "b": 2 },
+    { "b": null },
+    [],
+    1
+  ]
 }

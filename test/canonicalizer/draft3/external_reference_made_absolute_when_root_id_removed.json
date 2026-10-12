@@ -11,11 +11,12 @@
     "definitions": {
       "0": {
         "type": "object",
-        "properties": { "a": { "$ref": "https://example.com/dir/other.json" } },
+        "properties": { "a": { "$ref": "#/definitions/2" } },
         "patternProperties": {},
         "additionalProperties": { "$ref": "#/definitions/1" }
       },
-      "1": {}
+      "1": {},
+      "2": { "$ref": "https://example.com/dir/other.json" }
     }
   },
   "examples": [ {}, { "a": "x" }, { "b": 1 }, { "a": "", "b": 1 } ],
