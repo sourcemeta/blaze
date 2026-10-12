@@ -4,21 +4,14 @@
     "type": "object",
     "properties": {
       "a": {
-        "$ref": "#/x-definitions/S",
-        "definitions": {
-          "note": {
-            "type": "integer"
-          }
-        },
-        "x-definitions": {
-          "T": {
-            "type": "integer"
-          }
-        }
+        "$ref": "#/x-definitions/S"
       }
     },
     "x-definitions": {
       "S": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "id": "https://example.com/s",
+        "readOnly": "author data",
         "type": "string"
       }
     }
@@ -29,21 +22,14 @@
       "type": "object",
       "properties": {
         "a": {
-          "$ref": "#/definitions/S",
-          "x-definitions": {
-            "note": {
-              "type": "integer"
-            }
-          },
-          "definitions": {
-            "T": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/definitions/S"
         }
       },
       "definitions": {
         "S": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "https://example.com/s",
+          "readOnly": "author data",
           "type": "string"
         }
       }
@@ -53,21 +39,14 @@
       "type": "object",
       "properties": {
         "a": {
-          "$ref": "#/definitions/S",
-          "x-definitions": {
-            "note": {
-              "type": "integer"
-            }
-          },
-          "definitions": {
-            "T": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/definitions/S"
         }
       },
       "definitions": {
         "S": {
+          "$schema": "http://json-schema.org/draft-06/schema#",
+          "$id": "https://example.com/s",
+          "readOnly": "author data",
           "type": "string"
         }
       }
@@ -77,21 +56,14 @@
       "type": "object",
       "properties": {
         "a": {
-          "$ref": "#/definitions/S",
-          "x-definitions": {
-            "note": {
-              "type": "integer"
-            }
-          },
-          "definitions": {
-            "T": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/definitions/S"
         }
       },
       "definitions": {
         "S": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "$id": "https://example.com/s",
+          "x-readOnly": "author data",
           "type": "string"
         }
       }
@@ -101,21 +73,14 @@
       "type": "object",
       "properties": {
         "a": {
-          "$ref": "#/$defs/S",
-          "x-definitions": {
-            "note": {
-              "type": "integer"
-            }
-          },
-          "x-x-definitions": {
-            "T": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/$defs/S"
         }
       },
       "$defs": {
         "S": {
+          "$schema": "https://json-schema.org/draft/2019-09/schema",
+          "$id": "https://example.com/s",
+          "x-readOnly": "author data",
           "type": "string"
         }
       }
@@ -125,21 +90,14 @@
       "type": "object",
       "properties": {
         "a": {
-          "$ref": "#/$defs/S",
-          "x-definitions": {
-            "note": {
-              "type": "integer"
-            }
-          },
-          "x-x-definitions": {
-            "T": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/$defs/S"
         }
       },
       "$defs": {
         "S": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/s",
+          "x-readOnly": "author data",
           "type": "string"
         }
       }
@@ -149,21 +107,14 @@
       "type": "object",
       "properties": {
         "a": {
-          "$ref": "#/$defs/S",
-          "x-definitions": {
-            "note": {
-              "type": "integer"
-            }
-          },
-          "x-x-definitions": {
-            "T": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/$defs/S"
         }
       },
       "$defs": {
         "S": {
+          "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+          "$id": "https://example.com/s",
+          "x-readOnly": "author data",
           "type": "string"
         }
       }
@@ -173,21 +124,14 @@
       "type": "object",
       "properties": {
         "a": {
-          "$ref": "#/$defs/S",
-          "x-definitions": {
-            "note": {
-              "type": "integer"
-            }
-          },
-          "x-x-definitions": {
-            "T": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/$defs/S"
         }
       },
       "$defs": {
         "S": {
+          "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+          "$id": "https://example.com/s",
+          "x-readOnly": "author data",
           "type": "string"
         }
       }

@@ -70,7 +70,7 @@
         "string",
         "null"
       ],
-      "x-xml": {
+      "xml": {
         "name": "s"
       },
       "deprecated": true
@@ -81,7 +81,7 @@
         "string",
         "null"
       ],
-      "x-xml": {
+      "xml": {
         "name": "s"
       },
       "deprecated": true

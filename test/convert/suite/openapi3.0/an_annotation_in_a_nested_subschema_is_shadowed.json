@@ -78,7 +78,7 @@
       "properties": {
         "a": {
           "type": "string",
-          "x-xml": {
+          "xml": {
             "name": "a"
           }
         }
@@ -90,7 +90,7 @@
       "properties": {
         "a": {
           "type": "string",
-          "x-xml": {
+          "xml": {
             "name": "a"
           }
         }

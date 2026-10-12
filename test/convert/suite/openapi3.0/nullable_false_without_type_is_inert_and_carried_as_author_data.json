@@ -1,0 +1,42 @@
+{
+  "defaultDialect": "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+  "schema": {
+    "nullable": false
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "x-nullable": false
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "x-nullable": false
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "x-nullable": false
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "x-nullable": false
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "x-nullable": false
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "x-nullable": false
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "x-nullable": false
+    }
+  },
+  "examples": [
+    null,
+    1,
+    "foo"
+  ],
+  "counterExamples": []
+}

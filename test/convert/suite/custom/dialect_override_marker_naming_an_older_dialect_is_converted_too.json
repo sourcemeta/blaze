@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": {
+      "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-04/schema#",
+      "minimum": 1,
+      "exclusiveMinimum": true
+    }
+  },
+  "result": {
+    "draft4": null,
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "items": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-06/schema#",
+        "exclusiveMinimum": 1
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "items": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-06/schema#",
+        "exclusiveMinimum": 1
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "items": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-06/schema#",
+        "exclusiveMinimum": 1
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "items": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-06/schema#",
+        "exclusiveMinimum": 1
+      }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "items": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-06/schema#",
+        "exclusiveMinimum": 1
+      }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "items": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-06/schema#",
+        "exclusiveMinimum": 1
+      }
+    }
+  },
+  "examples": [
+    [
+      2
+    ],
+    [
+      1.5
+    ],
+    []
+  ],
+  "counterExamples": [
+    [
+      1
+    ],
+    [
+      0
+    ]
+  ]
+}

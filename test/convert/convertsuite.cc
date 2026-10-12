@@ -571,9 +571,19 @@ auto check_metaschema(const std::string_view target,
 // the dialect it declares, or from the one the fixture names for it when the
 // dialect cannot be declared from within
 auto starts_on_ladder(const sourcemeta::core::JSON &test) -> bool {
-  const auto *declared{test.at("schema").is_object()
-                           ? test.at("schema").try_at("$schema")
-                           : nullptr};
+  const auto &schema{test.at("schema")};
+  // Core reads the override marker as the dialect ahead of any `$schema`, so a
+  // fixture naming one that way starts where the marker says it does. An empty
+  // one is read as no override at all, exactly as `declared_dialect` reads it,
+  // so a `$schema` beside it still speaks for the document
+  const auto *marker{
+      schema.is_object()
+          ? schema.try_at("x-sourcemeta-dialect-override-subschema")
+          : nullptr};
+  const auto *declared{
+      marker != nullptr && marker->is_string() && !marker->empty()
+          ? marker
+          : (schema.is_object() ? schema.try_at("$schema") : nullptr)};
   const auto dialect{
       declared != nullptr && declared->is_string() ? declared->to_string()
       : test.defines("defaultDialect") ? test.at("defaultDialect").to_string()

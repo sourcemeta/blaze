@@ -1,0 +1,191 @@
+{
+  "defaultDialect": "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+  "schema": {
+    "properties": {
+      "p": {
+        "$ref": "#/x-definitions/e/x-definitions/a"
+      }
+    },
+    "x-definitions": {
+      "e": {
+        "definitions": {
+          "a": {
+            "type": "integer"
+          }
+        },
+        "x-definitions": {
+          "a": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "p": {
+          "$ref": "#/definitions/e/definitions/a"
+        }
+      },
+      "definitions": {
+        "e": {
+          "x-x-definitions": {
+            "a": {
+              "type": "integer"
+            }
+          },
+          "definitions": {
+            "a": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": {
+        "p": {
+          "$ref": "#/definitions/e/definitions/a"
+        }
+      },
+      "definitions": {
+        "e": {
+          "x-x-definitions": {
+            "a": {
+              "type": "integer"
+            }
+          },
+          "definitions": {
+            "a": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "p": {
+          "$ref": "#/definitions/e/definitions/a"
+        }
+      },
+      "definitions": {
+        "e": {
+          "x-x-definitions": {
+            "a": {
+              "type": "integer"
+            }
+          },
+          "definitions": {
+            "a": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "p": {
+          "$ref": "#/$defs/e/$defs/a"
+        }
+      },
+      "$defs": {
+        "e": {
+          "x-x-definitions": {
+            "a": {
+              "type": "integer"
+            }
+          },
+          "$defs": {
+            "a": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "p": {
+          "$ref": "#/$defs/e/$defs/a"
+        }
+      },
+      "$defs": {
+        "e": {
+          "x-x-definitions": {
+            "a": {
+              "type": "integer"
+            }
+          },
+          "$defs": {
+            "a": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "properties": {
+        "p": {
+          "$ref": "#/$defs/e/$defs/a"
+        }
+      },
+      "$defs": {
+        "e": {
+          "x-x-definitions": {
+            "a": {
+              "type": "integer"
+            }
+          },
+          "$defs": {
+            "a": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "properties": {
+        "p": {
+          "$ref": "#/$defs/e/$defs/a"
+        }
+      },
+      "$defs": {
+        "e": {
+          "x-x-definitions": {
+            "a": {
+              "type": "integer"
+            }
+          },
+          "$defs": {
+            "a": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "p": "x"
+    },
+    {}
+  ],
+  "counterExamples": [
+    {
+      "p": 1
+    }
+  ]
+}

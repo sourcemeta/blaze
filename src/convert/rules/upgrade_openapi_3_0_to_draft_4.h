@@ -2,8 +2,10 @@ class UpgradeOpenAPI30ToDraft4 final : public SchemaTransformRule {
 public:
   UpgradeOpenAPI30ToDraft4(const ConvertTarget target)
       : SchemaTransformRule{"upgrade_openapi_3_0_to_draft_4"},
-        keeps_read_only_{target >= ConvertTarget::Draft7},
-        keeps_deprecated_{target >= ConvertTarget::Draft201909} {};
+        keeps_read_only_{names_read_only(target)},
+        keeps_deprecated_{names_deprecated(target)},
+        keeps_openapi_annotations_{names_openapi_annotations(target)},
+        keeps_default_mapping_{target == ConvertTarget::OpenAPI32} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
@@ -15,7 +17,9 @@ public:
         vocabularies.contains(SchemaVocabularies::Known::OPENAPI_3_0_BASE) &&
         schema.is_object());
 
-    return this->has_pending_openapi_3_0_pattern(schema) ||
+    return holds_openapi_3_0_override(schema) ||
+           holds_ignored_sibling(schema) ||
+           this->has_pending_openapi_3_0_pattern(schema) ||
            holds_promoted_keyword(schema) ||
            holds_movable_definitions(schema) || holds_pending_shape(schema) ||
            at_dialect_declaration(schema, site);
@@ -26,75 +30,113 @@ public:
     this->renames_.clear();
     this->relocations_.clear();
 
-    // Before the shadowing below, so that a `nullable` this consumes is gone
-    // by the time the annotations are renamed and one it declines is still
-    // there to be renamed with them
-    fold_nullable_into_type(schema);
+    // OpenAPI 3.0 section 4.7.23: a Reference Object cannot be extended with
+    // additional properties, and any property added to one SHALL be ignored. An
+    // object carrying `$ref` can only be a Reference Object, because the Schema
+    // Object closes itself to additional properties and does not name `$ref`,
+    // so every member beside it was ignored and has to go on being ignored.
+    //
+    // Carrying one across as the keyword a target names does two wrong things
+    // at once: it reads a constraint the source never applied, and it hands the
+    // target's own meta-schema a value to type-check that nothing ever checked.
+    // So none of the rewriting below applies to a Reference Object, and its
+    // members go across as the author data they already were
+    if (schema.defines("$ref")) {
+      for (const auto &name : member_names(schema)) {
+        if (name == "$ref" || name == "$schema" || name.starts_with("x-")) {
+          continue;
+        }
 
-    // Two shapes the OpenAPI 3.0 Schema Object permits that Draft 4 does not,
-    // which are the only two its dialect states more loosely than Draft 4's own
-    // meta-schema does
-    deduplicate_enum(schema);
-    fold_empty_applicators(schema);
-    drop_unaccompanied_exclusive_bounds(schema);
+        this->shadow(schema, name);
+      }
+    } else {
+      // Before the shadowing below, so that a `nullable` this consumes is gone
+      // by the time the annotations are renamed and one it declines is still
+      // there to be renamed with them
+      fold_nullable_into_type(schema);
 
-    for (const auto &keyword : KEYWORDS) {
-      if (this->carries_as_keyword(keyword)) {
-        continue;
+      // Comparing the two meta-schemas member by member, the OpenAPI 3.0 Schema
+      // Object is looser in exactly three places and equal or stricter
+      // everywhere else: `enum` states `uniqueItems: false`, the three
+      // applicator arrays carry no `minItems`, and it states none of the
+      // keyword dependencies Draft 4 does. The first two are shapes, rewritten
+      // here, and the third is answered for below
+      deduplicate_enum(schema);
+      fold_empty_applicators(schema);
+
+      // Draft 4 requires each of these to accompany the bound it modifies,
+      // while the OpenAPI 3.0 Schema Object states no dependency between
+      // keywords at all. One standing on its own modifies a bound that is not
+      // there, and an `allOf` with no branches asserts nothing of the instance,
+      // so each goes across as the author data it was. None of the three can
+      // stay where it is: Draft 4 reads an incomplete bound and an empty
+      // applicator as keywords it will not accept
+      for (const auto &[keyword, companion] : UNACCOMPANIED) {
+        if (schema.defines(sourcemeta::core::JSON::String{keyword}) &&
+            !schema.defines(sourcemeta::core::JSON::String{companion})) {
+          this->shadow(schema, keyword);
+        }
       }
 
-      this->shadow(schema, keyword);
-    }
+      // After the fold above, which puts what an empty `anyOf` or `oneOf` means
+      // into `allOf` and so reuses an empty one as the container it needs. An
+      // `allOf` still empty here is one the author wrote alone
+      if (schema.defines("allOf") && schema.at("allOf").is_array() &&
+          schema.at("allOf").empty()) {
+        this->shadow(schema, "allOf");
+      }
 
-    // Taken out before the shadowing below, so that what moves is the map the
-    // author wrote under this name and not a `definitions` that the shadowing
-    // has since put there. Doing it the other way round hands the shadowed
-    // member straight back to the move, which promotes the author's data to
-    // the keyword the shadowing was there to protect it from
-    auto definitions{take_definitions(schema, this->relocations_)};
+      for (const auto &keyword : KEYWORDS) {
+        if (!schema.defines(sourcemeta::core::JSON::String{keyword}) ||
+            this->carries_as_keyword(schema, keyword)) {
+          continue;
+        }
 
-    for (const auto &keyword : PROMOTED_BY_DRAFT_4) {
-      this->shadow(schema, keyword);
-    }
+        this->shadow(schema, keyword);
+      }
 
-    if (!definitions.empty()) {
-      schema.assign("definitions", std::move(definitions));
-    }
+      // Taken out before the shadowing below, so that what moves is the map the
+      // author wrote under this name and not a `definitions` that the shadowing
+      // has since put there. Doing it the other way round hands the shadowed
+      // member straight back to the move, which promotes the author's data to
+      // the keyword the shadowing was there to protect it from
+      auto definitions{take_definitions(schema, this->relocations_)};
 
-    // Core reads this marker as the dialect of the position carrying it, ahead
-    // of any `$schema` beside it, so one naming OpenAPI 3.0 has to go as the
-    // document stops being written in it. Left behind, it would keep framing an
-    // output that now declares Draft 4 as the dialect it has just left, which
-    // reads a `type` array and a `$schema` as keywords it prohibits.
-    //
-    // `DialectOverrideBecomesDollarSchema` settles a marker naming a rung by
-    // writing the `$schema` it stands for, and cannot do that here: the
-    // OpenAPI 3.0 Schema Object defines no keyword to declare its own dialect
-    // with, so there is no `$schema` to settle it into. Clearing it ahead of
-    // this rule would take with it the only thing saying what the document is
-    const auto *override{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-    if (override != nullptr && override->is_string() &&
-        names_openapi_3_0_dialect(override->to_string())) {
-      schema.erase(DIALECT_OVERRIDE_KEYWORD);
+      for (const auto &keyword : PROMOTED_BY_DRAFT_4) {
+        this->shadow(schema, keyword);
+      }
+
+      if (!definitions.empty()) {
+        schema.assign("definitions", std::move(definitions));
+      }
     }
 
     bump_dialect(schema, site, DRAFT_4_URL);
   }
 
+  // A reference is rebased through these in order, so one whose source names a
+  // position another's destination sits under has to come first. Shadowing
+  // `definitions` names the very position the move below places its entries
+  // under, so the renames are published ahead of the moves: the other way
+  // round, the rename catches an entry the move has just put there and sends
+  // every reference to it somewhere nothing lives
   [[nodiscard]] auto relocations() const -> std::vector<Relocation> override {
-    std::vector<Relocation> result{this->relocations_};
-    result.reserve(result.size() + this->renames_.size());
+    std::vector<Relocation> result;
+    result.reserve(this->renames_.size() + this->relocations_.size());
     for (const auto &[old_name, new_name] : this->renames_) {
       result.emplace_back(sourcemeta::core::Pointer{old_name},
                           sourcemeta::core::Pointer{new_name});
     }
 
+    result.insert(result.cend(), this->relocations_.cbegin(),
+                  this->relocations_.cend());
     return result;
   }
 
 private:
-  // The only member the dialect reads subschemas under, which is how a
-  // document on it keeps anything reusable at all
+  // The only member the dialect reads a named subschema under, which is how a
+  // document on it keeps anything reusable at all. Its applicators hold
+  // subschemas too, but none of them by a name the author chooses
   // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
   static inline const std::string DEFINITIONS{"x-definitions"};
 
@@ -105,13 +147,47 @@ private:
   // What the OpenAPI 3.0 Schema Object adds that Draft 4 has no word for, less
   // the `nullable` the rewrite above consumes. Every one of these annotates
   // rather than asserts, so shadowing one changes no verdict, and Draft 4 reads
-  // an `x-` member as the unknown keyword it is. Three of them are shadowed
-  // only where the target cannot express them, which `carries_as_keyword`
-  // settles
-  // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-  static inline const std::array<std::string_view, 8> KEYWORDS{
+  // an `x-` member as the unknown keyword it is. All but `nullable` are
+  // shadowed only where the target has no word for them, which
+  // `carries_as_keyword` settles: three became keywords of a later draft, and
+  // four are named by the OpenAPI dialects above 3.0
+  // Which targets name each of the keywords this edge can carry across. Spelled
+  // out rather than compared, because `ConvertTarget` is a public enumeration
+  // that promises no ordering, so reading one out of the declaration order
+  // would make rearranging that header change what this rule does
+  static auto names_read_only(const ConvertTarget target) -> bool {
+    return target == ConvertTarget::Draft7 ||
+           target == ConvertTarget::Draft201909 ||
+           target == ConvertTarget::Draft202012 ||
+           target == ConvertTarget::OpenAPI31 ||
+           target == ConvertTarget::OpenAPI32;
+  }
+
+  static auto names_deprecated(const ConvertTarget target) -> bool {
+    return target == ConvertTarget::Draft201909 ||
+           target == ConvertTarget::Draft202012 ||
+           target == ConvertTarget::OpenAPI31 ||
+           target == ConvertTarget::OpenAPI32;
+  }
+
+  static auto names_openapi_annotations(const ConvertTarget target) -> bool {
+    return target == ConvertTarget::OpenAPI31 ||
+           target == ConvertTarget::OpenAPI32;
+  }
+
+  static constexpr std::array<std::string_view, 8> KEYWORDS{
       {"nullable", "discriminator", "xml", "externalDocs", "example",
        "deprecated", "readOnly", "writeOnly"}};
+
+  // Where a `mapping` entry names a schema inside the container this edge moves
+  // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
+  static inline const std::string MAPPING_INTO_DEFINITIONS{"#/x-definitions/"};
+
+  // Each of these modifies the bound beside it, which Draft 4 requires to be
+  // there and OpenAPI 3.0 does not
+  static constexpr std::array<std::pair<std::string_view, std::string_view>, 2>
+      UNACCOMPANIED{
+          {{"exclusiveMinimum", "minimum"}, {"exclusiveMaximum", "maximum"}}};
 
   // The other direction: what Draft 4 names that the OpenAPI 3.0 Schema Object
   // does not, so a document carrying one carries author data that the target
@@ -119,13 +195,22 @@ private:
   // Draft 4 takes it for the identifier that every reference in the document
   // resolves against.
   //
-  // Only a Reference Object can carry one of these, since the Schema Object
-  // closes itself to additional properties and admits only the extension
-  // prefix, while a Reference Object constrains nothing beyond its `$ref`.
+  // Two positions can carry one of these, and the Schema Object is neither:
+  // there the dialect prohibits all five outright. A Reference Object
+  // constrains nothing beyond its `$ref`, though the branch above answers for
+  // that one by shadowing every member it holds. The other is an entry of an
+  // `x-definitions` map, which the dialect constrains with `^x-` and so not at
+  // all. That is the position this list is for, and it is narrow: an entry
+  // something references is read as a Schema Object and refused, so what
+  // survives to here sits in an entry nothing reads. It still has to be
+  // shadowed, because the member would otherwise reach the target as a keyword
+  // whose value makes the output invalid against the dialect it declares.
+  //
   // `$schema` is left out because it is the one of the six that names a
-  // dialect, which `ShadowStrayDialectDeclaration` already answers for
-  // NOLINTNEXTLINE(cert-err58-cpp,bugprone-throwing-static-initialization)
-  static inline const std::array<std::string_view, 5> PROMOTED_BY_DRAFT_4{
+  // dialect. Where framing would read one, `bump_dialect` writes the rung's own
+  // in its place, and anywhere else `ShadowStrayDialectDeclaration` carries it
+  // across as the author data it is
+  static constexpr std::array<std::string_view, 5> PROMOTED_BY_DRAFT_4{
       {"id", "definitions", "dependencies", "patternProperties",
        "additionalItems"}};
 
@@ -140,7 +225,7 @@ private:
     }
 
     std::string prefixed_name{"x-" + keyword_name};
-    while (schema.defines(prefixed_name)) {
+    while (schema.defines(prefixed_name) || names_core_reads(prefixed_name)) {
       prefixed_name.insert(0, "x-");
     }
 
@@ -158,7 +243,7 @@ private:
       -> bool {
     for (const auto &keyword : KEYWORDS) {
       if (subschema.defines(sourcemeta::core::JSON::String{keyword}) &&
-          !this->carries_as_keyword(keyword)) {
+          !this->carries_as_keyword(subschema, keyword)) {
         return true;
       }
     }
@@ -177,13 +262,93 @@ private:
   // is only answerable from where the document is going. The cost is that
   // converting by way of Draft 4 no longer reproduces the direct result for
   // these three, which `convertsuite` records per fixture
-  [[nodiscard]] auto carries_as_keyword(const std::string_view keyword) const
+  [[nodiscard]] auto carries_as_keyword(const sourcemeta::core::JSON &subschema,
+                                        const std::string_view keyword) const
       -> bool {
     if (keyword == "readOnly" || keyword == "writeOnly") {
       return this->keeps_read_only_;
     }
 
-    return keyword == "deprecated" && this->keeps_deprecated_;
+    if (keyword == "deprecated") {
+      return this->keeps_deprecated_;
+    }
+
+    if (!this->keeps_openapi_annotations_) {
+      return false;
+    }
+
+    // Of the four the OpenAPI dialects name for themselves, only this one is
+    // stated more loosely by 3.0 than by the dialects above it, so only this
+    // one has a shape to answer for
+    if (keyword == "discriminator") {
+      const auto &discriminator{
+          subschema.at(sourcemeta::core::JSON::String{keyword})};
+      return this->is_expressible_discriminator(discriminator) &&
+             mapping_survives_the_move(discriminator);
+    }
+
+    // `nullable` is not among them: no OpenAPI dialect above 3.0 has it, as a
+    // type union says it there instead
+    return keyword == "xml" || keyword == "externalDocs" ||
+           keyword == "example";
+  }
+
+  // A `mapping` value may name a schema by reference, and the frame indexes no
+  // such reference, so nothing follows one when the schema it names moves. The
+  // one member this edge moves is the subschema container, so a mapping naming
+  // a position inside it would be left pointing where nothing is any more.
+  // Carrying that across as a keyword would publish a discriminator that lies
+  // about where its branches are, so it goes across as author data instead,
+  // which at least reads as the record of the author's intent that it is
+  static auto
+  mapping_survives_the_move(const sourcemeta::core::JSON &discriminator)
+      -> bool {
+    const auto *mapping{discriminator.try_at("mapping")};
+    if (mapping == nullptr || !mapping->is_object()) {
+      return true;
+    }
+
+    for (const auto &entry : mapping->as_object()) {
+      if (entry.second.is_string() &&
+          entry.second.to_string().starts_with(MAPPING_INTO_DEFINITIONS)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // OpenAPI 3.0 leaves its Discriminator Object open, naming `propertyName` and
+  // `mapping` without closing the object to anything else, while 3.1 and 3.2
+  // close theirs to those two and the extension prefix. One carrying anything
+  // more is a discriminator the target cannot read, so it goes across as the
+  // author data it has to be there rather than as a keyword that would make the
+  // output invalid against the dialect it declares.
+  //
+  // Which members are asked about depends on the target, because the two
+  // shapes differ: 3.1 names `propertyName` and `mapping`, and 3.2 names
+  // `defaultMapping` as well. A discriminator carrying that one is a
+  // discriminator 3.2 reads and 3.1 does not
+  [[nodiscard]] auto is_expressible_discriminator(
+      const sourcemeta::core::JSON &discriminator) const -> bool {
+    if (!discriminator.is_object()) {
+      return false;
+    }
+
+    for (const auto &entry : discriminator.as_object()) {
+      if (entry.first == "propertyName" || entry.first == "mapping" ||
+          entry.first.starts_with("x-")) {
+        continue;
+      }
+
+      if (entry.first == "defaultMapping" && this->keeps_default_mapping_) {
+        continue;
+      }
+
+      return false;
+    }
+
+    return true;
   }
 
   static auto holds_promoted_keyword(const sourcemeta::core::JSON &schema)
@@ -197,8 +362,61 @@ private:
     return false;
   }
 
-  // Whether a shape only the OpenAPI 3.0 dialect admits is still here. Both are
-  // rewritten by the transform, so the answer turns false once it has run
+  // The members of a Reference Object that the dialect ignored and that a
+  // target would start reading. One already carrying the extension prefix is
+  // read as nothing anywhere, and a `$schema` is answered for by the rule that
+  // settles a dialect declaration
+  static auto holds_ignored_sibling(const sourcemeta::core::JSON &schema)
+      -> bool {
+    if (!schema.defines("$ref")) {
+      return false;
+    }
+
+    for (const auto &entry : schema.as_object()) {
+      if (entry.first != "$ref" && entry.first != "$schema" &&
+          !entry.first.starts_with("x-")) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // Taken as values, since shadowing renames the members being walked
+  static auto member_names(const sourcemeta::core::JSON &schema)
+      -> std::vector<sourcemeta::core::JSON::String> {
+    std::vector<sourcemeta::core::JSON::String> names;
+    names.reserve(schema.size());
+    for (const auto &entry : schema.as_object()) {
+      names.push_back(entry.first);
+    }
+
+    return names;
+  }
+
+  // The extension prefix is not a free namespace: core reads two names in it,
+  // this dialect's subschema container and the marker that names a dialect. A
+  // member prefixed onto either would hand core a schema map or a dialect the
+  // author never wrote, so both count as taken and the prefix grows past them
+  static auto names_core_reads(const std::string_view name) -> bool {
+    return name == DEFINITIONS || name == DIALECT_OVERRIDE_KEYWORD;
+  }
+
+  // Core reads the marker as the dialect of the position carrying it, so one
+  // naming OpenAPI 3.0 holds that position on this dialect until it is cleared.
+  // Nothing else can clear it: every rung of the ladder is gated on a
+  // vocabulary this dialect does not have, so the position would keep both the
+  // marker and whatever spelling the dialect gave its keywords
+  static auto holds_openapi_3_0_override(const sourcemeta::core::JSON &schema)
+      -> bool {
+    const auto *value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+    return value != nullptr && value->is_string() &&
+           names_openapi_3_0_dialect(value->to_string());
+  }
+
+  // Whether a shape only the OpenAPI 3.0 dialect admits is still here. Each is
+  // either rewritten or shadowed by the transform, so the answer turns false
+  // once it has run
   static auto holds_pending_shape(const sourcemeta::core::JSON &schema)
       -> bool {
     const auto *options{schema.try_at("enum")};
@@ -226,7 +444,26 @@ private:
   // whatever its author put there, while `definitions` reads every member of
   // itself as a schema. Only what is one has somewhere to go
   static auto holds_schema(const sourcemeta::core::JSON &entry) -> bool {
-    return entry.is_object();
+    return entry.is_object() || entry.is_boolean();
+  }
+
+  // Neither OpenAPI 3.0 nor Draft 4 has a boolean schema, and yet the walker
+  // reads every member of this one as a subschema, so a reference naming a
+  // boolean here is asserting something and has to keep asserting it. Draft 4
+  // says the same two things with the schema every instance satisfies and the
+  // schema none does
+  static auto as_object_schema(const sourcemeta::core::JSON &entry)
+      -> sourcemeta::core::JSON {
+    if (!entry.is_boolean()) {
+      return entry;
+    }
+
+    auto result{sourcemeta::core::JSON::make_object()};
+    if (!entry.to_boolean()) {
+      result.assign("not", sourcemeta::core::JSON::make_object());
+    }
+
+    return result;
   }
 
   static auto holds_movable_definitions(const sourcemeta::core::JSON &schema)
@@ -267,7 +504,7 @@ private:
       relocations.emplace_back(
           sourcemeta::core::Pointer{DEFINITIONS, entry.first},
           sourcemeta::core::Pointer{"definitions", entry.first});
-      moved.assign(entry.first, entry.second);
+      moved.assign(entry.first, as_object_schema(entry.second));
     }
 
     schema.erase(DEFINITIONS);
@@ -280,6 +517,8 @@ private:
 
   const bool keeps_read_only_;
   const bool keeps_deprecated_;
+  const bool keeps_openapi_annotations_;
+  const bool keeps_default_mapping_;
   mutable std::unordered_map<std::string, std::string> renames_;
   mutable std::vector<Relocation> relocations_;
 };

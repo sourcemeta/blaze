@@ -546,30 +546,38 @@ auto convert(sourcemeta::core::JSON &schema,
   std::vector<Rule> rules;
   rules.reserve(20);
 
+  // Again here, and not only among the spellings above: a marker that said
+  // something when the pass began can stop saying anything once a rung has
+  // moved the resource holding it to the dialect the marker names, and a
+  // conversion that left it behind would not be done with the document
+  rules.push_back(make_rule<DialectOverrideBecomesDollarSchema>());
+
   // A document on the OpenAPI 3.0 dialect forks here rather than standing on a
   // rung. Every target below reaches it through Draft 4, which is the base
   // dialect its Schema Object extends, so this runs ahead of the ladder and
   // the rungs carry on from there
   rules.push_back(make_rule<UpgradeOpenAPI30ToDraft4>(target));
 
-  // Whether this conversion starts from OpenAPI 3.0, which only the caller can
-  // say: the Schema Object admits no `$schema` member of its own, so a document
-  // written in that dialect is always named from the outside. A document that
-  // does name its own dialect is not using the default one, whatever was passed
-  // alongside it, so the answer is no there however the default reads.
+  // Whether this conversion starts from OpenAPI 3.0. Usually only the caller
+  // can say, because the Schema Object admits no `$schema` member of its own,
+  // so a document written in that dialect is named from the outside. The
+  // exception is the override marker, which names a dialect for a document that
+  // cannot declare one, and which `declared_dialect` reads ahead of `$schema`
+  // exactly as core frames it.
   //
-  // The answer then holds for every resource in the document and not just its
-  // root, because nothing nested in an OpenAPI 3.0 Schema Object can declare a
-  // dialect either. A `$schema` written inside one is author data, which
-  // `ShadowStrayDialectDeclaration` carries across as such rather than reading
-  // as an embedded resource of its own.
+  // So the question is what the document says it is, and only where it says
+  // nothing does the default the caller passed decide. Asking merely whether a
+  // `$schema` member is present answers both halves wrongly: a document naming
+  // this dialect through the marker is read as not being on it, and one naming
+  // another dialect that way is read as being on it.
   //
-  // What it buys is the three keywords the fork carries across as themselves.
-  // Each is author data to the rung that promotes it, and shadowing it there
-  // would undo the fork, so the two rules that would are told to leave it be
+  // What this buys is the keywords the fork carries across as themselves. Each
+  // is author data to the rung that promotes it, and shadowing it there would
+  // undo the fork, so the rules that would are told to leave it be
+  const auto declared{declared_dialect(schema)};
   const auto from_openapi_3_0{
-      names_openapi_3_0_dialect(default_dialect) &&
-      !(schema.is_object() && schema.defines("$schema"))};
+      names_openapi_3_0_dialect(declared) ||
+      (declared.empty() && names_openapi_3_0_dialect(default_dialect))};
 
   rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
   rules.push_back(make_rule<UpgradeDraft3ToDraft4>());
@@ -618,7 +626,11 @@ auto convert(sourcemeta::core::JSON &schema,
 
   if (target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromotedOpenAPI31Keywords>());
+    rules.push_back(make_rule<PrefixPromotedOpenAPI31Keywords>(
+        from_openapi_3_0
+            ? std::vector<std::string_view>{"example", "discriminator",
+                                            "externalDocs", "xml"}
+            : std::vector<std::string_view>{}));
     rules.push_back(make_rule<Upgrade202012ToOpenAPI31>());
   }
 

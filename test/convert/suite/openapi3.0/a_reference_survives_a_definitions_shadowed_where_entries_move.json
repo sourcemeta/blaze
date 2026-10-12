@@ -1,0 +1,162 @@
+{
+  "defaultDialect": "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+  "schema": {
+    "properties": {
+      "a": {
+        "$ref": "#/x-definitions/e/x-definitions/str"
+      }
+    },
+    "x-definitions": {
+      "e": {
+        "definitions": "author data",
+        "x-definitions": {
+          "str": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/e/definitions/str"
+        }
+      },
+      "definitions": {
+        "e": {
+          "x-x-definitions": "author data",
+          "definitions": {
+            "str": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/e/definitions/str"
+        }
+      },
+      "definitions": {
+        "e": {
+          "x-x-definitions": "author data",
+          "definitions": {
+            "str": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/e/definitions/str"
+        }
+      },
+      "definitions": {
+        "e": {
+          "x-x-definitions": "author data",
+          "definitions": {
+            "str": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/e/$defs/str"
+        }
+      },
+      "$defs": {
+        "e": {
+          "x-x-definitions": "author data",
+          "$defs": {
+            "str": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/e/$defs/str"
+        }
+      },
+      "$defs": {
+        "e": {
+          "x-x-definitions": "author data",
+          "$defs": {
+            "str": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/e/$defs/str"
+        }
+      },
+      "$defs": {
+        "e": {
+          "x-x-definitions": "author data",
+          "$defs": {
+            "str": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "properties": {
+        "a": {
+          "$ref": "#/$defs/e/$defs/str"
+        }
+      },
+      "$defs": {
+        "e": {
+          "x-x-definitions": "author data",
+          "$defs": {
+            "str": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "a": "x"
+    },
+    {}
+  ],
+  "counterExamples": [
+    {
+      "a": 42
+    },
+    {
+      "a": null
+    }
+  ]
+}

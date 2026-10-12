@@ -41,6 +41,17 @@ static auto parse_target(const std::string_view target)
   return std::nullopt;
 }
 
+// Every refusal the conversion raises keeps its message generic and says which
+// schema and which position it is about in fields of its own, so a tool that
+// prints only the message leaves out the two things the reader needs
+static auto report(const char *message, const std::string_view identifier,
+                   const sourcemeta::core::Pointer &location) -> void {
+  std::cerr << "error: " << message << "\n  schema: " << identifier
+            << "\n  at: ";
+  sourcemeta::core::stringify(location, std::cerr);
+  std::cerr << "\n";
+}
+
 auto main(int argc, char *argv[]) -> int {
   sourcemeta::core::Options options;
   options.option("target", {"t"});
@@ -75,9 +86,29 @@ auto main(int argc, char *argv[]) -> int {
                                              ? options.at("dialect").front()
                                              : ""};
 
-  sourcemeta::blaze::convert(document, sourcemeta::core::schema_walker,
-                             sourcemeta::core::schema_resolver,
-                             convert_target.value(), default_dialect);
+  // Conversion refuses a document it cannot carry by throwing, and a tool that
+  // lets that reach the runtime reports it as an abort with no message worth
+  // reading
+  try {
+    sourcemeta::blaze::convert(document, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               convert_target.value(), default_dialect);
+  } catch (const sourcemeta::blaze::ConvertUnsupportedDialectError &error) {
+    report(error.what(), error.identifier(), error.location());
+    return EXIT_FAILURE;
+  } catch (const sourcemeta::blaze::ConvertUnsupportedMetaschemaError &error) {
+    report(error.what(), error.identifier(), error.location());
+    return EXIT_FAILURE;
+  } catch (const sourcemeta::blaze::ConvertInvalidReferenceError &error) {
+    report(error.what(), error.identifier(), error.location());
+    return EXIT_FAILURE;
+  } catch (const sourcemeta::blaze::ConvertBrokenReferenceError &error) {
+    report(error.what(), error.identifier(), error.location());
+    return EXIT_FAILURE;
+  } catch (const std::exception &error) {
+    std::cerr << "error: " << error.what() << "\n";
+    return EXIT_FAILURE;
+  }
 
   sourcemeta::core::prettify(document, std::cout);
   std::cout << "\n";

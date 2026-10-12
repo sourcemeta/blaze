@@ -74,20 +74,6 @@ inline auto assign_before_first_key(sourcemeta::core::JSON &schema,
   schema.try_assign_before(key, value, first);
 }
 
-inline auto bump_dialect(sourcemeta::core::JSON &schema, const Site &site,
-                         const std::string_view dialect) -> void {
-  if (!at_dialect_declaration(schema, site)) {
-    return;
-  }
-
-  if (schema.defines("$schema")) {
-    schema.assign("$schema", sourcemeta::core::JSON{dialect});
-    return;
-  }
-
-  assign_before_first_key(schema, "$schema", sourcemeta::core::JSON{dialect});
-}
-
 inline auto current_dialect_or_override(const sourcemeta::core::JSON &schema)
     -> std::string_view {
   return declared_dialect(schema);
@@ -176,44 +162,41 @@ inline auto names_openapi_3_0_dialect(const std::string_view dialect) -> bool {
 // targets of the fork accept a type array, so the same rewrite serves each.
 //
 // The keyword takes effect only where `type` is explicitly defined within the
-// same Schema Object, which the specification states outright, so one standing
-// alone constrained nothing and goes without leaving a type behind. Turning it
-// into `{"type": ["null"]}` would invent a constraint the author never wrote.
+// same Schema Object, which the specification states outright. One standing
+// alone constrained nothing, and is left exactly where it is so that the
+// shadowing carries it across as the author data it was. Erasing it would drop
+// something the author wrote, which is not what becomes of any other member
+// this dialect has, and turning it into `{"type": ["null"]}` would invent a
+// constraint it never applied.
 //
-// A `nullable` that a `$ref` suppressed is left untouched, whatever it says.
-// Such a keyword never applied, and the caller shadows it along with every
-// other sibling instead. That is what lets this serve a target where `$ref`
-// still suppresses its siblings and one where it no longer does
+// A `nullable` that a `$ref` suppressed is left untouched too, whatever it
+// says. Such a keyword never applied, and the caller shadows it along with
+// every other sibling instead
 inline auto fold_nullable_into_type(sourcemeta::core::JSON &schema) -> void {
   const auto *nullable{schema.try_at("nullable")};
   if (nullable == nullptr || !nullable->is_boolean() ||
-      schema.defines("$ref")) {
-    return;
-  }
-
-  const auto permits_null{nullable->to_boolean()};
-  schema.erase("nullable");
-
-  auto *type{schema.try_at("type")};
-  if (!permits_null || type == nullptr) {
+      !nullable->to_boolean() || schema.defines("$ref") ||
+      !schema.defines("type")) {
     return;
   }
 
   static const sourcemeta::core::JSON NULL_TYPE{"null"};
-  if (type->is_string()) {
+  auto &type{schema.at("type")};
+  if (type.is_string()) {
     auto names{sourcemeta::core::JSON::make_array()};
-    names.push_back(*type);
-    names.push_back(NULL_TYPE);
-    *type = std::move(names);
+    names.push_back(type);
+    names.push_back_if_unique(NULL_TYPE);
+    type = std::move(names);
+  } else if (type.is_array()) {
+    // An array here is not a shape OpenAPI 3.0 permits, as its `type` takes a
+    // single name. Carrying one anyway costs a line and keeps the rewrite from
+    // depending on a check that runs elsewhere
+    type.push_back_if_unique(NULL_TYPE);
+  } else {
     return;
   }
 
-  // An array here is not a shape OpenAPI 3.0 permits, as its `type` takes a
-  // single name. Carrying one anyway costs a line and keeps the rewrite from
-  // depending on a check that runs elsewhere
-  if (type->is_array() && !type->contains(NULL_TYPE)) {
-    type->push_back(NULL_TYPE);
-  }
+  schema.erase("nullable");
 }
 
 // Draft 4 reads `enum` as a set and requires its members to be unique, while
@@ -234,29 +217,12 @@ inline auto deduplicate_enum(sourcemeta::core::JSON &schema) -> void {
   *options = std::move(distinct);
 }
 
-// Draft 4 requires each of these to accompany the bound it modifies, while the
-// OpenAPI 3.0 Schema Object states no dependency between keywords at all. One
-// standing on its own modifies a bound that is not there, so it asserts
-// nothing of the instance and goes
-inline auto drop_unaccompanied_exclusive_bounds(sourcemeta::core::JSON &schema)
-    -> void {
-  if (schema.defines("exclusiveMinimum") && !schema.defines("minimum")) {
-    schema.erase("exclusiveMinimum");
-  }
-
-  if (schema.defines("exclusiveMaximum") && !schema.defines("maximum")) {
-    schema.erase("exclusiveMaximum");
-  }
-}
-
-// Draft 4 requires at least one branch in each of these, while the OpenAPI 3.0
-// Schema Object places no bound on them at all.
-//
-// An empty `allOf` asserts nothing of the instance and goes. An empty `anyOf`
-// or `oneOf` is satisfied by no instance whatever, which Draft 4 has no boolean
-// schema to say and spells as a `not` of the schema every instance satisfies.
-// That goes into `allOf`, whose meaning is already the conjunction this needs,
-// so a `not` the author wrote is left exactly as it stands
+// An empty `anyOf` or `oneOf` is satisfied by no instance whatever, which
+// Draft 4 has no boolean schema to say and spells as a `not` of the schema
+// every instance satisfies. That goes into `allOf`, whose meaning is already
+// the conjunction this needs, so a `not` the author wrote is left exactly as it
+// stands. Draft 4 requires at least one branch in each of the three, while the
+// OpenAPI 3.0 Schema Object places no bound on them at all
 inline auto fold_empty_applicators(sourcemeta::core::JSON &schema) -> void {
   static const std::array<std::string_view, 2> UNSATISFIABLE_WHEN_EMPTY{
       {"anyOf", "oneOf"}};
@@ -276,11 +242,6 @@ inline auto fold_empty_applicators(sourcemeta::core::JSON &schema) -> void {
     auto nothing{sourcemeta::core::JSON::make_object()};
     nothing.assign("not", sourcemeta::core::JSON::make_object());
     schema.at("allOf").push_back(std::move(nothing));
-  }
-
-  if (schema.defines("allOf") && schema.at("allOf").is_array() &&
-      schema.at("allOf").empty()) {
-    schema.erase("allOf");
   }
 }
 
@@ -466,6 +427,40 @@ inline auto names_ladder_dialect(const std::string_view dialect) -> bool {
 inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
     -> bool {
   return value.is_string() && dialect_position(value.to_string()) > 0;
+}
+
+inline auto bump_dialect(sourcemeta::core::JSON &schema, const Site &site,
+                         const std::string_view dialect) -> void {
+  // Core reads the override marker as the dialect of the position carrying it,
+  // ahead of any `$schema` beside it and wherever that position is
+  if (schema.is_object()) {
+    auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+    if (override_value != nullptr && override_value->is_string() &&
+        names_ladder_dialect(override_value->to_string())) {
+      // Where nothing else is read, the dialect moves by writing the marker. A
+      // `$schema` written here instead would not be the thing read, and the
+      // position would keep the dialect it had while its keywords moved on
+      if (!at_dialect_declaration(schema, site)) {
+        *override_value = sourcemeta::core::JSON{dialect};
+        return;
+      }
+
+      // Here a `$schema` is read, and the marker would go on overriding it, so
+      // the marker gives way to the declaration that now says the same thing
+      schema.erase(DIALECT_OVERRIDE_KEYWORD);
+    }
+  }
+
+  if (!at_dialect_declaration(schema, site)) {
+    return;
+  }
+
+  if (schema.defines("$schema")) {
+    schema.assign("$schema", sourcemeta::core::JSON{dialect});
+    return;
+  }
+
+  assign_before_first_key(schema, "$schema", sourcemeta::core::JSON{dialect});
 }
 
 // Whether an identifier and a dialect name the same thing once both are

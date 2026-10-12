@@ -1,0 +1,168 @@
+{
+  "defaultDialect": "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect",
+  "schema": {
+    "oneOf": [
+      {
+        "$ref": "#/x-definitions/Dog"
+      }
+    ],
+    "discriminator": {
+      "propertyName": "petType",
+      "mapping": {
+        "dog": "#/x-definitions/Dog"
+      }
+    },
+    "x-definitions": {
+      "Dog": {
+        "type": "object"
+      }
+    }
+  },
+  "result": {
+    "draft4": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/Dog"
+        }
+      ],
+      "x-discriminator": {
+        "propertyName": "petType",
+        "mapping": {
+          "dog": "#/x-definitions/Dog"
+        }
+      },
+      "definitions": {
+        "Dog": {
+          "type": "object"
+        }
+      }
+    },
+    "draft6": {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/Dog"
+        }
+      ],
+      "x-discriminator": {
+        "propertyName": "petType",
+        "mapping": {
+          "dog": "#/x-definitions/Dog"
+        }
+      },
+      "definitions": {
+        "Dog": {
+          "type": "object"
+        }
+      }
+    },
+    "draft7": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/Dog"
+        }
+      ],
+      "x-discriminator": {
+        "propertyName": "petType",
+        "mapping": {
+          "dog": "#/x-definitions/Dog"
+        }
+      },
+      "definitions": {
+        "Dog": {
+          "type": "object"
+        }
+      }
+    },
+    "2019-09": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Dog"
+        }
+      ],
+      "x-discriminator": {
+        "propertyName": "petType",
+        "mapping": {
+          "dog": "#/x-definitions/Dog"
+        }
+      },
+      "$defs": {
+        "Dog": {
+          "type": "object"
+        }
+      }
+    },
+    "2020-12": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Dog"
+        }
+      ],
+      "x-discriminator": {
+        "propertyName": "petType",
+        "mapping": {
+          "dog": "#/x-definitions/Dog"
+        }
+      },
+      "$defs": {
+        "Dog": {
+          "type": "object"
+        }
+      }
+    },
+    "openapi3.1": {
+      "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Dog"
+        }
+      ],
+      "x-discriminator": {
+        "propertyName": "petType",
+        "mapping": {
+          "dog": "#/x-definitions/Dog"
+        }
+      },
+      "$defs": {
+        "Dog": {
+          "type": "object"
+        }
+      }
+    },
+    "openapi3.2": {
+      "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/Dog"
+        }
+      ],
+      "x-discriminator": {
+        "propertyName": "petType",
+        "mapping": {
+          "dog": "#/x-definitions/Dog"
+        }
+      },
+      "$defs": {
+        "Dog": {
+          "type": "object"
+        }
+      }
+    }
+  },
+  "examples": [
+    {},
+    {
+      "petType": "dog"
+    }
+  ],
+  "counterExamples": [
+    1,
+    "foo",
+    null,
+    []
+  ]
+}

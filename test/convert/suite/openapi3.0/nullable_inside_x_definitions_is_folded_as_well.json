@@ -132,7 +132,7 @@
             "string",
             "null"
           ],
-          "x-xml": {
+          "xml": {
             "name": "s"
           }
         }
@@ -152,7 +152,7 @@
             "string",
             "null"
           ],
-          "x-xml": {
+          "xml": {
             "name": "s"
           }
         }
