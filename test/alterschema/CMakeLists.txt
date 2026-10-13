@@ -9,7 +9,9 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME alterschema
     alterschema_lint_draft2_test.cc
     alterschema_lint_draft1_test.cc
     alterschema_lint_draft0_test.cc
-    alterschema_lint_openapi_test.cc
+    alterschema_lint_openapi_3_0_test.cc
+    alterschema_lint_openapi_3_1_test.cc
+    alterschema_lint_openapi_3_2_test.cc
     alterschema_lint_embedded_test.cc
     alterschema_schema_rule_test.cc
     alterschema_transform_rule_test.cc

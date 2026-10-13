@@ -1831,7 +1831,6 @@ TEST(not_false_4) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "string",
     "not": true
   })JSON");
 
@@ -3691,4 +3690,46 @@ TEST(pattern_properties_non_ecma_regex_multiple_bad_keys) {
             "/patternProperties/\\a");
   EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(1)),
             "/patternProperties/(?P<name>[a-z]+)");
+}
+
+TEST(unsatisfiable_drop_validation_1) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "minLength": 1,
+    "not": {}
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": true
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(unsatisfiable_drop_validation_2) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": { "$ref": "https://example.com/ref.json", "not": {} }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": { "$ref": "https://example.com/ref.json" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
 }

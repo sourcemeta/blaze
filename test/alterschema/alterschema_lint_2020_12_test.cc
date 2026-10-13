@@ -13531,3 +13531,83 @@ TEST(embedded_custom_metaschema) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(openapi_discriminator_unknown_without_vocabulary) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "discriminator": { "propertyName": "type" }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-discriminator": { "propertyName": "type" }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_xml_unknown_without_vocabulary) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "xml": { "name": "foo" }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-xml": { "name": "foo" }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_externalDocs_unknown_without_vocabulary) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "externalDocs": { "url": "https://example.com" }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "x-externalDocs": { "url": "https://example.com" }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_example_unknown_without_vocabulary) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "example": "foo"
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "x-example": "foo"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
