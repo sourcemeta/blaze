@@ -3715,8 +3715,9 @@ TEST(unsatisfiable_drop_validation_1) {
 TEST(unsatisfiable_drop_validation_2) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "https://example.com/ref.json",
-    "not": {}
+    "properties": {
+      "foo": { "$ref": "https://example.com/ref.json", "not": {} }
+    }
   })JSON");
 
   LINT_AND_FIX(document, result, traces);
@@ -3725,7 +3726,9 @@ TEST(unsatisfiable_drop_validation_2) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "https://example.com/ref.json"
+    "properties": {
+      "foo": { "$ref": "https://example.com/ref.json" }
+    }
   })JSON");
 
   EXPECT_EQ(document, expected);

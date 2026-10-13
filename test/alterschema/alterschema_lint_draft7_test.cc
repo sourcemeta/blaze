@@ -5624,8 +5624,9 @@ TEST(pattern_properties_non_ecma_regex_multiple_bad_keys) {
 TEST(unsatisfiable_drop_validation_3) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$ref": "https://example.com/ref.json",
-    "not": {}
+    "properties": {
+      "foo": { "$ref": "https://example.com/ref.json", "not": {} }
+    }
   })JSON");
 
   LINT_AND_FIX(document, result, traces);
@@ -5634,7 +5635,9 @@ TEST(unsatisfiable_drop_validation_3) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$ref": "https://example.com/ref.json"
+    "properties": {
+      "foo": { "$ref": "https://example.com/ref.json" }
+    }
   })JSON");
 
   EXPECT_EQ(document, expected);
