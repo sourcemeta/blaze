@@ -4,15 +4,18 @@
 #include "document.h"
 #include "helpers.h"
 
-#include <cassert>  // assert
-#include <cstddef>  // std::size_t
-#include <cstdint>  // std::uint64_t
-#include <map>      // std::map
-#include <optional> // std::optional
-#include <set>      // std::set
-#include <string>   // std::to_string
-#include <utility>  // std::move, std::make_pair, std::pair
-#include <vector>   // std::vector
+#include <algorithm>    // std::min
+#include <cassert>      // assert
+#include <charconv>     // std::from_chars
+#include <cstddef>      // std::size_t
+#include <cstdint>      // std::uint64_t
+#include <map>          // std::map
+#include <optional>     // std::optional
+#include <set>          // std::set
+#include <string>       // std::to_string
+#include <system_error> // std::errc
+#include <utility>      // std::move, std::make_pair, std::pair
+#include <vector>       // std::vector
 
 namespace {
 
@@ -21,7 +24,7 @@ namespace {
 // the resolvers hand back rather than of the document the caller passed in. A
 // walk reads a document in full before anything charges for it, so what this
 // bounds is how many oversized documents are read rather than whether one is
-auto charge(std::uint64_t &remaining, const std::size_t locations) -> void {
+auto charge(std::uint64_t &remaining, const std::uint64_t locations) -> void {
   assert(locations <= remaining);
   remaining -= locations;
 }
@@ -512,15 +515,60 @@ auto vacant(const sourcemeta::core::JSON &entries,
   // one, which a document already holding some of them out of order is what
   // makes the two differ. Either is a name nothing else goes by, which is all
   // a name bundling invents has to be
+  //
+  // No more of these names are taken than the object holds places, so one of
+  // the first as many numbers as it holds, plus one, is free, and the search
+  // never has to look past that. The bound is what keeps the doubling below
+  // from running away: without it a description that takes every power of two
+  // wraps the count back to zero after sixty-three steps, and the search then
+  // asks about the same name forever
+  const auto ceiling{static_cast<std::uint64_t>(entries.object_size()) + 1};
+
   std::uint64_t lower{1};
   std::uint64_t upper{2};
-  while (entries.defines(taken + std::to_string(upper))) {
+  while (upper < ceiling && entries.defines(taken + std::to_string(upper))) {
     lower = upper;
-    upper *= 2;
+    upper = std::min(upper * 2, ceiling);
   }
 
-  // The number above is free and the one below it is taken, and every step
-  // keeps both of those true, so the number this ends on is free
+  // Every number the doubling visited was taken, so the free one the count
+  // above guarantees is a number it stepped over. Asking about those one at a
+  // time would be the very walk per question the doubling exists to avoid, so
+  // the numbers in use are gathered in a single walk and the first missing
+  // from them is the answer
+  if (entries.defines(taken + std::to_string(upper))) {
+    std::vector<bool> used(ceiling + 1, false);
+    for (const auto &entry : entries.as_object()) {
+      if (entry.first.size() <= taken.size() ||
+          !entry.first.starts_with(taken)) {
+        continue;
+      }
+
+      const sourcemeta::core::JSON::StringView suffix{
+          entry.first.data() + taken.size(), entry.first.size() - taken.size()};
+      std::uint64_t number{0};
+      const auto parsed{std::from_chars(suffix.data(),
+                                        suffix.data() + suffix.size(), number)};
+      if (parsed.ec != std::errc{} ||
+          parsed.ptr != suffix.data() + suffix.size()) {
+        continue;
+      }
+
+      if (number <= ceiling) {
+        used[static_cast<std::size_t>(number)] = true;
+      }
+    }
+
+    upper = 1;
+    while (upper <= ceiling && used[static_cast<std::size_t>(upper)]) {
+      upper += 1;
+    }
+
+    return taken + std::to_string(upper);
+  }
+
+  // The number above is free, and every step keeps that true, so the number
+  // this ends on is free
   while (upper - lower > 1) {
     const auto middle{lower + ((upper - lower) / 2)};
     if (entries.defines(taken + std::to_string(middle))) {
@@ -636,9 +684,7 @@ auto repoint_schemas(
     const sourcemeta::core::SchemaWalker &walker,
     const sourcemeta::core::SchemaResolver &resolver, std::uint64_t &remaining)
     -> void {
-  if (renamed.empty()) {
-    return;
-  }
+  assert(!renamed.empty());
 
   sourcemeta::core::Pointer container;
   container.push_back(sourcemeta::core::JSON::String{"components"});
@@ -861,8 +907,15 @@ auto bundle_schemas(sourcemeta::core::JSON &document,
     return owned;
   }};
 
-  sourcemeta::core::schema_bundle(document, walker, standalone_resolver,
-                                  walk.dialect, "", schemas_options);
+  // What bundling the schemas registers has to come off the same allowance the
+  // rest of this spends from, which is what the allowance is documented to be.
+  // Handing over what is left every pass and never charging for it lets the
+  // reading a settling description does grow without bound, each pass starting
+  // over from the whole of what remains
+  const auto registered{
+      sourcemeta::core::schema_bundle(document, walker, standalone_resolver,
+                                      walk.dialect, "", schemas_options)};
+  charge(remaining, registered);
   if (landed.empty()) {
     return false;
   }
@@ -1216,12 +1269,10 @@ auto target_of(const sourcemeta::core::JSON::String &destination)
     -> std::optional<sourcemeta::core::Pointer> {
   const auto pointer{sourcemeta::core::fragment_to_pointer(
       sourcemeta::core::URI{destination})};
-  // An empty fragment names the root of the document, which is the document
-  // itself just as naming no fragment at all is
-  if (pointer.has_value() && pointer.value().empty()) {
-    return std::nullopt;
-  }
-
+  // Resolving a reference canonicalises what it leads to, which takes off a
+  // fragment that names nothing, so naming the root of a document reaches here
+  // as naming no fragment at all rather than as naming an empty one
+  assert(!pointer.has_value() || !pointer.value().empty());
   return pointer;
 }
 

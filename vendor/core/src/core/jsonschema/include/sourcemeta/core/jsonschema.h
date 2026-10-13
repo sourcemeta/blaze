@@ -259,12 +259,15 @@ struct SchemaBundleOptions {
 ///
 /// assert(document == expected);
 /// ```
+///
+/// Returns how many frame locations the analysis registered, which a caller
+/// that spends from the same allowance elsewhere takes off its own count.
 SOURCEMETA_CORE_JSONSCHEMA_EXPORT
 auto schema_bundle(sourcemeta::core::JSON &schema, const SchemaWalker &walker,
                    const SchemaResolver &resolver,
                    std::string_view default_dialect = "",
                    std::string_view default_id = "",
-                   const SchemaBundleOptions &options = {}) -> void;
+                   const SchemaBundleOptions &options = {}) -> std::uint64_t;
 
 /// @ingroup jsonschema
 ///

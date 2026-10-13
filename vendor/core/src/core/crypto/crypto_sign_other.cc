@@ -543,19 +543,9 @@ auto make_private_key(const std::string_view pem) -> std::optional<PrivateKey> {
       }
 
       const auto stripped_scalar{strip_left(scalar->content, '\x00')};
-      const auto scalar_width{curve_field_bytes(parsed->curve)};
-      // A zero or oversized scalar is not a valid private key
-      if (stripped_scalar.empty() || stripped_scalar.size() > scalar_width) {
-        return std::nullopt;
-      }
-
-      auto padded_scalar{pad_left(stripped_scalar, scalar_width, '\x00')};
+      auto padded_scalar{
+          pad_left(stripped_scalar, curve_field_bytes(parsed->curve), '\x00')};
       const SecureStringScope padded_scalar_scope{padded_scalar};
-      // A scalar at or above the curve order is not a valid private key, so it
-      // is rejected before it drives the public point recovery
-      if (!ec_private_scalar_in_range(padded_scalar, parsed->curve)) {
-        return std::nullopt;
-      }
       auto point{ec_public_from_scalar(parsed->curve, padded_scalar)};
       return PrivateKey{
           new PrivateKey::Internal{.kind = PrivateKey::Type::EllipticCurve,
@@ -801,12 +791,9 @@ auto derive_public_key(const PrivateKey &key) -> std::optional<PublicKey> {
       return make_rsa_public_key(internal->modulus, internal->public_exponent);
     case PrivateKey::Type::EllipticCurve:
       // The public coordinates are populated for every elliptic curve private
-      // key, whether supplied directly or recomputed from a PEM scalar at parse
-      // time, so the guard is a defensive check rather than a common path
-      if (internal->coordinate_x.empty()) {
-        return std::nullopt;
-      }
-
+      // key, whether supplied directly or recomputed from a PEM scalar at
+      // parse time
+      assert(!internal->coordinate_x.empty());
       return make_ec_public_key(internal->elliptic_curve,
                                 internal->coordinate_x, internal->coordinate_y);
     case PrivateKey::Type::Edwards:

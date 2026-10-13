@@ -3,6 +3,7 @@
 
 #include <sourcemeta/core/uri.h>
 
+#include <cassert>  // assert
 #include <optional> // std::optional
 
 namespace sourcemeta::core {
@@ -13,6 +14,12 @@ auto expand_iri(ExpansionState &state, ActiveContext &active_context,
                 const bool vocabulary, const JSON *const local_context,
                 DefinedTerms *const defined, const WeakPointer &context_pointer)
     -> std::optional<JSON::String> {
+  // A caller either supplies the local context together with the terms it has
+  // already defined or supplies neither, and a context whose terms are being
+  // defined has already been read as a map
+  assert((local_context == nullptr) == (defined == nullptr));
+  assert(local_context == nullptr || local_context->is_object());
+
   if (is_keyword(value)) {
     return value;
   }
@@ -21,8 +28,7 @@ auto expand_iri(ExpansionState &state, ActiveContext &active_context,
     return std::nullopt;
   }
 
-  if (local_context != nullptr && defined != nullptr &&
-      local_context->is_object() && local_context->defines(value)) {
+  if (local_context != nullptr && local_context->defines(value)) {
     const auto iterator{defined->find(value)};
     if (iterator == defined->cend() || !iterator->second) {
       create_term_definition(state, active_context, *local_context, value,
@@ -49,8 +55,7 @@ auto expand_iri(ExpansionState &state, ActiveContext &active_context,
       return value;
     }
 
-    if (local_context != nullptr && defined != nullptr &&
-        local_context->is_object() && local_context->defines(prefix)) {
+    if (local_context != nullptr && local_context->defines(prefix)) {
       const auto iterator{defined->find(prefix)};
       if (iterator == defined->cend() || !iterator->second) {
         create_term_definition(state, active_context, *local_context, prefix,

@@ -17,7 +17,7 @@
 #include <tuple>         // std::tuple
 #include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
-#include <utility>       // std::pair, std::move
+#include <utility>       // std::pair, std::move, std::unreachable
 #include <vector>        // std::vector
 
 enum class AnchorType : std::uint8_t { Static, Dynamic, All };
@@ -185,12 +185,17 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
   }
 
   // Draft 7 and 6
-  // Old `$id` anchor form
+  // Old `$id` anchor form, which the hyper-schema dialect of each draft spells
+  // the same way, as it is that draft plus the links vocabulary
   if (schema.is_object() &&
       (vocabularies.contains(
            sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_7) ||
+       vocabularies.contains(sourcemeta::core::SchemaVocabularies::Known::
+                                 JSON_SCHEMA_DRAFT_7_HYPER) ||
        vocabularies.contains(
-           sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_6))) {
+           sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_6) ||
+       vocabularies.contains(sourcemeta::core::SchemaVocabularies::Known::
+                                 JSON_SCHEMA_DRAFT_6_HYPER))) {
     const auto *id_value{
         schema.try_at("$id"sv, sourcemeta::core::JSONSCHEMA_HASH_ID)};
     if (id_value != nullptr) {
@@ -596,10 +601,13 @@ auto to_json(const SchemaFrame::LocationType value) -> sourcemeta::core::JSON {
       return sourcemeta::core::JSON{"pointer"};
     case SchemaFrame::LocationType::Subschema:
       return sourcemeta::core::JSON{"subschema"};
-    default:
-      assert(false);
-      return sourcemeta::core::JSON{nullptr};
   }
+
+    // Clang settles that no other value arrives, so only GCC and MSVC
+    // need to be told that the end of this function is never reached
+#if !defined(__clang__)
+  std::unreachable();
+#endif
 }
 
 auto SchemaFrame::to_json(
@@ -705,8 +713,6 @@ auto SchemaFrame::to_json(
         dynamic_locations.assign_assume_new(location.first.second,
                                             std::move(entry));
         break;
-      default:
-        assert(false);
     }
   }
 
@@ -1457,14 +1463,13 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
 
       const auto combined{
           find_dialect_and_all_bases(base_dialects, base_uris, pointer_weak)};
+      // Every schema records the dialect it is read under, the root among
+      // them, so the walk up from any pointer reaches one
+      assert(combined.dialect_match.has_value());
       const auto &dialect_for_pointer{
-          combined.dialect_match.has_value()
-              ? combined.dialect_match->first.get().dialects.front()
-              : root_dialect};
+          combined.dialect_match->first.get().dialects.front()};
       const auto base_dialect_for_pointer{
-          combined.dialect_match.has_value()
-              ? combined.dialect_match->first.get().base_dialect
-              : root_base_dialect.value()};
+          combined.dialect_match->first.get().base_dialect};
       const auto &every_base_result{combined.every_base};
 
       std::optional<std::pair<std::string_view, sourcemeta::core::WeakPointer>>
@@ -1525,10 +1530,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
                   subschema_it->second.property_name,
                   subschema_it->second.orphan, true);
           } else {
-            const auto &parent_pointer{
-                combined.dialect_match.has_value()
-                    ? combined.dialect_match->second
-                    : sourcemeta::core::EMPTY_WEAK_POINTER};
+            const auto &parent_pointer{combined.dialect_match->second};
             const auto parent_subschema_it{subschemas.find(parent_pointer)};
             const bool parent_property_name{
                 parent_subschema_it != subschemas.cend() &&
@@ -2297,9 +2299,9 @@ auto SchemaFrame::Cache::populate_pointer_to_location(const SchemaFrame &frame)
 auto SchemaFrame::Cache::populate_location_members(
     const SchemaFrame &frame, const SchemaWalker &walker,
     const SchemaResolver &resolver) -> void {
-  if (!this->location_members_children.empty()) {
-    return;
-  }
+  // The graph that reaches this is built once and answers for every question
+  // after, so this is only ever reached with nothing built yet
+  assert(this->location_members_children.empty());
 
   this->populate_pointer_to_location(frame);
 
@@ -2329,9 +2331,7 @@ auto SchemaFrame::Cache::populate_location_members(
 
 auto SchemaFrame::Cache::populate_reference_graph(const SchemaFrame &frame)
     -> void {
-  if (!this->references_by_destination.empty()) {
-    return;
-  }
+  assert(this->references_by_destination.empty());
 
   std::unordered_map<std::string_view,
                      std::vector<const sourcemeta::core::WeakPointer *>>

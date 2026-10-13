@@ -6,6 +6,7 @@
 #include <sourcemeta/core/unicode.h>
 
 #include <algorithm>   // std::min
+#include <cassert>     // assert
 #include <cstddef>     // std::size_t
 #include <string>      // std::string
 #include <string_view> // std::string_view
@@ -244,12 +245,11 @@ inline auto normalize_label(std::string &output, const std::string_view label)
       pending_space = false;
     }
 
+    // What a byte sequence that is not well formed stands for is settled on the
+    // whole input before any of it is read apart, so nothing read here is left
+    // for this to settle again
     const auto decoded{sourcemeta::core::utf8_decode(label, index)};
-    if (!decoded.has_value()) {
-      sourcemeta::core::codepoint_to_utf8(0xFFFD, output);
-      ++index;
-      continue;
-    }
+    assert(decoded.has_value());
 
     const auto [codepoint, length]{decoded.value()};
     const auto folded{sourcemeta::core::case_fold(codepoint)};

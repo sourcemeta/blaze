@@ -8,6 +8,7 @@
 
 #include <algorithm>        // std::ranges::find
 #include <array>            // std::array
+#include <cassert>          // assert
 #include <cstddef>          // std::size_t
 #include <cstdint>          // std::uint8_t, std::uint64_t
 #include <functional>       // std::less
@@ -598,10 +599,11 @@ inline auto openapi_canonical_base(const std::string_view input)
   // every location this frame reports
   if (base.has_value() && base.value().scheme().has_value()) {
     base.value().canonicalize();
+    // A URI that names a scheme writes out as at least that scheme, so what
+    // comes back of it is never nothing
     const auto result{base.value().recompose_without_fragment()};
-    if (result.has_value()) {
-      return result.value();
-    }
+    assert(result.has_value());
+    return result.value();
   }
 
   throw OpenAPIError{EMPTY_POINTER,
@@ -737,29 +739,49 @@ inline auto openapi_check_array_of_strings(const JSON &value,
   }
 }
 
-// The expressions a template declares between curly braces. OpenAPI
+// Where an expression a template declares sits, as the offsets of the braces
+// delimiting it. No opening offset means none begins, and an opening without a
+// closing one means a run that never closes
+struct OpenAPIBraceExpression {
+  JSON::StringView::size_type opening{JSON::StringView::npos};
+  JSON::StringView::size_type closing{JSON::StringView::npos};
+};
+
+// The next expression a template declares at or after a position. OpenAPI
 // Specification 3.1.1, Section 3.5: "Path templating refers to the usage of
 // template expressions, delimited by curly braces (`{}`), to mark a section of
 // a URL path as replaceable using path parameters", and Section 4.8.5 names
 // server variables the same way. Nothing there says what an unbalanced brace
-// means, so a run that never closes is no expression
+// means, so a run that never closes is no expression, and what each reader
+// makes of one is left to it
+inline auto
+openapi_next_brace_expression(const JSON::StringView value,
+                              const JSON::StringView::size_type cursor)
+    -> OpenAPIBraceExpression {
+  const auto opening{value.find('{', cursor)};
+  if (opening == JSON::StringView::npos) {
+    return {};
+  }
+
+  return {.opening = opening, .closing = value.find('}', opening)};
+}
+
+// The expressions a template declares between curly braces, where a run that
+// never closes ends the reading
 inline auto openapi_brace_expressions(const JSON::StringView value)
     -> std::vector<JSON::StringView> {
   std::vector<JSON::StringView> result;
-  std::size_t cursor{0};
+  JSON::StringView::size_type cursor{0};
   while (cursor < value.size()) {
-    const auto open{value.find('{', cursor)};
-    if (open == JSON::StringView::npos) {
+    const auto expression{openapi_next_brace_expression(value, cursor)};
+    if (expression.opening == JSON::StringView::npos ||
+        expression.closing == JSON::StringView::npos) {
       break;
     }
 
-    const auto close{value.find('}', open)};
-    if (close == JSON::StringView::npos) {
-      break;
-    }
-
-    result.push_back(value.substr(open + 1, close - open - 1));
-    cursor = close + 1;
+    result.push_back(value.substr(expression.opening + 1,
+                                  expression.closing - expression.opening - 1));
+    cursor = expression.closing + 1;
   }
 
   return result;
