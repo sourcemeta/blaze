@@ -5620,3 +5620,22 @@ TEST(pattern_properties_non_ecma_regex_multiple_bad_keys) {
   EXPECT_EQ(sourcemeta::core::to_string(outcome.locations.at(1)),
             "/patternProperties/(?P<name>[a-z]+)");
 }
+
+TEST(unsatisfiable_drop_validation_3) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "https://example.com/ref.json",
+    "not": {}
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "https://example.com/ref.json"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}

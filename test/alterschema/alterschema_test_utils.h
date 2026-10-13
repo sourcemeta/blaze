@@ -103,6 +103,22 @@ static auto alterschema_test_resolver(std::string_view identifier)
         traces.emplace_back(pointer, name, message, outcome, fixable);         \
       });
 
+#define LINT_WITHOUT_FIX_WITH_DEFAULT_DIALECT(document, result, traces,        \
+                                              default_dialect)                 \
+  std::vector<                                                                 \
+      std::tuple<sourcemeta::core::Pointer, std::string, std::string,          \
+                 sourcemeta::blaze::SchemaTransformRule::Result, bool>>        \
+      traces;                                                                  \
+  sourcemeta::blaze::SchemaTransformer bundle;                                 \
+  sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);  \
+  const auto result = bundle.check(                                            \
+      document, sourcemeta::core::schema_walker, alterschema_test_resolver,    \
+      [&traces](const auto &pointer, const auto &name, const auto &message,    \
+                const auto &outcome, const auto &fixable) {                    \
+        traces.emplace_back(pointer, name, message, outcome, fixable);         \
+      },                                                                       \
+      (default_dialect));
+
 #define EXPECT_LINT_TRACE(traces, index, pointer, name, message, fixable)      \
   EXPECT_EQ(sourcemeta::core::to_string(std::get<0>((traces).at(index))),      \
             (pointer));                                                        \
@@ -123,5 +139,21 @@ static auto alterschema_test_resolver(std::string_view identifier)
                 const auto &outcome, const auto &fixable) {                    \
         traces.emplace_back(pointer, name, message, outcome, fixable);         \
       });
+
+#define LINT_AND_FIX_WITH_DEFAULT_DIALECT(document, result, traces,            \
+                                          default_dialect)                     \
+  std::vector<                                                                 \
+      std::tuple<sourcemeta::core::Pointer, std::string, std::string,          \
+                 sourcemeta::blaze::SchemaTransformRule::Result, bool>>        \
+      traces;                                                                  \
+  sourcemeta::blaze::SchemaTransformer bundle;                                 \
+  sourcemeta::blaze::add(bundle, sourcemeta::blaze::AlterSchemaMode::Linter);  \
+  const auto result = bundle.apply(                                            \
+      document, sourcemeta::core::schema_walker, alterschema_test_resolver,    \
+      [&traces](const auto &pointer, const auto &name, const auto &message,    \
+                const auto &outcome, const auto &fixable) {                    \
+        traces.emplace_back(pointer, name, message, outcome, fixable);         \
+      },                                                                       \
+      (default_dialect));
 
 #endif
