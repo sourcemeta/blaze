@@ -241,9 +241,9 @@ auto to_double(const std::string_view input) noexcept -> std::optional<double> {
   // leading whitespace, hexadecimal literals, and infinity or not-a-number
   // spellings in the same way
   for (const auto character : input) {
-    const auto is_digit{character >= '0' && character <= '9'};
-    if (!is_digit && character != '.' && character != '-' && character != '+' &&
-        character != 'e' && character != 'E') {
+    if (!sourcemeta::core::is_digit(character) && character != '.' &&
+        character != '-' && character != '+' && character != 'e' &&
+        character != 'E') {
       return std::nullopt;
     }
   }

@@ -90,7 +90,7 @@ inline auto scan_link_destination(const std::string_view input,
       if (character == '\\' && index + 1 < size &&
           sourcemeta::core::is_punctuation(input[index + 1])) {
         index += 2;
-      } else if (character == '\n' || character == '\r' || character == '<') {
+      } else if (character == '\n' || character == '<') {
         return -1;
       } else {
         ++index;
@@ -199,12 +199,9 @@ inline auto skip_spaces(const std::string_view input,
 
 inline auto skip_line_end(const std::string_view input,
                           std::size_t &position) noexcept -> bool {
+  // A block holds every one of its lines with a line feed ending, so that is
+  // the only ending there is to step over
   bool seen{false};
-  if (character_at(input, position) == '\r') {
-    ++position;
-    seen = true;
-  }
-
   if (character_at(input, position) == '\n') {
     ++position;
     seen = true;

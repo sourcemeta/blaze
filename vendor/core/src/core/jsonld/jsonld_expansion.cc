@@ -279,15 +279,8 @@ auto process_deferred_scoped_context(ExpansionState &state,
 // protected terms (JSON-LD 1.1 API Section 5.1.2 step 8)
 auto apply_scoped_context(ExpansionState &state, ActiveContext &context,
                           const TermDefinition &definition) -> void {
-  const auto saved_override{state.protected_override};
-  state.protected_override = true;
-  try {
-    process_deferred_scoped_context(state, context, definition, true);
-  } catch (...) {
-    state.protected_override = saved_override;
-    throw;
-  }
-  state.protected_override = saved_override;
+  const ProtectedOverrideScope override{state.protected_override};
+  process_deferred_scoped_context(state, context, definition, true);
 }
 
 // Whether a nested object carries a value entry, which the nesting forbids,

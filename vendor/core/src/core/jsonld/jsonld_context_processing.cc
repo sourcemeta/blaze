@@ -247,7 +247,7 @@ auto process_context(ExpansionState &state, ActiveContext &active_context,
         context_entry =
             &state.remote_documents.emplace(reference, *loaded).first->second;
       }
-      state.remote_context_chain.push_back(reference);
+      const RemoteContextScope chain{state.remote_context_chain, reference};
       // A scoped context the loaded document defines is processed again when
       // its term comes into use, long after this location is out of reach, so
       // the reference is recorded for it to report against
@@ -256,16 +256,12 @@ auto process_context(ExpansionState &state, ActiveContext &active_context,
         // A loaded remote context is processed with the default propagation.
         process_context(state, active_context, *context_entry, location);
       } catch (const JSONLDError &error) {
-        state.remote_context_chain.pop_back();
         // The offending entries live in the remote document, whose keys have
         // no position in the input, so the error is located at the reference
         // that loaded it
         throw JSONLDError(error.what(), location);
-      } catch (...) {
-        state.remote_context_chain.pop_back();
-        throw;
       }
-      state.remote_context_chain.pop_back();
+
       continue;
     }
 

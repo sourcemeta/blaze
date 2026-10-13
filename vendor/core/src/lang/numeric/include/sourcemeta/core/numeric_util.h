@@ -469,11 +469,9 @@ auto is_representable_as(const Wider value) -> bool {
     }
 
     constexpr auto LIMIT{static_cast<Wider>(std::numeric_limits<Real>::max())};
-    if (value > LIMIT || value < -LIMIT) {
-      return false;
-    }
-
-    return static_cast<Wider>(static_cast<Real>(value)) == value;
+    // Bound the operand itself so constant folding cannot overflow the cast.
+    const auto bounded{value > LIMIT || value < -LIMIT ? Wider{0} : value};
+    return static_cast<Wider>(static_cast<Real>(bounded)) == value;
   }
 }
 

@@ -164,11 +164,14 @@ struct ParsedDecimal {
 auto parse_digit_payload(const char *cursor, std::size_t count)
     -> std::optional<std::int64_t> {
   // The diagnostic payload of a NaN is a sequence of digits, so a non-digit
-  // byte makes the whole token invalid rather than being silently accepted. A
-  // payload longer than the storage saturates rather than overflowing, which
-  // would otherwise be signed integer overflow (undefined behaviour)
-  constexpr auto MAXIMUM{
-      static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max())};
+  // byte makes the whole token invalid rather than being silently accepted. The
+  // storage holds every digit the whole width of the coefficient reaches, and
+  // one longer than that is refused rather than brought within it, since a
+  // payload standing for a number the input never named is one no caller could
+  // tell apart from one it did. The General Decimal Arithmetic Specification
+  // asks for the same of a payload longer than the precision allows, which the
+  // corpus spells out in row dqbas725 of dqBasic.decTest
+  constexpr auto MAXIMUM{std::numeric_limits<std::uint64_t>::max()};
   std::uint64_t payload = 0;
   for (std::size_t index = 0; index < count; index++) {
     if (cursor[index] < '0' || cursor[index] > '9') {
@@ -177,7 +180,7 @@ auto parse_digit_payload(const char *cursor, std::size_t count)
 
     const auto digit = static_cast<std::uint64_t>(cursor[index] - '0');
     if (payload > (MAXIMUM - digit) / 10) {
-      return std::numeric_limits<std::int64_t>::max();
+      return std::nullopt;
     }
 
     payload = (payload * 10) + digit;
@@ -661,12 +664,19 @@ auto is_representable_as_floating_point(const std::int64_t coefficient,
 // drops, so what must fit is where the exponent ends up rather than the deeper
 // place the working digits put it. A result the storage cannot hold is refused
 // from the coefficient width alone, before anything is committed, which leaves
-// the operand as it was
-void check_rounded_exponent(const std::int64_t exponent,
-                            const std::uint64_t digits) {
+// the operand as it was.
+//
+// The width predicts the lower of the two places rounding can leave the
+// exponent at, since an increment that carries past the precision drops one
+// further digit and raises it once more. Raising it is what carries a result
+// over the top of the range, so the prediction settles that end outright, while
+// at the bottom it is the carry that can bring one back inside and only the
+// rounding itself can tell
+auto check_rounded_exponent(const std::int64_t exponent,
+                            const std::uint64_t digits) -> void {
   const auto rounded{exponent + precision_excess(digits)};
   if (rounded > std::numeric_limits<std::int32_t>::max() ||
-      rounded < std::numeric_limits<std::int32_t>::min()) {
+      rounded + 1 < std::numeric_limits<std::int32_t>::min()) {
     throw sourcemeta::core::NumericOverflowError{};
   }
 }
@@ -704,11 +714,11 @@ struct StagedResult {
 // carry is what reveals the need to refuse, which is why the refusal cannot be
 // made before rounding, and staging it here is what keeps the operand as it
 // was when one is made
-void settle_rounded_result(std::int64_t &coefficient,
+auto settle_rounded_result(std::int64_t &coefficient,
                            std::uint64_t &coefficient_high,
                            std::int32_t &exponent, std::uint8_t &flags,
                            StagedResult &staged, std::int64_t staged_exponent,
-                           const bool residue = false) {
+                           const bool residue = false) -> void {
   round_to_precision(staged.coefficient, staged.coefficient_high,
                      staged_exponent, staged.flags, residue);
   if (staged_exponent > std::numeric_limits<std::int32_t>::max() ||
@@ -725,7 +735,7 @@ void settle_rounded_result(std::int64_t &coefficient,
 }
 
 auto format_special_value(std::string &result, std::uint8_t flags,
-                          std::int64_t coefficient) -> bool {
+                          std::uint64_t payload) -> bool {
   if ((flags & FLAG_NAN) != 0) {
     if ((flags & FLAG_SIGN) != 0) {
       result += '-';
@@ -737,8 +747,11 @@ auto format_special_value(std::string &result, std::uint8_t flags,
       result += "NaN";
     }
 
-    if (coefficient > 0) {
-      result += std::to_string(coefficient);
+    // The payload counts over the whole width of the coefficient it is held in,
+    // so reading it as the signed number the storage spells would drop every
+    // payload past the signed half of that width
+    if (payload > 0) {
+      result += std::to_string(payload);
     }
 
     return true;
@@ -781,6 +794,28 @@ auto propagate_nan(const sourcemeta::core::Decimal &left,
   return source.is_signed() ? -result : result;
 }
 
+// The ordering IEEE 754 compare_total lays over the classes of a value, where
+// a sign turns the class it belongs to into its negative
+auto total_order_class(const sourcemeta::core::Decimal &value) -> int {
+  if (value.is_qnan()) {
+    return value.is_signed() ? -6 : 6;
+  }
+
+  if (value.is_snan()) {
+    return value.is_signed() ? -5 : 5;
+  }
+
+  if (value.is_infinite()) {
+    return value.is_signed() ? -4 : 4;
+  }
+
+  if (value.is_zero()) {
+    return value.is_signed() ? -2 : 2;
+  }
+
+  return value.is_signed() ? -3 : 3;
+}
+
 } // namespace
 
 namespace sourcemeta::core {
@@ -812,15 +847,22 @@ Decimal::Decimal(Decimal &&other) noexcept
 auto Decimal::operator=(const Decimal &other) -> Decimal & {
   if (this != &other) {
     if ((other.flags_ & FLAG_HEAP) != 0) {
-      // Copy the heap coefficient before releasing the current one, so that a
-      // failed allocation leaves this value intact rather than owning storage
-      // shared with the source, which would then be released twice
-      auto cloned{load_big_pointer(other.coefficient_)->clone()};
+      // Copy the heap coefficient, and take over somewhere to point at it
+      // from, before releasing the current one, so that a failed allocation
+      // along the way leaves this value intact rather than owning storage
+      // shared with the source, which would then be released twice. Carrying
+      // the flags over is what hands the copy what it points at, and what is
+      // left to do once it holds it cannot fail
+      StagedResult staged;
+      store_big_pointer(staged.coefficient,
+                        load_big_pointer(other.coefficient_)->clone());
+      staged.flags = other.flags_;
       free_big_coefficient(this->coefficient_, this->flags_);
+      this->coefficient_ = staged.coefficient;
       this->coefficient_high_ = other.coefficient_high_;
       this->exponent_ = other.exponent_;
-      this->flags_ = other.flags_;
-      store_big_pointer(this->coefficient_, std::move(cloned));
+      this->flags_ = staged.flags;
+      staged.release();
     } else {
       free_big_coefficient(this->coefficient_, this->flags_);
       this->coefficient_ = other.coefficient_;
@@ -990,7 +1032,8 @@ auto Decimal::exact_from(const double value) -> Decimal {
 auto Decimal::to_scientific_string() const -> std::string {
   std::string result;
 
-  if (format_special_value(result, this->flags_, this->coefficient_)) {
+  if (format_special_value(result, this->flags_,
+                           static_cast<std::uint64_t>(this->coefficient_))) {
     return result;
   }
 
@@ -1028,7 +1071,8 @@ auto Decimal::to_scientific_string() const -> std::string {
 auto Decimal::to_string() const -> std::string {
   std::string result;
 
-  if (format_special_value(result, this->flags_, this->coefficient_)) {
+  if (format_special_value(result, this->flags_,
+                           static_cast<std::uint64_t>(this->coefficient_))) {
     return result;
   }
 
@@ -1644,10 +1688,6 @@ auto Decimal::scale_by(const Decimal &scale) const -> Decimal {
     throw NumericInvalidOperationError{};
   }
 
-  if (this->is_infinite()) {
-    return *this;
-  }
-
   if (!scale.is_int64()) {
     throw NumericOverflowError{};
   }
@@ -1656,12 +1696,22 @@ auto Decimal::scale_by(const Decimal &scale) const -> Decimal {
   // travel, rather than after being added to it, because a scale near either
   // signed limit would overflow that sum. Both bounds stay narrow enough to
   // work out, since the exponent and the range it must land in are the same
-  // width
+  // width. An infinity carries the exponent every one of them is built with,
+  // which leaves the bounds standing at the ends of the range the scale itself
+  // has to fall inside
   const auto exponent{static_cast<std::int64_t>(this->exponent_)};
   const auto scale_value{scale.to_int64()};
   if (scale_value > std::numeric_limits<std::int32_t>::max() - exponent ||
       scale_value < std::numeric_limits<std::int32_t>::min() - exponent) {
     throw NumericOverflowError{};
+  }
+
+  // The General Decimal Arithmetic Specification reads the scale before it
+  // reads the value, stating that the second operand "must be a finite integer
+  // with an exponent of zero" in a bounded range, and only then that "if the
+  // first operand is infinite then that Infinity is returned"
+  if (this->is_infinite()) {
+    return *this;
   }
 
   const auto new_exponent{exponent + scale_value};
@@ -1672,28 +1722,9 @@ auto Decimal::scale_by(const Decimal &scale) const -> Decimal {
 }
 
 auto Decimal::compare_total(const Decimal &other) const -> Decimal {
-  auto classify = [](const Decimal &value) -> int {
-    if (value.is_qnan()) {
-      return value.is_signed() ? -6 : 6;
-    }
 
-    if (value.is_snan()) {
-      return value.is_signed() ? -5 : 5;
-    }
-
-    if (value.is_infinite()) {
-      return value.is_signed() ? -4 : 4;
-    }
-
-    if (value.is_zero()) {
-      return value.is_signed() ? -2 : 2;
-    }
-
-    return value.is_signed() ? -3 : 3;
-  };
-
-  auto left_class = classify(*this);
-  auto right_class = classify(other);
+  auto left_class = total_order_class(*this);
+  auto right_class = total_order_class(other);
 
   if (left_class != right_class) {
     if (left_class < right_class) {
@@ -1960,6 +1991,21 @@ auto Decimal::operator==(const Decimal &other) const -> bool {
                                        this->coefficient_high_, this->flags_);
     auto right_big = coefficient_as_big(other.coefficient_,
                                         other.coefficient_high_, other.flags_);
+
+    // Two values of the same sign stand at the same order of magnitude before
+    // they can be the same number, which the ordering settles the same way. The
+    // distance between two exponents reaches past the range either of them
+    // spans, so a pair that answers here would otherwise be lined up over a
+    // coefficient as long as that distance
+    const auto left_digit_count{
+        static_cast<std::int64_t>(left_big.digit_count())};
+    const auto right_digit_count{
+        static_cast<std::int64_t>(right_big.digit_count())};
+    if (left_exponent + left_digit_count !=
+        right_exponent + right_digit_count) {
+      return false;
+    }
+
     BigCoefficient::align_exponents(left_big, right_big, left_exponent,
                                     right_exponent);
     return left_big.compare(right_big) == 0;
@@ -2254,10 +2300,20 @@ auto Decimal::operator+=(const Decimal &other) -> Decimal & {
       result_negative = false;
     }
 
-    free_big_coefficient(this->coefficient_, this->flags_);
-    store_big_result(this->coefficient_, this->coefficient_high_, this->flags_,
+    // Storing the sum takes room of its own, and running out of it after the
+    // operand gave its own room back would leave the operand pointing at
+    // storage already handed in, which its destructor would hand in once more.
+    // So the sum reaches somewhere that owns it first, and the operand only
+    // gives up what it held once there is something to put in its place
+    StagedResult staged;
+    store_big_result(staged.coefficient, staged.coefficient_high, staged.flags,
                      std::move(result_big), result_negative);
+    free_big_coefficient(this->coefficient_, this->flags_);
+    this->coefficient_ = staged.coefficient;
+    this->coefficient_high_ = staged.coefficient_high;
+    this->flags_ = staged.flags;
     this->exponent_ = result_exponent;
+    staged.release();
     return *this;
   }
 
@@ -2561,10 +2617,18 @@ auto Decimal::operator%=(const Decimal &other) -> Decimal & {
       static_cast<std::int64_t>(this->exponent_) - other.exponent_;
   auto remainder = dividend_big.modulo_scaled(divisor_big, exponent_difference);
 
-  free_big_coefficient(this->coefficient_, this->flags_);
-  store_big_result(this->coefficient_, this->coefficient_high_, this->flags_,
+  // The residue reaches somewhere that owns it before the dividend gives up
+  // what it held, so that running out of room to store it never leaves the
+  // dividend pointing at storage it has already handed in
+  StagedResult staged;
+  store_big_result(staged.coefficient, staged.coefficient_high, staged.flags,
                    std::move(remainder), result_negative);
+  free_big_coefficient(this->coefficient_, this->flags_);
+  this->coefficient_ = staged.coefficient;
+  this->coefficient_high_ = staged.coefficient_high;
+  this->flags_ = staged.flags;
   this->exponent_ = result_exponent;
+  staged.release();
   return *this;
 }
 

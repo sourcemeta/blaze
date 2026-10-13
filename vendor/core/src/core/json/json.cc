@@ -21,10 +21,10 @@
 namespace sourcemeta::core {
 
 template <bool ShouldThrow>
-static auto internal_parse_json(const char *&cursor, const char *end,
-                                std::uint64_t &line, std::uint64_t &column,
-                                const JSON::ParseCallback &callback,
-                                const bool track_positions, JSON &output)
+static auto
+internal_parse_json(const char *&cursor, const char *end, std::uint64_t &line,
+                    std::uint64_t &column, const JSON::ParseCallback &callback,
+                    [[maybe_unused]] const bool track_positions, JSON &output)
     -> std::conditional_t<ShouldThrow, void, bool> {
   const char *buffer_start{cursor};
   // Tape entries address the input with 32-bit offsets and lengths, so a larger
@@ -74,13 +74,12 @@ static auto internal_parse_json(const char *&cursor, const char *end,
     }
   } else {
     // Both the scanning and the construction phases signal failure by throwing,
-    // so a single boundary around them reports either as no value
+    // so a single boundary around them reports either as no value. Nothing
+    // asks the overload that answers this way to count positions or to
+    // announce what it reads, so the cheaper scan is the only one it needs
+    assert(!callback && !track_positions);
     try {
-      if (callback || track_positions) {
-        scan_json<true>(cursor, end, buffer_start, line, column, tape);
-      } else {
-        scan_json<false>(cursor, end, buffer_start, line, column, tape);
-      }
+      scan_json<false>(cursor, end, buffer_start, line, column, tape);
       construct_json(buffer_start, tape, callback, output);
     } catch (const JSONParseError &) {
       return false;
@@ -329,7 +328,11 @@ auto operator<<(std::basic_ostream<JSON::Char, JSON::CharTraits> &stream,
       return stream << "object";
   }
 
+    // Clang settles that no other value arrives, so only GCC and MSVC
+    // need to be told that the end of this function is never reached
+#if !defined(__clang__)
   std::unreachable();
+#endif
 }
 
 } // namespace sourcemeta::core

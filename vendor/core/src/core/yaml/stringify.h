@@ -680,9 +680,9 @@ inline auto write_flow_properties(OutputStream &stream, const JSON &value,
                                   const YAMLRoundTrip *roundtrip,
                                   AnchorValues &anchors, const Pointer &pointer)
     -> void {
-  if (roundtrip == nullptr) {
-    return;
-  }
+  // Only what was read as a flow collection is written back as one, so there
+  // is always a record to read the properties of its members out of
+  assert(roundtrip != nullptr);
   const auto match{roundtrip->styles.find(pointer)};
   if (match != roundtrip->styles.end() &&
       write_node_properties(stream, value, &match->second, anchors)) {
@@ -696,10 +696,7 @@ inline auto write_flow_node_properties(OutputStream &stream, const JSON &value,
                                        const YAMLRoundTrip *roundtrip,
                                        AnchorValues &anchors,
                                        const Pointer &pointer) -> void {
-  if (roundtrip == nullptr) {
-    return;
-  }
-
+  assert(roundtrip != nullptr);
   const auto match{roundtrip->styles.find(pointer)};
   if (match != roundtrip->styles.end()) {
     write_node_properties(stream, value, &match->second, anchors);
@@ -710,14 +707,15 @@ inline auto write_flow_mapping(OutputStream &stream, const JSON &value,
                                const YAMLRoundTrip *roundtrip,
                                AnchorValues &anchors, Pointer &pointer)
     -> void {
+  // Only what was read as a flow collection is written back as one, so there
+  // is always a record to read how it was spelled out of
+  assert(roundtrip != nullptr);
   bool compact{false};
   bool padded{false};
-  if (roundtrip != nullptr) {
-    const auto match{roundtrip->styles.find(pointer)};
-    if (match != roundtrip->styles.end()) {
-      compact = match->second.compact_flow;
-      padded = match->second.padded_flow;
-    }
+  const auto match{roundtrip->styles.find(pointer)};
+  if (match != roundtrip->styles.end()) {
+    compact = match->second.compact_flow;
+    padded = match->second.padded_flow;
   }
   stream.put('{');
   if (padded) {
@@ -755,16 +753,15 @@ inline auto write_flow_sequence(OutputStream &stream, const JSON &value,
                                 const YAMLRoundTrip *roundtrip,
                                 AnchorValues &anchors, Pointer &pointer)
     -> void {
+  assert(roundtrip != nullptr);
   bool compact{false};
   bool padded{false};
   bool annotations{true};
-  if (roundtrip != nullptr) {
-    const auto match{roundtrip->styles.find(pointer)};
-    if (match != roundtrip->styles.end()) {
-      compact = match->second.compact_flow;
-      padded = match->second.padded_flow;
-      annotations = keeps_item_annotations(&match->second, value);
-    }
+  const auto match{roundtrip->styles.find(pointer)};
+  if (match != roundtrip->styles.end()) {
+    compact = match->second.compact_flow;
+    padded = match->second.padded_flow;
+    annotations = keeps_item_annotations(&match->second, value);
   }
   stream.put('[');
   if (padded) {

@@ -1015,7 +1015,8 @@ auto round_to_precision(std::int64_t &coefficient,
   exponent += excess;
 }
 
-void free_big_coefficient(std::int64_t coefficient, std::uint8_t flags) {
+auto free_big_coefficient(std::int64_t coefficient, std::uint8_t flags)
+    -> void {
   if ((flags & FLAG_HEAP) != 0) {
     delete load_big_pointer(coefficient);
   }
@@ -1039,9 +1040,9 @@ auto coefficient_as_big(std::int64_t coefficient,
   return BigCoefficient::from_uint64(static_cast<std::uint64_t>(coefficient));
 }
 
-void store_big_result(std::int64_t &coefficient,
+auto store_big_result(std::int64_t &coefficient,
                       std::uint64_t &coefficient_high, std::uint8_t &flags,
-                      BigCoefficient result_big, bool result_negative) {
+                      BigCoefficient result_big, bool result_negative) -> void {
   // Every limb is held below the base it counts in, which is the largest the
   // narrow form takes plus one, so a lone limb always fits it and asking
   // whether it does can only ever answer yes

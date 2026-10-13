@@ -111,7 +111,7 @@ resolve_dialect_at(const sourcemeta::core::JSON &subschema,
                                        allow_dialect_override)};
   const auto override_active{
       local != sourcemeta::core::dialect(subschema, inherited_dialect, false)};
-  auto identifier{sourcemeta::core::identify(subschema, resolver, local, "",
+  auto identifier{sourcemeta::core::identify(subschema, resolver, local,
                                              allow_dialect_override)};
   // Telling whether an identifier counts takes a base dialect, which costs a
   // meta-schema to resolve, so a schema that declares none never asks. Note
@@ -583,27 +583,16 @@ inline SchemaIterator::SchemaIterator(
   const std::string_view resolved_dialect{
       sourcemeta::core::dialect(schema, default_dialect)};
 
+  // Whoever walks a schema has already settled what it is written against,
+  // either from the schema itself or from the default they handed over, as
+  // nothing of the walk can be read without it
+  assert(!resolved_dialect.empty());
+  const auto resolved_base_dialect{
+      sourcemeta::core::base_dialect(schema, resolver, resolved_dialect)};
+  assert(resolved_base_dialect.has_value());
   sourcemeta::core::WeakPointer pointer;
-  // If the given schema declares no dialect and the user didn't
-  // not pass a default, then there is nothing we can do. We know
-  // the current schema is a subschema, but cannot walk any further.
-  if (resolved_dialect.empty()) {
-    SubschemaEntry entry{.parent = std::nullopt,
-                         .pointer = pointer,
-                         .dialect = "",
-                         .vocabularies = {},
-                         .base_dialect = std::nullopt,
-                         .subschema = schema,
-                         .orphan = false,
-                         .property_name = false};
-    this->subschemas_.push_back(std::move(entry));
-  } else {
-    const auto resolved_base_dialect{
-        sourcemeta::core::base_dialect(schema, resolver, resolved_dialect)};
-    assert(resolved_base_dialect.has_value());
-    walk(std::nullopt, pointer, this->subschemas_, schema, walker, resolver,
-         resolved_dialect, resolved_base_dialect.value(), 0, false, false);
-  }
+  walk(std::nullopt, pointer, this->subschemas_, schema, walker, resolver,
+       resolved_dialect, resolved_base_dialect.value(), 0, false, false);
 }
 
 inline auto SchemaIterator::begin() const -> const_iterator {

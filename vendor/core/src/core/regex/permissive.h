@@ -5,11 +5,12 @@
 
 #include <array>       // std::array
 #include <bitset>      // std::bitset
+#include <cassert>     // assert
 #include <cstddef>     // std::size_t
 #include <optional>    // std::optional
 #include <string>      // std::string
 #include <string_view> // std::string_view
-#include <utility>     // std::move, std::pair
+#include <utility>     // std::move, std::pair, std::unreachable
 
 namespace sourcemeta::core {
 
@@ -132,7 +133,8 @@ inline auto set_shorthand_class(std::bitset<128> &characters,
       characters |= NON_SPACE_CLASS;
       return;
     default:
-      return;
+      // The caller matches the shorthand against the set of them before asking
+      std::unreachable();
   }
 }
 
@@ -160,12 +162,7 @@ constexpr int ESCAPE_BEYOND_RANGE{-2};
 
 inline auto parse_escape(const std::string &content, std::size_t position,
                          std::size_t &end, int &code_point) -> void {
-  if (position >= content.size()) {
-    end = position;
-    code_point = -1;
-    return;
-  }
-
+  assert(position < content.size());
   if (content[position] != '\\' || position + 1 >= content.size()) {
     end = position + 1;
     code_point = static_cast<unsigned char>(content[position]);
@@ -331,10 +328,7 @@ inline auto parse_class_to_bitset(const std::string &content, std::size_t start,
       continue;
     }
 
-    if (first < 0) {
-      position = end;
-      continue;
-    }
+    assert(first >= 0);
 
     // A member past what the set reaches cannot be carried whether it stands
     // alone or opens a range, and the range below is consumed without coming
@@ -427,10 +421,7 @@ inline auto bitset_to_class(const std::bitset<128> &characters) -> std::string {
 
 inline auto is_valid_escape(const std::string &content, std::size_t position)
     -> bool {
-  if (position + 1 >= content.size()) {
-    return false;
-  }
-
+  assert(position + 1 < content.size());
   const char next = content[position + 1];
   if (std::string_view{"dDwWsSnrtfvb0\\"}.contains(next)) {
     return true;
@@ -535,18 +526,23 @@ inline auto expand_set_ops(const std::string &content, std::bitset<128> &result)
     return representable;
   }
 
-  if (auto [next_pos, next_op] = first_operator(content, op_pos + 2);
-      next_pos != std::string::npos && next_op != op_char) {
-    return false;
-  }
-
   if (!parse_operand(content.substr(0, op_pos), result)) {
     return false;
   }
 
-  for (std::size_t position = op_pos; position + 1 < content.size() &&
-                                      content[position] == op_char &&
-                                      content[position + 1] == op_char;) {
+  std::size_t position{op_pos};
+  while (true) {
+    // The scan that reaches every operator here reports it whole
+    assert(position + 1 < content.size());
+    assert(content[position + 1] == content[position]);
+    // ECMA-262 writes a class set expression as a union, an intersection or a
+    // subtraction, and chains an intersection only with further intersections
+    // and a subtraction only with further subtractions, so a class naming two
+    // kinds of operator names no set this can work out
+    if (content[position] != op_char) {
+      return false;
+    }
+
     auto [next, unused] = first_operator(content, position += 2);
     std::bitset<128> operand_chars;
     if (!parse_operand(next != std::string::npos

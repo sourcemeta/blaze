@@ -174,6 +174,45 @@ struct ForeignContextScope {
   auto operator=(ForeignContextScope &&) -> ForeignContextScope & = delete;
 };
 
+// A scoped context is processed with the protected override in force, and what
+// was in force before comes back whichever way that processing ends
+struct ProtectedOverrideScope {
+  bool &flag;
+  const bool previous;
+
+  explicit ProtectedOverrideScope(bool &value) : flag{value}, previous{value} {
+    this->flag = true;
+  }
+
+  ~ProtectedOverrideScope() { this->flag = this->previous; }
+
+  ProtectedOverrideScope(const ProtectedOverrideScope &) = delete;
+  auto operator=(const ProtectedOverrideScope &)
+      -> ProtectedOverrideScope & = delete;
+  ProtectedOverrideScope(ProtectedOverrideScope &&) = delete;
+  auto operator=(ProtectedOverrideScope &&)
+      -> ProtectedOverrideScope & = delete;
+};
+
+// The chain of remote contexts a document loaded through, which the one being
+// processed joins for as long as it is being processed
+struct RemoteContextScope {
+  std::vector<JSON::String> &chain;
+
+  RemoteContextScope(std::vector<JSON::String> &value,
+                     const JSON::String &reference)
+      : chain{value} {
+    this->chain.push_back(reference);
+  }
+
+  ~RemoteContextScope() { this->chain.pop_back(); }
+
+  RemoteContextScope(const RemoteContextScope &) = delete;
+  auto operator=(const RemoteContextScope &) -> RemoteContextScope & = delete;
+  RemoteContextScope(RemoteContextScope &&) = delete;
+  auto operator=(RemoteContextScope &&) -> RemoteContextScope & = delete;
+};
+
 // RAII guard for the base that the remote references of the context being
 // processed resolve against, restoring the enclosing one on every exit path
 struct ContextBaseScope {

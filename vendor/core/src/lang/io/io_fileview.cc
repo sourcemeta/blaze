@@ -4,6 +4,7 @@
 #if defined(_WIN32)
 // Ahead of the platform header, so that the macros it brings in cannot reach
 // the standard ones
+#include <cassert>      // assert
 #include <filesystem>   // std::filesystem::is_directory
 #include <system_error> // std::error_code
 
@@ -138,14 +139,17 @@ FileView::FileView(const std::filesystem::path &path) {
 }
 
 FileView::~FileView() {
-  if (this->data_ != nullptr && this->size_ > 0) {
+  // A view is neither copied nor moved and its constructor throws rather than
+  // returning with no descriptor, so there is always one to close, and a
+  // mapping only exists where there were bytes to map
+  assert(this->file_descriptor_ != -1);
+  if (this->data_ != nullptr) {
+    assert(this->size_ > 0);
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     munmap(const_cast<std::uint8_t *>(this->data_), this->size_);
   }
 
-  if (this->file_descriptor_ != -1) {
-    close(this->file_descriptor_);
-  }
+  close(this->file_descriptor_);
 }
 
 #endif

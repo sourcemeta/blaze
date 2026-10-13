@@ -6,12 +6,11 @@
 #include <sourcemeta/core/uri.h>
 
 #include <array>         // std::array
-#include <cassert>       // assert
 #include <deque>         // std::deque
 #include <optional>      // std::optional
 #include <string_view>   // std::string_view
 #include <unordered_set> // std::unordered_set
-#include <utility>       // std::pair, std::move
+#include <utility>       // std::pair, std::move, std::unreachable
 #include <vector>        // std::vector
 
 namespace sourcemeta::core {
@@ -51,7 +50,6 @@ auto base_dialect_uri(const SchemaBaseDialect base_dialect) -> std::string_view;
 auto identify(const sourcemeta::core::JSON &schema,
               const SchemaResolver &resolver,
               std::string_view default_dialect = "",
-              std::string_view default_id = "",
               bool allow_dialect_override = true) -> std::string_view;
 auto identify(const sourcemeta::core::JSON &schema,
               const SchemaBaseDialect base_dialect,
@@ -101,8 +99,11 @@ inline auto id_keyword(const SchemaBaseDialect base_dialect) -> SchemaKeyword {
       return {.name = "id"sv, .hash = JSONSCHEMA_HASH_LEGACY_ID};
   }
 
-  assert(false);
-  return {.name = "$id"sv, .hash = JSONSCHEMA_HASH_ID};
+    // Clang settles that no other value arrives, so only GCC and MSVC
+    // need to be told that the end of this function is never reached
+#if !defined(__clang__)
+  std::unreachable();
+#endif
 }
 
 // Whether the dialect in force gives a keyword any meaning at all, which is
@@ -198,8 +199,11 @@ inline auto definitions_keyword(const SchemaBaseDialect base_dialect)
       return "";
   }
 
-  assert(false);
-  return "$defs";
+    // Clang settles that no other value arrives, so only GCC and MSVC
+    // need to be told that the end of this function is never reached
+#if !defined(__clang__)
+  std::unreachable();
+#endif
 }
 
 // In older drafts, the presence of `$ref` would override any sibling keywords
@@ -222,6 +226,17 @@ ref_overrides_adjacent_keywords(const SchemaBaseDialect base_dialect) -> bool {
       return true;
     default:
       return false;
+  }
+}
+
+// An identifier that reads as no URI has no canonical form to be compared
+// against, which is as good as not matching whatever it is held up to
+inline auto maybe_canonicalize(const std::string_view identifier)
+    -> std::optional<sourcemeta::core::JSON::String> {
+  try {
+    return sourcemeta::core::URI::canonicalize(identifier);
+  } catch (const sourcemeta::core::URIParseError &) {
+    return std::nullopt;
   }
 }
 
@@ -278,12 +293,7 @@ embedded_metaschema_candidate(const sourcemeta::core::JSON &document,
     return {nullptr, ""};
   }
 
-  std::optional<sourcemeta::core::JSON::String> canonical;
-  try {
-    canonical = sourcemeta::core::URI::canonicalize(identifier);
-  } catch (const sourcemeta::core::URIParseError &) {
-    canonical = std::nullopt;
-  }
+  const auto canonical{maybe_canonicalize(identifier)};
 
   constexpr std::array<SchemaKeyword, 2> CONTAINERS{
       {{.name = "$defs"sv, .hash = JSONSCHEMA_HASH_DEFS},
@@ -316,30 +326,16 @@ inline auto embedded_metaschema_link_valid(const sourcemeta::core::JSON &link,
                                            const std::string_view container,
                                            const SchemaBaseDialect base_dialect)
     -> bool {
-  // In 2019-09 and 2020-12, `definitions` is still supported
-  // for backwards compatibility
-  switch (base_dialect) {
-    case SchemaBaseDialect::JSON_SCHEMA_2020_12:
-    case SchemaBaseDialect::JSON_SCHEMA_2020_12_HYPER:
-    case SchemaBaseDialect::JSON_SCHEMA_2019_09:
-    case SchemaBaseDialect::JSON_SCHEMA_2019_09_HYPER:
-      if (container != "$defs" && container != "definitions") {
-        return false;
-      }
-
-      break;
-    default:
-      if (container != definitions_keyword(base_dialect)) {
-        return false;
-      }
+  // In 2019-09 and 2020-12, `definitions` is still supported for backwards
+  // compatibility, so the older name answers for a dialect that reserves the
+  // newer one as well as for the ones that reserve it in their own right
+  const auto keyword{definitions_keyword(base_dialect)};
+  if (container != keyword &&
+      !(keyword == "$defs" && container == "definitions")) {
+    return false;
   }
 
-  std::optional<sourcemeta::core::JSON::String> canonical;
-  try {
-    canonical = sourcemeta::core::URI::canonicalize(identifier);
-  } catch (const sourcemeta::core::URIParseError &) {
-    canonical = std::nullopt;
-  }
+  const auto canonical{maybe_canonicalize(identifier)};
 
   return embedded_metaschema_identifier_matches(link, id_keyword(base_dialect),
                                                 identifier, canonical);

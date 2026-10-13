@@ -438,7 +438,11 @@ auto row_of(const OpenAPIObjectKind kind) -> KindRow {
       return {};
   }
 
+    // Clang settles that no other value arrives, so only GCC and MSVC
+    // need to be told that the end of this function is never reached
+#if !defined(__clang__)
   std::unreachable();
+#endif
 }
 
 // Byte order on the key, which is the whole of what a map whose keys the author

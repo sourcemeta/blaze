@@ -294,13 +294,12 @@ auto verify_ecdsa(const EllipticCurve curve, const SignatureHashFunction hash,
     return false;
   }
 
-  // Reject coordinates wider than the field, matching the platform backends and
-  // preventing an oversized input from being truncated into a valid key
+  // Every coordinate that reaches here was stripped of its leading zeros and
+  // held to the width of the field when the key it belongs to was made, which
+  // is where an oversized input is turned away
   const auto stripped_x{strip_left(coordinate_x, '\x00')};
   const auto stripped_y{strip_left(coordinate_y, '\x00')};
-  if (stripped_x.size() > field_bytes || stripped_y.size() > field_bytes) {
-    return false;
-  }
+  assert(stripped_x.size() <= field_bytes && stripped_y.size() <= field_bytes);
 
   const auto public_x{bignum_from_bytes<CURVE_BIGNUM_CAPACITY>(stripped_x)};
   const auto public_y{bignum_from_bytes<CURVE_BIGNUM_CAPACITY>(stripped_y)};

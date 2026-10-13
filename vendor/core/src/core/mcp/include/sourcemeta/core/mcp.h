@@ -9,6 +9,8 @@
 #include <sourcemeta/core/jsonrpc.h>
 #include <sourcemeta/core/mcp_capabilities.h>
 #include <sourcemeta/core/mcp_error.h>
+#include <sourcemeta/core/mcp_headers.h>
+#include <sourcemeta/core/mcp_logging.h>
 #include <sourcemeta/core/mcp_protocol.h>
 #include <sourcemeta/core/mcp_results.h>
 // NOLINTEND(misc-include-cleaner)
