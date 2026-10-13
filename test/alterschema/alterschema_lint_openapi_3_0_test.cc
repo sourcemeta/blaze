@@ -186,30 +186,33 @@ TEST(openapi_3_0_anyof_true_simplify) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(openapi_3_0_double_negation_elimination) {
-  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST(openapi_3_0_double_negation_elimination_not_applied) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "title": "Test",
     "description": "A test schema",
     "not": { "not": { "maxLength": 5 } }
   })JSON");
 
-  LINT_AND_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
-                                    OPENAPI_3_0_DIALECT);
+  LINT_WITHOUT_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                        OPENAPI_3_0_DIALECT);
 
   EXPECT_TRUE(result.first);
-  EXPECT_EQ(traces.size(), 1);
-  EXPECT_LINT_TRACE(traces, 0, "", "double_negation_elimination",
-                    "A `not` whose value is a schema containing only another "
-                    "`not` is equivalent to the inner value",
-                    true);
+  EXPECT_EQ(traces.size(), 0);
+}
 
-  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+TEST(openapi_3_0_double_negation_elimination_not_applied_nullable) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "title": "Test",
     "description": "A test schema",
-    "maxLength": 5
+    "type": "string",
+    "not": { "not": { "nullable": true } }
   })JSON");
 
-  EXPECT_EQ(document, expected);
+  LINT_WITHOUT_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                        OPENAPI_3_0_DIALECT);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
 }
 
 TEST(openapi_3_0_drop_allof_empty_schemas) {
@@ -538,7 +541,6 @@ TEST(openapi_3_0_items_schema_default) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "title": "Test",
     "description": "A test schema",
-    "type": "array",
     "items": {}
   })JSON");
 
@@ -554,11 +556,25 @@ TEST(openapi_3_0_items_schema_default) {
 
   const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
     "title": "Test",
-    "description": "A test schema",
-    "type": "array"
+    "description": "A test schema"
   })JSON");
 
   EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_0_items_schema_default_array_type) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "array",
+    "items": {}
+  })JSON");
+
+  LINT_WITHOUT_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                        OPENAPI_3_0_DIALECT);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
 }
 
 TEST(openapi_3_0_properties_default) {

@@ -39,6 +39,15 @@ public:
          (schema.at(KEYWORD).is_object() && schema.at(KEYWORD).empty())));
     ONLY_CONTINUE_IF(!frame.has_references_through(
         location.pointer, WeakPointer::Token{std::cref(KEYWORD)}));
+
+    // OpenAPI 3.0 asks that `items` be present whenever `type` names `array`,
+    // so the keyword has to stay however little it constrains
+    if (vocabularies.contains(SchemaVocabularies::Known::OPENAPI_3_0_BASE)) {
+      const auto *type{schema.try_at("type")};
+      ONLY_CONTINUE_IF(!(type != nullptr && type->is_string() &&
+                         type->to_string() == "array"));
+    }
+
     return applies_to_keywords(KEYWORD);
   }
 
