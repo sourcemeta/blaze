@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": { "data": {} }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "data": { "$ref": "#/definitions/1" } },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "1": {}
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "data": 1 },
+    { "data": "x" },
+    { "data": {} },
+    { "data": { "data": "x" } },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "data": -1 }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ]
+  ]
+}

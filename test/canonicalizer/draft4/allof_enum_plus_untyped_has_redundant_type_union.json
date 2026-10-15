@@ -1,0 +1,57 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "enum": [ "foo", "bar" ] }, { "minLength": 1 } ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" }
+        ]
+      },
+      "1": { "enum": [ "foo", "bar" ] },
+      "2": { "minLength": 1, "type": "string" }
+    }
+  },
+  "examples": [ "foo", "bar" ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    "aa",
+    [ "foo" ],
+    [ "foo", "foo" ],
+    [ "bar" ],
+    [ "bar", "bar" ],
+    [ "a", "a" ]
+  ]
+}

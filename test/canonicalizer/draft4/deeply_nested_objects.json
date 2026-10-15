@@ -1,0 +1,105 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "address": {
+        "type": "object",
+        "properties": {
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "zip": { "type": "string", "pattern": "^[0-9]{5}$" }
+        },
+        "required": [ "street", "city" ]
+      }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "address": { "$ref": "#/definitions/1" } },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "1": {
+        "type": "object",
+        "properties": {
+          "street": { "$ref": "#/definitions/2" },
+          "city": { "$ref": "#/definitions/2" },
+          "zip": { "$ref": "#/definitions/3" }
+        },
+        "required": [ "street", "city" ],
+        "patternProperties": {},
+        "minProperties": 2,
+        "additionalProperties": true
+      },
+      "2": { "type": "string", "minLength": 0 },
+      "3": { "type": "string", "pattern": "^[0-9]{5}$", "minLength": 0 }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "city": "x", "street": "x", "zip": "123" },
+    { "street": "x", "city": "x" },
+    { "city": "x" },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "city": -1, "street": "x", "zip": "123" },
+    { "city": -1 },
+    { "city": "x", "street": -1, "zip": "123" },
+    { "street": -1 },
+    { "city": "x", "street": "x", "zip": -1 },
+    { "zip": -1 }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    "123",
+    { "address": "123", "city": "123", "street": "123", "zip": "123" },
+    { "address": "123" },
+    { "address": "x", "city": "x", "street": "x", "zip": "x" },
+    { "address": "x" },
+    { "address": 1, "city": 1, "street": 1, "zip": 1 },
+    { "address": 1 },
+    [ "123" ],
+    [ "123", "123" ],
+    { "address": {}, "city": {}, "street": {}, "zip": {} },
+    { "address": { "address": "x" } },
+    { "address": {} },
+    { "address": "other" },
+    { "city": 1, "address": "other" },
+    { "street": 1, "address": "other" },
+    { "address": { "city": "x", "street": "x", "zip": "123" } },
+    { "address": { "city": -1, "street": "x", "zip": "123" } },
+    { "address": { "city": "x", "street": -1, "zip": "123" } },
+    { "address": { "city": "x", "street": "x", "zip": -1 } }
+  ]
+}
