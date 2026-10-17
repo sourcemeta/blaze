@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/root",
+  "type": "object",
+  "properties": {
+    "strict": {
+      "$ref": "strict"
+    },
+    "loose": {
+      "$ref": "loose"
+    }
+  },
+  "$defs": {
+    "list": {
+      "$id": "list",
+      "$dynamicAnchor": "entry",
+      "type": "array",
+      "items": {
+        "$dynamicRef": "#entry"
+      }
+    },
+    "strict": {
+      "$id": "strict",
+      "$ref": "list",
+      "$defs": {
+        "entry": {
+          "$dynamicAnchor": "entry",
+          "type": "string"
+        }
+      }
+    },
+    "loose": {
+      "$id": "loose",
+      "$ref": "list",
+      "$defs": {
+        "entry": {
+          "$dynamicAnchor": "entry",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

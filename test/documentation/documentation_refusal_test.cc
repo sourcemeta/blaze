@@ -6,31 +6,6 @@ TEST(2020_12_no_dialect_is_refused) {
       "The schema does not say which dialect it is written in", "", "");
 }
 
-TEST(2020_12_unevaluated_properties_is_refused) {
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "unevaluatedProperties": false
-  })JSON",
-      "This keyword depends on what the rest of the schema happened to "
-      "describe, which the format cannot state exactly",
-      "unevaluatedProperties", "");
-}
-
-TEST(2020_12_dynamic_reference_is_refused) {
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://example.com/tree",
-    "$dynamicAnchor": "node",
-    "properties": { "child": { "$dynamicRef": "#node" } }
-  })JSON",
-      "This keyword names a place that depends on where it is used, which the "
-      "format cannot state exactly",
-      "$dynamicRef", "/properties/child");
-}
-
 TEST(2020_12_a_type_that_is_not_a_json_type_is_refused) {
   EXPECT_DOCUMENTATION_REFUSED(
       R"JSON({
@@ -96,8 +71,8 @@ TEST(2020_12_a_reference_that_lands_nowhere_is_refused) {
     "$id": "https://example.com/order",
     "$ref": "#/$defs/missing"
   })JSON",
-      "The `$ref` keyword names a place in this schema that does not resolve",
-      "", "");
+      "This keyword names a place in this schema that does not resolve", "$ref",
+      "");
 }
 
 TEST(2020_12_a_reference_to_something_that_is_not_a_schema_is_refused) {
@@ -107,7 +82,7 @@ TEST(2020_12_a_reference_to_something_that_is_not_a_schema_is_refused) {
     "title": "x",
     "$ref": "#/title"
   })JSON",
-      "The `$ref` keyword names something that is not a schema", "", "");
+      "This keyword names something that is not a schema", "$ref", "");
 }
 
 TEST(2020_12_a_step_of_zero_is_refused) {
@@ -117,39 +92,43 @@ TEST(2020_12_a_step_of_zero_is_refused) {
     "type": "number",
     "multipleOf": 0
   })JSON",
-      "The `multipleOf` keyword must be a number above zero", "", "");
+      "The `multipleOf` keyword must be a number above zero", "multipleOf", "");
 }
 
-TEST(2020_12_a_bound_past_what_json_holds_exactly_is_refused) {
+TEST(2020_12_unevaluated_items_beside_a_branch_that_looks_at_items_is_refused) {
+  // Which entries count as looked at depends on which branch matched, and the
+  // format has no way to say a rule holds only after the branch that matched.
   EXPECT_DOCUMENTATION_REFUSED(
       R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "integer",
-    "maximum": 99999999999999999999
-  })JSON",
-      "This keyword is past the numbers JSON holds exactly, so the format "
-      "cannot state it",
-      "maximum", "");
-}
-
-TEST(2020_12_a_resource_of_another_dialect_is_refused) {
-  // `prefixItems` is not a keyword in Draft 7, so reading this resource as
-  // 2020-12 would state a rule the schema does not have.
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://example.com/root",
     "type": "object",
-    "properties": {
-      "inner": {
-        "$id": "https://example.com/inner",
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "array",
-        "prefixItems": [ { "type": "string" } ]
-      }
-    }
+    "properties": { "list": {
+      "anyOf": [ { "prefixItems": [ true ] }, { "prefixItems": [ true, true ] } ],
+      "unevaluatedItems": false
+    } }
   })JSON",
-      "This resource is written in a different dialect from the rest of the "
-      "schema, which the format cannot state exactly",
-      "", "/properties/inner");
+      "This keyword beside a part that only sometimes applies, and looks at "
+      "entries, depends on which part matched, which the format cannot state "
+      "exactly",
+      "unevaluatedItems", "/properties/list");
+}
+
+TEST(draft7_a_reference_into_this_schema_that_lands_nowhere_is_refused) {
+  EXPECT_DOCUMENTATION_REFUSED(
+      R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": { "a": { "$ref": "#/definitions/nope" } }
+  })JSON",
+      "This keyword names a place in this schema that does not resolve", "$ref",
+      "/properties/a");
+}
+
+TEST(2020_12_a_reference_to_where_subschemas_are_kept_is_refused) {
+  EXPECT_DOCUMENTATION_REFUSED(
+      R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": { "$ref": "#/properties" } }
+  })JSON",
+      "This keyword names something that is not a schema", "$ref",
+      "/properties/a");
 }
