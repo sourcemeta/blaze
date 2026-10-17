@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "patternProperties": {
+    "^x-": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": {
+    "type": "integer"
+  },
+  "propertyNames": {
+    "pattern": "^[a-z]"
+  },
+  "minProperties": 1,
+  "maxProperties": 4
+}

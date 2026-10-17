@@ -15,6 +15,7 @@ if(NOT BLAZE_COMPONENTS)
   list(APPEND BLAZE_COMPONENTS convert)
   list(APPEND BLAZE_COMPONENTS editor)
   list(APPEND BLAZE_COMPONENTS dependencies)
+  list(APPEND BLAZE_COMPONENTS documentation)
 endif()
 
 include(CMakeFindDependencyMacro)
@@ -23,6 +24,9 @@ set(BLAZE_CORE_COMPONENTS
   unicode punycode idna regex uri uritemplate json
   jsonpointer jsonschema jsonld io yaml crypto email ip dns time css
   memory)
+if("documentation" IN_LIST BLAZE_COMPONENTS)
+  list(APPEND BLAZE_CORE_COMPONENTS html)
+endif()
 
 # This installation ships its own copy of Core, and CMake never searches the
 # prefix of the package it is currently resolving, so a consumer that doesn't
@@ -74,6 +78,8 @@ foreach(component ${BLAZE_COMPONENTS})
     include("${CMAKE_CURRENT_LIST_DIR}/sourcemeta_blaze_editor.cmake")
   elseif(component STREQUAL "dependencies")
     include("${CMAKE_CURRENT_LIST_DIR}/sourcemeta_blaze_dependencies.cmake")
+  elseif(component STREQUAL "documentation")
+    include("${CMAKE_CURRENT_LIST_DIR}/sourcemeta_blaze_documentation.cmake")
   else()
     message(FATAL_ERROR "Unknown Blaze component: ${component}")
   endif()

@@ -1,0 +1,32 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "inner",
+        "value": {
+          "kind": "array",
+          "slots": [
+            {
+              "kind": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "name": "outer",
+        "value": {
+          "kind": "array",
+          "slots": [
+            {
+              "kind": "string"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
