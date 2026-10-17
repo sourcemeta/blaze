@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema#",
+  "type": "object",
+  "properties": {
+    "card": {
+      "type": "string"
+    },
+    "billing": {
+      "type": "string"
+    }
+  },
+  "dependencies": {
+    "card": "billing"
+  }
+}

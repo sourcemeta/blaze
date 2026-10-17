@@ -1,0 +1,8 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "<script>alert(1)</script>",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "string"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Order",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "tags",
+        "value": {
+          "kind": "array",
+          "item": {
+            "kind": "string",
+            "length": {
+              "max": 8
+            }
+          }
+        }
+      }
+    ]
+  }
+}

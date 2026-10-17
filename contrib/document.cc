@@ -11,14 +11,16 @@
 
 auto main(int argc, char *argv[]) -> int {
   if (argc < 2 || argc > 3) {
-    std::cerr << "Usage: " << argv[0] << " <schema.json> [--html]\n";
+    std::cerr << "Usage: " << argv[0]
+              << " <schema.json or table.json> [--html]\n";
     return EXIT_FAILURE;
   }
 
   const auto html{argc == 3};
   if (html && std::string{argv[2]} != "--html") {
     std::cerr << "Unknown option: " << argv[2] << "\n";
-    std::cerr << "Usage: " << argv[0] << " <schema.json> [--html]\n";
+    std::cerr << "Usage: " << argv[0]
+              << " <schema.json or table.json> [--html]\n";
     return EXIT_FAILURE;
   }
 
@@ -27,9 +29,16 @@ auto main(int argc, char *argv[]) -> int {
     // missing or is not JSON, and that is as much a failure of this command as
     // a schema it cannot describe.
     const auto schema{sourcemeta::core::read_json(argv[1])};
-    const auto documentation{sourcemeta::blaze::to_documentation(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver)};
+    // A document already in the table format is drawn as it is.
+    const auto described{schema.is_object() && schema.defines("$schema") &&
+                         schema.at("$schema").is_string() &&
+                         schema.at("$schema").to_string() ==
+                             sourcemeta::blaze::DOCUMENTATION_FORMAT};
+    const auto documentation{described
+                                 ? schema
+                                 : sourcemeta::blaze::to_documentation(
+                                       schema, sourcemeta::core::schema_walker,
+                                       sourcemeta::core::schema_resolver)};
     if (html) {
       std::string page;
       sourcemeta::blaze::to_html(documentation, page);

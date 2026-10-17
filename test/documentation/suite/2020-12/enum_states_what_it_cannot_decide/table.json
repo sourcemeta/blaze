@@ -12,7 +12,7 @@
     "also": [
       {
         "kind": "object",
-        "fields": [
+        "properties": [
           {
             "name": "b",
             "required": true

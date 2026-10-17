@@ -14,8 +14,9 @@
 #include <vector>     // std::vector
 
 // Each case is a directory of real data: the schema that goes in, the document
-// it must produce, and the page that document must render as. A case is read
-// rather than written in C++, so adding one is adding files.
+// it must produce, and the page that document must render as. A case under
+// `pages` has no schema, only a document written by hand to draw. A case is
+// read rather than written in C++, so adding one is adding files.
 //
 // What a schema cannot be described as stays in C++, because a refusal is
 // about a message and a place rather than about a document.
@@ -49,7 +50,7 @@ auto cases() -> std::vector<std::filesystem::path> {
 
     for (const auto &entry : std::filesystem::directory_iterator{dialect}) {
       if (entry.is_directory() &&
-          std::filesystem::exists(entry.path() / "schema.json")) {
+          std::filesystem::exists(entry.path() / "table.json")) {
         out.push_back(entry.path());
       }
     }
@@ -57,6 +58,29 @@ auto cases() -> std::vector<std::filesystem::path> {
 
   std::sort(out.begin(), out.end());
   return out;
+}
+
+// Every page carries the same stylesheet, which is kept once in
+// `suite/stylesheet.css` rather than in every case. A page is compared with
+// its stylesheet taken out, and the stylesheet is checked on its own.
+auto without_stylesheet(const std::string &page) -> std::string {
+  const auto start{page.find("<style>")};
+  const auto end{page.find("</style>")};
+  if (start == std::string::npos || end == std::string::npos) {
+    return page;
+  }
+
+  return page.substr(0, start + 7) + page.substr(end);
+}
+
+auto stylesheet_of(const std::string &page) -> std::string {
+  const auto start{page.find("<style>")};
+  const auto end{page.find("</style>")};
+  if (start == std::string::npos || end == std::string::npos) {
+    return "";
+  }
+
+  return page.substr(start + 7, end - start - 7);
 }
 
 } // namespace
@@ -68,6 +92,10 @@ TEST(documentation_suite_has_cases) {
 
 TEST(documentation_suite_describes_every_case_as_its_fixture_says) {
   for (const auto &where : cases()) {
+    if (!std::filesystem::exists(where / "schema.json")) {
+      continue;
+    }
+
     const auto schema{
         sourcemeta::core::read_json((where / "schema.json").string())};
     const auto expected{
@@ -92,8 +120,9 @@ TEST(documentation_suite_renders_every_case_as_its_fixture_says) {
 
     const auto document{
         sourcemeta::core::read_json((where / "table.json").string())};
-    std::string actual;
-    sourcemeta::blaze::to_html(document, actual);
+    std::string page;
+    sourcemeta::blaze::to_html(document, page);
+    const auto actual{without_stylesheet(page)};
     if (actual != read_text(page_path)) {
       std::cerr << "# differs: " << where.string() << "\n";
     }
@@ -120,4 +149,21 @@ TEST(documentation_suite_every_document_fits_the_format) {
 
     EXPECT_TRUE(evaluator.validate(compiled, document));
   }
+}
+
+TEST(documentation_suite_every_page_carries_the_stylesheet) {
+  const auto document{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2026:table-format/2",
+    "title": "Order",
+    "root": { "kind": "string" }
+  })JSON")};
+  std::string page;
+  sourcemeta::blaze::to_html(document, page);
+  const std::filesystem::path suite{DOCUMENTATION_SUITE_PATH};
+  // The file ends with a newline the page does not have, so the stylesheet is
+  // read whole rather than with the trailing newline taken off.
+  std::ifstream stream{suite / "stylesheet.css", std::ios::binary};
+  std::ostringstream expected;
+  expected << stream.rdbuf();
+  EXPECT_EQ(stylesheet_of(page), expected.str());
 }

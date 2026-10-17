@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/root",
+  "type": "object",
+  "properties": {
+    "inner": {
+      "$id": "https://example.com/inner",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "string"
+        }
+      ],
+      "items": [
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "outer": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

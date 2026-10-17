@@ -4,7 +4,7 @@
   "language": "https://json-schema.org/draft/2019-09/schema",
   "root": {
     "kind": "object",
-    "fields": [
+    "properties": [
       {
         "name": "card",
         "value": {
@@ -22,7 +22,7 @@
       {
         "when": {
           "kind": "object",
-          "fields": [
+          "properties": [
             {
               "name": "card",
               "required": true
@@ -31,7 +31,7 @@
         },
         "then": {
           "kind": "object",
-          "fields": [
+          "properties": [
             {
               "name": "expiry",
               "required": true

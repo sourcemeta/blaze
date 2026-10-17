@@ -1,0 +1,20 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2019-09/schema",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "children",
+        "value": {
+          "kind": "array",
+          "item": {
+            "kind": "ref",
+            "ref": ""
+          }
+        }
+      }
+    ]
+  }
+}

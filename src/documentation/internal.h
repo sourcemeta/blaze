@@ -26,6 +26,7 @@ using sourcemeta::core::JSON;
 using sourcemeta::core::Pointer;
 
 enum class Rank : std::uint8_t {
+  Draft3 = 3,
   Draft4 = 4,
   Draft6 = 6,
   Draft7 = 7,
@@ -59,15 +60,25 @@ struct Context {
   const sourcemeta::core::SchemaWalker &walker;
   const sourcemeta::core::SchemaResolver &resolver;
   const sourcemeta::core::SchemaFrame &frame;
+  // The dialect of the subschema being described. A resource may declare a
+  // dialect of its own, so this changes as the conversion moves through it.
   Rank rank;
+  // The dialect of every subschema, by the place it sits in the schema.
+  std::map<std::string, Rank> ranks;
   std::map<std::string, Shape> shapes;
   // Where each reference leads, by the place the `$ref` sits in the schema.
   std::map<std::string, sourcemeta::core::JSON::String> references;
+  // The same, for a `$dynamicRef` or `$recursiveRef` whose target depends on
+  // where it is used.
+  std::map<std::string, sourcemeta::core::JSON::String> dynamic_references;
+  // Every place that declares a dynamic anchor, by its name with the leading
+  // `#`. A `$recursiveAnchor` has no name, so it is kept under an empty one.
+  std::map<std::string, std::vector<Pointer>> dynamic_anchors;
   std::size_t depth{0};
 };
 
-inline auto fail(const char *message, const Pointer &location,
-                 std::string subject = "") -> void {
+[[noreturn]] inline auto fail(const char *message, const Pointer &location,
+                              std::string subject = "") -> void {
   throw sourcemeta::blaze::DocumentationError{message, location,
                                               std::move(subject)};
 }
