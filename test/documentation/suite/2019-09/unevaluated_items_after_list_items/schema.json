@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "type": "array",
+  "items": [
+    {
+      "type": "string"
+    }
+  ],
+  "contains": {
+    "type": "string"
+  },
+  "unevaluatedItems": {
+    "type": "integer"
+  }
+}

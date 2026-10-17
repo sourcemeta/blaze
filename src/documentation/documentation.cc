@@ -57,11 +57,18 @@ auto nesting_of(const JSON &document) -> std::size_t {
 auto official_dialect(const std::string_view declared)
     -> std::optional<std::string_view> {
   static const std::vector<std::string_view> OFFICIAL{
+      "http://json-schema.org/draft-03/schema#",
+      "http://json-schema.org/draft-03/hyper-schema#",
       "http://json-schema.org/draft-04/schema#",
+      "http://json-schema.org/draft-04/hyper-schema#",
       "http://json-schema.org/draft-06/schema#",
+      "http://json-schema.org/draft-06/hyper-schema#",
       "http://json-schema.org/draft-07/schema#",
+      "http://json-schema.org/draft-07/hyper-schema#",
       "https://json-schema.org/draft/2019-09/schema",
-      "https://json-schema.org/draft/2020-12/schema"};
+      "https://json-schema.org/draft/2019-09/hyper-schema",
+      "https://json-schema.org/draft/2020-12/schema",
+      "https://json-schema.org/draft/2020-12/hyper-schema"};
   for (const auto &address : OFFICIAL) {
     if (declared == address) {
       return address;
@@ -82,22 +89,30 @@ auto official_dialect(const std::string_view declared)
 
 auto rank_of(const sourcemeta::core::SchemaBaseDialect base_dialect,
              const Pointer &pointer) -> Rank {
+  // A HyperSchema adds links to the dialect it extends. Links say where to go
+  // from the data rather than what the data may be, so the data is described
+  // as in that dialect.
   switch (base_dialect) {
     case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12:
+    case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12_HYPER:
       return Rank::Draft2020;
     case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09:
+    case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09_HYPER:
       return Rank::Draft2019;
     case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_7:
+    case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_7_HYPER:
       return Rank::Draft7;
     case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6:
+    case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6_HYPER:
       return Rank::Draft6;
     case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4:
+    case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4_HYPER:
       return Rank::Draft4;
+    case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3:
+    case sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3_HYPER:
+      return Rank::Draft3;
     default:
-      fail("This module describes JSON Schema Draft 4, 6 and 7, 2019-09 and "
-           "2020-12, and not HyperSchema",
-           pointer);
-      return Rank::Draft2020;
+      fail("This module describes JSON Schema Draft 3 to 2020-12", pointer);
   }
 }
 
@@ -155,21 +170,24 @@ using namespace documentation; // NOLINT(google-build-using-namespace)
 
 auto to_documentation(const sourcemeta::core::JSON &schema,
                       const sourcemeta::core::SchemaWalker &walker,
-                      const sourcemeta::core::SchemaResolver &resolver)
+                      const sourcemeta::core::SchemaResolver &resolver,
+                      const std::string_view default_dialect)
     -> sourcemeta::core::JSON {
   const Pointer root_pointer;
   if (!schema.is_object() && !schema.is_boolean()) {
     fail("A schema must be an object or a boolean", root_pointer);
   }
 
-  if (!schema.is_object() || !schema.defines("$schema") ||
-      !schema.at("$schema").is_string() ||
-      schema.at("$schema").to_string().empty()) {
+  const auto declares{schema.is_object() && schema.defines("$schema") &&
+                      schema.at("$schema").is_string() &&
+                      !schema.at("$schema").to_string().empty()};
+  if (!declares && default_dialect.empty()) {
     fail("The schema does not say which dialect it is written in",
          root_pointer);
   }
 
-  const auto declared{schema.at("$schema").to_string()};
+  const std::string declared{declares ? schema.at("$schema").to_string()
+                                      : std::string{default_dialect}};
 
   // Reading a schema this deep would run out of stack before it could say
   // anything useful, in this module or in what it calls.
@@ -182,15 +200,17 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
   // official spelling, while the document keeps the address the schema gave.
   auto canonical{schema};
   const auto official{official_dialect(declared)};
-  if (official.has_value()) {
+  if (official.has_value() && canonical.is_object()) {
     canonical.assign("$schema",
                      sourcemeta::core::JSON{std::string{official.value()}});
   }
 
+  const std::string dialect{official.has_value() ? std::string{official.value()}
+                                                 : declared};
   std::optional<sourcemeta::core::SchemaFrame> frame;
   try {
     frame.emplace(sourcemeta::core::SchemaFrame::Mode::References, canonical,
-                  walker, resolver);
+                  walker, resolver, dialect);
   } catch (const std::exception &error) {
     fail("The schema could not be read", root_pointer, error.what());
   }
@@ -201,45 +221,56 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
          root_pointer);
   }
 
-  const auto rank{rank_of(root_location->get().base_dialect, root_pointer)};
-
-  // One dialect for the whole document. A resource of its own may declare a
-  // different one, and then a keyword means something else, or nothing at all,
-  // from one part of the schema to the next. `prefixItems` inside a Draft 7
-  // resource is not a rule, and reading it as one would state something the
-  // schema does not say.
-  const auto root_dialect{root_location->get().base_dialect};
-  frame->for_each_subschema([root_dialect](const auto &location) {
-    if (location.base_dialect != root_dialect) {
-      Pointer where;
-      for (const auto &token : location.pointer) {
-        if (token.is_property()) {
-          where.push_back(token.to_property());
-        } else {
-          where.push_back(token.to_index());
-        }
-      }
-
-      fail("This resource is written in a different dialect from the rest of "
-           "the schema, which the format cannot state exactly",
-           where);
-    }
-  });
-
   Context context{.root = canonical,
                   .walker = walker,
                   .resolver = resolver,
                   .frame = frame.value(),
-                  .rank = rank,
+                  .rank =
+                      rank_of(root_location->get().base_dialect, root_pointer),
+                  .ranks = {},
                   .shapes = {},
                   .references = {},
+                  .dynamic_references = {},
+                  .dynamic_anchors = {},
                   .depth = 0};
+
+  // A resource may declare a dialect of its own, and then a keyword means
+  // something else, or nothing at all, from one part of the schema to the
+  // next. `prefixItems` inside a Draft 7 resource is not a rule. So every
+  // subschema is read in the dialect in effect where it sits.
+  frame->for_each_subschema([&context](const auto &location) {
+    auto where{sourcemeta::core::to_pointer(location.pointer)};
+
+    context.ranks.insert_or_assign(sourcemeta::core::to_string(where),
+                                   rank_of(location.base_dialect, where));
+  });
+
   frame->for_each_reference([&context](const auto type,
                                        const auto &reference_pointer,
                                        const auto &reference) {
-    if (type == sourcemeta::core::SchemaReferenceType::Static) {
-      context.references.emplace(sourcemeta::core::to_string(reference_pointer),
-                                 reference.destination);
+    auto &into{type == sourcemeta::core::SchemaReferenceType::Static
+                   ? context.references
+                   : context.dynamic_references};
+    into.emplace(sourcemeta::core::to_string(reference_pointer),
+                 reference.destination);
+  });
+
+  frame->for_each_location([&context](const auto type, const auto &uri,
+                                      const auto &location) {
+    if (type != sourcemeta::core::SchemaReferenceType::Dynamic) {
+      return;
+    }
+
+    const auto hash{uri.find('#')};
+    const std::string name{hash == std::string_view::npos ? std::string_view{}
+                                                          : uri.substr(hash)};
+    auto where{sourcemeta::core::to_pointer(location.pointer)};
+
+    // A resource nested in another is known by more than one address, so the
+    // same place can turn up more than once.
+    auto &places{context.dynamic_anchors[name]};
+    if (std::find(places.cbegin(), places.cend(), where) == places.cend()) {
+      places.push_back(std::move(where));
     }
   });
 

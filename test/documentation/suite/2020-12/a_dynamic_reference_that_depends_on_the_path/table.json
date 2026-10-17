@@ -1,0 +1,81 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "strict",
+        "value": {
+          "kind": "ref",
+          "ref": "/$defs/strict"
+        }
+      },
+      {
+        "name": "loose",
+        "value": {
+          "kind": "ref",
+          "ref": "/$defs/loose"
+        }
+      }
+    ]
+  },
+  "shapes": [
+    {
+      "id": "/$defs/list",
+      "name": "list",
+      "value": {
+        "kind": "array",
+        "item": {
+          "kind": "choice",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": "/$defs/list"
+            },
+            {
+              "kind": "ref",
+              "ref": "/$defs/loose/$defs/entry"
+            },
+            {
+              "kind": "ref",
+              "ref": "/$defs/strict/$defs/entry"
+            }
+          ],
+          "overlap": true
+        }
+      }
+    },
+    {
+      "id": "/$defs/loose",
+      "name": "loose",
+      "value": {
+        "kind": "ref",
+        "ref": "/$defs/list"
+      }
+    },
+    {
+      "id": "/$defs/loose/$defs/entry",
+      "name": "entry",
+      "value": {
+        "kind": "integer"
+      }
+    },
+    {
+      "id": "/$defs/strict",
+      "name": "strict",
+      "value": {
+        "kind": "ref",
+        "ref": "/$defs/list"
+      }
+    },
+    {
+      "id": "/$defs/strict/$defs/entry",
+      "name": "entry",
+      "value": {
+        "kind": "string"
+      }
+    }
+  ]
+}
