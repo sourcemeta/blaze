@@ -7,7 +7,7 @@
     "also": [
       {
         "kind": "object",
-        "fields": [
+        "properties": [
           {
             "name": "a",
             "value": {
@@ -19,7 +19,7 @@
       },
       {
         "kind": "object",
-        "fields": [
+        "properties": [
           {
             "name": "b",
             "required": true

@@ -12,7 +12,7 @@
       "name": "A",
       "value": {
         "kind": "object",
-        "fields": [
+        "properties": [
           {
             "name": "b",
             "value": {

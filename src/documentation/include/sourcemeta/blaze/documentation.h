@@ -12,10 +12,10 @@
 ///
 /// A schema is converted once into the table format, a description of data that
 /// does not depend on any schema language, and a renderer reads that format
-/// instead of the schema. The format states what a reader needs: which fields
-/// there are, what may go in each, and which are required. Every rule it states
-/// holds for the data the schema accepts, and a schema it cannot describe
-/// exactly is refused.
+/// instead of the schema. The format states what a reader needs: which
+/// properties there are, what may go in each, and which are required. Every
+/// rule it states holds for the data the schema accepts, and a schema it cannot
+/// describe exactly is refused.
 
 #ifndef SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT
 #include <sourcemeta/blaze/documentation_export.h>
@@ -65,12 +65,16 @@ constexpr std::string_view DOCUMENTATION_FORMAT{
 /// assert(documentation.at("root").at("kind").to_string() == "string");
 /// ```
 ///
+/// A schema that does not declare its dialect with `$schema` is read as the
+/// given default dialect, if any.
+///
 /// Throws sourcemeta::blaze::DocumentationError when the schema cannot be
 /// described exactly, saying what and where.
 [[nodiscard]] SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT auto
 to_documentation(const sourcemeta::core::JSON &schema,
                  const sourcemeta::core::SchemaWalker &walker,
-                 const sourcemeta::core::SchemaResolver &resolver)
+                 const sourcemeta::core::SchemaResolver &resolver,
+                 const std::string_view default_dialect = "")
     -> sourcemeta::core::JSON;
 
 /// @ingroup documentation

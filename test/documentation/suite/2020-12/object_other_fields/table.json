@@ -4,7 +4,7 @@
   "language": "https://json-schema.org/draft/2020-12/schema",
   "root": {
     "kind": "object",
-    "patternFields": [
+    "patternProperties": [
       {
         "pattern": "^x-",
         "value": {
@@ -12,7 +12,7 @@
         }
       }
     ],
-    "otherFields": {
+    "otherProperties": {
       "kind": "integer"
     },
     "keys": {
@@ -20,7 +20,7 @@
       "pattern": "^[a-z]",
       "otherTypesAllowed": true
     },
-    "fieldCount": {
+    "propertyCount": {
       "min": 1,
       "max": 4
     }
