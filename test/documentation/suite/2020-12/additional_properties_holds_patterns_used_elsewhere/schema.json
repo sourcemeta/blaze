@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "x-own": {
+      "type": "string"
+    }
+  },
+  "anyOf": [
+    {
+      "patternProperties": {
+        "^x-": {
+          "type": "integer"
+        }
+      }
+    }
+  ],
+  "additionalProperties": {
+    "type": "boolean"
+  }
+}

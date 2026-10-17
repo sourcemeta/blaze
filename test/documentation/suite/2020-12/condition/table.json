@@ -8,7 +8,7 @@
       {
         "when": {
           "kind": "object",
-          "fields": [
+          "properties": [
             {
               "name": "kind",
               "value": {
@@ -21,7 +21,7 @@
         },
         "then": {
           "kind": "object",
-          "fields": [
+          "properties": [
             {
               "name": "width",
               "required": true

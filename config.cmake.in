@@ -25,6 +25,9 @@ set(BLAZE_CORE_COMPONENTS
   unicode punycode idna regex uri uritemplate json
   jsonpointer jsonschema jsonld io yaml crypto email ip dns time css
   memory numeric)
+if("documentation" IN_LIST BLAZE_COMPONENTS)
+  list(APPEND BLAZE_CORE_COMPONENTS html)
+endif()
 
 # This installation ships its own copy of Core, and CMake never searches the
 # prefix of the package it is currently resolving, so a consumer that doesn't

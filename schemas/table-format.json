@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "tag:sourcemeta.com,2026:table-format/2",
   "title": "Table format",
-  "description": "A description of data for documentation: which fields there are, what may go in each, and which are required. Independent of the schema language it was converted from.",
+  "description": "A description of data for documentation: which properties there are, what may go in each, and which are required. Independent of the schema language it was converted from.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -234,14 +234,14 @@
           "type": "number",
           "exclusiveMinimum": 0
         },
-        "fields": {
+        "properties": {
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "#/$defs/field"
+            "$ref": "#/$defs/property"
           }
         },
-        "patternFields": {
+        "patternProperties": {
           "type": "array",
           "minItems": 1,
           "items": {
@@ -261,19 +261,19 @@
             }
           }
         },
-        "otherFields": {
+        "otherProperties": {
           "$ref": "#/$defs/value",
-          "description": "What every field that is not named holds."
+          "description": "What every property that is not named holds."
         },
         "closed": {
           "const": true,
-          "description": "Every field must be named."
+          "description": "Every property must be named."
         },
         "keys": {
           "$ref": "#/$defs/value",
-          "description": "What every field name must be."
+          "description": "What every property name must be."
         },
-        "fieldCount": {
+        "propertyCount": {
           "type": "object",
           "additionalProperties": false,
           "minProperties": 1,
@@ -292,11 +292,11 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "field",
+            "property",
             "cases"
           ],
           "properties": {
-            "field": {
+            "property": {
               "type": "string"
             },
             "cases": {
@@ -546,12 +546,12 @@
                 "also",
                 "not",
                 "conditions",
-                "fields",
-                "patternFields",
-                "otherFields",
+                "properties",
+                "patternProperties",
+                "otherProperties",
                 "closed",
                 "keys",
-                "fieldCount",
+                "propertyCount",
                 "discriminator",
                 "otherTypesAllowed"
               ]
@@ -766,7 +766,7 @@
         }
       ]
     },
-    "field": {
+    "property": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -778,11 +778,11 @@
         },
         "required": {
           "const": true,
-          "description": "The field must be present. Absent means it may be left out."
+          "description": "The property must be present. Absent means it may be left out."
         },
         "value": {
           "$ref": "#/$defs/value",
-          "description": "What may go in the field. Absent means nothing is said about it here."
+          "description": "What may go in the property. Absent means nothing is said about it here."
         }
       }
     },
