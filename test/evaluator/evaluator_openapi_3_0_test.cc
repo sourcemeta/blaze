@@ -553,7 +553,7 @@ TEST(format_byte_rejects_non_ascii_with_tweak_fast) {
   EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
                               "");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The string value \"\u00e9AAA\" was expected "
+                               "The string value \"éAAA\" was expected "
                                "to represent a valid RFC 4648 Base64 string");
 }
 

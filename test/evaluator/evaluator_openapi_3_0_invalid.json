@@ -636,10 +636,46 @@
     }
   },
   {
+    "description": "all_of_element_not_a_schema",
+    "schema": { "allOf": [ 5 ] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/allOf"
+    }
+  },
+  {
+    "description": "any_of_not_an_array",
+    "schema": { "anyOf": 5 },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
+  },
+  {
+    "description": "any_of_element_not_a_schema",
+    "schema": { "anyOf": [ 5 ] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
+  },
+  {
+    "description": "one_of_not_an_array",
+    "schema": { "oneOf": 5 },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/oneOf"
+    }
+  },
+  {
     "description": "one_of_element_not_a_schema",
     "schema": { "oneOf": [ 5 ] },
     "error": {
-      "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+      "message": "This keyword was expected to be set to an array of valid schemas",
       "base": "",
       "location": "/oneOf"
     }
