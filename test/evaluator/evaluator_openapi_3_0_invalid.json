@@ -203,7 +203,7 @@
     "error": {
       "message": "This keyword is prohibited by this dialect",
       "base": "",
-      "location": "/properties"
+      "location": "/properties/a/if"
     }
   },
   {
@@ -212,7 +212,7 @@
     "error": {
       "message": "This keyword is prohibited by this dialect",
       "base": "",
-      "location": "/items"
+      "location": "/items/if"
     }
   },
   {
@@ -224,7 +224,7 @@
     "error": {
       "message": "This keyword is prohibited by this dialect",
       "base": "",
-      "location": "/additionalProperties"
+      "location": "/additionalProperties/patternProperties"
     }
   },
   {
@@ -236,7 +236,43 @@
     "error": {
       "message": "This keyword is prohibited by this dialect",
       "base": "",
-      "location": "/properties"
+      "location": "/properties/a/properties/b/if"
+    }
+  },
+  {
+    "description": "unsupported_value_under_type_pruned_items",
+    "schema": { "type": "string", "items": { "type": "null" } },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/items/type"
+    }
+  },
+  {
+    "description": "malformed_nullable_under_type_pruned_properties",
+    "schema": { "type": "string", "properties": { "a": { "nullable": "yes" } } },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/properties/a/nullable"
+    }
+  },
+  {
+    "description": "empty_enum_under_type_pruned_additional_properties",
+    "schema": { "type": "string", "additionalProperties": { "enum": [] } },
+    "error": {
+      "message": "This keyword was expected to be set to a non-empty array of values",
+      "base": "",
+      "location": "/additionalProperties/enum"
+    }
+  },
+  {
+    "description": "prohibited_keyword_under_type_pruned_composition",
+    "schema": { "type": "string", "items": { "allOf": [ { "patternProperties": {} } ] } },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/items/allOf/0/patternProperties"
     }
   },
   {
@@ -262,6 +298,78 @@
     "schema": { "externalDocs": "x" },
     "error": {
       "message": "This keyword was expected to be set to an object",
+      "base": "",
+      "location": "/externalDocs"
+    }
+  },
+  {
+    "description": "discriminator_without_property_name",
+    "schema": { "discriminator": {} },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/discriminator"
+    }
+  },
+  {
+    "description": "discriminator_property_name_not_a_string",
+    "schema": { "discriminator": { "propertyName": 1 } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/discriminator"
+    }
+  },
+  {
+    "description": "discriminator_mapping_value_not_a_string",
+    "schema": { "discriminator": { "propertyName": "petType", "mapping": { "dog": 1 } } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/discriminator"
+    }
+  },
+  {
+    "description": "xml_unknown_member",
+    "schema": { "xml": { "name": "pet", "bogus": true } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/xml"
+    }
+  },
+  {
+    "description": "xml_attribute_not_a_boolean",
+    "schema": { "xml": { "attribute": "yes" } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/xml"
+    }
+  },
+  {
+    "description": "external_docs_without_url",
+    "schema": { "externalDocs": { "description": "docs" } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/externalDocs"
+    }
+  },
+  {
+    "description": "external_docs_url_not_a_string",
+    "schema": { "externalDocs": { "url": 1 } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/externalDocs"
+    }
+  },
+  {
+    "description": "external_docs_unknown_member",
+    "schema": { "externalDocs": { "url": "https://example.com", "bogus": 1 } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
       "base": "",
       "location": "/externalDocs"
     }
@@ -444,6 +552,202 @@
       "message": "This keyword is prohibited by this dialect",
       "base": "",
       "location": "/xfoo"
+    }
+  },
+  {
+    "description": "boolean_true_schema",
+    "schema": true,
+    "error": {
+      "message": "This dialect does not support boolean schemas",
+      "base": "",
+      "location": ""
+    }
+  },
+  {
+    "description": "boolean_false_schema",
+    "schema": false,
+    "error": {
+      "message": "This dialect does not support boolean schemas",
+      "base": "",
+      "location": ""
+    }
+  },
+  {
+    "description": "type_integer",
+    "schema": { "type": 1 },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/type"
+    }
+  },
+  {
+    "description": "type_object",
+    "schema": { "type": {} },
+    "error": {
+      "message": "The value this keyword is set to is not supported by this dialect",
+      "base": "",
+      "location": "/type"
+    }
+  },
+  {
+    "description": "discriminator_mapping_not_an_object",
+    "schema": { "discriminator": { "propertyName": "pet_type", "mapping": [] } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/discriminator"
+    }
+  },
+  {
+    "description": "xml_namespace_not_a_string",
+    "schema": { "xml": { "namespace": 1 } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/xml"
+    }
+  },
+  {
+    "description": "xml_prefix_not_a_string",
+    "schema": { "xml": { "prefix": true } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/xml"
+    }
+  },
+  {
+    "description": "external_docs_description_not_a_string",
+    "schema": { "externalDocs": { "url": "https://example.com", "description": 1 } },
+    "error": {
+      "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+      "base": "",
+      "location": "/externalDocs"
+    }
+  },
+  {
+    "description": "all_of_not_an_array",
+    "schema": { "allOf": 5 },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/allOf"
+    }
+  },
+  {
+    "description": "all_of_element_not_a_schema",
+    "schema": { "allOf": [ 5 ] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/allOf"
+    }
+  },
+  {
+    "description": "any_of_not_an_array",
+    "schema": { "anyOf": 5 },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
+  },
+  {
+    "description": "any_of_element_not_a_schema",
+    "schema": { "anyOf": [ 5 ] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/anyOf"
+    }
+  },
+  {
+    "description": "one_of_not_an_array",
+    "schema": { "oneOf": 5 },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/oneOf"
+    }
+  },
+  {
+    "description": "one_of_element_not_a_schema",
+    "schema": { "oneOf": [ 5 ] },
+    "error": {
+      "message": "This keyword was expected to be set to an array of valid schemas",
+      "base": "",
+      "location": "/oneOf"
+    }
+  },
+  {
+    "description": "title_not_a_string",
+    "schema": { "title": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to a string",
+      "base": "",
+      "location": "/title"
+    }
+  },
+  {
+    "description": "description_not_a_string",
+    "schema": { "description": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to a string",
+      "base": "",
+      "location": "/description"
+    }
+  },
+  {
+    "description": "format_not_a_string",
+    "schema": { "format": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to a string",
+      "base": "",
+      "location": "/format"
+    }
+  },
+  {
+    "description": "read_only_not_a_boolean",
+    "schema": { "readOnly": "yes" },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/readOnly"
+    }
+  },
+  {
+    "description": "write_only_not_a_boolean",
+    "schema": { "writeOnly": 1 },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/writeOnly"
+    }
+  },
+  {
+    "description": "deprecated_not_a_boolean",
+    "schema": { "deprecated": "no" },
+    "error": {
+      "message": "This keyword was expected to be set to a boolean",
+      "base": "",
+      "location": "/deprecated"
+    }
+  },
+  {
+    "description": "nested_dialect_declaration_is_prohibited",
+    "schema": {
+      "properties": {
+        "foo": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "string"
+        }
+      }
+    },
+    "error": {
+      "message": "This keyword is prohibited by this dialect",
+      "base": "",
+      "location": "/properties/foo/$schema"
     }
   }
 ]

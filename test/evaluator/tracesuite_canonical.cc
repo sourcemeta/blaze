@@ -29,15 +29,20 @@ auto declared_dialect(const sourcemeta::core::JSON &schema)
 }
 
 auto run_canonicalize_test(const sourcemeta::core::JSON &data,
-                           const sourcemeta::blaze::Mode mode) -> void {
+                           const sourcemeta::blaze::Mode mode,
+                           const std::string &default_dialect) -> void {
   auto schema{data.at("schema")};
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
 
   // Canonicalisation can collapse an unsatisfiable schema into a boolean,
   // which has no room for the dialect the document declares, so hold on to
-  // that dialect for the compilation that follows
-  const auto dialect{declared_dialect(schema)};
+  // that dialect for the compilation that follows. A dialect that forbids
+  // self-identification only arrives from the outside
+  auto dialect{declared_dialect(schema)};
+  if (dialect.empty()) {
+    dialect = default_dialect;
+  }
 
   sourcemeta::blaze::canonicalize(schema, sourcemeta::core::schema_walker,
                                   sourcemeta::core::schema_resolver, dialect);
@@ -60,7 +65,8 @@ auto run_canonicalize_test(const sourcemeta::core::JSON &data,
 } // namespace
 
 static auto register_tests(const std::filesystem::path &path,
-                           const std::string &suite_name) -> void {
+                           const std::string &suite_name,
+                           const std::string &default_dialect = "") -> void {
   // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
   auto suite{sourcemeta::core::read_json(path)};
@@ -79,16 +85,29 @@ static auto register_tests(const std::filesystem::path &path,
 
       const auto title{description + mode_suffix};
 
-      sourcemeta::core::test_register(suite_name, title, __FILE__, __LINE__,
-                                      [test_case, mode]() -> void {
-                                        run_canonicalize_test(test_case, mode);
-                                      });
+      sourcemeta::core::test_register(
+          suite_name, title, __FILE__, __LINE__,
+          [test_case, mode, default_dialect]() -> void {
+            run_canonicalize_test(test_case, mode, default_dialect);
+          });
     }
   }
 }
 
 auto main(int argc, char **argv) -> int {
   try {
+    // The two dated OpenAPI 3.0 dialects answer with the same Schema Object
+    // definition, so one suite says what both of them mean
+    for (const auto &[label, dialect] :
+         {std::pair<const char *, const char *>{
+              "2024_10_18", "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect"},
+          std::pair<const char *, const char *>{
+              "2021_09_28",
+              "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect"}}) {
+      register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
+                         "evaluator_openapi_3_0.json",
+                     std::string{"Canonicalize_OpenAPI_3_0_"} + label, dialect);
+    }
     register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
                        "evaluator_openapi_3_1.json",
                    "Canonicalize_OpenAPI_3_1");
