@@ -1,0 +1,101 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "nested": {
+        "type": "object",
+        "properties": {
+          "deep": {
+            "type": "object",
+            "properties": { "value": { "type": "boolean" } },
+            "additionalProperties": false,
+            "required": [ "value" ]
+          }
+        }
+      }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "nested": { "$ref": "#/definitions/1" } },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "1": {
+        "type": "object",
+        "properties": { "deep": { "$ref": "#/definitions/2" } },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "2": {
+        "type": "object",
+        "properties": { "value": { "$ref": "#/definitions/3" } },
+        "additionalProperties": false,
+        "required": [ "value" ],
+        "patternProperties": {},
+        "minProperties": 1
+      },
+      "3": { "enum": [ false, true ] }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "deep": 1 },
+    { "deep": "x" },
+    { "deep": {}, "nested": {}, "value": {} },
+    { "deep": { "deep": "x" } },
+    { "nested": {} },
+    { "deep": {} },
+    { "value": true },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "deep": "other" },
+    { "value": 1, "deep": "other" },
+    { "value": "other" },
+    { "nested": { "deep": { "value": true } } }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    { "deep": 1, "nested": 1, "value": 1 },
+    { "deep": "x", "nested": "x", "value": "x" },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "nested": "other" },
+    { "value": 1, "nested": "other" },
+    { "nested": { "deep": "other" } },
+    { "nested": { "deep": { "value": "other" } } }
+  ]
+}

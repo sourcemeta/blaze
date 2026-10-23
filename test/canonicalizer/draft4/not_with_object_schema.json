@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "not": { "type": "object", "required": [ "forbidden" ] }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": { "not": { "$ref": "#/definitions/1" } },
+      "1": {
+        "type": "object",
+        "required": [ "forbidden" ],
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "forbidden": { "$ref": "#/definitions/2" } },
+        "additionalProperties": true
+      },
+      "2": {}
+    }
+  },
+  "examples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" }
+  ],
+  "counterExamples": [
+    { "forbidden": 1 },
+    { "forbidden": "x" },
+    { "forbidden": {} },
+    { "forbidden": { "forbidden": "x" } }
+  ]
+}

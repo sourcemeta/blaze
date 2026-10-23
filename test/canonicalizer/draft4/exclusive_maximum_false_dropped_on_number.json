@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "number",
+    "maximum": 10,
+    "exclusiveMaximum": false
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": { "type": "number", "maximum": 10 } }
+  },
+  "examples": [ 0, 1, -1, 2, 3, 5, 10, 1.5, 0.5, -1.5, 9 ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    11,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    [ 10 ],
+    [ 10, 10 ],
+    [ 11 ],
+    [ 11, 11 ],
+    [ 9 ],
+    [ 9, 9 ],
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" }
+  ]
+}

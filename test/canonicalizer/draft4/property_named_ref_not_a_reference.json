@@ -1,0 +1,82 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": { "$ref": { "type": "string" } },
+    "not": { "required": [ "admin" ] }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/4" }
+        ]
+      },
+      "1": { "not": { "$ref": "#/definitions/2" } },
+      "2": {
+        "required": [ "admin" ],
+        "type": "object",
+        "patternProperties": {},
+        "minProperties": 1,
+        "properties": { "admin": { "$ref": "#/definitions/3" } },
+        "additionalProperties": true
+      },
+      "3": {},
+      "4": {
+        "type": "object",
+        "properties": { "$ref": { "$ref": "#/definitions/5" } },
+        "patternProperties": {},
+        "minProperties": 0,
+        "additionalProperties": true
+      },
+      "5": { "type": "string", "minLength": 0 }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "$ref": "x" },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    { "$ref": 1, "admin": 1 },
+    { "$ref": 1 },
+    { "$ref": "x", "admin": "x" },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "$ref": {}, "admin": {} },
+    { "$ref": { "$ref": "x" } },
+    { "$ref": -1 },
+    { "admin": 1, "$ref": -1 }
+  ]
+}

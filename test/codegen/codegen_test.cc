@@ -361,7 +361,9 @@ TEST(unsupported_keyword_error_draft4_empty_enum) {
   } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &error) {
     EXPECT_STREQ(error.what(), "Unsupported keyword in subschema");
     EXPECT_EQ(error.keyword(), "not");
-    EXPECT_AS_STRING(error.pointer(), "");
+    // Draft 4 canonicalises into its graph form, so the subschema that cannot
+    // be generated is an entry rather than the root
+    EXPECT_AS_STRING(error.pointer(), "/definitions/0");
   }
 }
 
@@ -452,4 +454,24 @@ TEST(required_property_not_in_properties_open) {
                           "  \"bar\": SchemaBar;\n"
                           "  [key: string]: unknown | undefined;\n"
                           "}\n");
+}
+
+TEST(draft4_graph_form_generates) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string"
+  })JSON")};
+
+  // Draft 4 canonicalises into its graph form, so what reaches codegen is a
+  // wrapper over one `definitions` entry rather than the schema as written.
+  // Generating from it means the `definitions` container is understood and the
+  // references into it are followed
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, sourcemeta::blaze::default_compiler)};
+
+  using namespace sourcemeta::blaze;
+
+  EXPECT_EQ(result.size(), 3);
+  EXPECT_IR_SCALAR(result, 0, String, "/definitions/0");
 }
