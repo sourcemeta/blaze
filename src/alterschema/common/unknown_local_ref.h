@@ -46,10 +46,12 @@ public:
         !frame.traverse(reference_entry->get().destination).has_value());
 
     // Where the reference leads has to be this document for it to be local at
-    // all. An empty base is a fragment alone, so it never left. Otherwise the
-    // base is either the one this schema already resolves against, or one
-    // that names a resource the document holds, such as an embedded
-    // identifier.
+    // all. An empty base is a destination that names no document of its own,
+    // which is how a reference spelled as a fragment alone or as nothing at
+    // all resolves in a schema that has no base URI, so it never left.
+    // Otherwise the base is either the one this schema already resolves
+    // against, or one that names a resource the document holds, such as an
+    // embedded identifier.
     //
     // A wrapper format puts the schemas it holds below a root that is no
     // schema resource of its own, so nothing framed ever answers to the

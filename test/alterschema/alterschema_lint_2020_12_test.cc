@@ -24,6 +24,24 @@ TEST(local_ref_to_unknown_location) {
   EXPECT_EQ(document, expected);
 }
 
+TEST(empty_ref_names_the_document_itself) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": ""
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": ""
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
 TEST(local_ref_to_unknown_location_with_id) {
   sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$id": "https://www.example.com",
