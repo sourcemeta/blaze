@@ -7,6 +7,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     canonicalizer_draft2_test.cc
     canonicalizer_draft1_test.cc
     canonicalizer_draft0_test.cc
+    canonicalizer_openapi_3_0_test.cc
     canonicalizer_test_utils.h)
 
 target_link_libraries(sourcemeta_blaze_canonicalizer_unit

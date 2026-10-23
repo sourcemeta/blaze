@@ -133,4 +133,22 @@ static auto canonicalizer_test_resolver(std::string_view identifier)
     EXPECT_EQ(_again, document);                                               \
   }
 
+// A dialect that forbids identifying itself cannot say which one it is from
+// inside the document, so it arrives from the outside instead
+#define CANONICALIZE_WITH_DIALECT_AND_VALIDATE(                                \
+    document, expected, default_dialect, compiled_template)                    \
+  {                                                                            \
+    sourcemeta::blaze::canonicalize(document, sourcemeta::core::schema_walker, \
+                                    canonicalizer_test_resolver,               \
+                                    (default_dialect));                        \
+    EXPECT_EQ(document, expected);                                             \
+    sourcemeta::blaze::Evaluator _evaluator;                                   \
+    EXPECT_TRUE(_evaluator.validate(compiled_template, document));             \
+    auto _again{document};                                                     \
+    sourcemeta::blaze::canonicalize(_again, sourcemeta::core::schema_walker,   \
+                                    canonicalizer_test_resolver,               \
+                                    (default_dialect));                        \
+    EXPECT_EQ(_again, document);                                               \
+  }
+
 #endif

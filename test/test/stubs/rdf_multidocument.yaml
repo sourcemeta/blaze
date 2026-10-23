@@ -1,0 +1,9 @@
+- "@type":
+    - "https://schema.org/Person"
+  "https://schema.org/name":
+    - "@value": "Ada"
+---
+- "@type":
+    - "https://schema.org/Person"
+  "https://schema.org/name":
+    - "@value": "Grace"
