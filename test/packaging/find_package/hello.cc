@@ -1,4 +1,5 @@
 #include <sourcemeta/blaze/alterschema.h>
+#include <sourcemeta/blaze/binpack.h>
 #include <sourcemeta/blaze/codegen.h>
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/configuration.h>
@@ -14,6 +15,7 @@
 
 #include <cstdlib>  // EXIT_SUCCESS
 #include <iostream> // std::cerr
+#include <sstream>  // std::ostringstream
 
 auto main() -> int {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -64,6 +66,20 @@ auto main() -> int {
   sourcemeta::blaze::convert(convert_schema, sourcemeta::core::schema_walker,
                              sourcemeta::core::schema_resolver,
                              sourcemeta::blaze::ConvertTarget::Draft202012);
+
+  auto binpack_schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer",
+    "minimum": -100,
+    "maximum": 100
+  })JSON")};
+  sourcemeta::blaze::binpack_compile(binpack_schema,
+                                     sourcemeta::core::schema_walker,
+                                     sourcemeta::core::schema_resolver);
+  const auto binpack_encoding{sourcemeta::blaze::binpack_load(binpack_schema)};
+  std::ostringstream binpack_output;
+  sourcemeta::blaze::BinPackEncoder binpack_encoder{binpack_output};
+  binpack_encoder.write(sourcemeta::core::JSON{5}, binpack_encoding);
 
   return EXIT_SUCCESS;
 }

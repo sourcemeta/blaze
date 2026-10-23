@@ -65,22 +65,27 @@ CMake
 
 ### Options
 
-| Option                      | Type    | Default | Description                             |
-|-----------------------------|---------|---------|-----------------------------------------|
-| `BLAZE_COMPILER`            | Boolean | `ON`    | Build the Blaze compiler library        |
-| `BLAZE_EVALUATOR`           | Boolean | `ON`    | Build the Blaze evaluator library       |
-| `BLAZE_TEST`                | Boolean | `ON`    | Build the Blaze test runner library     |
-| `BLAZE_ALTERSCHEMA`         | Boolean | `ON`    | Build the Blaze alterschema rule library|
-| `BLAZE_DOCUMENTATION`       | Boolean | `ON`    | Build the Blaze documentation library   |
-| `BLAZE_EDITOR`              | Boolean | `ON`    | Build the Blaze editor library          |
-| `BLAZE_DEPENDENCIES`        | Boolean | `ON`    | Build the Blaze dependencies library    |
-| `BLAZE_TESTS`               | Boolean | `OFF`   | Build the Blaze tests                   |
-| `BLAZE_BENCHMARK`           | Boolean | `OFF`   | Build the Blaze benchmarks              |
-| `BLAZE_CONTRIB`             | Boolean | `OFF`   | Build the Blaze contrib programs        |
-| `BLAZE_DOCS`                | Boolean | `OFF`   | Build the Blaze docs                    |
-| `BLAZE_INSTALL`             | Boolean | `ON`    | Install the Blaze library               |
-| `BLAZE_ADDRESS_SANITIZER`   | Boolean | `OFF`   | Enable the address sanitizer            |
-| `BLAZE_UNDEFINED_SANITIZER` | Boolean | `OFF`   | Enable the undefined behavior sanitizer |
+| Option                      | Type    | Default | Description                                         |
+|-----------------------------|---------|---------|-----------------------------------------------------|
+| `BLAZE_COMPILER`            | Boolean | `ON`    | Build the Blaze compiler library                    |
+| `BLAZE_EVALUATOR`           | Boolean | `ON`    | Build the Blaze evaluator library                   |
+| `BLAZE_OUTPUT`              | Boolean | `ON`    | Build the Blaze output formats library              |
+| `BLAZE_TEST`                | Boolean | `ON`    | Build the Blaze test runner library                 |
+| `BLAZE_CONFIGURATION`       | Boolean | `ON`    | Build the Blaze configuration file library          |
+| `BLAZE_ALTERSCHEMA`         | Boolean | `ON`    | Build the Blaze alterschema rule library            |
+| `BLAZE_CODEGEN`             | Boolean | `ON`    | Build the Blaze codegen library                     |
+| `BLAZE_CANONICALIZER`       | Boolean | `ON`    | Build the Blaze canonicalizer library               |
+| `BLAZE_CONVERT`             | Boolean | `ON`    | Build the Blaze convert library                     |
+| `BLAZE_EDITOR`              | Boolean | `ON`    | Build the Blaze editor schema compatibility library |
+| `BLAZE_DEPENDENCIES`        | Boolean | `ON`    | Build the Blaze dependencies library                |
+| `BLAZE_BINPACK`             | Boolean | `ON`    | Build the Blaze BinPack serialization library       |
+| `BLAZE_TESTS`               | Boolean | `OFF`   | Build the Blaze tests                               |
+| `BLAZE_BENCHMARK`           | Boolean | `OFF`   | Build the Blaze benchmarks                          |
+| `BLAZE_CONTRIB`             | Boolean | `OFF`   | Build the Blaze contrib programs                    |
+| `BLAZE_DOCS`                | Boolean | `OFF`   | Build the Blaze docs                                |
+| `BLAZE_INSTALL`             | Boolean | `ON`    | Install the Blaze library                           |
+| `BLAZE_ADDRESS_SANITIZER`   | Boolean | `OFF`   | Enable the address sanitizer                        |
+| `BLAZE_UNDEFINED_SANITIZER` | Boolean | `OFF`   | Enable the undefined behavior sanitizer             |
 
 ### Components
 

@@ -1,0 +1,70 @@
+#include <cstddef> // std::byte
+#include <vector>  // std::vector
+
+#include <sourcemeta/blaze/binpack.h>
+
+#include <sourcemeta/core/io.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/test.h>
+TEST(FIXED_TYPED_ARBITRARY_OBJECT__no_length_string__integer) {
+  using namespace sourcemeta::blaze;
+  const sourcemeta::core::JSON document =
+      sourcemeta::core::parse_json(R"JSON({"foo":1,"bar":2})JSON");
+  sourcemeta::core::OutputByteStream stream{};
+
+  BinPackEncoder encoder{stream};
+  encoder.FIXED_TYPED_ARBITRARY_OBJECT(
+      document,
+      {.size = 2,
+       .key_encoding =
+           std::make_shared<BinPackEncoding>(UTF8_STRING_NO_LENGTH{3}),
+       .encoding =
+           std::make_shared<BinPackEncoding>(BOUNDED_MULTIPLE_8BITS_ENUM_FIXED{
+               .minimum = 0, .maximum = 10, .multiplier = 1})});
+
+  // Deal with object property non-determinism
+  if (document.as_object().cbegin()->first == "foo") {
+    EXPECT_EQ(stream.bytes(),
+              (std::vector<std::byte>{std::byte{0x66}, std::byte{0x6f},
+                                      std::byte{0x6f}, std::byte{0x01},
+                                      std::byte{0x62}, std::byte{0x61},
+                                      std::byte{0x72}, std::byte{0x02}}));
+  } else {
+    EXPECT_EQ(stream.bytes(),
+              (std::vector<std::byte>{std::byte{0x62}, std::byte{0x61},
+                                      std::byte{0x72}, std::byte{0x02},
+                                      std::byte{0x66}, std::byte{0x6f},
+                                      std::byte{0x6f}, std::byte{0x01}}));
+  }
+}
+
+TEST(VARINT_TYPED_ARBITRARY_OBJECT__no_length_string__integer) {
+  using namespace sourcemeta::blaze;
+  const sourcemeta::core::JSON document =
+      sourcemeta::core::parse_json(R"JSON({"foo":1,"bar":2})JSON");
+  sourcemeta::core::OutputByteStream stream{};
+
+  BinPackEncoder encoder{stream};
+  encoder.VARINT_TYPED_ARBITRARY_OBJECT(
+      document,
+      {.key_encoding =
+           std::make_shared<BinPackEncoding>(UTF8_STRING_NO_LENGTH{3}),
+       .encoding =
+           std::make_shared<BinPackEncoding>(BOUNDED_MULTIPLE_8BITS_ENUM_FIXED{
+               .minimum = 0, .maximum = 10, .multiplier = 1})});
+
+  // Deal with object property non-determinism
+  if (document.as_object().cbegin()->first == "foo") {
+    EXPECT_EQ(stream.bytes(),
+              (std::vector<std::byte>{
+                  std::byte{0x02}, std::byte{0x66}, std::byte{0x6f},
+                  std::byte{0x6f}, std::byte{0x01}, std::byte{0x62},
+                  std::byte{0x61}, std::byte{0x72}, std::byte{0x02}}));
+  } else {
+    EXPECT_EQ(stream.bytes(),
+              (std::vector<std::byte>{
+                  std::byte{0x02}, std::byte{0x62}, std::byte{0x61},
+                  std::byte{0x72}, std::byte{0x02}, std::byte{0x66},
+                  std::byte{0x6f}, std::byte{0x6f}, std::byte{0x01}}));
+  }
+}

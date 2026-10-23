@@ -1,0 +1,74 @@
+#include <sourcemeta/blaze/binpack.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/test.h>
+
+#include <variant>
+
+TEST(BOUNDED_MULTIPLE_8BITS_ENUM_FIXED_positive) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "BOUNDED_MULTIPLE_8BITS_ENUM_FIXED",
+    "binpackOptions": {
+      "minimum": 0,
+      "maximum": 100,
+      "multiplier": 2
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(
+      std::holds_alternative<BOUNDED_MULTIPLE_8BITS_ENUM_FIXED>(result));
+  EXPECT_EQ(std::get<BOUNDED_MULTIPLE_8BITS_ENUM_FIXED>(result).minimum, 0);
+  EXPECT_EQ(std::get<BOUNDED_MULTIPLE_8BITS_ENUM_FIXED>(result).maximum, 100);
+  EXPECT_EQ(std::get<BOUNDED_MULTIPLE_8BITS_ENUM_FIXED>(result).multiplier, 2);
+}
+
+TEST(FLOOR_MULTIPLE_ENUM_VARINT_positive) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "FLOOR_MULTIPLE_ENUM_VARINT",
+    "binpackOptions": {
+      "minimum": 0,
+      "multiplier": 2
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(std::holds_alternative<FLOOR_MULTIPLE_ENUM_VARINT>(result));
+  EXPECT_EQ(std::get<FLOOR_MULTIPLE_ENUM_VARINT>(result).minimum, 0);
+  EXPECT_EQ(std::get<FLOOR_MULTIPLE_ENUM_VARINT>(result).multiplier, 2);
+}
+
+TEST(ROOF_MULTIPLE_MIRROR_ENUM_VARINT_positive) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "ROOF_MULTIPLE_MIRROR_ENUM_VARINT",
+    "binpackOptions": {
+      "maximum": 100,
+      "multiplier": 2
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(std::holds_alternative<ROOF_MULTIPLE_MIRROR_ENUM_VARINT>(result));
+  EXPECT_EQ(std::get<ROOF_MULTIPLE_MIRROR_ENUM_VARINT>(result).maximum, 100);
+  EXPECT_EQ(std::get<ROOF_MULTIPLE_MIRROR_ENUM_VARINT>(result).multiplier, 2);
+}
+
+TEST(ARBITRARY_MULTIPLE_ZIGZAG_VARINT_unit_multiplier) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "ARBITRARY_MULTIPLE_ZIGZAG_VARINT",
+    "binpackOptions": {
+      "multiplier": 1
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(std::holds_alternative<ARBITRARY_MULTIPLE_ZIGZAG_VARINT>(result));
+  EXPECT_EQ(std::get<ARBITRARY_MULTIPLE_ZIGZAG_VARINT>(result).multiplier, 1);
+}
