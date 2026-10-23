@@ -49,11 +49,16 @@ public:
     ONLY_CONTINUE_IF(
         !frame.traverse(reference_entry->get().destination).has_value());
 
-    // If there is a base beyond the fragment, the base must exist.
-    // Otherwise it is likely an external reference?
+    // If there is a base beyond the fragment, the reference stays local when
+    // that base is the one this schema already resolves against, or when the
+    // document holds a resource that answers to it. A wrapper format puts the
+    // schemas it holds below a root that is no schema resource of its own, so
+    // nothing framed answers to the document's base even though the fragment
+    // is all that leads nowhere
     const auto &reference_base{reference_entry->get().base};
     if (!reference_base.empty()) {
-      ONLY_CONTINUE_IF(frame.traverse(reference_base).has_value());
+      ONLY_CONTINUE_IF(reference_base == location.base ||
+                       frame.traverse(reference_base).has_value());
     }
 
     return applies_to_keywords(KEYWORD);

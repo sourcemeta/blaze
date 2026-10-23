@@ -253,6 +253,51 @@ TEST(valid_with_dataPath_yaml) {
   EXPECT_EQ(result.position, STUB_POSITION);
 }
 
+TEST(error_dataPath_with_more_than_one_document) {
+  const auto *const input{R"JSON({
+    "dataPath": "data_multidocument.yaml",
+    "valid": true
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The file referenced by the test case `dataPath` property "
+                 "must hold a single document");
+  }
+}
+
+TEST(error_rdfPath_with_more_than_one_document) {
+  const auto *const input{R"JSON({
+    "data": { "name": "Ada" },
+    "valid": true,
+    "rdfPath": "rdf_multidocument.yaml"
+  })JSON"};
+
+  sourcemeta::core::PointerPositionTracker tracker;
+  sourcemeta::core::JSON document{nullptr};
+  sourcemeta::core::parse_json(input, document, std::ref(tracker));
+
+  try {
+    sourcemeta::blaze::TestCase::parse(
+        document, tracker, std::filesystem::path{STUBS_PATH},
+        sourcemeta::core::EMPTY_POINTER, STUB_POSITION);
+    FAIL();
+  } catch (const sourcemeta::blaze::TestParseError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The file referenced by the test case `rdfPath` property "
+                 "must hold a single document");
+  }
+}
+
 TEST(valid_with_dataPath_and_description) {
   const auto *const input{R"JSON({
     "dataPath": "data.json",
