@@ -843,3 +843,52 @@ TEST(unresolvable_reference_out_of_the_wrapper_stays_external) {
   EXPECT_EQ(std::get<3>(traces.at(0)).locations.size(), 1);
   EXPECT_FALSE(std::get<3>(traces.at(0)).description.has_value());
 }
+
+TEST(fragmentless_reference_to_the_wrapper_root_is_local) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Person": {
+          "title": "Person",
+          "description": "A person in the store",
+          "examples": [ { "pet": "Rex" } ],
+          "type": "object",
+          "properties": {
+            "spelled_out": { "$ref": "https://example.com/openapi.json" },
+            "as_a_fragment": { "$ref": "#" }
+          }
+        }
+      }
+    }
+  })JSON");
+
+  const sourcemeta::core::Pointer person{"components", "schemas", "Person"};
+  const sourcemeta::core::SchemaFrame::Paths paths{
+      sourcemeta::core::to_weak_pointer(person)};
+
+  LINT_EMBEDDED_WITHOUT_FIX(document, paths, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(result.second, 34);
+  EXPECT_EQ(traces.size(), 2);
+
+  EXPECT_LINT_TRACE(traces, 0,
+                    "/components/schemas/Person/properties/as_a_fragment",
+                    "unknown_local_ref",
+                    "Local references that point to unknown locations are "
+                    "invalid and will result in evaluation failures",
+                    true);
+  EXPECT_EQ(std::get<3>(traces.at(0)).locations.size(), 1);
+  EXPECT_FALSE(std::get<3>(traces.at(0)).description.has_value());
+
+  EXPECT_LINT_TRACE(traces, 1,
+                    "/components/schemas/Person/properties/spelled_out",
+                    "unknown_local_ref",
+                    "Local references that point to unknown locations are "
+                    "invalid and will result in evaluation failures",
+                    true);
+  EXPECT_EQ(std::get<3>(traces.at(1)).locations.size(), 1);
+  EXPECT_FALSE(std::get<3>(traces.at(1)).description.has_value());
+}

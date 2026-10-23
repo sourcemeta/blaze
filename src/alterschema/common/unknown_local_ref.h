@@ -41,25 +41,27 @@ public:
         frame.reference(SchemaReferenceType::Static, keyword_pointer)};
     ONLY_CONTINUE_IF(reference_entry.has_value());
 
-    // If the keyword has no fragment, continue
-    const auto &reference_fragment{reference_entry->get().fragment};
-    ONLY_CONTINUE_IF(reference_fragment.has_value());
-
     // Only continue if the reference target does not exist
     ONLY_CONTINUE_IF(
         !frame.traverse(reference_entry->get().destination).has_value());
 
-    // If there is a base beyond the fragment, the reference stays local when
-    // that base is the one this schema already resolves against, or when the
-    // document holds a resource that answers to it. A wrapper format puts the
-    // schemas it holds below a root that is no schema resource of its own, so
-    // nothing framed answers to the document's base even though the fragment
-    // is all that leads nowhere
+    // Where the reference leads has to be this document for it to be local at
+    // all. An empty base is a fragment alone, so it never left. Otherwise the
+    // base is either the one this schema already resolves against, or one
+    // that names a resource the document holds, such as an embedded
+    // identifier.
+    //
+    // A wrapper format puts the schemas it holds below a root that is no
+    // schema resource of its own, so nothing framed ever answers to the
+    // document's own base. A reference to that base never left the document
+    // all the same, which is why it is compared before the frame is asked. A
+    // reference spelled without a fragment reaches here for that case alone,
+    // as its destination is its base, and a base the frame knows would have
+    // been found as the destination just above
     const auto &reference_base{reference_entry->get().base};
-    if (!reference_base.empty()) {
-      ONLY_CONTINUE_IF(reference_base == location.base ||
-                       frame.traverse(reference_base).has_value());
-    }
+    ONLY_CONTINUE_IF(reference_base.empty() ||
+                     reference_base == location.base ||
+                     frame.traverse(reference_base).has_value());
 
     return applies_to_keywords(KEYWORD);
   }
