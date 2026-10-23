@@ -13,6 +13,7 @@ TEST(invalid_encoding_name) {
     sourcemeta::blaze::binpack_load(input);
     FAIL();
   } catch (const sourcemeta::blaze::BinPackEncodingError &error) {
-    EXPECT_STREQ(error.what(), "Unrecognized encoding: FOO_BAR");
+    EXPECT_STREQ(error.what(), "The encoding is not recognized");
+    EXPECT_EQ(error.name(), "FOO_BAR");
   }
 }

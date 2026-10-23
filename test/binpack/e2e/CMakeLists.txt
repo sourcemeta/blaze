@@ -1,8 +1,5 @@
 add_executable(blaze_binpack_e2e_runner runner.cc)
 sourcemeta_add_default_options(PRIVATE blaze_binpack_e2e_runner)
-target_link_libraries(blaze_binpack_e2e_runner PRIVATE sourcemeta::core::json)
-target_link_libraries(blaze_binpack_e2e_runner PRIVATE sourcemeta::core::jsonschema)
-target_link_libraries(blaze_binpack_e2e_runner PRIVATE sourcemeta::core::io)
 target_link_libraries(blaze_binpack_e2e_runner PRIVATE sourcemeta::core::options)
 target_link_libraries(blaze_binpack_e2e_runner PRIVATE sourcemeta::blaze::binpack)
 set_target_properties(blaze_binpack_e2e_runner

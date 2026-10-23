@@ -1,6 +1,7 @@
 sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME binpack
   FOLDER "Blaze/BinPack"
   PRIVATE_HEADERS
+    error.h
     decoder.h
     encoder.h
     input_stream.h

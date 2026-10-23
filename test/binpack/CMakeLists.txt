@@ -35,10 +35,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME binpack
     binpack_2020_12_compiler_number_test.cc)
 
 target_link_libraries(sourcemeta_blaze_binpack_unit
-  PRIVATE sourcemeta::core::json)
-target_link_libraries(sourcemeta_blaze_binpack_unit
-  PRIVATE sourcemeta::core::jsonschema)
-target_link_libraries(sourcemeta_blaze_binpack_unit
   PRIVATE sourcemeta::blaze::binpack)
 
 set_tests_properties(blaze.binpack PROPERTIES TIMEOUT 60)

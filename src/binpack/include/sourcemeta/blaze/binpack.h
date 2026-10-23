@@ -10,6 +10,7 @@
 #include <sourcemeta/blaze/binpack_encoder.h>
 #include <sourcemeta/blaze/binpack_encoder_cache.h>
 #include <sourcemeta/blaze/binpack_encoding.h>
+#include <sourcemeta/blaze/binpack_error.h>
 #include <sourcemeta/blaze/binpack_input_stream.h>
 #include <sourcemeta/blaze/binpack_output_stream.h>
 // NOLINTEND(misc-include-cleaner)
@@ -17,9 +18,7 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <exception>   // std::exception
 #include <string_view> // std::string_view
-#include <utility>     // std::move
 
 /// @defgroup binpack BinPack
 /// @brief A space-efficient binary JSON serialization format based on JSON
@@ -170,33 +169,6 @@ auto binpack_canonicalize(sourcemeta::core::JSON &schema,
 /// Load an encoding schema into its in-memory representation
 SOURCEMETA_BLAZE_BINPACK_EXPORT
 auto binpack_load(const sourcemeta::core::JSON &input) -> BinPackEncoding;
-
-// Exporting symbols that depends on the standard C++ library is considered
-// safe.
-// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
-#if defined(_MSC_VER)
-#pragma warning(disable : 4251 4275)
-#endif
-
-/// @ingroup binpack
-/// This class represents an encoding error
-class SOURCEMETA_BLAZE_BINPACK_EXPORT BinPackEncodingError
-    : public std::exception {
-public:
-  BinPackEncodingError(sourcemeta::core::JSON::String message)
-      : message_{std::move(message)} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_.c_str();
-  }
-
-private:
-  sourcemeta::core::JSON::String message_;
-};
-
-#if defined(_MSC_VER)
-#pragma warning(default : 4251 4275)
-#endif
 
 } // namespace sourcemeta::blaze
 

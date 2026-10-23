@@ -6,9 +6,7 @@
 #include "loader_v1_number.h"
 #include "loader_v1_string.h"
 
-#include <cassert>   // assert
-#include <sstream>   // std::ostringstream
-#include <stdexcept> // std::runtime_error
+#include <cassert> // assert
 
 namespace sourcemeta::blaze {
 
@@ -53,9 +51,7 @@ auto binpack_load(const sourcemeta::core::JSON &input) -> BinPackEncoding {
 
 #undef PARSE_ENCODING
 
-  std::ostringstream error;
-  error << "Unrecognized encoding: " << encoding;
-  throw BinPackEncodingError(error.str());
+  throw BinPackEncodingError(encoding);
 }
 
 } // namespace sourcemeta::blaze
