@@ -1,0 +1,61 @@
+#include <sourcemeta/blaze/binpack.h>
+
+#include <sourcemeta/core/io.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/test.h>
+
+TEST(FIXED_TYPED_ARBITRARY_OBJECT__no_length_string__integer) {
+  using namespace sourcemeta::blaze;
+  sourcemeta::core::InputByteStream stream{
+      0x66, 0x6f, 0x6f, // "foo"
+      0x01,             // 1
+      0x62, 0x61, 0x72, // "bar"
+      0x02              // 2
+  };
+  BinPackDecoder decoder{stream};
+  const auto result = decoder.FIXED_TYPED_ARBITRARY_OBJECT(
+      {.size = 2,
+       .key_encoding =
+           std::make_shared<BinPackEncoding>(UTF8_STRING_NO_LENGTH{3}),
+       .encoding =
+           std::make_shared<BinPackEncoding>(BOUNDED_MULTIPLE_8BITS_ENUM_FIXED{
+               .minimum = 0, .maximum = 10, .multiplier = 1})});
+  EXPECT_TRUE(result.is_object());
+  EXPECT_EQ(result.size(), 2);
+  EXPECT_TRUE(result.defines("foo"));
+  EXPECT_TRUE(result.defines("bar"));
+  const auto &foo{result.at("foo")};
+  const auto &bar{result.at("bar")};
+  EXPECT_TRUE(foo.is_integer());
+  EXPECT_TRUE(bar.is_integer());
+  EXPECT_EQ(foo.to_integer(), 1);
+  EXPECT_EQ(bar.to_integer(), 2);
+}
+
+TEST(VARINT_TYPED_ARBITRARY_OBJECT__no_length_string__integer) {
+  using namespace sourcemeta::blaze;
+  sourcemeta::core::InputByteStream stream{
+      0x02,             // length 2
+      0x66, 0x6f, 0x6f, // "foo"
+      0x01,             // 1
+      0x62, 0x61, 0x72, // "bar"
+      0x02              // 2
+  };
+  BinPackDecoder decoder{stream};
+  const auto result = decoder.VARINT_TYPED_ARBITRARY_OBJECT(
+      {.key_encoding =
+           std::make_shared<BinPackEncoding>(UTF8_STRING_NO_LENGTH{3}),
+       .encoding =
+           std::make_shared<BinPackEncoding>(BOUNDED_MULTIPLE_8BITS_ENUM_FIXED{
+               .minimum = 0, .maximum = 10, .multiplier = 1})});
+  EXPECT_TRUE(result.is_object());
+  EXPECT_EQ(result.size(), 2);
+  EXPECT_TRUE(result.defines("foo"));
+  EXPECT_TRUE(result.defines("bar"));
+  const auto &foo{result.at("foo")};
+  const auto &bar{result.at("bar")};
+  EXPECT_TRUE(foo.is_integer());
+  EXPECT_TRUE(bar.is_integer());
+  EXPECT_EQ(foo.to_integer(), 1);
+  EXPECT_EQ(bar.to_integer(), 2);
+}

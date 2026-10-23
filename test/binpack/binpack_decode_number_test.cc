@@ -1,0 +1,196 @@
+#include <sourcemeta/blaze/binpack.h>
+#include <sourcemeta/core/io.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/numeric.h>
+#include <sourcemeta/core/test.h>
+
+TEST(DOUBLE_VARINT_TUPLE_5) {
+  sourcemeta::core::InputByteStream stream{0x0a, 0x00};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{5.0};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_minus_3_point_14) {
+  sourcemeta::core::InputByteStream stream{0xf3, 0x04, 0x02};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{-3.14};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_minus_5) {
+  sourcemeta::core::InputByteStream stream{0x09, 0x00};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{-5.0};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_zero) {
+  sourcemeta::core::InputByteStream stream{0x00, 0x00};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{0.0};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_1235) {
+  sourcemeta::core::InputByteStream stream{0xa6, 0x13, 0x00};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{1235.0};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_0_point_1235) {
+  sourcemeta::core::InputByteStream stream{0xa6, 0x13, 0x04};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{0.1235};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_1_point_235) {
+  sourcemeta::core::InputByteStream stream{0xa6, 0x13, 0x03};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{1.235};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_0_point_01235) {
+  sourcemeta::core::InputByteStream stream{0xa6, 0x13, 0x05};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{0.01235};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_12_point_35) {
+  sourcemeta::core::InputByteStream stream{0xa6, 0x13, 0x02};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{12.35};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_0_point_001235) {
+  sourcemeta::core::InputByteStream stream{0xa6, 0x13, 0x06};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{0.001235};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_123_point_5) {
+  sourcemeta::core::InputByteStream stream{0xa6, 0x13, 0x01};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{123.5};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_314) {
+  sourcemeta::core::InputByteStream stream{0xf4, 0x04, 0x00};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{314.0};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_0_point_314) {
+  sourcemeta::core::InputByteStream stream{0xf4, 0x04, 0x03};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{0.314};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_3_point_14) {
+  sourcemeta::core::InputByteStream stream{0xf4, 0x04, 0x02};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{3.14};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_0_point_0314) {
+  sourcemeta::core::InputByteStream stream{0xf4, 0x04, 0x04};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{0.0314};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(DOUBLE_VARINT_TUPLE_31_point_4) {
+  sourcemeta::core::InputByteStream stream{0xf4, 0x04, 0x01};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.DOUBLE_VARINT_TUPLE({});
+  const sourcemeta::core::JSON expected{31.4};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(NUMBER_VARINT_TUPLE_decimal_2_point_1) {
+  sourcemeta::core::InputByteStream stream{0x2a, 0x03};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.NUMBER_VARINT_TUPLE({});
+  EXPECT_TRUE(result.is_decimal());
+  const sourcemeta::core::JSON expected{sourcemeta::core::Decimal{"2.1"}};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(NUMBER_VARINT_TUPLE_decimal_minus_122_point_08) {
+  sourcemeta::core::InputByteStream stream{0xdf, 0xbe, 0x01, 0x07};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.NUMBER_VARINT_TUPLE({});
+  EXPECT_TRUE(result.is_decimal());
+  const sourcemeta::core::JSON expected{sourcemeta::core::Decimal{"-122.08"}};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(NUMBER_VARINT_TUPLE_decimal_positive_exponent) {
+  sourcemeta::core::InputByteStream stream{0x02, 0x09};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.NUMBER_VARINT_TUPLE({});
+  EXPECT_TRUE(result.is_decimal());
+  const sourcemeta::core::JSON expected{sourcemeta::core::Decimal{"1e2"}};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(NUMBER_VARINT_TUPLE_decimal_0_point_1) {
+  sourcemeta::core::InputByteStream stream{0x02, 0x03};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.NUMBER_VARINT_TUPLE({});
+  EXPECT_TRUE(result.is_decimal());
+  const sourcemeta::core::JSON expected{sourcemeta::core::Decimal{"0.1"}};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(NUMBER_VARINT_TUPLE_decimal_zero) {
+  sourcemeta::core::InputByteStream stream{0x00, 0x01};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.NUMBER_VARINT_TUPLE({});
+  EXPECT_TRUE(result.is_decimal());
+  const sourcemeta::core::JSON expected{sourcemeta::core::Decimal{"0"}};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(NUMBER_VARINT_TUPLE_real_3_point_14) {
+  sourcemeta::core::InputByteStream stream{0xf4, 0x04, 0x06};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.NUMBER_VARINT_TUPLE({});
+  EXPECT_TRUE(result.is_real());
+  const sourcemeta::core::JSON expected{3.14};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(NUMBER_VARINT_TUPLE_real_5) {
+  sourcemeta::core::InputByteStream stream{0x0a, 0x00};
+  sourcemeta::blaze::BinPackDecoder decoder{stream};
+  const auto result = decoder.NUMBER_VARINT_TUPLE({});
+  EXPECT_TRUE(result.is_real());
+  const sourcemeta::core::JSON expected{5.0};
+  EXPECT_EQ(result, expected);
+}

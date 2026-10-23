@@ -1,0 +1,31 @@
+#include <sourcemeta/blaze/binpack.h>
+#include <sourcemeta/core/io.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/test.h>
+
+TEST(generic_decode_BOUNDED_MULTIPLE_8BITS_ENUM_FIXED) {
+  using namespace sourcemeta::blaze;
+  sourcemeta::core::InputByteStream stream{0x00};
+  BinPackDecoder decoder{stream};
+  BOUNDED_MULTIPLE_8BITS_ENUM_FIXED options{
+      .minimum = -5, .maximum = -1, .multiplier = 1};
+  const auto result = decoder.read(options);
+  const sourcemeta::core::JSON expected{-5};
+  EXPECT_EQ(result, expected);
+}
+
+TEST(ANY_PACKED_TYPE_TAG_BYTE_PREFIX_many) {
+  using namespace sourcemeta::blaze;
+  sourcemeta::core::InputByteStream stream{0x15, 0x1d, 0x25};
+  BinPackDecoder decoder{stream};
+  ANY_PACKED_TYPE_TAG_BYTE_PREFIX options;
+  const auto result_1 = decoder.read(options);
+  const auto result_2 = decoder.read(options);
+  const auto result_3 = decoder.read(options);
+  const sourcemeta::core::JSON expected_1{1};
+  const sourcemeta::core::JSON expected_2{2};
+  const sourcemeta::core::JSON expected_3{3};
+  EXPECT_EQ(result_1, expected_1);
+  EXPECT_EQ(result_2, expected_2);
+  EXPECT_EQ(result_3, expected_3);
+}

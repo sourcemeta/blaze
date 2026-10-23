@@ -9,7 +9,8 @@ blaze_dependency = dependency('Blaze',
                               modules : [ 'sourcemeta::core::json',
                                           'sourcemeta::blaze::compiler',
                                           'sourcemeta::blaze::evaluator',
-                                          'sourcemeta::blaze::output' ],
+                                          'sourcemeta::blaze::output',
+                                          'sourcemeta::blaze::binpack' ],
                               required : true)
 
 executable('blaze_hello', 'hello.cc', dependencies : [ blaze_dependency ])

@@ -1,0 +1,95 @@
+#include <sourcemeta/blaze/binpack.h>
+#include <sourcemeta/core/json.h>
+#include <sourcemeta/core/test.h>
+
+#include <variant>
+
+TEST(BYTE_CHOICE_INDEX_scalars) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "BYTE_CHOICE_INDEX",
+    "binpackOptions": {
+      "choices": [ 1, 2, 3 ]
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(std::holds_alternative<BYTE_CHOICE_INDEX>(result));
+  EXPECT_EQ(std::get<BYTE_CHOICE_INDEX>(result).choices.size(), 3);
+  EXPECT_EQ(std::get<BYTE_CHOICE_INDEX>(result).choices.at(0),
+            sourcemeta::core::JSON{1});
+  EXPECT_EQ(std::get<BYTE_CHOICE_INDEX>(result).choices.at(1),
+            sourcemeta::core::JSON{2});
+  EXPECT_EQ(std::get<BYTE_CHOICE_INDEX>(result).choices.at(2),
+            sourcemeta::core::JSON{3});
+}
+
+TEST(LARGE_CHOICE_INDEX_scalars) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "LARGE_CHOICE_INDEX",
+    "binpackOptions": {
+      "choices": [ 1, 2, 3 ]
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(std::holds_alternative<LARGE_CHOICE_INDEX>(result));
+  EXPECT_EQ(std::get<LARGE_CHOICE_INDEX>(result).choices.size(), 3);
+  EXPECT_EQ(std::get<LARGE_CHOICE_INDEX>(result).choices.at(0),
+            sourcemeta::core::JSON{1});
+  EXPECT_EQ(std::get<LARGE_CHOICE_INDEX>(result).choices.at(1),
+            sourcemeta::core::JSON{2});
+  EXPECT_EQ(std::get<LARGE_CHOICE_INDEX>(result).choices.at(2),
+            sourcemeta::core::JSON{3});
+}
+
+TEST(TOP_LEVEL_BYTE_CHOICE_INDEX_scalars) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "TOP_LEVEL_BYTE_CHOICE_INDEX",
+    "binpackOptions": {
+      "choices": [ 1, 2, 3 ]
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(std::holds_alternative<TOP_LEVEL_BYTE_CHOICE_INDEX>(result));
+  EXPECT_EQ(std::get<TOP_LEVEL_BYTE_CHOICE_INDEX>(result).choices.size(), 3);
+  EXPECT_EQ(std::get<TOP_LEVEL_BYTE_CHOICE_INDEX>(result).choices.at(0),
+            sourcemeta::core::JSON{1});
+  EXPECT_EQ(std::get<TOP_LEVEL_BYTE_CHOICE_INDEX>(result).choices.at(1),
+            sourcemeta::core::JSON{2});
+  EXPECT_EQ(std::get<TOP_LEVEL_BYTE_CHOICE_INDEX>(result).choices.at(2),
+            sourcemeta::core::JSON{3});
+}
+
+TEST(CONST_NONE_scalar) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "CONST_NONE",
+    "binpackOptions": {
+      "value": 1
+    }
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(std::holds_alternative<CONST_NONE>(result));
+  EXPECT_EQ(std::get<CONST_NONE>(result).value, sourcemeta::core::JSON{1});
+}
+
+TEST(ANY_PACKED_TYPE_TAG_BYTE_PREFIX) {
+  const sourcemeta::core::JSON input = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "tag:sourcemeta.com,2024:jsonbinpack/encoding/v1",
+    "binpackEncoding": "ANY_PACKED_TYPE_TAG_BYTE_PREFIX",
+    "binpackOptions": {}
+  })JSON");
+
+  const auto result{sourcemeta::blaze::binpack_load(input)};
+  using namespace sourcemeta::blaze;
+  EXPECT_TRUE(std::holds_alternative<ANY_PACKED_TYPE_TAG_BYTE_PREFIX>(result));
+}
