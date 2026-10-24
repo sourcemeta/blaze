@@ -1,1 +1,64 @@
-<!doctype html><meta charset="utf-8" /><title>Schema</title><style></style><div class="page"><h1>Schema</h1><div class="counts"><span class="c opt"><b>2</b> you can leave out</span></div><div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Names in blue</b> link to the shape they name.</span></div><section id="root"><h2>What this file holds</h2><table class="doc"><colgroup><col style="width:21%" /><col style="width:30%" /><col style="width:22%" /><col style="width:27%" /></colgroup><tr><th>Property</th><th>What goes in it</th><th>Required?</th><th>What it means</th></tr><tr><td><span class="nm">strict</span></td><td><a class="ty link" href="#shape-defs-strict-jvpxiq">a strict</a></td><td><span class="rq opt">No, you can leave it out</span></td><td class="de"></td></tr><tr><td><span class="nm">loose</span></td><td><a class="ty link" href="#shape-defs-loose-i6ezmb">a loose</a></td><td><span class="rq opt">No, you can leave it out</span></td><td class="de"></td></tr></table></section><section><h2>Every shape, written out once</h2><p class="snote">Each shape appears here once. Anywhere else on this page that names one, it means exactly this.</p><div class="defblock"><div class="shapeblock" id="shape-defs-list-nkvbz"><h4>list</h4><p class="snote">This one is a list.</p><div class="leafval"><span class="ty">a list, each entry either <a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a>, <a class="ty link" href="#shape-defs-loose-defs-entry-1323ykn">an entry</a> or <a class="ty link" href="#shape-defs-strict-defs-entry-bfiw2i">an entry</a></span></div></div><div class="shapeblock" id="shape-defs-loose-i6ezmb"><h4>loose</h4><div class="leafval"><a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a></div></div><div class="shapeblock" id="shape-defs-loose-defs-entry-1323ykn"><h4>entry</h4><div class="leafval"><span class="ty">a whole number</span></div></div><div class="shapeblock" id="shape-defs-strict-jvpxiq"><h4>strict</h4><div class="leafval"><a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a></div></div><div class="shapeblock" id="shape-defs-strict-defs-entry-bfiw2i"><h4>entry</h4><div class="leafval"><span class="ty">text</span></div></div></div></section></div>
+<!doctype html>
+<meta charset="utf-8" />
+<title>Schema</title>
+<div class="page">
+  <h1>Schema</h1>
+  <div class="counts"><span class="c opt"><b>2</b> you can leave out</span></div>
+  <div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Names in blue</b> link to the shape they name.</span></div>
+  <section id="root">
+    <h2>What this file holds</h2>
+    <table class="doc">
+      <colgroup>
+        <col style="width:21%" />
+        <col style="width:30%" />
+        <col style="width:22%" />
+        <col style="width:27%" />
+      </colgroup>
+      <tr>
+        <th>Property</th>
+        <th>What goes in it</th>
+        <th>Required?</th>
+        <th>What it means</th>
+      </tr>
+      <tr>
+        <td><span class="nm">strict</span></td>
+        <td><a class="ty link" href="#shape-defs-strict-jvpxiq">a strict</a></td>
+        <td><span class="rq opt">No, you can leave it out</span></td>
+        <td class="de"></td>
+      </tr>
+      <tr>
+        <td><span class="nm">loose</span></td>
+        <td><a class="ty link" href="#shape-defs-loose-i6ezmb">a loose</a></td>
+        <td><span class="rq opt">No, you can leave it out</span></td>
+        <td class="de"></td>
+      </tr>
+    </table>
+  </section>
+  <section>
+    <h2>Every shape, written out once</h2>
+    <p class="snote">Each shape appears here once. Anywhere else on this page that names one, it means exactly this.</p>
+    <div class="defblock">
+      <div class="shapeblock" id="shape-defs-list-nkvbz">
+        <h4>list</h4>
+        <p class="snote">This one is a list.</p>
+        <div class="leafval"><span class="ty">a list, each entry either <a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a>, <a class="ty link" href="#shape-defs-loose-defs-entry-1323ykn">an entry</a> or <a class="ty link" href="#shape-defs-strict-defs-entry-bfiw2i">an entry</a></span></div>
+      </div>
+      <div class="shapeblock" id="shape-defs-loose-i6ezmb">
+        <h4>loose</h4>
+        <div class="leafval"><a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a></div>
+      </div>
+      <div class="shapeblock" id="shape-defs-loose-defs-entry-1323ykn">
+        <h4>entry</h4>
+        <div class="leafval"><span class="ty">a whole number</span></div>
+      </div>
+      <div class="shapeblock" id="shape-defs-strict-jvpxiq">
+        <h4>strict</h4>
+        <div class="leafval"><a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a></div>
+      </div>
+      <div class="shapeblock" id="shape-defs-strict-defs-entry-bfiw2i">
+        <h4>entry</h4>
+        <div class="leafval"><span class="ty">text</span></div>
+      </div>
+    </div>
+  </section>
+</div>

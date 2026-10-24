@@ -27,6 +27,8 @@ target_compile_definitions(sourcemeta_blaze_documentation_suite_unit
 target_compile_definitions(sourcemeta_blaze_documentation_suite_unit
   PRIVATE TABLE_FORMAT_SCHEMA_PATH="${PROJECT_SOURCE_DIR}/schemas/table-format.json")
 target_link_libraries(sourcemeta_blaze_documentation_suite_unit
+  PRIVATE sourcemeta::core::io)
+target_link_libraries(sourcemeta_blaze_documentation_suite_unit
   PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_documentation_suite_unit
   PRIVATE sourcemeta::core::jsonschema)

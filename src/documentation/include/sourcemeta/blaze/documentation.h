@@ -65,9 +65,6 @@ constexpr std::string_view DOCUMENTATION_FORMAT{
 /// assert(documentation.at("root").at("kind").to_string() == "string");
 /// ```
 ///
-/// A schema that does not declare its dialect with `$schema` is read as the
-/// given default dialect, if any.
-///
 /// Throws sourcemeta::blaze::DocumentationError when the schema cannot be
 /// described exactly, saying what and where.
 [[nodiscard]] SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT auto
@@ -105,10 +102,13 @@ to_documentation(const sourcemeta::core::JSON &schema,
 /// ```
 ///
 /// The page is appended to the given string, so a caller that already has a
-/// buffer does not pay for another one.
+/// buffer does not pay for another one. A `pretty` page puts every block on a
+/// line of its own, indented by how deep it is, which reads and diffs better at
+/// the cost of size. A page without its `stylesheet` is left for the caller to
+/// style.
 SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT auto
-to_html(const sourcemeta::core::JSON &documentation, std::string &output)
-    -> void;
+to_html(const sourcemeta::core::JSON &documentation, std::string &output,
+        const bool pretty = false, const bool stylesheet = true) -> void;
 
 } // namespace sourcemeta::blaze
 

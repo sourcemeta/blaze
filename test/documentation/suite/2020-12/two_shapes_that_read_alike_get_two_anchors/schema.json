@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Collide",
+  "type": "object",
+  "properties": {
+    "first": {
+      "$ref": "#/$defs/my_property"
+    },
+    "second": {
+      "$ref": "#/$defs/my-property"
+    }
+  },
+  "$defs": {
+    "my_property": {
+      "type": "string"
+    },
+    "my-property": {
+      "type": "integer"
+    }
+  }
+}

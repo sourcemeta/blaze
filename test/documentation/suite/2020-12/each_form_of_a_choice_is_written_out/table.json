@@ -1,0 +1,39 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Payment",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "any",
+    "also": [
+      {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "card",
+                "required": true,
+                "value": {
+                  "kind": "string"
+                }
+              }
+            ]
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "invoice",
+                "required": true,
+                "value": {
+                  "kind": "string"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

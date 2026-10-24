@@ -17,3 +17,7 @@ target_link_libraries(sourcemeta_blaze_documentation PRIVATE
   sourcemeta::core::regex)
 target_link_libraries(sourcemeta_blaze_documentation PRIVATE
   sourcemeta::core::html)
+target_link_libraries(sourcemeta_blaze_documentation PRIVATE
+  sourcemeta::core::text)
+target_link_libraries(sourcemeta_blaze_documentation PRIVATE
+  sourcemeta::core::unicode)

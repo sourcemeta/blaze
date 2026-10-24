@@ -25,6 +25,8 @@ namespace sourcemeta::blaze::documentation {
 
 namespace {
 
+// How deeply the document nests, counted without recursion so that measuring a
+// runaway schema cannot itself exhaust the stack.
 auto nesting_of(const JSON &document) -> std::size_t {
   std::size_t deepest{0};
   std::vector<std::pair<const JSON *, std::size_t>> pending{{&document, 1}};
@@ -50,42 +52,6 @@ auto nesting_of(const JSON &document) -> std::size_t {
 
   return deepest;
 }
-
-// The OFFICIAL address of each dialect this module reads, so that a schema
-// that writes it without the empty fragment is still understood.
-
-auto official_dialect(const std::string_view declared)
-    -> std::optional<std::string_view> {
-  static const std::vector<std::string_view> OFFICIAL{
-      "http://json-schema.org/draft-03/schema#",
-      "http://json-schema.org/draft-03/hyper-schema#",
-      "http://json-schema.org/draft-04/schema#",
-      "http://json-schema.org/draft-04/hyper-schema#",
-      "http://json-schema.org/draft-06/schema#",
-      "http://json-schema.org/draft-06/hyper-schema#",
-      "http://json-schema.org/draft-07/schema#",
-      "http://json-schema.org/draft-07/hyper-schema#",
-      "https://json-schema.org/draft/2019-09/schema",
-      "https://json-schema.org/draft/2019-09/hyper-schema",
-      "https://json-schema.org/draft/2020-12/schema",
-      "https://json-schema.org/draft/2020-12/hyper-schema"};
-  for (const auto &address : OFFICIAL) {
-    if (declared == address) {
-      return address;
-    }
-
-    // The same address, written without the fragment the draft spells it with.
-    if (address.back() == '#' &&
-        declared == address.substr(0, address.size() - 1)) {
-      return address;
-    }
-  }
-
-  return std::nullopt;
-}
-
-// The message is a fixed sentence. Whatever the sentence is about, such as
-// the keyword at fault, travels beside it rather than inside it.
 
 auto rank_of(const sourcemeta::core::SchemaBaseDialect base_dialect,
              const Pointer &pointer) -> Rank {
@@ -195,22 +161,10 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
     fail("This schema nests deeper than this module describes", root_pointer);
   }
 
-  // An OFFICIAL dialect is known by its address, which a schema may write with
-  // or without the empty fragment the drafts use. The work goes through the
-  // official spelling, while the document keeps the address the schema gave.
-  auto canonical{schema};
-  const auto official{official_dialect(declared)};
-  if (official.has_value() && canonical.is_object()) {
-    canonical.assign("$schema",
-                     sourcemeta::core::JSON{std::string{official.value()}});
-  }
-
-  const std::string dialect{official.has_value() ? std::string{official.value()}
-                                                 : declared};
   std::optional<sourcemeta::core::SchemaFrame> frame;
   try {
-    frame.emplace(sourcemeta::core::SchemaFrame::Mode::References, canonical,
-                  walker, resolver, dialect);
+    frame.emplace(sourcemeta::core::SchemaFrame::Mode::References, schema,
+                  walker, resolver, declared);
   } catch (const std::exception &error) {
     fail("The schema could not be read", root_pointer, error.what());
   }
@@ -221,7 +175,7 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
          root_pointer);
   }
 
-  Context context{.root = canonical,
+  Context context{.root = schema,
                   .walker = walker,
                   .resolver = resolver,
                   .frame = frame.value(),
@@ -274,7 +228,7 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
     }
   });
 
-  auto root{convert(context, canonical, root_pointer)};
+  auto root{convert(context, schema, root_pointer)};
 
   auto result{sourcemeta::core::JSON::make_object()};
   result.assign("$schema",
@@ -320,7 +274,7 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
     for (const auto &shape : pending) {
       values.emplace(shape.identifier,
                      convert(context,
-                             sourcemeta::core::get(canonical, shape.pointer),
+                             sourcemeta::core::get(schema, shape.pointer),
                              shape.pointer));
     }
   }

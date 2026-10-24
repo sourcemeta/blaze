@@ -2,383 +2,120 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "tag:sourcemeta.com,2026:table-format/2",
   "title": "Table format",
-  "description": "A description of data for documentation: which properties there are, what may go in each, and which are required. Independent of the schema language it was converted from.",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "$schema",
-    "title",
-    "language",
-    "root"
+  "description": "A description of data for documentation: which properties there are, what may go in each, and which are required. Independent of the schema language it was converted from",
+  "examples": [
+    {
+      "$schema": "tag:sourcemeta.com,2026:table-format/2",
+      "title": "Order",
+      "language": "https://json-schema.org/draft/2020-12/schema",
+      "root": {
+        "kind": "object",
+        "properties": [
+          {
+            "name": "buyer",
+            "value": {
+              "kind": "ref",
+              "ref": "/$defs/party"
+            }
+          }
+        ]
+      },
+      "shapes": [
+        {
+          "id": "/$defs/party",
+          "name": "party",
+          "value": {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "value": {
+                  "kind": "string"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
   ],
+  "x-lint-exclude": "simple_properties_identifiers",
+  "type": "object",
+  "required": [ "$schema", "title", "language", "root" ],
   "properties": {
     "$schema": {
-      "const": "tag:sourcemeta.com,2026:table-format/2",
-      "description": "The name of this format and its version."
+      "description": "The name of this format and its version",
+      "const": "tag:sourcemeta.com,2026:table-format/2"
     },
     "title": {
+      "description": "The title of what is described",
       "type": "string",
-      "minLength": 1,
-      "description": "The title of what is described."
+      "minLength": 1
     },
     "description": {
       "type": "string",
       "minLength": 1
     },
     "language": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:",
-      "description": "The address of the schema language, and version, the document was converted from. For JSON Schema, the dialect.",
+      "description": "The address of the schema language, and version, the document was converted from. For JSON Schema, the dialect",
       "examples": [
         "https://json-schema.org/draft/2020-12/schema",
         "https://avro.apache.org/docs/1.11.1/specification/"
-      ]
+      ],
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:",
+      "minLength": 1
     },
     "root": {
-      "$ref": "#/$defs/value",
-      "description": "What a whole document holds."
+      "description": "What a whole document holds",
+      "$ref": "#/$defs/value"
     },
     "shapes": {
+      "description": "Values described once and referred to by id, most used first. Absent when there are none",
       "type": "array",
       "minItems": 1,
       "items": {
         "$ref": "#/$defs/shape"
-      },
-      "description": "Values described once and referred to by id, most used first. Absent when there are none."
+      }
     }
   },
+  "additionalProperties": false,
   "$defs": {
     "shape": {
       "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "name",
-        "value"
-      ],
+      "required": [ "id", "name", "value" ],
       "properties": {
         "id": {
+          "description": "Unique among the shapes. A `ref` equal to it means this shape",
           "type": "string",
-          "minLength": 1,
-          "description": "Unique among the shapes. A `ref` equal to it means this shape."
+          "minLength": 1
         },
         "name": {
+          "description": "The name the shape is declared under, or the last part of its id",
           "type": "string",
-          "minLength": 1,
-          "description": "The name the shape is declared under, or the last part of its id."
+          "minLength": 1
         },
         "section": {
+          "description": "A heading to list the shape under, when the author filed shapes in groups",
           "type": "string",
-          "minLength": 1,
-          "description": "A heading to list the shape under, when the author filed shapes in groups."
+          "minLength": 1
         },
         "usedAt": {
+          "description": "JSON Pointers into this document to every place that refers to this shape",
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "string"
-          },
-          "description": "JSON Pointers into this document to every place that refers to this shape."
+          }
         },
         "value": {
           "$ref": "#/$defs/value"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "value": {
       "type": "object",
-      "required": [
-        "kind"
-      ],
-      "properties": {
-        "kind": {
-          "enum": [
-            "string",
-            "number",
-            "integer",
-            "boolean",
-            "null",
-            "object",
-            "array",
-            "enum",
-            "choice",
-            "ref",
-            "external",
-            "any",
-            "never"
-          ]
-        },
-        "title": {
-          "type": "string",
-          "minLength": 1
-        },
-        "description": {
-          "type": "string",
-          "minLength": 1
-        },
-        "default": {
-          "description": "The value assumed when none is given."
-        },
-        "examples": {
-          "type": "array",
-          "minItems": 1
-        },
-        "deprecated": {
-          "const": true
-        },
-        "nullable": {
-          "const": true,
-          "description": "null is also allowed."
-        },
-        "access": {
-          "enum": [
-            "read",
-            "write"
-          ],
-          "description": "`read`: supplied by the system, not written by you. `write`: written by you, never returned."
-        },
-        "also": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/value"
-          },
-          "description": "Values the data must also match."
-        },
-        "not": {
-          "$ref": "#/$defs/value",
-          "description": "A value the data must not match."
-        },
-        "conditions": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/condition"
-          }
-        },
-        "otherTypesAllowed": {
-          "const": true,
-          "description": "Data of a JSON type this value is not about (for a choice, that no form is about) also passes, and the rules of this kind do not apply to it."
-        },
-        "format": {
-          "type": "string",
-          "minLength": 1,
-          "description": "A label from the source language, such as email or date-time. Whether data is checked against it depends on that language; the format does not state it as a rule."
-        },
-        "pattern": {
-          "type": "string",
-          "description": "An ECMA-262 regular expression, exactly as written in the source. The text matches when the pattern is found anywhere in it, unless the pattern is anchored."
-        },
-        "length": {
-          "type": "object",
-          "additionalProperties": false,
-          "minProperties": 1,
-          "properties": {
-            "min": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "max": {
-              "type": "integer",
-              "minimum": 0
-            }
-          },
-          "description": "For a string, characters. For an array, entries."
-        },
-        "content": {
-          "type": "object",
-          "additionalProperties": false,
-          "minProperties": 1,
-          "description": "What the text holds. It describes the text; it is not a rule the data is checked against.",
-          "properties": {
-            "mediaType": {
-              "type": "string"
-            },
-            "encoding": {
-              "type": "string"
-            },
-            "value": {
-              "$ref": "#/$defs/value"
-            }
-          }
-        },
-        "range": {
-          "type": "object",
-          "additionalProperties": false,
-          "minProperties": 1,
-          "properties": {
-            "min": {
-              "type": "number"
-            },
-            "max": {
-              "type": "number"
-            },
-            "minExclusive": {
-              "const": true
-            },
-            "maxExclusive": {
-              "const": true
-            }
-          },
-          "dependentRequired": {
-            "minExclusive": [
-              "min"
-            ],
-            "maxExclusive": [
-              "max"
-            ]
-          }
-        },
-        "multipleOf": {
-          "type": "number",
-          "exclusiveMinimum": 0
-        },
-        "properties": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/property"
-          }
-        },
-        "patternProperties": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "pattern",
-              "value"
-            ],
-            "properties": {
-              "pattern": {
-                "type": "string"
-              },
-              "value": {
-                "$ref": "#/$defs/value"
-              }
-            }
-          }
-        },
-        "otherProperties": {
-          "$ref": "#/$defs/value",
-          "description": "What every property that is not named holds."
-        },
-        "closed": {
-          "const": true,
-          "description": "Every property must be named."
-        },
-        "keys": {
-          "$ref": "#/$defs/value",
-          "description": "What every property name must be."
-        },
-        "propertyCount": {
-          "type": "object",
-          "additionalProperties": false,
-          "minProperties": 1,
-          "properties": {
-            "min": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "max": {
-              "type": "integer",
-              "minimum": 0
-            }
-          }
-        },
-        "discriminator": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "property",
-            "cases"
-          ],
-          "properties": {
-            "property": {
-              "type": "string"
-            },
-            "cases": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "is",
-                  "ref"
-                ],
-                "properties": {
-                  "is": {},
-                  "ref": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "item": {
-          "$ref": "#/$defs/value",
-          "description": "What every entry holds, or every entry after the slots."
-        },
-        "slots": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/value"
-          }
-        },
-        "unique": {
-          "const": true
-        },
-        "contains": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "value",
-            "min"
-          ],
-          "properties": {
-            "value": {
-              "$ref": "#/$defs/value"
-            },
-            "min": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "max": {
-              "type": "integer",
-              "minimum": 0
-            }
-          }
-        },
-        "values": {
-          "type": "array",
-          "minItems": 1
-        },
-        "options": {
-          "type": "array",
-          "minItems": 2,
-          "items": {
-            "$ref": "#/$defs/value"
-          }
-        },
-        "overlap": {
-          "const": true,
-          "description": "More than one form may match. Without it, exactly one does."
-        },
-        "ref": {
-          "type": "string",
-          "description": "The id of a shape, or \"\" for the root."
-        },
-        "href": {
-          "type": "string",
-          "minLength": 1,
-          "description": "The other document: an absolute address when the source gives one, otherwise the reference as written."
-        }
-      },
       "allOf": [
         {
           "if": {
@@ -599,6 +336,7 @@
             }
           },
           "then": {
+            "required": [ "values" ],
             "propertyNames": {
               "enum": [
                 "kind",
@@ -614,10 +352,7 @@
                 "conditions",
                 "values"
               ]
-            },
-            "required": [
-              "values"
-            ]
+            }
           }
         },
         {
@@ -629,6 +364,7 @@
             }
           },
           "then": {
+            "required": [ "options" ],
             "propertyNames": {
               "enum": [
                 "kind",
@@ -646,10 +382,7 @@
                 "overlap",
                 "otherTypesAllowed"
               ]
-            },
-            "required": [
-              "options"
-            ]
+            }
           }
         },
         {
@@ -661,6 +394,7 @@
             }
           },
           "then": {
+            "required": [ "ref" ],
             "propertyNames": {
               "enum": [
                 "kind",
@@ -676,10 +410,7 @@
                 "conditions",
                 "ref"
               ]
-            },
-            "required": [
-              "ref"
-            ]
+            }
           }
         },
         {
@@ -691,6 +422,7 @@
             }
           },
           "then": {
+            "required": [ "href" ],
             "propertyNames": {
               "enum": [
                 "kind",
@@ -706,10 +438,7 @@
                 "conditions",
                 "href"
               ]
-            },
-            "required": [
-              "href"
-            ]
+            }
           }
         },
         {
@@ -764,34 +493,307 @@
             }
           }
         }
-      ]
+      ],
+      "required": [ "kind" ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null",
+            "object",
+            "array",
+            "enum",
+            "choice",
+            "ref",
+            "external",
+            "any",
+            "never"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "default": {
+          "description": "The value assumed when none is given"
+        },
+        "examples": {
+          "type": "array",
+          "minItems": 1
+        },
+        "deprecated": {
+          "const": true
+        },
+        "nullable": {
+          "description": "null is also allowed",
+          "const": true
+        },
+        "access": {
+          "description": "`read`: supplied by the system, not written by you. `write`: written by you, never returned",
+          "enum": [ "read", "write" ]
+        },
+        "also": {
+          "description": "Values the data must also match",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/value"
+          }
+        },
+        "not": {
+          "description": "A value the data must not match",
+          "$ref": "#/$defs/value"
+        },
+        "conditions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/condition"
+          }
+        },
+        "otherTypesAllowed": {
+          "description": "Data of a JSON type this value is not about (for a choice, that no form is about) also passes, and the rules of this kind do not apply to it",
+          "const": true
+        },
+        "format": {
+          "description": "A label from the source language, such as email or date-time. Whether data is checked against it depends on that language; the format does not state it as a rule",
+          "type": "string",
+          "minLength": 1
+        },
+        "pattern": {
+          "description": "An ECMA-262 regular expression, exactly as written in the source. The text matches when the pattern is found anywhere in it, unless the pattern is anchored",
+          "type": "string"
+        },
+        "length": {
+          "description": "For a string, characters. For an array, entries",
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "content": {
+          "description": "What the text holds. It describes the text; it is not a rule the data is checked against",
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "mediaType": {
+              "type": "string"
+            },
+            "encoding": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/value"
+            }
+          },
+          "additionalProperties": false
+        },
+        "range": {
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "minExclusive": {
+              "const": true
+            },
+            "maxExclusive": {
+              "const": true
+            }
+          },
+          "additionalProperties": false,
+          "dependentRequired": {
+            "minExclusive": [ "min" ],
+            "maxExclusive": [ "max" ]
+          }
+        },
+        "multipleOf": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "properties": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/property"
+          }
+        },
+        "patternProperties": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [ "pattern", "value" ],
+            "properties": {
+              "pattern": {
+                "type": "string"
+              },
+              "value": {
+                "$ref": "#/$defs/value"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "otherProperties": {
+          "description": "What every property that is not named holds",
+          "$ref": "#/$defs/value"
+        },
+        "closed": {
+          "description": "Every property must be named",
+          "const": true
+        },
+        "keys": {
+          "description": "What every property name must be",
+          "$ref": "#/$defs/value"
+        },
+        "propertyCount": {
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "min": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "discriminator": {
+          "type": "object",
+          "required": [ "property", "cases" ],
+          "properties": {
+            "property": {
+              "type": "string"
+            },
+            "cases": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [ "is", "ref" ],
+                "properties": {
+                  "is": true,
+                  "ref": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "item": {
+          "description": "What every entry holds, or every entry after the slots",
+          "$ref": "#/$defs/value"
+        },
+        "slots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/value"
+          }
+        },
+        "unique": {
+          "const": true
+        },
+        "contains": {
+          "type": "object",
+          "required": [ "value", "min" ],
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/value"
+            },
+            "min": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/value"
+          }
+        },
+        "overlap": {
+          "description": "More than one form may match. Without it, exactly one does",
+          "const": true
+        },
+        "ref": {
+          "description": "The id of a shape, or \"\" for the root",
+          "type": "string"
+        },
+        "href": {
+          "description": "The other document: an absolute address when the source gives one, otherwise the reference as written",
+          "type": "string",
+          "minLength": 1
+        }
+      }
     },
     "property": {
       "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "name"
-      ],
+      "required": [ "name" ],
       "properties": {
         "name": {
           "type": "string"
         },
         "required": {
-          "const": true,
-          "description": "The property must be present. Absent means it may be left out."
+          "description": "The property must be present. Absent means it may be left out",
+          "const": true
         },
         "value": {
-          "$ref": "#/$defs/value",
-          "description": "What may go in the property. Absent means nothing is said about it here."
+          "description": "What may go in the property. Absent means nothing is said about it here",
+          "$ref": "#/$defs/value"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "condition": {
       "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "when"
+      "anyOf": [
+        {
+          "required": [ "then" ]
+        },
+        {
+          "required": [ "otherwise" ]
+        }
       ],
+      "required": [ "when" ],
       "properties": {
         "when": {
           "$ref": "#/$defs/value"
@@ -803,18 +805,7 @@
           "$ref": "#/$defs/value"
         }
       },
-      "anyOf": [
-        {
-          "required": [
-            "then"
-          ]
-        },
-        {
-          "required": [
-            "otherwise"
-          ]
-        }
-      ]
+      "additionalProperties": false
     }
   }
 }
