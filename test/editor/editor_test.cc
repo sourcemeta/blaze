@@ -46,6 +46,19 @@ static auto test_resolver_2020_12(std::string_view identifier)
       "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true }
     })JSON");
   }
+  if (identifier == "https://example.com/meta/3.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/meta/3.json",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true
+      },
+      "$dynamicAnchor": "meta",
+      "$ref": "https://json-schema.org/draft/2020-12/schema"
+    })JSON");
+  }
   return sourcemeta::core::schema_resolver(identifier);
 }
 
@@ -807,6 +820,211 @@ TEST(2020_12_bundle_metaschema_offline) {
         "type": "object"
       }
     }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(2020_12_metaschema_references_mode_without_bundling) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://example.com/meta/3.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                test_resolver_2020_12);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(2020_12_bundle_metaschema_references_mode) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://example.com/meta/3.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::core::SchemaBundleOptions bundle_options;
+  bundle_options.mode = sourcemeta::core::SchemaBundleOptions::Mode::References;
+  sourcemeta::core::schema_bundle(document, sourcemeta::core::schema_walker,
+                                  test_resolver_2020_12, "", "",
+                                  bundle_options);
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                test_resolver_2020_12);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(2020_12_bundle_metaschema_references_mode_with_reference) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.sourcemeta.com/top-level",
+    "$schema": "https://example.com/meta/3.json",
+    "properties": {
+      "foo": {
+        "$ref": "https://example.com/baz-anchor#baz"
+      }
+    }
+  })JSON");
+
+  sourcemeta::core::SchemaBundleOptions bundle_options;
+  bundle_options.mode = sourcemeta::core::SchemaBundleOptions::Mode::References;
+  sourcemeta::core::schema_bundle(document, sourcemeta::core::schema_walker,
+                                  test_resolver_2020_12, "", "",
+                                  bundle_options);
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                test_resolver_2020_12);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": {
+        "$ref": "#/$defs/https:~1~1example.com~1baz-anchor/$defs/baz"
+      }
+    },
+    "$defs": {
+      "https://example.com/baz-anchor": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$defs": {
+          "baz": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(2020_12_bundle_metaschema_references_mode_nested_resource) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://www.sourcemeta.com/top-level",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": {
+        "$id": "https://www.sourcemeta.com/nested",
+        "$schema": "https://example.com/meta/3.json",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  sourcemeta::core::SchemaBundleOptions bundle_options;
+  bundle_options.mode = sourcemeta::core::SchemaBundleOptions::Mode::References;
+  sourcemeta::core::schema_bundle(document, sourcemeta::core::schema_walker,
+                                  test_resolver_2020_12, "", "",
+                                  bundle_options);
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                test_resolver_2020_12);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "foo": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string"
+      }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(2019_09_bundle_metaschema_references_mode) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::core::SchemaBundleOptions bundle_options;
+  bundle_options.mode = sourcemeta::core::SchemaBundleOptions::Mode::References;
+  sourcemeta::core::schema_bundle(document, sourcemeta::core::schema_walker,
+                                  test_resolver_2019_09, "", "",
+                                  bundle_options);
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                test_resolver_2019_09);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(draft7_bundle_metaschema_references_mode) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::core::SchemaBundleOptions bundle_options;
+  bundle_options.mode = sourcemeta::core::SchemaBundleOptions::Mode::References;
+  sourcemeta::core::schema_bundle(document, sourcemeta::core::schema_walker,
+                                  test_resolver_draft7, "", "", bundle_options);
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                test_resolver_draft7);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(draft6_bundle_metaschema_references_mode) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$id": "https://example.com/schema",
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::core::SchemaBundleOptions bundle_options;
+  bundle_options.mode = sourcemeta::core::SchemaBundleOptions::Mode::References;
+  sourcemeta::core::schema_bundle(document, sourcemeta::core::schema_walker,
+                                  test_resolver_draft6, "", "", bundle_options);
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                test_resolver_draft6);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(draft4_bundle_metaschema_references_mode) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "id": "https://example.com/schema",
+    "$schema": "https://example.com/meta/1.json",
+    "type": "string"
+  })JSON");
+
+  sourcemeta::core::SchemaBundleOptions bundle_options;
+  bundle_options.mode = sourcemeta::core::SchemaBundleOptions::Mode::References;
+  sourcemeta::core::schema_bundle(document, sourcemeta::core::schema_walker,
+                                  test_resolver_draft4, "", "", bundle_options);
+  sourcemeta::blaze::for_editor(document, sourcemeta::core::schema_walker,
+                                test_resolver_draft4);
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string"
   })JSON");
 
   EXPECT_EQ(document, expected);
