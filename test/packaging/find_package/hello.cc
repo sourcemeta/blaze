@@ -82,6 +82,7 @@ auto main() -> int {
   std::ostringstream binpack_output;
   sourcemeta::blaze::BinPackEncoder binpack_encoder{binpack_output};
   binpack_encoder.write(sourcemeta::core::JSON{5}, binpack_encoding);
+
   const auto documentation{sourcemeta::blaze::to_documentation(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver)};

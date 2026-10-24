@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Order",
+  "description": "A single order",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    }
+  },
+  "required": [
+    "id"
+  ]
+}

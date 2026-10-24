@@ -22,12 +22,11 @@
               "required": true,
               "value": {
                 "kind": "enum",
-                "values": [
-                  "gift"
-                ]
+                "values": [ "gift" ]
               }
             }
-          ]
+          ],
+          "otherTypesAllowed": true
         },
         "then": {
           "kind": "object",
@@ -39,7 +38,8 @@
                 "kind": "string"
               }
             }
-          ]
+          ],
+          "otherTypesAllowed": true
         }
       }
     ]

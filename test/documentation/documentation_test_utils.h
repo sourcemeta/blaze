@@ -56,10 +56,10 @@ inline auto expect_fits_the_format(const sourcemeta::core::JSON &document)
 #define EXPECT_DOCUMENTATION_REFUSED(schema, sentence, about, where)           \
   {                                                                            \
     try {                                                                      \
-      static_cast<void>(sourcemeta::blaze::to_documentation(                   \
+      [[maybe_unused]] const auto result{sourcemeta::blaze::to_documentation(  \
           sourcemeta::core::parse_json(schema),                                \
           sourcemeta::core::schema_walker,                                     \
-          sourcemeta::core::schema_resolver));                                 \
+          sourcemeta::core::schema_resolver)};                                 \
       FAIL();                                                                  \
     } catch (const sourcemeta::blaze::DocumentationError &error) {             \
       const std::string actual_subject{error.subject()};                       \
