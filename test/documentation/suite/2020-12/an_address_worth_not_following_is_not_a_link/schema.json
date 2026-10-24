@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Order",
+  "type": "object",
+  "properties": {
+    "bad": {
+      "$ref": "javascript:alert(1)"
+    },
+    "good": {
+      "$ref": "https://example.com/party"
+    }
+  }
+}

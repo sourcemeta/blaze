@@ -3,10 +3,12 @@
 #include <sourcemeta/core/html.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
+#include <sourcemeta/core/text.h>
+#include <sourcemeta/core/unicode.h>
 
 #include <algorithm>   // std::any_of, std::all_of, std::find_if
 #include <array>       // std::array
-#include <cctype>      // std::toupper, std::tolower
+#include <cctype>      // std::toupper
 #include <cmath>       // std::floor, std::fabs, std::isfinite
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint32_t, std::int64_t
@@ -181,20 +183,6 @@ auto text(const JSON *value, const std::string &key) -> std::string {
   return text(at(value, key));
 }
 
-auto join(const std::vector<std::string> &parts, const std::string_view glue)
-    -> std::string {
-  std::string result;
-  for (std::size_t index = 0; index < parts.size(); index++) {
-    if (index > 0) {
-      result += glue;
-    }
-
-    result += parts[index];
-  }
-
-  return result;
-}
-
 // Values a reader sees, never JSON.
 auto plain(const JSON *value) -> std::string {
   if (value == nullptr) {
@@ -219,7 +207,7 @@ auto plain(const JSON *value) -> std::string {
       parts.push_back(plain(&entry));
     }
 
-    return join(parts, ", ");
+    return sourcemeta::core::join(parts, ", ");
   }
 
   if (value->is_object()) {
@@ -237,7 +225,7 @@ auto plain_all(const JSON *values, const std::string_view glue) -> std::string {
     }
   }
 
-  return join(parts, glue);
+  return sourcemeta::core::join(parts, glue);
 }
 
 // Whether a value is the same as another by the strict equality of the
@@ -264,37 +252,6 @@ auto strictly_equal(const JSON *left, const JSON *right) -> bool {
 // hold turned into a dash, and when that loses something, a short mark of the
 // identifier itself is added.
 
-auto code_points(const std::string_view input) -> std::vector<std::uint32_t> {
-  std::vector<std::uint32_t> result;
-  std::size_t position{0};
-  while (position < input.size()) {
-    const auto lead{static_cast<unsigned char>(input[position])};
-    std::uint32_t point{lead};
-    std::size_t length{1};
-    if (lead >= 0xF0) {
-      point = lead & 0x07U;
-      length = 4;
-    } else if (lead >= 0xE0) {
-      point = lead & 0x0FU;
-      length = 3;
-    } else if (lead >= 0xC0) {
-      point = lead & 0x1FU;
-      length = 2;
-    }
-
-    for (std::size_t index = 1;
-         index < length && position + index < input.size(); index++) {
-      point = (point << 6U) |
-              (static_cast<unsigned char>(input[position + index]) & 0x3FU);
-    }
-
-    result.push_back(point);
-    position += length;
-  }
-
-  return result;
-}
-
 auto tidy(const std::string_view identifier) -> std::string {
   std::string result;
   auto dash{false};
@@ -319,8 +276,9 @@ auto tidy(const std::string_view identifier) -> std::string {
 
 auto mark(const std::string_view identifier) -> std::string {
   std::uint32_t hash{0x811c9dc5};
-  for (const auto point : code_points(identifier)) {
-    hash ^= point;
+  for (const auto point :
+       sourcemeta::core::utf8_to_utf32(identifier).value_or(std::u32string{})) {
+    hash ^= static_cast<std::uint32_t>(point);
     hash *= 0x01000193;
   }
 
@@ -358,7 +316,8 @@ auto anchor(const std::string_view identifier) -> std::string {
 // an address, so they are thrown away here too.
 auto linkable(const std::string_view address) -> bool {
   std::string bare;
-  for (const auto point : code_points(address)) {
+  for (const auto point :
+       sourcemeta::core::utf8_to_utf32(address).value_or(std::u32string{})) {
     if (point > 32 && point != 127) {
       // Only the start matters, which is ASCII when it is a scheme at all.
       bare += point < 128 ? static_cast<char>(point) : '?';
@@ -366,16 +325,10 @@ auto linkable(const std::string_view address) -> bool {
   }
 
   std::size_t position{0};
-  const auto letter = [](const char character) {
-    return (character >= 'a' && character <= 'z') ||
-           (character >= 'A' && character <= 'Z');
-  };
-
-  if (!bare.empty() && letter(bare[0])) {
+  if (!bare.empty() && sourcemeta::core::is_alpha(bare[0])) {
     position = 1;
     while (position < bare.size() &&
-           (letter(bare[position]) ||
-            (bare[position] >= '0' && bare[position] <= '9') ||
+           (sourcemeta::core::is_alphanum(bare[position]) ||
             bare[position] == '+' || bare[position] == '.' ||
             bare[position] == '-')) {
       position += 1;
@@ -383,11 +336,7 @@ auto linkable(const std::string_view address) -> bool {
 
     if (position < bare.size() && bare[position] == ':') {
       std::string scheme{bare.substr(0, position)};
-      for (auto &character : scheme) {
-        character = static_cast<char>(
-            std::tolower(static_cast<unsigned char>(character)));
-      }
-
+      sourcemeta::core::to_lowercase(scheme);
       return scheme == "http" || scheme == "https" || scheme == "mailto";
     }
   }
@@ -563,7 +512,7 @@ auto label(const JSON *value, const Draw &draw) -> std::string {
         names.push_back(draw.name_of(text(option, "ref")));
       }
 
-      return "either " + join(names, " or ");
+      return "either " + sourcemeta::core::join(names, " or ");
     }
 
     if (!options.empty() &&
@@ -575,7 +524,7 @@ auto label(const JSON *value, const Draw &draw) -> std::string {
         phrases.push_back(label(option, draw));
       }
 
-      return join(phrases, " or ");
+      return sourcemeta::core::join(phrases, " or ");
     }
 
     return "one of " + std::to_string(options.size()) + " forms";
@@ -740,7 +689,7 @@ auto facts_of(const JSON *value) -> std::string {
     said.emplace_back("with rules for some cases");
   }
 
-  return join(said, ", ");
+  return sourcemeta::core::join(said, ", ");
 }
 
 // What a condition turns on, read from the value it tests.
@@ -776,7 +725,7 @@ auto condition_text(const JSON *condition) -> std::string {
       names.push_back(text(property, "name"));
     }
 
-    return "when " + join(names, " and ") + " " +
+    return "when " + sourcemeta::core::join(names, " and ") + " " +
            (names.size() > 1 ? "are" : "is") + " filled in";
   }
 
@@ -787,7 +736,7 @@ auto condition_text(const JSON *condition) -> std::string {
       names.push_back(text(property, "name"));
     }
 
-    return "depending on " + join(names, " and ");
+    return "depending on " + sourcemeta::core::join(names, " and ");
   }
 
   return "in one case";
@@ -852,7 +801,8 @@ auto not_phrases(const JSON *value, const Draw &draw)
     }
 
     return {(names.size() > 1
-                 ? "you cannot use " + join(names, " and ") + " together"
+                 ? "you cannot use " + sourcemeta::core::join(names, " and ") +
+                       " together"
                  : names.front() + " may not be used") +
             why};
   }
@@ -874,10 +824,7 @@ auto with_article(const std::string &words) -> std::string {
       "a",       "an",       "the",     "this", "one",      "either",
       "exactly", "anything", "nothing", "text", "yes or no"};
   std::string lower{words};
-  for (auto &character : lower) {
-    character =
-        static_cast<char>(std::tolower(static_cast<unsigned char>(character)));
-  }
+  sourcemeta::core::to_lowercase(lower);
 
   for (const auto &bare : BARE) {
     if (!lower.starts_with(bare)) {
@@ -889,8 +836,7 @@ auto with_article(const std::string &words) -> std::string {
     }
 
     const auto next{lower[bare.size()]};
-    const auto word{(next >= 'a' && next <= 'z') ||
-                    (next >= '0' && next <= '9') || next == '_'};
+    const auto word{sourcemeta::core::is_alphanum(next) || next == '_'};
     if (!word) {
       return words;
     }
@@ -1229,7 +1175,7 @@ auto form_text(const JSON *option, const Draw &draw) -> std::string {
       parts.push_back(form_text(entry, draw));
     }
 
-    return join(parts, " or ");
+    return sourcemeta::core::join(parts, " or ");
   }
 
   const auto facts{facts_of(option)};
@@ -1520,14 +1466,15 @@ auto value_cell(Writer &out, const JSON *value, Draw &draw) -> void {
           parts.push_back(own);
         }
 
-        const auto forbidden{join(not_phrases(at(item, "not"), draw), "; ")};
+        const auto forbidden{
+            sourcemeta::core::join(not_phrases(at(item, "not"), draw), "; ")};
         if (!forbidden.empty()) {
           parts.push_back(forbidden);
         }
 
         said += ", each one " + with_article(label(item, draw));
         if (!parts.empty()) {
-          said += ", " + join(parts, ", ");
+          said += ", " + sourcemeta::core::join(parts, ", ");
         }
       }
 
@@ -1561,8 +1508,9 @@ auto value_cell(Writer &out, const JSON *value, Draw &draw) -> void {
       }
 
       typed(label(group->group, draw));
-      notes(out,
-            [&](Writer &inner) { inner.text("or " + join(others, " or ")); });
+      notes(out, [&](Writer &inner) {
+        inner.text("or " + sourcemeta::core::join(others, " or "));
+      });
     } else {
       typed(std::string{truthy(at(value, "overlap")) ? "one or more" : "one"} +
             " of " + std::to_string(options.size()) + " forms");
@@ -1640,7 +1588,7 @@ auto value_cell(Writer &out, const JSON *value, Draw &draw) -> void {
         inner.text(
             std::string{"and "} +
             (truthy(at(also, "overlap")) ? "at least one" : "exactly one") +
-            " of these: " + join(parts, "; "));
+            " of these: " + sourcemeta::core::join(parts, "; "));
       });
     } else if (!(also_kind == "object" && name == "object")) {
       std::vector<std::string> extra;
@@ -1677,8 +1625,9 @@ auto value_cell(Writer &out, const JSON *value, Draw &draw) -> void {
       }
 
       notes(out, [&](Writer &inner) {
-        inner.text("and must also be " + with_article(label(also, draw)) +
-                   (extra.empty() ? "" : ", " + join(extra, ", ")));
+        inner.text(
+            "and must also be " + with_article(label(also, draw)) +
+            (extra.empty() ? "" : ", " + sourcemeta::core::join(extra, ", ")));
       });
     }
   }
@@ -2256,7 +2205,10 @@ auto render_row(Writer &out, const Row &row, Draw &draw,
   out.td();
   required_cell(out, row, under);
   out.close();
-  out.td().attribute("class", "de").text(join(meaning, " ")).close();
+  out.td()
+      .attribute("class", "de")
+      .text(sourcemeta::core::join(meaning, " "))
+      .close();
   out.close();
   const auto child_under{
       row.required || beneath ? under : std::optional<std::string>{name}};
@@ -2517,12 +2469,87 @@ details.borrow table.doc { border:none; }
 .drops { font-size:.78rem; color:#7a7a70; padding-left:1.2rem; }
 )CSS"};
 
+// The tags that start a block of the page. A line break next to one of them
+// does not change how the page looks, while one next to an inline tag, like a
+// `span`, would put a space where there was none.
+auto is_block(const std::string_view name) -> bool {
+  static constexpr std::array<std::string_view, 19> BLOCKS{
+      {"meta", "title", "style", "div", "section", "h1", "h2", "h4", "p",
+       "table", "colgroup", "col", "tr", "th", "td", "ul", "li", "details",
+       "summary"}};
+  return std::find(BLOCKS.cbegin(), BLOCKS.cend(), name) != BLOCKS.cend();
+}
+
+auto break_line(std::string &output, const std::size_t depth) -> void {
+  if (!output.empty()) {
+    output += '\n';
+    output.append(depth * 2, ' ');
+  }
+}
+
+// Put every block of a page on a line of its own, indented by how deep it is,
+// and leave what is inside a line as it was. Every attribute value on the page
+// is escaped, so a tag ends at the first `>` after it starts, and the
+// stylesheet is the only content that is not.
+auto indented(const std::string_view page) -> std::string {
+  std::string output;
+  output.reserve(page.size() + (page.size() / 2));
+  // Whether each block still open holds another block, which then puts its
+  // closing tag on a line of its own too
+  std::vector<bool> holds;
+  std::size_t cursor{0};
+  while (cursor < page.size()) {
+    if (page[cursor] != '<') {
+      const auto next{page.find('<', cursor)};
+      const auto end{next == std::string_view::npos ? page.size() : next};
+      output.append(page.substr(cursor, end - cursor));
+      cursor = end;
+      continue;
+    }
+
+    const auto end{page.find('>', cursor) + 1};
+    const auto tag{page.substr(cursor, end - cursor)};
+    cursor = end;
+    const auto closing{tag.starts_with("</")};
+    const auto start{closing ? std::size_t{2} : std::size_t{1}};
+    const auto name{tag.substr(start, tag.find_first_of(" />", start) - start)};
+    if (!is_block(name)) {
+      output.append(tag);
+    } else if (closing) {
+      if (holds.back()) {
+        break_line(output, holds.size() - 1);
+      }
+
+      holds.pop_back();
+      output.append(tag);
+    } else {
+      if (!holds.empty()) {
+        holds.back() = true;
+      }
+
+      break_line(output, holds.size());
+      output.append(tag);
+      if (name == "style") {
+        const auto finish{page.find("</style>", cursor)};
+        output.append(page.substr(cursor, finish - cursor));
+        output.append("</style>");
+        cursor = finish + 8;
+      } else if (!tag.ends_with("/>")) {
+        holds.push_back(false);
+      }
+    }
+  }
+
+  output += '\n';
+  return output;
+}
+
 } // namespace
 
 namespace sourcemeta::blaze {
 
-auto to_html(const sourcemeta::core::JSON &documentation, std::string &output)
-    -> void {
+auto to_html(const sourcemeta::core::JSON &documentation, std::string &output,
+             const bool pretty, const bool stylesheet) -> void {
   Draw draw;
   const auto *document{&documentation};
   const auto title{text(document, "title")};
@@ -2609,7 +2636,7 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output)
     }
 
     root_notes.push_back("The whole file may instead be " +
-                         join(others, " or ") + ".");
+                         sourcemeta::core::join(others, " or ") + ".");
   }
 
   if (truthy(at(top, "closed"))) {
@@ -2788,7 +2815,7 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output)
         others.push_back(label(alternative, draw));
       }
 
-      note("It may instead be " + join(others, " or ") + ".");
+      note("It may instead be " + sourcemeta::core::join(others, " or ") + ".");
     }
 
     for (const auto &phrase : not_phrases(at(shape_body, "not"), draw)) {
@@ -2822,7 +2849,8 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output)
       }
 
       note("The property " + text(picker, "property") +
-           " decides which shape applies: " + join(cases, ", ") + ".");
+           " decides which shape applies: " +
+           sourcemeta::core::join(cases, ", ") + ".");
     }
 
     if (list_shape) {
@@ -2895,7 +2923,10 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output)
   page.raw("<!doctype html>");
   page.meta().attribute("charset", "utf-8");
   page.title(title);
-  page.style().raw(CSS).close();
+  if (stylesheet) {
+    page.style().raw(CSS).close();
+  }
+
   page.div().attribute("class", "page");
   page.h1(title);
   if (truthy(at(document, "description"))) {
@@ -2977,7 +3008,11 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output)
 
   page.raw(drawn);
   page.close();
-  output += page.take();
+  if (pretty) {
+    output += indented(page.str());
+  } else {
+    output += page.take();
+  }
 }
 
 } // namespace sourcemeta::blaze

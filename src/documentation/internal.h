@@ -77,6 +77,8 @@ struct Context {
   std::size_t depth{0};
 };
 
+// The message is a fixed sentence. Whatever the sentence is about, such as
+// the keyword at fault, travels beside it rather than inside it.
 [[noreturn]] inline auto fail(const char *message, const Pointer &location,
                               std::string subject = "") -> void {
   throw sourcemeta::blaze::DocumentationError{message, location,
@@ -86,8 +88,6 @@ struct Context {
 inline auto defines(const JSON &subschema, const std::string &keyword) -> bool {
   return subschema.is_object() && subschema.defines(keyword);
 }
-
-// A place in the schema, as the pointer string the format uses for a shape.
 
 // One subschema, described. Defined in `documentation_value.cc`.
 auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
