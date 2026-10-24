@@ -1,0 +1,79 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Schema</title>
+<div class="page">
+  <h1>Schema</h1>
+  <div class="counts"><span class="c opt"><b>1</b> you can leave out</span><span class="c cond"><b>3</b> that only apply in certain cases</span></div>
+  <div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Click a strip</b> to open what it holds.</span></div>
+  <section id="root">
+    <h2>What this file holds</h2>
+    <table class="doc">
+      <colgroup>
+        <col style="width:21%" />
+        <col style="width:30%" />
+        <col style="width:22%" />
+        <col style="width:27%" />
+      </colgroup>
+      <tr>
+        <th>Property</th>
+        <th>What goes in it</th>
+        <th>Required?</th>
+        <th>What it means</th>
+      </tr>
+      <tr>
+        <td><span class="nm">kind</span></td>
+        <td><span class="ty">text</span></td>
+        <td><span class="rq opt">No, you can leave it out</span></td>
+        <td class="de"></td>
+      </tr>
+      <tr>
+        <td><span class="nm cond">when kind is &quot;gift&quot;</span></td>
+        <td></td>
+        <td><span class="rq cond">Only in certain cases</span></td>
+        <td class="de"></td>
+      </tr>
+      <tr class="nest dep">
+        <td colspan="4">
+          <details class="nestbox depbox">
+            <summary>then these apply <span class="cnt">1 property</span></summary>
+            <table class="doc sub">
+              <colgroup>
+                <col style="width:21%" />
+                <col style="width:30%" />
+                <col style="width:22%" />
+                <col style="width:27%" />
+              </colgroup>
+              <tr>
+                <td><span class="nm">note</span></td>
+                <td><span class="ty">text</span></td>
+                <td><span class="rq cond">Yes, when kind is &quot;gift&quot;</span></td>
+                <td class="de"></td>
+              </tr>
+            </table>
+          </details>
+        </td>
+      </tr>
+      <tr class="nest dep">
+        <td colspan="4">
+          <details class="nestbox depbox">
+            <summary>otherwise these apply <span class="cnt">1 property</span></summary>
+            <table class="doc sub">
+              <colgroup>
+                <col style="width:21%" />
+                <col style="width:30%" />
+                <col style="width:22%" />
+                <col style="width:27%" />
+              </colgroup>
+              <tr>
+                <td><span class="nm">plain</span></td>
+                <td><span class="boolctl" title="a yes or no answer"><span class="bo">yes</span><span class="bo">no</span></span></td>
+                <td><span class="rq cond">Yes, otherwise</span></td>
+                <td class="de"></td>
+              </tr>
+            </table>
+          </details>
+        </td>
+      </tr>
+    </table>
+  </section>
+</div>

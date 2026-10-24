@@ -1,2 +1,3 @@
 /vendor/** linguist-generated=true
 /test/codegen/e2e/**/expected.d.ts text eol=lf
+/test/documentation/suite/**/index.html text eol=lf

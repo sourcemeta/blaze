@@ -1,0 +1,37 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Order",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "items",
+        "value": {
+          "kind": "array",
+          "item": {
+            "kind": "ref",
+            "ref": "/$defs/line"
+          }
+        }
+      }
+    ]
+  },
+  "shapes": [
+    {
+      "id": "/$defs/line",
+      "name": "line",
+      "value": {
+        "kind": "object",
+        "properties": [
+          {
+            "name": "sku",
+            "value": {
+              "kind": "string"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

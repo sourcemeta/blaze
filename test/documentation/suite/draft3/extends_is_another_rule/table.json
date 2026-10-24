@@ -1,0 +1,31 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "http://json-schema.org/draft-03/schema#",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "a",
+        "value": {
+          "kind": "string"
+        }
+      }
+    ],
+    "also": [
+      {
+        "kind": "object",
+        "properties": [
+          {
+            "name": "b",
+            "required": true,
+            "value": {
+              "kind": "integer"
+            }
+          }
+        ],
+        "otherTypesAllowed": true
+      }
+    ]
+  }
+}

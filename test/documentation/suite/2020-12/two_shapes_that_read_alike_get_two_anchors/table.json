@@ -1,0 +1,40 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Collide",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "first",
+        "value": {
+          "kind": "ref",
+          "ref": "/$defs/my_property"
+        }
+      },
+      {
+        "name": "second",
+        "value": {
+          "kind": "ref",
+          "ref": "/$defs/my-property"
+        }
+      }
+    ]
+  },
+  "shapes": [
+    {
+      "id": "/$defs/my-property",
+      "name": "my-property",
+      "value": {
+        "kind": "integer"
+      }
+    },
+    {
+      "id": "/$defs/my_property",
+      "name": "my_property",
+      "value": {
+        "kind": "string"
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "patternProperties": [
+      {
+        "pattern": "^x-",
+        "value": {
+          "kind": "string"
+        }
+      }
+    ],
+    "otherProperties": {
+      "kind": "integer"
+    },
+    "keys": {
+      "kind": "string",
+      "pattern": "^[a-z]",
+      "otherTypesAllowed": true
+    },
+    "propertyCount": {
+      "min": 1,
+      "max": 4
+    }
+  }
+}
