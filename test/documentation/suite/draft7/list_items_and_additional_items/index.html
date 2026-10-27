@@ -1,62 +1,39 @@
-<!doctype html>
-<meta charset="utf-8" />
-<title>Schema</title>
-<div class="page">
-  <h1>Schema</h1>
-  <div class="counts"><span class="c opt"><b>2</b> you can leave out</span></div>
-  <div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Click a strip</b> to open what it holds.</span></div>
-  <section id="root">
-    <h2>What this file holds</h2>
-    <div class="leafval"><span class="ty">a list with 1 fixed slot</span></div>
-    <table class="doc">
-      <colgroup>
-        <col style="width:21%" />
-        <col style="width:30%" />
-        <col style="width:22%" />
-        <col style="width:27%" />
-      </colgroup>
-      <tr class="nest">
-        <td colspan="4">
-          <details class="nestbox" open>
-            <summary>the fixed slots of <b>Schema</b> <span class="cnt">1 slot</span></summary>
-            <table class="doc sub">
-              <colgroup>
-                <col style="width:21%" />
-                <col style="width:30%" />
-                <col style="width:22%" />
-                <col style="width:27%" />
-              </colgroup>
-              <tr>
-                <td><span class="nm">slot 1</span></td>
-                <td><span class="ty">text</span></td>
-                <td><span class="rq opt">No, you can leave it out</span></td>
-                <td class="de"></td>
-              </tr>
-            </table>
-          </details>
-        </td>
-      </tr>
-      <tr class="nest dep">
-        <td colspan="4">
-          <details class="nestbox depbox">
-            <summary>what <b>Schema</b> holds after the fixed slots</summary>
-            <table class="doc sub">
-              <colgroup>
-                <col style="width:21%" />
-                <col style="width:30%" />
-                <col style="width:22%" />
-                <col style="width:27%" />
-              </colgroup>
-              <tr>
-                <td><span class="nm">every entry after those</span></td>
-                <td><span class="ty">a whole number</span></td>
-                <td><span class="rq opt">No, you can leave it out</span></td>
-                <td class="de"></td>
-              </tr>
-            </table>
-          </details>
-        </td>
-      </tr>
-    </table>
-  </section>
-</div>
+<h1>Schema</h1>
+<div class="counts"><span class="c opt"><b>2</b> you can leave out</span></div>
+<div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Click a strip</b> to open what it holds.</span></div>
+<section id="root">
+  <h2>What this file holds</h2>
+  <div class="leafval"><span class="ty">a list with 1 fixed slot</span></div>
+  <table class="doc">
+    <tr class="nest">
+      <td colspan="4">
+        <details class="nestbox" open>
+          <summary>the fixed slots of <b>Schema</b> <span class="cnt">1 slot</span></summary>
+          <table class="doc sub">
+            <tr>
+              <td><span class="nm">slot 1</span></td>
+              <td><span class="ty">text</span></td>
+              <td><span class="rq opt">No, you can leave it out</span></td>
+              <td class="de"></td>
+            </tr>
+          </table>
+        </details>
+      </td>
+    </tr>
+    <tr class="nest dep">
+      <td colspan="4">
+        <details class="nestbox depbox">
+          <summary>what <b>Schema</b> holds after the fixed slots</summary>
+          <table class="doc sub">
+            <tr>
+              <td><span class="nm">every entry after those</span></td>
+              <td><span class="ty">a whole number</span></td>
+              <td><span class="rq opt">No, you can leave it out</span></td>
+              <td class="de"></td>
+            </tr>
+          </table>
+        </details>
+      </td>
+    </tr>
+  </table>
+</section>

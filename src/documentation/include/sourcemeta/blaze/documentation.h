@@ -35,8 +35,7 @@ namespace sourcemeta::blaze {
 
 /// @ingroup documentation
 ///
-/// The address of the table format this module writes. A document states it as
-/// its `$schema`, and it names the version of the format too.
+/// The address of the table format, which a document states as its `$schema`.
 constexpr std::string_view DOCUMENTATION_FORMAT{
     "tag:sourcemeta.com,2026:table-format/2"};
 
@@ -101,14 +100,12 @@ to_documentation(const sourcemeta::core::JSON &schema,
 /// assert(!page.empty());
 /// ```
 ///
-/// The page is appended to the given string, so a caller that already has a
-/// buffer does not pay for another one. A `pretty` page puts every block on a
-/// line of its own, indented by how deep it is, which reads and diffs better at
-/// the cost of size. A page without its `stylesheet` is left for the caller to
-/// style.
+/// The HTML is appended to the given string. It carries no stylesheet: wrap it
+/// in an element of your own and style it through its class names. A `pretty`
+/// page puts every block on a line of its own, indented by how deep it is.
 SOURCEMETA_BLAZE_DOCUMENTATION_EXPORT auto
 to_html(const sourcemeta::core::JSON &documentation, std::string &output,
-        const bool pretty = false, const bool stylesheet = true) -> void;
+        const bool pretty = false) -> void;
 
 } // namespace sourcemeta::blaze
 

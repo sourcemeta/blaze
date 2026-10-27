@@ -1,37 +1,26 @@
-<!doctype html>
-<meta charset="utf-8" />
-<title>Schema</title>
-<div class="page">
-  <h1>Schema</h1>
-  <div class="counts"><span class="c opt"><b>2</b> you can leave out</span></div>
-  <div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Names in blue</b> link to the shape they name.</span></div>
-  <section id="root">
-    <h2>What this file holds</h2>
-    <table class="doc">
-      <colgroup>
-        <col style="width:21%" />
-        <col style="width:30%" />
-        <col style="width:22%" />
-        <col style="width:27%" />
-      </colgroup>
-      <tr>
-        <th>Property</th>
-        <th>What goes in it</th>
-        <th>Required?</th>
-        <th>What it means</th>
-      </tr>
-      <tr>
-        <td><span class="nm">value</span></td>
-        <td><span class="ty">text</span></td>
-        <td><span class="rq opt">No, you can leave it out</span></td>
-        <td class="de"></td>
-      </tr>
-      <tr>
-        <td><span class="nm">children</span></td>
-        <td><span class="ty">a list, each one <a class="ty link" href="#root">this whole document</a></span></td>
-        <td><span class="rq opt">No, you can leave it out</span></td>
-        <td class="de"></td>
-      </tr>
-    </table>
-  </section>
-</div>
+<h1>Schema</h1>
+<div class="counts"><span class="c opt"><b>2</b> you can leave out</span></div>
+<div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Linked names</b> lead to the shape they name.</span></div>
+<section id="root">
+  <h2>What this file holds</h2>
+  <table class="doc">
+    <tr>
+      <th>Property</th>
+      <th>What goes in it</th>
+      <th>Required?</th>
+      <th>What it means</th>
+    </tr>
+    <tr>
+      <td><span class="nm">value</span></td>
+      <td><span class="ty">text</span></td>
+      <td><span class="rq opt">No, you can leave it out</span></td>
+      <td class="de"></td>
+    </tr>
+    <tr>
+      <td><span class="nm">children</span></td>
+      <td><span class="ty">a list, each one <a class="ty link" href="#root">this whole document</a></span></td>
+      <td><span class="rq opt">No, you can leave it out</span></td>
+      <td class="de"></td>
+    </tr>
+  </table>
+</section>

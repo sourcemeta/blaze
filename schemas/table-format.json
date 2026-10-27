@@ -44,11 +44,9 @@
   "required": [ "$schema", "title", "language", "root" ],
   "properties": {
     "$schema": {
-      "description": "The name of this format and its version",
       "const": "tag:sourcemeta.com,2026:table-format/2"
     },
     "title": {
-      "description": "The title of what is described",
       "type": "string",
       "minLength": 1
     },
@@ -57,21 +55,20 @@
       "minLength": 1
     },
     "language": {
-      "description": "The address of the schema language, and version, the document was converted from. For JSON Schema, the dialect",
+      "description": "The schema language and version the document was converted from, such as a JSON Schema dialect",
       "examples": [
         "https://json-schema.org/draft/2020-12/schema",
         "https://avro.apache.org/docs/1.11.1/specification/"
       ],
+      "x-format-assertion": true,
       "type": "string",
-      "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:",
-      "minLength": 1
+      "format": "uri"
     },
     "root": {
-      "description": "What a whole document holds",
       "$ref": "#/$defs/value"
     },
     "shapes": {
-      "description": "Values described once and referred to by id, most used first. Absent when there are none",
+      "description": "Values described once and referred to by id, most used first",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -86,26 +83,27 @@
       "required": [ "id", "name", "value" ],
       "properties": {
         "id": {
-          "description": "Unique among the shapes. A `ref` equal to it means this shape",
+          "description": "A `ref` equal to it means this shape",
           "type": "string",
           "minLength": 1
         },
         "name": {
-          "description": "The name the shape is declared under, or the last part of its id",
           "type": "string",
           "minLength": 1
         },
         "section": {
-          "description": "A heading to list the shape under, when the author filed shapes in groups",
+          "description": "A heading to list the shape under",
           "type": "string",
           "minLength": 1
         },
         "usedAt": {
-          "description": "JSON Pointers into this document to every place that refers to this shape",
+          "description": "Every place in this document that refers to the shape",
           "type": "array",
           "minItems": 1,
           "items": {
-            "type": "string"
+            "x-format-assertion": true,
+            "type": "string",
+            "format": "json-pointer"
           }
         },
         "value": {
@@ -521,9 +519,7 @@
           "type": "string",
           "minLength": 1
         },
-        "default": {
-          "description": "The value assumed when none is given"
-        },
+        "default": true,
         "examples": {
           "type": "array",
           "minItems": 1
@@ -532,11 +528,9 @@
           "const": true
         },
         "nullable": {
-          "description": "null is also allowed",
           "const": true
         },
         "access": {
-          "description": "`read`: supplied by the system, not written by you. `write`: written by you, never returned",
           "enum": [ "read", "write" ]
         },
         "also": {
@@ -548,7 +542,6 @@
           }
         },
         "not": {
-          "description": "A value the data must not match",
           "$ref": "#/$defs/value"
         },
         "conditions": {
@@ -559,20 +552,22 @@
           }
         },
         "otherTypesAllowed": {
-          "description": "Data of a JSON type this value is not about (for a choice, that no form is about) also passes, and the rules of this kind do not apply to it",
+          "description": "Data of a JSON type this value is not about also passes",
           "const": true
         },
         "format": {
-          "description": "A label from the source language, such as email or date-time. Whether data is checked against it depends on that language; the format does not state it as a rule",
+          "description": "A label from the source language, such as `email`. It is not a rule",
           "type": "string",
           "minLength": 1
         },
         "pattern": {
-          "description": "An ECMA-262 regular expression, exactly as written in the source. The text matches when the pattern is found anywhere in it, unless the pattern is anchored",
-          "type": "string"
+          "description": "Found anywhere in the text, unless anchored",
+          "x-format-assertion": true,
+          "type": "string",
+          "format": "regex"
         },
         "length": {
-          "description": "For a string, characters. For an array, entries",
+          "description": "Characters for text, entries for a list",
           "type": "object",
           "minProperties": 1,
           "properties": {
@@ -588,7 +583,7 @@
           "additionalProperties": false
         },
         "content": {
-          "description": "What the text holds. It describes the text; it is not a rule the data is checked against",
+          "description": "What the text holds. It is not a rule",
           "type": "object",
           "minProperties": 1,
           "properties": {
@@ -660,11 +655,10 @@
           "$ref": "#/$defs/value"
         },
         "closed": {
-          "description": "Every property must be named",
+          "description": "Only named properties are allowed",
           "const": true
         },
         "keys": {
-          "description": "What every property name must be",
           "$ref": "#/$defs/value"
         },
         "propertyCount": {
@@ -751,16 +745,18 @@
           }
         },
         "overlap": {
-          "description": "More than one form may match. Without it, exactly one does",
+          "description": "More than one form may match",
           "const": true
         },
         "ref": {
-          "description": "The id of a shape, or \"\" for the root",
+          "description": "The id of a shape, or the empty string for the root",
           "type": "string"
         },
         "href": {
-          "description": "The other document: an absolute address when the source gives one, otherwise the reference as written",
+          "description": "The other document, as an absolute address when the source gives one",
+          "x-format-assertion": true,
           "type": "string",
+          "format": "uri-reference",
           "minLength": 1
         }
       }
@@ -773,11 +769,10 @@
           "type": "string"
         },
         "required": {
-          "description": "The property must be present. Absent means it may be left out",
           "const": true
         },
         "value": {
-          "description": "What may go in the property. Absent means nothing is said about it here",
+          "description": "Absent means nothing is said about it",
           "$ref": "#/$defs/value"
         }
       },

@@ -366,6 +366,29 @@
       }
     },
     {
+      "description": "A shape whose id is a name rather than a pointer",
+      "valid": true,
+      "data": {
+        "$schema": "tag:sourcemeta.com,2026:table-format/2",
+        "title": "Order",
+        "language": "https://json-schema.org/draft/2020-12/schema",
+        "root": {
+          "kind": "ref",
+          "ref": "com.example.Party"
+        },
+        "shapes": [
+          {
+            "id": "com.example.Party",
+            "name": "Party",
+            "usedAt": [ "/root" ],
+            "value": {
+              "kind": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
       "description": "A property that says nothing about what goes in it",
       "valid": true,
       "data": {
@@ -593,6 +616,55 @@
           "kind": "string"
         },
         "shapes": []
+      }
+    },
+    {
+      "description": "A place that refers to a shape and is not a JSON Pointer",
+      "valid": false,
+      "data": {
+        "$schema": "tag:sourcemeta.com,2026:table-format/2",
+        "title": "Order",
+        "language": "https://json-schema.org/draft/2020-12/schema",
+        "root": {
+          "kind": "ref",
+          "ref": "party"
+        },
+        "shapes": [
+          {
+            "id": "party",
+            "name": "party",
+            "usedAt": [ "root" ],
+            "value": {
+              "kind": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "description": "A pattern that is not a regular expression",
+      "valid": false,
+      "data": {
+        "$schema": "tag:sourcemeta.com,2026:table-format/2",
+        "title": "Order",
+        "language": "https://json-schema.org/draft/2020-12/schema",
+        "root": {
+          "kind": "string",
+          "pattern": "["
+        }
+      }
+    },
+    {
+      "description": "An address that is not a URI reference",
+      "valid": false,
+      "data": {
+        "$schema": "tag:sourcemeta.com,2026:table-format/2",
+        "title": "Order",
+        "language": "https://json-schema.org/draft/2020-12/schema",
+        "root": {
+          "kind": "external",
+          "href": "two words"
+        }
       }
     },
     {

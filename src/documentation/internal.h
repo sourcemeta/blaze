@@ -20,10 +20,7 @@
 // subschema lives in `documentation_value.cc`, and walking a whole schema in
 // `documentation.cc`.
 
-namespace sourcemeta::blaze::documentation {
-
-using sourcemeta::core::JSON;
-using sourcemeta::core::Pointer;
+namespace sourcemeta::blaze {
 
 enum class Rank : std::uint8_t {
   Draft3 = 3,
@@ -44,7 +41,7 @@ inline auto operator>=(const Rank left, const Rank right) -> bool {
 
 struct Shape {
   std::string identifier;
-  Pointer pointer;
+  sourcemeta::core::Pointer pointer;
   // How many places refer to it. The format's `usedAt` holds pointers into the
   // document rather than into the schema, so it is left out until the module
   // can state those exactly.
@@ -55,8 +52,8 @@ struct Shape {
 // an answer rather than exhausting the stack.
 constexpr std::size_t MAXIMUM_DEPTH{64};
 
-struct Context {
-  const JSON &root;
+struct DocumentationContext {
+  const sourcemeta::core::JSON &root;
   const sourcemeta::core::SchemaWalker &walker;
   const sourcemeta::core::SchemaResolver &resolver;
   const sourcemeta::core::SchemaFrame &frame;
@@ -73,26 +70,30 @@ struct Context {
   std::map<std::string, sourcemeta::core::JSON::String> dynamic_references;
   // Every place that declares a dynamic anchor, by its name with the leading
   // `#`. A `$recursiveAnchor` has no name, so it is kept under an empty one.
-  std::map<std::string, std::vector<Pointer>> dynamic_anchors;
+  std::map<std::string, std::vector<sourcemeta::core::Pointer>> dynamic_anchors;
   std::size_t depth{0};
 };
 
 // The message is a fixed sentence. Whatever the sentence is about, such as
 // the keyword at fault, travels beside it rather than inside it.
-[[noreturn]] inline auto fail(const char *message, const Pointer &location,
+[[noreturn]] inline auto fail(const char *message,
+                              const sourcemeta::core::Pointer &location,
                               std::string subject = "") -> void {
   throw sourcemeta::blaze::DocumentationError{message, location,
                                               std::move(subject)};
 }
 
-inline auto defines(const JSON &subschema, const std::string &keyword) -> bool {
+inline auto defines(const sourcemeta::core::JSON &subschema,
+                    const std::string &keyword) -> bool {
   return subschema.is_object() && subschema.defines(keyword);
 }
 
 // One subschema, described. Defined in `documentation_value.cc`.
-auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
-    -> JSON;
+auto describe_subschema(DocumentationContext &context,
+                        const sourcemeta::core::JSON &subschema,
+                        const sourcemeta::core::Pointer &pointer)
+    -> sourcemeta::core::JSON;
 
-} // namespace sourcemeta::blaze::documentation
+} // namespace sourcemeta::blaze
 
 #endif

@@ -21,9 +21,17 @@
 // states must hold for the data the schema accepts, and what cannot be stated
 // exactly is refused rather than guessed at.
 
-namespace sourcemeta::blaze::documentation {
-
 namespace {
+
+using sourcemeta::blaze::defines;
+using sourcemeta::blaze::describe_subschema;
+using sourcemeta::blaze::DocumentationContext;
+using sourcemeta::blaze::fail;
+using sourcemeta::blaze::MAXIMUM_DEPTH;
+using sourcemeta::blaze::Rank;
+using sourcemeta::blaze::Shape;
+using sourcemeta::core::JSON;
+using sourcemeta::core::Pointer;
 
 auto make_value(const std::string_view kind) -> JSON {
   auto result{JSON::make_object()};
@@ -33,7 +41,8 @@ auto make_value(const std::string_view kind) -> JSON {
 
 // The dialect in effect at a place: the one of the subschema there, or else of
 // the nearest one around it.
-auto rank_at(const Context &context, const Pointer &pointer) -> Rank {
+auto rank_at(const DocumentationContext &context, const Pointer &pointer)
+    -> Rank {
   Pointer current{pointer};
   while (true) {
     const auto match{context.ranks.find(sourcemeta::core::to_string(current))};
@@ -51,7 +60,8 @@ auto rank_at(const Context &context, const Pointer &pointer) -> Rank {
 
 // The schema resource a place belongs to: the nearest subschema around it that
 // declares an identifier, or the root.
-auto resource_of(const Context &context, const Pointer &pointer) -> Pointer {
+auto resource_of(const DocumentationContext &context, const Pointer &pointer)
+    -> Pointer {
   Pointer current{pointer};
   while (!current.empty()) {
     if (context.ranks.contains(sourcemeta::core::to_string(current))) {
@@ -69,7 +79,7 @@ auto resource_of(const Context &context, const Pointer &pointer) -> Pointer {
 
 // A place in this schema, described once as a shape and linked to wherever it
 // is used.
-auto shape_at(Context &context, const Pointer &target) -> JSON {
+auto shape_at(DocumentationContext &context, const Pointer &target) -> JSON {
   const auto identifier{sourcemeta::core::to_string(target)};
   auto match{context.shapes.find(identifier)};
   if (match == context.shapes.cend()) {
@@ -88,7 +98,7 @@ auto shape_at(Context &context, const Pointer &target) -> JSON {
 
 // Where a reference keyword of a subschema lands in this schema. Nothing means
 // it leads to another document, kept at the address it gives.
-auto landing_of(const Context &context, const Pointer &pointer,
+auto landing_of(const DocumentationContext &context, const Pointer &pointer,
                 const std::string &keyword, std::string &destination)
     -> std::optional<Pointer> {
   const auto entry{context.references.find(
@@ -184,8 +194,9 @@ auto landing_of(const Context &context, const Pointer &pointer,
 // at the root, so an anchor the root resource declares always wins. Otherwise
 // the place depends on the path taken to get there, and each place it may be
 // is one of the forms the value takes.
-auto dynamic_landings(const Context &context, const Pointer &pointer,
-                      const std::string &keyword) -> std::vector<Pointer> {
+auto dynamic_landings(const DocumentationContext &context,
+                      const Pointer &pointer, const std::string &keyword)
+    -> std::vector<Pointer> {
   const auto entry{context.dynamic_references.find(
       sourcemeta::core::to_string(pointer.concat(keyword)))};
   if (entry == context.dynamic_references.cend()) {
@@ -309,8 +320,6 @@ auto accepts_null(const JSON &value) -> bool {
 
   return false;
 }
-
-} // namespace
 
 // Whether one value of an enumeration is accepted by the KEYWORDS beside it.
 // Unknown means this module cannot tell, and then those KEYWORDS are stated as
@@ -557,8 +566,8 @@ auto requires_properties(const JSON &names, const Pointer &pointer) -> JSON {
   return object;
 }
 
-auto string_facts(Context &context, JSON &value, const JSON &subschema,
-                  const Pointer &pointer) -> void {
+auto string_facts(DocumentationContext &context, JSON &value,
+                  const JSON &subschema, const Pointer &pointer) -> void {
   copy_if_present(subschema, "format", value, "format");
   if (defines(subschema, "pattern")) {
     const auto &pattern{subschema.at("pattern")};
@@ -584,8 +593,9 @@ auto string_facts(Context &context, JSON &value, const JSON &subschema,
     copy_if_present(subschema, "contentEncoding", content, "encoding");
     if (defines(subschema, "contentSchema") &&
         context.rank >= Rank::Draft2019) {
-      content.assign("value", convert(context, subschema.at("contentSchema"),
-                                      pointer.concat("contentSchema")));
+      content.assign("value",
+                     describe_subschema(context, subschema.at("contentSchema"),
+                                        pointer.concat("contentSchema")));
     }
 
     if (!content.empty()) {
@@ -745,7 +755,7 @@ struct Part {
   bool always;
 };
 
-auto parts_of(const Context &context, const JSON &subschema,
+auto parts_of(const DocumentationContext &context, const JSON &subschema,
               const Pointer &pointer, const Rank rank) -> std::vector<Part> {
   std::vector<Part> result;
   if (!subschema.is_object()) {
@@ -855,7 +865,7 @@ struct Reach {
   bool items_sometimes{false};
 };
 
-auto reach_of(const Context &context, const JSON &subschema,
+auto reach_of(const DocumentationContext &context, const JSON &subschema,
               const Pointer &pointer, const Rank rank, const bool always,
               std::set<std::string> &seen, Reach &reach) -> void {
   for (const auto &part : parts_of(context, subschema, pointer, rank)) {
@@ -941,7 +951,7 @@ auto reach_of(const Context &context, const JSON &subschema,
   }
 }
 
-auto reach_of(const Context &context, const JSON &subschema,
+auto reach_of(const DocumentationContext &context, const JSON &subschema,
               const Pointer &pointer) -> Reach {
   Reach reach;
   std::set<std::string> seen;
@@ -964,8 +974,8 @@ auto literally(const JSON::String &name) -> JSON::String {
   return result;
 }
 
-auto object_facts(Context &context, JSON &value, const JSON &subschema,
-                  const Pointer &pointer) -> void {
+auto object_facts(DocumentationContext &context, JSON &value,
+                  const JSON &subschema, const Pointer &pointer) -> void {
   std::set<JSON::String> required;
   if (defines(subschema, "required") && context.rank >= Rank::Draft4) {
     const auto &names{subschema.at("required")};
@@ -1026,8 +1036,9 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
     for (const auto &entry : described.as_object()) {
       property_named(entry.first)
           .assign("value",
-                  convert(context, entry.second,
-                          pointer.concat("properties").concat(entry.first)));
+                  describe_subschema(
+                      context, entry.second,
+                      pointer.concat("properties").concat(entry.first)));
       own.insert(entry.first);
     }
   }
@@ -1051,8 +1062,9 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
       pattern.assign("pattern", JSON{entry.first});
       pattern.assign(
           "value",
-          convert(context, entry.second,
-                  pointer.concat("patternProperties").concat(entry.first)));
+          describe_subschema(
+              context, entry.second,
+              pointer.concat("patternProperties").concat(entry.first)));
       own_patterns.push_back(entry.first);
       pattern_properties.push_back(std::move(pattern));
     }
@@ -1077,10 +1089,11 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
     if (additional.is_boolean() && additional.to_boolean()) {
       other_properties = make_value("any");
     } else {
-      const auto other{additional.is_boolean()
-                           ? make_value("never")
-                           : convert(context, additional,
-                                     pointer.concat("additionalProperties"))};
+      const auto other{
+          additional.is_boolean()
+              ? make_value("never")
+              : describe_subschema(context, additional,
+                                   pointer.concat("additionalProperties"))};
       // This keyword only counts the properties this subschema itself names.
       // A name that only a member of `allOf`, a branch, a condition or a
       // reference uses is held to it as well, and the format would otherwise
@@ -1182,8 +1195,8 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
       if (unevaluated.is_boolean()) {
         closed = true;
       } else {
-        other_properties = convert(context, unevaluated,
-                                   pointer.concat("unevaluatedProperties"));
+        other_properties = describe_subschema(
+            context, unevaluated, pointer.concat("unevaluatedProperties"));
       }
     }
   }
@@ -1208,8 +1221,9 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
   }
 
   if (defines(subschema, "propertyNames") && context.rank >= Rank::Draft6) {
-    value.assign("keys", convert(context, subschema.at("propertyNames"),
-                                 pointer.concat("propertyNames")));
+    value.assign("keys",
+                 describe_subschema(context, subschema.at("propertyNames"),
+                                    pointer.concat("propertyNames")));
   }
 
   // A property whose name also matches a pattern is held to both, so the table
@@ -1281,9 +1295,9 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
       auto entry_condition{JSON::make_object()};
       entry_condition.assign("when", requires_property(entry.first));
       entry_condition.assign(
-          "then",
-          convert(context, entry.second,
-                  pointer.concat("dependentSchemas").concat(entry.first)));
+          "then", describe_subschema(
+                      context, entry.second,
+                      pointer.concat("dependentSchemas").concat(entry.first)));
       condition(value, std::move(entry_condition));
     }
   }
@@ -1312,9 +1326,9 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
             "then", requires_properties(names, pointer.concat("dependencies")));
       } else {
         entry_condition.assign(
-            "then",
-            convert(context, entry.second,
-                    pointer.concat("dependencies").concat(entry.first)));
+            "then", describe_subschema(
+                        context, entry.second,
+                        pointer.concat("dependencies").concat(entry.first)));
       }
 
       condition(value, std::move(entry_condition));
@@ -1322,8 +1336,8 @@ auto object_facts(Context &context, JSON &value, const JSON &subschema,
   }
 }
 
-auto array_facts(Context &context, JSON &value, const JSON &subschema,
-                 const Pointer &pointer) -> void {
+auto array_facts(DocumentationContext &context, JSON &value,
+                 const JSON &subschema, const Pointer &pointer) -> void {
   if (defines(subschema, "prefixItems") && context.rank >= Rank::Draft2020) {
     const auto &slots{subschema.at("prefixItems")};
     if (!slots.is_array()) {
@@ -1332,8 +1346,9 @@ auto array_facts(Context &context, JSON &value, const JSON &subschema,
 
     auto entries{JSON::make_array()};
     for (std::size_t index = 0; index < slots.array_size(); index++) {
-      entries.push_back(convert(context, slots.at(index),
-                                pointer.concat("prefixItems").concat(index)));
+      entries.push_back(
+          describe_subschema(context, slots.at(index),
+                             pointer.concat("prefixItems").concat(index)));
     }
 
     value.assign("slots", std::move(entries));
@@ -1351,18 +1366,20 @@ auto array_facts(Context &context, JSON &value, const JSON &subschema,
 
       auto entries{JSON::make_array()};
       for (std::size_t index = 0; index < items.array_size(); index++) {
-        entries.push_back(convert(context, items.at(index),
-                                  pointer.concat("items").concat(index)));
+        entries.push_back(describe_subschema(
+            context, items.at(index), pointer.concat("items").concat(index)));
       }
 
       value.assign("slots", std::move(entries));
       if (defines(subschema, "additionalItems")) {
-        value.assign("item", convert(context, subschema.at("additionalItems"),
-                                     pointer.concat("additionalItems")));
+        value.assign(
+            "item", describe_subschema(context, subschema.at("additionalItems"),
+                                       pointer.concat("additionalItems")));
         rest_said = true;
       }
     } else {
-      value.assign("item", convert(context, items, pointer.concat("items")));
+      value.assign("item",
+                   describe_subschema(context, items, pointer.concat("items")));
       rest_said = true;
     }
   }
@@ -1394,8 +1411,8 @@ auto array_facts(Context &context, JSON &value, const JSON &subschema,
       }
 
       std::vector<JSON> options;
-      auto rest{
-          convert(context, unevaluated, pointer.concat("unevaluatedItems"))};
+      auto rest{describe_subschema(context, unevaluated,
+                                   pointer.concat("unevaluatedItems"))};
       if (rest.at("kind").to_string() != "never" || rest.size() > 1) {
         options.push_back(std::move(rest));
       }
@@ -1407,7 +1424,7 @@ auto array_facts(Context &context, JSON &value, const JSON &subschema,
       }
 
       for (const auto &place : contains) {
-        options.push_back(convert(
+        options.push_back(describe_subschema(
             context, sourcemeta::core::get(context.root, place), place));
       }
 
@@ -1444,8 +1461,9 @@ auto array_facts(Context &context, JSON &value, const JSON &subschema,
 
   if (defines(subschema, "contains") && context.rank >= Rank::Draft6) {
     auto contains{JSON::make_object()};
-    contains.assign("value", convert(context, subschema.at("contains"),
-                                     pointer.concat("contains")));
+    contains.assign("value",
+                    describe_subschema(context, subschema.at("contains"),
+                                       pointer.concat("contains")));
     count_of(subschema, "minContains", pointer);
     count_of(subschema, "maxContains", pointer);
     if (defines(subschema, "minContains") && context.rank >= Rank::Draft2019) {
@@ -1559,8 +1577,8 @@ auto inferred_kinds(const JSON &subschema, const Rank rank)
   return result;
 }
 
-auto fill_kind(Context &context, JSON &value, const JSON &subschema,
-               const Pointer &pointer) -> void {
+auto fill_kind(DocumentationContext &context, JSON &value,
+               const JSON &subschema, const Pointer &pointer) -> void {
   const auto &kind{value.at("kind").to_string()};
   if (kind == "string") {
     string_facts(context, value, subschema, pointer);
@@ -1574,7 +1592,7 @@ auto fill_kind(Context &context, JSON &value, const JSON &subschema,
 }
 
 // What the reference keywords of a subschema lead to, one value for each.
-auto references_of(Context &context, const JSON &subschema,
+auto references_of(DocumentationContext &context, const JSON &subschema,
                    const Pointer &pointer) -> std::vector<JSON> {
   std::vector<JSON> result;
   for (const std::string keyword : {"$ref", "$dynamicRef", "$recursiveRef"}) {
@@ -1663,7 +1681,7 @@ auto annotations(JSON &value, const JSON &subschema, const Rank rank) -> void {
   }
 }
 
-auto branches(Context &context, JSON &value, const JSON &subschema,
+auto branches(DocumentationContext &context, JSON &value, const JSON &subschema,
               const Pointer &pointer, const std::string &keyword,
               const bool overlap) -> void {
   if (!defines(subschema, keyword)) {
@@ -1678,8 +1696,8 @@ auto branches(Context &context, JSON &value, const JSON &subschema,
   std::vector<JSON> options;
   options.reserve(members.array_size());
   for (std::size_t index = 0; index < members.array_size(); index++) {
-    options.emplace_back(convert(context, members.at(index),
-                                 pointer.concat(keyword).concat(index)));
+    options.emplace_back(describe_subschema(
+        context, members.at(index), pointer.concat(keyword).concat(index)));
   }
 
   // A form that is only null says the value may be null instead.
@@ -1725,8 +1743,8 @@ auto branches(Context &context, JSON &value, const JSON &subschema,
   also(value, std::move(choice));
 }
 
-auto conditions(Context &context, JSON &value, const JSON &subschema,
-                const Pointer &pointer) -> void {
+auto conditions(DocumentationContext &context, JSON &value,
+                const JSON &subschema, const Pointer &pointer) -> void {
   if (!defines(subschema, "if") || context.rank < Rank::Draft7) {
     return;
   }
@@ -1737,16 +1755,16 @@ auto conditions(Context &context, JSON &value, const JSON &subschema,
   }
 
   auto entry{JSON::make_object()};
-  entry.assign("when",
-               convert(context, subschema.at("if"), pointer.concat("if")));
+  entry.assign("when", describe_subschema(context, subschema.at("if"),
+                                          pointer.concat("if")));
   if (defines(subschema, "then")) {
-    entry.assign(
-        "then", convert(context, subschema.at("then"), pointer.concat("then")));
+    entry.assign("then", describe_subschema(context, subschema.at("then"),
+                                            pointer.concat("then")));
   }
 
   if (defines(subschema, "else")) {
-    entry.assign("otherwise", convert(context, subschema.at("else"),
-                                      pointer.concat("else")));
+    entry.assign("otherwise", describe_subschema(context, subschema.at("else"),
+                                                 pointer.concat("else")));
   }
 
   condition(value, std::move(entry));
@@ -1756,7 +1774,7 @@ auto conditions(Context &context, JSON &value, const JSON &subschema,
 // subschema in the dialect in effect where it sits.
 class Visit {
 public:
-  Visit(Context &context, const Pointer &pointer)
+  Visit(DocumentationContext &context, const Pointer &pointer)
       : context_{context}, previous_{context.rank} {
     this->context_.depth += 1;
     if (this->context_.depth > MAXIMUM_DEPTH) {
@@ -1777,7 +1795,7 @@ public:
   auto operator=(Visit &&) -> Visit & = delete;
 
 private:
-  Context &context_;
+  DocumentationContext &context_;
   Rank previous_;
 };
 
@@ -1801,8 +1819,8 @@ auto holds_schemas(const JSON &types) -> bool {
 
 // A Draft 3 list of types, which may hold whole schemas as well as names, as
 // the forms a value may take.
-auto type_options(Context &context, const JSON &types, const Pointer &pointer,
-                  const std::string &keyword) -> JSON {
+auto type_options(DocumentationContext &context, const JSON &types,
+                  const Pointer &pointer, const std::string &keyword) -> JSON {
   std::vector<JSON> options;
   const auto one = [&](const JSON &entry, const Pointer &where) {
     if (entry.is_string()) {
@@ -1810,7 +1828,7 @@ auto type_options(Context &context, const JSON &types, const Pointer &pointer,
                             ? make_value("any")
                             : make_value(kind_of(entry.to_string(), pointer)));
     } else if (entry.is_object()) {
-      options.push_back(convert(context, entry, where));
+      options.push_back(describe_subschema(context, entry, where));
     } else {
       fail("The `type` keyword must name types as strings", pointer);
     }
@@ -1842,8 +1860,8 @@ auto type_options(Context &context, const JSON &types, const Pointer &pointer,
 // The keywords Draft 3 has and later drafts spell otherwise: `extends` for
 // `allOf`, `disallow` for `not`, and a `type` that holds whole schemas for
 // `anyOf`.
-auto draft3_facts(Context &context, JSON &value, const JSON &subschema,
-                  const Pointer &pointer) -> void {
+auto draft3_facts(DocumentationContext &context, JSON &value,
+                  const JSON &subschema, const Pointer &pointer) -> void {
   if (defines(subschema, "type") && holds_schemas(subschema.at("type")) &&
       !names_any(subschema.at("type"))) {
     also(value, type_options(context, subschema.at("type"), pointer, "type"));
@@ -1853,11 +1871,13 @@ auto draft3_facts(Context &context, JSON &value, const JSON &subschema,
     const auto &extends{subschema.at("extends")};
     if (extends.is_array()) {
       for (std::size_t index = 0; index < extends.array_size(); index++) {
-        also(value, convert(context, extends.at(index),
-                            pointer.concat("extends").concat(index)));
+        also(value,
+             describe_subschema(context, extends.at(index),
+                                pointer.concat("extends").concat(index)));
       }
     } else {
-      also(value, convert(context, extends, pointer.concat("extends")));
+      also(value,
+           describe_subschema(context, extends, pointer.concat("extends")));
     }
   }
 
@@ -1867,8 +1887,12 @@ auto draft3_facts(Context &context, JSON &value, const JSON &subschema,
   }
 }
 
-auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
-    -> JSON {
+} // namespace
+
+namespace sourcemeta::blaze {
+
+auto describe_subschema(DocumentationContext &context, const JSON &subschema,
+                        const Pointer &pointer) -> JSON {
   const Visit visit{context, pointer};
   if (subschema.is_boolean()) {
     return make_value(subschema.to_boolean() ? "any" : "never");
@@ -2033,7 +2057,7 @@ auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
         rest.erase(JSON::String{"description"});
         rest.erase(JSON::String{"default"});
         rest.erase(JSON::String{"examples"});
-        auto beside{convert(context, rest, pointer)};
+        auto beside{describe_subschema(context, rest, pointer)};
         if (!(beside.at("kind").to_string() == "any" && beside.size() == 1)) {
           also(value, std::move(beside));
         }
@@ -2109,16 +2133,16 @@ auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
 
       // Every member holds, so each one is another thing the data must match.
       for (std::size_t index = 0; index < members.array_size(); index++) {
-        also(value, convert(context, members.at(index),
-                            pointer.concat("allOf").concat(index)));
+        also(value, describe_subschema(context, members.at(index),
+                                       pointer.concat("allOf").concat(index)));
       }
     }
 
     branches(context, value, subschema, pointer, "anyOf", true);
     branches(context, value, subschema, pointer, "oneOf", false);
     if (defines(subschema, "not")) {
-      forbid(value,
-             convert(context, subschema.at("not"), pointer.concat("not")));
+      forbid(value, describe_subschema(context, subschema.at("not"),
+                                       pointer.concat("not")));
     }
   }
 
@@ -2127,4 +2151,4 @@ auto convert(Context &context, const JSON &subschema, const Pointer &pointer)
   return value;
 }
 
-} // namespace sourcemeta::blaze::documentation
+} // namespace sourcemeta::blaze
