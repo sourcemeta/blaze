@@ -1,0 +1,63 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "enum": [ 1, 2, 3 ],
+    "minimum": 0,
+    "allOf": [ { "maximum": 5 } ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/3" }
+        ]
+      },
+      "1": { "minimum": 0, "type": "integer", "multipleOf": 1 },
+      "2": { "maximum": 5, "type": "integer", "multipleOf": 1 },
+      "3": { "enum": [ 1, 2, 3 ] }
+    }
+  },
+  "examples": [ 1, 2, 3 ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    -1,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    4,
+    6,
+    [ 1, 1 ],
+    [ 2 ],
+    [ 2, 2 ],
+    [ 3 ],
+    [ 3, 3 ],
+    -0.5,
+    4.5,
+    5.5
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "pos": { "type": "integer", "exclusiveMinimum": 0 },
+      "neg": { "type": "integer", "exclusiveMaximum": 0 }
+    },
+    "type": "object",
+    "properties": {
+      "gain": { "$ref": "#/definitions/pos" },
+      "loss": { "$ref": "#/definitions/neg" }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": {
+          "gain": { "$ref": "#/definitions/2" },
+          "loss": { "$ref": "#/definitions/3" }
+        },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": true,
+      "2": { "type": "integer", "minimum": 1, "multipleOf": 1 },
+      "3": { "type": "integer", "maximum": -1, "multipleOf": 1 }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "gain": 1 },
+    { "loss": -1 }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    { "gain": 1, "loss": 1 },
+    { "gain": "other", "loss": 1 },
+    { "gain": 1, "loss": "other" },
+    { "gain": -1, "loss": -1 },
+    { "gain": -1 },
+    { "gain": 0, "loss": 0 },
+    { "gain": 0 },
+    { "gain": "x", "loss": "x" },
+    { "gain": "x" },
+    [ -1 ],
+    [ -1, -1 ],
+    [ 0 ],
+    [ 0, 0 ],
+    [ 1, 1 ],
+    { "gain": {}, "loss": {} },
+    { "gain": { "gain": "x" } },
+    { "gain": -1, "loss": "x" },
+    { "gain": "x", "loss": -1 },
+    -0.5,
+    { "gain": -0.5, "loss": -0.5 },
+    { "gain": -0.5 },
+    { "gain": 0.5, "loss": 0.5 },
+    { "gain": 0.5 },
+    [ -0.5 ],
+    [ -0.5, -0.5 ]
+  ]
+}

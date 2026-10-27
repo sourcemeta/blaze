@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "items": { "not": { "type": "null" } },
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/1" },
+        "minItems": 1,
+        "maxItems": 1,
+        "uniqueItems": false
+      },
+      "1": { "not": { "$ref": "#/definitions/2" } },
+      "2": { "enum": [ null ] }
+    }
+  },
+  "examples": [ [ 1 ], [ "a" ], [ "x" ], [ -1 ] ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1, 2 ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    [ 1, 1 ],
+    [ "x", "x" ],
+    [ null ],
+    [ 0, 1 ]
+  ]
+}
