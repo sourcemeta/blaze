@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 1
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "anyOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/6" },
+          { "$ref": "#/definitions/7" }
+        ]
+      },
+      "1": { "enum": [ null ] },
+      "2": { "enum": [ false, true ] },
+      "3": {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/4" },
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/4" }
+      },
+      "4": true,
+      "5": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/4" },
+        "minItems": 0
+      },
+      "6": { "type": "string", "minLength": 0 },
+      "7": { "type": "number", "exclusiveMaximum": 1 }
+    }
+  },
+  "examples": [
+    null,
+    true,
+    false,
+    0,
+    -1,
+    0.5,
+    -1.5,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    [ 0 ],
+    [ 0, 0 ],
+    [ 1, 1 ],
+    [ 2 ],
+    [ 2, 2 ],
+    [ 0.5 ],
+    [ 0.5, 0.5 ]
+  ],
+  "counterExamples": [ 1, 2, 3, 5, 10, 11, 1.5, 9007199254740993 ]
+}

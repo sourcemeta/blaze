@@ -1,0 +1,86 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "name": { "type": "string" },
+      "age": { "type": "integer" }
+    },
+    "type": "object",
+    "properties": {
+      "name": { "$ref": "#/definitions/name" },
+      "age": { "$ref": "#/definitions/age" }
+    },
+    "required": [ "name" ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": {
+          "name": { "$ref": "#/definitions/3" },
+          "age": { "$ref": "#/definitions/2" }
+        },
+        "required": [ "name" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 1,
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": true,
+      "2": { "type": "integer", "multipleOf": 1 },
+      "3": { "type": "string", "minLength": 0 }
+    }
+  },
+  "examples": [
+    { "age": 1, "name": "x" },
+    { "name": "x" },
+    { "age": -1, "name": "x" }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "age": "other", "name": "x" },
+    { "age": 1, "name": -1 },
+    { "age": 1, "name": 1 },
+    { "age": 1 },
+    { "age": "x", "name": "x" },
+    { "age": "x" },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "age": {}, "name": {} },
+    { "age": { "age": "x" } },
+    { "age": -1 },
+    { "age": "x", "name": -1 },
+    { "name": -1 }
+  ]
+}
