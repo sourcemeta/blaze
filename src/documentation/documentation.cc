@@ -21,9 +21,15 @@
 // shapes it refers to, and assembling the document. Describing one subschema
 // lives in `documentation_value.cc`.
 
-namespace sourcemeta::blaze::documentation {
-
 namespace {
+
+using sourcemeta::blaze::DocumentationContext;
+using sourcemeta::blaze::fail;
+using sourcemeta::blaze::MAXIMUM_DEPTH;
+using sourcemeta::blaze::Rank;
+using sourcemeta::blaze::Shape;
+using sourcemeta::core::JSON;
+using sourcemeta::core::Pointer;
 
 // How deeply the document nests, counted without recursion so that measuring a
 // runaway schema cannot itself exhaust the stack.
@@ -126,13 +132,7 @@ auto name_of(const Pointer &pointer, const std::string &identifier)
 
 } // namespace
 
-} // namespace sourcemeta::blaze::documentation
-
 namespace sourcemeta::blaze {
-
-// The vocabulary this module works in, so the entry point reads the same
-// way as the two files behind it.
-using namespace documentation; // NOLINT(google-build-using-namespace)
 
 auto to_documentation(const sourcemeta::core::JSON &schema,
                       const sourcemeta::core::SchemaWalker &walker,
@@ -175,18 +175,18 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
          root_pointer);
   }
 
-  Context context{.root = schema,
-                  .walker = walker,
-                  .resolver = resolver,
-                  .frame = frame.value(),
-                  .rank =
-                      rank_of(root_location->get().base_dialect, root_pointer),
-                  .ranks = {},
-                  .shapes = {},
-                  .references = {},
-                  .dynamic_references = {},
-                  .dynamic_anchors = {},
-                  .depth = 0};
+  DocumentationContext context{
+      .root = schema,
+      .walker = walker,
+      .resolver = resolver,
+      .frame = frame.value(),
+      .rank = rank_of(root_location->get().base_dialect, root_pointer),
+      .ranks = {},
+      .shapes = {},
+      .references = {},
+      .dynamic_references = {},
+      .dynamic_anchors = {},
+      .depth = 0};
 
   // A resource may declare a dialect of its own, and then a keyword means
   // something else, or nothing at all, from one part of the schema to the
@@ -228,7 +228,7 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
     }
   });
 
-  auto root{convert(context, schema, root_pointer)};
+  auto root{describe_subschema(context, schema, root_pointer)};
 
   auto result{sourcemeta::core::JSON::make_object()};
   result.assign("$schema",
@@ -273,9 +273,9 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
 
     for (const auto &shape : pending) {
       values.emplace(shape.identifier,
-                     convert(context,
-                             sourcemeta::core::get(schema, shape.pointer),
-                             shape.pointer));
+                     describe_subschema(
+                         context, sourcemeta::core::get(schema, shape.pointer),
+                         shape.pointer));
     }
   }
 
