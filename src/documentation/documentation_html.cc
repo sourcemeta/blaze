@@ -26,8 +26,8 @@
 
 // The table format into a page. This renderer reads the table format and
 // nothing else, so it draws a page for a schema of any language that was
-// converted into it. It is the same page the reference renderer draws, word
-// for word, so what a reader sees here is what they saw in the playground:
+// converted into it. It writes bare markup with no stylesheet, so whoever shows
+// the page styles it through the class names on it. It holds:
 //
 // - the shapes everything else is built on, before the things built on them
 // - one row per property, with limits drawn rather than written
@@ -40,8 +40,6 @@
 namespace {
 
 using sourcemeta::core::JSON;
-
-// Reading the format, which may leave out anything it has nothing to say about.
 
 auto at(const JSON *value, const std::string &key) -> const JSON * {
   if (value == nullptr || !value->is_object() || !value->defines(key)) {
@@ -343,8 +341,6 @@ auto linkable(const std::string_view address) -> bool {
 
   return !bare.starts_with("//");
 }
-
-// Words, which are this renderer's and not the format's.
 
 auto type_words(const std::string &name) -> std::string {
   static const std::map<std::string, std::string> WORDS{
@@ -872,8 +868,6 @@ auto brief(const JSON *value, const Draw &draw) -> std::string {
 
   return with_article(label(value, draw));
 }
-
-// Reading the format into rows.
 
 enum class NameKind : std::uint8_t { Named, Pattern, Other };
 
@@ -1809,18 +1803,6 @@ auto value_cell(Writer &out, const JSON *value, Draw &draw) -> void {
   }
 }
 
-// Rows.
-
-auto columns(Writer &out) -> void {
-  out.colgroup();
-  for (const auto *width :
-       {"width:21%", "width:30%", "width:22%", "width:27%"}) {
-    out.col().attribute("style", width);
-  }
-
-  out.close();
-}
-
 // A table of rows, or nothing when there are no rows.
 auto table(Writer &out, const std::string &rows, const bool sub = false)
     -> void {
@@ -1829,7 +1811,6 @@ auto table(Writer &out, const std::string &rows, const bool sub = false)
   }
 
   out.table().attribute("class", sub ? "doc sub" : "doc");
-  columns(out);
   if (!sub) {
     out.tr();
     out.th("Property");
@@ -2389,98 +2370,13 @@ auto nested_of(Writer &out, const JSON *value, Draw &draw,
 
 auto used(const JSON *shape) -> std::size_t { return count(shape, "usedAt"); }
 
-// What the page sets out to be, written once for every page.
-constexpr std::string_view CSS{R"CSS(
-:root { --line:#DDDDD6; --ink:#1a1a1a; --muted:#6b6b64; --accent:#0F49C0; }
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:"IBM Plex Sans","Segoe UI",sans-serif; background:#F7F7F5; color:var(--ink); padding:2rem 1.2rem; line-height:1.45; }
-.page { max-width:1180px; margin:0 auto; }
-h1 { font-size:1.5rem; font-weight:600; overflow-wrap:anywhere; }
-h2 { font-size:1rem; font-weight:600; margin:0 0 .15rem; }
-h3 { font-size:.9rem; font-weight:600; margin:0 0 .3rem; }
-h4 { font-size:.86rem; font-weight:600; margin:0 0 .15rem; font-family:"IBM Plex Mono",monospace; }
-.subtitle { color:#555; margin:.3rem 0 1rem; max-width:70ch; overflow-wrap:anywhere; }
-.snote { color:var(--muted); font-size:.79rem; margin-bottom:.35rem; max-width:78ch; }
-section { margin:1.6rem 0; }
-.defblock { margin:1rem 0; padding-left:.7rem; border-left:3px solid #D9D9CF; }
-.shapeblock { margin:.9rem 0 1.1rem; padding-left:.6rem; border-left:2px solid #E4E4DC; }
-.shapeblock:target { border-left-color:var(--accent); background:#F3F7FD; }
-table.doc { width:100%; border-collapse:collapse; background:#FFF; border:1px solid var(--line); font-size:.82rem; table-layout:fixed; }
-table.doc th { background:#EFEFE9; text-align:left; font-size:.68rem; letter-spacing:.05em; text-transform:uppercase; color:#6b6b64; padding:.4rem .65rem; border-bottom:1px solid var(--line); }
-table.doc td { padding:.34rem .65rem; border-bottom:1px solid #F0F0EA; vertical-align:top; word-wrap:break-word; overflow-wrap:anywhere; }
-table.doc tr:hover > td { background:#F3F7FD; }
-table.doc.sub { border:1px solid #E4E4DC; margin:0; }
-.nm { font-weight:600; }
-.nm.ghost { font-style:italic; font-weight:400; color:#7a7a70; }
-.nm.cond { font-weight:600; color:#8a5A00; }
-.ty { color:var(--accent); display:block; }
-a.ty.link { text-decoration:underline; text-underline-offset:2px; }
-.extlink { font-size:.72rem; color:#0B5FA5; word-break:break-all; max-width:100%; display:inline-block; }
-.de { color:#333; }
-.notes { margin-top:.2rem; }
-.notes span { display:block; font-size:.73rem; color:#7a7a70; }
-.rq { font-size:.77rem; }
-.rq.req { color:#A31515; font-weight:600; }
-.rq.opt { color:#8a8a80; }
-.rq.cond { color:#8a5A00; font-weight:600; }
-.bar { display:flex; align-items:center; gap:.4rem; margin-top:.3rem; font-size:.7rem; color:#5a5a52; }
-.bend { font-family:"IBM Plex Mono",monospace; white-space:nowrap; }
-.btrack { flex:1; min-width:38px; height:9px; border-radius:3px; border:1px solid #C9C9C0;
-  background:repeating-linear-gradient(90deg,#F2F2EC 0,#F2F2EC 7px,#DCDCD2 7px,#DCDCD2 8px); }
-.boolctl { display:inline-flex; margin-top:.3rem; border:1px solid #C9D4E8; border-radius:5px; overflow:hidden; }
-.boolctl .bo { padding:.1rem .55rem; font-size:.73rem; background:#F4F8FE; color:#31527F; border-right:1px solid #C9D4E8; }
-.boolctl .bo:last-child { border-right:none; }
-.chips { display:flex; flex-wrap:wrap; gap:.22rem; margin-top:.3rem; max-width:100%; }
-.chip { font-size:.72rem; background:#F1F1EA; border:1px solid #DEDED4; border-radius:4px; padding:.05rem .42rem; font-family:"IBM Plex Mono",monospace; max-width:100%; overflow-wrap:anywhere; }
-.chip.def { background:#EAF3EC; border-color:#C3DFCB; color:#1F6B42; }
-.chip em { font-family:"IBM Plex Sans",sans-serif; font-style:normal; font-size:.64rem; margin-left:.3rem; color:#4d8a63; }
-a.pickchip { text-decoration:none; color:var(--accent); border-color:#C9D4E8; background:#F4F8FE; }
-a.pickchip:hover { background:#EAF1FD; text-decoration:underline; }
-details.pick > summary { cursor:pointer; font-size:.73rem; color:var(--accent); margin-top:.25rem; }
-tr.nest > td { padding:.35rem .65rem .5rem 1.5rem; background:#FBFBF7; border-bottom:1px solid #EDEDE5; }
-.nestbox > summary { cursor:pointer; font-size:.73rem; color:#6b6b64; padding:.15rem 0 .35rem; list-style:none; }
-.nestbox > summary::before { content:"\0025B8   "; color:#9a9a90; }
-.nestbox[open] > summary::before { content:"\0025BE   "; }
-.nestbox .cnt { color:#9a9a90; }
-tr.nest.dep > td { background:#FFFBF1; border-left:3px solid #E8C87A; }
-.depbox > summary { color:#8a5A00; font-weight:600; font-size:.76rem; }
-.depbox > summary::before { color:#C79B33; }
-details.borrow { margin:.3rem 0 .2rem; border:1px dashed #D3D8E4; border-radius:5px; background:#FBFCFE; }
-details.borrow > summary { cursor:pointer; padding:.28rem .6rem; font-size:.75rem; color:#4A5A7A; list-style:none; }
-details.borrow > summary::before { content:"\0025B8   "; color:#8b96ad; }
-details.borrow[open] > summary::before { content:"\0025BE   "; }
-details.borrow table.doc { border:none; }
-.ix { column-width:190px; column-gap:1.4rem; }
-.ixgroup { break-inside:avoid; margin-bottom:.9rem; }
-.ixgroup .ixh { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:#6b6b64; margin-bottom:.25rem; }
-.ix ul { list-style:none; }
-.ix li { font-size:.78rem; line-height:1.5; }
-.ix a { color:var(--accent); text-decoration:none; }
-.ix a:hover { text-decoration:underline; }
-.ixn { font-size:.66rem; color:#a8a89e; }
-.counts { display:flex; gap:.45rem; flex-wrap:wrap; margin:.2rem 0 .6rem; }
-.counts .c { font-size:.79rem; padding:.28rem .7rem; border-radius:999px; border:1px solid; }
-.counts .c b { font-size:.94rem; margin-right:.12rem; }
-.counts .req { background:#FDEDEC; border-color:#F0C8C2; color:#A31515; }
-.counts .opt { background:#F1F1EC; border-color:#DDDDD4; color:#5f5f57; }
-.counts .cond { background:#FFF6E0; border-color:#EBD9A8; color:#8a5A00; }
-.legend { display:flex; gap:1.2rem; flex-wrap:wrap; font-size:.75rem; color:var(--muted); margin-bottom:.9rem; padding:.45rem .75rem; background:#FFF; border:1px solid var(--line); border-radius:7px; }
-.legend b { color:var(--ink); font-weight:600; }
-.forms { margin-top:.25rem; }
-.forms .form { display:block; font-size:.72rem; color:#5a5a52; padding:.06rem 0; }
-.forms .form b { font-family:"IBM Plex Mono",monospace; color:#1F6B42; font-weight:600; }
-.forms .form i { font-style:normal; color:#8a5A00; }
-.drops { font-size:.78rem; color:#7a7a70; padding-left:1.2rem; }
-)CSS"};
-
 // The tags that start a block of the page. A line break next to one of them
 // does not change how the page looks, while one next to an inline tag, like a
 // `span`, would put a space where there was none.
 auto is_block(const std::string_view name) -> bool {
-  static constexpr std::array<std::string_view, 19> BLOCKS{
-      {"meta", "title", "style", "div", "section", "h1", "h2", "h4", "p",
-       "table", "colgroup", "col", "tr", "th", "td", "ul", "li", "details",
-       "summary"}};
+  static constexpr std::array<std::string_view, 14> BLOCKS{
+      {"div", "section", "h1", "h2", "h4", "p", "table", "tr", "th", "td", "ul",
+       "li", "details", "summary"}};
   return std::find(BLOCKS.cbegin(), BLOCKS.cend(), name) != BLOCKS.cend();
 }
 
@@ -2493,8 +2389,7 @@ auto break_line(std::string &output, const std::size_t depth) -> void {
 
 // Put every block of a page on a line of its own, indented by how deep it is,
 // and leave what is inside a line as it was. Every attribute value on the page
-// is escaped, so a tag ends at the first `>` after it starts, and the
-// stylesheet is the only content that is not.
+// is escaped, so a tag ends at the first `>` after it starts.
 auto indented(const std::string_view page) -> std::string {
   std::string output;
   output.reserve(page.size() + (page.size() / 2));
@@ -2533,12 +2428,7 @@ auto indented(const std::string_view page) -> std::string {
 
       break_line(output, holds.size());
       output.append(tag);
-      if (name == "style") {
-        const auto finish{page.find("</style>", cursor)};
-        output.append(page.substr(cursor, finish - cursor));
-        output.append("</style>");
-        cursor = finish + 8;
-      } else if (!tag.ends_with("/>")) {
+      if (!tag.ends_with("/>")) {
         holds.push_back(false);
       }
     }
@@ -2553,7 +2443,7 @@ auto indented(const std::string_view page) -> std::string {
 namespace sourcemeta::blaze {
 
 auto to_html(const sourcemeta::core::JSON &documentation, std::string &output,
-             const bool pretty, const bool stylesheet) -> void {
+             const bool pretty) -> void {
   Draw draw;
   const auto *document{&documentation};
   const auto title{text(document, "title")};
@@ -2740,7 +2630,6 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output,
     const auto rows{inner.take()};
     if (!rows.empty()) {
       body.table().attribute("class", "doc");
-      columns(body);
       body.raw(rows);
       body.close();
     }
@@ -2884,7 +2773,6 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output,
       const auto rows_inside{inner.take()};
       if (!rows_inside.empty()) {
         out.table().attribute("class", "doc");
-        columns(out);
         out.raw(rows_inside);
         out.close();
       }
@@ -2924,14 +2812,6 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output,
   };
 
   Writer page;
-  page.raw("<!doctype html>");
-  page.meta().attribute("charset", "utf-8");
-  page.title(title);
-  if (stylesheet) {
-    page.style().raw(CSS).close();
-  }
-
-  page.div().attribute("class", "page");
   page.h1(title);
   if (truthy(at(document, "description"))) {
     page.p()
@@ -2987,11 +2867,11 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output,
        .lead = "Click a strip",
        .rest = " to open what it holds."},
       {.marker = "class=\"bar\"",
-       .lead = "Bars",
+       .lead = "Ranges",
        .rest = " show the lowest and highest allowed."},
       {.marker = "href=\"#",
-       .lead = "Names in blue",
-       .rest = " link to the shape they name."}};
+       .lead = "Linked names",
+       .rest = " lead to the shape they name."}};
   auto legend{false};
   for (const auto &line : lines) {
     if (drawn.find(line.marker) == std::string::npos) {
@@ -3011,7 +2891,6 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output,
   }
 
   page.raw(drawn);
-  page.close();
   if (pretty) {
     output += indented(page.str());
   } else {

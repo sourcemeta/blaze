@@ -23,55 +23,34 @@ auto order() -> sourcemeta::core::JSON {
   })JSON");
 }
 
-auto stylesheet_of(const std::string &page) -> std::string {
-  const auto start{page.find("<style>")};
-  const auto end{page.find("</style>")};
-  EXPECT_TRUE(start != std::string::npos);
-  EXPECT_TRUE(end != std::string::npos);
-  return page.substr(start, end - start);
-}
-
 } // namespace
 
-TEST(html_a_page_carries_its_stylesheet) {
+TEST(html_a_page_carries_no_stylesheet_and_no_document_around_it) {
   std::string page;
   sourcemeta::blaze::to_html(order(), page);
-  EXPECT_TRUE(page.find("<style>") != std::string::npos);
-  EXPECT_TRUE(page.find(".page") != std::string::npos);
-}
-
-TEST(html_a_page_may_leave_its_stylesheet_out) {
-  std::string page;
-  sourcemeta::blaze::to_html(order(), page, false, false);
+  EXPECT_TRUE(page.starts_with("<h1>Order</h1>"));
   EXPECT_TRUE(page.find("<style") == std::string::npos);
-  EXPECT_TRUE(page.find("<table class=\"doc\">") != std::string::npos);
+  EXPECT_TRUE(page.find("<!doctype") == std::string::npos);
+  EXPECT_TRUE(page.find("<title") == std::string::npos);
 }
 
 TEST(html_a_page_is_on_one_line_unless_pretty) {
   std::string page;
-  sourcemeta::blaze::to_html(order(), page, false, false);
+  sourcemeta::blaze::to_html(order(), page);
   EXPECT_TRUE(page.find('\n') == std::string::npos);
-}
-
-TEST(html_a_pretty_page_keeps_its_stylesheet_as_it_is) {
-  std::string compact;
-  sourcemeta::blaze::to_html(order(), compact);
-  std::string pretty;
-  sourcemeta::blaze::to_html(order(), pretty, true);
-  EXPECT_EQ(stylesheet_of(pretty), stylesheet_of(compact));
 }
 
 TEST(html_a_pretty_page_puts_each_block_on_a_line_of_its_own) {
   std::string page;
-  sourcemeta::blaze::to_html(order(), page, true, false);
-  EXPECT_TRUE(page.find("\n  <h1>Order</h1>\n") != std::string::npos);
+  sourcemeta::blaze::to_html(order(), page, true);
+  EXPECT_TRUE(page.starts_with("<h1>Order</h1>\n<div class=\"counts\">"));
   EXPECT_EQ(page.back(), '\n');
 }
 
 TEST(html_the_page_is_appended_to_what_is_already_there) {
   std::string page{"before"};
   sourcemeta::blaze::to_html(order(), page);
-  EXPECT_TRUE(page.starts_with("before<!doctype html>"));
+  EXPECT_TRUE(page.starts_with("before<h1>Order</h1>"));
 }
 
 TEST(html_two_shapes_that_share_an_anchor_are_refused) {

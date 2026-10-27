@@ -36,10 +36,10 @@ auto run_documentation_test(const std::filesystem::path &directory) -> void {
   sourcemeta::blaze::Evaluator evaluator;
   EXPECT_TRUE(evaluator.validate(FORMAT, documentation));
 
-  // The page is compared without its stylesheet, which is the same on every
-  // page, and indented, so that a change to it reads as a change to a line
+  // The page is compared indented, so that a change to it reads as a change to
+  // a line
   std::string page;
-  sourcemeta::blaze::to_html(documentation, page, true, false);
+  sourcemeta::blaze::to_html(documentation, page, true);
   EXPECT_EQ(page,
             sourcemeta::core::read_file_to_string(directory / "index.html"));
 }
