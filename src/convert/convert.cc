@@ -45,14 +45,129 @@ namespace {
 
 #include "template_rule.h"
 
+// The rules themselves, generated from `rules/*.json`
+#include "rules.h"
+
 using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool>;
+
+/// Replace every reference to a named pattern with the pattern itself. A
+/// question several rungs ask the same way is written once
+auto expand_references(const sourcemeta::core::JSON &node,
+                       const sourcemeta::core::JSON &patterns)
+    -> sourcemeta::core::JSON {
+  if (node.is_array()) {
+    auto result{sourcemeta::core::JSON::make_array()};
+    for (const auto &element : node.as_array()) {
+      result.push_back(expand_references(element, patterns));
+    }
+
+    return result;
+  }
+
+  if (!node.is_object()) {
+    return node;
+  }
+
+  if (node.size() == 1 && node.defines("ref")) {
+    const auto *pattern{patterns.try_at(node.at("ref").to_string())};
+    if (pattern == nullptr) {
+      throw TransformError{"A rule names a pattern that is not defined"};
+    }
+
+    return *pattern;
+  }
+
+  auto result{sourcemeta::core::JSON::make_object()};
+  for (const auto &entry : node.as_object()) {
+    result.assign(entry.first, expand_references(entry.second, patterns));
+  }
+
+  return result;
+}
+
+/// Append the edits that move the dialect. Every rung ends the same way, so
+/// the rung says which dialect it reaches and this writes the rest. A rung
+/// whose own condition already requires a dialect declaration needs no guards,
+/// and one that fires below a declaration has to carry the marker along
+auto append_bump(sourcemeta::core::JSON &build,
+                 const sourcemeta::core::JSON &bump,
+                 const sourcemeta::core::JSON &patterns) -> void {
+  const auto &dialect{bump.at("dialect")};
+  const auto declaration{patterns.at("at-dialect-declaration")};
+
+  auto retire{sourcemeta::core::JSON::make_object()};
+  retire.assign("erase", sourcemeta::core::JSON{DIALECT_OVERRIDE_KEYWORD});
+  retire.assign("optional", sourcemeta::core::JSON{true});
+  auto ladder{sourcemeta::core::JSON::make_object()};
+  auto arguments{sourcemeta::core::JSON::make_array()};
+  arguments.push_back(sourcemeta::core::JSON{"$term"});
+  auto call{sourcemeta::core::JSON::make_object()};
+  call.assign("name", sourcemeta::core::JSON{"convert:names-ladder-dialect"});
+  call.assign("args", std::move(arguments));
+  ladder.assign("call", std::move(call));
+  retire.assign("when", std::move(ladder));
+
+  auto declare{sourcemeta::core::JSON::make_object()};
+  auto members{sourcemeta::core::JSON::make_object()};
+  members.assign("$schema", dialect);
+  declare.assign("set", std::move(members));
+  declare.assign("first", sourcemeta::core::JSON{true});
+
+  if (bump.defines("at-declaration-only") &&
+      bump.at("at-declaration-only").to_boolean()) {
+    build.push_back(std::move(retire));
+    build.push_back(std::move(declare));
+    return;
+  }
+
+  // Below a declaration there is no `$schema` to write, so the dialect moves
+  // into the marker that stands in for one
+  auto carry{sourcemeta::core::JSON::make_object()};
+  auto marked{sourcemeta::core::JSON::make_object()};
+  marked.assign(DIALECT_OVERRIDE_KEYWORD, dialect);
+  carry.assign("set", std::move(marked));
+  auto below{sourcemeta::core::JSON::make_array()};
+  below.push_back(patterns.at("ladder-marker"));
+  auto negated{sourcemeta::core::JSON::make_object()};
+  negated.assign("not", declaration);
+  below.push_back(std::move(negated));
+  if (bump.defines("only-when")) {
+    below.push_back(bump.at("only-when"));
+  }
+
+  auto guard{sourcemeta::core::JSON::make_object()};
+  guard.assign("all", std::move(below));
+  carry.assign("if", std::move(guard));
+
+  auto at_declaration{sourcemeta::core::JSON::make_array()};
+  at_declaration.push_back(declaration);
+  if (bump.defines("only-when")) {
+    at_declaration.push_back(bump.at("only-when"));
+  }
+
+  auto here{sourcemeta::core::JSON::make_object()};
+  here.assign("all", std::move(at_declaration));
+  retire.assign("if", here);
+  declare.assign("if", std::move(here));
+
+  build.push_back(std::move(carry));
+  build.push_back(std::move(retire));
+  build.push_back(std::move(declare));
+}
 
 /// Construct a rule entry from JSON rule data
 [[nodiscard]] auto make_template_rule(
     const std::string_view definition,
     sourcemeta::core::JSON settings = sourcemeta::core::JSON::make_object())
     -> Rule {
-  auto parsed{sourcemeta::core::parse_json(definition)};
+  static const auto PATTERNS{sourcemeta::core::parse_json(CONVERT_PATTERNS)};
+  auto parsed{
+      expand_references(sourcemeta::core::parse_json(definition), PATTERNS)};
+  if (parsed.defines("bump")) {
+    append_bump(parsed.at("build"), parsed.at("bump"), PATTERNS);
+    parsed.erase("bump");
+  }
+
   const auto outside{parsed.defines("writes-outside-itself") &&
                      parsed.at("writes-outside-itself").to_boolean()};
   return {
@@ -540,8 +655,6 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
                       default_dialect, default_id);
   }
 }
-
-#include "rules.h"
 
 #undef ONLY_CONTINUE_IF
 

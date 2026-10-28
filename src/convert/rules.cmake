@@ -12,6 +12,7 @@ if(NOT CONVERT_RULES_DIRECTORY)
   message(FATAL_ERROR "Missing CONVERT_RULES_DIRECTORY")
 endif()
 
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/patterns.json" CONVERT_PATTERNS)
 file(READ "${CONVERT_RULES_DIRECTORY}/definitions_to_defs.json" DEFINITIONS_TO_DEFS)
 file(READ "${CONVERT_RULES_DIRECTORY}/dependencies_to_dependent.json" DEPENDENCIES_TO_DEPENDENT)
 file(READ "${CONVERT_RULES_DIRECTORY}/dialect_override_becomes_dollar_schema.json" DIALECT_OVERRIDE_BECOMES_DOLLAR_SCHEMA)
@@ -39,6 +40,7 @@ file(READ "${CONVERT_RULES_DIRECTORY}/upgrade_openapi_3_1_to_openapi_3_2.json" U
 # A rule that is not valid JSON would otherwise only fail once the module is
 # asked to convert something
 foreach(CONVERT_RULE
+    CONVERT_PATTERNS
     DEFINITIONS_TO_DEFS
     DEPENDENCIES_TO_DEPENDENT
     DIALECT_OVERRIDE_BECOMES_DOLLAR_SCHEMA
@@ -72,7 +74,8 @@ endforeach()
 
 # Editing a rule has to regenerate the header, which only happens if CMake
 # knows the rules are inputs to the configure step that read them
-file(GLOB CONVERT_RULE_FILES "${CONVERT_RULES_DIRECTORY}/*.json")
+file(GLOB CONVERT_RULE_FILES "${CONVERT_RULES_DIRECTORY}/*.json"
+  "${CMAKE_CURRENT_SOURCE_DIR}/patterns.json")
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
   ${CONVERT_RULE_FILES})
 

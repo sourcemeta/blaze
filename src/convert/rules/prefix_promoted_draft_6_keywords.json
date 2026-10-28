@@ -48,10 +48,10 @@
         "from": "/$id",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$id"
+              "$$id"
             ]
           }
         },
@@ -63,10 +63,10 @@
         "from": "/const",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-const"
+              "const"
             ]
           }
         },
@@ -78,10 +78,10 @@
         "from": "/contains",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-contains"
+              "contains"
             ]
           }
         },
@@ -93,10 +93,10 @@
         "from": "/propertyNames",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-propertyNames"
+              "propertyNames"
             ]
           }
         },
@@ -108,10 +108,10 @@
         "from": "/examples",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-examples"
+              "examples"
             ]
           }
         },

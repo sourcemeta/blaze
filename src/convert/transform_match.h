@@ -103,8 +103,7 @@ auto is_positive(const JSON &pattern) -> bool {
         entry.first == "enum" || entry.first == "has" ||
         entry.first == "size" || entry.first == "member" ||
         entry.first == "some-item" || entry.first == "some-member" ||
-        entry.first == "call" || entry.first == "same-as" ||
-        entry.first == "binding") {
+        entry.first == "call" || entry.first == "binding") {
       return true;
     }
 
@@ -235,24 +234,6 @@ auto match_members(const JSON &pattern, const JSON &term,
   return true;
 }
 
-auto match_items(const JSON &pattern, const JSON &term, const Pointer &pointer,
-                 const TransformPredicate &predicate,
-                 TransformBindings &bindings) -> bool {
-  if (!term.is_array()) {
-    return false;
-  }
-
-  for (std::size_t index = 0; index < term.size(); index += 1) {
-    auto position{pointer};
-    position.push_back(index);
-    if (!match_term(pattern, term.at(index), position, predicate, bindings)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 /// Whether any member of an object satisfies a pattern on its name, its value,
 /// or both. The counterpart of `some-item` for objects
 auto match_some_member(const JSON &specification, const JSON &term,
@@ -322,6 +303,10 @@ auto resolve_argument(const JSON &argument, const JSON &term,
                       const TransformBindings &bindings) -> JSON {
   if (!argument.is_string() || !argument.to_string().starts_with('$')) {
     return argument;
+  }
+
+  if (argument.to_string().starts_with("$$")) {
+    return JSON{argument.to_string().substr(1)};
   }
 
   if (argument.to_string() == "$term") {
@@ -442,10 +427,6 @@ auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
       if (!match_members(entry.second, term, pointer, predicate, bindings)) {
         return false;
       }
-    } else if (entry.first == "items") {
-      if (!match_items(entry.second, term, pointer, predicate, bindings)) {
-        return false;
-      }
     } else if (entry.first == "some-member") {
       if (!match_some_member(entry.second, term, pointer, predicate,
                              bindings)) {
@@ -478,10 +459,6 @@ auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
       }
 
       bindings = std::move(candidate);
-    } else if (entry.first == "same-as") {
-      if (term != resolve_argument(entry.second, term, bindings)) {
-        return false;
-      }
     } else {
       throw TransformError{"Unknown matcher"};
     }

@@ -42,10 +42,10 @@
         "from": "/prefixItems",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-prefixItems"
+              "prefixItems"
             ]
           }
         },
@@ -57,10 +57,10 @@
         "from": "/$dynamicAnchor",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$dynamicAnchor"
+              "$$dynamicAnchor"
             ]
           }
         },
@@ -72,10 +72,10 @@
         "from": "/$dynamicRef",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$dynamicRef"
+              "$$dynamicRef"
             ]
           }
         },

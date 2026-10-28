@@ -113,10 +113,10 @@
         "from": "/$comment",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$comment"
+              "$$comment"
             ]
           }
         },
@@ -128,10 +128,10 @@
         "from": "/if",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-if"
+              "if"
             ]
           }
         },
@@ -143,10 +143,10 @@
         "from": "/then",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-then"
+              "then"
             ]
           }
         },
@@ -158,10 +158,10 @@
         "from": "/else",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-else"
+              "else"
             ]
           }
         },
@@ -173,10 +173,10 @@
         "from": "/readOnly",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-readOnly"
+              "readOnly"
             ]
           }
         },
@@ -207,10 +207,10 @@
         "from": "/writeOnly",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-writeOnly"
+              "writeOnly"
             ]
           }
         },
@@ -241,10 +241,10 @@
         "from": "/contentMediaType",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-contentMediaType"
+              "contentMediaType"
             ]
           }
         },
@@ -256,10 +256,10 @@
         "from": "/contentEncoding",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-contentEncoding"
+              "contentEncoding"
             ]
           }
         },

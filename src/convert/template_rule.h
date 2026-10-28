@@ -42,16 +42,6 @@ inline auto base_dialect_name(const sourcemeta::core::SchemaBaseDialect value)
   return "";
 }
 
-/// What a rule needs the frame for, taken down while the frame still describes
-/// the document in front of it
-struct PlanFacts {
-  bool anchors_pending{false};
-  sourcemeta::core::JSON::String enclosing_dialect;
-  /// A document a rule computed from the frame, for the rewrites that are a
-  /// whole-document analysis rather than a pattern and a template
-  std::optional<sourcemeta::core::JSON> document;
-};
-
 /// What a rule asks the host while the frame still describes the document in
 /// front of it. A query answers with a term, which the rule then consults as
 /// an ordinary binding, so that a decision the whole document settles reaches
@@ -659,9 +649,9 @@ inline auto has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema,
 inline auto
 make_predicate(const sourcemeta::core::JSON &schema,
                const sourcemeta::core::SchemaVocabularies &vocabularies,
-               const Site &site, const PlanFacts &facts,
-               const sourcemeta::core::JSON &settings) -> TransformPredicate {
-  return [&schema, &vocabularies, &site, &facts, &settings](
+               const Site &site, const sourcemeta::core::JSON &settings)
+    -> TransformPredicate {
+  return [&schema, &vocabularies, &site, &settings](
              const std::string_view name,
              const std::vector<sourcemeta::core::JSON> &arguments) -> bool {
     if (name == "schema:in-vocabulary") {
@@ -697,25 +687,6 @@ make_predicate(const sourcemeta::core::JSON &schema,
       return !arguments.empty() && arguments.front().is_string() &&
              promoted_keyword_is_author_data(schema,
                                              arguments.front().to_string());
-    }
-
-    if (name == "convert:anchors-pending") {
-      return facts.anchors_pending;
-    }
-
-    if (name == "convert:has-planned-document") {
-      return facts.document.has_value();
-    }
-
-    if (name == "convert:enclosing-dialect-is") {
-      for (const auto &argument : arguments) {
-        if (without_empty_fragment(facts.enclosing_dialect) ==
-            without_empty_fragment(argument.to_string())) {
-          return true;
-        }
-      }
-
-      return false;
     }
 
     if (name == "convert:has-pending-draft-4-pattern") {
@@ -1019,35 +990,41 @@ make_predicate(const sourcemeta::core::JSON &schema,
 }
 
 /// The terms a rule may ask the host to build
-inline auto make_function(const PlanFacts &facts) -> TransformFunction {
-  return [&facts](const std::string_view name,
-                  const std::vector<sourcemeta::core::JSON> &arguments)
+inline auto make_function() -> TransformFunction {
+  return [](const std::string_view name,
+            const std::vector<sourcemeta::core::JSON> &arguments)
              -> sourcemeta::core::JSON {
-    // A keyword the author already used under the name a rename wants is
-    // pushed further out of the way, which is a destination that cannot be
-    // written down ahead of time
-    if (name == "convert:free-pointer") {
-      if (arguments.size() != 2 || !arguments.front().is_object() ||
-          !arguments.back().is_string()) {
-        throw TransformError{"A free pointer takes an object and a base name"};
+    // Where a keyword goes when a rename has to carry it across as the
+    // author data it was. A name already taken gains another prefix, and a
+    // caller may name spellings that are not free either, such as the two
+    // that core reads
+    if (name == "convert:shadow-pointer") {
+      if (arguments.size() < 2 || !arguments.front().is_object() ||
+          !arguments.at(1).is_string()) {
+        throw TransformError{"A shadow pointer takes an object and a keyword"};
       }
 
-      auto candidate{arguments.back().to_string()};
-      while (arguments.front().defines(candidate)) {
+      auto candidate{"x-" + arguments.at(1).to_string()};
+      const auto taken{[&arguments, &candidate]() -> bool {
+        if (arguments.front().defines(candidate)) {
+          return true;
+        }
+
+        for (std::size_t index = 2; index < arguments.size(); index += 1) {
+          if (arguments.at(index).to_string() == candidate) {
+            return true;
+          }
+        }
+
+        return false;
+      }};
+
+      while (taken()) {
         candidate.insert(0, "x-");
       }
 
       return sourcemeta::core::JSON{
           sourcemeta::core::to_string(sourcemeta::core::Pointer{candidate})};
-    }
-
-    if (name == "convert:planned-document") {
-      if (!facts.document.has_value()) {
-        throw TransformError{
-            "A rule asked for a document its plan never computed"};
-      }
-
-      return facts.document.value();
     }
 
     if (name == "convert:draft3-type-branches" ||
@@ -1138,39 +1115,6 @@ inline auto make_function(const PlanFacts &facts) -> TransformFunction {
       return openapi_3_0_as_object_schema(arguments.front());
     }
 
-    // Shadowing has two names it must step over beyond anything the author
-    // wrote, because core reads both
-    if (name == "convert:openapi30-shadow-pointer") {
-      if (arguments.size() != 2 || !arguments.front().is_object() ||
-          !arguments.back().is_string()) {
-        throw TransformError{"A shadow pointer takes an object and a keyword"};
-      }
-
-      auto candidate{"x-" + arguments.back().to_string()};
-      while (arguments.front().defines(candidate) ||
-             openapi_3_0_names_core_reads(candidate)) {
-        candidate.insert(0, "x-");
-      }
-
-      return sourcemeta::core::JSON{
-          sourcemeta::core::to_string(sourcemeta::core::Pointer{candidate})};
-    }
-
-    if (name == "convert:shadow-pointer") {
-      if (arguments.size() != 2 || !arguments.front().is_object() ||
-          !arguments.back().is_string()) {
-        throw TransformError{"A shadow pointer takes an object and a keyword"};
-      }
-
-      auto candidate{"x-" + arguments.back().to_string()};
-      while (arguments.front().defines(candidate)) {
-        candidate.insert(0, "x-");
-      }
-
-      return sourcemeta::core::JSON{
-          sourcemeta::core::to_string(sourcemeta::core::Pointer{candidate})};
-    }
-
     if (name == "convert:id-fragment" ||
         name == "convert:id-without-fragment") {
       if (arguments.empty() || !arguments.front().is_object()) {
@@ -1200,30 +1144,76 @@ struct QuerySource {
 
 inline auto make_query() -> QuerySource {
   const auto analysis{std::make_shared<Analysis201909To202012>()};
-  return {.answer = [analysis](
-                        const std::string_view name,
-                        const std::vector<sourcemeta::core::JSON> &arguments,
-                        const QueryContext &context) -> sourcemeta::core::JSON {
-            analysis->plan(context.schema, context.root, context.vocabularies,
-                           context.frame, context.location, context.site,
-                           context.walker, context.resolver);
+  return {
+      .answer =
+          [analysis](const std::string_view name,
+                     const std::vector<sourcemeta::core::JSON> &arguments,
+                     const QueryContext &context) -> sourcemeta::core::JSON {
+        analysis->plan(context.schema, context.root, context.vocabularies,
+                       context.frame, context.location, context.site,
+                       context.walker, context.resolver);
 
-            if (name == "convert:2019-09-fact") {
-              return analysis->fact(context.site,
-                                    arguments.front().to_string());
-            }
+        // Whether this resource still has an anchor Draft 6 would
+        // reject, which the rung that moves the dialect waits on
+        if (name == "convert:draft-4-anchors-pending") {
+          return sourcemeta::core::JSON{
+              has_unsanitized_draft_4_anchor(context.root, context.frame)};
+        }
 
-            if (name == "convert:2019-09-sanitized") {
-              return analysis->sanitized(context.schema, context.site);
-            }
+        // This document with every Draft 4 anchor Draft 6 would reject
+        // renamed, and the references naming them moved. Null where
+        // there is nothing to do, or anywhere but the document root,
+        // which is the only position that may write across the whole of it
+        if (name == "convert:sanitized-draft-4-anchors") {
+          if (!context.site.pointer.empty() || !context.schema.is_object()) {
+            return sourcemeta::core::JSON{nullptr};
+          }
 
-            if (name == "convert:2019-09-vocabulary") {
-              return Analysis201909To202012::vocabulary(context.schema);
-            }
+          auto document{context.schema};
+          if (!sanitize_draft_4_anchors(document, context.frame)) {
+            return sourcemeta::core::JSON{nullptr};
+          }
 
-            throw TransformError{"Unknown convert query"};
-          },
-          .begin_pass = [analysis]() -> void { analysis->begin_pass(); }};
+          return document;
+        }
+
+        // Whether the dialect this position would read as without its
+        // marker is the one the marker names, which only the resource
+        // around it can say
+        if (name == "convert:marker-says-nothing") {
+          if (!context.location.parent.has_value() ||
+              !context.schema.is_object()) {
+            return sourcemeta::core::JSON{false};
+          }
+
+          const auto *marker{context.schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
+          if (marker == nullptr || !marker->is_string()) {
+            return sourcemeta::core::JSON{false};
+          }
+
+          const auto enclosing{
+              context.frame.traverse(context.location.parent.value())};
+          return sourcemeta::core::JSON{
+              enclosing.has_value() &&
+              without_empty_fragment(enclosing.value().get().dialect) ==
+                  without_empty_fragment(marker->to_string())};
+        }
+
+        if (name == "convert:2019-09-fact") {
+          return analysis->fact(context.site, arguments.front().to_string());
+        }
+
+        if (name == "convert:2019-09-sanitized") {
+          return analysis->sanitized(context.schema, context.site);
+        }
+
+        if (name == "convert:2019-09-vocabulary") {
+          return Analysis201909To202012::vocabulary(context.schema);
+        }
+
+        throw TransformError{"Unknown convert query"};
+      },
+      .begin_pass = [analysis]() -> void { analysis->begin_pass(); }};
 }
 
 /// A rule whose condition and transform are read from JSON rather than written
@@ -1281,44 +1271,6 @@ public:
 
       this->planned_.insert_or_assign(site.pointer, std::move(answers));
     }
-
-    // Only the facts this position settles are cleared. A whole-document
-    // fact is planned once, at the root, and the driver gathers every match
-    // in a pass before applying any of them, so clearing it at the positions
-    // visited in between would leave the transform with nothing to write
-    this->facts_.anchors_pending = false;
-    this->facts_.enclosing_dialect.clear();
-    if (!this->definition_.defines("plan")) {
-      return;
-    }
-
-    for (const auto &fact : this->definition_.at("plan").as_array()) {
-      if (fact.to_string() == "anchors-pending") {
-        this->facts_.anchors_pending =
-            has_unsanitized_draft_4_anchor(root, frame);
-      } else if (fact.to_string() == "sanitized-draft-4-anchors") {
-        if (!site.pointer.empty() || !schema.is_object()) {
-          continue;
-        }
-
-        this->facts_.document.reset();
-        auto document{schema};
-        if (sanitize_draft_4_anchors(document, frame)) {
-          this->facts_.document = std::move(document);
-        }
-      } else if (fact.to_string() == "enclosing-dialect") {
-        if (!location.parent.has_value()) {
-          continue;
-        }
-
-        const auto enclosing{frame.traverse(location.parent.value())};
-        if (enclosing.has_value()) {
-          this->facts_.enclosing_dialect = enclosing.value().get().dialect;
-        }
-      }
-    }
-
-    [[maybe_unused]] const auto &unused{schema};
   }
 
   [[nodiscard]] auto
@@ -1335,19 +1287,18 @@ public:
       this->bindings_ = answers->second;
     }
 
-    return transform_match(this->definition_.at("match"), schema,
-                           make_predicate(schema, vocabularies, site,
-                                          this->facts_, this->settings_),
-                           this->bindings_);
+    return transform_match(
+        this->definition_.at("match"), schema,
+        make_predicate(schema, vocabularies, site, this->settings_),
+        this->bindings_);
   }
 
   auto transform(sourcemeta::core::JSON &schema, const Site &site) const
       -> void override {
-    const auto trace{
-        transform_apply(this->definition_.at("build"), schema, this->bindings_,
-                        make_predicate(schema, this->vocabularies_, site,
-                                       this->facts_, this->settings_),
-                        make_function(this->facts_))};
+    const auto trace{transform_apply(
+        this->definition_.at("build"), schema, this->bindings_,
+        make_predicate(schema, this->vocabularies_, site, this->settings_),
+        make_function())};
     this->relocations_ = trace.relocations;
   }
 
@@ -1360,7 +1311,6 @@ private:
   sourcemeta::core::JSON settings_;
   QuerySource queries_{make_query()};
   mutable std::map<sourcemeta::core::Pointer, TransformBindings> planned_;
-  mutable PlanFacts facts_;
   mutable TransformBindings bindings_;
   mutable std::vector<TransformRelocation> relocations_;
   mutable sourcemeta::core::SchemaVocabularies vocabularies_;

@@ -100,10 +100,10 @@
         "from": "/$anchor",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$anchor"
+              "$$anchor"
             ]
           }
         },
@@ -115,10 +115,10 @@
         "from": "/$recursiveAnchor",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$recursiveAnchor"
+              "$$recursiveAnchor"
             ]
           }
         },
@@ -130,10 +130,10 @@
         "from": "/$recursiveRef",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$recursiveRef"
+              "$$recursiveRef"
             ]
           }
         },
@@ -145,10 +145,10 @@
         "from": "/$vocabulary",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$vocabulary"
+              "$$vocabulary"
             ]
           }
         },
@@ -160,10 +160,10 @@
         "from": "/$defs",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$defs"
+              "$$defs"
             ]
           }
         },
@@ -175,10 +175,10 @@
         "from": "/dependentSchemas",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-dependentSchemas"
+              "dependentSchemas"
             ]
           }
         },
@@ -190,10 +190,10 @@
         "from": "/dependentRequired",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-dependentRequired"
+              "dependentRequired"
             ]
           }
         },
@@ -205,10 +205,10 @@
         "from": "/unevaluatedItems",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-unevaluatedItems"
+              "unevaluatedItems"
             ]
           }
         },
@@ -220,10 +220,10 @@
         "from": "/unevaluatedProperties",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-unevaluatedProperties"
+              "unevaluatedProperties"
             ]
           }
         },
@@ -235,10 +235,10 @@
         "from": "/maxContains",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-maxContains"
+              "maxContains"
             ]
           }
         },
@@ -250,10 +250,10 @@
         "from": "/minContains",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-minContains"
+              "minContains"
             ]
           }
         },
@@ -265,10 +265,10 @@
         "from": "/contentSchema",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-contentSchema"
+              "contentSchema"
             ]
           }
         },
@@ -280,10 +280,10 @@
         "from": "/deprecated",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-deprecated"
+              "deprecated"
             ]
           }
         },

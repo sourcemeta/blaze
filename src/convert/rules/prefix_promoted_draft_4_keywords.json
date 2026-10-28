@@ -54,10 +54,10 @@
         "from": "/multipleOf",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-multipleOf"
+              "multipleOf"
             ]
           }
         },
@@ -69,10 +69,10 @@
         "from": "/maxProperties",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-maxProperties"
+              "maxProperties"
             ]
           }
         },
@@ -84,10 +84,10 @@
         "from": "/minProperties",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-minProperties"
+              "minProperties"
             ]
           }
         },
@@ -99,10 +99,10 @@
         "from": "/allOf",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-allOf"
+              "allOf"
             ]
           }
         },
@@ -114,10 +114,10 @@
         "from": "/anyOf",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-anyOf"
+              "anyOf"
             ]
           }
         },
@@ -129,10 +129,10 @@
         "from": "/oneOf",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-oneOf"
+              "oneOf"
             ]
           }
         },
@@ -144,10 +144,10 @@
         "from": "/not",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-not"
+              "not"
             ]
           }
         },

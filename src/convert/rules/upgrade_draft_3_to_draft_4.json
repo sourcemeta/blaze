@@ -26,25 +26,7 @@
             }
           },
           {
-            "all": [
-              {
-                "call": {
-                  "name": "convert:at-resource-root"
-                }
-              },
-              {
-                "any": [
-                  {
-                    "call": {
-                      "name": "convert:at-root"
-                    }
-                  },
-                  {
-                    "has": "$schema"
-                  }
-                ]
-              }
-            ]
+            "ref": "at-dialect-declaration"
           }
         ]
       }
@@ -620,115 +602,9 @@
           }
         }
       }
-    },
-    {
-      "set": {
-        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-04/schema#"
-      },
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "x-sourcemeta-dialect-override-subschema",
-              "bind": "$marker",
-              "match": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "call": {
-              "name": "convert:names-ladder-dialect",
-              "args": [
-                "$marker"
-              ]
-            }
-          },
-          {
-            "not": {
-              "all": [
-                {
-                  "call": {
-                    "name": "convert:at-resource-root"
-                  }
-                },
-                {
-                  "any": [
-                    {
-                      "call": {
-                        "name": "convert:at-root"
-                      }
-                    },
-                    {
-                      "has": "$schema"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "erase": "x-sourcemeta-dialect-override-subschema",
-      "optional": true,
-      "when": {
-        "call": {
-          "name": "convert:names-ladder-dialect",
-          "args": [
-            "$term"
-          ]
-        }
-      },
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:at-resource-root"
-            }
-          },
-          {
-            "any": [
-              {
-                "call": {
-                  "name": "convert:at-root"
-                }
-              },
-              {
-                "has": "$schema"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "set": {
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      },
-      "first": true,
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:at-resource-root"
-            }
-          },
-          {
-            "any": [
-              {
-                "call": {
-                  "name": "convert:at-root"
-                }
-              },
-              {
-                "has": "$schema"
-              }
-            ]
-          }
-        ]
-      }
     }
-  ]
+  ],
+  "bump": {
+    "dialect": "http://json-schema.org/draft-04/schema#"
+  }
 }

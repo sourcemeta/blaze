@@ -24,7 +24,7 @@ struct Built {
 
 /// Where a set puts a member it is introducing
 struct Placement {
-  enum class Kind : std::uint8_t { Last, First, Before, After };
+  enum class Kind : std::uint8_t { Last, First, Before };
   Kind kind{Kind::Last};
   JSON::String anchor;
 };
@@ -37,6 +37,12 @@ auto build_template(const JSON &specification, const JSON &self,
 auto build_reference(const JSON::String &name, const JSON &self,
                      const JSON &current, const TransformBindings &bindings,
                      const Pointer &target) -> Built {
+  // A keyword may be spelled with a leading dollar, which is also how a
+  // reference to a binding begins, so one more says the rest is a string
+  if (name.starts_with("$$")) {
+    return {.value = JSON{name.substr(1)}, .relocations = {}, .opaque = {}};
+  }
+
   // `$self` is the term as the build found it, `$current` is the term as it
   // stands, which is what an edit that rebuilds the whole term needs
   if (name == "$current") {
@@ -84,41 +90,6 @@ auto build_object(const JSON &members, const JSON &self, const JSON &current,
                                position)};
     result.value.assign(entry.first, member.value);
     absorb(result, std::move(member));
-  }
-
-  return result;
-}
-
-auto build_array(const JSON &elements, const JSON &self, const JSON &current,
-                 const TransformBindings &bindings,
-                 const TransformFunction &function, const Pointer &target)
-    -> Built {
-  if (!elements.is_array()) {
-    throw TransformError{"An array template takes an array"};
-  }
-
-  Built result{.value = JSON::make_array(), .relocations = {}, .opaque = {}};
-  for (const auto &element : elements.as_array()) {
-    if (element.is_object() && element.defines("spread")) {
-      auto spread{build_template(element.at("spread"), self, current, bindings,
-                                 function, target)};
-      if (!spread.value.is_array()) {
-        throw TransformError{"A spread takes an array"};
-      }
-
-      for (const auto &item : spread.value.as_array()) {
-        result.value.push_back(item);
-      }
-
-      continue;
-    }
-
-    auto position{target};
-    position.push_back(result.value.size());
-    auto item{
-        build_template(element, self, current, bindings, function, position)};
-    result.value.push_back(item.value);
-    absorb(result, std::move(item));
   }
 
   return result;
@@ -200,11 +171,6 @@ auto build_template(const JSON &specification, const JSON &self,
                         function, target);
   }
 
-  if (specification.defines("array")) {
-    return build_array(specification.at("array"), self, current, bindings,
-                       function, target);
-  }
-
   if (specification.defines("lookup")) {
     return build_lookup(specification.at("lookup"), self, current, bindings,
                         function, target);
@@ -226,15 +192,6 @@ auto read_placement(const JSON &edit) -> Placement {
 
     return {.kind = Placement::Kind::Before,
             .anchor = edit.at("before").to_string()};
-  }
-
-  if (edit.defines("after")) {
-    if (!edit.at("after").is_string()) {
-      throw TransformError{"A placement anchor must be a string"};
-    }
-
-    return {.kind = Placement::Kind::After,
-            .anchor = edit.at("after").to_string()};
   }
 
   if (edit.defines("first")) {
@@ -260,7 +217,7 @@ auto placement_slot(const JSON &term, const Placement &placement,
   if (found != current.cend()) {
     const auto slot{
         static_cast<std::size_t>(std::distance(current.cbegin(), found))};
-    return placement.kind == Placement::Kind::After ? slot + 1 : slot;
+    return slot;
   }
 
   // The anchor is gone, so where it used to be decides, counted in the members
@@ -277,7 +234,7 @@ auto placement_slot(const JSON &term, const Placement &placement,
     }
   }
 
-  return placement.kind == Placement::Kind::After ? surviving + 1 : surviving;
+  return surviving;
 }
 
 /// Rebuild an object with one member at the requested position, because the
@@ -504,9 +461,9 @@ auto apply_move(const JSON &specification, JSON &term, const JSON &self,
   // different one at the end is not a rename and has to say so
   if (source.size() == 1 && target.size() == 1 && source.at(0).is_property() &&
       target.at(0).is_property() && term.is_object()) {
-    const auto stated{
-        specification.defines("before") || specification.defines("after") ||
-        specification.defines("first") || specification.defines("last")};
+    const auto stated{specification.defines("before") ||
+                      specification.defines("first") ||
+                      specification.defines("last")};
     const auto placement{stated
                              ? read_placement(specification)
                              : Placement{.kind = Placement::Kind::Before,

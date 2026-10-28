@@ -16,25 +16,7 @@
       {
         "any": [
           {
-            "all": [
-              {
-                "call": {
-                  "name": "convert:at-resource-root"
-                }
-              },
-              {
-                "any": [
-                  {
-                    "call": {
-                      "name": "convert:at-root"
-                    }
-                  },
-                  {
-                    "has": "$schema"
-                  }
-                ]
-              }
-            ]
+            "ref": "at-dialect-declaration"
           },
           {
             "call": {
@@ -263,10 +245,12 @@
           {
             "to": {
               "call": {
-                "name": "convert:openapi30-shadow-pointer",
+                "name": "convert:shadow-pointer",
                 "args": [
                   "$current",
-                  "$key"
+                  "$key",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
                 ]
               }
             }
@@ -297,10 +281,12 @@
         "from": "/exclusiveMinimum",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "exclusiveMinimum"
+              "exclusiveMinimum",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -329,10 +315,12 @@
         "from": "/exclusiveMaximum",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "exclusiveMaximum"
+              "exclusiveMaximum",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -361,10 +349,12 @@
         "from": "/allOf",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "allOf"
+              "allOf",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -398,10 +388,12 @@
         "from": "/nullable",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "nullable"
+              "nullable",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -436,10 +428,12 @@
         "from": "/discriminator",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "discriminator"
+              "discriminator",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -474,10 +468,12 @@
         "from": "/xml",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "xml"
+              "xml",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -512,10 +508,12 @@
         "from": "/externalDocs",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "externalDocs"
+              "externalDocs",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -550,10 +548,12 @@
         "from": "/example",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "example"
+              "example",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -588,10 +588,12 @@
         "from": "/deprecated",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "deprecated"
+              "deprecated",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -626,10 +628,12 @@
         "from": "/readOnly",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "readOnly"
+              "readOnly",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -664,10 +668,12 @@
         "from": "/writeOnly",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "writeOnly"
+              "writeOnly",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -702,10 +708,12 @@
         "from": "/id",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "id"
+              "id",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -722,10 +730,12 @@
         "from": "/definitions",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "definitions"
+              "definitions",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -742,10 +752,12 @@
         "from": "/dependencies",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "dependencies"
+              "dependencies",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -762,10 +774,12 @@
         "from": "/patternProperties",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "patternProperties"
+              "patternProperties",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -782,10 +796,12 @@
         "from": "/additionalItems",
         "to": {
           "call": {
-            "name": "convert:openapi30-shadow-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$current",
-              "additionalItems"
+              "additionalItems",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
             ]
           }
         },
@@ -845,115 +861,9 @@
           }
         ]
       }
-    },
-    {
-      "set": {
-        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-04/schema#"
-      },
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "x-sourcemeta-dialect-override-subschema",
-              "bind": "$marker",
-              "match": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "call": {
-              "name": "convert:names-ladder-dialect",
-              "args": [
-                "$marker"
-              ]
-            }
-          },
-          {
-            "not": {
-              "all": [
-                {
-                  "call": {
-                    "name": "convert:at-resource-root"
-                  }
-                },
-                {
-                  "any": [
-                    {
-                      "call": {
-                        "name": "convert:at-root"
-                      }
-                    },
-                    {
-                      "has": "$schema"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "erase": "x-sourcemeta-dialect-override-subschema",
-      "optional": true,
-      "when": {
-        "call": {
-          "name": "convert:names-ladder-dialect",
-          "args": [
-            "$term"
-          ]
-        }
-      },
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:at-resource-root"
-            }
-          },
-          {
-            "any": [
-              {
-                "call": {
-                  "name": "convert:at-root"
-                }
-              },
-              {
-                "has": "$schema"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "set": {
-        "$schema": "http://json-schema.org/draft-04/schema#"
-      },
-      "first": true,
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:at-resource-root"
-            }
-          },
-          {
-            "any": [
-              {
-                "call": {
-                  "name": "convert:at-root"
-                }
-              },
-              {
-                "has": "$schema"
-              }
-            ]
-          }
-        ]
-      }
     }
-  ]
+  ],
+  "bump": {
+    "dialect": "http://json-schema.org/draft-04/schema#"
+  }
 }

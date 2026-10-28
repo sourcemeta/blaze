@@ -154,10 +154,10 @@
         "from": "/example",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-example"
+              "example"
             ]
           }
         },
@@ -179,10 +179,10 @@
         "from": "/discriminator",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-discriminator"
+              "discriminator"
             ]
           }
         },
@@ -213,10 +213,10 @@
         "from": "/externalDocs",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-externalDocs"
+              "externalDocs"
             ]
           }
         },
@@ -247,10 +247,10 @@
         "from": "/xml",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-xml"
+              "xml"
             ]
           }
         },

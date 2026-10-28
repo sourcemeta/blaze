@@ -1,9 +1,6 @@
 {
   "name": "sanitize_draft_4_anchors",
   "writes-outside-itself": true,
-  "plan": [
-    "sanitized-draft-4-anchors"
-  ],
   "match": {
     "all": [
       {
@@ -15,19 +12,23 @@
         }
       },
       {
-        "call": {
-          "name": "convert:has-planned-document"
+        "binding": {
+          "name": "$sanitized",
+          "match": {
+            "type": "object"
+          }
         }
       }
     ]
   },
   "build": [
     {
-      "replace": {
-        "call": {
-          "name": "convert:planned-document"
-        }
-      }
+      "replace": "$sanitized"
     }
-  ]
+  ],
+  "queries": {
+    "$sanitized": {
+      "name": "convert:sanitized-draft-4-anchors"
+    }
+  }
 }

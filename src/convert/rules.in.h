@@ -4,6 +4,9 @@
 // Generated from the JSON files in `rules/` by `rules.cmake`. A rule is
 // written and reviewed as JSON and reaches the compiler as a string
 
+// patterns.json
+constexpr auto CONVERT_PATTERNS = R"JSON(@CONVERT_PATTERNS@)JSON";
+
 // rules/definitions_to_defs.json
 constexpr auto DEFINITIONS_TO_DEFS = R"JSON(@DEFINITIONS_TO_DEFS@)JSON";
 

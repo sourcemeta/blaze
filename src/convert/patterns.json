@@ -1,0 +1,44 @@
+{
+  "at-dialect-declaration": {
+    "all": [
+      {
+        "call": {
+          "name": "convert:at-resource-root"
+        }
+      },
+      {
+        "any": [
+          {
+            "call": {
+              "name": "convert:at-root"
+            }
+          },
+          {
+            "has": "$schema"
+          }
+        ]
+      }
+    ]
+  },
+  "ladder-marker": {
+    "all": [
+      {
+        "member": {
+          "key": "x-sourcemeta-dialect-override-subschema",
+          "bind": "$marker",
+          "match": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$marker"
+          ]
+        }
+      }
+    ]
+  }
+}

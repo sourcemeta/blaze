@@ -1,8 +1,5 @@
 {
   "name": "dialect_override_becomes_dollar_schema",
-  "plan": [
-    "enclosing-dialect"
-  ],
   "match": {
     "all": [
       {
@@ -25,32 +22,14 @@
       {
         "any": [
           {
-            "all": [
-              {
-                "call": {
-                  "name": "convert:at-resource-root"
-                }
-              },
-              {
-                "any": [
-                  {
-                    "call": {
-                      "name": "convert:at-root"
-                    }
-                  },
-                  {
-                    "has": "$schema"
-                  }
-                ]
-              }
-            ]
+            "ref": "at-dialect-declaration"
           },
           {
-            "call": {
-              "name": "convert:enclosing-dialect-is",
-              "args": [
-                "$marker"
-              ]
+            "binding": {
+              "name": "$marker-says-nothing",
+              "match": {
+                "const": true
+              }
             }
           }
         ]
@@ -74,28 +53,15 @@
             }
           },
           {
-            "all": [
-              {
-                "call": {
-                  "name": "convert:at-resource-root"
-                }
-              },
-              {
-                "any": [
-                  {
-                    "call": {
-                      "name": "convert:at-root"
-                    }
-                  },
-                  {
-                    "has": "$schema"
-                  }
-                ]
-              }
-            ]
+            "ref": "at-dialect-declaration"
           }
         ]
       }
     }
-  ]
+  ],
+  "queries": {
+    "$marker-says-nothing": {
+      "name": "convert:marker-says-nothing"
+    }
+  }
 }

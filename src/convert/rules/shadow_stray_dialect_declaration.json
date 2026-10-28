@@ -35,10 +35,10 @@
         "from": "/$schema",
         "to": {
           "call": {
-            "name": "convert:free-pointer",
+            "name": "convert:shadow-pointer",
             "args": [
               "$self",
-              "x-$schema"
+              "$$schema"
             ]
           }
         }
