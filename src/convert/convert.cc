@@ -573,7 +573,12 @@ auto convert(sourcemeta::core::JSON &schema,
   //
   // What this buys is the keywords the fork carries across as themselves. Each
   // is author data to the rung that promotes it, and shadowing it there would
-  // undo the fork, so the rules that would are told to leave it be
+  // undo the fork, so the rules that would are told to leave it be.
+  //
+  // This says what the document is, and a document says that only of itself. A
+  // resource it embeds declares what its contents are written in, and the fork
+  // never reaches in there, so each rule asks again at the position it fires
+  // on rather than carrying this answer the whole way down
   const auto declared{declared_dialect(schema)};
   const auto from_openapi_3_0{
       names_openapi_3_0_dialect(declared) ||

@@ -545,6 +545,18 @@ inline auto moved_past(const sourcemeta::core::JSON &schema,
              dialect_position(dialect);
 }
 
+// Whether a position sits inside a resource the document embeds rather than in
+// the document's own. Framing records where the resource holding a position
+// begins, and only the document's own resource begins at the root, so any
+// other offset names a resource that declared a dialect for itself.
+//
+// What a caller names is the dialect of a document, and that reaches only as
+// far as the first resource that names one for itself. An answer about the
+// document is therefore no answer about a position in there
+inline auto inside_an_embedded_resource(const Site &site) -> bool {
+  return site.relative_pointer > 0;
+}
+
 // A subschema that declares a dialect newer than the one a step moves schemas
 // off has nothing pending for that step, as the keywords it holds belong to the
 // dialect it declares rather than being strangers there. A subschema that
