@@ -13,8 +13,9 @@
 #include <cstddef>  // std::size_t
 #include <cstdint>  // std::uint64_t
 #include <functional> // std::cref, std::function, std::hash, std::reference_wrapper
-#include <map>        // std::map
-#include <memory>     // std::make_unique, std::unique_ptr
+#include <iostream>      // std::cerr
+#include <map>           // std::map
+#include <memory>        // std::make_unique, std::unique_ptr
 #include <optional>      // std::optional, std::nullopt
 #include <set>           // std::set
 #include <string>        // std::string
@@ -131,24 +132,47 @@ auto append_bump(sourcemeta::core::JSON &build,
   }
 }
 
-/// Construct a rule entry from JSON rule data
+/// Every rule this module states as data, by name, with its references and
+/// its bump already expanded. Reading them is the same work for every
+/// conversion, so it happens once
+[[nodiscard]] auto template_rule_definitions() -> const
+    std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON> & {
+  static const auto DEFINITIONS{[]() {
+    const auto patterns{sourcemeta::core::parse_json(CONVERT_PATTERNS)};
+    std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON> result;
+    for (const auto definition : CONVERT_RULES) {
+      auto parsed{expand_references(sourcemeta::core::parse_json(definition),
+                                    patterns)};
+      if (parsed.defines("bump")) {
+        append_bump(parsed.at("build"), parsed.at("bump"), patterns);
+        parsed.erase("bump");
+      }
+
+      auto name{parsed.at("name").to_string()};
+      result.emplace(std::move(name), std::move(parsed));
+    }
+
+    return result;
+  }()};
+
+  return DEFINITIONS;
+}
+
+/// Construct a rule entry for the rule of the given name
 [[nodiscard]] auto make_template_rule(
-    const std::string_view definition,
+    const sourcemeta::core::JSON::String &name,
     sourcemeta::core::JSON settings = sourcemeta::core::JSON::make_object())
     -> Rule {
-  static const auto PATTERNS{sourcemeta::core::parse_json(CONVERT_PATTERNS)};
-  auto parsed{
-      expand_references(sourcemeta::core::parse_json(definition), PATTERNS)};
-  if (parsed.defines("bump")) {
-    append_bump(parsed.at("build"), parsed.at("bump"), PATTERNS);
-    parsed.erase("bump");
+  const auto &definitions{template_rule_definitions()};
+  const auto match{definitions.find(name)};
+  if (match == definitions.cend()) {
+    throw TransformError{"Unknown rule name"};
   }
 
-  const auto outside{parsed.defines("writes-outside-itself") &&
-                     parsed.at("writes-outside-itself").to_boolean()};
-  return {
-      std::make_unique<TemplateRule>(std::move(parsed), std::move(settings)),
-      outside};
+  const auto outside{match->second.defines("writes-outside-itself") &&
+                     match->second.at("writes-outside-itself").to_boolean()};
+  return {std::make_unique<TemplateRule>(match->second, std::move(settings)),
+          outside};
 }
 
 /// Whether the document started on the OpenAPI 3.0 Schema Object, which is
@@ -648,10 +672,10 @@ auto convert(sourcemeta::core::JSON &schema,
   std::vector<Rule> spellings;
   spellings.reserve(4);
   spellings.push_back(
-      make_template_rule(DIALECT_OVERRIDE_BECOMES_DOLLAR_SCHEMA));
-  spellings.push_back(make_template_rule(SHADOW_STRAY_DIALECT_DECLARATION));
-  spellings.push_back(make_template_rule(DRAFT_OFFICIAL_DIALECT_WITH_HTTPS));
-  spellings.push_back(make_template_rule(OFFICIAL_DIALECT_SPELLING));
+      make_template_rule("dialect_override_becomes_dollar_schema"));
+  spellings.push_back(make_template_rule("shadow_stray_dialect_declaration"));
+  spellings.push_back(make_template_rule("draft_official_dialect_with_https"));
+  spellings.push_back(make_template_rule("official_dialect_spelling"));
 
   std::vector<Rule> rules;
   rules.reserve(20);
@@ -660,13 +684,13 @@ auto convert(sourcemeta::core::JSON &schema,
   // something when the pass began can stop saying anything once a rung has
   // moved the resource holding it to the dialect the marker names, and a
   // conversion that left it behind would not be done with the document
-  rules.push_back(make_template_rule(DIALECT_OVERRIDE_BECOMES_DOLLAR_SCHEMA));
+  rules.push_back(make_template_rule("dialect_override_becomes_dollar_schema"));
 
   // A document on the OpenAPI 3.0 dialect forks here rather than standing on a
   // rung. Every target below reaches it through Draft 4, which is the base
   // dialect its Schema Object extends, so this runs ahead of the ladder and
   // the rungs carry on from there
-  rules.push_back(make_template_rule(UPGRADE_OPENAPI_3_0_TO_DRAFT_4,
+  rules.push_back(make_template_rule("upgrade_openapi_3_0_to_draft_4",
                                      openapi_3_0_settings(target)));
 
   // Whether this conversion starts from OpenAPI 3.0. Usually only the caller
@@ -690,57 +714,51 @@ auto convert(sourcemeta::core::JSON &schema,
       names_openapi_3_0_dialect(declared) ||
       (declared.empty() && names_openapi_3_0_dialect(default_dialect))};
 
-  rules.push_back(make_template_rule(PREFIX_PROMOTED_DRAFT_4_KEYWORDS));
-  rules.push_back(make_template_rule(UPGRADE_DRAFT_3_TO_DRAFT_4));
+  rules.push_back(make_template_rule("upgrade_draft_3_to_draft_4"));
 
   if (target == ConvertTarget::Draft6 || target == ConvertTarget::Draft7 ||
       target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(PREFIX_PROMOTED_DRAFT_6_KEYWORDS));
-    rules.push_back(make_template_rule(SANITIZE_DRAFT_4_ANCHORS));
-    rules.push_back(make_template_rule(UPGRADE_DRAFT_4_TO_DRAFT_6));
-    rules.push_back(make_template_rule(EMPTY_OBJECT_AS_TRUE));
-    rules.push_back(make_template_rule(ENUM_TO_CONST));
+    rules.push_back(make_template_rule("sanitize_draft_4_anchors"));
+    rules.push_back(make_template_rule("upgrade_draft_4_to_draft_6"));
+    rules.push_back(make_template_rule("empty_object_as_true"));
+    rules.push_back(make_template_rule("enum_to_const"));
   }
 
   if (target == ConvertTarget::Draft7 || target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(PREFIX_PROMOTED_DRAFT_7_KEYWORDS,
+    rules.push_back(make_template_rule("upgrade_draft_6_to_draft_7",
                                        openapi_3_0_origin(from_openapi_3_0)));
-    rules.push_back(make_template_rule(UPGRADE_DRAFT_6_TO_DRAFT_7));
   }
 
   if (target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS,
+    rules.push_back(make_template_rule("upgrade_draft_7_to_2019_09",
                                        openapi_3_0_origin(from_openapi_3_0)));
-    rules.push_back(make_template_rule(UPGRADE_DRAFT_7_TO_DRAFT_2019_09));
-    rules.push_back(make_template_rule(DEFINITIONS_TO_DEFS));
-    rules.push_back(make_template_rule(DEPENDENCIES_TO_DEPENDENT));
+    rules.push_back(make_template_rule("definitions_to_defs"));
+    rules.push_back(make_template_rule("dependencies_to_dependent"));
   }
 
   if (target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(PREFIX_PROMOTED_2020_12_KEYWORDS));
-    rules.push_back(make_template_rule(UPGRADE_2019_09_TO_2020_12));
+    rules.push_back(make_template_rule("upgrade_2019_09_to_2020_12"));
   }
 
   if (target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS,
+    rules.push_back(make_template_rule("upgrade_2020_12_to_openapi_3_1",
                                        openapi_3_0_origin(from_openapi_3_0)));
-    rules.push_back(make_template_rule(UPGRADE_2020_12_TO_OPENAPI_3_1));
   }
 
   if (target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(UPGRADE_OPENAPI_3_1_TO_OPENAPI_3_2));
+    rules.push_back(make_template_rule("upgrade_openapi_3_1_to_openapi_3_2"));
   }
 
   apply(spellings, schema, walker, resolver, default_dialect, default_id, true);

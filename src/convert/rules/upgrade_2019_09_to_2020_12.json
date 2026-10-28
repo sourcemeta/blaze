@@ -160,12 +160,78 @@
           },
           {
             "ref": "at-dialect-declaration"
+          },
+          {
+            "has": "prefixItems"
+          },
+          {
+            "has": "$dynamicAnchor"
+          },
+          {
+            "has": "$dynamicRef"
           }
         ]
       }
     ]
   },
   "build": [
+    {
+      "group": [
+        {
+          "move": {
+            "from": "/prefixItems",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$self",
+                  "prefixItems"
+                ]
+              }
+            },
+            "optional": true
+          }
+        },
+        {
+          "move": {
+            "from": "/$dynamicAnchor",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$self",
+                  "$$dynamicAnchor"
+                ]
+              }
+            },
+            "optional": true
+          }
+        },
+        {
+          "move": {
+            "from": "/$dynamicRef",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$self",
+                  "$$dynamicRef"
+                ]
+              }
+            },
+            "optional": true
+          }
+        }
+      ],
+      "if": {
+        "call": {
+          "name": "convert:promoted-keyword-is-author-data",
+          "args": [
+            "https://json-schema.org/draft/2020-12/schema"
+          ]
+        }
+      }
+    },
     {
       "replace": "$sanitized",
       "if": {

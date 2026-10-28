@@ -25,13 +25,266 @@
         "type": "object"
       },
       {
-        "ref": "at-dialect-declaration"
+        "any": [
+          {
+            "ref": "at-dialect-declaration"
+          },
+          {
+            "all": [
+              {
+                "has": "example"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:setting",
+                    "args": [
+                      "from-openapi-3-0"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "has": "discriminator"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "discriminator",
+                      "match": {
+                        "not": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "has": "externalDocs"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "externalDocs",
+                      "match": {
+                        "not": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "has": "xml"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "xml",
+                      "match": {
+                        "not": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   },
-  "build": [],
+  "build": [
+    {
+      "group": [
+        {
+          "move": {
+            "from": "/example",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$self",
+                  "example"
+                ]
+              }
+            },
+            "optional": true,
+            "when": {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/discriminator",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$self",
+                  "discriminator"
+                ]
+              }
+            },
+            "optional": true,
+            "when": {
+              "any": [
+                {
+                  "not": {
+                    "call": {
+                      "name": "convert:setting",
+                      "args": [
+                        "from-openapi-3-0"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "not": {
+                    "type": "object"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/externalDocs",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$self",
+                  "externalDocs"
+                ]
+              }
+            },
+            "optional": true,
+            "when": {
+              "any": [
+                {
+                  "not": {
+                    "call": {
+                      "name": "convert:setting",
+                      "args": [
+                        "from-openapi-3-0"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "not": {
+                    "type": "object"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/xml",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$self",
+                  "xml"
+                ]
+              }
+            },
+            "optional": true,
+            "when": {
+              "any": [
+                {
+                  "not": {
+                    "call": {
+                      "name": "convert:setting",
+                      "args": [
+                        "from-openapi-3-0"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "not": {
+                    "type": "object"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "if": {
+        "call": {
+          "name": "convert:promoted-keyword-is-author-data",
+          "args": [
+            "https://spec.openapis.org/oas/3.1/dialect/base"
+          ]
+        }
+      }
+    }
+  ],
   "bump": {
-    "dialect": "https://spec.openapis.org/oas/3.1/dialect/base",
-    "at-declaration-only": true
+    "dialect": "https://spec.openapis.org/oas/3.1/dialect/base"
   }
 }

@@ -829,6 +829,73 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
   }
 }
 
+/// Apply one edit. A group stands for several under one condition, and shares
+/// the term as the build found it and the member order it began with, so that
+/// a condition or a placement anchor inside a group means what it would mean
+/// outside one
+auto apply_edit(const JSON &edit, JSON &term, const JSON &self,
+                const TransformBindings &bindings, const TransformHost &host,
+                const std::vector<JSON::String> &original,
+                TransformTrace &trace) -> void {
+  if (!edit.is_object() || edit.empty()) {
+    throw TransformError{"An edit must be an object with one operation"};
+  }
+
+  // An edit may stand down on what the term held before the build began,
+  // which is how one rule expresses a rewrite whose shape depends on a
+  // member an earlier edit has already taken away
+  if (edit.defines("if")) {
+    TransformBindings discarded{bindings};
+    if (!transform_guard(edit.at("if"), self, host, discarded)) {
+      return;
+    }
+  }
+
+  // And it may stand down on what the term holds now, which is what an edit
+  // placed after one that fills a member in needs to ask about
+  if (edit.defines("if-current")) {
+    TransformBindings discarded{bindings};
+    if (!transform_guard(edit.at("if-current"), term, host, discarded)) {
+      return;
+    }
+  }
+
+  if (edit.defines("group")) {
+    const auto &group{edit.at("group")};
+    if (!group.is_array()) {
+      throw TransformError{"A group takes an array of edits"};
+    }
+
+    for (const auto &inner : group.as_array()) {
+      apply_edit(inner, term, self, bindings, host, original, trace);
+    }
+  } else if (edit.defines("set")) {
+    apply_set(edit, term, self, bindings, host, original, trace);
+  } else if (edit.defines("erase")) {
+    apply_erase(edit, term, bindings, host);
+  } else if (edit.defines("move")) {
+    apply_move(edit.at("move"), term, self, bindings, host, original, trace);
+  } else if (edit.defines("distribute")) {
+    apply_distribute(edit.at("distribute"), term, self, bindings, host,
+                     original, trace);
+  } else if (edit.defines("merge")) {
+    apply_merge(edit.at("merge"), term, self, bindings, host, original, trace);
+  } else if (edit.defines("replace")) {
+    auto built{build_template(edit.at("replace"), self, term, bindings, host,
+                              sourcemeta::core::Pointer{})};
+    term.into(std::move(built.value));
+    for (auto &relocation : built.relocations) {
+      trace.relocations.push_back(std::move(relocation));
+    }
+
+    for (auto &pointer : built.opaque) {
+      trace.opaque.push_back(std::move(pointer));
+    }
+  } else {
+    throw TransformError{"Unknown edit"};
+  }
+}
+
 } // namespace
 
 namespace sourcemeta::blaze {
@@ -854,55 +921,7 @@ auto transform_apply(const sourcemeta::core::JSON &build,
   }
 
   for (const auto &edit : build.as_array()) {
-    if (!edit.is_object() || edit.empty()) {
-      throw TransformError{"An edit must be an object with one operation"};
-    }
-
-    // An edit may stand down on what the term held before the build began,
-    // which is how one rule expresses a rewrite whose shape depends on a
-    // member an earlier edit has already taken away
-    if (edit.defines("if")) {
-      TransformBindings discarded{bindings};
-      if (!transform_guard(edit.at("if"), self, host, discarded)) {
-        continue;
-      }
-    }
-
-    // And it may stand down on what the term holds now, which is what an edit
-    // placed after one that fills a member in needs to ask about
-    if (edit.defines("if-current")) {
-      TransformBindings discarded{bindings};
-      if (!transform_guard(edit.at("if-current"), term, host, discarded)) {
-        continue;
-      }
-    }
-
-    if (edit.defines("set")) {
-      apply_set(edit, term, self, bindings, host, original, trace);
-    } else if (edit.defines("erase")) {
-      apply_erase(edit, term, bindings, host);
-    } else if (edit.defines("move")) {
-      apply_move(edit.at("move"), term, self, bindings, host, original, trace);
-    } else if (edit.defines("distribute")) {
-      apply_distribute(edit.at("distribute"), term, self, bindings, host,
-                       original, trace);
-    } else if (edit.defines("merge")) {
-      apply_merge(edit.at("merge"), term, self, bindings, host, original,
-                  trace);
-    } else if (edit.defines("replace")) {
-      auto built{build_template(edit.at("replace"), self, term, bindings, host,
-                                sourcemeta::core::Pointer{})};
-      term.into(std::move(built.value));
-      for (auto &relocation : built.relocations) {
-        trace.relocations.push_back(std::move(relocation));
-      }
-
-      for (auto &pointer : built.opaque) {
-        trace.opaque.push_back(std::move(pointer));
-      }
-    } else {
-      throw TransformError{"Unknown edit"};
-    }
+    apply_edit(edit, term, self, bindings, host, original, trace);
   }
 
   return trace;
