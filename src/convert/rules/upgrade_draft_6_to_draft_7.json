@@ -1,0 +1,59 @@
+{
+  "name": "upgrade_draft_6_to_draft_7",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-06/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "all": [
+          {
+            "call": {
+              "name": "convert:at-resource-root"
+            }
+          },
+          {
+            "any": [
+              {
+                "call": {
+                  "name": "convert:at-root"
+                }
+              },
+              {
+                "has": "$schema"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "erase": "x-sourcemeta-dialect-override-subschema",
+      "optional": true,
+      "when": {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$term"
+          ]
+        }
+      }
+    },
+    {
+      "set": {
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "first": true
+    }
+  ]
+}

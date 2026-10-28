@@ -1,0 +1,33 @@
+{
+  "name": "sanitize_draft_4_anchors",
+  "writes-outside-itself": true,
+  "plan": [
+    "sanitized-draft-4-anchors"
+  ],
+  "match": {
+    "all": [
+      {
+        "type": "object"
+      },
+      {
+        "call": {
+          "name": "convert:at-root"
+        }
+      },
+      {
+        "call": {
+          "name": "convert:has-planned-document"
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "replace": {
+        "call": {
+          "name": "convert:planned-document"
+        }
+      }
+    }
+  ]
+}

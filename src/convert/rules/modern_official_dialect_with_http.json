@@ -1,0 +1,49 @@
+{
+  "name": "modern_official_dialect_with_http",
+  "match": {
+    "all": [
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "$schema",
+          "bind": "$dialect",
+          "match": {
+            "enum": [
+              "http://json-schema.org/draft/2019-09/hyper-schema",
+              "http://json-schema.org/draft/2019-09/hyper-schema#",
+              "http://json-schema.org/draft/2019-09/schema",
+              "http://json-schema.org/draft/2019-09/schema#",
+              "http://json-schema.org/draft/2020-12/hyper-schema",
+              "http://json-schema.org/draft/2020-12/hyper-schema#",
+              "http://json-schema.org/draft/2020-12/schema",
+              "http://json-schema.org/draft/2020-12/schema#"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "set": {
+        "$schema": {
+          "lookup": {
+            "key": "$dialect",
+            "table": {
+              "http://json-schema.org/draft/2019-09/schema": "https://json-schema.org/draft/2019-09/schema",
+              "http://json-schema.org/draft/2019-09/schema#": "https://json-schema.org/draft/2019-09/schema",
+              "http://json-schema.org/draft/2019-09/hyper-schema": "https://json-schema.org/draft/2019-09/hyper-schema",
+              "http://json-schema.org/draft/2019-09/hyper-schema#": "https://json-schema.org/draft/2019-09/hyper-schema",
+              "http://json-schema.org/draft/2020-12/schema": "https://json-schema.org/draft/2020-12/schema",
+              "http://json-schema.org/draft/2020-12/schema#": "https://json-schema.org/draft/2020-12/schema",
+              "http://json-schema.org/draft/2020-12/hyper-schema": "https://json-schema.org/draft/2020-12/hyper-schema",
+              "http://json-schema.org/draft/2020-12/hyper-schema#": "https://json-schema.org/draft/2020-12/hyper-schema"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

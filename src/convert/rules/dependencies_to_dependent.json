@@ -1,0 +1,75 @@
+{
+  "name": "dependencies_to_dependent",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "https://json-schema.org/draft/2020-12/vocab/applicator",
+            "https://json-schema.org/draft/2019-09/vocab/applicator"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "not": {
+          "has": [
+            "dependentSchemas"
+          ]
+        }
+      },
+      {
+        "not": {
+          "has": [
+            "dependentRequired"
+          ]
+        }
+      },
+      {
+        "member": {
+          "key": "dependencies",
+          "bind": "$deps",
+          "match": {
+            "type": "object",
+            "members": {
+              "type": [
+                "array",
+                "object",
+                "boolean"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "distribute": {
+        "from": "$deps",
+        "before": "dependencies",
+        "prune-empty": true,
+        "cases": [
+          {
+            "when": {
+              "type": [
+                "object",
+                "boolean"
+              ]
+            },
+            "to": "/dependentSchemas/$key"
+          },
+          {
+            "when": {
+              "type": "array"
+            },
+            "to": "/dependentRequired/$key"
+          }
+        ]
+      }
+    }
+  ]
+}

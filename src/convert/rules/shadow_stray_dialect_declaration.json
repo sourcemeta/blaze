@@ -1,0 +1,48 @@
+{
+  "name": "shadow_stray_dialect_declaration",
+  "match": {
+    "all": [
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "$schema",
+          "match": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "not": {
+          "call": {
+            "name": "convert:at-root"
+          }
+        }
+      },
+      {
+        "not": {
+          "call": {
+            "name": "convert:at-resource-root"
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "move": {
+        "from": "/$schema",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-$schema"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

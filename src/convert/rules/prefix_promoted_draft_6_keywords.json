@@ -1,0 +1,122 @@
+{
+  "name": "prefix_promoted_draft_6_keywords",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-04/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "call": {
+          "name": "convert:promoted-keyword-is-author-data",
+          "args": [
+            "http://json-schema.org/draft-06/schema#"
+          ]
+        }
+      },
+      {
+        "any": [
+          {
+            "has": "$id"
+          },
+          {
+            "has": "const"
+          },
+          {
+            "has": "contains"
+          },
+          {
+            "has": "propertyNames"
+          },
+          {
+            "has": "examples"
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "move": {
+        "from": "/$id",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-$id"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/const",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-const"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/contains",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-contains"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/propertyNames",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-propertyNames"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/examples",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-examples"
+            ]
+          }
+        },
+        "optional": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "name": "draft_official_dialect_without_empty_fragment",
+  "match": {
+    "all": [
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "$schema",
+          "bind": "$dialect",
+          "match": {
+            "enum": [
+              "http://json-schema.org/draft-00/hyper-schema",
+              "http://json-schema.org/draft-00/schema",
+              "http://json-schema.org/draft-01/hyper-schema",
+              "http://json-schema.org/draft-01/schema",
+              "http://json-schema.org/draft-02/hyper-schema",
+              "http://json-schema.org/draft-02/schema",
+              "http://json-schema.org/draft-03/hyper-schema",
+              "http://json-schema.org/draft-03/schema",
+              "http://json-schema.org/draft-04/hyper-schema",
+              "http://json-schema.org/draft-04/schema",
+              "http://json-schema.org/draft-06/hyper-schema",
+              "http://json-schema.org/draft-06/schema",
+              "http://json-schema.org/draft-07/hyper-schema",
+              "http://json-schema.org/draft-07/schema"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "set": {
+        "$schema": {
+          "lookup": {
+            "key": "$dialect",
+            "table": {
+              "http://json-schema.org/draft-07/schema": "http://json-schema.org/draft-07/schema#",
+              "http://json-schema.org/draft-07/hyper-schema": "http://json-schema.org/draft-07/hyper-schema#",
+              "http://json-schema.org/draft-06/schema": "http://json-schema.org/draft-06/schema#",
+              "http://json-schema.org/draft-06/hyper-schema": "http://json-schema.org/draft-06/hyper-schema#",
+              "http://json-schema.org/draft-04/schema": "http://json-schema.org/draft-04/schema#",
+              "http://json-schema.org/draft-04/hyper-schema": "http://json-schema.org/draft-04/hyper-schema#",
+              "http://json-schema.org/draft-03/schema": "http://json-schema.org/draft-03/schema#",
+              "http://json-schema.org/draft-03/hyper-schema": "http://json-schema.org/draft-03/hyper-schema#",
+              "http://json-schema.org/draft-02/schema": "http://json-schema.org/draft-02/schema#",
+              "http://json-schema.org/draft-02/hyper-schema": "http://json-schema.org/draft-02/hyper-schema#",
+              "http://json-schema.org/draft-01/schema": "http://json-schema.org/draft-01/schema#",
+              "http://json-schema.org/draft-01/hyper-schema": "http://json-schema.org/draft-01/hyper-schema#",
+              "http://json-schema.org/draft-00/schema": "http://json-schema.org/draft-00/schema#",
+              "http://json-schema.org/draft-00/hyper-schema": "http://json-schema.org/draft-00/hyper-schema#"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

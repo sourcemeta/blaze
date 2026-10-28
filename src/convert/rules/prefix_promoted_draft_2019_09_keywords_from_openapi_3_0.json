@@ -1,0 +1,278 @@
+{
+  "name": "prefix_promoted_draft_2019_09_keywords",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-07/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "call": {
+          "name": "convert:promoted-keyword-is-author-data",
+          "args": [
+            "https://json-schema.org/draft/2019-09/schema"
+          ]
+        }
+      },
+      {
+        "any": [
+          {
+            "has": "$anchor"
+          },
+          {
+            "has": "$recursiveAnchor"
+          },
+          {
+            "has": "$recursiveRef"
+          },
+          {
+            "has": "$vocabulary"
+          },
+          {
+            "has": "$defs"
+          },
+          {
+            "has": "dependentSchemas"
+          },
+          {
+            "has": "dependentRequired"
+          },
+          {
+            "has": "unevaluatedItems"
+          },
+          {
+            "has": "unevaluatedProperties"
+          },
+          {
+            "has": "maxContains"
+          },
+          {
+            "has": "minContains"
+          },
+          {
+            "has": "contentSchema"
+          },
+          {
+            "member": {
+              "key": "deprecated",
+              "match": {
+                "not": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "move": {
+        "from": "/$anchor",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-$anchor"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/$recursiveAnchor",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-$recursiveAnchor"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/$recursiveRef",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-$recursiveRef"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/$vocabulary",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-$vocabulary"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/$defs",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-$defs"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/dependentSchemas",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-dependentSchemas"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/dependentRequired",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-dependentRequired"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/unevaluatedItems",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-unevaluatedItems"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/unevaluatedProperties",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-unevaluatedProperties"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/maxContains",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-maxContains"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/minContains",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-minContains"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/contentSchema",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-contentSchema"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/deprecated",
+        "to": {
+          "call": {
+            "name": "convert:free-pointer",
+            "args": [
+              "$self",
+              "x-deprecated"
+            ]
+          }
+        },
+        "optional": true,
+        "when": {
+          "not": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  ]
+}

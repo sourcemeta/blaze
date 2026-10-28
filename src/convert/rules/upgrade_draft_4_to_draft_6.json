@@ -1,0 +1,233 @@
+{
+  "name": "upgrade_draft_4_to_draft_6",
+  "plan": [
+    "anchors-pending"
+  ],
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-04/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "any": [
+          {
+            "call": {
+              "name": "convert:has-pending-draft-4-pattern"
+            }
+          },
+          {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:at-resource-root"
+                }
+              },
+              {
+                "any": [
+                  {
+                    "call": {
+                      "name": "convert:at-root"
+                    }
+                  },
+                  {
+                    "has": "$schema"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "not": {
+          "call": {
+            "name": "convert:anchors-pending"
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "move": {
+        "from": "/id",
+        "to": "/$id",
+        "optional": true,
+        "when": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "erase": "exclusiveMinimum",
+      "optional": true,
+      "when": {
+        "type": "boolean"
+      }
+    },
+    {
+      "move": {
+        "from": "/minimum",
+        "to": "/exclusiveMinimum",
+        "optional": true,
+        "when": {
+          "type": "number"
+        }
+      },
+      "if": {
+        "member": {
+          "key": "exclusiveMinimum",
+          "match": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "erase": "exclusiveMaximum",
+      "optional": true,
+      "when": {
+        "type": "boolean"
+      }
+    },
+    {
+      "move": {
+        "from": "/maximum",
+        "to": "/exclusiveMaximum",
+        "optional": true,
+        "when": {
+          "type": "number"
+        }
+      },
+      "if": {
+        "member": {
+          "key": "exclusiveMaximum",
+          "match": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "set": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-06/schema#"
+      },
+      "if": {
+        "all": [
+          {
+            "all": [
+              {
+                "member": {
+                  "key": "x-sourcemeta-dialect-override-subschema",
+                  "bind": "$marker",
+                  "match": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "call": {
+                  "name": "convert:names-ladder-dialect",
+                  "args": [
+                    "$marker"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "not": {
+              "all": [
+                {
+                  "call": {
+                    "name": "convert:at-resource-root"
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "call": {
+                        "name": "convert:at-root"
+                      }
+                    },
+                    {
+                      "has": "$schema"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "x-sourcemeta-dialect-override-subschema",
+      "optional": true,
+      "when": {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$term"
+          ]
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:at-resource-root"
+            }
+          },
+          {
+            "any": [
+              {
+                "call": {
+                  "name": "convert:at-root"
+                }
+              },
+              {
+                "has": "$schema"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "$schema": "http://json-schema.org/draft-06/schema#"
+      },
+      "first": true,
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:at-resource-root"
+            }
+          },
+          {
+            "any": [
+              {
+                "call": {
+                  "name": "convert:at-root"
+                }
+              },
+              {
+                "has": "$schema"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

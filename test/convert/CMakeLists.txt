@@ -29,4 +29,7 @@ target_link_libraries(sourcemeta_blaze_convert_suite_unit
 target_link_libraries(sourcemeta_blaze_convert_suite_unit
   PRIVATE sourcemeta::blaze::evaluator)
 
-set_tests_properties(blaze.convert_suite PROPERTIES TIMEOUT 60)
+# The rules are interpreted from JSON rather than compiled, which roughly
+# doubles what this suite costs. The interpreter is a spike and is not
+# optimised, so the budget is raised rather than the suite trimmed
+set_tests_properties(blaze.convert_suite PROPERTIES TIMEOUT 180)

@@ -1,0 +1,734 @@
+{
+  "name": "upgrade_draft_3_to_draft_4",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-03/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "any": [
+          {
+            "call": {
+              "name": "convert:has-pending-draft-3-pattern"
+            }
+          },
+          {
+            "call": {
+              "name": "convert:has-stray-required-boolean"
+            }
+          },
+          {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:at-resource-root"
+                }
+              },
+              {
+                "any": [
+                  {
+                    "call": {
+                      "name": "convert:at-root"
+                    }
+                  },
+                  {
+                    "has": "$schema"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "erase": "type",
+      "if": {
+        "call": {
+          "name": "convert:draft3-shape",
+          "args": [
+            "$term",
+            "type-vacuous"
+          ]
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/type",
+        "to": "/anyOf",
+        "last": true
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "type-has-subschema"
+              ]
+            }
+          },
+          {
+            "not": {
+              "has": "anyOf"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "anyOf": {
+          "call": {
+            "name": "convert:draft3-type-branches",
+            "args": [
+              "$self"
+            ]
+          }
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "type-has-subschema"
+              ]
+            }
+          },
+          {
+            "not": {
+              "has": "anyOf"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "disallow",
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "disallow-collapses"
+              ]
+            }
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "not": {
+          "object": {}
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "disallow-collapses"
+              ]
+            }
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "not": {
+          "object": {
+            "type": {
+              "call": {
+                "name": "convert:member",
+                "args": [
+                  "$self",
+                  "disallow"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "disallow-names-only"
+              ]
+            }
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:draft3-shape",
+                "args": [
+                  "$term",
+                  "disallow-collapses"
+                ]
+              }
+            }
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "disallow",
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "disallow-names-only"
+              ]
+            }
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:draft3-shape",
+                "args": [
+                  "$term",
+                  "disallow-collapses"
+                ]
+              }
+            }
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/disallow",
+        "to": "/not/anyOf"
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "disallow-has-subschema"
+              ]
+            }
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "not": {
+          "object": {
+            "anyOf": {
+              "call": {
+                "name": "convert:draft3-disallow-branches",
+                "args": [
+                  "$self"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "disallow-has-subschema"
+              ]
+            }
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/disallow",
+        "to": "/not"
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "disallow-is-schema"
+              ]
+            }
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "extends",
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "extends",
+              "match": {
+                "type": "array",
+                "empty": true
+              }
+            }
+          },
+          {
+            "not": {
+              "has": "allOf"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/extends",
+        "to": "/allOf",
+        "last": true
+      },
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "extends",
+              "match": {
+                "type": "array",
+                "empty": false
+              }
+            }
+          },
+          {
+            "not": {
+              "has": "allOf"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/extends",
+        "to": "/allOf/0"
+      },
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "extends",
+              "match": {
+                "type": "object"
+              }
+            }
+          },
+          {
+            "not": {
+              "has": "allOf"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": [
+        "items"
+      ],
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "items",
+              "match": {
+                "type": "array",
+                "empty": true
+              }
+            }
+          },
+          {
+            "not": {
+              "has": "additionalItems"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": [
+        "additionalItems",
+        "items"
+      ],
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "items",
+              "match": {
+                "type": "array",
+                "empty": true
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "additionalItems",
+              "match": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "maxItems": 0
+      },
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "items",
+              "match": {
+                "type": "array",
+                "empty": true
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "additionalItems",
+              "match": {
+                "const": false
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/additionalItems",
+        "to": "/items"
+      },
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "items",
+              "match": {
+                "type": "array",
+                "empty": true
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "additionalItems",
+              "match": {
+                "not": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/divisibleBy",
+        "to": "/multipleOf"
+      },
+      "if": {
+        "all": [
+          {
+            "has": "divisibleBy"
+          },
+          {
+            "not": {
+              "has": "multipleOf"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "required",
+      "if": {
+        "call": {
+          "name": "convert:has-stray-required-boolean"
+        }
+      }
+    },
+    {
+      "replace": {
+        "call": {
+          "name": "convert:draft3-lift-required",
+          "args": [
+            "$current"
+          ]
+        }
+      },
+      "if": {
+        "call": {
+          "name": "convert:draft3-shape",
+          "args": [
+            "$term",
+            "liftable-required"
+          ]
+        }
+      }
+    },
+    {
+      "set": {
+        "dependencies": {
+          "call": {
+            "name": "convert:draft3-normalize-dependencies",
+            "args": [
+              "$current"
+            ]
+          }
+        }
+      },
+      "if": {
+        "call": {
+          "name": "convert:draft3-shape",
+          "args": [
+            "$term",
+            "normalizable-dependencies"
+          ]
+        }
+      }
+    },
+    {
+      "erase": "dependencies",
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "normalizable-dependencies"
+              ]
+            }
+          },
+          {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "dependencies-empty-after-normalizing"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "format": {
+          "lookup": {
+            "key": {
+              "call": {
+                "name": "convert:member",
+                "args": [
+                  "$self",
+                  "format"
+                ]
+              }
+            },
+            "table": {
+              "host-name": "hostname",
+              "ip-address": "ipv4"
+            }
+          }
+        }
+      },
+      "if": {
+        "member": {
+          "key": "format",
+          "match": {
+            "enum": [
+              "host-name",
+              "ip-address"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "set": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-04/schema#"
+      },
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "x-sourcemeta-dialect-override-subschema",
+              "bind": "$marker",
+              "match": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "call": {
+              "name": "convert:names-ladder-dialect",
+              "args": [
+                "$marker"
+              ]
+            }
+          },
+          {
+            "not": {
+              "all": [
+                {
+                  "call": {
+                    "name": "convert:at-resource-root"
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "call": {
+                        "name": "convert:at-root"
+                      }
+                    },
+                    {
+                      "has": "$schema"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "x-sourcemeta-dialect-override-subschema",
+      "optional": true,
+      "when": {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$term"
+          ]
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:at-resource-root"
+            }
+          },
+          {
+            "any": [
+              {
+                "call": {
+                  "name": "convert:at-root"
+                }
+              },
+              {
+                "has": "$schema"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "$schema": "http://json-schema.org/draft-04/schema#"
+      },
+      "first": true,
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:at-resource-root"
+            }
+          },
+          {
+            "any": [
+              {
+                "call": {
+                  "name": "convert:at-root"
+                }
+              },
+              {
+                "has": "$schema"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

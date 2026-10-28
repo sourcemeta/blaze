@@ -1,9 +1,10 @@
-class Upgrade201909To202012 final : public SchemaTransformRule {
+/// What the 2019-09 rung needs to know before it can rewrite anything. Every
+/// one of these answers is a property of the whole document or of where a
+/// subschema sits in it, which no pattern over a subschema can see, so the
+/// rung asks for them by name and the rule consults the answers as bindings
+class Analysis201909To202012 {
 public:
-  Upgrade201909To202012()
-      : SchemaTransformRule{"upgrade_2019_09_to_2020_12"} {};
-
-  auto begin_pass() const -> void override {
+  auto begin_pass() const -> void {
     this->plans_.clear();
     this->unevaluated_items_.reset();
     this->recursive_anchors_.clear();
@@ -16,13 +17,14 @@ public:
             const sourcemeta::core::SchemaFrame &frame,
             const sourcemeta::core::SchemaFrame::Location &location,
             const Site &site, const sourcemeta::core::SchemaWalker &walker,
-            const sourcemeta::core::SchemaResolver &resolver) const
-      -> void override {
+            const sourcemeta::core::SchemaResolver &resolver) const -> void {
     this->reset();
 
     if (!vocabularies.contains(
             SchemaVocabularies::Known::JSON_SCHEMA_2019_09_CORE) ||
         !schema.is_object()) {
+      this->blocked_ = true;
+      this->record(site);
       return;
     }
 
@@ -60,6 +62,8 @@ public:
     }
 
     if (this->resource_has_pending_sanitization(root, frame, location, site)) {
+      this->blocked_ = true;
+      this->record(site);
       return;
     }
 
@@ -76,174 +80,83 @@ public:
     this->document_has_unevaluated_items_ =
         this->document_has_unevaluated_items(root, frame, walker, resolver);
 
-    if (this->has_work_here(schema, site)) {
-      this->record(site);
-    }
+    this->record(site);
   }
 
-  [[nodiscard]] auto
-  condition(const sourcemeta::core::JSON &, const sourcemeta::core::JSON &,
-            const sourcemeta::core::SchemaVocabularies &, const Site &site,
-            const sourcemeta::core::SchemaWalker &,
-            const sourcemeta::core::SchemaResolver &) const -> bool override {
-    return this->load(site);
+  /// What this rung settled for a position, as the terms a rule consults
+  [[nodiscard]] auto fact(const Site &site, const std::string_view name) const
+      -> sourcemeta::core::JSON {
+    if (!this->load(site)) {
+      return sourcemeta::core::JSON{true};
+    }
+
+    if (name == "blocked") {
+      return sourcemeta::core::JSON{this->blocked_};
+    }
+
+    if (name == "sanitize-pending") {
+      return sourcemeta::core::JSON{this->sanitize_pending_};
+    }
+
+    if (name == "additional-items-is-referenced") {
+      return sourcemeta::core::JSON{this->additional_items_is_referenced_};
+    }
+
+    if (name == "resource-has-recursive-anchor") {
+      return sourcemeta::core::JSON{this->resource_has_recursive_anchor_};
+    }
+
+    if (name == "anchor-at-resource-root") {
+      return sourcemeta::core::JSON{this->anchor_at_resource_root_};
+    }
+
+    if (name == "is-inside-contains-wrapper") {
+      return sourcemeta::core::JSON{this->is_inside_contains_wrapper_};
+    }
+
+    if (name == "document-has-unevaluated-items") {
+      return sourcemeta::core::JSON{this->document_has_unevaluated_items_};
+    }
+
+    if (name == "dynamic-anchor-name") {
+      return sourcemeta::core::JSON{this->dynamic_anchor_name_};
+    }
+
+    if (name == "dynamic-ref-value") {
+      return sourcemeta::core::JSON{"#" + this->dynamic_anchor_name_};
+    }
+
+    throw TransformError{"Unknown 2019-09 fact"};
   }
 
-  // Mirrors what `transform` below will actually do. A condition that claims
-  // work the transform then declines to do leaves the position scheduled for
-  // every pass, so the two have to agree keyword for keyword
-  [[nodiscard]] auto has_work_here(const sourcemeta::core::JSON &schema,
-                                   const Site &site) const -> bool {
-    if (this->sanitize_pending_) {
-      return true;
+  /// This resource with its anchors renamed and the references that name them
+  /// moved, which is a rewrite across the whole resource rather than an edit
+  /// to the subschema the rule fired on
+  [[nodiscard]] auto sanitized(const sourcemeta::core::JSON &schema,
+                               const Site &site) const
+      -> sourcemeta::core::JSON {
+    auto result{schema};
+    if (!this->load(site)) {
+      return result;
     }
 
-    if (schema.defines("$recursiveAnchor") &&
-        schema.at("$recursiveAnchor").is_boolean()) {
-      return true;
-    }
-
-    if (schema.defines_any({"$recursiveRef", "additionalItems"})) {
-      return true;
-    }
-
-    if (schema.defines("items") && schema.at("items").is_array()) {
-      return true;
-    }
-
-    if (schema.defines("contains") && !this->is_inside_contains_wrapper_ &&
-        this->document_has_unevaluated_items_) {
-      return true;
-    }
-
-    if (vocabulary_has_mappable_uri(schema)) {
-      return true;
-    }
-
-    return at_dialect_declaration(schema, site);
+    this->apply_anchor_sanitization(result);
+    return result;
   }
 
-  auto transform(sourcemeta::core::JSON &schema, const Site &site) const
-      -> void override {
-    [[maybe_unused]] const auto planned{this->load(site)};
-    assert(planned);
-
-    // Cleared before anything may return, because the driver reads what this
-    // records straight after and would otherwise journal the moves of whatever
-    // position was rewritten before this one, as moves of this one
-    this->renames_.clear();
-
-    // Renaming this resource's anchors is what the pass does here, and it
-    // held the subschemas under it back while doing so. Moving the dialect as
-    // well would leave them reading as the target while their own rung work is
-    // still outstanding, and nothing would come back for it
-    if (this->sanitize_pending_) {
-      apply_anchor_sanitization(schema);
-      return;
+  /// The 2019-09 vocabulary URIs as 2020-12 spells them, which is not a plain
+  /// table: a declaration the target already carries is left alone, and the
+  /// applicator one speaks for the unevaluated keywords as well
+  [[nodiscard]] static auto vocabulary(const sourcemeta::core::JSON &schema)
+      -> sourcemeta::core::JSON {
+    if (!schema.is_object()) {
+      return sourcemeta::core::JSON{nullptr};
     }
 
-    if (schema.defines("$recursiveAnchor") &&
-        schema.at("$recursiveAnchor").is_boolean()) {
-      // Only the root of a schema resource can carry a recursive anchor.
-      // Anywhere else the keyword says nothing, so turning it into a dynamic
-      // anchor would invent a target that nothing was ever pointed at
-      if (schema.at("$recursiveAnchor").to_boolean() &&
-          this->anchor_at_resource_root_) {
-        schema.rename("$recursiveAnchor", "$dynamicAnchor");
-        schema.at("$dynamicAnchor")
-            .into(sourcemeta::core::JSON{this->dynamic_anchor_name_});
-      } else {
-        schema.erase("$recursiveAnchor");
-      }
-    }
-
-    if (schema.defines("$recursiveRef")) {
-      schema.rename("$recursiveRef", "$dynamicRef");
-      if (this->resource_has_recursive_anchor_) {
-        schema.at("$dynamicRef")
-            .into(sourcemeta::core::JSON{"#" + this->dynamic_anchor_name_});
-      }
-    }
-
-    if (schema.defines("items") && schema.at("items").is_array()) {
-      if (schema.at("items").empty()) {
-        schema.erase("items");
-      } else {
-        this->renames_.emplace_back(sourcemeta::core::Pointer{"items"},
-                                    sourcemeta::core::Pointer{"prefixItems"});
-        schema.rename("items", "prefixItems");
-      }
-      if (schema.defines("additionalItems")) {
-        this->renames_.emplace_back(
-            sourcemeta::core::Pointer{"additionalItems"},
-            sourcemeta::core::Pointer{"items"});
-        schema.rename("additionalItems", "items");
-      }
-    } else if (schema.defines("additionalItems")) {
-      if (this->additional_items_is_referenced_) {
-        move_to_defs(schema, "additionalItems", this->renames_);
-      } else {
-        schema.erase("additionalItems");
-      }
-    }
-
-    if (schema.defines("contains") && !this->is_inside_contains_wrapper_ &&
-        this->document_has_unevaluated_items_) {
-      auto wrapper_inner{sourcemeta::core::JSON::make_object()};
-      wrapper_inner.assign("contains", schema.at("contains"));
-      if (schema.defines("minContains")) {
-        wrapper_inner.assign("minContains", schema.at("minContains"));
-        schema.erase("minContains");
-      }
-      if (schema.defines("maxContains")) {
-        wrapper_inner.assign("maxContains", schema.at("maxContains"));
-        schema.erase("maxContains");
-      }
-
-      auto inner_not{sourcemeta::core::JSON::make_object()};
-      inner_not.assign("not", std::move(wrapper_inner));
-
-      if (!schema.defines("not")) {
-        schema.rename("contains", "not");
-        schema.at("not").into(std::move(inner_not));
-        this->renames_.emplace_back(
-            sourcemeta::core::Pointer{"contains"},
-            sourcemeta::core::Pointer{"not", "not", "contains"});
-      } else {
-        schema.erase("contains");
-        auto outer_not{sourcemeta::core::JSON::make_object()};
-        outer_not.assign("not", std::move(inner_not));
-        if (schema.defines("allOf") && schema.at("allOf").is_array()) {
-          const auto allof_index{schema.at("allOf").size()};
-          schema.at("allOf").push_back(std::move(outer_not));
-          this->renames_.emplace_back(
-              sourcemeta::core::Pointer{"contains"},
-              sourcemeta::core::Pointer{
-                  "allOf",
-                  static_cast<sourcemeta::core::Pointer::Token::Index>(
-                      allof_index),
-                  "not", "not", "contains"});
-        } else {
-          auto allof_array{sourcemeta::core::JSON::make_array()};
-          allof_array.push_back(std::move(outer_not));
-          schema.assign("allOf", std::move(allof_array));
-          this->renames_.emplace_back(
-              sourcemeta::core::Pointer{"contains"},
-              sourcemeta::core::Pointer{
-                  "allOf",
-                  static_cast<sourcemeta::core::Pointer::Token::Index>(0),
-                  "not", "not", "contains"});
-        }
-      }
-    }
-
-    rewrite_vocabulary(schema);
-
-    bump_dialect(schema, site, DRAFT_2020_12_URL);
-  }
-
-  [[nodiscard]] auto relocations() const -> std::vector<Relocation> override {
-    return {this->renames_.cbegin(), this->renames_.cend()};
+    auto result{schema};
+    rewrite_vocabulary(result);
+    const auto *rewritten{result.try_at("$vocabulary")};
+    return rewritten == nullptr ? sourcemeta::core::JSON{nullptr} : *rewritten;
   }
 
 private:
@@ -402,6 +315,7 @@ private:
   // edited. The working members below are loaded from this just before the
   // position is answered for or rewritten
   struct Plan {
+    bool blocked;
     bool sanitize;
     bool additional_items_is_referenced;
     bool resource_has_recursive_anchor;
@@ -414,6 +328,7 @@ private:
   };
 
   auto reset() const -> void {
+    this->blocked_ = false;
     this->sanitize_pending_ = false;
     this->additional_items_is_referenced_ = false;
     this->resource_has_recursive_anchor_ = false;
@@ -427,7 +342,8 @@ private:
   auto record(const Site &site) const -> void {
     this->plans_.insert_or_assign(
         site.pointer,
-        Plan{.sanitize = this->sanitize_pending_,
+        Plan{.blocked = this->blocked_,
+             .sanitize = this->sanitize_pending_,
              .additional_items_is_referenced =
                  this->additional_items_is_referenced_,
              .resource_has_recursive_anchor =
@@ -448,6 +364,7 @@ private:
     }
 
     const auto &plan{found->second};
+    this->blocked_ = plan.blocked;
     this->sanitize_pending_ = plan.sanitize;
     this->additional_items_is_referenced_ = plan.additional_items_is_referenced;
     this->resource_has_recursive_anchor_ = plan.resource_has_recursive_anchor;
@@ -461,6 +378,7 @@ private:
   }
 
   mutable std::map<sourcemeta::core::Pointer, Plan> plans_;
+  mutable bool blocked_{false};
   mutable bool additional_items_is_referenced_{false};
   mutable std::vector<
       std::pair<sourcemeta::core::Pointer, sourcemeta::core::Pointer>>

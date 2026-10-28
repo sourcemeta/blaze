@@ -1,0 +1,101 @@
+{
+  "name": "dialect_override_becomes_dollar_schema",
+  "plan": [
+    "enclosing-dialect"
+  ],
+  "match": {
+    "all": [
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "x-sourcemeta-dialect-override-subschema",
+          "bind": "$marker"
+        }
+      },
+      {
+        "call": {
+          "name": "convert:is-own-dialect-override",
+          "args": [
+            "$marker"
+          ]
+        }
+      },
+      {
+        "any": [
+          {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:at-resource-root"
+                }
+              },
+              {
+                "any": [
+                  {
+                    "call": {
+                      "name": "convert:at-root"
+                    }
+                  },
+                  {
+                    "has": "$schema"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "call": {
+              "name": "convert:enclosing-dialect-is",
+              "args": [
+                "$marker"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "erase": "x-sourcemeta-dialect-override-subschema"
+    },
+    {
+      "set": {
+        "$schema": "$marker"
+      },
+      "first": true,
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$schema"
+            }
+          },
+          {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:at-resource-root"
+                }
+              },
+              {
+                "any": [
+                  {
+                    "call": {
+                      "name": "convert:at-root"
+                    }
+                  },
+                  {
+                    "has": "$schema"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

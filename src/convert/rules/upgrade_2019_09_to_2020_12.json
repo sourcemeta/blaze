@@ -1,0 +1,1072 @@
+{
+  "name": "upgrade_2019_09_to_2020_12",
+  "queries": {
+    "$blocked": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "blocked"
+      ]
+    },
+    "$sanitize-pending": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "sanitize-pending"
+      ]
+    },
+    "$additional-items-referenced": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "additional-items-is-referenced"
+      ]
+    },
+    "$resource-has-recursive-anchor": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "resource-has-recursive-anchor"
+      ]
+    },
+    "$anchor-at-resource-root": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "anchor-at-resource-root"
+      ]
+    },
+    "$inside-contains-wrapper": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "is-inside-contains-wrapper"
+      ]
+    },
+    "$document-has-unevaluated-items": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "document-has-unevaluated-items"
+      ]
+    },
+    "$dynamic-anchor-name": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "dynamic-anchor-name"
+      ]
+    },
+    "$dynamic-ref-value": {
+      "name": "convert:2019-09-fact",
+      "args": [
+        "dynamic-ref-value"
+      ]
+    },
+    "$sanitized": {
+      "name": "convert:2019-09-sanitized"
+    },
+    "$vocabulary": {
+      "name": "convert:2019-09-vocabulary"
+    }
+  },
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "https://json-schema.org/draft/2019-09/vocab/core"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "binding": {
+          "name": "$blocked",
+          "match": {
+            "const": false
+          }
+        }
+      },
+      {
+        "any": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": true
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "$recursiveAnchor",
+              "match": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "has": "$recursiveRef"
+          },
+          {
+            "has": "additionalItems"
+          },
+          {
+            "member": {
+              "key": "items",
+              "match": {
+                "type": "array"
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "has": "contains"
+              },
+              {
+                "binding": {
+                  "name": "$inside-contains-wrapper",
+                  "match": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "binding": {
+                  "name": "$document-has-unevaluated-items",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "member": {
+              "key": "$vocabulary",
+              "match": {
+                "type": "object",
+                "some-member": {
+                  "key": {
+                    "enum": [
+                      "https://json-schema.org/draft/2019-09/vocab/core",
+                      "https://json-schema.org/draft/2019-09/vocab/applicator",
+                      "https://json-schema.org/draft/2019-09/vocab/validation",
+                      "https://json-schema.org/draft/2019-09/vocab/meta-data",
+                      "https://json-schema.org/draft/2019-09/vocab/format",
+                      "https://json-schema.org/draft/2019-09/vocab/content"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:at-resource-root"
+                }
+              },
+              {
+                "any": [
+                  {
+                    "call": {
+                      "name": "convert:at-root"
+                    }
+                  },
+                  {
+                    "has": "$schema"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "replace": "$sanitized",
+      "if": {
+        "binding": {
+          "name": "$sanitize-pending",
+          "match": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/$recursiveAnchor",
+        "to": "/$dynamicAnchor"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "$recursiveAnchor",
+              "match": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "$recursiveAnchor",
+              "match": {
+                "const": true
+              }
+            }
+          },
+          {
+            "binding": {
+              "name": "$anchor-at-resource-root",
+              "match": {
+                "const": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "$dynamicAnchor": "$dynamic-anchor-name"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "$recursiveAnchor",
+              "match": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "$recursiveAnchor",
+              "match": {
+                "const": true
+              }
+            }
+          },
+          {
+            "binding": {
+              "name": "$anchor-at-resource-root",
+              "match": {
+                "const": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "$recursiveAnchor",
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "$recursiveAnchor",
+              "match": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "any": [
+              {
+                "member": {
+                  "key": "$recursiveAnchor",
+                  "match": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "binding": {
+                  "name": "$anchor-at-resource-root",
+                  "match": {
+                    "const": false
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/$recursiveRef",
+        "to": "/$dynamicRef"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "has": "$recursiveRef"
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "$dynamicRef": "$dynamic-ref-value"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "has": "$recursiveRef"
+          },
+          {
+            "binding": {
+              "name": "$resource-has-recursive-anchor",
+              "match": {
+                "const": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "items",
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "items",
+              "match": {
+                "type": "array",
+                "empty": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/items",
+        "to": "/prefixItems"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "items",
+              "match": {
+                "type": "array",
+                "empty": false
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/additionalItems",
+        "to": "/items"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "items",
+              "match": {
+                "type": "array"
+              }
+            }
+          },
+          {
+            "has": "additionalItems"
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "$defs": {
+          "object": {}
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "not": {
+              "member": {
+                "key": "items",
+                "match": {
+                  "type": "array"
+                }
+              }
+            }
+          },
+          {
+            "has": "additionalItems"
+          },
+          {
+            "binding": {
+              "name": "$additional-items-referenced",
+              "match": {
+                "const": true
+              }
+            }
+          },
+          {
+            "not": {
+              "has": "$defs"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/additionalItems",
+        "to": {
+          "call": {
+            "name": "convert:defs-pointer",
+            "args": [
+              "$current",
+              "additionalItems"
+            ]
+          }
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "not": {
+              "member": {
+                "key": "items",
+                "match": {
+                  "type": "array"
+                }
+              }
+            }
+          },
+          {
+            "has": "additionalItems"
+          },
+          {
+            "binding": {
+              "name": "$additional-items-referenced",
+              "match": {
+                "const": true
+              }
+            }
+          }
+        ]
+      },
+      "if-current": {
+        "member": {
+          "key": "$defs",
+          "match": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "erase": "additionalItems",
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "not": {
+              "member": {
+                "key": "items",
+                "match": {
+                  "type": "array"
+                }
+              }
+            }
+          },
+          {
+            "has": "additionalItems"
+          },
+          {
+            "binding": {
+              "name": "$additional-items-referenced",
+              "match": {
+                "const": false
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/contains",
+        "to": "/not/not/contains",
+        "before": "contains"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "has": "contains"
+              },
+              {
+                "binding": {
+                  "name": "$inside-contains-wrapper",
+                  "match": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "binding": {
+                  "name": "$document-has-unevaluated-items",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/minContains",
+        "to": "/not/not/minContains",
+        "optional": true,
+        "before": "contains"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "has": "contains"
+              },
+              {
+                "binding": {
+                  "name": "$inside-contains-wrapper",
+                  "match": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "binding": {
+                  "name": "$document-has-unevaluated-items",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/maxContains",
+        "to": "/not/not/maxContains",
+        "optional": true,
+        "before": "contains"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "has": "contains"
+              },
+              {
+                "binding": {
+                  "name": "$inside-contains-wrapper",
+                  "match": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "binding": {
+                  "name": "$document-has-unevaluated-items",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "not": {
+              "has": "not"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/minContains",
+        "to": {
+          "call": {
+            "name": "convert:slot-pointer",
+            "args": [
+              "$current",
+              "allOf",
+              "/not/not/minContains"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "has": "contains"
+              },
+              {
+                "binding": {
+                  "name": "$inside-contains-wrapper",
+                  "match": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "binding": {
+                  "name": "$document-has-unevaluated-items",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "has": "not"
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/maxContains",
+        "to": {
+          "call": {
+            "name": "convert:slot-pointer",
+            "args": [
+              "$current",
+              "allOf",
+              "/not/not/maxContains"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "has": "contains"
+              },
+              {
+                "binding": {
+                  "name": "$inside-contains-wrapper",
+                  "match": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "binding": {
+                  "name": "$document-has-unevaluated-items",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "has": "not"
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/contains",
+        "to": {
+          "call": {
+            "name": "convert:slot-pointer",
+            "args": [
+              "$current",
+              "allOf",
+              "/not/not/contains"
+            ]
+          }
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "has": "contains"
+              },
+              {
+                "binding": {
+                  "name": "$inside-contains-wrapper",
+                  "match": {
+                    "const": false
+                  }
+                }
+              },
+              {
+                "binding": {
+                  "name": "$document-has-unevaluated-items",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "has": "not"
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "$vocabulary": "$vocabulary"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "$vocabulary",
+              "match": {
+                "type": "object",
+                "some-member": {
+                  "key": {
+                    "enum": [
+                      "https://json-schema.org/draft/2019-09/vocab/core",
+                      "https://json-schema.org/draft/2019-09/vocab/applicator",
+                      "https://json-schema.org/draft/2019-09/vocab/validation",
+                      "https://json-schema.org/draft/2019-09/vocab/meta-data",
+                      "https://json-schema.org/draft/2019-09/vocab/format",
+                      "https://json-schema.org/draft/2019-09/vocab/content"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "x-sourcemeta-dialect-override-subschema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "member": {
+              "key": "x-sourcemeta-dialect-override-subschema",
+              "bind": "$marker",
+              "match": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "call": {
+              "name": "convert:names-ladder-dialect",
+              "args": [
+                "$marker"
+              ]
+            }
+          },
+          {
+            "not": {
+              "all": [
+                {
+                  "call": {
+                    "name": "convert:at-resource-root"
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "call": {
+                        "name": "convert:at-root"
+                      }
+                    },
+                    {
+                      "has": "$schema"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "x-sourcemeta-dialect-override-subschema",
+      "optional": true,
+      "when": {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$term"
+          ]
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:at-resource-root"
+                }
+              },
+              {
+                "any": [
+                  {
+                    "call": {
+                      "name": "convert:at-root"
+                    }
+                  },
+                  {
+                    "has": "$schema"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "first": true,
+      "if": {
+        "all": [
+          {
+            "binding": {
+              "name": "$sanitize-pending",
+              "match": {
+                "const": false
+              }
+            }
+          },
+          {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:at-resource-root"
+                }
+              },
+              {
+                "any": [
+                  {
+                    "call": {
+                      "name": "convert:at-root"
+                    }
+                  },
+                  {
+                    "has": "$schema"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

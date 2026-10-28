@@ -31,16 +31,52 @@ using namespace sourcemeta::core;
 
 namespace {
 
+// The transformation engine, internal to this module
+#include "transform.h"
+
+#include "transform_build.h"
+#include "transform_match.h"
+
 #include "helpers.h"
 #include "rule.h"
 
+// Both read what `helpers.h` defines, and the profile reads the analysis
+#include "analysis_2019_09.h"
+
+#include "template_rule.h"
+
 using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool>;
 
-/// Construct a rule entry for the given rule type
-template <std::derived_from<SchemaTransformRule> T, typename... Args>
-[[nodiscard]] auto make_rule(Args &&...arguments) -> Rule {
-  return {std::make_unique<T>(std::forward<Args>(arguments)...),
-          std::is_same_v<typename T::writes_outside_itself, std::true_type>};
+/// Construct a rule entry from JSON rule data
+[[nodiscard]] auto make_template_rule(const std::string_view definition)
+    -> Rule {
+  auto parsed{sourcemeta::core::parse_json(definition)};
+  const auto outside{parsed.defines("writes-outside-itself") &&
+                     parsed.at("writes-outside-itself").to_boolean()};
+  return {std::make_unique<TemplateRule>(std::move(parsed)), outside};
+}
+
+/// What the caller finally asked for, which the OpenAPI 3.0 rung reads
+/// because Draft 4 cannot express what a later target may still name
+[[nodiscard]] auto openapi_3_0_settings(const ConvertTarget target)
+    -> sourcemeta::core::JSON {
+  const auto read_only{
+      target == ConvertTarget::Draft7 || target == ConvertTarget::Draft201909 ||
+      target == ConvertTarget::Draft202012 ||
+      target == ConvertTarget::OpenAPI31 || target == ConvertTarget::OpenAPI32};
+  const auto deprecated{target == ConvertTarget::Draft201909 ||
+                        target == ConvertTarget::Draft202012 ||
+                        target == ConvertTarget::OpenAPI31 ||
+                        target == ConvertTarget::OpenAPI32};
+  const auto annotations{target == ConvertTarget::OpenAPI31 ||
+                         target == ConvertTarget::OpenAPI32};
+  auto result{sourcemeta::core::JSON::make_object()};
+  result.assign("read-only", sourcemeta::core::JSON{read_only});
+  result.assign("deprecated", sourcemeta::core::JSON{deprecated});
+  result.assign("openapi-annotations", sourcemeta::core::JSON{annotations});
+  result.assign("default-mapping",
+                sourcemeta::core::JSON{target == ConvertTarget::OpenAPI32});
+  return result;
 }
 
 /// A reference that lands on something other than a schema is not a reference
@@ -491,33 +527,7 @@ auto apply(const std::vector<Rule> &rules, sourcemeta::core::JSON &schema,
   }
 }
 
-#include "rules/definitions_to_defs.h"
-#include "rules/dependencies_to_dependent.h"
-#include "rules/dialect_override_becomes_dollar_schema.h"
-#include "rules/draft_official_dialect_with_https.h"
-#include "rules/draft_official_dialect_without_empty_fragment.h"
-#include "rules/empty_object_as_true.h"
-#include "rules/enum_to_const.h"
-#include "rules/modern_official_dialect_with_empty_fragment.h"
-#include "rules/modern_official_dialect_with_http.h"
-#include "rules/openapi_official_dialect_with_date.h"
-#include "rules/openapi_official_dialect_with_empty_fragment.h"
-#include "rules/prefix_promoted_2020_12_keywords.h"
-#include "rules/prefix_promoted_draft_2019_09_keywords.h"
-#include "rules/prefix_promoted_draft_4_keywords.h"
-#include "rules/prefix_promoted_draft_6_keywords.h"
-#include "rules/prefix_promoted_draft_7_keywords.h"
-#include "rules/prefix_promoted_openapi_3_1_keywords.h"
-#include "rules/sanitize_draft_4_anchors.h"
-#include "rules/shadow_stray_dialect_declaration.h"
-#include "rules/upgrade_2019_09_to_2020_12.h"
-#include "rules/upgrade_2020_12_to_openapi_3_1.h"
-#include "rules/upgrade_draft_3_to_draft_4.h"
-#include "rules/upgrade_draft_4_to_draft_6.h"
-#include "rules/upgrade_draft_6_to_draft_7.h"
-#include "rules/upgrade_draft_7_to_draft_2019_09.h"
-#include "rules/upgrade_openapi_3_0_to_draft_4.h"
-#include "rules/upgrade_openapi_3_1_to_openapi_3_2.h"
+#include "rules.h"
 
 #undef ONLY_CONTINUE_IF
 
@@ -534,14 +544,18 @@ auto convert(sourcemeta::core::JSON &schema,
   // run to completion first rather than alongside
   std::vector<Rule> spellings;
   spellings.reserve(8);
-  spellings.push_back(make_rule<DialectOverrideBecomesDollarSchema>());
-  spellings.push_back(make_rule<ShadowStrayDialectDeclaration>());
-  spellings.push_back(make_rule<DraftOfficialDialectWithHttps>());
-  spellings.push_back(make_rule<DraftOfficialDialectWithoutEmptyFragment>());
-  spellings.push_back(make_rule<ModernOfficialDialectWithEmptyFragment>());
-  spellings.push_back(make_rule<ModernOfficialDialectWithHttp>());
-  spellings.push_back(make_rule<OpenAPIOfficialDialectWithDate>());
-  spellings.push_back(make_rule<OpenAPIOfficialDialectWithEmptyFragment>());
+  spellings.push_back(
+      make_template_rule(DIALECT_OVERRIDE_BECOMES_DOLLAR_SCHEMA));
+  spellings.push_back(make_template_rule(SHADOW_STRAY_DIALECT_DECLARATION));
+  spellings.push_back(make_template_rule(DRAFT_OFFICIAL_DIALECT_WITH_HTTPS));
+  spellings.push_back(
+      make_template_rule(DRAFT_OFFICIAL_DIALECT_WITHOUT_EMPTY_FRAGMENT));
+  spellings.push_back(
+      make_template_rule(MODERN_OFFICIAL_DIALECT_WITH_EMPTY_FRAGMENT));
+  spellings.push_back(make_template_rule(MODERN_OFFICIAL_DIALECT_WITH_HTTP));
+  spellings.push_back(make_template_rule(OPENAPI_OFFICIAL_DIALECT_WITH_DATE));
+  spellings.push_back(
+      make_template_rule(OPENAPI_OFFICIAL_DIALECT_WITH_EMPTY_FRAGMENT));
 
   std::vector<Rule> rules;
   rules.reserve(20);
@@ -550,13 +564,17 @@ auto convert(sourcemeta::core::JSON &schema,
   // something when the pass began can stop saying anything once a rung has
   // moved the resource holding it to the dialect the marker names, and a
   // conversion that left it behind would not be done with the document
-  rules.push_back(make_rule<DialectOverrideBecomesDollarSchema>());
+  rules.push_back(make_template_rule(DIALECT_OVERRIDE_BECOMES_DOLLAR_SCHEMA));
 
   // A document on the OpenAPI 3.0 dialect forks here rather than standing on a
   // rung. Every target below reaches it through Draft 4, which is the base
   // dialect its Schema Object extends, so this runs ahead of the ladder and
   // the rungs carry on from there
-  rules.push_back(make_rule<UpgradeOpenAPI30ToDraft4>(target));
+  rules.emplace_back(
+      std::make_unique<TemplateRule>(
+          sourcemeta::core::parse_json(UPGRADE_OPENAPI_3_0_TO_DRAFT_4),
+          openapi_3_0_settings(target)),
+      false);
 
   // Whether this conversion starts from OpenAPI 3.0. Usually only the caller
   // can say, because the Schema Object admits no `$schema` member of its own,
@@ -579,63 +597,61 @@ auto convert(sourcemeta::core::JSON &schema,
       names_openapi_3_0_dialect(declared) ||
       (declared.empty() && names_openapi_3_0_dialect(default_dialect))};
 
-  rules.push_back(make_rule<PrefixPromotedDraft4Keywords>());
-  rules.push_back(make_rule<UpgradeDraft3ToDraft4>());
+  rules.push_back(make_template_rule(PREFIX_PROMOTED_DRAFT_4_KEYWORDS));
+  rules.push_back(make_template_rule(UPGRADE_DRAFT_3_TO_DRAFT_4));
 
   if (target == ConvertTarget::Draft6 || target == ConvertTarget::Draft7 ||
       target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromotedDraft6Keywords>());
-    rules.push_back(make_rule<SanitizeDraft4Anchors>());
-    rules.push_back(make_rule<UpgradeDraft4ToDraft6>());
-    rules.push_back(make_rule<EmptyObjectAsTrue>());
-    rules.push_back(make_rule<EnumToConst>());
+    rules.push_back(make_template_rule(PREFIX_PROMOTED_DRAFT_6_KEYWORDS));
+    rules.push_back(make_template_rule(SANITIZE_DRAFT_4_ANCHORS));
+    rules.push_back(make_template_rule(UPGRADE_DRAFT_4_TO_DRAFT_6));
+    rules.push_back(make_template_rule(EMPTY_OBJECT_AS_TRUE));
+    rules.push_back(make_template_rule(ENUM_TO_CONST));
   }
 
   if (target == ConvertTarget::Draft7 || target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromotedDraft7Keywords>(
-        from_openapi_3_0
-            ? std::vector<std::string_view>{"readOnly", "writeOnly"}
-            : std::vector<std::string_view>{}));
-    rules.push_back(make_rule<UpgradeDraft6ToDraft7>());
+    rules.push_back(make_template_rule(
+        from_openapi_3_0 ? PREFIX_PROMOTED_DRAFT_7_KEYWORDS_FROM_OPENAPI_3_0
+                         : PREFIX_PROMOTED_DRAFT_7_KEYWORDS));
+    rules.push_back(make_template_rule(UPGRADE_DRAFT_6_TO_DRAFT_7));
   }
 
   if (target == ConvertTarget::Draft201909 ||
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromoted201909Keywords>(
-        from_openapi_3_0 ? std::vector<std::string_view>{"deprecated"}
-                         : std::vector<std::string_view>{}));
-    rules.push_back(make_rule<UpgradeDraft7To201909>());
-    rules.push_back(make_rule<DefinitionsToDefs>());
-    rules.push_back(make_rule<DependenciesToDependent>());
+    rules.push_back(make_template_rule(
+        from_openapi_3_0
+            ? PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS_FROM_OPENAPI_3_0
+            : PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS));
+    rules.push_back(make_template_rule(UPGRADE_DRAFT_7_TO_DRAFT_2019_09));
+    rules.push_back(make_template_rule(DEFINITIONS_TO_DEFS));
+    rules.push_back(make_template_rule(DEPENDENCIES_TO_DEPENDENT));
   }
 
   if (target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromoted202012Keywords>());
-    rules.push_back(make_rule<Upgrade201909To202012>());
+    rules.push_back(make_template_rule(PREFIX_PROMOTED_2020_12_KEYWORDS));
+    rules.push_back(make_template_rule(UPGRADE_2019_09_TO_2020_12));
   }
 
   if (target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<PrefixPromotedOpenAPI31Keywords>(
-        from_openapi_3_0
-            ? std::vector<std::string_view>{"example", "discriminator",
-                                            "externalDocs", "xml"}
-            : std::vector<std::string_view>{}));
-    rules.push_back(make_rule<Upgrade202012ToOpenAPI31>());
+    rules.push_back(make_template_rule(
+        from_openapi_3_0 ? PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS_FROM_OPENAPI_3_0
+                         : PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS));
+    rules.push_back(make_template_rule(UPGRADE_2020_12_TO_OPENAPI_3_1));
   }
 
   if (target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_rule<UpgradeOpenAPI31ToOpenAPI32>());
+    rules.push_back(make_template_rule(UPGRADE_OPENAPI_3_1_TO_OPENAPI_3_2));
   }
 
   apply(spellings, schema, walker, resolver, default_dialect, default_id, true);

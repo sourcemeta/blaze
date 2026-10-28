@@ -1,0 +1,959 @@
+{
+  "name": "upgrade_openapi_3_0_to_draft_4",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "tag:spec.openapis.org,2017:oas/3.0/vocab/base"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "any": [
+          {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:at-resource-root"
+                }
+              },
+              {
+                "any": [
+                  {
+                    "call": {
+                      "name": "convert:at-root"
+                    }
+                  },
+                  {
+                    "has": "$schema"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "call": {
+              "name": "convert:openapi30-shape",
+              "args": [
+                "$term",
+                "ignored-sibling"
+              ]
+            }
+          },
+          {
+            "call": {
+              "name": "convert:openapi30-shape",
+              "args": [
+                "$term",
+                "pending-shape"
+              ]
+            }
+          },
+          {
+            "call": {
+              "name": "convert:openapi30-shape",
+              "args": [
+                "$term",
+                "promoted-keyword"
+              ]
+            }
+          },
+          {
+            "call": {
+              "name": "convert:openapi30-shape",
+              "args": [
+                "$term",
+                "openapi-3-0-override"
+              ]
+            }
+          },
+          {
+            "call": {
+              "name": "convert:openapi30-shape",
+              "args": [
+                "$term",
+                "movable-definitions"
+              ]
+            }
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "has": "nullable"
+                  },
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:openapi30-carries",
+                        "args": [
+                          "$term",
+                          "nullable"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "has": "discriminator"
+                  },
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:openapi30-carries",
+                        "args": [
+                          "$term",
+                          "discriminator"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "has": "xml"
+                  },
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:openapi30-carries",
+                        "args": [
+                          "$term",
+                          "xml"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "has": "externalDocs"
+                  },
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:openapi30-carries",
+                        "args": [
+                          "$term",
+                          "externalDocs"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "has": "example"
+                  },
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:openapi30-carries",
+                        "args": [
+                          "$term",
+                          "example"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "has": "deprecated"
+                  },
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:openapi30-carries",
+                        "args": [
+                          "$term",
+                          "deprecated"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "has": "readOnly"
+                  },
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:openapi30-carries",
+                        "args": [
+                          "$term",
+                          "readOnly"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "has": "writeOnly"
+                  },
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:openapi30-carries",
+                        "args": [
+                          "$term",
+                          "writeOnly"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "distribute": {
+        "from": "$self",
+        "unclaimed": "keep",
+        "cases": [
+          {
+            "key": {
+              "enum": [
+                "$ref",
+                "$schema"
+              ]
+            },
+            "to": "/$key"
+          },
+          {
+            "key": {
+              "call": {
+                "name": "convert:starts-with",
+                "args": [
+                  "$term",
+                  "x-"
+                ]
+              }
+            },
+            "to": "/$key"
+          },
+          {
+            "to": {
+              "call": {
+                "name": "convert:openapi30-shadow-pointer",
+                "args": [
+                  "$current",
+                  "$key"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "if": {
+        "has": "$ref"
+      }
+    },
+    {
+      "replace": {
+        "call": {
+          "name": "convert:openapi30-fold",
+          "args": [
+            "$current"
+          ]
+        }
+      },
+      "if": {
+        "not": {
+          "has": "$ref"
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/exclusiveMinimum",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "exclusiveMinimum"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "exclusiveMinimum"
+          },
+          {
+            "not": {
+              "has": "minimum"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/exclusiveMaximum",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "exclusiveMaximum"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "exclusiveMaximum"
+          },
+          {
+            "not": {
+              "has": "maximum"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/allOf",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "allOf"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          }
+        ]
+      },
+      "if-current": {
+        "all": [
+          {
+            "member": {
+              "key": "allOf",
+              "match": {
+                "type": "array",
+                "empty": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/nullable",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "nullable"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "nullable"
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:openapi30-carries",
+                "args": [
+                  "$term",
+                  "nullable"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/discriminator",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "discriminator"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "discriminator"
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:openapi30-carries",
+                "args": [
+                  "$term",
+                  "discriminator"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/xml",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "xml"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "xml"
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:openapi30-carries",
+                "args": [
+                  "$term",
+                  "xml"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/externalDocs",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "externalDocs"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "externalDocs"
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:openapi30-carries",
+                "args": [
+                  "$term",
+                  "externalDocs"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/example",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "example"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "example"
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:openapi30-carries",
+                "args": [
+                  "$term",
+                  "example"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/deprecated",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "deprecated"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "deprecated"
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:openapi30-carries",
+                "args": [
+                  "$term",
+                  "deprecated"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/readOnly",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "readOnly"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "readOnly"
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:openapi30-carries",
+                "args": [
+                  "$term",
+                  "readOnly"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/writeOnly",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "writeOnly"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "has": "writeOnly"
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:openapi30-carries",
+                "args": [
+                  "$term",
+                  "writeOnly"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "move": {
+        "from": "/id",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "id"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "not": {
+          "has": "$ref"
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/definitions",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "definitions"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "not": {
+          "has": "$ref"
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/dependencies",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "dependencies"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "not": {
+          "has": "$ref"
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/patternProperties",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "patternProperties"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "not": {
+          "has": "$ref"
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/additionalItems",
+        "to": {
+          "call": {
+            "name": "convert:openapi30-shadow-pointer",
+            "args": [
+              "$current",
+              "additionalItems"
+            ]
+          }
+        },
+        "optional": true
+      },
+      "if": {
+        "not": {
+          "has": "$ref"
+        }
+      }
+    },
+    {
+      "distribute": {
+        "from": "/x-definitions",
+        "cases": [
+          {
+            "when": {
+              "type": "object"
+            },
+            "to": "/definitions/$key"
+          },
+          {
+            "when": {
+              "type": "boolean"
+            },
+            "to": "/definitions/$key",
+            "as": {
+              "call": {
+                "name": "convert:openapi30-boolean-schema",
+                "args": [
+                  "$value"
+                ]
+              }
+            }
+          },
+          {
+            "to": "/x-definitions/$key"
+          }
+        ],
+        "prune-empty": true
+      },
+      "if": {
+        "all": [
+          {
+            "not": {
+              "has": "$ref"
+            }
+          },
+          {
+            "call": {
+              "name": "convert:openapi30-shape",
+              "args": [
+                "$term",
+                "movable-definitions"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "x-sourcemeta-dialect-override-subschema": "http://json-schema.org/draft-04/schema#"
+      },
+      "if": {
+        "all": [
+          {
+            "member": {
+              "key": "x-sourcemeta-dialect-override-subschema",
+              "bind": "$marker",
+              "match": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "call": {
+              "name": "convert:names-ladder-dialect",
+              "args": [
+                "$marker"
+              ]
+            }
+          },
+          {
+            "not": {
+              "all": [
+                {
+                  "call": {
+                    "name": "convert:at-resource-root"
+                  }
+                },
+                {
+                  "any": [
+                    {
+                      "call": {
+                        "name": "convert:at-root"
+                      }
+                    },
+                    {
+                      "has": "$schema"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "erase": "x-sourcemeta-dialect-override-subschema",
+      "optional": true,
+      "when": {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$term"
+          ]
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:at-resource-root"
+            }
+          },
+          {
+            "any": [
+              {
+                "call": {
+                  "name": "convert:at-root"
+                }
+              },
+              {
+                "has": "$schema"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "set": {
+        "$schema": "http://json-schema.org/draft-04/schema#"
+      },
+      "first": true,
+      "if": {
+        "all": [
+          {
+            "call": {
+              "name": "convert:at-resource-root"
+            }
+          },
+          {
+            "any": [
+              {
+                "call": {
+                  "name": "convert:at-root"
+                }
+              },
+              {
+                "has": "$schema"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
