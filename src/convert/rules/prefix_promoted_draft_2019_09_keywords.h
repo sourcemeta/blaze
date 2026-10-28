@@ -1,15 +1,13 @@
 class PrefixPromoted201909Keywords final : public SchemaTransformRule {
 public:
-  PrefixPromoted201909Keywords(
-      std::vector<std::string_view> &&keywords_left_alone = {})
-      : SchemaTransformRule{"prefix_promoted_2019_09_keywords"},
-        keywords_left_alone_{std::move(keywords_left_alone)} {};
+  PrefixPromoted201909Keywords()
+      : SchemaTransformRule{"prefix_promoted_2019_09_keywords"} {};
 
   [[nodiscard]] auto
   condition(const sourcemeta::core::JSON &schema,
             const sourcemeta::core::JSON &,
             const sourcemeta::core::SchemaVocabularies &vocabularies,
-            const Site &site, const sourcemeta::core::SchemaWalker &,
+            const Site &, const sourcemeta::core::SchemaWalker &,
             const sourcemeta::core::SchemaResolver &) const -> bool override {
     ONLY_CONTINUE_IF(
         vocabularies.contains(SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_7) &&
@@ -19,8 +17,7 @@ public:
         promoted_keyword_is_author_data(schema, PROMOTING_DIALECT));
 
     for (const auto &keyword : KEYWORDS) {
-      if (schema.defines(keyword) &&
-          !this->is_left_alone(schema, site, keyword)) {
+      if (schema.defines(keyword)) {
         return true;
       }
     }
@@ -28,13 +25,12 @@ public:
     return false;
   }
 
-  auto transform(sourcemeta::core::JSON &schema, const Site &site) const
+  auto transform(sourcemeta::core::JSON &schema, const Site &) const
       -> void override {
     this->renames_.clear();
     for (const auto &keyword : KEYWORDS) {
       const std::string keyword_name{keyword};
-      if (!schema.defines(keyword_name) ||
-          this->is_left_alone(schema, site, keyword)) {
+      if (!schema.defines(keyword_name)) {
         continue;
       }
 
@@ -70,34 +66,5 @@ private:
        "unevaluatedProperties", "maxContains", "minContains", "contentSchema",
        "deprecated"}};
 
-  // A keyword the caller asked to carry across as the keyword it already was,
-  // rather than as the author data it would otherwise be read as.
-  //
-  // The caller names the dialect of a document, not of each position in it, so
-  // the answer holds only as far as the document's own dialect reaches. A
-  // resource the document embeds declares what its contents are written in,
-  // and a member in there carrying one of these names is exactly the author
-  // data this rule exists to protect, whatever the document around it is on.
-  //
-  // Within reach, the value settles the rest: the source dialect constrained
-  // the keyword it named, so one carrying a shape that dialect never allowed
-  // was never that keyword
-  [[nodiscard]] auto is_left_alone(const sourcemeta::core::JSON &schema,
-                                   const Site &site,
-                                   const std::string_view keyword) const
-      -> bool {
-    if (inside_an_embedded_resource(site) ||
-        std::ranges::find(this->keywords_left_alone_, keyword) ==
-            this->keywords_left_alone_.cend()) {
-      return false;
-    }
-
-    // Only a boolean is the annotation this names. A value of any other shape
-    // was never that keyword, whatever it is called, and carrying it across as
-    // one would leave an output the target's own meta-schema rejects
-    return schema.at(sourcemeta::core::JSON::String{keyword}).is_boolean();
-  }
-
-  const std::vector<std::string_view> keywords_left_alone_;
   mutable std::unordered_map<std::string, std::string> renames_;
 };
