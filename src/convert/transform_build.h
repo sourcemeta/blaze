@@ -31,8 +31,7 @@ struct Placement {
 
 auto build_template(const JSON &specification, const JSON &self,
                     const JSON &current, const TransformBindings &bindings,
-                    const TransformFunction &function, const Pointer &target)
-    -> Built;
+                    const TransformHost &host, const Pointer &target) -> Built;
 
 auto build_reference(const JSON::String &name, const JSON &self,
                      const JSON &current, const TransformBindings &bindings,
@@ -75,9 +74,8 @@ auto absorb(Built &result, Built &&part) -> void {
 }
 
 auto build_object(const JSON &members, const JSON &self, const JSON &current,
-                  const TransformBindings &bindings,
-                  const TransformFunction &function, const Pointer &target)
-    -> Built {
+                  const TransformBindings &bindings, const TransformHost &host,
+                  const Pointer &target) -> Built {
   if (!members.is_object()) {
     throw TransformError{"An object template takes an object"};
   }
@@ -86,8 +84,8 @@ auto build_object(const JSON &members, const JSON &self, const JSON &current,
   for (const auto &entry : members.as_object()) {
     auto position{target};
     position.push_back(entry.first);
-    auto member{build_template(entry.second, self, current, bindings, function,
-                               position)};
+    auto member{
+        build_template(entry.second, self, current, bindings, host, position)};
     result.value.assign(entry.first, member.value);
     absorb(result, std::move(member));
   }
@@ -100,8 +98,7 @@ auto build_object(const JSON &members, const JSON &self, const JSON &current,
 /// trace it derives is exact
 auto build_lookup(const JSON &specification, const JSON &self,
                   const JSON &current, const TransformBindings &bindings,
-                  const TransformFunction &function, const Pointer &target)
-    -> Built {
+                  const TransformHost &host, const Pointer &target) -> Built {
   if (!specification.is_object() || !specification.defines("key") ||
       !specification.defines("table")) {
     throw TransformError{"A lookup takes an object with a key and a table"};
@@ -112,7 +109,7 @@ auto build_lookup(const JSON &specification, const JSON &self,
   }
 
   const auto key{build_template(specification.at("key"), self, current,
-                                bindings, function, target)};
+                                bindings, host, target)};
   if (!key.value.is_string()) {
     throw TransformError{"A lookup key must resolve to a string"};
   }
@@ -122,13 +119,12 @@ auto build_lookup(const JSON &specification, const JSON &self,
     throw TransformError{"A lookup key is not in the table"};
   }
 
-  return build_template(*entry, self, current, bindings, function, target);
+  return build_template(*entry, self, current, bindings, host, target);
 }
 
 auto build_call(const JSON &call, const JSON &self, const JSON &current,
-                const TransformBindings &bindings,
-                const TransformFunction &function, const Pointer &target)
-    -> Built {
+                const TransformBindings &bindings, const TransformHost &host,
+                const Pointer &target) -> Built {
   if (!call.is_object() || !call.defines("name") ||
       !call.at("name").is_string()) {
     throw TransformError{"A call takes an object with a string name"};
@@ -143,20 +139,19 @@ auto build_call(const JSON &call, const JSON &self, const JSON &current,
     arguments.reserve(call.at("args").size());
     for (const auto &argument : call.at("args").as_array()) {
       arguments.push_back(
-          build_template(argument, self, current, bindings, function, target)
+          build_template(argument, self, current, bindings, host, target)
               .value);
     }
   }
 
-  return {.value = function(call.at("name").to_string(), arguments),
+  return {.value = host(call.at("name").to_string(), arguments),
           .relocations = {},
           .opaque = {target}};
 }
 
 auto build_template(const JSON &specification, const JSON &self,
                     const JSON &current, const TransformBindings &bindings,
-                    const TransformFunction &function, const Pointer &target)
-    -> Built {
+                    const TransformHost &host, const Pointer &target) -> Built {
   if (specification.is_string() && specification.to_string().starts_with('$')) {
     return build_reference(specification.to_string(), self, current, bindings,
                            target);
@@ -168,17 +163,17 @@ auto build_template(const JSON &specification, const JSON &self,
 
   if (specification.defines("object")) {
     return build_object(specification.at("object"), self, current, bindings,
-                        function, target);
+                        host, target);
   }
 
   if (specification.defines("lookup")) {
     return build_lookup(specification.at("lookup"), self, current, bindings,
-                        function, target);
+                        host, target);
   }
 
   if (specification.defines("call")) {
-    return build_call(specification.at("call"), self, current, bindings,
-                      function, target);
+    return build_call(specification.at("call"), self, current, bindings, host,
+                      target);
   }
 
   return {.value = specification, .relocations = {}, .opaque = {}};
@@ -314,8 +309,8 @@ auto assign_creating(JSON &container, const Pointer &pointer,
 }
 
 auto apply_erase(const JSON &edit, JSON &term,
-                 const TransformBindings &bindings,
-                 const TransformPredicate &predicate) -> void {
+                 const TransformBindings &bindings, const TransformHost &host)
+    -> void {
   const auto &specification{edit.at("erase")};
   if (!term.is_object()) {
     throw TransformError{"An erase takes an object term"};
@@ -336,7 +331,7 @@ auto apply_erase(const JSON &edit, JSON &term,
     if (edit.defines("when")) {
       TransformBindings discarded{bindings};
       if (!transform_guard(edit.at("when"), term.at(specification.to_string()),
-                           predicate, discarded)) {
+                           host, discarded)) {
         return;
       }
     }
@@ -367,8 +362,7 @@ auto apply_erase(const JSON &edit, JSON &term,
 }
 
 auto apply_set(const JSON &edit, JSON &term, const JSON &self,
-               const TransformBindings &bindings,
-               const TransformFunction &function,
+               const TransformBindings &bindings, const TransformHost &host,
                const std::vector<JSON::String> &original, TransformTrace &trace)
     -> void {
   const auto &current{term};
@@ -385,8 +379,8 @@ auto apply_set(const JSON &edit, JSON &term, const JSON &self,
   for (const auto &entry : members.as_object()) {
     Pointer position;
     position.push_back(entry.first);
-    auto built{build_template(entry.second, self, current, bindings, function,
-                              position)};
+    auto built{
+        build_template(entry.second, self, current, bindings, host, position)};
     insert_member(term, entry.first, built.value, placement, original);
     for (auto &relocation : built.relocations) {
       trace.relocations.push_back(std::move(relocation));
@@ -402,13 +396,13 @@ auto apply_set(const JSON &edit, JSON &term, const JSON &self,
 /// depends on what the term already holds can be named at all
 auto move_pointer(const JSON &specification, const JSON &self,
                   const JSON &current, const TransformBindings &bindings,
-                  const TransformFunction &function) -> Pointer {
+                  const TransformHost &host) -> Pointer {
   if (specification.is_string()) {
     return to_pointer(specification.to_string());
   }
 
-  const auto built{build_template(specification, self, current, bindings,
-                                  function, Pointer{})};
+  const auto built{
+      build_template(specification, self, current, bindings, host, Pointer{})};
   if (!built.value.is_string()) {
     throw TransformError{"A move pointer must resolve to a string"};
   }
@@ -416,21 +410,73 @@ auto move_pointer(const JSON &specification, const JSON &self,
   return to_pointer(built.value.to_string());
 }
 
+/// Move every member the pattern picks out, which is how a rule renames a set
+/// of keywords it cannot name ahead of time, such as every sibling of a `$ref`
+auto move_matching(const JSON &specification, JSON &term, const JSON &self,
+                   const TransformBindings &bindings, const TransformHost &host,
+                   const std::vector<JSON::String> &original,
+                   TransformTrace &trace) -> void {
+  if (!term.is_object()) {
+    throw TransformError{"A move takes an object term"};
+  }
+
+  std::vector<JSON::String> picked;
+  for (const auto &member : term.as_object()) {
+    TransformBindings discarded{bindings};
+    if (transform_guard(specification.at("keys"), JSON{member.first}, host,
+                        discarded)) {
+      picked.push_back(member.first);
+    }
+  }
+
+  for (const auto &name : picked) {
+    TransformBindings local{bindings};
+    local.insert_or_assign("$key", TransformBinding{.value = JSON{name},
+                                                    .pointer = Pointer{name}});
+    local.insert_or_assign(
+        "$value",
+        TransformBinding{.value = term.at(name), .pointer = Pointer{name}});
+    const auto target{
+        move_pointer(specification.at("to"), self, term, local, host)};
+    if (target.empty()) {
+      throw TransformError{"A move pointer must name a position"};
+    }
+
+    auto value{term.at(name)};
+    // A member that moves to a sibling keeps the position it had, the way a
+    // rename does, so that shadowing a keyword does not reorder the object
+    // around it
+    if (target.size() == 1 && target.at(0).is_property()) {
+      const Placement where{.kind = Placement::Kind::Before, .anchor = name};
+      insert_member(term, target.at(0).to_property(), value, where, original);
+      term.erase(name);
+    } else {
+      term.erase(name);
+      assign_creating(term, target, 0, value);
+    }
+
+    trace.relocations.emplace_back(Pointer{name}, target);
+  }
+}
+
 auto apply_move(const JSON &specification, JSON &term, const JSON &self,
-                const TransformBindings &bindings,
-                const TransformPredicate &predicate,
-                const TransformFunction &function,
+                const TransformBindings &bindings, const TransformHost &host,
                 const std::vector<JSON::String> &original,
                 TransformTrace &trace) -> void {
+  if (specification.is_object() && specification.defines("keys")) {
+    move_matching(specification, term, self, bindings, host, original, trace);
+    return;
+  }
+
   if (!specification.is_object() || !specification.defines("from") ||
       !specification.defines("to")) {
     throw TransformError{"A move takes an object with from and to"};
   }
 
   const auto source{
-      move_pointer(specification.at("from"), self, term, bindings, function)};
+      move_pointer(specification.at("from"), self, term, bindings, host)};
   const auto target{
-      move_pointer(specification.at("to"), self, term, bindings, function)};
+      move_pointer(specification.at("to"), self, term, bindings, host)};
   if (source.empty() || target.empty()) {
     throw TransformError{"A move pointer must name a position"};
   }
@@ -448,7 +494,7 @@ auto apply_move(const JSON &specification, JSON &term, const JSON &self,
   // keyword that happens to carry the shape the older dialect gave it
   if (specification.defines("when")) {
     TransformBindings discarded{bindings};
-    if (!transform_guard(specification.at("when"), get(term, source), predicate,
+    if (!transform_guard(specification.at("when"), get(term, source), host,
                          discarded)) {
       return;
     }
@@ -511,8 +557,7 @@ auto substitute_key(const JSON::String &destination, const JSON::String &key)
 
 auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
                       const TransformBindings &bindings,
-                      const TransformPredicate &predicate,
-                      const TransformFunction &function,
+                      const TransformHost &host,
                       const std::vector<JSON::String> &original,
                       TransformTrace &trace) -> void {
   if (!specification.is_object() || !specification.defines("from") ||
@@ -524,10 +569,7 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
     throw TransformError{"A distribute takes a binding name"};
   }
 
-  // Distributing the term's own members is how a rule moves a set of keywords
-  // it cannot name ahead of time, such as every sibling of a `$ref`
   const auto &source_name{specification.at("from").to_string()};
-  const auto over_self{source_name == "$self"};
   Pointer origin;
   JSON source{self};
   if (source_name.starts_with('/')) {
@@ -540,7 +582,7 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
     }
 
     source = *value;
-  } else if (!over_self) {
+  } else {
     const auto iterator{bindings.find(source_name)};
     if (iterator == bindings.cend()) {
       throw TransformError{"A distribute names a binding that was never bound"};
@@ -572,7 +614,7 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
     }
 
     if (!entry.at("to").is_string()) {
-      continue;
+      throw TransformError{"A case destination must be written out"};
     }
 
     const auto root{to_pointer(entry.at("to").to_string())};
@@ -595,9 +637,6 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
     }
   }
 
-  const auto keep{specification.defines("unclaimed") &&
-                  specification.at("unclaimed").to_string() == "keep"};
-
   for (const auto &member : source.as_object()) {
     auto claimed{false};
     TransformBindings local{bindings};
@@ -610,39 +649,20 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
 
     for (const auto &entry : cases.as_array()) {
       TransformBindings discarded{bindings};
-      if (entry.defines("key") &&
-          !transform_guard(entry.at("key"), JSON{member.first}, predicate,
-                           discarded)) {
-        continue;
-      }
-
       if (entry.defines("when") &&
-          !transform_guard(entry.at("when"), member.second, predicate,
-                           discarded)) {
+          !transform_guard(entry.at("when"), member.second, host, discarded)) {
         continue;
       }
 
-      // A destination of `/$key` leaves the member exactly where it is, which
-      // is how a case says that this one is not the rule's business
-      if (entry.at("to").is_string() && entry.at("to").to_string() == "/$key") {
-        claimed = true;
-        break;
-      }
-
-      // A computed destination is resolved against the term as it stands,
-      // not as it began, so that a name an earlier member of this same
-      // distribute has already taken is one this one moves around
       const auto destination{
-          entry.at("to").is_string()
-              ? substitute_key(entry.at("to").to_string(), member.first)
-              : move_pointer(entry.at("to"), term, term, local, function)};
+          substitute_key(entry.at("to").to_string(), member.first)};
 
       // A case may rewrite what it moves, which is how a container that
       // reads its members differently from the one they came from takes a
       // value across in the shape it can read
       const auto moved{entry.defines("as")
                            ? build_template(entry.at("as"), self, term, local,
-                                            function, destination)
+                                            host, destination)
                                  .value
                            : member.second};
 
@@ -664,28 +684,6 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
         assign_creating(candidate.second, tail, 0, moved);
       }
 
-      auto landed{false};
-      for (auto &candidate : destinations) {
-        landed = landed || candidate.first == destination.at(0).to_property();
-      }
-
-      if (!landed) {
-        const auto &value{moved};
-        // A member that moves to a sibling keeps the position it had, the way
-        // a rename does, so that shadowing a keyword does not reorder the
-        // object around it
-        if (destination.size() == 1 && destination.at(0).is_property()) {
-          const Placement where{.kind = Placement::Kind::Before,
-                                .anchor = member.first};
-          insert_member(term, destination.at(0).to_property(), value, where,
-                        original);
-          term.erase(member.first);
-        } else {
-          term.erase(member.first);
-          assign_creating(term, destination, 0, value);
-        }
-      }
-
       auto from{origin};
       from.push_back(member.first);
       trace.relocations.emplace_back(std::move(from), destination);
@@ -693,13 +691,12 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
       break;
     }
 
-    if (!claimed && !keep) {
+    if (!claimed) {
       throw TransformError{"A distribute left a member unclaimed"};
     }
   }
 
-  const auto named_source{!over_self && origin.size() == 1 &&
-                          origin.at(0).is_property()};
+  const auto named_source{origin.size() == 1 && origin.at(0).is_property()};
   auto rebuilt_source{false};
   for (auto &destination : destinations) {
     if (prune && destination.second.empty()) {
@@ -726,8 +723,7 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
 auto transform_apply(const sourcemeta::core::JSON &build,
                      sourcemeta::core::JSON &term,
                      const TransformBindings &bindings,
-                     const TransformPredicate &predicate,
-                     const TransformFunction &function) -> TransformTrace {
+                     const TransformHost &host) -> TransformTrace {
   if (!build.is_array()) {
     throw TransformError{"A build takes an array of edits"};
   }
@@ -754,7 +750,7 @@ auto transform_apply(const sourcemeta::core::JSON &build,
     // member an earlier edit has already taken away
     if (edit.defines("if")) {
       TransformBindings discarded{bindings};
-      if (!transform_guard(edit.at("if"), self, predicate, discarded)) {
+      if (!transform_guard(edit.at("if"), self, host, discarded)) {
         continue;
       }
     }
@@ -763,24 +759,23 @@ auto transform_apply(const sourcemeta::core::JSON &build,
     // placed after one that fills a member in needs to ask about
     if (edit.defines("if-current")) {
       TransformBindings discarded{bindings};
-      if (!transform_guard(edit.at("if-current"), term, predicate, discarded)) {
+      if (!transform_guard(edit.at("if-current"), term, host, discarded)) {
         continue;
       }
     }
 
     if (edit.defines("set")) {
-      apply_set(edit, term, self, bindings, function, original, trace);
+      apply_set(edit, term, self, bindings, host, original, trace);
     } else if (edit.defines("erase")) {
-      apply_erase(edit, term, bindings, predicate);
+      apply_erase(edit, term, bindings, host);
     } else if (edit.defines("move")) {
-      apply_move(edit.at("move"), term, self, bindings, predicate, function,
-                 original, trace);
+      apply_move(edit.at("move"), term, self, bindings, host, original, trace);
     } else if (edit.defines("distribute")) {
-      apply_distribute(edit.at("distribute"), term, self, bindings, predicate,
-                       function, original, trace);
+      apply_distribute(edit.at("distribute"), term, self, bindings, host,
+                       original, trace);
     } else if (edit.defines("replace")) {
-      auto built{build_template(edit.at("replace"), self, term, bindings,
-                                function, sourcemeta::core::Pointer{})};
+      auto built{build_template(edit.at("replace"), self, term, bindings, host,
+                                sourcemeta::core::Pointer{})};
       term.into(std::move(built.value));
       for (auto &relocation : built.relocations) {
         trace.relocations.push_back(std::move(relocation));

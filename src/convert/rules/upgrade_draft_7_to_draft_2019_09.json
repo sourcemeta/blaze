@@ -144,53 +144,47 @@
   },
   "build": [
     {
-      "distribute": {
-        "from": "$self",
-        "unclaimed": "keep",
-        "cases": [
-          {
-            "key": {
-              "enum": [
-                "$ref",
-                "$schema",
-                "title",
-                "description",
-                "default",
-                "examples",
-                "$comment",
-                "readOnly",
-                "writeOnly",
-                "deprecated",
-                "contentMediaType",
-                "contentEncoding"
-              ]
-            },
-            "to": "/$key"
-          },
-          {
-            "key": {
-              "call": {
-                "name": "convert:starts-with",
-                "args": [
-                  "$term",
-                  "x-"
+      "move": {
+        "keys": {
+          "not": {
+            "any": [
+              {
+                "enum": [
+                  "$ref",
+                  "$schema",
+                  "title",
+                  "description",
+                  "default",
+                  "examples",
+                  "$comment",
+                  "readOnly",
+                  "writeOnly",
+                  "deprecated",
+                  "contentMediaType",
+                  "contentEncoding"
                 ]
+              },
+              {
+                "call": {
+                  "name": "convert:starts-with",
+                  "args": [
+                    "$term",
+                    "x-"
+                  ]
+                }
               }
-            },
-            "to": "/$key"
-          },
-          {
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$self",
-                  "$key"
-                ]
-              }
-            }
+            ]
           }
-        ]
+        },
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "$key"
+            ]
+          }
+        }
       },
       "if": {
         "has": "$ref"

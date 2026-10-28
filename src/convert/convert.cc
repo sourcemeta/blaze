@@ -85,74 +85,55 @@ auto expand_references(const sourcemeta::core::JSON &node,
   return result;
 }
 
-/// Append the edits that move the dialect. Every rung ends the same way, so
-/// the rung says which dialect it reaches and this writes the rest. A rung
-/// whose own condition already requires a dialect declaration needs no guards,
-/// and one that fires below a declaration has to carry the marker along
+/// Append the edits that move the dialect. Every rung ends the same way, so a
+/// rung says which dialect it reaches and `patterns.json` says the rest. A
+/// placeholder the rung does not fill in stands for a condition it does not
+/// add, which drops out of the guard it sits in
+auto fill(const sourcemeta::core::JSON &node,
+          const sourcemeta::core::JSON &bump) -> sourcemeta::core::JSON {
+  if (node.is_string() && node.to_string() == "@dialect@") {
+    return bump.at("dialect");
+  }
+
+  if (node.is_array()) {
+    auto result{sourcemeta::core::JSON::make_array()};
+    for (const auto &element : node.as_array()) {
+      if (element.is_string() && element.to_string() == "@only-when@") {
+        if (bump.defines("only-when")) {
+          result.push_back(bump.at("only-when"));
+        }
+
+        continue;
+      }
+
+      result.push_back(fill(element, bump));
+    }
+
+    return result;
+  }
+
+  if (!node.is_object()) {
+    return node;
+  }
+
+  auto result{sourcemeta::core::JSON::make_object()};
+  for (const auto &entry : node.as_object()) {
+    result.assign(entry.first, fill(entry.second, bump));
+  }
+
+  return result;
+}
+
 auto append_bump(sourcemeta::core::JSON &build,
                  const sourcemeta::core::JSON &bump,
                  const sourcemeta::core::JSON &patterns) -> void {
-  const auto &dialect{bump.at("dialect")};
-  const auto declaration{patterns.at("at-dialect-declaration")};
-
-  auto retire{sourcemeta::core::JSON::make_object()};
-  retire.assign("erase", sourcemeta::core::JSON{DIALECT_OVERRIDE_KEYWORD});
-  retire.assign("optional", sourcemeta::core::JSON{true});
-  auto ladder{sourcemeta::core::JSON::make_object()};
-  auto arguments{sourcemeta::core::JSON::make_array()};
-  arguments.push_back(sourcemeta::core::JSON{"$term"});
-  auto call{sourcemeta::core::JSON::make_object()};
-  call.assign("name", sourcemeta::core::JSON{"convert:names-ladder-dialect"});
-  call.assign("args", std::move(arguments));
-  ladder.assign("call", std::move(call));
-  retire.assign("when", std::move(ladder));
-
-  auto declare{sourcemeta::core::JSON::make_object()};
-  auto members{sourcemeta::core::JSON::make_object()};
-  members.assign("$schema", dialect);
-  declare.assign("set", std::move(members));
-  declare.assign("first", sourcemeta::core::JSON{true});
-
-  if (bump.defines("at-declaration-only") &&
-      bump.at("at-declaration-only").to_boolean()) {
-    build.push_back(std::move(retire));
-    build.push_back(std::move(declare));
-    return;
+  const auto at_declaration_only{bump.defines("at-declaration-only") &&
+                                 bump.at("at-declaration-only").to_boolean()};
+  const auto &tail{
+      patterns.at(at_declaration_only ? "bump-at-declaration" : "bump")};
+  for (const auto &edit : tail.as_array()) {
+    build.push_back(expand_references(fill(edit, bump), patterns));
   }
-
-  // Below a declaration there is no `$schema` to write, so the dialect moves
-  // into the marker that stands in for one
-  auto carry{sourcemeta::core::JSON::make_object()};
-  auto marked{sourcemeta::core::JSON::make_object()};
-  marked.assign(DIALECT_OVERRIDE_KEYWORD, dialect);
-  carry.assign("set", std::move(marked));
-  auto below{sourcemeta::core::JSON::make_array()};
-  below.push_back(patterns.at("ladder-marker"));
-  auto negated{sourcemeta::core::JSON::make_object()};
-  negated.assign("not", declaration);
-  below.push_back(std::move(negated));
-  if (bump.defines("only-when")) {
-    below.push_back(bump.at("only-when"));
-  }
-
-  auto guard{sourcemeta::core::JSON::make_object()};
-  guard.assign("all", std::move(below));
-  carry.assign("if", std::move(guard));
-
-  auto at_declaration{sourcemeta::core::JSON::make_array()};
-  at_declaration.push_back(declaration);
-  if (bump.defines("only-when")) {
-    at_declaration.push_back(bump.at("only-when"));
-  }
-
-  auto here{sourcemeta::core::JSON::make_object()};
-  here.assign("all", std::move(at_declaration));
-  retire.assign("if", here);
-  declare.assign("if", std::move(here));
-
-  build.push_back(std::move(carry));
-  build.push_back(std::move(retire));
-  build.push_back(std::move(declare));
 }
 
 /// Construct a rule entry from JSON rule data

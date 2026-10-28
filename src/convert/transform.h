@@ -42,12 +42,10 @@ struct TransformBinding {
 using TransformBindings =
     std::map<sourcemeta::core::JSON::String, TransformBinding>;
 
-/// What a host answers when a pattern asks it a question
-using TransformPredicate = std::function<bool(
-    std::string_view, const std::vector<sourcemeta::core::JSON> &)>;
-
-/// What a host answers when a build asks it for a term
-using TransformFunction = std::function<sourcemeta::core::JSON(
+/// What a host answers when a rule asks it something. A pattern reads the
+/// answer as a verdict and takes anything but `true` for a refusal, while a
+/// build places it as the term it is
+using TransformHost = std::function<sourcemeta::core::JSON(
     std::string_view, const std::vector<sourcemeta::core::JSON> &)>;
 
 /// Where a build moved a term, as positions relative to the matched term
@@ -65,8 +63,8 @@ struct TransformTrace {
 /// Whether a pattern matches a term, collecting what it bound
 auto transform_match(const sourcemeta::core::JSON &pattern,
                      const sourcemeta::core::JSON &term,
-                     const TransformPredicate &predicate,
-                     TransformBindings &bindings) -> bool;
+                     const TransformHost &host, TransformBindings &bindings)
+    -> bool;
 
 /// Whether a pattern matches a term, without requiring the pattern to be
 /// positive. The at-least-one-positive rule exists to stop a rule matching
@@ -74,14 +72,13 @@ auto transform_match(const sourcemeta::core::JSON &pattern,
 /// a guard such as a `when` is evaluated through here
 auto transform_guard(const sourcemeta::core::JSON &pattern,
                      const sourcemeta::core::JSON &term,
-                     const TransformPredicate &predicate,
-                     TransformBindings &bindings) -> bool;
+                     const TransformHost &host, TransformBindings &bindings)
+    -> bool;
 
 /// Apply a build to a term, returning what it moved
 auto transform_apply(const sourcemeta::core::JSON &build,
                      sourcemeta::core::JSON &term,
                      const TransformBindings &bindings,
-                     const TransformPredicate &predicate,
-                     const TransformFunction &function) -> TransformTrace;
+                     const TransformHost &host) -> TransformTrace;
 
 #endif

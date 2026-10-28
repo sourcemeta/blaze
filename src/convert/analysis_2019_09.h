@@ -160,10 +160,6 @@ public:
   }
 
 private:
-  static constexpr std::string_view DRAFT_2019_09_URL{
-      "https://json-schema.org/draft/2019-09/schema"};
-  static constexpr std::string_view DRAFT_2020_12_URL{
-      "https://json-schema.org/draft/2020-12/schema"};
   static constexpr std::string_view APPLICATOR_2019_09_URI{
       "https://json-schema.org/draft/2019-09/vocab/applicator"};
   static constexpr std::string_view APPLICATOR_2020_12_URI{
@@ -186,20 +182,6 @@ private:
            "https://json-schema.org/draft/2020-12/vocab/format-annotation"},
           {"https://json-schema.org/draft/2019-09/vocab/content",
            "https://json-schema.org/draft/2020-12/vocab/content"}};
-
-  static auto
-  vocabulary_has_mappable_uri(const sourcemeta::core::JSON &subschema) -> bool {
-    if (!subschema.is_object() || !subschema.defines("$vocabulary") ||
-        !subschema.at("$vocabulary").is_object()) {
-      return false;
-    }
-    for (const auto &entry : subschema.at("$vocabulary").as_object()) {
-      if (VOCAB_URI_MAP_2019_09_TO_2020_12.contains(entry.first)) {
-        return true;
-      }
-    }
-    return false;
-  }
 
   static auto rewrite_vocabulary(sourcemeta::core::JSON &schema) -> void {
     if (!schema.is_object() || !schema.defines("$vocabulary") ||
@@ -283,31 +265,6 @@ private:
                  sourcemeta::core::to_pointer(destination.value().get().pointer)
                      .starts_with(wanted);
         });
-  }
-
-  static auto
-  move_to_defs(sourcemeta::core::JSON &schema, const std::string &keyword,
-               std::vector<std::pair<sourcemeta::core::Pointer,
-                                     sourcemeta::core::Pointer>> &renames)
-      -> void {
-    if (!schema.defines("$defs")) {
-      schema.assign("$defs", sourcemeta::core::JSON::make_object());
-    } else if (!schema.at("$defs").is_object()) {
-      // Nothing can be put inside a `$defs` that is not an object, and a
-      // document carrying one is not a valid schema of its own dialect
-      // either, so the keyword stays where its author wrote it
-      return;
-    }
-
-    std::string name{keyword};
-    while (schema.at("$defs").defines(name)) {
-      name.insert(0, "x-");
-    }
-
-    renames.emplace_back(sourcemeta::core::Pointer{keyword},
-                         sourcemeta::core::Pointer{"$defs", name});
-    schema.at("$defs").assign(name, schema.at(keyword));
-    schema.erase(keyword);
   }
 
   // What the frame had to say about one position, kept as values rather than
@@ -505,48 +462,6 @@ private:
       return false;
     }
     return subschema_is_contains_wrapper(subschema);
-  }
-
-  static auto
-  has_pending_pattern(const sourcemeta::core::JSON &subschema,
-                      const sourcemeta::core::SchemaFrame::Location &location)
-      -> bool {
-    if (!subschema.is_object()) {
-      return false;
-    }
-
-    // What framing reads is what decides whether this rung still has work
-    // here. A `$schema` framing does not read declares nothing, and taking it
-    // at its word would put the subschema out of reach while it is still
-    // waiting to be converted
-    if (dialect_position(location.dialect) >
-        dialect_position(DRAFT_2019_09_URL)) {
-      return false;
-    }
-    if (!subschema.defines_any({"$schema", "$recursiveAnchor", "$recursiveRef",
-                                "items", "additionalItems", "contains",
-                                "$vocabulary"})) {
-      return false;
-    }
-    if (subschema.defines("$schema") && subschema.at("$schema").is_string() &&
-        subschema.at("$schema").to_string() == DRAFT_2019_09_URL) {
-      return true;
-    }
-    if (subschema.defines_any(
-            {"$recursiveAnchor", "$recursiveRef", "additionalItems"})) {
-      return true;
-    }
-    if (subschema.defines("items") && subschema.at("items").is_array()) {
-      return true;
-    }
-    if (subschema.defines("contains") &&
-        !location_inside_contains_wrapper(subschema, location)) {
-      return true;
-    }
-    if (vocabulary_has_mappable_uri(subschema)) {
-      return true;
-    }
-    return false;
   }
 
   static auto find_enclosing_resource(

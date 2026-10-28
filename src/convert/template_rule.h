@@ -647,490 +647,501 @@ inline auto has_pending_draft_4_pattern(const sourcemeta::core::JSON &subschema,
 
 /// The questions a rule may ask about where it fired
 inline auto
-make_predicate(const sourcemeta::core::JSON &schema,
-               const sourcemeta::core::SchemaVocabularies &vocabularies,
-               const Site &site, const sourcemeta::core::JSON &settings)
-    -> TransformPredicate {
-  return [&schema, &vocabularies, &site, &settings](
-             const std::string_view name,
-             const std::vector<sourcemeta::core::JSON> &arguments) -> bool {
-    if (name == "schema:in-vocabulary") {
-      for (const auto &argument : arguments) {
-        if (vocabularies.contains(argument.to_string())) {
-          return true;
-        }
+verdict_for(const std::string_view name,
+            const std::vector<sourcemeta::core::JSON> &arguments,
+            const sourcemeta::core::JSON &schema,
+            const sourcemeta::core::SchemaVocabularies &vocabularies,
+            const Site &site, const sourcemeta::core::JSON &settings)
+    -> std::optional<bool> {
+  if (name == "schema:in-vocabulary") {
+    for (const auto &argument : arguments) {
+      if (vocabularies.contains(argument.to_string())) {
+        return true;
       }
+    }
 
+    return false;
+  }
+
+  if (name == "convert:at-root") {
+    return site.pointer.empty();
+  }
+
+  if (name == "convert:at-resource-root") {
+    return site.pointer.size() == site.relative_pointer;
+  }
+
+  if (name == "convert:base-dialect-in") {
+    const auto actual{base_dialect_name(site.base_dialect)};
+    for (const auto &argument : arguments) {
+      if (argument.to_string() == actual) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  if (name == "convert:promoted-keyword-is-author-data") {
+    return !arguments.empty() && arguments.front().is_string() &&
+           promoted_keyword_is_author_data(schema,
+                                           arguments.front().to_string());
+  }
+
+  if (name == "convert:has-pending-draft-4-pattern") {
+    return has_pending_draft_4_pattern(schema, site.dialect);
+  }
+
+  if (name == "convert:has-pending-draft-3-pattern") {
+    return has_pending_draft_3_pattern(schema, site.dialect);
+  }
+
+  // Draft 3's `required` is a question only the enclosing `properties` can
+  // answer, so one anywhere else is stray and simply goes
+  if (name == "convert:has-stray-required-boolean") {
+    if (!schema.is_object()) {
       return false;
     }
 
-    if (name == "convert:at-root") {
-      return site.pointer.empty();
-    }
-
-    if (name == "convert:at-resource-root") {
-      return site.pointer.size() == site.relative_pointer;
-    }
-
-    if (name == "convert:base-dialect-in") {
-      const auto actual{base_dialect_name(site.base_dialect)};
-      for (const auto &argument : arguments) {
-        if (argument.to_string() == actual) {
-          return true;
-        }
-      }
-
+    if (declares_dialect_out_of_reach(schema, DRAFT_3_DIALECT)) {
       return false;
     }
 
-    if (name == "convert:promoted-keyword-is-author-data") {
-      return !arguments.empty() && arguments.front().is_string() &&
-             promoted_keyword_is_author_data(schema,
-                                             arguments.front().to_string());
+    const auto *required{schema.try_at("required")};
+    if (required == nullptr || !required->is_boolean()) {
+      return false;
     }
 
-    if (name == "convert:has-pending-draft-4-pattern") {
-      return has_pending_draft_4_pattern(schema, site.dialect);
+    return site.pointer.size() < 2 ||
+           !site.pointer.at(site.pointer.size() - 2).is_property() ||
+           site.pointer.at(site.pointer.size() - 2).to_property() !=
+               "properties";
+  }
+
+  if (name == "convert:draft3-shape") {
+    if (arguments.size() != 2 || !arguments.front().is_object()) {
+      throw TransformError{"A Draft 3 shape takes an object and a shape name"};
     }
 
-    if (name == "convert:has-pending-draft-3-pattern") {
-      return has_pending_draft_3_pattern(schema, site.dialect);
-    }
+    const auto &term{arguments.front()};
+    const auto shape{arguments.back().to_string()};
 
-    // Draft 3's `required` is a question only the enclosing `properties` can
-    // answer, so one anywhere else is stray and simply goes
-    if (name == "convert:has-stray-required-boolean") {
-      if (!schema.is_object()) {
+    if (shape == "type-vacuous") {
+      const auto *value{term.try_at("type")};
+      if (value == nullptr) {
         return false;
       }
 
-      if (declares_dialect_out_of_reach(schema, DRAFT_3_DIALECT)) {
+      if (value->is_string()) {
+        return draft_3_names_every_instance(*value);
+      }
+
+      return value->is_array() && !draft_3_holds_subschema(*value) &&
+             std::ranges::any_of(value->as_array(),
+                                 draft_3_names_every_instance);
+    }
+
+    if (shape == "type-has-subschema") {
+      const auto *value{term.try_at("type")};
+      return value != nullptr && draft_3_holds_subschema(*value);
+    }
+
+    if (shape == "disallow-collapses") {
+      const auto *value{term.try_at("disallow")};
+      if (value == nullptr) {
         return false;
       }
 
-      const auto *required{schema.try_at("required")};
-      if (required == nullptr || !required->is_boolean()) {
+      if (value->is_string()) {
+        return draft_3_names_every_instance(*value);
+      }
+
+      return value->is_array() && !draft_3_holds_subschema(*value) &&
+             std::ranges::any_of(value->as_array(),
+                                 draft_3_names_every_instance);
+    }
+
+    if (shape == "disallow-names-only") {
+      const auto *value{term.try_at("disallow")};
+      return value != nullptr &&
+             (value->is_string() ||
+              (value->is_array() && !draft_3_holds_subschema(*value)));
+    }
+
+    if (shape == "disallow-has-subschema") {
+      const auto *value{term.try_at("disallow")};
+      return value != nullptr && draft_3_holds_subschema(*value);
+    }
+
+    if (shape == "disallow-is-schema") {
+      const auto *value{term.try_at("disallow")};
+      return value != nullptr && value->is_object();
+    }
+
+    if (shape == "liftable-required") {
+      const auto *properties{term.try_at("properties")};
+      if (properties == nullptr || !properties->is_object()) {
         return false;
       }
 
-      return site.pointer.size() < 2 ||
-             !site.pointer.at(site.pointer.size() - 2).is_property() ||
-             site.pointer.at(site.pointer.size() - 2).to_property() !=
-                 "properties";
+      return std::ranges::any_of(
+          properties->as_object(), [](const auto &entry) -> bool {
+            return entry.second.is_object() &&
+                   entry.second.defines("required") &&
+                   entry.second.at("required").is_boolean();
+          });
     }
 
-    if (name == "convert:draft3-shape") {
-      if (arguments.size() != 2 || !arguments.front().is_object()) {
-        throw TransformError{
-            "A Draft 3 shape takes an object and a shape name"};
-      }
-
-      const auto &term{arguments.front()};
-      const auto shape{arguments.back().to_string()};
-
-      if (shape == "type-vacuous") {
-        const auto *value{term.try_at("type")};
-        if (value == nullptr) {
-          return false;
-        }
-
-        if (value->is_string()) {
-          return draft_3_names_every_instance(*value);
-        }
-
-        return value->is_array() && !draft_3_holds_subschema(*value) &&
-               std::ranges::any_of(value->as_array(),
-                                   draft_3_names_every_instance);
-      }
-
-      if (shape == "type-has-subschema") {
-        const auto *value{term.try_at("type")};
-        return value != nullptr && draft_3_holds_subschema(*value);
-      }
-
-      if (shape == "disallow-collapses") {
-        const auto *value{term.try_at("disallow")};
-        if (value == nullptr) {
-          return false;
-        }
-
-        if (value->is_string()) {
-          return draft_3_names_every_instance(*value);
-        }
-
-        return value->is_array() && !draft_3_holds_subschema(*value) &&
-               std::ranges::any_of(value->as_array(),
-                                   draft_3_names_every_instance);
-      }
-
-      if (shape == "disallow-names-only") {
-        const auto *value{term.try_at("disallow")};
-        return value != nullptr &&
-               (value->is_string() ||
-                (value->is_array() && !draft_3_holds_subschema(*value)));
-      }
-
-      if (shape == "disallow-has-subschema") {
-        const auto *value{term.try_at("disallow")};
-        return value != nullptr && draft_3_holds_subschema(*value);
-      }
-
-      if (shape == "disallow-is-schema") {
-        const auto *value{term.try_at("disallow")};
-        return value != nullptr && value->is_object();
-      }
-
-      if (shape == "liftable-required") {
-        const auto *properties{term.try_at("properties")};
-        if (properties == nullptr || !properties->is_object()) {
-          return false;
-        }
-
-        return std::ranges::any_of(
-            properties->as_object(), [](const auto &entry) -> bool {
-              return entry.second.is_object() &&
-                     entry.second.defines("required") &&
-                     entry.second.at("required").is_boolean();
-            });
-      }
-
-      if (shape == "normalizable-dependencies") {
-        const auto *value{term.try_at("dependencies")};
-        if (value == nullptr || !value->is_object()) {
-          return false;
-        }
-
-        return std::ranges::any_of(
-            value->as_object(), [](const auto &entry) -> bool {
-              return entry.second.is_string() ||
-                     (entry.second.is_array() &&
-                      (entry.second.empty() ||
-                       draft_3_has_repeated_name(entry.second)));
-            });
-      }
-
-      if (shape == "dependencies-empty-after-normalizing") {
-        const auto *value{term.try_at("dependencies")};
-        return value != nullptr && value->is_object() &&
-               draft_3_normalize_dependencies(*value).empty();
-      }
-
-      throw TransformError{"Unknown Draft 3 shape"};
-    }
-
-    // A Draft 7 `$id` may carry a fragment that 2019-09 splits into an
-    // `$anchor`. Which of the four shapes it has decides what moves, and a URI
-    // is not something the language can take apart
-    if (name == "convert:id-fragment-shape") {
-      if (arguments.size() != 2 || !arguments.front().is_object()) {
-        throw TransformError{
-            "An identifier shape takes an object and a shape name"};
-      }
-
-      const auto *identifier{arguments.front().try_at("$id")};
-      if (identifier == nullptr || !identifier->is_string()) {
+    if (shape == "normalizable-dependencies") {
+      const auto *value{term.try_at("dependencies")};
+      if (value == nullptr || !value->is_object()) {
         return false;
       }
 
-      const sourcemeta::core::URI uri{identifier->to_string()};
-      const auto fragment{uri.fragment()};
-      const auto shape{arguments.back().to_string()};
-      if (shape == "present") {
-        return fragment.has_value();
-      }
-
-      if (!fragment.has_value()) {
-        return false;
-      }
-
-      if (shape == "fragment-only") {
-        return uri.is_fragment_only();
-      }
-
-      if (shape == "plain-name") {
-        return is_plain_name_anchor(fragment.value());
-      }
-
-      if (shape == "empty") {
-        return fragment.value().empty();
-      }
-
-      if (shape == "recomposes") {
-        return uri.recompose_without_fragment().has_value();
-      }
-
-      throw TransformError{"Unknown identifier shape"};
+      return std::ranges::any_of(
+          value->as_object(), [](const auto &entry) -> bool {
+            return entry.second.is_string() ||
+                   (entry.second.is_array() &&
+                    (entry.second.empty() ||
+                     draft_3_has_repeated_name(entry.second)));
+          });
     }
 
-    if (name == "convert:starts-with") {
-      if (arguments.size() != 2 || !arguments.front().is_string() ||
-          !arguments.back().is_string()) {
-        throw TransformError{"A prefix test takes two strings"};
-      }
-
-      return arguments.front().to_string().starts_with(
-          arguments.back().to_string());
+    if (shape == "dependencies-empty-after-normalizing") {
+      const auto *value{term.try_at("dependencies")};
+      return value != nullptr && value->is_object() &&
+             draft_3_normalize_dependencies(*value).empty();
     }
 
-    // What the caller finally asked for, which one rung has to read because
-    // Draft 4 cannot express what the target may still name
-    // Whether a member the OpenAPI 3.0 Schema Object names goes across as the
-    // keyword it was, which only the target the caller asked for can answer
-    if (name == "convert:openapi30-carries") {
-      if (arguments.size() != 2 || !arguments.front().is_object() ||
-          !arguments.back().is_string()) {
-        throw TransformError{"A carry test takes an object and a keyword"};
-      }
+    throw TransformError{"Unknown Draft 3 shape"};
+  }
 
-      const auto keeps{[&settings](const char *const flag) -> bool {
-        const auto *value{
-            settings.try_at(sourcemeta::core::JSON::String{flag})};
-        return value != nullptr && value->is_boolean() && value->to_boolean();
-      }};
-
-      const auto keyword{arguments.back().to_string()};
-      if (keyword == "readOnly" || keyword == "writeOnly") {
-        return keeps("read-only");
-      }
-
-      if (keyword == "deprecated") {
-        return keeps("deprecated");
-      }
-
-      if (!keeps("openapi-annotations")) {
-        return false;
-      }
-
-      if (keyword == "discriminator") {
-        const auto &value{arguments.front().at(keyword)};
-        return openapi_3_0_expressible_discriminator(
-                   value, keeps("default-mapping")) &&
-               openapi_3_0_mapping_survives(value);
-      }
-
-      return keyword == "xml" || keyword == "externalDocs" ||
-             keyword == "example";
+  // A Draft 7 `$id` may carry a fragment that 2019-09 splits into an
+  // `$anchor`. Which of the four shapes it has decides what moves, and a URI
+  // is not something the language can take apart
+  if (name == "convert:id-fragment-shape") {
+    if (arguments.size() != 2 || !arguments.front().is_object()) {
+      throw TransformError{
+          "An identifier shape takes an object and a shape name"};
     }
 
-    if (name == "convert:openapi30-shape") {
-      if (arguments.size() != 2 || !arguments.front().is_object()) {
-        throw TransformError{
-            "An OpenAPI 3.0 shape takes an object and a shape name"};
-      }
-
-      const auto &term{arguments.front()};
-      const auto shape{arguments.back().to_string()};
-
-      if (shape == "ignored-sibling") {
-        if (!term.defines("$ref")) {
-          return false;
-        }
-
-        return std::ranges::any_of(
-            term.as_object(), [](const auto &entry) -> bool {
-              return entry.first != "$ref" && entry.first != "$schema" &&
-                     !entry.first.starts_with("x-");
-            });
-      }
-
-      if (shape == "pending-shape") {
-        return openapi_3_0_holds_pending_shape(term);
-      }
-
-      if (shape == "promoted-keyword") {
-        return std::ranges::any_of(
-            OPENAPI_3_0_PROMOTED_BY_DRAFT_4,
-            [&term](const auto keyword) -> bool {
-              return term.defines(sourcemeta::core::JSON::String{keyword});
-            });
-      }
-
-      if (shape == "openapi-3-0-override") {
-        const auto *value{term.try_at(DIALECT_OVERRIDE_KEYWORD)};
-        return value != nullptr && value->is_string() &&
-               names_openapi_3_0_dialect(value->to_string());
-      }
-
-      if (shape == "movable-definitions") {
-        const auto *container{term.try_at(
-            sourcemeta::core::JSON::String{OPENAPI_3_0_DEFINITIONS})};
-        if (container == nullptr || !container->is_object()) {
-          return false;
-        }
-
-        return std::ranges::any_of(
-            container->as_object(), [](const auto &entry) -> bool {
-              return entry.second.is_object() || entry.second.is_boolean();
-            });
-      }
-
-      throw TransformError{"Unknown OpenAPI 3.0 shape"};
+    const auto *identifier{arguments.front().try_at("$id")};
+    if (identifier == nullptr || !identifier->is_string()) {
+      return false;
     }
 
-    if (name == "convert:setting") {
-      if (arguments.empty() || !arguments.front().is_string()) {
-        throw TransformError{"A setting takes a name"};
-      }
+    const sourcemeta::core::URI uri{identifier->to_string()};
+    const auto fragment{uri.fragment()};
+    const auto shape{arguments.back().to_string()};
+    if (shape == "present") {
+      return fragment.has_value();
+    }
 
-      const auto *value{settings.try_at(arguments.front().to_string())};
+    if (!fragment.has_value()) {
+      return false;
+    }
+
+    if (shape == "fragment-only") {
+      return uri.is_fragment_only();
+    }
+
+    if (shape == "plain-name") {
+      return is_plain_name_anchor(fragment.value());
+    }
+
+    if (shape == "empty") {
+      return fragment.value().empty();
+    }
+
+    if (shape == "recomposes") {
+      return uri.recompose_without_fragment().has_value();
+    }
+
+    throw TransformError{"Unknown identifier shape"};
+  }
+
+  if (name == "convert:starts-with") {
+    if (arguments.size() != 2 || !arguments.front().is_string() ||
+        !arguments.back().is_string()) {
+      throw TransformError{"A prefix test takes two strings"};
+    }
+
+    return arguments.front().to_string().starts_with(
+        arguments.back().to_string());
+  }
+
+  // What the caller finally asked for, which one rung has to read because
+  // Draft 4 cannot express what the target may still name
+  // Whether a member the OpenAPI 3.0 Schema Object names goes across as the
+  // keyword it was, which only the target the caller asked for can answer
+  if (name == "convert:openapi30-carries") {
+    if (arguments.size() != 2 || !arguments.front().is_object() ||
+        !arguments.back().is_string()) {
+      throw TransformError{"A carry test takes an object and a keyword"};
+    }
+
+    const auto keeps{[&settings](const char *const flag) -> bool {
+      const auto *value{settings.try_at(sourcemeta::core::JSON::String{flag})};
       return value != nullptr && value->is_boolean() && value->to_boolean();
+    }};
+
+    const auto keyword{arguments.back().to_string()};
+    if (keyword == "readOnly" || keyword == "writeOnly") {
+      return keeps("read-only");
     }
 
-    if (name == "convert:is-own-dialect-override") {
-      return !arguments.empty() && is_own_dialect_override(arguments.front());
+    if (keyword == "deprecated") {
+      return keeps("deprecated");
     }
 
-    if (name == "convert:names-ladder-dialect") {
-      return !arguments.empty() && arguments.front().is_string() &&
-             names_ladder_dialect(arguments.front().to_string());
+    if (!keeps("openapi-annotations")) {
+      return false;
     }
 
-    throw TransformError{"Unknown convert predicate"};
-  };
+    if (keyword == "discriminator") {
+      const auto &value{arguments.front().at(keyword)};
+      return openapi_3_0_expressible_discriminator(value,
+                                                   keeps("default-mapping")) &&
+             openapi_3_0_mapping_survives(value);
+    }
+
+    return keyword == "xml" || keyword == "externalDocs" ||
+           keyword == "example";
+  }
+
+  if (name == "convert:openapi30-shape") {
+    if (arguments.size() != 2 || !arguments.front().is_object()) {
+      throw TransformError{
+          "An OpenAPI 3.0 shape takes an object and a shape name"};
+    }
+
+    const auto &term{arguments.front()};
+    const auto shape{arguments.back().to_string()};
+
+    if (shape == "ignored-sibling") {
+      if (!term.defines("$ref")) {
+        return false;
+      }
+
+      return std::ranges::any_of(
+          term.as_object(), [](const auto &entry) -> bool {
+            return entry.first != "$ref" && entry.first != "$schema" &&
+                   !entry.first.starts_with("x-");
+          });
+    }
+
+    if (shape == "pending-shape") {
+      return openapi_3_0_holds_pending_shape(term);
+    }
+
+    if (shape == "promoted-keyword") {
+      return std::ranges::any_of(
+          OPENAPI_3_0_PROMOTED_BY_DRAFT_4, [&term](const auto keyword) -> bool {
+            return term.defines(sourcemeta::core::JSON::String{keyword});
+          });
+    }
+
+    if (shape == "openapi-3-0-override") {
+      const auto *value{term.try_at(DIALECT_OVERRIDE_KEYWORD)};
+      return value != nullptr && value->is_string() &&
+             names_openapi_3_0_dialect(value->to_string());
+    }
+
+    if (shape == "movable-definitions") {
+      const auto *container{
+          term.try_at(sourcemeta::core::JSON::String{OPENAPI_3_0_DEFINITIONS})};
+      if (container == nullptr || !container->is_object()) {
+        return false;
+      }
+
+      return std::ranges::any_of(
+          container->as_object(), [](const auto &entry) -> bool {
+            return entry.second.is_object() || entry.second.is_boolean();
+          });
+    }
+
+    throw TransformError{"Unknown OpenAPI 3.0 shape"};
+  }
+
+  if (name == "convert:setting") {
+    if (arguments.empty() || !arguments.front().is_string()) {
+      throw TransformError{"A setting takes a name"};
+    }
+
+    const auto *value{settings.try_at(arguments.front().to_string())};
+    return value != nullptr && value->is_boolean() && value->to_boolean();
+  }
+
+  if (name == "convert:is-own-dialect-override") {
+    return !arguments.empty() && is_own_dialect_override(arguments.front());
+  }
+
+  if (name == "convert:names-ladder-dialect") {
+    return !arguments.empty() && arguments.front().is_string() &&
+           names_ladder_dialect(arguments.front().to_string());
+  }
+
+  return std::nullopt;
 }
 
 /// The terms a rule may ask the host to build
-inline auto make_function() -> TransformFunction {
-  return [](const std::string_view name,
-            const std::vector<sourcemeta::core::JSON> &arguments)
-             -> sourcemeta::core::JSON {
-    // Where a keyword goes when a rename has to carry it across as the
-    // author data it was. A name already taken gains another prefix, and a
-    // caller may name spellings that are not free either, such as the two
-    // that core reads
-    if (name == "convert:shadow-pointer") {
-      if (arguments.size() < 2 || !arguments.front().is_object() ||
-          !arguments.at(1).is_string()) {
-        throw TransformError{"A shadow pointer takes an object and a keyword"};
+inline auto term_for(const std::string_view name,
+                     const std::vector<sourcemeta::core::JSON> &arguments)
+    -> sourcemeta::core::JSON {
+  // Where a keyword goes when a rename has to carry it across as the
+  // author data it was. A name already taken gains another prefix, and a
+  // caller may name spellings that are not free either, such as the two
+  // that core reads
+  if (name == "convert:shadow-pointer") {
+    if (arguments.size() < 2 || !arguments.front().is_object() ||
+        !arguments.at(1).is_string()) {
+      throw TransformError{"A shadow pointer takes an object and a keyword"};
+    }
+
+    auto candidate{"x-" + arguments.at(1).to_string()};
+    const auto taken{[&arguments, &candidate]() -> bool {
+      if (arguments.front().defines(candidate)) {
+        return true;
       }
 
-      auto candidate{"x-" + arguments.at(1).to_string()};
-      const auto taken{[&arguments, &candidate]() -> bool {
-        if (arguments.front().defines(candidate)) {
+      for (std::size_t index = 2; index < arguments.size(); index += 1) {
+        if (arguments.at(index).to_string() == candidate) {
           return true;
         }
-
-        for (std::size_t index = 2; index < arguments.size(); index += 1) {
-          if (arguments.at(index).to_string() == candidate) {
-            return true;
-          }
-        }
-
-        return false;
-      }};
-
-      while (taken()) {
-        candidate.insert(0, "x-");
       }
 
+      return false;
+    }};
+
+    while (taken()) {
+      candidate.insert(0, "x-");
+    }
+
+    return sourcemeta::core::JSON{
+        sourcemeta::core::to_string(sourcemeta::core::Pointer{candidate})};
+  }
+
+  if (name == "convert:draft3-type-branches" ||
+      name == "convert:draft3-disallow-branches") {
+    const auto *const keyword{
+        name == "convert:draft3-type-branches" ? "type" : "disallow"};
+    return draft_3_type_branches(arguments.front().at(keyword));
+  }
+
+  if (name == "convert:draft3-lift-required") {
+    return draft_3_lift_required(arguments.front());
+  }
+
+  if (name == "convert:draft3-normalize-dependencies") {
+    return draft_3_normalize_dependencies(arguments.front().at("dependencies"));
+  }
+
+  // The value of a member, so that a template can place what the term
+  // already holds without the match having bound it
+  if (name == "convert:member") {
+    if (arguments.size() != 2 || !arguments.front().is_object() ||
+        !arguments.back().is_string()) {
+      throw TransformError{"A member lookup takes an object and a name"};
+    }
+
+    const auto *value{arguments.front().try_at(arguments.back().to_string())};
+    if (value == nullptr) {
+      throw TransformError{"A member lookup names a member that is not there"};
+    }
+
+    return *value;
+  }
+
+  // The three places the OpenAPI 3.0 Schema Object is looser than Draft 4,
+  // folded in the order the rung needs: `nullable` before the annotations
+  // are shadowed, so that one it consumes is gone and one it declines is
+  // still there to be shadowed with them
+  if (name == "convert:openapi30-fold") {
+    auto result{arguments.front()};
+    fold_nullable_into_type(result);
+    deduplicate_enum(result);
+    fold_empty_applicators(result);
+    return result;
+  }
+
+  // 2020-12 keeps under `$defs` a schema it does not apply, and a name
+  // already taken there gains a prefix rather than overwriting
+  if (name == "convert:defs-pointer") {
+    if (arguments.size() != 2 || !arguments.front().is_object() ||
+        !arguments.back().is_string()) {
+      throw TransformError{"A defs pointer takes an object and a keyword"};
+    }
+
+    auto candidate{arguments.back().to_string()};
+    const auto *defs{arguments.front().is_object()
+                         ? arguments.front().try_at("$defs")
+                         : nullptr};
+    while (defs != nullptr && defs->is_object() && defs->defines(candidate)) {
+      candidate.insert(0, "x-");
+    }
+
+    return sourcemeta::core::JSON{sourcemeta::core::to_string(
+        sourcemeta::core::Pointer{"$defs", candidate})};
+  }
+
+  // Where the next branch of an applicator array goes, which depends on how
+  // many it already holds
+  if (name == "convert:slot-pointer") {
+    if (arguments.size() != 3 || !arguments.front().is_object() ||
+        !arguments.at(1).is_string() || !arguments.back().is_string()) {
+      throw TransformError{
+          "A slot pointer takes an object, a keyword and a suffix"};
+    }
+
+    const auto keyword{arguments.at(1).to_string()};
+    const auto *branches{arguments.front().is_object()
+                             ? arguments.front().try_at(keyword)
+                             : nullptr};
+    const auto slot{
+        branches != nullptr && branches->is_array() ? branches->size() : 0};
+    return sourcemeta::core::JSON{"/" + keyword + "/" + std::to_string(slot) +
+                                  arguments.back().to_string()};
+  }
+
+  if (name == "convert:openapi30-boolean-schema") {
+    return openapi_3_0_as_object_schema(arguments.front());
+  }
+
+  if (name == "convert:id-fragment" || name == "convert:id-without-fragment") {
+    if (arguments.empty() || !arguments.front().is_object()) {
+      throw TransformError{"An identifier part takes an object"};
+    }
+
+    const sourcemeta::core::URI uri{arguments.front().at("$id").to_string()};
+    if (name == "convert:id-fragment") {
       return sourcemeta::core::JSON{
-          sourcemeta::core::to_string(sourcemeta::core::Pointer{candidate})};
+          sourcemeta::core::JSON::String{uri.fragment().value()}};
     }
 
-    if (name == "convert:draft3-type-branches" ||
-        name == "convert:draft3-disallow-branches") {
-      const auto *const keyword{
-          name == "convert:draft3-type-branches" ? "type" : "disallow"};
-      return draft_3_type_branches(arguments.front().at(keyword));
+    return sourcemeta::core::JSON{uri.recompose_without_fragment().value()};
+  }
+
+  throw TransformError{"Unknown convert question"};
+}
+
+/// One way to ask the host something. A name the verdict chain knows answers
+/// with a verdict, which a pattern reads as one, and every other name answers
+/// with the term it builds
+inline auto make_host(const sourcemeta::core::JSON &schema,
+                      const sourcemeta::core::SchemaVocabularies &vocabularies,
+                      const Site &site, const sourcemeta::core::JSON &settings)
+    -> TransformHost {
+  return [&schema, &vocabularies, &site,
+          &settings](const std::string_view name,
+                     const std::vector<sourcemeta::core::JSON> &arguments)
+             -> sourcemeta::core::JSON {
+    const auto answer{
+        verdict_for(name, arguments, schema, vocabularies, site, settings)};
+    if (answer.has_value()) {
+      return sourcemeta::core::JSON{answer.value()};
     }
 
-    if (name == "convert:draft3-lift-required") {
-      return draft_3_lift_required(arguments.front());
-    }
-
-    if (name == "convert:draft3-normalize-dependencies") {
-      return draft_3_normalize_dependencies(
-          arguments.front().at("dependencies"));
-    }
-
-    // The value of a member, so that a template can place what the term
-    // already holds without the match having bound it
-    if (name == "convert:member") {
-      if (arguments.size() != 2 || !arguments.front().is_object() ||
-          !arguments.back().is_string()) {
-        throw TransformError{"A member lookup takes an object and a name"};
-      }
-
-      const auto *value{arguments.front().try_at(arguments.back().to_string())};
-      if (value == nullptr) {
-        throw TransformError{
-            "A member lookup names a member that is not there"};
-      }
-
-      return *value;
-    }
-
-    // The three places the OpenAPI 3.0 Schema Object is looser than Draft 4,
-    // folded in the order the rung needs: `nullable` before the annotations
-    // are shadowed, so that one it consumes is gone and one it declines is
-    // still there to be shadowed with them
-    if (name == "convert:openapi30-fold") {
-      auto result{arguments.front()};
-      fold_nullable_into_type(result);
-      deduplicate_enum(result);
-      fold_empty_applicators(result);
-      return result;
-    }
-
-    // 2020-12 keeps under `$defs` a schema it does not apply, and a name
-    // already taken there gains a prefix rather than overwriting
-    if (name == "convert:defs-pointer") {
-      if (arguments.size() != 2 || !arguments.front().is_object() ||
-          !arguments.back().is_string()) {
-        throw TransformError{"A defs pointer takes an object and a keyword"};
-      }
-
-      auto candidate{arguments.back().to_string()};
-      const auto *defs{arguments.front().is_object()
-                           ? arguments.front().try_at("$defs")
-                           : nullptr};
-      while (defs != nullptr && defs->is_object() && defs->defines(candidate)) {
-        candidate.insert(0, "x-");
-      }
-
-      return sourcemeta::core::JSON{sourcemeta::core::to_string(
-          sourcemeta::core::Pointer{"$defs", candidate})};
-    }
-
-    // Where the next branch of an applicator array goes, which depends on how
-    // many it already holds
-    if (name == "convert:slot-pointer") {
-      if (arguments.size() != 3 || !arguments.front().is_object() ||
-          !arguments.at(1).is_string() || !arguments.back().is_string()) {
-        throw TransformError{
-            "A slot pointer takes an object, a keyword and a suffix"};
-      }
-
-      const auto keyword{arguments.at(1).to_string()};
-      const auto *branches{arguments.front().is_object()
-                               ? arguments.front().try_at(keyword)
-                               : nullptr};
-      const auto slot{
-          branches != nullptr && branches->is_array() ? branches->size() : 0};
-      return sourcemeta::core::JSON{"/" + keyword + "/" + std::to_string(slot) +
-                                    arguments.back().to_string()};
-    }
-
-    if (name == "convert:openapi30-boolean-schema") {
-      return openapi_3_0_as_object_schema(arguments.front());
-    }
-
-    if (name == "convert:id-fragment" ||
-        name == "convert:id-without-fragment") {
-      if (arguments.empty() || !arguments.front().is_object()) {
-        throw TransformError{"An identifier part takes an object"};
-      }
-
-      const sourcemeta::core::URI uri{arguments.front().at("$id").to_string()};
-      if (name == "convert:id-fragment") {
-        return sourcemeta::core::JSON{
-            sourcemeta::core::JSON::String{uri.fragment().value()}};
-      }
-
-      return sourcemeta::core::JSON{uri.recompose_without_fragment().value()};
-    }
-
-    throw TransformError{"Unknown convert function"};
+    return term_for(name, arguments);
   };
 }
 
@@ -1216,7 +1227,8 @@ inline auto make_query() -> QuerySource {
       .begin_pass = [analysis]() -> void { analysis->begin_pass(); }};
 }
 
-/// A rule whose condition and transform are read from JSON rather than written
+/// A rule whose condition and transform are read from JSON rather than
+/// written
 class TemplateRule final : public SchemaTransformRule {
 public:
   TemplateRule(
@@ -1289,7 +1301,7 @@ public:
 
     return transform_match(
         this->definition_.at("match"), schema,
-        make_predicate(schema, vocabularies, site, this->settings_),
+        make_host(schema, vocabularies, site, this->settings_),
         this->bindings_);
   }
 
@@ -1297,8 +1309,7 @@ public:
       -> void override {
     const auto trace{transform_apply(
         this->definition_.at("build"), schema, this->bindings_,
-        make_predicate(schema, this->vocabularies_, site, this->settings_),
-        make_function())};
+        make_host(schema, this->vocabularies_, site, this->settings_))};
     this->relocations_ = trace.relocations;
   }
 

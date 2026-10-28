@@ -217,45 +217,39 @@
   },
   "build": [
     {
-      "distribute": {
-        "from": "$self",
-        "unclaimed": "keep",
-        "cases": [
-          {
-            "key": {
-              "enum": [
-                "$ref",
-                "$schema"
-              ]
-            },
-            "to": "/$key"
-          },
-          {
-            "key": {
-              "call": {
-                "name": "convert:starts-with",
-                "args": [
-                  "$term",
-                  "x-"
+      "move": {
+        "keys": {
+          "not": {
+            "any": [
+              {
+                "enum": [
+                  "$ref",
+                  "$schema"
                 ]
+              },
+              {
+                "call": {
+                  "name": "convert:starts-with",
+                  "args": [
+                    "$term",
+                    "x-"
+                  ]
+                }
               }
-            },
-            "to": "/$key"
-          },
-          {
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$current",
-                  "$key",
-                  "x-definitions",
-                  "x-sourcemeta-dialect-override-subschema"
-                ]
-              }
-            }
+            ]
           }
-        ]
+        },
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$current",
+              "$key",
+              "x-definitions",
+              "x-sourcemeta-dialect-override-subschema"
+            ]
+          }
+        }
       },
       "if": {
         "has": "$ref"

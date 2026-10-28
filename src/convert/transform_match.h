@@ -15,8 +15,7 @@ namespace {
 using namespace sourcemeta::core;
 
 auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
-                const TransformPredicate &predicate,
-                TransformBindings &bindings) -> bool;
+                const TransformHost &host, TransformBindings &bindings) -> bool;
 
 auto type_name(const JSON &term) -> std::string_view {
   switch (term.type()) {
@@ -137,14 +136,13 @@ auto is_positive(const JSON &pattern) -> bool {
 }
 
 auto match_all(const JSON &branches, const JSON &term, const Pointer &pointer,
-               const TransformPredicate &predicate, TransformBindings &bindings)
-    -> bool {
+               const TransformHost &host, TransformBindings &bindings) -> bool {
   if (!branches.is_array()) {
     throw TransformError{"An all matcher takes an array"};
   }
 
   for (const auto &branch : branches.as_array()) {
-    if (!match_term(branch, term, pointer, predicate, bindings)) {
+    if (!match_term(branch, term, pointer, host, bindings)) {
       return false;
     }
   }
@@ -153,8 +151,7 @@ auto match_all(const JSON &branches, const JSON &term, const Pointer &pointer,
 }
 
 auto match_any(const JSON &branches, const JSON &term, const Pointer &pointer,
-               const TransformPredicate &predicate, TransformBindings &bindings)
-    -> bool {
+               const TransformHost &host, TransformBindings &bindings) -> bool {
   if (!branches.is_array()) {
     throw TransformError{"An any matcher takes an array"};
   }
@@ -163,7 +160,7 @@ auto match_any(const JSON &branches, const JSON &term, const Pointer &pointer,
     // A branch that fails must leave nothing behind, so each is tried against
     // a copy and only the branch that matched contributes its bindings
     auto candidate{bindings};
-    if (match_term(branch, term, pointer, predicate, candidate)) {
+    if (match_term(branch, term, pointer, host, candidate)) {
       bindings = std::move(candidate);
       return true;
     }
@@ -173,7 +170,7 @@ auto match_any(const JSON &branches, const JSON &term, const Pointer &pointer,
 }
 
 auto match_member(const JSON &specification, const JSON &term,
-                  const Pointer &pointer, const TransformPredicate &predicate,
+                  const Pointer &pointer, const TransformHost &host,
                   TransformBindings &bindings) -> bool {
   if (!specification.is_object() || !specification.defines("key")) {
     throw TransformError{"A member matcher takes an object with a key"};
@@ -197,7 +194,7 @@ auto match_member(const JSON &specification, const JSON &term,
   position.push_back(key.to_string());
 
   if (specification.defines("match") &&
-      !match_term(specification.at("match"), *value, position, predicate,
+      !match_term(specification.at("match"), *value, position, host,
                   bindings)) {
     return false;
   }
@@ -217,7 +214,7 @@ auto match_member(const JSON &specification, const JSON &term,
 }
 
 auto match_members(const JSON &pattern, const JSON &term,
-                   const Pointer &pointer, const TransformPredicate &predicate,
+                   const Pointer &pointer, const TransformHost &host,
                    TransformBindings &bindings) -> bool {
   if (!term.is_object()) {
     return false;
@@ -226,7 +223,7 @@ auto match_members(const JSON &pattern, const JSON &term,
   for (const auto &entry : term.as_object()) {
     auto position{pointer};
     position.push_back(entry.first);
-    if (!match_term(pattern, entry.second, position, predicate, bindings)) {
+    if (!match_term(pattern, entry.second, position, host, bindings)) {
       return false;
     }
   }
@@ -237,8 +234,7 @@ auto match_members(const JSON &pattern, const JSON &term,
 /// Whether any member of an object satisfies a pattern on its name, its value,
 /// or both. The counterpart of `some-item` for objects
 auto match_some_member(const JSON &specification, const JSON &term,
-                       const Pointer &pointer,
-                       const TransformPredicate &predicate,
+                       const Pointer &pointer, const TransformHost &host,
                        TransformBindings &bindings) -> bool {
   if (!specification.is_object()) {
     throw TransformError{"A some-member matcher takes an object"};
@@ -254,14 +250,14 @@ auto match_some_member(const JSON &specification, const JSON &term,
     auto candidate{bindings};
 
     if (specification.defines("key") &&
-        !match_term(specification.at("key"), JSON{entry.first}, position,
-                    predicate, candidate)) {
+        !match_term(specification.at("key"), JSON{entry.first}, position, host,
+                    candidate)) {
       continue;
     }
 
     if (specification.defines("match") &&
-        !match_term(specification.at("match"), entry.second, position,
-                    predicate, candidate)) {
+        !match_term(specification.at("match"), entry.second, position, host,
+                    candidate)) {
       continue;
     }
 
@@ -279,8 +275,7 @@ auto match_some_member(const JSON &specification, const JSON &term,
 }
 
 auto match_some_item(const JSON &pattern, const JSON &term,
-                     const Pointer &pointer,
-                     const TransformPredicate &predicate,
+                     const Pointer &pointer, const TransformHost &host,
                      TransformBindings &bindings) -> bool {
   if (!term.is_array()) {
     return false;
@@ -290,7 +285,7 @@ auto match_some_item(const JSON &pattern, const JSON &term,
     auto position{pointer};
     position.push_back(index);
     auto candidate{bindings};
-    if (match_term(pattern, term.at(index), position, predicate, candidate)) {
+    if (match_term(pattern, term.at(index), position, host, candidate)) {
       bindings = std::move(candidate);
       return true;
     }
@@ -322,8 +317,8 @@ auto resolve_argument(const JSON &argument, const JSON &term,
 }
 
 auto match_call(const JSON &specification, const JSON &term,
-                const TransformBindings &bindings,
-                const TransformPredicate &predicate) -> bool {
+                const TransformBindings &bindings, const TransformHost &host)
+    -> bool {
   if (!specification.is_object() || !specification.defines("name")) {
     throw TransformError{"A call takes an object with a name"};
   }
@@ -346,12 +341,12 @@ auto match_call(const JSON &specification, const JSON &term,
     }
   }
 
-  return predicate(name.to_string(), arguments);
+  return host(name.to_string(), arguments) == JSON{true};
 }
 
 auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
-                const TransformPredicate &predicate,
-                TransformBindings &bindings) -> bool {
+                const TransformHost &host, TransformBindings &bindings)
+    -> bool {
   if (!pattern.is_object()) {
     throw TransformError{"A pattern must be an object"};
   }
@@ -399,20 +394,20 @@ auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
         return false;
       }
     } else if (entry.first == "all") {
-      if (!match_all(entry.second, term, pointer, predicate, bindings)) {
+      if (!match_all(entry.second, term, pointer, host, bindings)) {
         return false;
       }
     } else if (entry.first == "any") {
-      if (!match_any(entry.second, term, pointer, predicate, bindings)) {
+      if (!match_any(entry.second, term, pointer, host, bindings)) {
         return false;
       }
     } else if (entry.first == "not") {
       auto discarded{bindings};
-      if (match_term(entry.second, term, pointer, predicate, discarded)) {
+      if (match_term(entry.second, term, pointer, host, discarded)) {
         return false;
       }
     } else if (entry.first == "member") {
-      if (!match_member(entry.second, term, pointer, predicate, bindings)) {
+      if (!match_member(entry.second, term, pointer, host, bindings)) {
         return false;
       }
     } else if (entry.first == "bind") {
@@ -424,20 +419,19 @@ auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
           entry.second.to_string(),
           TransformBinding{.value = term, .pointer = pointer});
     } else if (entry.first == "members") {
-      if (!match_members(entry.second, term, pointer, predicate, bindings)) {
+      if (!match_members(entry.second, term, pointer, host, bindings)) {
         return false;
       }
     } else if (entry.first == "some-member") {
-      if (!match_some_member(entry.second, term, pointer, predicate,
-                             bindings)) {
+      if (!match_some_member(entry.second, term, pointer, host, bindings)) {
         return false;
       }
     } else if (entry.first == "some-item") {
-      if (!match_some_item(entry.second, term, pointer, predicate, bindings)) {
+      if (!match_some_item(entry.second, term, pointer, host, bindings)) {
         return false;
       }
     } else if (entry.first == "call") {
-      if (!match_call(entry.second, term, bindings, predicate)) {
+      if (!match_call(entry.second, term, bindings, host)) {
         return false;
       }
     } else if (entry.first == "binding") {
@@ -454,7 +448,7 @@ auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
 
       auto candidate{bindings};
       if (!match_term(entry.second.at("match"), iterator->second.value,
-                      iterator->second.pointer, predicate, candidate)) {
+                      iterator->second.pointer, host, candidate)) {
         return false;
       }
 
@@ -471,8 +465,8 @@ auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
 
 auto transform_match(const sourcemeta::core::JSON &pattern,
                      const sourcemeta::core::JSON &term,
-                     const TransformPredicate &predicate,
-                     TransformBindings &bindings) -> bool {
+                     const TransformHost &host, TransformBindings &bindings)
+    -> bool {
   if (!pattern.is_object()) {
     throw TransformError{"A pattern must be an object"};
   }
@@ -481,16 +475,14 @@ auto transform_match(const sourcemeta::core::JSON &pattern,
     return false;
   }
 
-  return match_term(pattern, term, sourcemeta::core::Pointer{}, predicate,
-                    bindings);
+  return match_term(pattern, term, sourcemeta::core::Pointer{}, host, bindings);
 }
 
 auto transform_guard(const sourcemeta::core::JSON &pattern,
                      const sourcemeta::core::JSON &term,
-                     const TransformPredicate &predicate,
-                     TransformBindings &bindings) -> bool {
-  return match_term(pattern, term, sourcemeta::core::Pointer{}, predicate,
-                    bindings);
+                     const TransformHost &host, TransformBindings &bindings)
+    -> bool {
+  return match_term(pattern, term, sourcemeta::core::Pointer{}, host, bindings);
 }
 
 #endif
