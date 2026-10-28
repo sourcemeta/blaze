@@ -311,10 +311,87 @@ auto assign_creating(JSON &container, const Pointer &pointer,
   assign_creating(container.at(token.to_index()), pointer, offset + 1, value);
 }
 
+/// Erase the entries of a container that a pattern picks out, which is how a
+/// rule drops what it cannot name by position. A container left empty goes
+/// too, where the edit says so, since a keyword holding nothing says nothing
+auto erase_matching(const JSON &specification, JSON &term,
+                    const TransformBindings &bindings,
+                    const TransformHost &host, const bool prune) -> void {
+  const auto nested{specification.defines("from")};
+  if (nested && !specification.at("from").is_string()) {
+    throw TransformError{"An erase takes a string source"};
+  }
+
+  const auto source{nested ? to_pointer(specification.at("from").to_string())
+                           : Pointer{}};
+  if (try_get(term, source) == nullptr) {
+    if (specification.defines("optional") &&
+        specification.at("optional").to_boolean()) {
+      return;
+    }
+
+    throw TransformError{"An erase names a source that is not there"};
+  }
+
+  auto &container{get(term, source)};
+
+  if (specification.defines("items")) {
+    if (!container.is_array()) {
+      throw TransformError{"An items erase takes an array source"};
+    }
+
+    auto kept{JSON::make_array()};
+    for (const auto &item : container.as_array()) {
+      TransformBindings discarded{bindings};
+      if (!transform_guard(specification.at("items"), item, host, discarded)) {
+        kept.push_back(item);
+      }
+    }
+
+    container.into(std::move(kept));
+  } else if (specification.defines("keys")) {
+    if (!container.is_object()) {
+      throw TransformError{"A keys erase takes an object source"};
+    }
+
+    std::vector<JSON::String> picked;
+    for (const auto &member : container.as_object()) {
+      TransformBindings discarded{bindings};
+      if (transform_guard(specification.at("keys"), JSON{member.first}, host,
+                          discarded)) {
+        picked.push_back(member.first);
+      }
+    }
+
+    for (const auto &name : picked) {
+      container.erase(name);
+    }
+  } else {
+    throw TransformError{"An erase takes items or keys"};
+  }
+
+  if (prune && container.empty() && !source.empty()) {
+    auto parent{source};
+    const auto last{parent.back()};
+    parent.pop_back();
+    auto &holder{get(term, parent)};
+    if (last.is_property()) {
+      holder.erase(last.to_property());
+    }
+  }
+}
+
 auto apply_erase(const JSON &edit, JSON &term,
                  const TransformBindings &bindings, const TransformHost &host)
     -> void {
   const auto &specification{edit.at("erase")};
+  if (specification.is_object()) {
+    erase_matching(specification, term, bindings, host,
+                   edit.defines("prune-empty") &&
+                       edit.at("prune-empty").to_boolean());
+    return;
+  }
+
   if (!term.is_object()) {
     throw TransformError{"An erase takes an object term"};
   }
@@ -558,6 +635,37 @@ auto substitute_key(const JSON::String &destination, const JSON::String &key)
   return result;
 }
 
+/// Assign every member of a built object into the term. A member the term
+/// already has keeps the position it had, so merging over a term rewrites it
+/// without moving what stays, and without rebuilding the members that do
+auto apply_merge(const JSON &specification, JSON &term, const JSON &self,
+                 const TransformBindings &bindings, const TransformHost &host,
+                 const std::vector<JSON::String> &original,
+                 TransformTrace &trace) -> void {
+  if (!term.is_object()) {
+    throw TransformError{"A merge takes an object term"};
+  }
+
+  const auto placement{read_placement(specification)};
+  auto built{
+      build_template(specification, self, term, bindings, host, Pointer{})};
+  if (!built.value.is_object()) {
+    throw TransformError{"A merge takes an object"};
+  }
+
+  for (const auto &entry : built.value.as_object()) {
+    insert_member(term, entry.first, entry.second, placement, original);
+  }
+
+  for (auto &relocation : built.relocations) {
+    trace.relocations.push_back(std::move(relocation));
+  }
+
+  for (auto &pointer : built.opaque) {
+    trace.opaque.push_back(std::move(pointer));
+  }
+}
+
 auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
                       const TransformBindings &bindings,
                       const TransformHost &host,
@@ -778,6 +886,9 @@ auto transform_apply(const sourcemeta::core::JSON &build,
     } else if (edit.defines("distribute")) {
       apply_distribute(edit.at("distribute"), term, self, bindings, host,
                        original, trace);
+    } else if (edit.defines("merge")) {
+      apply_merge(edit.at("merge"), term, self, bindings, host, original,
+                  trace);
     } else if (edit.defines("replace")) {
       auto built{build_template(edit.at("replace"), self, term, bindings, host,
                                 sourcemeta::core::Pointer{})};

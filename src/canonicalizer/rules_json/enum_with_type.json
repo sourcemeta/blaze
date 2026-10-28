@@ -1,0 +1,48 @@
+{
+  "name": "enum_with_type",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "https://json-schema.org/draft/2020-12/vocab/validation",
+            "https://json-schema.org/draft/2019-09/vocab/validation",
+            "http://json-schema.org/draft-07/schema#",
+            "http://json-schema.org/draft-06/schema#",
+            "http://json-schema.org/draft-04/schema#",
+            "http://json-schema.org/draft-03/schema#",
+            "http://json-schema.org/draft-03/hyper-schema#",
+            "http://json-schema.org/draft-02/schema#",
+            "http://json-schema.org/draft-01/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "has": "type"
+      },
+      {
+        "member": {
+          "key": "enum",
+          "match": {
+            "type": "array"
+          }
+        }
+      },
+      {
+        "call": {
+          "name": "canonicalizer:type-implied-by-enum",
+          "args": []
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "erase": "type"
+    }
+  ]
+}

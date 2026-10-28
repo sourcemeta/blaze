@@ -1,0 +1,58 @@
+{
+  "name": "unsatisfiable_empty_enum_object",
+  "reframe": false,
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-04/schema#",
+            "http://json-schema.org/draft-03/schema#",
+            "http://json-schema.org/draft-03/hyper-schema#",
+            "http://json-schema.org/draft-02/schema#",
+            "http://json-schema.org/draft-01/schema#",
+            "http://json-schema.org/draft-00/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "enum",
+          "match": {
+            "all": [
+              {
+                "type": "array"
+              },
+              {
+                "empty": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "erase": {
+        "keys": {
+          "not": {
+            "const": "$schema"
+          }
+        }
+      }
+    },
+    {
+      "merge": {
+        "call": {
+          "name": "canonicalizer:unsatisfiable-form",
+          "args": []
+        }
+      }
+    }
+  ]
+}

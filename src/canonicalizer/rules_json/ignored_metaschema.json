@@ -1,0 +1,29 @@
+{
+  "name": "ignored_metaschema",
+  "match": {
+    "all": [
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "$schema",
+          "match": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "call": {
+          "name": "canonicalizer:declares-other-dialect",
+          "args": []
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "erase": "$schema"
+    }
+  ]
+}

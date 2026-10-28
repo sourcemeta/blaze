@@ -1,0 +1,39 @@
+{
+  "name": "empty_disallow_drop",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-03/schema#",
+            "http://json-schema.org/draft-03/hyper-schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "disallow",
+          "match": {
+            "all": [
+              {
+                "type": "array"
+              },
+              {
+                "empty": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "erase": "disallow"
+    }
+  ]
+}

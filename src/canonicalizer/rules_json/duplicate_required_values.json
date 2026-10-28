@@ -1,0 +1,55 @@
+{
+  "name": "duplicate_required_values",
+  "reframe": false,
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "https://json-schema.org/draft/2020-12/vocab/validation",
+            "https://json-schema.org/draft/2019-09/vocab/validation",
+            "http://json-schema.org/draft-07/schema#",
+            "http://json-schema.org/draft-06/schema#",
+            "http://json-schema.org/draft-04/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "required",
+          "match": {
+            "all": [
+              {
+                "type": "array"
+              },
+              {
+                "unique": false
+              },
+              {
+                "bind": "$required"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "set": {
+        "required": {
+          "call": {
+            "name": "canonicalizer:sorted-unique",
+            "args": [
+              "$required"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

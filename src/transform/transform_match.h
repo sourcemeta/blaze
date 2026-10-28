@@ -396,6 +396,18 @@ auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
       if (term.empty() != entry.second.to_boolean()) {
         return false;
       }
+    } else if (entry.first == "unique") {
+      if (!entry.second.is_boolean()) {
+        throw TransformError{"A unique matcher takes a boolean"};
+      }
+
+      if (!term.is_array()) {
+        return false;
+      }
+
+      if (term.unique() != entry.second.to_boolean()) {
+        return false;
+      }
     } else if (entry.first == "all") {
       if (!match_all(entry.second, term, pointer, host, bindings)) {
         return false;

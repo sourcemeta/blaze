@@ -1,0 +1,40 @@
+{
+  "name": "divisible_by_implicit",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-02/schema#",
+            "http://json-schema.org/draft-03/schema#",
+            "http://json-schema.org/draft-03/hyper-schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "not": {
+          "has": "divisibleBy"
+        }
+      },
+      {
+        "member": {
+          "key": "type",
+          "match": {
+            "const": "integer"
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "set": {
+        "divisibleBy": 1
+      }
+    }
+  ]
+}
