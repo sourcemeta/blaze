@@ -1,0 +1,49 @@
+{
+  "name": "min_properties_covered_by_required",
+  "reframe": false,
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "https://json-schema.org/draft/2020-12/vocab/validation",
+            "https://json-schema.org/draft/2019-09/vocab/validation",
+            "http://json-schema.org/draft-07/schema#",
+            "http://json-schema.org/draft-06/schema#",
+            "http://json-schema.org/draft-04/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "required",
+          "bind": "$required"
+        }
+      },
+      {
+        "call": {
+          "name": "canonicalizer:min-properties-below-required",
+          "args": []
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "set": {
+        "minProperties": {
+          "call": {
+            "name": "canonicalizer:count",
+            "args": [
+              "$required"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "at-dialect-declaration": {
+    "all": [
+      {
+        "call": {
+          "name": "convert:at-resource-root"
+        }
+      },
+      {
+        "any": [
+          {
+            "call": {
+              "name": "convert:at-root"
+            }
+          },
+          {
+            "has": "$schema"
+          }
+        ]
+      }
+    ]
+  },
+  "ladder-marker": {
+    "all": [
+      {
+        "member": {
+          "key": "x-sourcemeta-dialect-override-subschema",
+          "bind": "$marker",
+          "match": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$marker"
+          ]
+        }
+      }
+    ]
+  },
+  "bump-at-declaration": [
+    {
+      "erase": "x-sourcemeta-dialect-override-subschema",
+      "optional": true,
+      "when": {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$term"
+          ]
+        }
+      }
+    },
+    {
+      "set": {
+        "$schema": "@dialect@"
+      },
+      "first": true
+    }
+  ],
+  "bump": [
+    {
+      "set": {
+        "x-sourcemeta-dialect-override-subschema": "@dialect@"
+      },
+      "if": {
+        "all": [
+          {
+            "ref": "ladder-marker"
+          },
+          {
+            "not": {
+              "ref": "at-dialect-declaration"
+            }
+          },
+          "@only-when@"
+        ]
+      }
+    },
+    {
+      "erase": "x-sourcemeta-dialect-override-subschema",
+      "optional": true,
+      "when": {
+        "call": {
+          "name": "convert:names-ladder-dialect",
+          "args": [
+            "$term"
+          ]
+        }
+      },
+      "if": {
+        "all": [
+          {
+            "ref": "at-dialect-declaration"
+          },
+          "@only-when@"
+        ]
+      }
+    },
+    {
+      "set": {
+        "$schema": "@dialect@"
+      },
+      "first": true,
+      "if": {
+        "all": [
+          {
+            "ref": "at-dialect-declaration"
+          },
+          "@only-when@"
+        ]
+      }
+    }
+  ]
+}

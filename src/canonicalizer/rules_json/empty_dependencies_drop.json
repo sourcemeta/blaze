@@ -1,0 +1,42 @@
+{
+  "name": "empty_dependencies_drop",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-03/schema#",
+            "http://json-schema.org/draft-03/hyper-schema#",
+            "http://json-schema.org/draft-04/schema#",
+            "http://json-schema.org/draft-06/schema#",
+            "http://json-schema.org/draft-07/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "member": {
+          "key": "dependencies",
+          "match": {
+            "all": [
+              {
+                "type": "object"
+              },
+              {
+                "empty": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "erase": "dependencies"
+    }
+  ]
+}

@@ -1,8 +1,13 @@
+set(CANONICALIZER_RULES_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/rules.h")
+set(CANONICALIZER_RULES_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/rules_json")
+include(./rules.cmake)
+
 sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
   FOLDER "Blaze/Canonicalizer"
   SOURCES canonicalize.cc
     rule.h
     helpers.h
+    template_rule.h
 
     # Rules
     rules/additional_items_implicit.h
@@ -31,32 +36,25 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     rules/disallow_narrows_type.h
     rules/disallow_to_array_of_schemas.h
     rules/disallow_type_union_to_extends.h
-    rules/divisible_by_implicit.h
     rules/double_negation_elimination.h
     rules/draft_official_dialect_with_https.h
     rules/draft_official_dialect_without_empty_fragment.h
     rules/draft_ref_siblings.h
     rules/draft3_type_any.h
-    rules/drop_allof_empty_schemas.h
     rules/drop_extends_empty_schemas.h
     rules/duplicate_allof_branches.h
     rules/duplicate_anyof_branches.h
     rules/duplicate_disallow_entries.h
     rules/duplicate_enum_values.h
-    rules/duplicate_required_values.h
     rules/dynamic_ref_to_static_ref.h
     rules/else_without_if.h
-    rules/empty_definitions_drop.h
     rules/empty_defs_drop.h
-    rules/empty_dependencies_drop.h
     rules/empty_dependent_required_drop.h
     rules/empty_dependent_schemas_drop.h
-    rules/empty_disallow_drop.h
     rules/empty_object_as_true.h
     rules/enum_drop_redundant_validation.h
     rules/enum_filter_by_type.h
     rules/enum_split_by_type.h
-    rules/enum_with_type.h
     rules/equal_numeric_bounds_to_const.h
     rules/equal_numeric_bounds_to_enum.h
     rules/exclusive_bounds_false_drop.h
@@ -72,7 +70,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     rules/flatten_nested_extends.h
     rules/if_then_else_implicit.h
     rules/if_without_then_else.h
-    rules/ignored_metaschema.h
     rules/implicit_contains_keywords.h
     rules/implicit_object_keywords.h
     rules/inline_single_use_ref.h
@@ -86,14 +83,11 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     rules/metadata_keywords_drop.h
     rules/min_contains_without_contains.h
     rules/min_items_given_min_contains.h
-    rules/min_length_implicit.h
-    rules/min_properties_covered_by_required.h
     rules/minimum_can_equal_integer_fold.h
     rules/minimum_can_equal_true_drop.h
     rules/minimum_real_for_integer.h
     rules/modern_official_dialect_with_empty_fragment.h
     rules/modern_official_dialect_with_http.h
-    rules/multiple_of_implicit.h
     rules/non_applicable_additional_items.h
     rules/non_applicable_disallow_types.h
     rules/non_applicable_enum_validation_keywords.h
@@ -110,12 +104,9 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     rules/single_branch_allof.h
     rules/single_branch_anyof.h
     rules/single_branch_oneof.h
-    rules/single_type_array.h
     rules/then_without_if.h
     rules/type_array_to_any_of.h
-    rules/type_boolean_as_enum.h
     rules/type_inherit_in_place.h
-    rules/type_null_as_enum.h
     rules/type_union_distribute_keywords.h
     rules/type_union_implicit.h
     rules/type_union_to_schemas.h
@@ -138,7 +129,11 @@ if(BLAZE_INSTALL)
   sourcemeta_library_install(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer)
 endif()
 
+target_include_directories(sourcemeta_blaze_canonicalizer PRIVATE
+  "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(sourcemeta_blaze_canonicalizer PUBLIC
   sourcemeta::core::jsonschema)
+target_link_libraries(sourcemeta_blaze_canonicalizer PRIVATE
+  sourcemeta::blaze::transform)
 target_link_libraries(sourcemeta_blaze_canonicalizer PRIVATE
   sourcemeta::core::uri)

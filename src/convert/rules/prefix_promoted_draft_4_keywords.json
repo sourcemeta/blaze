@@ -1,0 +1,158 @@
+{
+  "name": "prefix_promoted_draft_4_keywords",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-03/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "call": {
+          "name": "convert:promoted-keyword-is-author-data",
+          "args": [
+            "http://json-schema.org/draft-04/schema#"
+          ]
+        }
+      },
+      {
+        "any": [
+          {
+            "has": "multipleOf"
+          },
+          {
+            "has": "maxProperties"
+          },
+          {
+            "has": "minProperties"
+          },
+          {
+            "has": "allOf"
+          },
+          {
+            "has": "anyOf"
+          },
+          {
+            "has": "oneOf"
+          },
+          {
+            "has": "not"
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "move": {
+        "from": "/multipleOf",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "multipleOf"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/maxProperties",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "maxProperties"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/minProperties",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "minProperties"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/allOf",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "allOf"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/anyOf",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "anyOf"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/oneOf",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "oneOf"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/not",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "not"
+            ]
+          }
+        },
+        "optional": true
+      }
+    }
+  ]
+}

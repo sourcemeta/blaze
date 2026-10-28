@@ -46,39 +46,6 @@ struct Site {
   std::size_t relative_pointer;
 };
 
-inline auto at_dialect_declaration(const sourcemeta::core::JSON &schema,
-                                   const Site &site) -> bool {
-  // A rule scheduled against an object may find a boolean here, because an
-  // edit applied earlier in the same pass can have replaced it with one
-  if (!schema.is_object() || site.pointer.size() != site.relative_pointer) {
-    return false;
-  }
-
-  return site.pointer.empty() || schema.defines("$schema");
-}
-
-// A dialect the document never spelled out goes in front of what the author
-// did write, which is where a `$schema` belongs and where one that was already
-// there would have stayed. The first key is read before anything is written,
-// because inserting into the object invalidates what iterating it handed out
-inline auto assign_before_first_key(sourcemeta::core::JSON &schema,
-                                    const sourcemeta::core::JSON::String &key,
-                                    sourcemeta::core::JSON &&value) -> void {
-  if (schema.empty()) {
-    schema.assign(key, std::move(value));
-    return;
-  }
-
-  const sourcemeta::core::JSON::String first{
-      schema.as_object().cbegin()->first};
-  schema.try_assign_before(key, value, first);
-}
-
-inline auto current_dialect_or_override(const sourcemeta::core::JSON &schema)
-    -> std::string_view {
-  return declared_dialect(schema);
-}
-
 // The empty fragment does not change which dialect a URI names, and only some
 // of the official spellings have a rule of their own to settle them
 inline auto without_empty_fragment(const std::string_view uri)
@@ -429,40 +396,6 @@ inline auto is_own_dialect_override(const sourcemeta::core::JSON &value)
   return value.is_string() && dialect_position(value.to_string()) > 0;
 }
 
-inline auto bump_dialect(sourcemeta::core::JSON &schema, const Site &site,
-                         const std::string_view dialect) -> void {
-  // Core reads the override marker as the dialect of the position carrying it,
-  // ahead of any `$schema` beside it and wherever that position is
-  if (schema.is_object()) {
-    auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-    if (override_value != nullptr && override_value->is_string() &&
-        names_ladder_dialect(override_value->to_string())) {
-      // Where nothing else is read, the dialect moves by writing the marker. A
-      // `$schema` written here instead would not be the thing read, and the
-      // position would keep the dialect it had while its keywords moved on
-      if (!at_dialect_declaration(schema, site)) {
-        *override_value = sourcemeta::core::JSON{dialect};
-        return;
-      }
-
-      // Here a `$schema` is read, and the marker would go on overriding it, so
-      // the marker gives way to the declaration that now says the same thing
-      schema.erase(DIALECT_OVERRIDE_KEYWORD);
-    }
-  }
-
-  if (!at_dialect_declaration(schema, site)) {
-    return;
-  }
-
-  if (schema.defines("$schema")) {
-    schema.assign("$schema", sourcemeta::core::JSON{dialect});
-    return;
-  }
-
-  assign_before_first_key(schema, "$schema", sourcemeta::core::JSON{dialect});
-}
-
 // Whether an identifier and a dialect name the same thing once both are
 // resolved against what the caller said the document is called
 inline auto names_the_same_uri(const sourcemeta::core::JSON &schema,
@@ -535,14 +468,6 @@ describes_itself(const sourcemeta::core::JSON &schema,
   return names_the_same_uri(
       schema, sourcemeta::core::schema_identifier_keyword(base_dialect),
       dialect->to_string(), default_id);
-}
-
-inline auto moved_past(const sourcemeta::core::JSON &schema,
-                       const std::string_view dialect) -> bool {
-  const auto *override_value{schema.try_at(DIALECT_OVERRIDE_KEYWORD)};
-  return override_value != nullptr && override_value->is_string() &&
-         dialect_position(override_value->to_string()) >
-             dialect_position(dialect);
 }
 
 // A subschema that declares a dialect newer than the one a step moves schemas

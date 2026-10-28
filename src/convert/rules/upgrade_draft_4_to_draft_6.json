@@ -1,0 +1,108 @@
+{
+  "name": "upgrade_draft_4_to_draft_6",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-04/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "any": [
+          {
+            "call": {
+              "name": "convert:has-pending-draft-4-pattern"
+            }
+          },
+          {
+            "ref": "at-dialect-declaration"
+          }
+        ]
+      },
+      {
+        "binding": {
+          "name": "$anchors-pending",
+          "match": {
+            "const": false
+          }
+        }
+      }
+    ]
+  },
+  "build": [
+    {
+      "move": {
+        "from": "/id",
+        "to": "/$id",
+        "optional": true,
+        "when": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "erase": "exclusiveMinimum",
+      "optional": true,
+      "when": {
+        "type": "boolean"
+      }
+    },
+    {
+      "move": {
+        "from": "/minimum",
+        "to": "/exclusiveMinimum",
+        "optional": true,
+        "when": {
+          "type": "number"
+        }
+      },
+      "if": {
+        "member": {
+          "key": "exclusiveMinimum",
+          "match": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "erase": "exclusiveMaximum",
+      "optional": true,
+      "when": {
+        "type": "boolean"
+      }
+    },
+    {
+      "move": {
+        "from": "/maximum",
+        "to": "/exclusiveMaximum",
+        "optional": true,
+        "when": {
+          "type": "number"
+        }
+      },
+      "if": {
+        "member": {
+          "key": "exclusiveMaximum",
+          "match": {
+            "const": true
+          }
+        }
+      }
+    }
+  ],
+  "queries": {
+    "$anchors-pending": {
+      "name": "convert:draft-4-anchors-pending"
+    }
+  },
+  "bump": {
+    "dialect": "http://json-schema.org/draft-06/schema#"
+  }
+}

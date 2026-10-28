@@ -13,6 +13,7 @@ option(BLAZE_CONFIGURATION "Build the Blaze configuration file library" ON)
 option(BLAZE_ALTERSCHEMA "Build the Blaze alterschema rule library" ON)
 option(BLAZE_CODEGEN "Build the Blaze codegen library" ON)
 option(BLAZE_CANONICALIZER "Build the Blaze canonicalizer library" ON)
+option(BLAZE_TRANSFORM "Build the Blaze transform interpreter library" ON)
 option(BLAZE_CONVERT "Build the Blaze convert library" ON)
 option(BLAZE_EDITOR "Build the Blaze editor schema compatibility library" ON)
 option(BLAZE_DEPENDENCIES "Build the Blaze dependencies library" ON)
@@ -86,6 +87,10 @@ endif()
 
 if(BLAZE_CANONICALIZER)
   add_subdirectory(src/canonicalizer)
+endif()
+
+if(BLAZE_TRANSFORM)
+  add_subdirectory(src/transform)
 endif()
 
 if(BLAZE_CONVERT)

@@ -1,0 +1,26 @@
+{
+  "name": "upgrade_draft_6_to_draft_7",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-06/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "ref": "at-dialect-declaration"
+      }
+    ]
+  },
+  "build": [],
+  "bump": {
+    "dialect": "http://json-schema.org/draft-07/schema#",
+    "at-declaration-only": true
+  }
+}

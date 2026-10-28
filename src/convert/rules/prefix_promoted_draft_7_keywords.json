@@ -1,0 +1,270 @@
+{
+  "name": "prefix_promoted_draft_7_keywords",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-06/schema#"
+          ]
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "call": {
+          "name": "convert:promoted-keyword-is-author-data",
+          "args": [
+            "http://json-schema.org/draft-07/schema#"
+          ]
+        }
+      },
+      {
+        "any": [
+          {
+            "has": "$comment"
+          },
+          {
+            "has": "if"
+          },
+          {
+            "has": "then"
+          },
+          {
+            "has": "else"
+          },
+          {
+            "all": [
+              {
+                "has": "readOnly"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "readOnly",
+                      "match": {
+                        "not": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "has": "writeOnly"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "writeOnly",
+                      "match": {
+                        "not": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "has": "contentMediaType"
+          },
+          {
+            "has": "contentEncoding"
+          }
+        ]
+      }
+    ]
+  },
+  "build": [
+    {
+      "move": {
+        "from": "/$comment",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "$$comment"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/if",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "if"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/then",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "then"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/else",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "else"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/readOnly",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "readOnly"
+            ]
+          }
+        },
+        "optional": true,
+        "when": {
+          "any": [
+            {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            },
+            {
+              "not": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/writeOnly",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "writeOnly"
+            ]
+          }
+        },
+        "optional": true,
+        "when": {
+          "any": [
+            {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            },
+            {
+              "not": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "move": {
+        "from": "/contentMediaType",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "contentMediaType"
+            ]
+          }
+        },
+        "optional": true
+      }
+    },
+    {
+      "move": {
+        "from": "/contentEncoding",
+        "to": {
+          "call": {
+            "name": "convert:shadow-pointer",
+            "args": [
+              "$self",
+              "contentEncoding"
+            ]
+          }
+        },
+        "optional": true
+      }
+    }
+  ]
+}

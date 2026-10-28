@@ -75,6 +75,7 @@ CMake
 | `BLAZE_ALTERSCHEMA`         | Boolean | `ON`    | Build the Blaze alterschema rule library            |
 | `BLAZE_CODEGEN`             | Boolean | `ON`    | Build the Blaze codegen library                     |
 | `BLAZE_CANONICALIZER`       | Boolean | `ON`    | Build the Blaze canonicalizer library               |
+| `BLAZE_TRANSFORM`           | Boolean | `ON`    | Build the Blaze transform interpreter library       |
 | `BLAZE_CONVERT`             | Boolean | `ON`    | Build the Blaze convert library                     |
 | `BLAZE_EDITOR`              | Boolean | `ON`    | Build the Blaze editor schema compatibility library |
 | `BLAZE_DEPENDENCIES`        | Boolean | `ON`    | Build the Blaze dependencies library                |

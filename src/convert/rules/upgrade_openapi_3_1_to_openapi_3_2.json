@@ -1,0 +1,36 @@
+{
+  "name": "upgrade_openapi_3_1_to_openapi_3_2",
+  "match": {
+    "all": [
+      {
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "https://spec.openapis.org/oas/3.1/vocab/base"
+          ]
+        }
+      },
+      {
+        "not": {
+          "call": {
+            "name": "schema:in-vocabulary",
+            "args": [
+              "https://spec.openapis.org/oas/3.2/vocab/base"
+            ]
+          }
+        }
+      },
+      {
+        "type": "object"
+      },
+      {
+        "ref": "at-dialect-declaration"
+      }
+    ]
+  },
+  "build": [],
+  "bump": {
+    "dialect": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "at-declaration-only": true
+  }
+}

@@ -1,4 +1,5 @@
 #include <sourcemeta/blaze/canonicalizer.h>
+#include <sourcemeta/blaze/transform.h>
 #include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
@@ -1143,6 +1144,46 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 }
 
 #include "helpers.h"
+#include "template_rule.h"
+
+// The rules written as data, generated from `rules_json/*.json`
+#include "rules.h"
+
+/// Register the rule of the given name, which this module states as data. The
+/// order rules are registered in is the order they are tried in, so a rule
+/// that moves from code to data takes the place its class had.
+///
+/// A rule reframes after it transforms unless it says otherwise. One that
+/// cannot change what the frame says gains nothing from rebuilding it, and a
+/// rule that collapses a term to a boolean has to decline, since a boolean
+/// carries no dialect and the driver resets the frame for it instead
+auto template_rule_definitions() -> const
+    std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON> & {
+  static const auto DEFINITIONS{[]() {
+    std::map<sourcemeta::core::JSON::String, sourcemeta::core::JSON> result;
+    for (const auto definition : CANONICALIZER_RULES) {
+      auto parsed{sourcemeta::core::parse_json(definition)};
+      auto key{parsed.at("name").to_string()};
+      result.emplace(std::move(key), std::move(parsed));
+    }
+
+    return result;
+  }()};
+
+  return DEFINITIONS;
+}
+
+auto make_template_rule(const sourcemeta::core::JSON::String &name) -> Rule {
+  const auto &definitions{template_rule_definitions()};
+  const auto match{definitions.find(name)};
+  if (match == definitions.cend()) {
+    throw sourcemeta::blaze::TransformError{"Unknown rule name"};
+  }
+
+  const auto *reframe{match->second.try_at("reframe")};
+  const auto reframes{reframe == nullptr || reframe->to_boolean()};
+  return {std::make_unique<TemplateRule>(match->second), reframes};
+}
 
 #include "rules/additional_items_implicit.h"
 #include "rules/allof_false_simplify.h"
@@ -1170,33 +1211,26 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 #include "rules/disallow_narrows_type.h"
 #include "rules/disallow_to_array_of_schemas.h"
 #include "rules/disallow_type_union_to_extends.h"
-#include "rules/divisible_by_implicit.h"
 #include "rules/double_negation_elimination.h"
 #include "rules/draft3_type_any.h"
 #include "rules/draft_official_dialect_with_https.h"
 #include "rules/draft_official_dialect_without_empty_fragment.h"
 #include "rules/draft_ref_siblings.h"
-#include "rules/drop_allof_empty_schemas.h"
 #include "rules/drop_extends_empty_schemas.h"
 #include "rules/duplicate_allof_branches.h"
 #include "rules/duplicate_anyof_branches.h"
 #include "rules/duplicate_disallow_entries.h"
 #include "rules/duplicate_enum_values.h"
-#include "rules/duplicate_required_values.h"
 #include "rules/duplicate_type_entries.h"
 #include "rules/dynamic_ref_to_static_ref.h"
 #include "rules/else_without_if.h"
-#include "rules/empty_definitions_drop.h"
 #include "rules/empty_defs_drop.h"
-#include "rules/empty_dependencies_drop.h"
 #include "rules/empty_dependent_required_drop.h"
 #include "rules/empty_dependent_schemas_drop.h"
-#include "rules/empty_disallow_drop.h"
 #include "rules/empty_object_as_true.h"
 #include "rules/enum_drop_redundant_validation.h"
 #include "rules/enum_filter_by_type.h"
 #include "rules/enum_split_by_type.h"
-#include "rules/enum_with_type.h"
 #include "rules/equal_numeric_bounds_to_const.h"
 #include "rules/equal_numeric_bounds_to_enum.h"
 #include "rules/exclusive_bounds_false_drop.h"
@@ -1213,7 +1247,6 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 #include "rules/hyper_schema_keywords_drop.h"
 #include "rules/if_then_else_implicit.h"
 #include "rules/if_without_then_else.h"
-#include "rules/ignored_metaschema.h"
 #include "rules/implicit_contains_keywords.h"
 #include "rules/implicit_object_keywords.h"
 #include "rules/inline_single_use_ref.h"
@@ -1227,14 +1260,11 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 #include "rules/metadata_keywords_drop.h"
 #include "rules/min_contains_without_contains.h"
 #include "rules/min_items_given_min_contains.h"
-#include "rules/min_length_implicit.h"
-#include "rules/min_properties_covered_by_required.h"
 #include "rules/minimum_can_equal_integer_fold.h"
 #include "rules/minimum_can_equal_true_drop.h"
 #include "rules/minimum_real_for_integer.h"
 #include "rules/modern_official_dialect_with_empty_fragment.h"
 #include "rules/modern_official_dialect_with_http.h"
-#include "rules/multiple_of_implicit.h"
 #include "rules/non_applicable_additional_items.h"
 #include "rules/non_applicable_disallow_types.h"
 #include "rules/non_applicable_enum_validation_keywords.h"
@@ -1251,12 +1281,9 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 #include "rules/single_branch_allof.h"
 #include "rules/single_branch_anyof.h"
 #include "rules/single_branch_oneof.h"
-#include "rules/single_type_array.h"
 #include "rules/then_without_if.h"
 #include "rules/type_array_to_any_of.h"
-#include "rules/type_boolean_as_enum.h"
 #include "rules/type_inherit_in_place.h"
-#include "rules/type_null_as_enum.h"
 #include "rules/type_union_distribute_keywords.h"
 #include "rules/type_union_implicit.h"
 #include "rules/type_union_to_schemas.h"
@@ -1271,7 +1298,6 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
 #include "rules/unnecessary_allof_ref_wrapper_draft.h"
 #include "rules/unnecessary_extends_ref_wrapper.h"
 #include "rules/unsatisfiable_drop_validation.h"
-#include "rules/unsatisfiable_empty_enum.h"
 #include "rules/unsatisfiable_exclusive_equal_bounds.h"
 #include "rules/unsatisfiable_in_place_applicator_type.h"
 #include "rules/unsatisfiable_type_and_enum.h"
@@ -1337,7 +1363,7 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<UnsatisfiableDropValidation>());
   rules.push_back(make_rule<ElseWithoutIf>());
   rules.push_back(make_rule<IfWithoutThenElse>());
-  rules.push_back(make_rule<IgnoredMetaschema>());
+  rules.push_back(make_template_rule("ignored_metaschema"));
   rules.push_back(make_rule<MaxContainsWithoutContains>());
   rules.push_back(make_rule<MinContainsWithoutContains>());
   rules.push_back(make_rule<NotFalse>());
@@ -1347,11 +1373,11 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<EqualNumericBoundsToEnum>());
   rules.push_back(make_rule<MaximumRealForInteger>());
   rules.push_back(make_rule<MinimumRealForInteger>());
-  rules.push_back(make_rule<SingleTypeArray>());
-  rules.push_back(make_rule<EnumWithType>());
+  rules.push_back(make_template_rule("single_type_array"));
+  rules.push_back(make_template_rule("enum_with_type"));
   rules.push_back(make_rule<NonApplicableEnumValidationKeywords>());
   rules.push_back(make_rule<DuplicateEnumValues>());
-  rules.push_back(make_rule<DuplicateRequiredValues>());
+  rules.push_back(make_template_rule("duplicate_required_values"));
   rules.push_back(make_rule<ConstWithType>());
   rules.push_back(make_rule<ConstInEnum>());
   rules.push_back(make_rule<NonApplicableAdditionalItems>());
@@ -1371,22 +1397,23 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<EqualNumericBoundsToConst>());
   rules.push_back(make_rule<ExclusiveMaximumIntegerToMaximum>());
   rules.push_back(make_rule<ExclusiveMinimumIntegerToMinimum>());
-  rules.push_back(make_rule<TypeBooleanAsEnum>());
-  rules.push_back(make_rule<TypeNullAsEnum>());
+  rules.push_back(make_template_rule("type_boolean_as_enum"));
+  rules.push_back(make_template_rule("type_null_as_enum"));
   rules.push_back(make_rule<MaxContainsCoveredByMaxItems>());
   rules.push_back(make_rule<MinItemsGivenMinContains>());
-  rules.push_back(make_rule<MinPropertiesCoveredByRequired>());
-  rules.push_back(make_rule<MinLengthImplicit>());
-  rules.push_back(make_rule<MultipleOfImplicit>());
-  rules.push_back(make_rule<DivisibleByImplicit>());
+  rules.push_back(make_template_rule("min_properties_covered_by_required"));
+  rules.push_back(make_template_rule("min_length_implicit"));
+  rules.push_back(make_template_rule("multiple_of_implicit"));
+  rules.push_back(make_template_rule("divisible_by_implicit"));
   rules.push_back(make_rule<MaxDecimalImplicit>());
   rules.push_back(make_rule<ItemsImplicit>());
   rules.push_back(make_rule<UnnecessaryAllOfRefWrapperDraft>());
   rules.push_back(make_rule<UnnecessaryExtendsRefWrapper>());
-  rules.push_back(make_rule<DropAllOfEmptySchemas>());
+  rules.push_back(make_template_rule("drop_allof_empty_schemas"));
   rules.push_back(make_rule<DropExtendsEmptySchemas>());
   rules.push_back(make_rule<EmptyObjectAsTrue>());
-  rules.push_back(make_rule<UnsatisfiableEmptyEnum>());
+  rules.push_back(make_template_rule("unsatisfiable_empty_enum"));
+  rules.push_back(make_template_rule("unsatisfiable_empty_enum_object"));
   rules.push_back(make_rule<UnsatisfiableTypeAndEnum>());
   rules.push_back(make_rule<EnumFilterByType>());
   rules.push_back(make_rule<TypeUnionToSchemas>());
@@ -1399,12 +1426,12 @@ auto canonicalize(sourcemeta::core::JSON &schema,
   rules.push_back(make_rule<EnumSplitByType>());
   rules.push_back(make_rule<TypeWithApplicatorToAllOf>());
   rules.push_back(make_rule<TypeWithApplicatorToExtends>());
-  rules.push_back(make_rule<EmptyDefinitionsDrop>());
+  rules.push_back(make_template_rule("empty_definitions_drop"));
   rules.push_back(make_rule<EmptyDefsDrop>());
-  rules.push_back(make_rule<EmptyDependenciesDrop>());
+  rules.push_back(make_template_rule("empty_dependencies_drop"));
   rules.push_back(make_rule<EmptyDependentSchemasDrop>());
   rules.push_back(make_rule<EmptyDependentRequiredDrop>());
-  rules.push_back(make_rule<EmptyDisallowDrop>());
+  rules.push_back(make_template_rule("empty_disallow_drop"));
   rules.push_back(make_rule<AdditionalItemsImplicit>());
   rules.push_back(make_rule<RequiredPropertyImplicit>());
   rules.push_back(make_rule<OptionalPropertyImplicit>());
