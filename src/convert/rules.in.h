@@ -19,31 +19,15 @@ constexpr auto DIALECT_OVERRIDE_BECOMES_DOLLAR_SCHEMA =
 constexpr auto DRAFT_OFFICIAL_DIALECT_WITH_HTTPS =
     R"JSON(@DRAFT_OFFICIAL_DIALECT_WITH_HTTPS@)JSON";
 
-// rules/draft_official_dialect_without_empty_fragment.json
-constexpr auto DRAFT_OFFICIAL_DIALECT_WITHOUT_EMPTY_FRAGMENT =
-    R"JSON(@DRAFT_OFFICIAL_DIALECT_WITHOUT_EMPTY_FRAGMENT@)JSON";
-
 // rules/empty_object_as_true.json
 constexpr auto EMPTY_OBJECT_AS_TRUE = R"JSON(@EMPTY_OBJECT_AS_TRUE@)JSON";
 
 // rules/enum_to_const.json
 constexpr auto ENUM_TO_CONST = R"JSON(@ENUM_TO_CONST@)JSON";
 
-// rules/modern_official_dialect_with_empty_fragment.json
-constexpr auto MODERN_OFFICIAL_DIALECT_WITH_EMPTY_FRAGMENT =
-    R"JSON(@MODERN_OFFICIAL_DIALECT_WITH_EMPTY_FRAGMENT@)JSON";
-
-// rules/modern_official_dialect_with_http.json
-constexpr auto MODERN_OFFICIAL_DIALECT_WITH_HTTP =
-    R"JSON(@MODERN_OFFICIAL_DIALECT_WITH_HTTP@)JSON";
-
-// rules/openapi_official_dialect_with_date.json
-constexpr auto OPENAPI_OFFICIAL_DIALECT_WITH_DATE =
-    R"JSON(@OPENAPI_OFFICIAL_DIALECT_WITH_DATE@)JSON";
-
-// rules/openapi_official_dialect_with_empty_fragment.json
-constexpr auto OPENAPI_OFFICIAL_DIALECT_WITH_EMPTY_FRAGMENT =
-    R"JSON(@OPENAPI_OFFICIAL_DIALECT_WITH_EMPTY_FRAGMENT@)JSON";
+// rules/official_dialect_spelling.json
+constexpr auto OFFICIAL_DIALECT_SPELLING =
+    R"JSON(@OFFICIAL_DIALECT_SPELLING@)JSON";
 
 // rules/prefix_promoted_2020_12_keywords.json
 constexpr auto PREFIX_PROMOTED_2020_12_KEYWORDS =
@@ -52,10 +36,6 @@ constexpr auto PREFIX_PROMOTED_2020_12_KEYWORDS =
 // rules/prefix_promoted_draft_2019_09_keywords.json
 constexpr auto PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS =
     R"JSON(@PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS@)JSON";
-
-// rules/prefix_promoted_draft_2019_09_keywords_from_openapi_3_0.json
-constexpr auto PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS_FROM_OPENAPI_3_0 =
-    R"JSON(@PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS_FROM_OPENAPI_3_0@)JSON";
 
 // rules/prefix_promoted_draft_4_keywords.json
 constexpr auto PREFIX_PROMOTED_DRAFT_4_KEYWORDS =
@@ -69,17 +49,9 @@ constexpr auto PREFIX_PROMOTED_DRAFT_6_KEYWORDS =
 constexpr auto PREFIX_PROMOTED_DRAFT_7_KEYWORDS =
     R"JSON(@PREFIX_PROMOTED_DRAFT_7_KEYWORDS@)JSON";
 
-// rules/prefix_promoted_draft_7_keywords_from_openapi_3_0.json
-constexpr auto PREFIX_PROMOTED_DRAFT_7_KEYWORDS_FROM_OPENAPI_3_0 =
-    R"JSON(@PREFIX_PROMOTED_DRAFT_7_KEYWORDS_FROM_OPENAPI_3_0@)JSON";
-
 // rules/prefix_promoted_openapi_3_1_keywords.json
 constexpr auto PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS =
     R"JSON(@PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS@)JSON";
-
-// rules/prefix_promoted_openapi_3_1_keywords_from_openapi_3_0.json
-constexpr auto PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS_FROM_OPENAPI_3_0 =
-    R"JSON(@PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS_FROM_OPENAPI_3_0@)JSON";
 
 // rules/sanitize_draft_4_anchors.json
 constexpr auto SANITIZE_DRAFT_4_ANCHORS =

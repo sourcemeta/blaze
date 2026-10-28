@@ -48,12 +48,26 @@ namespace {
 using Rule = std::tuple<std::unique_ptr<SchemaTransformRule>, bool>;
 
 /// Construct a rule entry from JSON rule data
-[[nodiscard]] auto make_template_rule(const std::string_view definition)
+[[nodiscard]] auto make_template_rule(
+    const std::string_view definition,
+    sourcemeta::core::JSON settings = sourcemeta::core::JSON::make_object())
     -> Rule {
   auto parsed{sourcemeta::core::parse_json(definition)};
   const auto outside{parsed.defines("writes-outside-itself") &&
                      parsed.at("writes-outside-itself").to_boolean()};
-  return {std::make_unique<TemplateRule>(std::move(parsed)), outside};
+  return {
+      std::make_unique<TemplateRule>(std::move(parsed), std::move(settings)),
+      outside};
+}
+
+/// Whether the document started on the OpenAPI 3.0 Schema Object, which is
+/// what decides whether a keyword that dialect names is carried across as
+/// itself or shadowed as the author data it was
+[[nodiscard]] auto openapi_3_0_origin(const bool from_openapi_3_0)
+    -> sourcemeta::core::JSON {
+  auto result{sourcemeta::core::JSON::make_object()};
+  result.assign("from-openapi-3-0", sourcemeta::core::JSON{from_openapi_3_0});
+  return result;
 }
 
 /// What the caller finally asked for, which the OpenAPI 3.0 rung reads
@@ -543,19 +557,12 @@ auto convert(sourcemeta::core::JSON &schema,
   // spelling the ladder does not name is one it cannot answer for, so these
   // run to completion first rather than alongside
   std::vector<Rule> spellings;
-  spellings.reserve(8);
+  spellings.reserve(4);
   spellings.push_back(
       make_template_rule(DIALECT_OVERRIDE_BECOMES_DOLLAR_SCHEMA));
   spellings.push_back(make_template_rule(SHADOW_STRAY_DIALECT_DECLARATION));
   spellings.push_back(make_template_rule(DRAFT_OFFICIAL_DIALECT_WITH_HTTPS));
-  spellings.push_back(
-      make_template_rule(DRAFT_OFFICIAL_DIALECT_WITHOUT_EMPTY_FRAGMENT));
-  spellings.push_back(
-      make_template_rule(MODERN_OFFICIAL_DIALECT_WITH_EMPTY_FRAGMENT));
-  spellings.push_back(make_template_rule(MODERN_OFFICIAL_DIALECT_WITH_HTTP));
-  spellings.push_back(make_template_rule(OPENAPI_OFFICIAL_DIALECT_WITH_DATE));
-  spellings.push_back(
-      make_template_rule(OPENAPI_OFFICIAL_DIALECT_WITH_EMPTY_FRAGMENT));
+  spellings.push_back(make_template_rule(OFFICIAL_DIALECT_SPELLING));
 
   std::vector<Rule> rules;
   rules.reserve(20);
@@ -570,11 +577,8 @@ auto convert(sourcemeta::core::JSON &schema,
   // rung. Every target below reaches it through Draft 4, which is the base
   // dialect its Schema Object extends, so this runs ahead of the ladder and
   // the rungs carry on from there
-  rules.emplace_back(
-      std::make_unique<TemplateRule>(
-          sourcemeta::core::parse_json(UPGRADE_OPENAPI_3_0_TO_DRAFT_4),
-          openapi_3_0_settings(target)),
-      false);
+  rules.push_back(make_template_rule(UPGRADE_OPENAPI_3_0_TO_DRAFT_4,
+                                     openapi_3_0_settings(target)));
 
   // Whether this conversion starts from OpenAPI 3.0. Usually only the caller
   // can say, because the Schema Object admits no `$schema` member of its own,
@@ -616,9 +620,8 @@ auto convert(sourcemeta::core::JSON &schema,
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(
-        from_openapi_3_0 ? PREFIX_PROMOTED_DRAFT_7_KEYWORDS_FROM_OPENAPI_3_0
-                         : PREFIX_PROMOTED_DRAFT_7_KEYWORDS));
+    rules.push_back(make_template_rule(PREFIX_PROMOTED_DRAFT_7_KEYWORDS,
+                                       openapi_3_0_origin(from_openapi_3_0)));
     rules.push_back(make_template_rule(UPGRADE_DRAFT_6_TO_DRAFT_7));
   }
 
@@ -626,10 +629,8 @@ auto convert(sourcemeta::core::JSON &schema,
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(
-        from_openapi_3_0
-            ? PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS_FROM_OPENAPI_3_0
-            : PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS));
+    rules.push_back(make_template_rule(PREFIX_PROMOTED_DRAFT_2019_09_KEYWORDS,
+                                       openapi_3_0_origin(from_openapi_3_0)));
     rules.push_back(make_template_rule(UPGRADE_DRAFT_7_TO_DRAFT_2019_09));
     rules.push_back(make_template_rule(DEFINITIONS_TO_DEFS));
     rules.push_back(make_template_rule(DEPENDENCIES_TO_DEPENDENT));
@@ -644,9 +645,8 @@ auto convert(sourcemeta::core::JSON &schema,
 
   if (target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule(
-        from_openapi_3_0 ? PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS_FROM_OPENAPI_3_0
-                         : PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS));
+    rules.push_back(make_template_rule(PREFIX_PROMOTED_OPENAPI_3_1_KEYWORDS,
+                                       openapi_3_0_origin(from_openapi_3_0)));
     rules.push_back(make_template_rule(UPGRADE_2020_12_TO_OPENAPI_3_1));
   }
 

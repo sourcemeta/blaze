@@ -35,16 +35,114 @@
       {
         "any": [
           {
-            "has": "example"
+            "all": [
+              {
+                "has": "example"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:setting",
+                    "args": [
+                      "from-openapi-3-0"
+                    ]
+                  }
+                }
+              }
+            ]
           },
           {
-            "has": "discriminator"
+            "all": [
+              {
+                "has": "discriminator"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "discriminator",
+                      "match": {
+                        "not": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           },
           {
-            "has": "externalDocs"
+            "all": [
+              {
+                "has": "externalDocs"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "externalDocs",
+                      "match": {
+                        "not": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           },
           {
-            "has": "xml"
+            "all": [
+              {
+                "has": "xml"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "xml",
+                      "match": {
+                        "not": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -63,7 +161,17 @@
             ]
           }
         },
-        "optional": true
+        "optional": true,
+        "when": {
+          "not": {
+            "call": {
+              "name": "convert:setting",
+              "args": [
+                "from-openapi-3-0"
+              ]
+            }
+          }
+        }
       }
     },
     {
@@ -78,7 +186,26 @@
             ]
           }
         },
-        "optional": true
+        "optional": true,
+        "when": {
+          "any": [
+            {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            },
+            {
+              "not": {
+                "type": "object"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -93,7 +220,26 @@
             ]
           }
         },
-        "optional": true
+        "optional": true,
+        "when": {
+          "any": [
+            {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            },
+            {
+              "not": {
+                "type": "object"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -108,7 +254,26 @@
             ]
           }
         },
-        "optional": true
+        "optional": true,
+        "when": {
+          "any": [
+            {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            },
+            {
+              "not": {
+                "type": "object"
+              }
+            }
+          ]
+        }
       }
     }
   ]

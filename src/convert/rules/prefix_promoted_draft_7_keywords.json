@@ -36,10 +36,66 @@
             "has": "else"
           },
           {
-            "has": "readOnly"
+            "all": [
+              {
+                "has": "readOnly"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "readOnly",
+                      "match": {
+                        "not": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           },
           {
-            "has": "writeOnly"
+            "all": [
+              {
+                "has": "writeOnly"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "writeOnly",
+                      "match": {
+                        "not": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           },
           {
             "has": "contentMediaType"
@@ -124,7 +180,26 @@
             ]
           }
         },
-        "optional": true
+        "optional": true,
+        "when": {
+          "any": [
+            {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            },
+            {
+              "not": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -139,7 +214,26 @@
             ]
           }
         },
-        "optional": true
+        "optional": true,
+        "when": {
+          "any": [
+            {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            },
+            {
+              "not": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
       }
     },
     {

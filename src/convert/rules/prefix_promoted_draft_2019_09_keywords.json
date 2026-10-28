@@ -60,7 +60,35 @@
             "has": "contentSchema"
           },
           {
-            "has": "deprecated"
+            "all": [
+              {
+                "has": "deprecated"
+              },
+              {
+                "any": [
+                  {
+                    "not": {
+                      "call": {
+                        "name": "convert:setting",
+                        "args": [
+                          "from-openapi-3-0"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "member": {
+                      "key": "deprecated",
+                      "match": {
+                        "not": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -259,7 +287,26 @@
             ]
           }
         },
-        "optional": true
+        "optional": true,
+        "when": {
+          "any": [
+            {
+              "not": {
+                "call": {
+                  "name": "convert:setting",
+                  "args": [
+                    "from-openapi-3-0"
+                  ]
+                }
+              }
+            },
+            {
+              "not": {
+                "type": "boolean"
+              }
+            }
+          ]
+        }
       }
     }
   ]
