@@ -4,18 +4,19 @@
 #include "document.h"
 #include "helpers.h"
 
-#include <algorithm>    // std::min
-#include <cassert>      // assert
-#include <charconv>     // std::from_chars
-#include <cstddef>      // std::size_t
-#include <cstdint>      // std::uint64_t
-#include <map>          // std::map
-#include <optional>     // std::optional
-#include <set>          // std::set
-#include <string>       // std::to_string
-#include <system_error> // std::errc
-#include <utility>      // std::move, std::make_pair, std::pair
-#include <vector>       // std::vector
+#include <algorithm>     // std::min
+#include <cassert>       // assert
+#include <charconv>      // std::from_chars
+#include <cstddef>       // std::size_t
+#include <cstdint>       // std::uint64_t
+#include <map>           // std::map
+#include <optional>      // std::optional
+#include <set>           // std::set
+#include <string>        // std::to_string
+#include <system_error>  // std::errc
+#include <unordered_set> // std::unordered_set
+#include <utility>       // std::move, std::make_pair, std::pair
+#include <vector>        // std::vector
 
 namespace {
 
@@ -315,6 +316,15 @@ auto absolutize_schemas(sourcemeta::core::JSON &value,
       continue;
     }
 
+    // One that names its target on its own needs no base, so moving the
+    // Object holding it cannot change what it names and what the description
+    // wrote is what travels. A mapping that goes by a name is not one of
+    // those, as Section 4.3.3 resolves a name from the entry document rather
+    // than from where it sits, which is what writing the URI out settles
+    if (sourcemeta::core::openapi_names_its_own_target(written->to_string())) {
+      continue;
+    }
+
     if (written->to_string() != discriminator.destination) {
       sourcemeta::core::set(value, held,
                             sourcemeta::core::JSON{discriminator.destination});
@@ -354,9 +364,12 @@ auto absolutize_schemas(sourcemeta::core::JSON &value,
   // The frame of the shell never reaches inside a Schema Object, so the one
   // URI a schema carries that is neither a reference nor an identifier is
   // written back here
-  frame.for_each_location([&value, &origin, &moved, &frame, &walker,
-                           &resolver](const auto, const auto &,
-                                      const auto &location) -> void {
+  // Asking for every location would reach a place that a reference names
+  // without it being a schema of its own, a keyword value such as the instance
+  // an enumeration or a constant holds, and writing a URI into one of those
+  // would be rewriting what a description says an instance must look like
+  frame.for_each_subschema([&value, &origin, &moved, &frame, &walker,
+                            &resolver](const auto &location) -> void {
     if (!location.pointer.starts_with(moved)) {
       return;
     }
@@ -382,11 +395,11 @@ auto absolutize_schemas(sourcemeta::core::JSON &value,
       return;
     }
 
-    const auto absolute{sourcemeta::core::openapi_resolve_uri(
+    const auto restated{sourcemeta::core::openapi_restated_uri(
         written->to_string(), sourcemeta::core::JSON::String{location.base})};
-    if (absolute.has_value()) {
+    if (restated.has_value()) {
       sourcemeta::core::set(
-          value, held, sourcemeta::core::JSON{absolute.value().recompose()});
+          value, held, sourcemeta::core::JSON{restated.value().recompose()});
     }
   });
 
@@ -872,7 +885,11 @@ auto bundle_schemas(sourcemeta::core::JSON &document,
   // the revision settles for the same reason
   const auto booleans{
       sourcemeta::core::openapi_schema_object_is_boolean(walk.version)};
-  const auto standalone_resolver{[&resolver, &standalone, &base, booleans,
+  // Which schemas answered as a boolean, which is the only record of the ones
+  // whose dialect has to be declared for them once they have landed
+  std::unordered_set<sourcemeta::core::JSON::String> standalone_booleans;
+  const auto standalone_resolver{[&resolver, &standalone, &base,
+                                  &standalone_booleans, booleans,
                                   nameable](const std::string_view identifier)
                                      -> sourcemeta::core::SchemaResolverResult {
     auto result{resolver(identifier)};
@@ -909,6 +926,16 @@ auto bundle_schemas(sourcemeta::core::JSON &document,
           "A Schema Object must be an object"};
     }
 
+    // Schema bundling restates a boolean as the object saying the same thing
+    // so that it can be named, but the declaration below is one a boolean has
+    // nowhere to hold, so what this hands over cannot carry it. Which of them
+    // arrived this way is remembered instead, and the declaration written once
+    // the object that replaced it has landed
+    if (result.has_value() && result.value().is_boolean()) {
+      standalone_booleans.insert(sourcemeta::core::JSON::String{identifier});
+      return result;
+    }
+
     if (!result.has_value() || !result.value().is_object() ||
         result.value().defines("$schema")) {
       return result;
@@ -943,14 +970,6 @@ auto bundle_schemas(sourcemeta::core::JSON &document,
   }
 
   auto &schemas{sourcemeta::core::get(document, container)};
-  // A resource that travels this way has to say who it is, which is what JSON
-  // Schema 2020-12 Section 9.3.1 asks of a Compound Schema Document: "Each
-  // embedded JSON Schema Resource MUST identify itself with a URI using the
-  // `$id` keyword". A description is not one of those, so nothing binds it
-  // here, but a reference that named a schema by URI goes on naming nothing
-  // unless the schema carries that URI. Section 4.8.24 lets a Schema Object be
-  // a boolean, which carries no keyword at all and so can say nothing, which
-  // writing it out as the object saying the same thing settles
   // What each key became, for the sake of whatever was written to point at the
   // old one
   std::vector<
@@ -959,17 +978,13 @@ auto bundle_schemas(sourcemeta::core::JSON &document,
   for (const auto &entry : landed) {
     const auto &identifier{entry.first};
     const auto &key{entry.second.back().to_property()};
-    auto &schema{schemas.at(key)};
-    if (schema.is_boolean()) {
-      spell_out(schema);
-      // A schema that can neither name its dialect nor name itself answers to
-      // where it sits, and what pointed at it was written as a pointer for
-      // that reason, so there is nothing here for it to be told to answer to
-      // instead
-      if (nameable) {
-        schema.assign("$schema", sourcemeta::core::JSON{standalone});
-        schema.assign("$id", sourcemeta::core::JSON{identifier});
-      }
+    // Section 4.8.24.5 reads "For standalone JSON Schema documents that do not
+    // set `$schema` [...] the dialect SHOULD be assumed to be the OAS
+    // dialect", and schema bundling handed the object that replaced a boolean
+    // the dialect it was bundling under instead, there being nothing on the
+    // boolean to tell it otherwise
+    if (nameable && standalone_booleans.contains(identifier)) {
+      schemas.at(key).assign("$schema", sourcemeta::core::JSON{standalone});
     }
 
     const auto name{schema_name(schemas, identifier, namer)};
@@ -1418,10 +1433,41 @@ auto absolutize(JSON &value, const OpenAPIWalk &remote, const Pointer &origin,
         continue;
       }
 
-      const auto absolute{
-          openapi_reference_target(written->to_string(), remote)};
-      if (absolute.has_value()) {
-        set(value, held, JSON{absolute.value().recompose()});
+      const auto restated{
+          openapi_restated_uri(written->to_string(), remote.base)};
+      if (restated.has_value()) {
+        set(value, held, JSON{restated.value().recompose()});
+      }
+    }
+  }
+}
+
+// And so is every URI the document the caller gave carries, which moving
+// nothing leaves resolving against a base that the bundle is meant to travel
+// away from. Spelling those out is what keeps one documentation URI from
+// reading differently to another over nothing but which document it was
+// written in, as what is gathered in is spelled out where it came from and
+// what is already here would otherwise be left as it was. Only the shell is
+// reached from here, a Schema Object being spelled out by JSON Schema
+// bundling under the same rule
+auto restate_entry_uris(sourcemeta::core::JSON &document,
+                        const sourcemeta::core::OpenAPIWalk &walk) -> void {
+  for (const auto &entry : walk.locations) {
+    for (const auto &field :
+         sourcemeta::core::openapi_embedded_uri_fields(entry.second.type)) {
+      const auto held{
+          (entry.second.pointer).concat(sourcemeta::core::JSON::String{field})};
+      const auto *written{sourcemeta::core::try_get(document, held)};
+      if (written == nullptr || !written->is_string()) {
+        continue;
+      }
+
+      const auto restated{sourcemeta::core::openapi_restated_uri(
+          written->to_string(), walk.base)};
+      if (restated.has_value()) {
+        sourcemeta::core::set(
+            document, held,
+            sourcemeta::core::JSON{restated.value().recompose()});
       }
     }
   }
@@ -1905,6 +1951,10 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
       names.tags = walk.tags;
       names.tag_names = walk.tag_names;
       named = true;
+      // On this pass alone, as nothing has been gathered in yet and so every
+      // place the walk reports is one the caller wrote. What arrives later is
+      // spelled out against the base it was read under instead
+      restate_entry_uris(document, walk);
     }
 
     charge(remaining, walk.locations.size());
@@ -2328,9 +2378,9 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
       // being the last thing that happens.
       //
       // Going round again is safe as well as needed. Every schema that lands
-      // says who it is, and the one kind that cannot, a boolean, has whatever
-      // named it written out to name where it went, so a second pass finds
-      // nothing left outside to ask for rather than landing a second copy
+      // says who it is, a boolean being restated as the object that can say
+      // it, so a second pass finds nothing left outside to ask for rather than
+      // landing a second copy
       if (bundle_schemas(document, walk, walker, schema_resolver, base,
                          remaining, options)) {
         continue;
