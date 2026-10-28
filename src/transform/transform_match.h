@@ -1,5 +1,7 @@
-#ifndef SOURCEMETA_BLAZE_CONVERT_TRANSFORM_MATCH_H_
-#define SOURCEMETA_BLAZE_CONVERT_TRANSFORM_MATCH_H_
+#ifndef SOURCEMETA_BLAZE_TRANSFORM_MATCH_H_
+#define SOURCEMETA_BLAZE_TRANSFORM_MATCH_H_
+
+#include <sourcemeta/blaze/transform.h>
 
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
@@ -12,6 +14,7 @@
 
 namespace {
 
+using namespace sourcemeta::blaze;
 using namespace sourcemeta::core;
 
 auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
@@ -463,6 +466,8 @@ auto match_term(const JSON &pattern, const JSON &term, const Pointer &pointer,
 
 } // namespace
 
+namespace sourcemeta::blaze {
+
 auto transform_match(const sourcemeta::core::JSON &pattern,
                      const sourcemeta::core::JSON &term,
                      const TransformHost &host, TransformBindings &bindings)
@@ -484,5 +489,7 @@ auto transform_guard(const sourcemeta::core::JSON &pattern,
     -> bool {
   return match_term(pattern, term, sourcemeta::core::Pointer{}, host, bindings);
 }
+
+} // namespace sourcemeta::blaze
 
 #endif

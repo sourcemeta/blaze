@@ -9,9 +9,6 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME convert
   SOURCES convert.cc
     rule.h
     helpers.h
-    transform.h
-    transform_match.h
-    transform_build.h
     analysis_2019_09.h
     template_rule.h)
 
@@ -23,5 +20,7 @@ target_include_directories(sourcemeta_blaze_convert PRIVATE
   "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(sourcemeta_blaze_convert PUBLIC
   sourcemeta::core::jsonschema)
+target_link_libraries(sourcemeta_blaze_convert PRIVATE
+  sourcemeta::blaze::transform)
 target_link_libraries(sourcemeta_blaze_convert PRIVATE
   sourcemeta::core::uri)

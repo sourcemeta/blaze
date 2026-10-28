@@ -1,5 +1,7 @@
-#ifndef SOURCEMETA_BLAZE_CONVERT_TRANSFORM_BUILD_H_
-#define SOURCEMETA_BLAZE_CONVERT_TRANSFORM_BUILD_H_
+#ifndef SOURCEMETA_BLAZE_TRANSFORM_BUILD_H_
+#define SOURCEMETA_BLAZE_TRANSFORM_BUILD_H_
+
+#include <sourcemeta/blaze/transform.h>
 
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
@@ -13,6 +15,7 @@
 
 namespace {
 
+using namespace sourcemeta::blaze;
 using namespace sourcemeta::core;
 
 /// What a template produced, and where its material came from
@@ -720,6 +723,8 @@ auto apply_distribute(const JSON &specification, JSON &term, const JSON &self,
 
 } // namespace
 
+namespace sourcemeta::blaze {
+
 auto transform_apply(const sourcemeta::core::JSON &build,
                      sourcemeta::core::JSON &term,
                      const TransformBindings &bindings,
@@ -791,5 +796,7 @@ auto transform_apply(const sourcemeta::core::JSON &build,
 
   return trace;
 }
+
+} // namespace sourcemeta::blaze
 
 #endif

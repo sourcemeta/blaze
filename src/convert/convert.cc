@@ -1,4 +1,5 @@
 #include <sourcemeta/blaze/convert.h>
+#include <sourcemeta/blaze/transform.h>
 #include <sourcemeta/core/jsonschema.h>
 
 #include <sourcemeta/core/json.h>
@@ -30,12 +31,6 @@ namespace sourcemeta::blaze {
 using namespace sourcemeta::core;
 
 namespace {
-
-// The transformation engine, internal to this module
-#include "transform.h"
-
-#include "transform_build.h"
-#include "transform_match.h"
 
 #include "helpers.h"
 #include "rule.h"
