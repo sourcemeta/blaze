@@ -1061,9 +1061,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrict) {
   EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrict);
   // Now here we refer to the actual property
   const auto value{assume_value_copy<ValueType>(instruction.value)};
-  result = target_check->type() == value ||
-           (value == JSON::Type::Integer && target_check->is_decimal() &&
-            target_check->to_decimal().is_integer());
+  result = effective_type_strict_real(*target_check) == value;
   EVALUATE_END(AssertionPropertyTypeStrict);
 }
 
@@ -1071,7 +1069,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
   EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictEvaluate);
   // Now here we refer to the actual property
   const auto value{assume_value_copy<ValueType>(instruction.value)};
-  result = target_check->type() == value;
+  result = effective_type_strict_real(*target_check) == value;
 
   if (result) {
     context.evaluator->evaluate(target_check);
@@ -1085,11 +1083,8 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
   // Now here we refer to the actual property
-  const auto type_index{std::to_underlying(target_check->type())};
   result =
-      value.test(type_index) ||
-      (value.test(std::to_underlying(JSON::Type::Integer)) &&
-       target_check->is_decimal() && target_check->to_decimal().is_integer());
+      value.test(std::to_underlying(effective_type_strict_real(*target_check)));
   EVALUATE_END(AssertionPropertyTypeStrictAny);
 }
 
@@ -1098,8 +1093,8 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
   // Now here we refer to the actual property
-  const auto type_index{std::to_underlying(target_check->type())};
-  result = value.test(type_index);
+  result =
+      value.test(std::to_underlying(effective_type_strict_real(*target_check)));
 
   if (result) {
     context.evaluator->evaluate(target_check);

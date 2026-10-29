@@ -30,20 +30,6 @@ auto is_metaschema_reference(const sourcemeta::core::WeakPointer &origin)
          origin.back().to_property() == "$schema";
 }
 
-// Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
-// only places they accept a boolean are `additionalProperties` and
-// `additionalItems`, whose own definitions spell that out. The OpenAPI 3.0
-// Schema Object has none either, and offers a boolean at
-// `additionalProperties` alone
-auto booleans_are_schemas(
-    const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  return !vocabularies.contains_any(
-      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
-       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
-       Known::OPENAPI_3_0_BASE});
-}
-
 // Draft 7 and earlier let `$ref` override whatever sits beside it, so such a
 // sibling is not a keyword of the schema at all and nothing about it, not even
 // its shape, is this compiler's business

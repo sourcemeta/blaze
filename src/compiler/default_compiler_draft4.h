@@ -258,102 +258,24 @@ auto compiler_draft4_validation_maxproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
-                          schema_context.vocabularies)) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_INTEGER);
-  }
-
-  if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_NON_NEGATIVE);
-  }
-
-  if (schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() != "object") {
-    return {};
-  }
-
-  // We'll handle it at the type level as an optimization
-  if (context.mode == Mode::FastValidation &&
-      assume_type(schema_context.vocabularies, schema_context.schema,
-                  "object")) {
-    return {};
-  }
-
-  // A bound too large to hold sits beyond the size of anything that can
-  // exist, so every object meets it and there is nothing left to assert
-  if (!bound_is_representable(
-          schema_context.schema.at(dynamic_context.keyword))) {
-    return {};
-  }
-
-  return {make(
-      sourcemeta::blaze::InstructionIndex::AssertionObjectSizeLess, context,
-      schema_context, dynamic_context,
-      ValueUnsignedInteger{
-          static_cast<unsigned long>(
-              schema_context.schema.at(dynamic_context.keyword).as_integer()) +
-          1})};
+  return compile_size_upper_bound(
+      context, schema_context, dynamic_context,
+      {.type = sourcemeta::core::JSON::Type::Object,
+       .name = "object",
+       .instruction =
+           sourcemeta::blaze::InstructionIndex::AssertionObjectSizeLess});
 }
 
 auto compiler_draft4_validation_minproperties(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
-  if (!is_dialect_integer(schema_context.schema.at(dynamic_context.keyword),
-                          schema_context.vocabularies)) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_INTEGER);
-  }
-
-  if (!schema_context.schema.at(dynamic_context.keyword).is_positive()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_NON_NEGATIVE);
-  }
-
-  if (schema_context.schema.defines("type") &&
-      schema_context.schema.at("type").is_string() &&
-      schema_context.schema.at("type").to_string() != "object") {
-    return {};
-  }
-
-  // A bound too large to hold is beyond the size of anything that can
-  // exist, so no object can meet it, and nothing else is affected. A property
-  // name is always a string, which no object bound applies to
-  if (!bound_is_representable(
-          schema_context.schema.at(dynamic_context.keyword))) {
-    if (schema_context.is_property_name) {
-      return {};
-    }
-
-    ValueTypes types;
-    types.set(std::to_underlying(sourcemeta::core::JSON::Type::Object));
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
-                 context, schema_context, dynamic_context, types)};
-  }
-
-  // We'll handle it at the type level as an optimization
-  if (context.mode == Mode::FastValidation &&
-      assume_type(schema_context.vocabularies, schema_context.schema,
-                  "object")) {
-    return {};
-  }
-
-  const auto value{static_cast<unsigned long>(
-      schema_context.schema.at(dynamic_context.keyword).as_integer())};
-  if (value <= 0) {
-    return {};
-  }
-
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionObjectSizeGreater,
-               context, schema_context, dynamic_context,
-               ValueUnsignedInteger{value - 1})};
+  return compile_size_lower_bound(
+      context, schema_context, dynamic_context,
+      {.type = sourcemeta::core::JSON::Type::Object,
+       .name = "object",
+       .instruction =
+           sourcemeta::blaze::InstructionIndex::AssertionObjectSizeGreater});
 }
 
 } // namespace internal
