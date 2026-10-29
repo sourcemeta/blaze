@@ -1678,8 +1678,8 @@ TEST(openapi_3_0_valid_example_with_examples) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(openapi_3_0_valid_example_escaped_as_string) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST(openapi_3_0_valid_example_string_on_object_schema) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "title": "Test",
     "description": "A test schema",
     "type": "object",
@@ -1689,11 +1689,26 @@ TEST(openapi_3_0_valid_example_escaped_as_string) {
     "example": "<foo>bar</foo>"
   })JSON");
 
-  LINT_WITHOUT_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
-                                        OPENAPI_3_0_DIALECT);
+  LINT_AND_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                    OPENAPI_3_0_DIALECT);
 
   EXPECT_TRUE(result.first);
-  EXPECT_EQ(traces.size(), 0);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "object",
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
 }
 
 TEST(openapi_3_0_valid_example_string_on_string_schema) {

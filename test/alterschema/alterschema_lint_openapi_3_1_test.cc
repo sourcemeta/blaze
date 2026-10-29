@@ -471,8 +471,8 @@ TEST(openapi_3_1_invalid_example_with_valid_examples) {
   EXPECT_EQ(document, expected);
 }
 
-TEST(openapi_3_1_valid_example_escaped_as_string) {
-  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+TEST(openapi_3_1_valid_example_string_on_object_schema) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
     "title": "Test",
     "description": "A test schema",
@@ -482,10 +482,26 @@ TEST(openapi_3_1_valid_example_escaped_as_string) {
     }
   })JSON");
 
-  LINT_WITHOUT_FIX(document, result, traces);
+  LINT_AND_FIX(document, result, traces);
 
   EXPECT_TRUE(result.first);
-  EXPECT_EQ(traces.size(), 0);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "object" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
 }
 
 TEST(openapi_3_1_valid_example_string_on_string_schema) {
