@@ -1600,3 +1600,80 @@ TEST(openapi_3_0_valid_example_sibling_to_ref) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(openapi_3_0_duplicate_examples_not_applied) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string",
+    "examples": [ "foo", "foo" ]
+  })JSON");
+
+  LINT_AND_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                    OPENAPI_3_0_DIALECT);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "unknown_keywords_prefix",
+                    "Future versions of JSON Schema will refuse to evaluate "
+                    "unknown keywords or custom keywords from optional "
+                    "vocabularies that don't have an x- prefix",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string",
+    "x-examples": [ "foo", "foo" ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_0_top_level_examples_not_applied) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string"
+  })JSON");
+
+  LINT_WITHOUT_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                        OPENAPI_3_0_DIALECT);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(openapi_3_0_valid_example_with_examples) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string",
+    "example": 1,
+    "examples": [ 2 ]
+  })JSON");
+
+  LINT_AND_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                    OPENAPI_3_0_DIALECT);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "", "unknown_keywords_prefix",
+                    "Future versions of JSON Schema will refuse to evaluate "
+                    "unknown keywords or custom keywords from optional "
+                    "vocabularies that don't have an x- prefix",
+                    true);
+  EXPECT_LINT_TRACE(traces, 1, "", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string",
+    "x-examples": [ 2 ]
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
