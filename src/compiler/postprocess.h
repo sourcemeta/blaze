@@ -428,13 +428,11 @@ inline auto transform_instruction(
 
   if (instruction.children.size() == 1) {
     auto &child{instruction.children.front()};
-    const auto *const fusion{std::ranges::find_if(
-        LOOP_TYPE_FUSIONS, [&instruction, &child](const auto &entry) -> bool {
-          return entry.loop == instruction.type && entry.child == child.type;
-        })};
-    if (fusion != LOOP_TYPE_FUSIONS.cend()) {
-      fuse_loop_type(instruction, child, fusion->result, output, extra);
-      return true;
+    for (const auto &fusion : LOOP_TYPE_FUSIONS) {
+      if (fusion.loop == instruction.type && fusion.child == child.type) {
+        fuse_loop_type(instruction, child, fusion.result, output, extra);
+        return true;
+      }
     }
   }
 
