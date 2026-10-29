@@ -841,6 +841,33 @@ auto apply_edit(const JSON &edit, JSON &term, const JSON &self,
     throw TransformError{"An edit must be an object with one operation"};
   }
 
+  // A group's condition says what its edits are for, so what it binds is
+  // theirs to build from. A single edit's condition is only a veto, and
+  // binding there would leave the name in scope for every edit after it
+  if (edit.defines("group")) {
+    const auto &group{edit.at("group")};
+    if (!group.is_array()) {
+      throw TransformError{"A group takes an array of edits"};
+    }
+
+    TransformBindings local{bindings};
+    if (edit.defines("if") &&
+        !transform_guard(edit.at("if"), self, host, local)) {
+      return;
+    }
+
+    if (edit.defines("if-current") &&
+        !transform_guard(edit.at("if-current"), term, host, local)) {
+      return;
+    }
+
+    for (const auto &inner : group.as_array()) {
+      apply_edit(inner, term, self, local, host, original, trace);
+    }
+
+    return;
+  }
+
   // An edit may stand down on what the term held before the build began,
   // which is how one rule expresses a rewrite whose shape depends on a
   // member an earlier edit has already taken away
@@ -860,16 +887,7 @@ auto apply_edit(const JSON &edit, JSON &term, const JSON &self,
     }
   }
 
-  if (edit.defines("group")) {
-    const auto &group{edit.at("group")};
-    if (!group.is_array()) {
-      throw TransformError{"A group takes an array of edits"};
-    }
-
-    for (const auto &inner : group.as_array()) {
-      apply_edit(inner, term, self, bindings, host, original, trace);
-    }
-  } else if (edit.defines("set")) {
+  if (edit.defines("set")) {
     apply_set(edit, term, self, bindings, host, original, trace);
   } else if (edit.defines("erase")) {
     apply_erase(edit, term, bindings, host);

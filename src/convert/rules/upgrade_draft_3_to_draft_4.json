@@ -1,57 +1,238 @@
 {
   "name": "upgrade_draft_3_to_draft_4",
   "match": {
-    "all": [
+    "any": [
       {
-        "call": {
-          "name": "schema:in-vocabulary",
-          "args": [
-            "http://json-schema.org/draft-03/schema#"
-          ]
-        }
-      },
-      {
-        "type": "object"
-      },
-      {
-        "any": [
+        "all": [
           {
             "call": {
-              "name": "convert:has-pending-draft-3-pattern"
+              "name": "schema:in-vocabulary",
+              "args": [
+                "http://json-schema.org/draft-03/schema#"
+              ]
             }
           },
           {
-            "call": {
-              "name": "convert:has-stray-required-boolean"
-            }
-          },
-          {
-            "ref": "at-dialect-declaration"
+            "type": "object"
           },
           {
             "any": [
               {
-                "has": "multipleOf"
+                "call": {
+                  "name": "convert:has-pending-draft-3-pattern"
+                }
               },
               {
-                "has": "maxProperties"
+                "call": {
+                  "name": "convert:has-stray-required-boolean"
+                }
               },
               {
-                "has": "minProperties"
+                "ref": "at-dialect-declaration"
               },
               {
-                "has": "allOf"
-              },
-              {
-                "has": "anyOf"
-              },
-              {
-                "has": "oneOf"
-              },
-              {
-                "has": "not"
+                "any": [
+                  {
+                    "has": "multipleOf"
+                  },
+                  {
+                    "has": "maxProperties"
+                  },
+                  {
+                    "has": "minProperties"
+                  },
+                  {
+                    "has": "allOf"
+                  },
+                  {
+                    "has": "anyOf"
+                  },
+                  {
+                    "has": "oneOf"
+                  },
+                  {
+                    "has": "not"
+                  }
+                ]
               }
             ]
+          }
+        ]
+      },
+      {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "x-sourcemeta-dialect-override-subschema",
+              "bind": "$marker"
+            }
+          },
+          {
+            "call": {
+              "name": "convert:is-own-dialect-override",
+              "args": [
+                "$marker"
+              ]
+            }
+          },
+          {
+            "any": [
+              {
+                "ref": "at-dialect-declaration"
+              },
+              {
+                "binding": {
+                  "name": "$marker-says-nothing",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "match": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:at-root"
+              }
+            }
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:at-resource-root"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "call": {
+              "name": "convert:base-dialect-in",
+              "args": [
+                "draft7",
+                "draft7-hyper",
+                "draft6",
+                "draft6-hyper",
+                "draft4",
+                "draft4-hyper",
+                "draft3",
+                "draft3-hyper",
+                "draft2-hyper",
+                "draft1-hyper",
+                "draft0-hyper"
+              ]
+            }
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "bind": "$dialect",
+              "match": {
+                "enum": [
+                  "https://json-schema.org/draft-00/hyper-schema",
+                  "https://json-schema.org/draft-00/hyper-schema#",
+                  "https://json-schema.org/draft-00/schema",
+                  "https://json-schema.org/draft-00/schema#",
+                  "https://json-schema.org/draft-01/hyper-schema",
+                  "https://json-schema.org/draft-01/hyper-schema#",
+                  "https://json-schema.org/draft-01/schema",
+                  "https://json-schema.org/draft-01/schema#",
+                  "https://json-schema.org/draft-02/hyper-schema",
+                  "https://json-schema.org/draft-02/hyper-schema#",
+                  "https://json-schema.org/draft-02/schema",
+                  "https://json-schema.org/draft-02/schema#",
+                  "https://json-schema.org/draft-03/hyper-schema",
+                  "https://json-schema.org/draft-03/hyper-schema#",
+                  "https://json-schema.org/draft-03/schema",
+                  "https://json-schema.org/draft-03/schema#",
+                  "https://json-schema.org/draft-04/hyper-schema",
+                  "https://json-schema.org/draft-04/hyper-schema#",
+                  "https://json-schema.org/draft-04/schema",
+                  "https://json-schema.org/draft-04/schema#",
+                  "https://json-schema.org/draft-06/hyper-schema",
+                  "https://json-schema.org/draft-06/hyper-schema#",
+                  "https://json-schema.org/draft-06/schema",
+                  "https://json-schema.org/draft-06/schema#",
+                  "https://json-schema.org/draft-07/hyper-schema",
+                  "https://json-schema.org/draft-07/hyper-schema#",
+                  "https://json-schema.org/draft-07/schema",
+                  "https://json-schema.org/draft-07/schema#"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "bind": "$dialect",
+              "match": {
+                "enum": [
+                  "http://json-schema.org/draft-00/hyper-schema",
+                  "http://json-schema.org/draft-00/schema",
+                  "http://json-schema.org/draft-01/hyper-schema",
+                  "http://json-schema.org/draft-01/schema",
+                  "http://json-schema.org/draft-02/hyper-schema",
+                  "http://json-schema.org/draft-02/schema",
+                  "http://json-schema.org/draft-03/hyper-schema",
+                  "http://json-schema.org/draft-03/schema",
+                  "http://json-schema.org/draft-04/hyper-schema",
+                  "http://json-schema.org/draft-04/schema",
+                  "http://json-schema.org/draft-06/hyper-schema",
+                  "http://json-schema.org/draft-06/schema",
+                  "http://json-schema.org/draft-07/hyper-schema",
+                  "http://json-schema.org/draft-07/schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema#",
+                  "http://json-schema.org/draft/2019-09/schema",
+                  "http://json-schema.org/draft/2019-09/schema#",
+                  "http://json-schema.org/draft/2020-12/hyper-schema",
+                  "http://json-schema.org/draft/2020-12/hyper-schema#",
+                  "http://json-schema.org/draft/2020-12/schema",
+                  "http://json-schema.org/draft/2020-12/schema#",
+                  "https://json-schema.org/draft/2019-09/hyper-schema#",
+                  "https://json-schema.org/draft/2019-09/schema#",
+                  "https://json-schema.org/draft/2020-12/hyper-schema#",
+                  "https://json-schema.org/draft/2020-12/schema#",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25#",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10#",
+                  "https://spec.openapis.org/oas/3.1/dialect/base#",
+                  "https://spec.openapis.org/oas/3.2/dialect/2025-09-17#"
+                ]
+              }
+            }
           }
         ]
       }
@@ -61,638 +242,936 @@
     {
       "group": [
         {
-          "move": {
-            "from": "/multipleOf",
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$self",
-                  "multipleOf"
-                ]
-              }
-            },
-            "optional": true
-          }
+          "erase": "x-sourcemeta-dialect-override-subschema"
         },
         {
-          "move": {
-            "from": "/maxProperties",
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$self",
-                  "maxProperties"
-                ]
-              }
-            },
-            "optional": true
-          }
-        },
-        {
-          "move": {
-            "from": "/minProperties",
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$self",
-                  "minProperties"
-                ]
-              }
-            },
-            "optional": true
-          }
-        },
-        {
-          "move": {
-            "from": "/allOf",
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$self",
-                  "allOf"
-                ]
-              }
-            },
-            "optional": true
-          }
-        },
-        {
-          "move": {
-            "from": "/anyOf",
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$self",
-                  "anyOf"
-                ]
-              }
-            },
-            "optional": true
-          }
-        },
-        {
-          "move": {
-            "from": "/oneOf",
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$self",
-                  "oneOf"
-                ]
-              }
-            },
-            "optional": true
-          }
-        },
-        {
-          "move": {
-            "from": "/not",
-            "to": {
-              "call": {
-                "name": "convert:shadow-pointer",
-                "args": [
-                  "$self",
-                  "not"
-                ]
-              }
-            },
-            "optional": true
-          }
-        }
-      ],
-      "if": {
-        "call": {
-          "name": "convert:promoted-keyword-is-author-data",
-          "args": [
-            "http://json-schema.org/draft-04/schema#"
-          ]
-        }
-      }
-    },
-    {
-      "erase": "type",
-      "if": {
-        "call": {
-          "name": "convert:draft3-shape",
-          "args": [
-            "$term",
-            "type-vacuous"
-          ]
-        }
-      }
-    },
-    {
-      "move": {
-        "from": "/type",
-        "to": "/anyOf",
-        "last": true
-      },
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:draft3-shape",
-              "args": [
-                "$term",
-                "type-has-subschema"
-              ]
-            }
+          "set": {
+            "$schema": "$marker"
           },
-          {
-            "not": {
-              "has": "anyOf"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "set": {
-        "anyOf": {
-          "call": {
-            "name": "convert:draft3-type-branches",
-            "args": [
-              "$self"
+          "first": true,
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$schema"
+                }
+              },
+              {
+                "ref": "at-dialect-declaration"
+              }
             ]
           }
         }
-      },
-      "if": {
+      ],
+      "if-current": {
         "all": [
           {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "x-sourcemeta-dialect-override-subschema",
+              "bind": "$marker"
+            }
+          },
+          {
             "call": {
-              "name": "convert:draft3-shape",
+              "name": "convert:is-own-dialect-override",
               "args": [
-                "$term",
-                "type-has-subschema"
+                "$marker"
               ]
             }
           },
           {
-            "not": {
-              "has": "anyOf"
-            }
+            "any": [
+              {
+                "ref": "at-dialect-declaration"
+              },
+              {
+                "binding": {
+                  "name": "$marker-says-nothing",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
           }
         ]
       }
     },
     {
-      "erase": "disallow",
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:draft3-shape",
-              "args": [
-                "$term",
-                "disallow-collapses"
-              ]
-            }
-          },
-          {
-            "not": {
-              "has": "not"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "set": {
-        "not": {
-          "object": {}
-        }
-      },
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:draft3-shape",
-              "args": [
-                "$term",
-                "disallow-collapses"
-              ]
-            }
-          },
-          {
-            "not": {
-              "has": "not"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "set": {
-        "not": {
-          "object": {
-            "type": {
+      "group": [
+        {
+          "move": {
+            "from": "/$schema",
+            "to": {
               "call": {
-                "name": "convert:member",
+                "name": "convert:shadow-pointer",
                 "args": [
                   "$self",
-                  "disallow"
+                  "$$schema"
                 ]
               }
             }
           }
         }
-      },
-      "if": {
+      ],
+      "if-current": {
         "all": [
           {
-            "call": {
-              "name": "convert:draft3-shape",
-              "args": [
-                "$term",
-                "disallow-names-only"
-              ]
-            }
+            "type": "object"
           },
           {
-            "not": {
-              "call": {
-                "name": "convert:draft3-shape",
-                "args": [
-                  "$term",
-                  "disallow-collapses"
-                ]
+            "member": {
+              "key": "$schema",
+              "match": {
+                "type": "string"
               }
             }
           },
           {
             "not": {
-              "has": "not"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "erase": "disallow",
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:draft3-shape",
-              "args": [
-                "$term",
-                "disallow-names-only"
-              ]
-            }
-          },
-          {
-            "not": {
               "call": {
-                "name": "convert:draft3-shape",
-                "args": [
-                  "$term",
-                  "disallow-collapses"
-                ]
+                "name": "convert:at-root"
               }
             }
           },
           {
             "not": {
-              "has": "not"
+              "call": {
+                "name": "convert:at-resource-root"
+              }
             }
           }
         ]
       }
     },
     {
-      "move": {
-        "from": "/disallow",
-        "to": "/not/anyOf"
-      },
-      "if": {
+      "group": [
+        {
+          "set": {
+            "$schema": {
+              "lookup": {
+                "key": "$dialect",
+                "table": {
+                  "https://json-schema.org/draft-07/schema": "http://json-schema.org/draft-07/schema",
+                  "https://json-schema.org/draft-07/schema#": "http://json-schema.org/draft-07/schema#",
+                  "https://json-schema.org/draft-07/hyper-schema": "http://json-schema.org/draft-07/hyper-schema",
+                  "https://json-schema.org/draft-07/hyper-schema#": "http://json-schema.org/draft-07/hyper-schema#",
+                  "https://json-schema.org/draft-06/schema": "http://json-schema.org/draft-06/schema",
+                  "https://json-schema.org/draft-06/schema#": "http://json-schema.org/draft-06/schema#",
+                  "https://json-schema.org/draft-06/hyper-schema": "http://json-schema.org/draft-06/hyper-schema",
+                  "https://json-schema.org/draft-06/hyper-schema#": "http://json-schema.org/draft-06/hyper-schema#",
+                  "https://json-schema.org/draft-04/schema": "http://json-schema.org/draft-04/schema",
+                  "https://json-schema.org/draft-04/schema#": "http://json-schema.org/draft-04/schema#",
+                  "https://json-schema.org/draft-04/hyper-schema": "http://json-schema.org/draft-04/hyper-schema",
+                  "https://json-schema.org/draft-04/hyper-schema#": "http://json-schema.org/draft-04/hyper-schema#",
+                  "https://json-schema.org/draft-03/schema": "http://json-schema.org/draft-03/schema",
+                  "https://json-schema.org/draft-03/schema#": "http://json-schema.org/draft-03/schema#",
+                  "https://json-schema.org/draft-03/hyper-schema": "http://json-schema.org/draft-03/hyper-schema",
+                  "https://json-schema.org/draft-03/hyper-schema#": "http://json-schema.org/draft-03/hyper-schema#",
+                  "https://json-schema.org/draft-02/schema": "http://json-schema.org/draft-02/schema",
+                  "https://json-schema.org/draft-02/schema#": "http://json-schema.org/draft-02/schema#",
+                  "https://json-schema.org/draft-02/hyper-schema": "http://json-schema.org/draft-02/hyper-schema",
+                  "https://json-schema.org/draft-02/hyper-schema#": "http://json-schema.org/draft-02/hyper-schema#",
+                  "https://json-schema.org/draft-01/schema": "http://json-schema.org/draft-01/schema",
+                  "https://json-schema.org/draft-01/schema#": "http://json-schema.org/draft-01/schema#",
+                  "https://json-schema.org/draft-01/hyper-schema": "http://json-schema.org/draft-01/hyper-schema",
+                  "https://json-schema.org/draft-01/hyper-schema#": "http://json-schema.org/draft-01/hyper-schema#",
+                  "https://json-schema.org/draft-00/schema": "http://json-schema.org/draft-00/schema",
+                  "https://json-schema.org/draft-00/schema#": "http://json-schema.org/draft-00/schema#",
+                  "https://json-schema.org/draft-00/hyper-schema": "http://json-schema.org/draft-00/hyper-schema",
+                  "https://json-schema.org/draft-00/hyper-schema#": "http://json-schema.org/draft-00/hyper-schema#"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "if-current": {
         "all": [
           {
+            "type": "object"
+          },
+          {
             "call": {
-              "name": "convert:draft3-shape",
+              "name": "convert:base-dialect-in",
               "args": [
-                "$term",
-                "disallow-has-subschema"
+                "draft7",
+                "draft7-hyper",
+                "draft6",
+                "draft6-hyper",
+                "draft4",
+                "draft4-hyper",
+                "draft3",
+                "draft3-hyper",
+                "draft2-hyper",
+                "draft1-hyper",
+                "draft0-hyper"
               ]
             }
           },
           {
-            "not": {
-              "has": "not"
+            "member": {
+              "key": "$schema",
+              "bind": "$dialect",
+              "match": {
+                "enum": [
+                  "https://json-schema.org/draft-00/hyper-schema",
+                  "https://json-schema.org/draft-00/hyper-schema#",
+                  "https://json-schema.org/draft-00/schema",
+                  "https://json-schema.org/draft-00/schema#",
+                  "https://json-schema.org/draft-01/hyper-schema",
+                  "https://json-schema.org/draft-01/hyper-schema#",
+                  "https://json-schema.org/draft-01/schema",
+                  "https://json-schema.org/draft-01/schema#",
+                  "https://json-schema.org/draft-02/hyper-schema",
+                  "https://json-schema.org/draft-02/hyper-schema#",
+                  "https://json-schema.org/draft-02/schema",
+                  "https://json-schema.org/draft-02/schema#",
+                  "https://json-schema.org/draft-03/hyper-schema",
+                  "https://json-schema.org/draft-03/hyper-schema#",
+                  "https://json-schema.org/draft-03/schema",
+                  "https://json-schema.org/draft-03/schema#",
+                  "https://json-schema.org/draft-04/hyper-schema",
+                  "https://json-schema.org/draft-04/hyper-schema#",
+                  "https://json-schema.org/draft-04/schema",
+                  "https://json-schema.org/draft-04/schema#",
+                  "https://json-schema.org/draft-06/hyper-schema",
+                  "https://json-schema.org/draft-06/hyper-schema#",
+                  "https://json-schema.org/draft-06/schema",
+                  "https://json-schema.org/draft-06/schema#",
+                  "https://json-schema.org/draft-07/hyper-schema",
+                  "https://json-schema.org/draft-07/hyper-schema#",
+                  "https://json-schema.org/draft-07/schema",
+                  "https://json-schema.org/draft-07/schema#"
+                ]
+              }
             }
           }
         ]
       }
     },
     {
-      "set": {
-        "not": {
-          "object": {
+      "group": [
+        {
+          "set": {
+            "$schema": {
+              "lookup": {
+                "key": "$dialect",
+                "table": {
+                  "http://json-schema.org/draft-00/hyper-schema": "http://json-schema.org/draft-00/hyper-schema#",
+                  "http://json-schema.org/draft-00/schema": "http://json-schema.org/draft-00/schema#",
+                  "http://json-schema.org/draft-01/hyper-schema": "http://json-schema.org/draft-01/hyper-schema#",
+                  "http://json-schema.org/draft-01/schema": "http://json-schema.org/draft-01/schema#",
+                  "http://json-schema.org/draft-02/hyper-schema": "http://json-schema.org/draft-02/hyper-schema#",
+                  "http://json-schema.org/draft-02/schema": "http://json-schema.org/draft-02/schema#",
+                  "http://json-schema.org/draft-03/hyper-schema": "http://json-schema.org/draft-03/hyper-schema#",
+                  "http://json-schema.org/draft-03/schema": "http://json-schema.org/draft-03/schema#",
+                  "http://json-schema.org/draft-04/hyper-schema": "http://json-schema.org/draft-04/hyper-schema#",
+                  "http://json-schema.org/draft-04/schema": "http://json-schema.org/draft-04/schema#",
+                  "http://json-schema.org/draft-06/hyper-schema": "http://json-schema.org/draft-06/hyper-schema#",
+                  "http://json-schema.org/draft-06/schema": "http://json-schema.org/draft-06/schema#",
+                  "http://json-schema.org/draft-07/hyper-schema": "http://json-schema.org/draft-07/hyper-schema#",
+                  "http://json-schema.org/draft-07/schema": "http://json-schema.org/draft-07/schema#",
+                  "http://json-schema.org/draft/2019-09/hyper-schema": "https://json-schema.org/draft/2019-09/hyper-schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema#": "https://json-schema.org/draft/2019-09/hyper-schema",
+                  "http://json-schema.org/draft/2019-09/schema": "https://json-schema.org/draft/2019-09/schema",
+                  "http://json-schema.org/draft/2019-09/schema#": "https://json-schema.org/draft/2019-09/schema",
+                  "http://json-schema.org/draft/2020-12/hyper-schema": "https://json-schema.org/draft/2020-12/hyper-schema",
+                  "http://json-schema.org/draft/2020-12/hyper-schema#": "https://json-schema.org/draft/2020-12/hyper-schema",
+                  "http://json-schema.org/draft/2020-12/schema": "https://json-schema.org/draft/2020-12/schema",
+                  "http://json-schema.org/draft/2020-12/schema#": "https://json-schema.org/draft/2020-12/schema",
+                  "https://json-schema.org/draft/2019-09/hyper-schema#": "https://json-schema.org/draft/2019-09/hyper-schema",
+                  "https://json-schema.org/draft/2019-09/schema#": "https://json-schema.org/draft/2019-09/schema",
+                  "https://json-schema.org/draft/2020-12/hyper-schema#": "https://json-schema.org/draft/2020-12/hyper-schema",
+                  "https://json-schema.org/draft/2020-12/schema#": "https://json-schema.org/draft/2020-12/schema",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25#": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10#": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.1/dialect/base#": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.2/dialect/2025-09-17#": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "if-current": {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "bind": "$dialect",
+              "match": {
+                "enum": [
+                  "http://json-schema.org/draft-00/hyper-schema",
+                  "http://json-schema.org/draft-00/schema",
+                  "http://json-schema.org/draft-01/hyper-schema",
+                  "http://json-schema.org/draft-01/schema",
+                  "http://json-schema.org/draft-02/hyper-schema",
+                  "http://json-schema.org/draft-02/schema",
+                  "http://json-schema.org/draft-03/hyper-schema",
+                  "http://json-schema.org/draft-03/schema",
+                  "http://json-schema.org/draft-04/hyper-schema",
+                  "http://json-schema.org/draft-04/schema",
+                  "http://json-schema.org/draft-06/hyper-schema",
+                  "http://json-schema.org/draft-06/schema",
+                  "http://json-schema.org/draft-07/hyper-schema",
+                  "http://json-schema.org/draft-07/schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema#",
+                  "http://json-schema.org/draft/2019-09/schema",
+                  "http://json-schema.org/draft/2019-09/schema#",
+                  "http://json-schema.org/draft/2020-12/hyper-schema",
+                  "http://json-schema.org/draft/2020-12/hyper-schema#",
+                  "http://json-schema.org/draft/2020-12/schema",
+                  "http://json-schema.org/draft/2020-12/schema#",
+                  "https://json-schema.org/draft/2019-09/hyper-schema#",
+                  "https://json-schema.org/draft/2019-09/schema#",
+                  "https://json-schema.org/draft/2020-12/hyper-schema#",
+                  "https://json-schema.org/draft/2020-12/schema#",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25#",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10#",
+                  "https://spec.openapis.org/oas/3.1/dialect/base#",
+                  "https://spec.openapis.org/oas/3.2/dialect/2025-09-17#"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": [
+        {
+          "group": [
+            {
+              "move": {
+                "from": "/multipleOf",
+                "to": {
+                  "call": {
+                    "name": "convert:shadow-pointer",
+                    "args": [
+                      "$self",
+                      "multipleOf"
+                    ]
+                  }
+                },
+                "optional": true
+              }
+            },
+            {
+              "move": {
+                "from": "/maxProperties",
+                "to": {
+                  "call": {
+                    "name": "convert:shadow-pointer",
+                    "args": [
+                      "$self",
+                      "maxProperties"
+                    ]
+                  }
+                },
+                "optional": true
+              }
+            },
+            {
+              "move": {
+                "from": "/minProperties",
+                "to": {
+                  "call": {
+                    "name": "convert:shadow-pointer",
+                    "args": [
+                      "$self",
+                      "minProperties"
+                    ]
+                  }
+                },
+                "optional": true
+              }
+            },
+            {
+              "move": {
+                "from": "/allOf",
+                "to": {
+                  "call": {
+                    "name": "convert:shadow-pointer",
+                    "args": [
+                      "$self",
+                      "allOf"
+                    ]
+                  }
+                },
+                "optional": true
+              }
+            },
+            {
+              "move": {
+                "from": "/anyOf",
+                "to": {
+                  "call": {
+                    "name": "convert:shadow-pointer",
+                    "args": [
+                      "$self",
+                      "anyOf"
+                    ]
+                  }
+                },
+                "optional": true
+              }
+            },
+            {
+              "move": {
+                "from": "/oneOf",
+                "to": {
+                  "call": {
+                    "name": "convert:shadow-pointer",
+                    "args": [
+                      "$self",
+                      "oneOf"
+                    ]
+                  }
+                },
+                "optional": true
+              }
+            },
+            {
+              "move": {
+                "from": "/not",
+                "to": {
+                  "call": {
+                    "name": "convert:shadow-pointer",
+                    "args": [
+                      "$self",
+                      "not"
+                    ]
+                  }
+                },
+                "optional": true
+              }
+            }
+          ],
+          "if": {
+            "call": {
+              "name": "convert:promoted-keyword-is-author-data",
+              "args": [
+                "http://json-schema.org/draft-04/schema#"
+              ]
+            }
+          }
+        },
+        {
+          "erase": "type",
+          "if": {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "type-vacuous"
+              ]
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/type",
+            "to": "/anyOf",
+            "last": true
+          },
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "type-has-subschema"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "has": "anyOf"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "set": {
             "anyOf": {
               "call": {
-                "name": "convert:draft3-disallow-branches",
+                "name": "convert:draft3-type-branches",
                 "args": [
                   "$self"
                 ]
               }
             }
-          }
-        }
-      },
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:draft3-shape",
-              "args": [
-                "$term",
-                "disallow-has-subschema"
-              ]
-            }
           },
-          {
-            "not": {
-              "has": "not"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/disallow",
-        "to": "/not"
-      },
-      "if": {
-        "all": [
-          {
-            "call": {
-              "name": "convert:draft3-shape",
-              "args": [
-                "$term",
-                "disallow-is-schema"
-              ]
-            }
-          },
-          {
-            "not": {
-              "has": "not"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "erase": "extends",
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "extends",
-              "match": {
-                "type": "array",
-                "empty": true
-              }
-            }
-          },
-          {
-            "not": {
-              "has": "allOf"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/extends",
-        "to": "/allOf",
-        "last": true
-      },
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "extends",
-              "match": {
-                "type": "array",
-                "empty": false
-              }
-            }
-          },
-          {
-            "not": {
-              "has": "allOf"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/extends",
-        "to": "/allOf/0"
-      },
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "extends",
-              "match": {
-                "type": "object"
-              }
-            }
-          },
-          {
-            "not": {
-              "has": "allOf"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "erase": [
-        "items"
-      ],
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "items",
-              "match": {
-                "type": "array",
-                "empty": true
-              }
-            }
-          },
-          {
-            "not": {
-              "has": "additionalItems"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "erase": [
-        "additionalItems",
-        "items"
-      ],
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "items",
-              "match": {
-                "type": "array",
-                "empty": true
-              }
-            }
-          },
-          {
-            "member": {
-              "key": "additionalItems",
-              "match": {
-                "type": "boolean"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "set": {
-        "maxItems": 0
-      },
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "items",
-              "match": {
-                "type": "array",
-                "empty": true
-              }
-            }
-          },
-          {
-            "member": {
-              "key": "additionalItems",
-              "match": {
-                "const": false
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/additionalItems",
-        "to": "/items"
-      },
-      "if": {
-        "all": [
-          {
-            "member": {
-              "key": "items",
-              "match": {
-                "type": "array",
-                "empty": true
-              }
-            }
-          },
-          {
-            "member": {
-              "key": "additionalItems",
-              "match": {
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "type-has-subschema"
+                  ]
+                }
+              },
+              {
                 "not": {
-                  "type": "boolean"
+                  "has": "anyOf"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "erase": "disallow",
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "disallow-collapses"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "has": "not"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "set": {
+            "not": {
+              "object": {}
+            }
+          },
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "disallow-collapses"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "has": "not"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "set": {
+            "not": {
+              "object": {
+                "type": {
+                  "call": {
+                    "name": "convert:member",
+                    "args": [
+                      "$self",
+                      "disallow"
+                    ]
+                  }
                 }
               }
             }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/divisibleBy",
-        "to": "/multipleOf"
-      },
-      "if-current": {
-        "all": [
-          {
-            "has": "divisibleBy"
           },
-          {
-            "not": {
-              "has": "multipleOf"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "erase": "required",
-      "if": {
-        "call": {
-          "name": "convert:has-stray-required-boolean"
-        }
-      }
-    },
-    {
-      "replace": {
-        "call": {
-          "name": "convert:draft3-lift-required",
-          "args": [
-            "$current"
-          ]
-        }
-      },
-      "if": {
-        "call": {
-          "name": "convert:draft3-shape",
-          "args": [
-            "$term",
-            "liftable-required"
-          ]
-        }
-      }
-    },
-    {
-      "set": {
-        "dependencies": {
-          "call": {
-            "name": "convert:draft3-normalize-dependencies",
-            "args": [
-              "$current"
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "disallow-names-only"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:draft3-shape",
+                    "args": [
+                      "$term",
+                      "disallow-collapses"
+                    ]
+                  }
+                }
+              },
+              {
+                "not": {
+                  "has": "not"
+                }
+              }
             ]
           }
-        }
-      },
-      "if": {
-        "call": {
-          "name": "convert:draft3-shape",
-          "args": [
-            "$term",
-            "normalizable-dependencies"
-          ]
-        }
-      }
-    },
-    {
-      "erase": "dependencies",
-      "if": {
-        "all": [
-          {
+        },
+        {
+          "erase": "disallow",
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "disallow-names-only"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:draft3-shape",
+                    "args": [
+                      "$term",
+                      "disallow-collapses"
+                    ]
+                  }
+                }
+              },
+              {
+                "not": {
+                  "has": "not"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/disallow",
+            "to": "/not/anyOf"
+          },
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "disallow-has-subschema"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "has": "not"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "set": {
+            "not": {
+              "object": {
+                "anyOf": {
+                  "call": {
+                    "name": "convert:draft3-disallow-branches",
+                    "args": [
+                      "$self"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "disallow-has-subschema"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "has": "not"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/disallow",
+            "to": "/not"
+          },
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "disallow-is-schema"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "has": "not"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "erase": "extends",
+          "if": {
+            "all": [
+              {
+                "member": {
+                  "key": "extends",
+                  "match": {
+                    "type": "array",
+                    "empty": true
+                  }
+                }
+              },
+              {
+                "not": {
+                  "has": "allOf"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/extends",
+            "to": "/allOf",
+            "last": true
+          },
+          "if": {
+            "all": [
+              {
+                "member": {
+                  "key": "extends",
+                  "match": {
+                    "type": "array",
+                    "empty": false
+                  }
+                }
+              },
+              {
+                "not": {
+                  "has": "allOf"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/extends",
+            "to": "/allOf/0"
+          },
+          "if": {
+            "all": [
+              {
+                "member": {
+                  "key": "extends",
+                  "match": {
+                    "type": "object"
+                  }
+                }
+              },
+              {
+                "not": {
+                  "has": "allOf"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "erase": [
+            "items"
+          ],
+          "if": {
+            "all": [
+              {
+                "member": {
+                  "key": "items",
+                  "match": {
+                    "type": "array",
+                    "empty": true
+                  }
+                }
+              },
+              {
+                "not": {
+                  "has": "additionalItems"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "erase": [
+            "additionalItems",
+            "items"
+          ],
+          "if": {
+            "all": [
+              {
+                "member": {
+                  "key": "items",
+                  "match": {
+                    "type": "array",
+                    "empty": true
+                  }
+                }
+              },
+              {
+                "member": {
+                  "key": "additionalItems",
+                  "match": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "set": {
+            "maxItems": 0
+          },
+          "if": {
+            "all": [
+              {
+                "member": {
+                  "key": "items",
+                  "match": {
+                    "type": "array",
+                    "empty": true
+                  }
+                }
+              },
+              {
+                "member": {
+                  "key": "additionalItems",
+                  "match": {
+                    "const": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/additionalItems",
+            "to": "/items"
+          },
+          "if": {
+            "all": [
+              {
+                "member": {
+                  "key": "items",
+                  "match": {
+                    "type": "array",
+                    "empty": true
+                  }
+                }
+              },
+              {
+                "member": {
+                  "key": "additionalItems",
+                  "match": {
+                    "not": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/divisibleBy",
+            "to": "/multipleOf"
+          },
+          "if-current": {
+            "all": [
+              {
+                "has": "divisibleBy"
+              },
+              {
+                "not": {
+                  "has": "multipleOf"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "erase": "required",
+          "if": {
+            "call": {
+              "name": "convert:has-stray-required-boolean"
+            }
+          }
+        },
+        {
+          "replace": {
+            "call": {
+              "name": "convert:draft3-lift-required",
+              "args": [
+                "$current"
+              ]
+            }
+          },
+          "if": {
+            "call": {
+              "name": "convert:draft3-shape",
+              "args": [
+                "$term",
+                "liftable-required"
+              ]
+            }
+          }
+        },
+        {
+          "set": {
+            "dependencies": {
+              "call": {
+                "name": "convert:draft3-normalize-dependencies",
+                "args": [
+                  "$current"
+                ]
+              }
+            }
+          },
+          "if": {
             "call": {
               "name": "convert:draft3-shape",
               "args": [
@@ -700,53 +1179,91 @@
                 "normalizable-dependencies"
               ]
             }
-          },
-          {
-            "call": {
-              "name": "convert:draft3-shape",
-              "args": [
-                "$term",
-                "dependencies-empty-after-normalizing"
-              ]
-            }
           }
-        ]
-      }
-    },
-    {
-      "set": {
-        "format": {
-          "lookup": {
-            "key": {
-              "call": {
-                "name": "convert:member",
-                "args": [
-                  "$self",
-                  "format"
+        },
+        {
+          "erase": "dependencies",
+          "if": {
+            "all": [
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "normalizable-dependencies"
+                  ]
+                }
+              },
+              {
+                "call": {
+                  "name": "convert:draft3-shape",
+                  "args": [
+                    "$term",
+                    "dependencies-empty-after-normalizing"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "set": {
+            "format": {
+              "lookup": {
+                "key": {
+                  "call": {
+                    "name": "convert:member",
+                    "args": [
+                      "$self",
+                      "format"
+                    ]
+                  }
+                },
+                "table": {
+                  "host-name": "hostname",
+                  "ip-address": "ipv4"
+                }
+              }
+            }
+          },
+          "if": {
+            "member": {
+              "key": "format",
+              "match": {
+                "enum": [
+                  "host-name",
+                  "ip-address"
                 ]
               }
-            },
-            "table": {
-              "host-name": "hostname",
-              "ip-address": "ipv4"
             }
           }
         }
-      },
+      ],
       "if": {
-        "member": {
-          "key": "format",
-          "match": {
-            "enum": [
-              "host-name",
-              "ip-address"
-            ]
-          }
+        "call": {
+          "name": "schema:in-vocabulary",
+          "args": [
+            "http://json-schema.org/draft-03/schema#"
+          ]
         }
       }
     }
   ],
   "bump": {
-    "dialect": "http://json-schema.org/draft-04/schema#"
-  }
+    "dialect": "http://json-schema.org/draft-04/schema#",
+    "only-when": {
+      "call": {
+        "name": "schema:in-vocabulary",
+        "args": [
+          "http://json-schema.org/draft-03/schema#"
+        ]
+      }
+    }
+  },
+  "queries": {
+    "$marker-says-nothing": {
+      "name": "convert:marker-says-nothing"
+    }
+  },
+  "writes-outside-itself": true
 }

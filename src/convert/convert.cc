@@ -665,26 +665,8 @@ auto convert(sourcemeta::core::JSON &schema,
              const sourcemeta::core::SchemaResolver &resolver,
              const ConvertTarget target, const std::string_view default_dialect,
              const std::string_view default_id) -> void {
-  // How a dialect is spelled is settled before any rung is asked about one. A
-  // rung rule reads the dialect of the position it is looking at, and a
-  // spelling the ladder does not name is one it cannot answer for, so these
-  // run to completion first rather than alongside
-  std::vector<Rule> spellings;
-  spellings.reserve(4);
-  spellings.push_back(
-      make_template_rule("dialect_override_becomes_dollar_schema"));
-  spellings.push_back(make_template_rule("shadow_stray_dialect_declaration"));
-  spellings.push_back(make_template_rule("draft_official_dialect_with_https"));
-  spellings.push_back(make_template_rule("official_dialect_spelling"));
-
   std::vector<Rule> rules;
-  rules.reserve(20);
-
-  // Again here, and not only among the spellings above: a marker that said
-  // something when the pass began can stop saying anything once a rung has
-  // moved the resource holding it to the dialect the marker names, and a
-  // conversion that left it behind would not be done with the document
-  rules.push_back(make_template_rule("dialect_override_becomes_dollar_schema"));
+  rules.reserve(8);
 
   // A document on the OpenAPI 3.0 dialect forks here rather than standing on a
   // rung. Every target below reaches it through Draft 4, which is the base
@@ -721,10 +703,7 @@ auto convert(sourcemeta::core::JSON &schema,
       target == ConvertTarget::Draft202012 ||
       target == ConvertTarget::OpenAPI31 ||
       target == ConvertTarget::OpenAPI32) {
-    rules.push_back(make_template_rule("sanitize_draft_4_anchors"));
     rules.push_back(make_template_rule("upgrade_draft_4_to_draft_6"));
-    rules.push_back(make_template_rule("empty_object_as_true"));
-    rules.push_back(make_template_rule("enum_to_const"));
   }
 
   if (target == ConvertTarget::Draft7 || target == ConvertTarget::Draft201909 ||
@@ -741,8 +720,6 @@ auto convert(sourcemeta::core::JSON &schema,
       target == ConvertTarget::OpenAPI32) {
     rules.push_back(make_template_rule("upgrade_draft_7_to_2019_09",
                                        openapi_3_0_origin(from_openapi_3_0)));
-    rules.push_back(make_template_rule("definitions_to_defs"));
-    rules.push_back(make_template_rule("dependencies_to_dependent"));
   }
 
   if (target == ConvertTarget::Draft202012 ||
@@ -761,8 +738,7 @@ auto convert(sourcemeta::core::JSON &schema,
     rules.push_back(make_template_rule("upgrade_openapi_3_1_to_openapi_3_2"));
   }
 
-  apply(spellings, schema, walker, resolver, default_dialect, default_id, true);
-  apply(rules, schema, walker, resolver, default_dialect, default_id, false);
+  apply(rules, schema, walker, resolver, default_dialect, default_id, true);
 }
 
 } // namespace sourcemeta::blaze

@@ -1,215 +1,396 @@
 {
   "name": "upgrade_openapi_3_0_to_draft_4",
   "match": {
-    "all": [
+    "any": [
       {
-        "call": {
-          "name": "schema:in-vocabulary",
-          "args": [
-            "tag:spec.openapis.org,2017:oas/3.0/vocab/base"
-          ]
-        }
+        "all": [
+          {
+            "call": {
+              "name": "schema:in-vocabulary",
+              "args": [
+                "tag:spec.openapis.org,2017:oas/3.0/vocab/base"
+              ]
+            }
+          },
+          {
+            "type": "object"
+          },
+          {
+            "any": [
+              {
+                "ref": "at-dialect-declaration"
+              },
+              {
+                "call": {
+                  "name": "convert:openapi30-shape",
+                  "args": [
+                    "$term",
+                    "ignored-sibling"
+                  ]
+                }
+              },
+              {
+                "call": {
+                  "name": "convert:openapi30-shape",
+                  "args": [
+                    "$term",
+                    "pending-shape"
+                  ]
+                }
+              },
+              {
+                "call": {
+                  "name": "convert:openapi30-shape",
+                  "args": [
+                    "$term",
+                    "promoted-keyword"
+                  ]
+                }
+              },
+              {
+                "call": {
+                  "name": "convert:openapi30-shape",
+                  "args": [
+                    "$term",
+                    "openapi-3-0-override"
+                  ]
+                }
+              },
+              {
+                "call": {
+                  "name": "convert:openapi30-shape",
+                  "args": [
+                    "$term",
+                    "movable-definitions"
+                  ]
+                }
+              },
+              {
+                "any": [
+                  {
+                    "all": [
+                      {
+                        "has": "nullable"
+                      },
+                      {
+                        "not": {
+                          "call": {
+                            "name": "convert:openapi30-carries",
+                            "args": [
+                              "$term",
+                              "nullable"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "has": "discriminator"
+                      },
+                      {
+                        "not": {
+                          "call": {
+                            "name": "convert:openapi30-carries",
+                            "args": [
+                              "$term",
+                              "discriminator"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "has": "xml"
+                      },
+                      {
+                        "not": {
+                          "call": {
+                            "name": "convert:openapi30-carries",
+                            "args": [
+                              "$term",
+                              "xml"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "has": "externalDocs"
+                      },
+                      {
+                        "not": {
+                          "call": {
+                            "name": "convert:openapi30-carries",
+                            "args": [
+                              "$term",
+                              "externalDocs"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "has": "example"
+                      },
+                      {
+                        "not": {
+                          "call": {
+                            "name": "convert:openapi30-carries",
+                            "args": [
+                              "$term",
+                              "example"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "has": "deprecated"
+                      },
+                      {
+                        "not": {
+                          "call": {
+                            "name": "convert:openapi30-carries",
+                            "args": [
+                              "$term",
+                              "deprecated"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "has": "readOnly"
+                      },
+                      {
+                        "not": {
+                          "call": {
+                            "name": "convert:openapi30-carries",
+                            "args": [
+                              "$term",
+                              "readOnly"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "all": [
+                      {
+                        "has": "writeOnly"
+                      },
+                      {
+                        "not": {
+                          "call": {
+                            "name": "convert:openapi30-carries",
+                            "args": [
+                              "$term",
+                              "writeOnly"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       {
-        "type": "object"
-      },
-      {
-        "any": [
+        "all": [
           {
-            "ref": "at-dialect-declaration"
+            "type": "object"
           },
           {
-            "call": {
-              "name": "convert:openapi30-shape",
-              "args": [
-                "$term",
-                "ignored-sibling"
-              ]
+            "member": {
+              "key": "x-sourcemeta-dialect-override-subschema",
+              "bind": "$marker"
             }
           },
           {
             "call": {
-              "name": "convert:openapi30-shape",
+              "name": "convert:is-own-dialect-override",
               "args": [
-                "$term",
-                "pending-shape"
-              ]
-            }
-          },
-          {
-            "call": {
-              "name": "convert:openapi30-shape",
-              "args": [
-                "$term",
-                "promoted-keyword"
-              ]
-            }
-          },
-          {
-            "call": {
-              "name": "convert:openapi30-shape",
-              "args": [
-                "$term",
-                "openapi-3-0-override"
-              ]
-            }
-          },
-          {
-            "call": {
-              "name": "convert:openapi30-shape",
-              "args": [
-                "$term",
-                "movable-definitions"
+                "$marker"
               ]
             }
           },
           {
             "any": [
               {
-                "all": [
-                  {
-                    "has": "nullable"
-                  },
-                  {
-                    "not": {
-                      "call": {
-                        "name": "convert:openapi30-carries",
-                        "args": [
-                          "$term",
-                          "nullable"
-                        ]
-                      }
-                    }
-                  }
-                ]
+                "ref": "at-dialect-declaration"
               },
               {
-                "all": [
-                  {
-                    "has": "discriminator"
-                  },
-                  {
-                    "not": {
-                      "call": {
-                        "name": "convert:openapi30-carries",
-                        "args": [
-                          "$term",
-                          "discriminator"
-                        ]
-                      }
-                    }
+                "binding": {
+                  "name": "$marker-says-nothing",
+                  "match": {
+                    "const": true
                   }
-                ]
-              },
-              {
-                "all": [
-                  {
-                    "has": "xml"
-                  },
-                  {
-                    "not": {
-                      "call": {
-                        "name": "convert:openapi30-carries",
-                        "args": [
-                          "$term",
-                          "xml"
-                        ]
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "all": [
-                  {
-                    "has": "externalDocs"
-                  },
-                  {
-                    "not": {
-                      "call": {
-                        "name": "convert:openapi30-carries",
-                        "args": [
-                          "$term",
-                          "externalDocs"
-                        ]
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "all": [
-                  {
-                    "has": "example"
-                  },
-                  {
-                    "not": {
-                      "call": {
-                        "name": "convert:openapi30-carries",
-                        "args": [
-                          "$term",
-                          "example"
-                        ]
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "all": [
-                  {
-                    "has": "deprecated"
-                  },
-                  {
-                    "not": {
-                      "call": {
-                        "name": "convert:openapi30-carries",
-                        "args": [
-                          "$term",
-                          "deprecated"
-                        ]
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "all": [
-                  {
-                    "has": "readOnly"
-                  },
-                  {
-                    "not": {
-                      "call": {
-                        "name": "convert:openapi30-carries",
-                        "args": [
-                          "$term",
-                          "readOnly"
-                        ]
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "all": [
-                  {
-                    "has": "writeOnly"
-                  },
-                  {
-                    "not": {
-                      "call": {
-                        "name": "convert:openapi30-carries",
-                        "args": [
-                          "$term",
-                          "writeOnly"
-                        ]
-                      }
-                    }
-                  }
-                ]
+                }
               }
             ]
+          }
+        ]
+      },
+      {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "match": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:at-root"
+              }
+            }
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:at-resource-root"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "call": {
+              "name": "convert:base-dialect-in",
+              "args": [
+                "draft7",
+                "draft7-hyper",
+                "draft6",
+                "draft6-hyper",
+                "draft4",
+                "draft4-hyper",
+                "draft3",
+                "draft3-hyper",
+                "draft2-hyper",
+                "draft1-hyper",
+                "draft0-hyper"
+              ]
+            }
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "bind": "$dialect",
+              "match": {
+                "enum": [
+                  "https://json-schema.org/draft-00/hyper-schema",
+                  "https://json-schema.org/draft-00/hyper-schema#",
+                  "https://json-schema.org/draft-00/schema",
+                  "https://json-schema.org/draft-00/schema#",
+                  "https://json-schema.org/draft-01/hyper-schema",
+                  "https://json-schema.org/draft-01/hyper-schema#",
+                  "https://json-schema.org/draft-01/schema",
+                  "https://json-schema.org/draft-01/schema#",
+                  "https://json-schema.org/draft-02/hyper-schema",
+                  "https://json-schema.org/draft-02/hyper-schema#",
+                  "https://json-schema.org/draft-02/schema",
+                  "https://json-schema.org/draft-02/schema#",
+                  "https://json-schema.org/draft-03/hyper-schema",
+                  "https://json-schema.org/draft-03/hyper-schema#",
+                  "https://json-schema.org/draft-03/schema",
+                  "https://json-schema.org/draft-03/schema#",
+                  "https://json-schema.org/draft-04/hyper-schema",
+                  "https://json-schema.org/draft-04/hyper-schema#",
+                  "https://json-schema.org/draft-04/schema",
+                  "https://json-schema.org/draft-04/schema#",
+                  "https://json-schema.org/draft-06/hyper-schema",
+                  "https://json-schema.org/draft-06/hyper-schema#",
+                  "https://json-schema.org/draft-06/schema",
+                  "https://json-schema.org/draft-06/schema#",
+                  "https://json-schema.org/draft-07/hyper-schema",
+                  "https://json-schema.org/draft-07/hyper-schema#",
+                  "https://json-schema.org/draft-07/schema",
+                  "https://json-schema.org/draft-07/schema#"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "bind": "$dialect",
+              "match": {
+                "enum": [
+                  "http://json-schema.org/draft-00/hyper-schema",
+                  "http://json-schema.org/draft-00/schema",
+                  "http://json-schema.org/draft-01/hyper-schema",
+                  "http://json-schema.org/draft-01/schema",
+                  "http://json-schema.org/draft-02/hyper-schema",
+                  "http://json-schema.org/draft-02/schema",
+                  "http://json-schema.org/draft-03/hyper-schema",
+                  "http://json-schema.org/draft-03/schema",
+                  "http://json-schema.org/draft-04/hyper-schema",
+                  "http://json-schema.org/draft-04/schema",
+                  "http://json-schema.org/draft-06/hyper-schema",
+                  "http://json-schema.org/draft-06/schema",
+                  "http://json-schema.org/draft-07/hyper-schema",
+                  "http://json-schema.org/draft-07/schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema#",
+                  "http://json-schema.org/draft/2019-09/schema",
+                  "http://json-schema.org/draft/2019-09/schema#",
+                  "http://json-schema.org/draft/2020-12/hyper-schema",
+                  "http://json-schema.org/draft/2020-12/hyper-schema#",
+                  "http://json-schema.org/draft/2020-12/schema",
+                  "http://json-schema.org/draft/2020-12/schema#",
+                  "https://json-schema.org/draft/2019-09/hyper-schema#",
+                  "https://json-schema.org/draft/2019-09/schema#",
+                  "https://json-schema.org/draft/2020-12/hyper-schema#",
+                  "https://json-schema.org/draft/2020-12/schema#",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25#",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10#",
+                  "https://spec.openapis.org/oas/3.1/dialect/base#",
+                  "https://spec.openapis.org/oas/3.2/dialect/2025-09-17#"
+                ]
+              }
+            }
           }
         ]
       }
@@ -217,647 +398,983 @@
   },
   "build": [
     {
-      "move": {
-        "keys": {
-          "not": {
-            "any": [
+      "group": [
+        {
+          "erase": "x-sourcemeta-dialect-override-subschema"
+        },
+        {
+          "set": {
+            "$schema": "$marker"
+          },
+          "first": true,
+          "if": {
+            "all": [
               {
-                "enum": [
-                  "$ref",
-                  "$schema"
-                ]
+                "not": {
+                  "has": "$schema"
+                }
               },
               {
-                "call": {
-                  "name": "convert:starts-with",
-                  "args": [
-                    "$term",
-                    "x-"
-                  ]
+                "ref": "at-dialect-declaration"
+              }
+            ]
+          }
+        }
+      ],
+      "if-current": {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "x-sourcemeta-dialect-override-subschema",
+              "bind": "$marker"
+            }
+          },
+          {
+            "call": {
+              "name": "convert:is-own-dialect-override",
+              "args": [
+                "$marker"
+              ]
+            }
+          },
+          {
+            "any": [
+              {
+                "ref": "at-dialect-declaration"
+              },
+              {
+                "binding": {
+                  "name": "$marker-says-nothing",
+                  "match": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "group": [
+        {
+          "move": {
+            "from": "/$schema",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$self",
+                  "$$schema"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "if-current": {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "match": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:at-root"
+              }
+            }
+          },
+          {
+            "not": {
+              "call": {
+                "name": "convert:at-resource-root"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": [
+        {
+          "set": {
+            "$schema": {
+              "lookup": {
+                "key": "$dialect",
+                "table": {
+                  "https://json-schema.org/draft-07/schema": "http://json-schema.org/draft-07/schema",
+                  "https://json-schema.org/draft-07/schema#": "http://json-schema.org/draft-07/schema#",
+                  "https://json-schema.org/draft-07/hyper-schema": "http://json-schema.org/draft-07/hyper-schema",
+                  "https://json-schema.org/draft-07/hyper-schema#": "http://json-schema.org/draft-07/hyper-schema#",
+                  "https://json-schema.org/draft-06/schema": "http://json-schema.org/draft-06/schema",
+                  "https://json-schema.org/draft-06/schema#": "http://json-schema.org/draft-06/schema#",
+                  "https://json-schema.org/draft-06/hyper-schema": "http://json-schema.org/draft-06/hyper-schema",
+                  "https://json-schema.org/draft-06/hyper-schema#": "http://json-schema.org/draft-06/hyper-schema#",
+                  "https://json-schema.org/draft-04/schema": "http://json-schema.org/draft-04/schema",
+                  "https://json-schema.org/draft-04/schema#": "http://json-schema.org/draft-04/schema#",
+                  "https://json-schema.org/draft-04/hyper-schema": "http://json-schema.org/draft-04/hyper-schema",
+                  "https://json-schema.org/draft-04/hyper-schema#": "http://json-schema.org/draft-04/hyper-schema#",
+                  "https://json-schema.org/draft-03/schema": "http://json-schema.org/draft-03/schema",
+                  "https://json-schema.org/draft-03/schema#": "http://json-schema.org/draft-03/schema#",
+                  "https://json-schema.org/draft-03/hyper-schema": "http://json-schema.org/draft-03/hyper-schema",
+                  "https://json-schema.org/draft-03/hyper-schema#": "http://json-schema.org/draft-03/hyper-schema#",
+                  "https://json-schema.org/draft-02/schema": "http://json-schema.org/draft-02/schema",
+                  "https://json-schema.org/draft-02/schema#": "http://json-schema.org/draft-02/schema#",
+                  "https://json-schema.org/draft-02/hyper-schema": "http://json-schema.org/draft-02/hyper-schema",
+                  "https://json-schema.org/draft-02/hyper-schema#": "http://json-schema.org/draft-02/hyper-schema#",
+                  "https://json-schema.org/draft-01/schema": "http://json-schema.org/draft-01/schema",
+                  "https://json-schema.org/draft-01/schema#": "http://json-schema.org/draft-01/schema#",
+                  "https://json-schema.org/draft-01/hyper-schema": "http://json-schema.org/draft-01/hyper-schema",
+                  "https://json-schema.org/draft-01/hyper-schema#": "http://json-schema.org/draft-01/hyper-schema#",
+                  "https://json-schema.org/draft-00/schema": "http://json-schema.org/draft-00/schema",
+                  "https://json-schema.org/draft-00/schema#": "http://json-schema.org/draft-00/schema#",
+                  "https://json-schema.org/draft-00/hyper-schema": "http://json-schema.org/draft-00/hyper-schema",
+                  "https://json-schema.org/draft-00/hyper-schema#": "http://json-schema.org/draft-00/hyper-schema#"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "if-current": {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "call": {
+              "name": "convert:base-dialect-in",
+              "args": [
+                "draft7",
+                "draft7-hyper",
+                "draft6",
+                "draft6-hyper",
+                "draft4",
+                "draft4-hyper",
+                "draft3",
+                "draft3-hyper",
+                "draft2-hyper",
+                "draft1-hyper",
+                "draft0-hyper"
+              ]
+            }
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "bind": "$dialect",
+              "match": {
+                "enum": [
+                  "https://json-schema.org/draft-00/hyper-schema",
+                  "https://json-schema.org/draft-00/hyper-schema#",
+                  "https://json-schema.org/draft-00/schema",
+                  "https://json-schema.org/draft-00/schema#",
+                  "https://json-schema.org/draft-01/hyper-schema",
+                  "https://json-schema.org/draft-01/hyper-schema#",
+                  "https://json-schema.org/draft-01/schema",
+                  "https://json-schema.org/draft-01/schema#",
+                  "https://json-schema.org/draft-02/hyper-schema",
+                  "https://json-schema.org/draft-02/hyper-schema#",
+                  "https://json-schema.org/draft-02/schema",
+                  "https://json-schema.org/draft-02/schema#",
+                  "https://json-schema.org/draft-03/hyper-schema",
+                  "https://json-schema.org/draft-03/hyper-schema#",
+                  "https://json-schema.org/draft-03/schema",
+                  "https://json-schema.org/draft-03/schema#",
+                  "https://json-schema.org/draft-04/hyper-schema",
+                  "https://json-schema.org/draft-04/hyper-schema#",
+                  "https://json-schema.org/draft-04/schema",
+                  "https://json-schema.org/draft-04/schema#",
+                  "https://json-schema.org/draft-06/hyper-schema",
+                  "https://json-schema.org/draft-06/hyper-schema#",
+                  "https://json-schema.org/draft-06/schema",
+                  "https://json-schema.org/draft-06/schema#",
+                  "https://json-schema.org/draft-07/hyper-schema",
+                  "https://json-schema.org/draft-07/hyper-schema#",
+                  "https://json-schema.org/draft-07/schema",
+                  "https://json-schema.org/draft-07/schema#"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": [
+        {
+          "set": {
+            "$schema": {
+              "lookup": {
+                "key": "$dialect",
+                "table": {
+                  "http://json-schema.org/draft-00/hyper-schema": "http://json-schema.org/draft-00/hyper-schema#",
+                  "http://json-schema.org/draft-00/schema": "http://json-schema.org/draft-00/schema#",
+                  "http://json-schema.org/draft-01/hyper-schema": "http://json-schema.org/draft-01/hyper-schema#",
+                  "http://json-schema.org/draft-01/schema": "http://json-schema.org/draft-01/schema#",
+                  "http://json-schema.org/draft-02/hyper-schema": "http://json-schema.org/draft-02/hyper-schema#",
+                  "http://json-schema.org/draft-02/schema": "http://json-schema.org/draft-02/schema#",
+                  "http://json-schema.org/draft-03/hyper-schema": "http://json-schema.org/draft-03/hyper-schema#",
+                  "http://json-schema.org/draft-03/schema": "http://json-schema.org/draft-03/schema#",
+                  "http://json-schema.org/draft-04/hyper-schema": "http://json-schema.org/draft-04/hyper-schema#",
+                  "http://json-schema.org/draft-04/schema": "http://json-schema.org/draft-04/schema#",
+                  "http://json-schema.org/draft-06/hyper-schema": "http://json-schema.org/draft-06/hyper-schema#",
+                  "http://json-schema.org/draft-06/schema": "http://json-schema.org/draft-06/schema#",
+                  "http://json-schema.org/draft-07/hyper-schema": "http://json-schema.org/draft-07/hyper-schema#",
+                  "http://json-schema.org/draft-07/schema": "http://json-schema.org/draft-07/schema#",
+                  "http://json-schema.org/draft/2019-09/hyper-schema": "https://json-schema.org/draft/2019-09/hyper-schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema#": "https://json-schema.org/draft/2019-09/hyper-schema",
+                  "http://json-schema.org/draft/2019-09/schema": "https://json-schema.org/draft/2019-09/schema",
+                  "http://json-schema.org/draft/2019-09/schema#": "https://json-schema.org/draft/2019-09/schema",
+                  "http://json-schema.org/draft/2020-12/hyper-schema": "https://json-schema.org/draft/2020-12/hyper-schema",
+                  "http://json-schema.org/draft/2020-12/hyper-schema#": "https://json-schema.org/draft/2020-12/hyper-schema",
+                  "http://json-schema.org/draft/2020-12/schema": "https://json-schema.org/draft/2020-12/schema",
+                  "http://json-schema.org/draft/2020-12/schema#": "https://json-schema.org/draft/2020-12/schema",
+                  "https://json-schema.org/draft/2019-09/hyper-schema#": "https://json-schema.org/draft/2019-09/hyper-schema",
+                  "https://json-schema.org/draft/2019-09/schema#": "https://json-schema.org/draft/2019-09/schema",
+                  "https://json-schema.org/draft/2020-12/hyper-schema#": "https://json-schema.org/draft/2020-12/hyper-schema",
+                  "https://json-schema.org/draft/2020-12/schema#": "https://json-schema.org/draft/2020-12/schema",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25#": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10#": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.1/dialect/base#": "https://spec.openapis.org/oas/3.1/dialect/base",
+                  "https://spec.openapis.org/oas/3.2/dialect/2025-09-17#": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "if-current": {
+        "all": [
+          {
+            "type": "object"
+          },
+          {
+            "member": {
+              "key": "$schema",
+              "bind": "$dialect",
+              "match": {
+                "enum": [
+                  "http://json-schema.org/draft-00/hyper-schema",
+                  "http://json-schema.org/draft-00/schema",
+                  "http://json-schema.org/draft-01/hyper-schema",
+                  "http://json-schema.org/draft-01/schema",
+                  "http://json-schema.org/draft-02/hyper-schema",
+                  "http://json-schema.org/draft-02/schema",
+                  "http://json-schema.org/draft-03/hyper-schema",
+                  "http://json-schema.org/draft-03/schema",
+                  "http://json-schema.org/draft-04/hyper-schema",
+                  "http://json-schema.org/draft-04/schema",
+                  "http://json-schema.org/draft-06/hyper-schema",
+                  "http://json-schema.org/draft-06/schema",
+                  "http://json-schema.org/draft-07/hyper-schema",
+                  "http://json-schema.org/draft-07/schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema",
+                  "http://json-schema.org/draft/2019-09/hyper-schema#",
+                  "http://json-schema.org/draft/2019-09/schema",
+                  "http://json-schema.org/draft/2019-09/schema#",
+                  "http://json-schema.org/draft/2020-12/hyper-schema",
+                  "http://json-schema.org/draft/2020-12/hyper-schema#",
+                  "http://json-schema.org/draft/2020-12/schema",
+                  "http://json-schema.org/draft/2020-12/schema#",
+                  "https://json-schema.org/draft/2019-09/hyper-schema#",
+                  "https://json-schema.org/draft/2019-09/schema#",
+                  "https://json-schema.org/draft/2020-12/hyper-schema#",
+                  "https://json-schema.org/draft/2020-12/schema#",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-10-25#",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10",
+                  "https://spec.openapis.org/oas/3.1/dialect/2024-11-10#",
+                  "https://spec.openapis.org/oas/3.1/dialect/base#",
+                  "https://spec.openapis.org/oas/3.2/dialect/2025-09-17#"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": [
+        {
+          "move": {
+            "keys": {
+              "not": {
+                "any": [
+                  {
+                    "enum": [
+                      "$ref",
+                      "$schema"
+                    ]
+                  },
+                  {
+                    "call": {
+                      "name": "convert:starts-with",
+                      "args": [
+                        "$term",
+                        "x-"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "$key",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            }
+          },
+          "if": {
+            "has": "$ref"
+          }
+        },
+        {
+          "replace": {
+            "call": {
+              "name": "convert:openapi30-fold",
+              "args": [
+                "$current"
+              ]
+            }
+          },
+          "if": {
+            "not": {
+              "has": "$ref"
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/exclusiveMinimum",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "exclusiveMinimum",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "exclusiveMinimum"
+              },
+              {
+                "not": {
+                  "has": "minimum"
                 }
               }
             ]
           }
         },
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "$key",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
+        {
+          "move": {
+            "from": "/exclusiveMaximum",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "exclusiveMaximum",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "exclusiveMaximum"
+              },
+              {
+                "not": {
+                  "has": "maximum"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/allOf",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "allOf",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              }
+            ]
+          },
+          "if-current": {
+            "all": [
+              {
+                "member": {
+                  "key": "allOf",
+                  "match": {
+                    "type": "array",
+                    "empty": true
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/nullable",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "nullable",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "nullable"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:openapi30-carries",
+                    "args": [
+                      "$term",
+                      "nullable"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/discriminator",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "discriminator",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "discriminator"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:openapi30-carries",
+                    "args": [
+                      "$term",
+                      "discriminator"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/xml",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "xml",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "xml"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:openapi30-carries",
+                    "args": [
+                      "$term",
+                      "xml"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/externalDocs",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "externalDocs",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "externalDocs"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:openapi30-carries",
+                    "args": [
+                      "$term",
+                      "externalDocs"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/example",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "example",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "example"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:openapi30-carries",
+                    "args": [
+                      "$term",
+                      "example"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/deprecated",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "deprecated",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "deprecated"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:openapi30-carries",
+                    "args": [
+                      "$term",
+                      "deprecated"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/readOnly",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "readOnly",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "readOnly"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:openapi30-carries",
+                    "args": [
+                      "$term",
+                      "readOnly"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/writeOnly",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "writeOnly",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "has": "writeOnly"
+              },
+              {
+                "not": {
+                  "call": {
+                    "name": "convert:openapi30-carries",
+                    "args": [
+                      "$term",
+                      "writeOnly"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "move": {
+            "from": "/id",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "id",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "not": {
+              "has": "$ref"
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/definitions",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "definitions",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "not": {
+              "has": "$ref"
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/dependencies",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "dependencies",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "not": {
+              "has": "$ref"
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/patternProperties",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "patternProperties",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "not": {
+              "has": "$ref"
+            }
+          }
+        },
+        {
+          "move": {
+            "from": "/additionalItems",
+            "to": {
+              "call": {
+                "name": "convert:shadow-pointer",
+                "args": [
+                  "$current",
+                  "additionalItems",
+                  "x-definitions",
+                  "x-sourcemeta-dialect-override-subschema"
+                ]
+              }
+            },
+            "optional": true
+          },
+          "if": {
+            "not": {
+              "has": "$ref"
+            }
+          }
+        },
+        {
+          "distribute": {
+            "from": "/x-definitions",
+            "cases": [
+              {
+                "when": {
+                  "type": "object"
+                },
+                "to": "/definitions/$key"
+              },
+              {
+                "when": {
+                  "type": "boolean"
+                },
+                "to": "/definitions/$key",
+                "as": {
+                  "call": {
+                    "name": "convert:openapi30-boolean-schema",
+                    "args": [
+                      "$value"
+                    ]
+                  }
+                }
+              },
+              {
+                "to": "/x-definitions/$key"
+              }
+            ],
+            "prune-empty": true
+          },
+          "if": {
+            "all": [
+              {
+                "not": {
+                  "has": "$ref"
+                }
+              },
+              {
+                "call": {
+                  "name": "convert:openapi30-shape",
+                  "args": [
+                    "$term",
+                    "movable-definitions"
+                  ]
+                }
+              }
             ]
           }
         }
-      },
+      ],
       "if": {
-        "has": "$ref"
-      }
-    },
-    {
-      "replace": {
         "call": {
-          "name": "convert:openapi30-fold",
+          "name": "schema:in-vocabulary",
           "args": [
-            "$current"
+            "tag:spec.openapis.org,2017:oas/3.0/vocab/base"
           ]
         }
-      },
-      "if": {
-        "not": {
-          "has": "$ref"
-        }
-      }
-    },
-    {
-      "move": {
-        "from": "/exclusiveMinimum",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "exclusiveMinimum",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "exclusiveMinimum"
-          },
-          {
-            "not": {
-              "has": "minimum"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/exclusiveMaximum",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "exclusiveMaximum",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "exclusiveMaximum"
-          },
-          {
-            "not": {
-              "has": "maximum"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/allOf",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "allOf",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          }
-        ]
-      },
-      "if-current": {
-        "all": [
-          {
-            "member": {
-              "key": "allOf",
-              "match": {
-                "type": "array",
-                "empty": true
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/nullable",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "nullable",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "nullable"
-          },
-          {
-            "not": {
-              "call": {
-                "name": "convert:openapi30-carries",
-                "args": [
-                  "$term",
-                  "nullable"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/discriminator",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "discriminator",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "discriminator"
-          },
-          {
-            "not": {
-              "call": {
-                "name": "convert:openapi30-carries",
-                "args": [
-                  "$term",
-                  "discriminator"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/xml",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "xml",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "xml"
-          },
-          {
-            "not": {
-              "call": {
-                "name": "convert:openapi30-carries",
-                "args": [
-                  "$term",
-                  "xml"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/externalDocs",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "externalDocs",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "externalDocs"
-          },
-          {
-            "not": {
-              "call": {
-                "name": "convert:openapi30-carries",
-                "args": [
-                  "$term",
-                  "externalDocs"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/example",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "example",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "example"
-          },
-          {
-            "not": {
-              "call": {
-                "name": "convert:openapi30-carries",
-                "args": [
-                  "$term",
-                  "example"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/deprecated",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "deprecated",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "deprecated"
-          },
-          {
-            "not": {
-              "call": {
-                "name": "convert:openapi30-carries",
-                "args": [
-                  "$term",
-                  "deprecated"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/readOnly",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "readOnly",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "readOnly"
-          },
-          {
-            "not": {
-              "call": {
-                "name": "convert:openapi30-carries",
-                "args": [
-                  "$term",
-                  "readOnly"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/writeOnly",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "writeOnly",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "has": "writeOnly"
-          },
-          {
-            "not": {
-              "call": {
-                "name": "convert:openapi30-carries",
-                "args": [
-                  "$term",
-                  "writeOnly"
-                ]
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "move": {
-        "from": "/id",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "id",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "not": {
-          "has": "$ref"
-        }
-      }
-    },
-    {
-      "move": {
-        "from": "/definitions",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "definitions",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "not": {
-          "has": "$ref"
-        }
-      }
-    },
-    {
-      "move": {
-        "from": "/dependencies",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "dependencies",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "not": {
-          "has": "$ref"
-        }
-      }
-    },
-    {
-      "move": {
-        "from": "/patternProperties",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "patternProperties",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "not": {
-          "has": "$ref"
-        }
-      }
-    },
-    {
-      "move": {
-        "from": "/additionalItems",
-        "to": {
-          "call": {
-            "name": "convert:shadow-pointer",
-            "args": [
-              "$current",
-              "additionalItems",
-              "x-definitions",
-              "x-sourcemeta-dialect-override-subschema"
-            ]
-          }
-        },
-        "optional": true
-      },
-      "if": {
-        "not": {
-          "has": "$ref"
-        }
-      }
-    },
-    {
-      "distribute": {
-        "from": "/x-definitions",
-        "cases": [
-          {
-            "when": {
-              "type": "object"
-            },
-            "to": "/definitions/$key"
-          },
-          {
-            "when": {
-              "type": "boolean"
-            },
-            "to": "/definitions/$key",
-            "as": {
-              "call": {
-                "name": "convert:openapi30-boolean-schema",
-                "args": [
-                  "$value"
-                ]
-              }
-            }
-          },
-          {
-            "to": "/x-definitions/$key"
-          }
-        ],
-        "prune-empty": true
-      },
-      "if": {
-        "all": [
-          {
-            "not": {
-              "has": "$ref"
-            }
-          },
-          {
-            "call": {
-              "name": "convert:openapi30-shape",
-              "args": [
-                "$term",
-                "movable-definitions"
-              ]
-            }
-          }
-        ]
       }
     }
   ],
   "bump": {
-    "dialect": "http://json-schema.org/draft-04/schema#"
-  }
+    "dialect": "http://json-schema.org/draft-04/schema#",
+    "only-when": {
+      "call": {
+        "name": "schema:in-vocabulary",
+        "args": [
+          "tag:spec.openapis.org,2017:oas/3.0/vocab/base"
+        ]
+      }
+    }
+  },
+  "queries": {
+    "$marker-says-nothing": {
+      "name": "convert:marker-says-nothing"
+    }
+  },
+  "writes-outside-itself": true
 }
