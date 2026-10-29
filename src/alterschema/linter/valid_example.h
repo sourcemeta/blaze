@@ -29,6 +29,19 @@ public:
 
     const auto &instance{schema.at("example")};
 
+    // The OpenAPI Schema Object lets a string `example` carry an instance that
+    // cannot be naturally represented in JSON or YAML, with escaping where
+    // necessary, so a string on a schema that takes no strings is an encoded
+    // payload rather than a mismatch
+    if (instance.is_string()) {
+      const auto *type{schema.try_at("type")};
+      const auto declared_types{type == nullptr ? JSON::TypeSet{}
+                                                : parse_schema_type(*type)};
+      ONLY_CONTINUE_IF(!declared_types.any() ||
+                       declared_types.test(std::to_underlying(
+                           sourcemeta::core::JSON::Type::String)));
+    }
+
     if (frame.standalone()) {
       const auto base{frame.uri(location.pointer)};
       assert(base.has_value());
