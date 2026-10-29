@@ -161,3 +161,377 @@ TEST(openapi_3_2_pattern_properties_non_ecma_regex_valid) {
   EXPECT_TRUE(result.first);
   EXPECT_EQ(traces.size(), 0);
 }
+
+TEST(openapi_3_2_valid_examples) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "examples": [ 1 ] }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_examples",
+                    "Only include instances in the `examples` array that "
+                    "validate against the schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_2_valid_examples_matching_instances) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "examples": [ "bar" ] }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(openapi_3_2_duplicate_examples) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "examples": [ "bar", "bar" ] }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "duplicate_examples",
+                    "Setting duplicate values in `examples` is redundant",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "examples": [ "bar" ] }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_2_top_level_examples) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string"
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_FALSE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "top_level_examples",
+                    "Set a non-empty examples array at the top level of the "
+                    "schema to illustrate the expected data",
+                    false);
+}
+
+TEST(openapi_3_2_valid_example) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "example": 1 }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_2_valid_example_matching_instance) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "example": "bar" }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(openapi_3_2_valid_example_sibling_to_ref) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "$ref": "#/$defs/helper", "example": 1 }
+    },
+    "$defs": {
+      "helper": { "type": "string" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "$ref": "#/$defs/helper" }
+    },
+    "$defs": {
+      "helper": { "type": "string" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_2_valid_example_with_valid_examples) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "example": "bar", "examples": [ "baz" ] }
+    }
+  })JSON");
+
+  LINT_WITHOUT_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(openapi_3_2_invalid_example_with_invalid_examples) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "example": 1, "examples": [ 2 ] }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+  EXPECT_LINT_TRACE(traces, 1, "/properties/foo", "valid_examples",
+                    "Only include instances in the `examples` array that "
+                    "validate against the schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_2_valid_example_with_invalid_examples) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "example": "bar", "examples": [ 1 ] }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_examples",
+                    "Only include instances in the `examples` array that "
+                    "validate against the schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "example": "bar" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_2_invalid_example_with_valid_examples) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "example": 1, "examples": [ "bar" ] }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "examples": [ "bar" ] }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+TEST(openapi_3_2_valid_example_string_on_object_schema) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "object", "example": "<foo>bar</foo>" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "object" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_2_valid_example_string_on_string_schema) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "maxLength": 3, "example": "toolong" }
+    }
+  })JSON");
+
+  LINT_AND_FIX(document, result, traces);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "title": "Test",
+    "description": "A test schema",
+    "examples": [ {} ],
+    "properties": {
+      "foo": { "type": "string", "maxLength": 3 }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
