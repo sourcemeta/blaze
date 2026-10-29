@@ -4934,10 +4934,8 @@ TEST(properties_type_union_untracked_decimal_integer) {
 
   EVALUATE_TRACE_PRE(0, AssertionTypeAny, "/properties/foo/type",
                      "#/properties/foo/type", "/foo");
-
   EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeAny, "/properties/foo/type",
                               "#/properties/foo/type", "/foo");
-
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer, "
                                "or string and it was of type integer");
