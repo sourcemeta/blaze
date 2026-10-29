@@ -1526,3 +1526,77 @@ TEST(openapi_3_0_unsatisfiable_drop_validation_with_ref_sibling) {
 
   EXPECT_EQ(document, expected);
 }
+
+TEST(openapi_3_0_valid_example) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string",
+    "example": 1
+  })JSON");
+
+  LINT_AND_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                    OPENAPI_3_0_DIALECT);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "", "valid_example",
+                    "Only set an `example` value that validates against the "
+                    "schema",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string"
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
+
+TEST(openapi_3_0_valid_example_matching_instance) {
+  const sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "type": "string",
+    "example": "foo"
+  })JSON");
+
+  LINT_WITHOUT_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                        OPENAPI_3_0_DIALECT);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 0);
+}
+
+TEST(openapi_3_0_valid_example_sibling_to_ref) {
+  sourcemeta::core::JSON document = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "properties": {
+      "foo": { "$ref": "#/properties/bar", "example": 1 },
+      "bar": { "type": "string" }
+    }
+  })JSON");
+
+  LINT_AND_FIX_WITH_DEFAULT_DIALECT(document, result, traces,
+                                    OPENAPI_3_0_DIALECT);
+
+  EXPECT_TRUE(result.first);
+  EXPECT_EQ(traces.size(), 1);
+  EXPECT_LINT_TRACE(traces, 0, "/properties/foo", "draft_ref_siblings",
+                    "In Draft 7 and older dialects, keywords sibling to "
+                    "`$ref` are never evaluated",
+                    true);
+
+  const sourcemeta::core::JSON expected = sourcemeta::core::parse_json(R"JSON({
+    "title": "Test",
+    "description": "A test schema",
+    "properties": {
+      "foo": { "$ref": "#/properties/bar" },
+      "bar": { "type": "string" }
+    }
+  })JSON");
+
+  EXPECT_EQ(document, expected);
+}
