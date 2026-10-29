@@ -14346,5 +14346,33 @@
         "The value was expected to be of type integer"
       ]
     }
+  },
+  {
+    "description": "minProperties_empty_object",
+    "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minProperties": 1 },
+    "instance": {},
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 1 property but it contained 0 properties"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "post": [
+        [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to contain at least 1 property but it contained 0 properties"
+      ]
+    }
   }
 ]
