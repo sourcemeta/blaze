@@ -17,11 +17,10 @@ public:
             const sourcemeta::core::SchemaResolver &resolver) const
       -> SchemaTransformRule::Result override {
     using Known = SchemaVocabularies::Known;
-    ONLY_CONTINUE_IF(
-        vocabularies.contains_any({Known::OPENAPI_3_0_BASE,
-                                   Known::OPENAPI_3_1_BASE,
-                                   Known::OPENAPI_3_2_BASE}) &&
-        schema.is_object() && schema.defines("example"));
+    ONLY_CONTINUE_IF(vocabularies.contains_any({Known::OPENAPI_3_0_BASE,
+                                                Known::OPENAPI_3_1_BASE,
+                                                Known::OPENAPI_3_2_BASE}) &&
+                     schema.is_object() && schema.defines("example"));
 
     if (vocabularies.contains(Known::OPENAPI_3_0_BASE)) {
       ONLY_CONTINUE_IF(!schema.defines("$ref"));
