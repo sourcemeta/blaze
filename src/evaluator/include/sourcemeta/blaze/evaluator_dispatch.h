@@ -2918,6 +2918,41 @@ INSTRUCTION_HANDLER(LoopItemsIntegerBoundedSized) {
   EVALUATE_END(LoopItemsIntegerBoundedSized);
 }
 
+// `items` whose subschema is itself an `items` with a size bound compiles to a
+// loop whose body is two instructions that both only look at the item, which
+// means a dispatch per item of the outer array. Nesting the two loops here
+// decides the whole shape in one instruction instead
+INSTRUCTION_HANDLER(LoopItemsArrayBoundedTypeStrictAny) {
+  EVALUATE_BEGIN_NON_STRING(LoopItemsArrayBoundedTypeStrictAny,
+                            target.is_array());
+  const auto &value{assume_value<ValueTypesWithSize>(instruction.value)};
+  const auto types{value.first};
+  const auto minimum{std::get<0>(value.second)};
+  const auto &maximum{std::get<1>(value.second)};
+  assert(types.any());
+  // Require early breaking
+  assert(!std::get<2>(value.second));
+  result = true;
+  for (const auto &item : target.as_array()) {
+    if (item.type() != JSON::Type::Array || item.array_size() < minimum ||
+        (maximum.has_value() && item.array_size() > maximum.value()))
+        [[unlikely]] {
+      result = false;
+      EVALUATE_END(LoopItemsArrayBoundedTypeStrictAny);
+    }
+
+    for (const auto &entry : item.as_array()) {
+      if (!types.test(std::to_underlying(effective_type_strict_real(entry))))
+          [[unlikely]] {
+        result = false;
+        EVALUATE_END(LoopItemsArrayBoundedTypeStrictAny);
+      }
+    }
+  }
+
+  EVALUATE_END(LoopItemsArrayBoundedTypeStrictAny);
+}
+
 INSTRUCTION_HANDLER(LoopContains) {
   EVALUATE_BEGIN_NON_STRING(LoopContains, target.is_array());
   // The subschema may compile to no children, in which case every array
@@ -2991,7 +3026,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[103] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[104] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -3087,6 +3122,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[103] = {
     LoopItemsPropertiesExactlyTypeStrictHash3,
     LoopItemsIntegerBounded,
     LoopItemsIntegerBoundedSized,
+    LoopItemsArrayBoundedTypeStrictAny,
     LoopContains,
     ControlGroup,
     ControlGroupWhenDefines,

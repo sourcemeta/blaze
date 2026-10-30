@@ -45,6 +45,7 @@ auto value_from_json(const sourcemeta::core::JSON &wrapper)
     case 23: return sourcemeta::core::from_json<ValueIntegerBoundsWithSize>(value);
     case 24: return sourcemeta::core::from_json<ValueObjectProperties>(value);
     case 25: return sourcemeta::core::from_json<ValueNumberType>(value);
+    case 26: return sourcemeta::core::from_json<ValueTypesWithSize>(value);
     // clang-format on
     default:
       std::unreachable();

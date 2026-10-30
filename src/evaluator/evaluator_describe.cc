@@ -1169,6 +1169,12 @@ auto describe(const bool valid, const Instruction &step,
   }
 
   if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopItemsArrayBoundedTypeStrictAny) {
+    return "Every item in the array was expected to be an array of the given "
+           "size whose items were of the given types";
+  }
+
+  if (step.type ==
           sourcemeta::blaze::InstructionIndex::AssertionTypeIntegerBounded ||
       step.type == sourcemeta::blaze::InstructionIndex::
                        AssertionTypeIntegerBoundedStrict) {

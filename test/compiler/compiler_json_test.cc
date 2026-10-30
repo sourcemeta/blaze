@@ -34,7 +34,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      10,
+      11,
       false,
       false,
       [
@@ -74,7 +74,7 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      10,
+      11,
       false,
       false,
       [
@@ -134,7 +134,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      10,
+      11,
       false,
       false,
       [
@@ -176,7 +176,7 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      10,
+      11,
       false,
       false,
       [
@@ -262,7 +262,7 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      10,
+      11,
       false,
       true,
       [
@@ -311,7 +311,7 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      10,
+      11,
       false,
       true,
       [
@@ -405,7 +405,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      10,
+      11,
       false,
       false,
       [
@@ -489,7 +489,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
             ],
             [
               [
-                96,
+                97,
                 [],
                 [],
                 "#/properties",
@@ -519,7 +519,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                96,
+                97,
                 [],
                 [],
                 "#/properties",
@@ -549,7 +549,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                96,
+                97,
                 [],
                 [],
                 "#/properties",
@@ -579,7 +579,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                96,
+                97,
                 [],
                 [],
                 "#/properties",
@@ -609,7 +609,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                96,
+                97,
                 [],
                 [],
                 "#/properties",
@@ -639,7 +639,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                96,
+                97,
                 [],
                 [],
                 "#/properties",
@@ -866,4 +866,51 @@ TEST(annotations_whitelist_unused_matches_untweaked) {
 
   EXPECT_EQ(sourcemeta::blaze::to_json(with_whitelist),
             sourcemeta::blaze::to_json(without_tweaks));
+}
+
+TEST(items_fused_as_a_bounded_array_type_loop) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
+    [
+      11,
+      false,
+      false,
+      [
+        [
+          [
+            95,
+            [ "items" ],
+            [],
+            "#/items",
+            0,
+            1,
+            [
+              26,
+              [
+                140,
+                [ 2, null, false ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      [],
+      [ "http://json-schema.org/draft-07/schema#" ]
+    ]
+  )JSON")};
+
+  EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
 }
