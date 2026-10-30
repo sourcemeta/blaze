@@ -34,7 +34,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      9,
+      10,
       false,
       false,
       [
@@ -74,7 +74,7 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      9,
+      10,
       false,
       false,
       [
@@ -134,7 +134,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      9,
+      10,
       false,
       false,
       [
@@ -176,7 +176,7 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      9,
+      10,
       false,
       false,
       [
@@ -262,7 +262,7 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      9,
+      10,
       false,
       true,
       [
@@ -311,7 +311,7 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      9,
+      10,
       false,
       true,
       [
@@ -382,6 +382,307 @@ TEST(example_6) {
             "https://example.com/top#/additionalProperties");
 }
 
+TEST(properties_as_a_loop_without_a_table_of_contents) {
+  // Enough optional properties for the compiler to prefer one pass over the
+  // instance to unrolling every property, which emits the named indexes, but
+  // too few for it to give them a table of contents
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "a": { "type": "string" },
+      "bb": { "type": "integer" },
+      "cc": { "type": "boolean" },
+      "dddd": { "type": "null" },
+      "eeeee": { "type": "array" },
+      "ffffff": { "type": "object" }
+    }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
+    [
+      10,
+      false,
+      false,
+      [
+        [
+          [
+            68,
+            [
+              "properties"
+            ],
+            [],
+            "#/properties",
+            0,
+            2,
+            [
+              13,
+              [
+                [
+                  [
+                    [
+                      0,
+                      24832,
+                      0,
+                      0
+                    ],
+                    0,
+                    "a"
+                  ],
+                  [
+                    [
+                      0,
+                      6447616,
+                      0,
+                      0
+                    ],
+                    1,
+                    "bb"
+                  ],
+                  [
+                    [
+                      0,
+                      6513408,
+                      0,
+                      0
+                    ],
+                    2,
+                    "cc"
+                  ],
+                  [
+                    [
+                      0,
+                      431181030400,
+                      0,
+                      0
+                    ],
+                    3,
+                    "dddd"
+                  ],
+                  [
+                    [
+                      0,
+                      111486167246080,
+                      0,
+                      0
+                    ],
+                    4,
+                    "eeeee"
+                  ],
+                  [
+                    [
+                      0,
+                      28823037615171072,
+                      0,
+                      0
+                    ],
+                    5,
+                    "ffffff"
+                  ]
+                ],
+                []
+              ]
+            ],
+            [
+              [
+                96,
+                [],
+                [],
+                "#/properties",
+                0,
+                2,
+                [
+                  0
+                ],
+                [
+                  [
+                    45,
+                    [
+                      "a",
+                      "type"
+                    ],
+                    [
+                      "a"
+                    ],
+                    "#/properties/a/type",
+                    0,
+                    1,
+                    [
+                      8,
+                      4
+                    ]
+                  ]
+                ]
+              ],
+              [
+                96,
+                [],
+                [],
+                "#/properties",
+                0,
+                2,
+                [
+                  0
+                ],
+                [
+                  [
+                    43,
+                    [
+                      "bb",
+                      "type"
+                    ],
+                    [
+                      "bb"
+                    ],
+                    "#/properties/bb/type",
+                    0,
+                    1,
+                    [
+                      8,
+                      2
+                    ]
+                  ]
+                ]
+              ],
+              [
+                96,
+                [],
+                [],
+                "#/properties",
+                0,
+                2,
+                [
+                  0
+                ],
+                [
+                  [
+                    45,
+                    [
+                      "cc",
+                      "type"
+                    ],
+                    [
+                      "cc"
+                    ],
+                    "#/properties/cc/type",
+                    0,
+                    1,
+                    [
+                      8,
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              [
+                96,
+                [],
+                [],
+                "#/properties",
+                0,
+                2,
+                [
+                  0
+                ],
+                [
+                  [
+                    45,
+                    [
+                      "dddd",
+                      "type"
+                    ],
+                    [
+                      "dddd"
+                    ],
+                    "#/properties/dddd/type",
+                    0,
+                    1,
+                    [
+                      8,
+                      0
+                    ]
+                  ]
+                ]
+              ],
+              [
+                96,
+                [],
+                [],
+                "#/properties",
+                0,
+                2,
+                [
+                  0
+                ],
+                [
+                  [
+                    45,
+                    [
+                      "eeeee",
+                      "type"
+                    ],
+                    [
+                      "eeeee"
+                    ],
+                    "#/properties/eeeee/type",
+                    0,
+                    1,
+                    [
+                      8,
+                      5
+                    ]
+                  ]
+                ]
+              ],
+              [
+                96,
+                [],
+                [],
+                "#/properties",
+                0,
+                2,
+                [
+                  0
+                ],
+                [
+                  [
+                    45,
+                    [
+                      "ffffff",
+                      "type"
+                    ],
+                    [
+                      "ffffff"
+                    ],
+                    "#/properties/ffffff/type",
+                    0,
+                    1,
+                    [
+                      8,
+                      6
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      [],
+      [
+        "https://json-schema.org/draft/2020-12/vocab/validation",
+        "https://json-schema.org/draft/2020-12/vocab/applicator"
+      ]
+    ]
+  )JSON")};
+
+  EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
+}
+
 TEST(without_expected_1) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -430,6 +731,22 @@ TEST(without_expected_2) {
                                  sourcemeta::core::schema_resolver,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::Exhaustive)};
+
+  EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
+}
+
+TEST(without_expected_3) {
+  // The draft 7 metaschema declares more properties than the threshold at
+  // which the compiler gives the named indexes a table of contents, so this
+  // covers encoding and decoding them with one
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-07/schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      metaschema.value(), sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
 
   EXPECT_BIDIRECTIONAL_JSON_WITHOUT_EXPECTED(schema_template);
 }

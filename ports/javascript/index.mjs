@@ -7,7 +7,7 @@ import {
   CONTROL_JUMP, CONTROL_DYNAMIC_ANCHOR_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 9;
+const JSON_VERSION = 10;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -83,15 +83,16 @@ function prepareInstruction(instruction) {
           catch { instruction[6] = new RegExp(payload); }
           break;
         case 13: {
-          if (Array.isArray(payload)) {
-            const object = Object.create(null);
-            for (let index = 0; index < payload.length; index++) {
-              object[payload[index][0]] = payload[index][1];
-            }
-            instruction[6] = object;
-          } else {
-            instruction[6] = payload;
+          // The entries are (hash, child index, name), sorted by the size of
+          // the name, followed by a table of contents by name size that only
+          // bounds a scan. An object is already a lookup here, so the names go
+          // straight into one and the table of contents is not needed
+          const object = Object.create(null);
+          const entries = payload[0];
+          for (let index = 0; index < entries.length; index++) {
+            object[entries[index][2]] = entries[index][1];
           }
+          instruction[6] = object;
           break;
         }
         case 15: {

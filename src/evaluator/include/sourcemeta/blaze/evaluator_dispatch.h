@@ -232,6 +232,46 @@ resolve_string_target(const JSON::String *property_target, const JSON &instance,
   }
 }
 
+inline auto named_index(const ValueNamedIndexes &indexes,
+                        const JSON::String &name,
+                        const JSON::Object::hash_type &name_hash) noexcept
+    -> const ValueUnsignedInteger * {
+  // Few enough names come without a table of contents, as reaching one costs
+  // more than scanning them, so the whole range is the candidate range
+  std::size_t first{1};
+  std::size_t last{indexes.first.size()};
+  if (!indexes.second.empty()) {
+    // A name whose size no entry has cannot match, which settles most of the
+    // misses without comparing against any entry at all
+    if (name.size() >= indexes.second.size()) {
+      return nullptr;
+    }
+
+    const auto &bounds{indexes.second[name.size()]};
+    if (bounds.second == 0) {
+      return nullptr;
+    }
+
+    first = bounds.first;
+    last = bounds.second;
+  }
+
+  constexpr sourcemeta::core::PropertyHashJSON<JSON::String> HASHER{};
+  for (auto position = first; position <= last; position++) {
+    const auto &entry{indexes.first[position - 1]};
+    // A perfect hash captures the name's bytes but not its size, so two names
+    // that differ only by trailing NUL bytes hash equal, as `Entry::key_equals`
+    // notes. Without a table of contents nothing has matched the size yet
+    if (std::get<0>(entry) == name_hash &&
+        (HASHER.is_perfect(name_hash) ? std::get<2>(entry).size() == name.size()
+                                      : std::get<2>(entry) == name)) {
+      return &std::get<1>(entry);
+    }
+  }
+
+  return nullptr;
+}
+
 inline auto effective_type_strict_real(const JSON &instance) noexcept
     -> JSON::Type {
   const auto real_type{instance.type()};
@@ -1793,10 +1833,20 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
 INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatch, target.is_object());
   const auto &value{assume_value<ValueNamedIndexes>(instruction.value)};
-  assert(!value.empty());
+  assert(!value.first.empty());
   result = true;
+  // The loop already holds each property's value, so a child that only looks at
+  // that value is decided here, rather than dispatched to and left to find the
+  // property in the object a second time. The evaluation-marking variants of
+  // those assertions are deliberately absent, as skipping them would skip the
+  // marker. Dynamic pushes and pops a resource per instruction that the direct
+  // path would skip, and children are evaluated at `depth + 1`, which the
+  // direct path does not route through the depth check. Every condition holds
+  // for every child, so decide once rather than per property
+  const auto direct_children{!Track && !HasCallback && !Dynamic &&
+                             depth < DEPTH_LIMIT};
   for (const auto &entry : target.as_object()) {
-    const auto *index{value.try_at(entry.first, entry.hash)};
+    const auto *index{named_index(value, entry.first, entry.hash)};
     if (!index) {
       continue;
     }
@@ -1805,7 +1855,34 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : subinstruction.children) {
-      if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
+      bool child_ok;
+      // A child whose instance location is not just the matched property is not
+      // about the value this loop holds, which inlining a reference into the
+      // group can produce, so it resolves its own target as usual
+      if (direct_children && child.relative_instance_location.size() == 1)
+          [[likely]] {
+        switch (child.type) {
+          case InstructionIndex::AssertionPropertyTypeStrict:
+            child_ok = DIRECT(AssertionTypeStrict, entry.second,
+                              assume_value_copy<ValueType>(child.value));
+            break;
+          case InstructionIndex::AssertionPropertyType:
+            child_ok = DIRECT(AssertionType, entry.second,
+                              assume_value_copy<ValueType>(child.value));
+            break;
+          case InstructionIndex::AssertionPropertyTypeStrictAny:
+            child_ok = DIRECT(AssertionTypeStrictAny, entry.second,
+                              assume_value<ValueTypes>(child.value));
+            break;
+          default:
+            child_ok = EVALUATE_RECURSE(child, target);
+            break;
+        }
+      } else {
+        child_ok = EVALUATE_RECURSE(child, target);
+      }
+
+      if (!child_ok) [[unlikely]] {
         result = false;
         EVALUATE_END(LoopPropertiesMatch);
       }
@@ -1818,10 +1895,20 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
 INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatchClosed, target.is_object());
   const auto &value{assume_value<ValueNamedIndexes>(instruction.value)};
-  assert(!value.empty());
+  assert(!value.first.empty());
   result = true;
+  // The loop already holds each property's value, so a child that only looks at
+  // that value is decided here, rather than dispatched to and left to find the
+  // property in the object a second time. The evaluation-marking variants of
+  // those assertions are deliberately absent, as skipping them would skip the
+  // marker. Dynamic pushes and pops a resource per instruction that the direct
+  // path would skip, and children are evaluated at `depth + 1`, which the
+  // direct path does not route through the depth check. Every condition holds
+  // for every child, so decide once rather than per property
+  const auto direct_children{!Track && !HasCallback && !Dynamic &&
+                             depth < DEPTH_LIMIT};
   for (const auto &entry : target.as_object()) {
-    const auto *index{value.try_at(entry.first, entry.hash)};
+    const auto *index{named_index(value, entry.first, entry.hash)};
     if (!index) [[unlikely]] {
       result = false;
       break;
@@ -1831,7 +1918,34 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : subinstruction.children) {
-      if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
+      bool child_ok;
+      // A child whose instance location is not just the matched property is not
+      // about the value this loop holds, which inlining a reference into the
+      // group can produce, so it resolves its own target as usual
+      if (direct_children && child.relative_instance_location.size() == 1)
+          [[likely]] {
+        switch (child.type) {
+          case InstructionIndex::AssertionPropertyTypeStrict:
+            child_ok = DIRECT(AssertionTypeStrict, entry.second,
+                              assume_value_copy<ValueType>(child.value));
+            break;
+          case InstructionIndex::AssertionPropertyType:
+            child_ok = DIRECT(AssertionType, entry.second,
+                              assume_value_copy<ValueType>(child.value));
+            break;
+          case InstructionIndex::AssertionPropertyTypeStrictAny:
+            child_ok = DIRECT(AssertionTypeStrictAny, entry.second,
+                              assume_value<ValueTypes>(child.value));
+            break;
+          default:
+            child_ok = EVALUATE_RECURSE(child, target);
+            break;
+        }
+      } else {
+        child_ok = EVALUATE_RECURSE(child, target);
+      }
+
+      if (!child_ok) [[unlikely]] {
         result = false;
         EVALUATE_END(LoopPropertiesMatchClosed);
       }

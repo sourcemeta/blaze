@@ -377,6 +377,52 @@ static auto to_string_hashes(
   return result;
 }
 
+static auto to_named_indexes(
+    std::vector<std::pair<sourcemeta::blaze::ValueString,
+                          sourcemeta::blaze::ValueUnsignedInteger>> &names)
+    -> sourcemeta::blaze::ValueNamedIndexes {
+  assert(!names.empty());
+  std::ranges::sort(names, [](const auto &left, const auto &right) -> auto {
+    return left.first.size() < right.first.size();
+  });
+
+  // The table of contents costs a load of its own before a lookup can compare
+  // anything, which only pays off once there are enough names that scanning
+  // them all is worse. Below that, the entries are left without one and the
+  // evaluator scans them, as it did before the table of contents existed
+  constexpr std::size_t MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS{32};
+
+  sourcemeta::blaze::ValueNamedIndexes result;
+  // The table of contents works as in `to_string_hashes`: each index marks the
+  // starting and end positions of the names whose size is equal to the index
+  if (names.size() > MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS) {
+    result.second.resize(names.back().first.size() + 1, std::make_pair(0, 0));
+  }
+
+  result.first.reserve(names.size());
+  // TODO(C++23): Use std::views::enumerate when available in libc++
+  for (std::size_t index = 0; index < names.size(); index++) {
+    const auto &name{names[index].first};
+    result.first.emplace_back(sourcemeta::core::JSON::Object::hash(name),
+                              names[index].second, name);
+    if (result.second.empty()) {
+      continue;
+    }
+
+    // We leave position 0 to represent the absence of a size
+    const auto position{index + 1};
+    assert(name.size() < result.second.size());
+    auto &bounds{result.second[name.size()]};
+    bounds.first =
+        (bounds.first == 0) ? position : std::min(bounds.first, position);
+    bounds.second =
+        (bounds.second == 0) ? position : std::max(bounds.second, position);
+    assert(bounds.first <= bounds.second);
+  }
+
+  return result;
+}
+
 namespace internal {
 using namespace sourcemeta::blaze;
 
@@ -919,13 +965,13 @@ auto compiler_draft3_applicator_properties_with_options(
 
   if (properties_as_loop(context, schema_context,
                          schema_context.schema.at(dynamic_context.keyword))) {
-    ValueNamedIndexes indexes;
+    std::vector<std::pair<ValueString, ValueUnsignedInteger>> names;
     Instructions children;
     std::size_t cursor = 0;
 
     for (auto &&[name, substeps] : compile_properties(
              context, schema_context, relative_dynamic_context(), current)) {
-      indexes.emplace(name, cursor);
+      names.emplace_back(name, cursor);
 
       if (track_evaluation) {
         substeps.push_back(make(
@@ -955,13 +1001,13 @@ auto compiler_draft3_applicator_properties_with_options(
         !schema_context.schema.at("additionalProperties").to_boolean()) {
       return {
           make(sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchClosed,
-               context, schema_context, dynamic_context, std::move(indexes),
-               std::move(children))};
+               context, schema_context, dynamic_context,
+               to_named_indexes(names), std::move(children))};
     }
 
     return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesMatch,
-                 context, schema_context, dynamic_context, std::move(indexes),
-                 std::move(children))};
+                 context, schema_context, dynamic_context,
+                 to_named_indexes(names), std::move(children))};
   }
 
   Instructions children;
