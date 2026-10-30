@@ -733,3 +733,74 @@ TEST(unevaluated_properties_schema_with_root_dynamic_anchor_and_default_id) {
   const auto result{evaluator.validate(compiled_schema, instance)};
   EXPECT_TRUE(result);
 }
+
+TEST(properties_as_a_loop_with_an_inlined_deeper_assertion) {
+  // Inlining the reference leaves an assertion on `/a/b` inside the group that
+  // the loop enters for `a`, so a child of that group is not necessarily about
+  // the property the loop is standing on
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "inner": {
+        "type": "object",
+        "required": [ "b" ],
+        "properties": { "b": { "type": "string" } },
+        "allOf": [ true ]
+      }
+    },
+    "properties": {
+      "a": { "$ref": "#/definitions/inner" },
+      "c": { "type": "string" },
+      "d": { "type": "string" },
+      "e": { "type": "string" },
+      "f": { "type": "string" },
+      "g": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": { "b": "ok" } })JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_TRUE(result);
+}
+
+TEST(properties_as_a_loop_with_an_inlined_deeper_assertion_failure) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "inner": {
+        "type": "object",
+        "required": [ "b" ],
+        "properties": { "b": { "type": "string" } },
+        "allOf": [ true ]
+      }
+    },
+    "properties": {
+      "a": { "$ref": "#/definitions/inner" },
+      "c": { "type": "string" },
+      "d": { "type": "string" },
+      "e": { "type": "string" },
+      "f": { "type": "string" },
+      "g": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": { "b": 1 } })JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_FALSE(result);
+}

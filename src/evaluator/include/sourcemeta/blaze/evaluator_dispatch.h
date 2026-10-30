@@ -1856,7 +1856,11 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : subinstruction.children) {
       bool child_ok;
-      if (direct_children) [[likely]] {
+      // A child whose instance location is not just the matched property is not
+      // about the value this loop holds, which inlining a reference into the
+      // group can produce, so it resolves its own target as usual
+      if (direct_children && child.relative_instance_location.size() == 1)
+          [[likely]] {
         switch (child.type) {
           case InstructionIndex::AssertionPropertyTypeStrict:
             child_ok = DIRECT(AssertionTypeStrict, entry.second,
@@ -1915,7 +1919,11 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
            sourcemeta::blaze::InstructionIndex::ControlGroup);
     for (const auto &child : subinstruction.children) {
       bool child_ok;
-      if (direct_children) [[likely]] {
+      // A child whose instance location is not just the matched property is not
+      // about the value this loop holds, which inlining a reference into the
+      // group can produce, so it resolves its own target as usual
+      if (direct_children && child.relative_instance_location.size() == 1)
+          [[likely]] {
         switch (child.type) {
           case InstructionIndex::AssertionPropertyTypeStrict:
             child_ok = DIRECT(AssertionTypeStrict, entry.second,
