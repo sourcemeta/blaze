@@ -1283,7 +1283,9 @@ export function describe(valid, instruction, evaluatePath,
         minimum + (minimum === 1 ? ' property' : ' properties');
       message += valid ? ' and' : ' but';
       message += ' it contained ' + size;
-      if (size === 1) {
+      if (size === 0) {
+        message += ' properties';
+      } else if (size === 1) {
         message += ' property: ' + escapeString(objectKeys(target)[0]);
       } else {
         message += ' properties: ';
