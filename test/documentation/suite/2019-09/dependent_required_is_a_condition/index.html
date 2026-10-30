@@ -1,0 +1,41 @@
+<h1>Schema</h1>
+<div class="counts"><span class="c opt"><b>2</b> you can leave out</span></div>
+<div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Click a strip</b> to open what it holds.</span></div>
+<section id="root">
+  <h2>What this file holds</h2>
+  <table class="doc">
+    <tr>
+      <th>Property</th>
+      <th>What goes in it</th>
+      <th>Required?</th>
+      <th>What it means</th>
+    </tr>
+    <tr>
+      <td><span class="nm">card</span></td>
+      <td><span class="ty">text</span></td>
+      <td><span class="rq opt">No, you can leave it out</span></td>
+      <td class="de"></td>
+    </tr>
+    <tr class="nest dep">
+      <td colspan="4">
+        <details class="nestbox depbox">
+          <summary>Filling in <b>card</b> makes 1 more required</summary>
+          <table class="doc sub">
+            <tr>
+              <td><span class="nm">expiry</span></td>
+              <td></td>
+              <td><span class="rq cond">Yes, once you fill in card</span></td>
+              <td></td>
+            </tr>
+          </table>
+        </details>
+      </td>
+    </tr>
+    <tr>
+      <td><span class="nm">expiry</span></td>
+      <td><span class="ty">text</span></td>
+      <td><span class="rq opt">No, you can leave it out</span></td>
+      <td class="de"></td>
+    </tr>
+  </table>
+</section>

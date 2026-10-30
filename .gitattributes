@@ -4,3 +4,4 @@
 /test/binpack/e2e/**/encoding.json text eol=lf
 /test/binpack/e2e/**/size.txt text eol=lf
 /test/binpack/e2e/**/output.bin -text
+/test/documentation/suite/**/index.html text eol=lf

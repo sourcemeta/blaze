@@ -1,0 +1,47 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Order",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "kind",
+        "value": {
+          "kind": "string"
+        }
+      }
+    ],
+    "conditions": [
+      {
+        "when": {
+          "kind": "object",
+          "properties": [
+            {
+              "name": "kind",
+              "required": true,
+              "value": {
+                "kind": "enum",
+                "values": [ "gift" ]
+              }
+            }
+          ],
+          "otherTypesAllowed": true
+        },
+        "then": {
+          "kind": "object",
+          "properties": [
+            {
+              "name": "note",
+              "required": true,
+              "value": {
+                "kind": "string"
+              }
+            }
+          ],
+          "otherTypesAllowed": true
+        }
+      }
+    ]
+  }
+}
