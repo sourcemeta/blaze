@@ -194,6 +194,10 @@ using ValueIntegerBounds = std::pair<std::int64_t, std::int64_t>;
 using ValueIntegerBoundsWithSize = std::pair<ValueIntegerBounds, ValueRange>;
 
 /// @ingroup evaluator
+/// Represents a set of types combined with an array size range
+using ValueTypesWithSize = std::pair<ValueTypes, ValueRange>;
+
+/// @ingroup evaluator
 /// Represents a list of object property entries: (name, hash, required)
 using ValueObjectProperties = std::vector<
     std::tuple<ValueString, sourcemeta::core::JSON::Object::hash_type, bool>>;
@@ -211,7 +215,7 @@ using Value =
                  ValuePropertyFilter, ValueIndexPair, ValuePointer,
                  ValueTypedProperties, ValueStringHashes, ValueTypedHashes,
                  ValueIntegerBounds, ValueIntegerBoundsWithSize,
-                 ValueObjectProperties, ValueNumberType>;
+                 ValueObjectProperties, ValueNumberType, ValueTypesWithSize>;
 
 } // namespace sourcemeta::blaze
 

@@ -1942,6 +1942,51 @@ auto is_integer_bounded_pattern(const Instructions &children) -> bool {
   return has_type && has_min && has_max;
 }
 
+auto is_bounded_array_items_pattern(const Instructions &children) -> bool {
+  if (children.size() != 2) {
+    return false;
+  }
+
+  bool has_types{false};
+  bool has_bounds{false};
+  for (const auto &child : children) {
+    // A child that looks anywhere other than the item itself is not part of
+    // the shape, whatever its type says
+    if (!child.relative_instance_location.empty()) {
+      return false;
+    }
+
+    if (child.type == InstructionIndex::LoopItemsTypeStrictAny) {
+      has_types = true;
+    } else if (child.type == InstructionIndex::AssertionTypeArrayBounded) {
+      // The fused instruction stops at the first item that does not match,
+      // which an exhaustive bound does not allow
+      if (std::get<2>(std::get<ValueRange>(child.value))) {
+        return false;
+      }
+
+      has_bounds = true;
+    }
+  }
+
+  return has_types && has_bounds;
+}
+
+auto extract_bounded_array_items(const Instructions &children)
+    -> ValueTypesWithSize {
+  ValueTypes types;
+  ValueRange bounds;
+  for (const auto &child : children) {
+    if (child.type == InstructionIndex::LoopItemsTypeStrictAny) {
+      types = std::get<ValueTypes>(child.value);
+    } else if (child.type == InstructionIndex::AssertionTypeArrayBounded) {
+      bounds = std::get<ValueRange>(child.value);
+    }
+  }
+
+  return {types, bounds};
+}
+
 auto compiler_draft3_applicator_items_with_options(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const bool annotate,
@@ -2036,6 +2081,14 @@ auto compiler_draft3_applicator_items_with_options(
       return {make(sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBounded,
                    context, schema_context, dynamic_context,
                    extract_integer_bounds(children))};
+    }
+
+    if (context.mode == Mode::FastValidation && children.size() == 2 &&
+        is_bounded_array_items_pattern(children)) {
+      return {make(sourcemeta::blaze::InstructionIndex::
+                       LoopItemsArrayBoundedTypeStrictAny,
+                   context, schema_context, dynamic_context,
+                   extract_bounded_array_items(children))};
     }
 
     if (context.mode == Mode::FastValidation && children.size() == 1) {

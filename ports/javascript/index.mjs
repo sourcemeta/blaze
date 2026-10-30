@@ -7,7 +7,7 @@ import {
   CONTROL_JUMP, CONTROL_DYNAMIC_ANCHOR_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 10;
+const JSON_VERSION = 11;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -338,13 +338,14 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
     case 90: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){if(('+value+'&(1<<_es(t[j])))===0)return false;}return true;':null; }
     case 91: return fb(91); case 92: return fb(92); case 93: return fb(93); case 94: return fb(94);
     case 95: return fb(95);
-    case 96: { if(!children||children.length===0)return 'return true;'; var c=''; for(var j=0;j<children.length;j++){var r2=compileInstructionToCode(children[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(children[j]);c+='if(!_e(_c['+ci+'],i,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(i,d+1,_t,_v))return false;';}} return c+'return true;'; }
-    case 97: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 98: { var c=IO+'if(!Object.hasOwn(i,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 99: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 100: return 'return true;';
-    case 101: return fb(101);
-    case 102: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(102); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(102); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
+    case 96: return fb(96);
+    case 97: { if(!children||children.length===0)return 'return true;'; var c=''; for(var j=0;j<children.length;j++){var r2=compileInstructionToCode(children[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(children[j]);c+='if(!_e(_c['+ci+'],i,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(i,d+1,_t,_v))return false;';}} return c+'return true;'; }
+    case 98: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 99: { var c=IO+'if(!Object.hasOwn(i,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 100: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 101: return 'return true;';
+    case 102: return fb(102);
+    case 103: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(103); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(103); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
     default: return null;
   }
 }
@@ -2556,6 +2557,30 @@ function LoopItemsIntegerBoundedSized(instruction, instance, depth, template, ev
   return true;
 };
 
+function LoopItemsArrayBoundedTypeStrictAny(instruction, instance, depth, template, evaluator) {
+  const target = resolveInstance(instance, instruction[2]);
+  if (!Array.isArray(target)) return true;
+  if (evaluator.callbackMode) evaluator.callbackPush(instruction);
+  const bitmask = instruction[6][0];
+  const range = instruction[6][1];
+  for (let index = 0; index < target.length; index++) {
+    const item = target[index];
+    if (!Array.isArray(item) || item.length < range[0] ||
+        (range[1] !== null && range[1] !== undefined && item.length > range[1])) {
+      if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
+      return false;
+    }
+    for (let nested = 0; nested < item.length; nested++) {
+      if (!typeSetTest(bitmask, effectiveTypeStrictReal(item[nested]))) {
+        if (evaluator.callbackMode) evaluator.callbackPop(instruction, false);
+        return false;
+      }
+    }
+  }
+  if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
+  return true;
+};
+
 function LoopContains(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
   if (!Array.isArray(target)) return true;
@@ -2794,14 +2819,15 @@ const handlers = [
   LoopItemsPropertiesExactlyTypeStrictHash, // 92
   LoopItemsIntegerBounded, // 93
   LoopItemsIntegerBoundedSized, // 94
-  LoopContains, // 95
-  ControlGroup, // 96
-  ControlGroupWhenDefines, // 97
-  ControlGroupWhenDefinesDirect, // 98
-  ControlGroupWhenType, // 99
-  ControlEvaluate, // 100
-  ControlDynamicAnchorJump, // 101
-  ControlJump                                 // 102
+  LoopItemsArrayBoundedTypeStrictAny, // 95
+  LoopContains, // 96
+  ControlGroup, // 97
+  ControlGroupWhenDefines, // 98
+  ControlGroupWhenDefinesDirect, // 99
+  ControlGroupWhenType, // 100
+  ControlEvaluate, // 101
+  ControlDynamicAnchorJump, // 102
+  ControlJump                                 // 103
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {
@@ -3962,6 +3988,25 @@ function LoopItemsIntegerBounded_fast(instruction, instance, depth, template, ev
   return true;
 }
 
+function LoopItemsArrayBoundedTypeStrictAny_fast(instruction, instance, depth, template, evaluator) {
+  const relInstance = instruction[2];
+  const target = relInstance.length === 0 ? instance : resolveInstance(instance, relInstance);
+  if (!Array.isArray(target)) return true;
+  const bitmask = instruction[6][0];
+  const range = instruction[6][1];
+  const minimum = range[0];
+  const maximum = range[1];
+  for (let index = 0; index < target.length; index++) {
+    const item = target[index];
+    if (!Array.isArray(item) || item.length < minimum ||
+        (maximum !== null && maximum !== undefined && item.length > maximum)) return false;
+    for (let nested = 0; nested < item.length; nested++) {
+      if (!typeSetTest(bitmask, effectiveTypeStrictReal(item[nested]))) return false;
+    }
+  }
+  return true;
+}
+
 function LoopItemsIntegerBoundedSized_fast(instruction, instance, depth, template, evaluator) {
   const value = instruction[6];
   const minimum = value[0][0];
@@ -4025,7 +4070,7 @@ fastHandlers[4] = AssertionDefinesAllStrict_fast;
 fastHandlers[27] = AssertionEqual_fast;
 fastHandlers[68] = LoopPropertiesMatch_fast;
 fastHandlers[59] = LogicalOr_fast;
-fastHandlers[102] = ControlJump_fast;
+fastHandlers[103] = ControlJump_fast;
 fastHandlers[29] = AssertionEqualsAnyStringHash_fast;
 fastHandlers[61] = LogicalXor_fast;
 fastHandlers[2] = AssertionDefinesStrict_fast;
@@ -4043,7 +4088,8 @@ fastHandlers[1] = AssertionDefines_fast;
 fastHandlers[63] = LogicalWhenType_fast;
 fastHandlers[64] = LogicalWhenDefines_fast;
 fastHandlers[0] = AssertionFail_fast;
-fastHandlers[95] = LoopContains_fast;
+fastHandlers[95] = LoopItemsArrayBoundedTypeStrictAny_fast;
+fastHandlers[96] = LoopContains_fast;
 fastHandlers[57] = LogicalNot_fast;
 fastHandlers[88] = LoopItemsType_fast;
 fastHandlers[89] = LoopItemsTypeStrict_fast;
@@ -4114,7 +4160,7 @@ fastHandlers[91] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
 fastHandlers[92] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
 fastHandlers[93] = LoopItemsIntegerBounded_fast;
 fastHandlers[94] = LoopItemsIntegerBoundedSized_fast;
-fastHandlers[101] = ControlDynamicAnchorJump_fast;
+fastHandlers[102] = ControlDynamicAnchorJump_fast;
 
 import { describe } from './describe.mjs';
 

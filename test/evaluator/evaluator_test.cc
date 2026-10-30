@@ -804,3 +804,122 @@ TEST(properties_as_a_loop_with_an_inlined_deeper_assertion_failure) {
   const auto result{evaluator.validate(compiled_schema, instance)};
   EXPECT_FALSE(result);
 }
+
+TEST(items_as_a_bounded_array_of_typed_items) {
+  // The outer `items` and the size-bounded inner `items` fuse into a single
+  // instruction, so the nested loop runs without a dispatch per item
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2
+    }
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ [ 1, 2 ], [ 3, 4, 5 ] ])JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_TRUE(result);
+}
+
+TEST(items_as_a_bounded_array_of_typed_items_failure_on_an_inner_type) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2
+    }
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ [ 1, 2 ], [ 3, "x" ] ])JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_FALSE(result);
+}
+
+TEST(items_as_a_bounded_array_of_typed_items_failure_on_the_size) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2
+    }
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ [ 1, 2 ], [ 3 ] ])JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_FALSE(result);
+}
+
+TEST(items_as_a_bounded_array_of_typed_items_failure_on_a_scalar_item) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2
+    }
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ 5 ])JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_FALSE(result);
+}
+
+TEST(items_as_a_bounded_array_of_typed_items_on_a_non_array) {
+  // The instruction passes trivially when the instance is not an array, as its
+  // own precondition makes it
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2
+    }
+  })JSON")};
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  const auto result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_TRUE(result);
+}
