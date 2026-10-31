@@ -7,7 +7,7 @@ import {
   CONTROL_JUMP, CONTROL_DYNAMIC_ANCHOR_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 12;
+const JSON_VERSION = 13;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -345,6 +345,7 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
     case 100: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
     case 101: return 'return true;';
     case 102: return fb(102);
+    case 104: { if(typeof value==='string'||typeof value==='number'||typeof value==='boolean'||value===null){var r=R('t');return r?IO+r+'if(t===void 0)return true;return t==='+JSON.stringify(value)+';':null;} return fb(104); }
     case 103: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(103); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(103); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
     default: return null;
   }
@@ -1495,6 +1496,16 @@ function AssertionPropertyTypeStrict(instruction, instance, depth, template, eva
   if (target === undefined) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const __result = effectiveTypeStrictReal(target) === instruction[6];
+  if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
+  return __result;
+};
+
+function AssertionPropertyEqual(instruction, instance, depth, template, evaluator) {
+  if (!isObject(instance)) return true;
+  const target = resolveInstance(instance, instruction[2]);
+  if (target === undefined) return true;
+  if (evaluator.callbackMode) evaluator.callbackPush(instruction);
+  const __result = jsonEqual(target, instruction[6]);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
   return __result;
 };
@@ -2827,7 +2838,8 @@ const handlers = [
   ControlGroupWhenType, // 100
   ControlEvaluate, // 101
   ControlDynamicAnchorJump, // 102
-  ControlJump                                 // 103
+  ControlJump,                                // 103
+  AssertionPropertyEqual                      // 104
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {

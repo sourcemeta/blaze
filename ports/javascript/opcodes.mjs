@@ -102,6 +102,7 @@ export const CONTROL_GROUP_WHEN_TYPE = 100;
 export const CONTROL_EVALUATE = 101;
 export const CONTROL_DYNAMIC_ANCHOR_JUMP = 102;
 export const CONTROL_JUMP = 103;
+export const ASSERTION_PROPERTY_EQUAL = 104;
 
 export const INSTRUCTION_NAMES = {
   "AssertionFail": ASSERTION_FAIL,
@@ -208,6 +209,7 @@ export const INSTRUCTION_NAMES = {
   "ControlEvaluate": CONTROL_EVALUATE,
   "ControlDynamicAnchorJump": CONTROL_DYNAMIC_ANCHOR_JUMP,
   "ControlJump": CONTROL_JUMP,
+  "AssertionPropertyEqual": ASSERTION_PROPERTY_EQUAL,
   "Annotation": -1
 };
 

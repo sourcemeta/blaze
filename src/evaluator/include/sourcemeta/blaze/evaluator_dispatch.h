@@ -1182,6 +1182,14 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictEvaluate) {
   EVALUATE_END(AssertionPropertyTypeStrictEvaluate);
 }
 
+INSTRUCTION_HANDLER(AssertionPropertyEqual) {
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyEqual);
+  const auto &value{assume_value<ValueJSON>(instruction.value)};
+  // Now here we refer to the actual property
+  result = DIRECT(AssertionEqual, *target_check, value);
+  EVALUATE_END(AssertionPropertyEqual);
+}
+
 INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
   EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyTypeStrictAny);
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
@@ -3028,7 +3036,7 @@ using DispatchHandler = bool (*)(
 template <bool Track, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[104] = {
+static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[105] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -3132,7 +3140,8 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[104] = {
     ControlGroupWhenType,
     ControlEvaluate,
     ControlDynamicAnchorJump,
-    ControlJump};
+    ControlJump,
+    AssertionPropertyEqual};
 
 template <bool Track, bool Dynamic, bool HasCallback>
 inline auto
