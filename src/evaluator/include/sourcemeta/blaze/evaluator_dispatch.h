@@ -308,6 +308,71 @@ inline auto effective_type_strict_real(const JSON &instance) noexcept
 // A real converts through `exact_from` because the constructor spells a double
 // with 17 significant digits, which is too few to tell apart two integers that
 // a bound of this width can sit between
+// Normalising a decimal to the integer or real it represents cannot change
+// whether a type set holds it when the set treats all three number kinds
+// alike, which is what `"type": "number"` compiles to. Deciding this once per
+// instruction keeps the normalisation out of the loop, rather than trading its
+// call for a branch on every element
+inline auto type_set_spans_numbers(const ValueTypes &types) noexcept -> bool {
+  const auto integer{types[std::to_underlying(JSON::Type::Integer)]};
+  return types[std::to_underlying(JSON::Type::Real)] == integer &&
+         types[std::to_underlying(JSON::Type::Decimal)] == integer;
+}
+
+template <bool Normalise>
+inline auto type_in_set(const JSON &instance, const ValueTypes &types) noexcept
+    -> bool {
+  if constexpr (Normalise) {
+    return type_set_test(types, effective_type_strict_real(instance));
+  } else {
+    return type_set_test(types, instance.type());
+  }
+}
+
+template <bool Normalise>
+inline auto array_items_in_type_set(const JSON &target,
+                                    const ValueTypes &types) noexcept -> bool {
+  for (const auto &entry : target.as_array()) {
+    if (!type_in_set<Normalise>(entry, types)) [[unlikely]] {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+template <bool Normalise>
+inline auto object_values_in_type_set(const JSON &target,
+                                      const ValueTypes &types) noexcept
+    -> bool {
+  for (const auto &entry : target.as_object()) {
+    if (!type_in_set<Normalise>(entry.second, types)) [[unlikely]] {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+template <bool Normalise>
+inline auto items_are_bounded_arrays_in_type_set(
+    const JSON &target, const ValueTypes &types, const std::size_t minimum,
+    const std::optional<std::size_t> &maximum) noexcept -> bool {
+  for (const auto &item : target.as_array()) {
+    if (item.type() != JSON::Type::Array || item.array_size() < minimum ||
+        (maximum.has_value() && item.array_size() > maximum.value()))
+        [[unlikely]] {
+      return false;
+    }
+
+    if (!array_items_in_type_set<Normalise>(item, types)) [[unlikely]] {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 inline auto as_decimal(const JSON &instance) -> Decimal {
   assert(instance.is_integral());
   return instance.is_decimal() ? instance.to_decimal()
@@ -2371,13 +2436,9 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
   result = true;
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
-  for (const auto &entry : target.as_object()) {
-    if (!type_set_test(value, effective_type_strict_real(entry.second)))
-        [[unlikely]] {
-      result = false;
-      break;
-    }
-  }
+  result = type_set_spans_numbers(value)
+               ? object_values_in_type_set<false>(target, value)
+               : object_values_in_type_set<true>(target, value);
 
   EVALUATE_END(LoopPropertiesTypeStrictAny);
 }
@@ -2388,12 +2449,11 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
   result = true;
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
-  for (const auto &entry : target.as_object()) {
-    if (!type_set_test(value, effective_type_strict_real(entry.second)))
-        [[unlikely]] {
-      result = false;
-      EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
-    }
+  result = type_set_spans_numbers(value)
+               ? object_values_in_type_set<false>(target, value)
+               : object_values_in_type_set<true>(target, value);
+  if (!result) [[unlikely]] {
+    EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
   }
 
   context.evaluator->evaluate(&target);
@@ -2619,13 +2679,9 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
 
-  result = true;
-  for (const auto &entry : target.as_array()) {
-    if (!type_set_test(value, effective_type_strict_real(entry))) [[unlikely]] {
-      result = false;
-      break;
-    }
-  }
+  result = type_set_spans_numbers(value)
+               ? array_items_in_type_set<false>(target, value)
+               : array_items_in_type_set<true>(target, value);
 
   EVALUATE_END(LoopItemsTypeStrictAny);
 }
@@ -2890,23 +2946,11 @@ INSTRUCTION_HANDLER(LoopItemsArrayBoundedTypeStrictAny) {
   assert(types.any());
   // Require early breaking
   assert(!std::get<2>(value.second));
-  result = true;
-  for (const auto &item : target.as_array()) {
-    if (item.type() != JSON::Type::Array || item.array_size() < minimum ||
-        (maximum.has_value() && item.array_size() > maximum.value()))
-        [[unlikely]] {
-      result = false;
-      EVALUATE_END(LoopItemsArrayBoundedTypeStrictAny);
-    }
-
-    for (const auto &entry : item.as_array()) {
-      if (!type_set_test(types, effective_type_strict_real(entry)))
-          [[unlikely]] {
-        result = false;
-        EVALUATE_END(LoopItemsArrayBoundedTypeStrictAny);
-      }
-    }
-  }
+  result = type_set_spans_numbers(types)
+               ? items_are_bounded_arrays_in_type_set<false>(target, types,
+                                                             minimum, maximum)
+               : items_are_bounded_arrays_in_type_set<true>(target, types,
+                                                            minimum, maximum);
 
   EVALUATE_END(LoopItemsArrayBoundedTypeStrictAny);
 }
