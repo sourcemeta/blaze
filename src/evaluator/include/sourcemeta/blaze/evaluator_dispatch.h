@@ -256,20 +256,38 @@ inline auto named_index(const ValueNamedIndexes &indexes,
     last = bounds.second;
   }
 
+  // A perfect hash records the name's size, so matching one is proof the names
+  // are equal and only a longer name needs comparing. Whether the hash is
+  // perfect depends on the name alone, so it is decided once rather than per
+  // entry, as `JSONObject` does for the same reason
   constexpr sourcemeta::core::PropertyHashJSON<JSON::String> HASHER{};
-  for (auto position = first; position <= last; position++) {
-    const auto &entry{indexes.first[position - 1]};
-    // A perfect hash captures the name's bytes but not its size, so two names
-    // that differ only by trailing NUL bytes hash equal, as `Entry::key_equals`
-    // notes. Without a table of contents nothing has matched the size yet
-    if (std::get<0>(entry) == name_hash &&
-        (HASHER.is_perfect(name_hash) ? std::get<2>(entry).size() == name.size()
-                                      : std::get<2>(entry) == name)) {
-      return &std::get<1>(entry);
+  if (HASHER.is_perfect(name_hash)) {
+    for (auto position = first; position <= last; position++) {
+      const auto &entry{indexes.first[position - 1]};
+      if (std::get<0>(entry) == name_hash) {
+        return &std::get<1>(entry);
+      }
+    }
+  } else {
+    for (auto position = first; position <= last; position++) {
+      const auto &entry{indexes.first[position - 1]};
+      if (std::get<0>(entry) == name_hash && std::get<2>(entry) == name) {
+        return &std::get<1>(entry);
+      }
     }
   }
 
   return nullptr;
+}
+
+// `std::bitset::test` bounds-checks its index and throws when it is out of
+// range, which every type check would pay on every value it looks at. A
+// `JSON::Type` is always a valid index into a set that holds one bit per type,
+// so the check can never fire and the subscript is used instead
+inline auto type_set_test(const ValueTypes &types,
+                          const JSON::Type type) noexcept -> bool {
+  assert(std::to_underlying(type) < types.size());
+  return types[std::to_underlying(type)];
 }
 
 inline auto effective_type_strict_real(const JSON &instance) noexcept
@@ -494,46 +512,28 @@ INSTRUCTION_HANDLER(AssertionDefinesExactlyStrictHash3) {
     assert(value.first.size() == 3);
     const auto &object{target.as_object()};
 
-    // A perfect hash captures the key bytes but not its length, so each
-    // pairing confirms the size alongside the hash while keeping the unrolled
-    // permutation check over the three keys
-    result = object.size() == 3 &&
-             ((value.first.at(0).first == object.at(0).hash &&
-               value.first.at(0).second.size() == object.at(0).first.size() &&
-               value.first.at(1).first == object.at(1).hash &&
-               value.first.at(1).second.size() == object.at(1).first.size() &&
-               value.first.at(2).first == object.at(2).hash &&
-               value.first.at(2).second.size() == object.at(2).first.size()) ||
-              (value.first.at(0).first == object.at(0).hash &&
-               value.first.at(0).second.size() == object.at(0).first.size() &&
-               value.first.at(1).first == object.at(2).hash &&
-               value.first.at(1).second.size() == object.at(2).first.size() &&
-               value.first.at(2).first == object.at(1).hash &&
-               value.first.at(2).second.size() == object.at(1).first.size()) ||
-              (value.first.at(0).first == object.at(1).hash &&
-               value.first.at(0).second.size() == object.at(1).first.size() &&
-               value.first.at(1).first == object.at(0).hash &&
-               value.first.at(1).second.size() == object.at(0).first.size() &&
-               value.first.at(2).first == object.at(2).hash &&
-               value.first.at(2).second.size() == object.at(2).first.size()) ||
-              (value.first.at(0).first == object.at(1).hash &&
-               value.first.at(0).second.size() == object.at(1).first.size() &&
-               value.first.at(1).first == object.at(2).hash &&
-               value.first.at(1).second.size() == object.at(2).first.size() &&
-               value.first.at(2).first == object.at(0).hash &&
-               value.first.at(2).second.size() == object.at(0).first.size()) ||
-              (value.first.at(0).first == object.at(2).hash &&
-               value.first.at(0).second.size() == object.at(2).first.size() &&
-               value.first.at(1).first == object.at(0).hash &&
-               value.first.at(1).second.size() == object.at(0).first.size() &&
-               value.first.at(2).first == object.at(1).hash &&
-               value.first.at(2).second.size() == object.at(1).first.size()) ||
-              (value.first.at(0).first == object.at(2).hash &&
-               value.first.at(0).second.size() == object.at(2).first.size() &&
-               value.first.at(1).first == object.at(1).hash &&
-               value.first.at(1).second.size() == object.at(1).first.size() &&
-               value.first.at(2).first == object.at(0).hash &&
-               value.first.at(2).second.size() == object.at(0).first.size()));
+    // A perfect hash records the key's size, which the compiler requires of
+    // every key here, so matching one proves the keys equal and the unrolled
+    // permutation check compares nothing but hashes
+    result =
+        object.size() == 3 && ((value.first.at(0).first == object.at(0).hash &&
+                                value.first.at(1).first == object.at(1).hash &&
+                                value.first.at(2).first == object.at(2).hash) ||
+                               (value.first.at(0).first == object.at(0).hash &&
+                                value.first.at(1).first == object.at(2).hash &&
+                                value.first.at(2).first == object.at(1).hash) ||
+                               (value.first.at(0).first == object.at(1).hash &&
+                                value.first.at(1).first == object.at(0).hash &&
+                                value.first.at(2).first == object.at(2).hash) ||
+                               (value.first.at(0).first == object.at(1).hash &&
+                                value.first.at(1).first == object.at(2).hash &&
+                                value.first.at(2).first == object.at(0).hash) ||
+                               (value.first.at(0).first == object.at(2).hash &&
+                                value.first.at(1).first == object.at(0).hash &&
+                                value.first.at(2).first == object.at(1).hash) ||
+                               (value.first.at(0).first == object.at(2).hash &&
+                                value.first.at(1).first == object.at(1).hash &&
+                                value.first.at(2).first == object.at(0).hash));
   }
 
   EVALUATE_END(AssertionDefinesExactlyStrictHash3);
@@ -587,9 +587,8 @@ INSTRUCTION_HANDLER(AssertionType) {
 INSTRUCTION_DIRECT(AssertionTypeAny, ValueTypes) {
   // In non-strict mode, we consider a real number that represents an
   // integer to be an integer
-  return value.test(std::to_underlying(target.type())) ||
-         (value.test(std::to_underlying(JSON::Type::Integer)) &&
-          target.is_integral());
+  return type_set_test(value, target.type()) ||
+         (type_set_test(value, JSON::Type::Integer) && target.is_integral());
 }
 
 INSTRUCTION_HANDLER(AssertionTypeAny) {
@@ -616,7 +615,7 @@ INSTRUCTION_HANDLER(AssertionTypeStrict) {
 }
 
 INSTRUCTION_DIRECT(AssertionTypeStrictAny, ValueTypes) {
-  return value.test(std::to_underlying(effective_type_strict_real(target)));
+  return type_set_test(value, effective_type_strict_real(target));
 }
 
 INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
@@ -630,7 +629,7 @@ INSTRUCTION_HANDLER(AssertionTypeStrictAny) {
 }
 
 INSTRUCTION_DIRECT(AssertionNotTypeStrictAny, ValueTypes) {
-  return !value.test(std::to_underlying(effective_type_strict_real(target)));
+  return !type_set_test(value, effective_type_strict_real(target));
 }
 
 INSTRUCTION_HANDLER(AssertionNotTypeStrictAny) {
@@ -1123,8 +1122,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAny) {
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
   // Now here we refer to the actual property
-  result =
-      value.test(std::to_underlying(effective_type_strict_real(*target_check)));
+  result = type_set_test(value, effective_type_strict_real(*target_check));
   EVALUATE_END(AssertionPropertyTypeStrictAny);
 }
 
@@ -1133,8 +1131,7 @@ INSTRUCTION_HANDLER(AssertionPropertyTypeStrictAnyEvaluate) {
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
   // Now here we refer to the actual property
-  result =
-      value.test(std::to_underlying(effective_type_strict_real(*target_check)));
+  result = type_set_test(value, effective_type_strict_real(*target_check));
 
   if (result) {
     context.evaluator->evaluate(target_check);
@@ -1164,13 +1161,11 @@ INSTRUCTION_HANDLER(AssertionObjectPropertiesSimple) {
     for (std::size_t schema_index = 0; schema_index < schema_size;
          schema_index++) {
       const auto &schema_hash{std::get<1>(value[schema_index])};
-      // A perfect hash captures the key bytes but not its length, so its size
-      // is confirmed rather than trusting the hash match alone
+      // A perfect hash records the key's size, so matching one proves the keys
+      // equal and only a longer key needs comparing
       if (schema_hash == instance_hash &&
-          (PROPERTY_HASHER.is_perfect(instance_hash)
-               ? instance_entry.first.size() ==
-                     std::get<0>(value[schema_index]).size()
-               : instance_entry.first == std::get<0>(value[schema_index]))) {
+          (PROPERTY_HASHER.is_perfect(instance_hash) ||
+           instance_entry.first == std::get<0>(value[schema_index]))) {
         seen |= (static_cast<std::uint32_t>(1) << schema_index);
         if (schema_index < instruction.children.size()) {
           const auto &child{instruction.children[schema_index]};
@@ -2377,9 +2372,8 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAny) {
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
   for (const auto &entry : target.as_object()) {
-    const auto type_index{
-        std::to_underlying(effective_type_strict_real(entry.second))};
-    if (!value.test(type_index)) [[unlikely]] {
+    if (!type_set_test(value, effective_type_strict_real(entry.second)))
+        [[unlikely]] {
       result = false;
       break;
     }
@@ -2395,9 +2389,8 @@ INSTRUCTION_HANDLER(LoopPropertiesTypeStrictAnyEvaluate) {
   const auto value{assume_value_copy<ValueTypes>(instruction.value)};
   assert(value.any());
   for (const auto &entry : target.as_object()) {
-    const auto type_index{
-        std::to_underlying(effective_type_strict_real(entry.second))};
-    if (!value.test(type_index)) [[unlikely]] {
+    if (!type_set_test(value, effective_type_strict_real(entry.second)))
+        [[unlikely]] {
       result = false;
       EVALUATE_END(LoopPropertiesTypeStrictAnyEvaluate);
     }
@@ -2628,9 +2621,7 @@ INSTRUCTION_HANDLER(LoopItemsTypeStrictAny) {
 
   result = true;
   for (const auto &entry : target.as_array()) {
-    const auto type_index{
-        std::to_underlying(effective_type_strict_real(entry))};
-    if (!value.test(type_index)) [[unlikely]] {
+    if (!type_set_test(value, effective_type_strict_real(entry))) [[unlikely]] {
       result = false;
       break;
     }
@@ -2669,8 +2660,8 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
     }
 
     // Unroll, for performance reasons, for small collections. A perfect hash
-    // captures the key bytes but not its length, so every match confirms the
-    // size alongside the hash
+    // records the key's size, which the compiler requires of every key here,
+    // so matching one proves the keys equal
     if (hashes_size == 3) {
       for (const auto &entry : object) {
         if (effective_type_strict_real(entry.second) != value.first)
@@ -2678,15 +2669,9 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
             [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (!((entry.hash == value.second.first[0].first &&
-                      entry.first.size() ==
-                          value.second.first[0].second.size()) ||
-                     (entry.hash == value.second.first[1].first &&
-                      entry.first.size() ==
-                          value.second.first[1].second.size()) ||
-                     (entry.hash == value.second.first[2].first &&
-                      entry.first.size() ==
-                          value.second.first[2].second.size()))) {
+        } else if (!(entry.hash == value.second.first[0].first ||
+                     entry.hash == value.second.first[1].first ||
+                     entry.hash == value.second.first[2].first)) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         }
@@ -2698,12 +2683,8 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
             [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (!((entry.hash == value.second.first[0].first &&
-                      entry.first.size() ==
-                          value.second.first[0].second.size()) ||
-                     (entry.hash == value.second.first[1].first &&
-                      entry.first.size() ==
-                          value.second.first[1].second.size()))) {
+        } else if (!(entry.hash == value.second.first[0].first ||
+                     entry.hash == value.second.first[1].first)) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
         }
@@ -2711,9 +2692,7 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
     } else if (hashes_size == 1) {
       const auto &entry{*object.cbegin()};
       if (effective_type_strict_real(entry.second) != value.first ||
-          entry.hash != value.second.first[0].first ||
-          entry.first.size() != value.second.first[0].second.size())
-          [[unlikely]] {
+          entry.hash != value.second.first[0].first) [[unlikely]] {
         result = false;
         EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
       }
@@ -2725,16 +2704,13 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash) {
             [[unlikely]] {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
-        } else if (entry.hash == value.second.first[index].first &&
-                   entry.first.size() ==
-                       value.second.first[index].second.size()) {
+        } else if (entry.hash == value.second.first[index].first) {
           index += 1;
           continue;
         } else if (!std::ranges::any_of(
                        value.second.first,
                        [&entry](const auto &hash_entry) -> bool {
-                         return hash_entry.first == entry.hash &&
-                                hash_entry.second.size() == entry.first.size();
+                         return hash_entry.first == entry.hash;
                        })) {
           result = false;
           EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash);
@@ -2784,45 +2760,27 @@ INSTRUCTION_HANDLER(LoopItemsPropertiesExactlyTypeStrictHash3) {
       EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
     }
 
-    // A perfect hash captures the key bytes but not its length, so each
-    // pairing confirms the size alongside the hash while keeping the unrolled
-    // permutation check over the three keys
+    // A perfect hash records the key's size, which the compiler requires of
+    // every key here, so matching one proves the keys equal and the unrolled
+    // permutation check compares nothing but hashes
     if ((value_1.hash == value.second.first[0].first &&
-         value_1.first.size() == value.second.first[0].second.size() &&
          value_2.hash == value.second.first[1].first &&
-         value_2.first.size() == value.second.first[1].second.size() &&
-         value_3.hash == value.second.first[2].first &&
-         value_3.first.size() == value.second.first[2].second.size()) ||
+         value_3.hash == value.second.first[2].first) ||
         (value_1.hash == value.second.first[0].first &&
-         value_1.first.size() == value.second.first[0].second.size() &&
          value_2.hash == value.second.first[2].first &&
-         value_2.first.size() == value.second.first[2].second.size() &&
-         value_3.hash == value.second.first[1].first &&
-         value_3.first.size() == value.second.first[1].second.size()) ||
+         value_3.hash == value.second.first[1].first) ||
         (value_1.hash == value.second.first[1].first &&
-         value_1.first.size() == value.second.first[1].second.size() &&
          value_2.hash == value.second.first[0].first &&
-         value_2.first.size() == value.second.first[0].second.size() &&
-         value_3.hash == value.second.first[2].first &&
-         value_3.first.size() == value.second.first[2].second.size()) ||
+         value_3.hash == value.second.first[2].first) ||
         (value_1.hash == value.second.first[1].first &&
-         value_1.first.size() == value.second.first[1].second.size() &&
          value_2.hash == value.second.first[2].first &&
-         value_2.first.size() == value.second.first[2].second.size() &&
-         value_3.hash == value.second.first[0].first &&
-         value_3.first.size() == value.second.first[0].second.size()) ||
+         value_3.hash == value.second.first[0].first) ||
         (value_1.hash == value.second.first[2].first &&
-         value_1.first.size() == value.second.first[2].second.size() &&
          value_2.hash == value.second.first[0].first &&
-         value_2.first.size() == value.second.first[0].second.size() &&
-         value_3.hash == value.second.first[1].first &&
-         value_3.first.size() == value.second.first[1].second.size()) ||
+         value_3.hash == value.second.first[1].first) ||
         (value_1.hash == value.second.first[2].first &&
-         value_1.first.size() == value.second.first[2].second.size() &&
          value_2.hash == value.second.first[1].first &&
-         value_2.first.size() == value.second.first[1].second.size() &&
-         value_3.hash == value.second.first[0].first &&
-         value_3.first.size() == value.second.first[0].second.size())) {
+         value_3.hash == value.second.first[0].first)) {
       continue;
     }
     EVALUATE_END(LoopItemsPropertiesExactlyTypeStrictHash3);
@@ -2942,7 +2900,7 @@ INSTRUCTION_HANDLER(LoopItemsArrayBoundedTypeStrictAny) {
     }
 
     for (const auto &entry : item.as_array()) {
-      if (!types.test(std::to_underlying(effective_type_strict_real(entry))))
+      if (!type_set_test(types, effective_type_strict_real(entry)))
           [[unlikely]] {
         result = false;
         EVALUATE_END(LoopItemsArrayBoundedTypeStrictAny);
