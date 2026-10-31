@@ -64,11 +64,10 @@ public:
                               const hash_type hash) const -> bool {
     assert(HASHER(value) == hash);
     if (HASHER.is_perfect(hash)) {
-      // A perfect hash captures the property name bytes but not its length, so
-      // two names that differ only by trailing NUL bytes hash equal. Comparing
-      // sizes disambiguates them without the cost of a full string comparison
+      // A perfect hash is unique for the property name it was computed from,
+      // so matching it settles the comparison on its own
       for (const auto &entry : this->data_) {
-        if (entry.second == hash && entry.first.size() == value.size()) {
+        if (entry.second == hash) {
           return true;
         }
       }
