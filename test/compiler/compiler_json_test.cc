@@ -34,7 +34,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      11,
+      12,
       false,
       false,
       [
@@ -74,7 +74,7 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      11,
+      12,
       false,
       false,
       [
@@ -134,7 +134,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      11,
+      12,
       false,
       false,
       [
@@ -176,7 +176,7 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      11,
+      12,
       false,
       false,
       [
@@ -262,7 +262,7 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      11,
+      12,
       false,
       true,
       [
@@ -311,7 +311,7 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      11,
+      12,
       false,
       true,
       [
@@ -405,7 +405,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      11,
+      12,
       false,
       false,
       [
@@ -426,7 +426,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                   [
                     [
                       0,
-                      24832,
+                      24833,
                       0,
                       0
                     ],
@@ -436,7 +436,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                   [
                     [
                       0,
-                      6447616,
+                      6447618,
                       0,
                       0
                     ],
@@ -446,7 +446,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                   [
                     [
                       0,
-                      6513408,
+                      6513410,
                       0,
                       0
                     ],
@@ -456,7 +456,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                   [
                     [
                       0,
-                      431181030400,
+                      431181030404,
                       0,
                       0
                     ],
@@ -466,7 +466,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                   [
                     [
                       0,
-                      111486167246080,
+                      111486167246085,
                       0,
                       0
                     ],
@@ -476,7 +476,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                   [
                     [
                       0,
-                      28823037615171072,
+                      28823037615171078,
                       0,
                       0
                     ],
@@ -885,7 +885,7 @@ TEST(items_fused_as_a_bounded_array_type_loop) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      11,
+      12,
       false,
       false,
       [

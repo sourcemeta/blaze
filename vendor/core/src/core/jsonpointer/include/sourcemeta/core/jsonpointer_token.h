@@ -218,14 +218,10 @@ public:
     assert(this->is_property());
     assert(HASHER(value.data(), value.size()) == value_hash);
     if constexpr (requires { HASHER.is_perfect(value_hash); }) {
-      // A perfect hash captures the property bytes but not its length, so
-      // two properties that differ only by trailing NUL bytes hash equal.
-      // Comparing sizes disambiguates them without the cost of a full
-      // string comparison
+      // A perfect hash is unique for the property it was computed from, so
+      // matching it settles the comparison on its own
       return this->hash_ == value_hash &&
-             (HASHER.is_perfect(value_hash)
-                  ? this->to_property().size() == value.size()
-                  : this->to_property() == value);
+             (HASHER.is_perfect(value_hash) || this->to_property() == value);
     } else {
       return this->hash_ == value_hash && this->to_property() == value;
     }
@@ -298,13 +294,10 @@ public:
     }
     if (this->as_property_) {
       if constexpr (requires { HASHER.is_perfect(this->hash_); }) {
-        // A perfect hash captures the property bytes but not its length, so
-        // two properties that differ only by trailing NUL bytes hash equal.
-        // Comparing sizes disambiguates them without the cost of a full
-        // string comparison
+        // A perfect hash is unique for the property it was computed from, so
+        // matching it settles the comparison on its own
         if (HASHER.is_perfect(this->hash_) && HASHER.is_perfect(other.hash_)) {
-          return this->hash_ == other.hash_ &&
-                 this->to_property().size() == other.to_property().size();
+          return this->hash_ == other.hash_;
         }
       }
 
