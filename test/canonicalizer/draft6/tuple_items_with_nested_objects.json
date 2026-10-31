@@ -1,0 +1,89 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "items": [
+      { "type": "object", "properties": { "x": { "type": "integer" } } },
+      { "type": "array", "items": { "type": "string" } }
+    ],
+    "additionalItems": false
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "array",
+        "items": [
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/5" }
+        ],
+        "additionalItems": { "$ref": "#/definitions/1" },
+        "uniqueItems": false,
+        "minItems": 0
+      },
+      "1": false,
+      "2": {
+        "type": "object",
+        "properties": { "x": { "$ref": "#/definitions/4" } },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "3": true,
+      "4": { "type": "integer", "multipleOf": 1 },
+      "5": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/6" },
+        "uniqueItems": false,
+        "minItems": 0
+      },
+      "6": { "type": "string", "minLength": 0 }
+    }
+  },
+  "examples": [ [], [ { "x": 1 }, [ "x" ] ], [ {}, [] ], [ {} ] ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    [ "other", [ "x" ] ],
+    [ { "x": "other" }, [ "x" ] ],
+    [ { "x": 1 }, "other" ],
+    [ { "x": 1 }, [ -1 ] ],
+    { "x": 1 },
+    { "x": "x" },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "x": {} },
+    { "x": { "x": "x" } },
+    { "x": "other" },
+    [ null ]
+  ]
+}

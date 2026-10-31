@@ -1,0 +1,61 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "integer", "number", "string" ],
+    "minimum": 5,
+    "minLength": 3
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "anyOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/3" }
+        ]
+      },
+      "1": { "type": "integer", "minimum": 5, "multipleOf": 1 },
+      "2": { "type": "number", "minimum": 5 },
+      "3": { "type": "string", "minLength": 3 }
+    }
+  },
+  "examples": [ 5, 10, 11, 9007199254740993, "foo", 6, "aaa", "aaaa", 5.5 ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    1.5,
+    0.5,
+    -1.5,
+    "",
+    "a",
+    "x",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    4,
+    [ 4 ],
+    [ 4, 4 ],
+    [ 5 ],
+    [ 5, 5 ],
+    [ 6 ],
+    [ 6, 6 ],
+    4.5,
+    [ 4.5 ],
+    [ 4.5, 4.5 ]
+  ]
+}

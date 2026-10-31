@@ -1,0 +1,125 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "anyOf": [ { "required": [ "a" ] }, { "required": [ "b" ] } ],
+    "dependencies": { "x": [ "y" ] }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/9" }
+        ]
+      },
+      "1": {
+        "anyOf": [
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/4" }
+        ]
+      },
+      "2": {
+        "required": [ "a" ],
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 1,
+        "properties": { "a": { "$ref": "#/definitions/3" } },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "3": true,
+      "4": {
+        "required": [ "b" ],
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 1,
+        "properties": { "b": { "$ref": "#/definitions/3" } },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "5": {
+        "anyOf": [
+          { "$ref": "#/definitions/6" },
+          { "$ref": "#/definitions/8" }
+        ]
+      },
+      "6": { "not": { "$ref": "#/definitions/7" } },
+      "7": {
+        "type": "object",
+        "required": [ "x" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 1,
+        "properties": { "x": { "$ref": "#/definitions/3" } },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "8": {
+        "type": "object",
+        "required": [ "x", "y" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 2,
+        "properties": {
+          "x": { "$ref": "#/definitions/3" },
+          "y": { "$ref": "#/definitions/3" }
+        },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "9": {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      }
+    }
+  },
+  "examples": [
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "a": 1, "b": 1 },
+    { "a": "x", "b": "x" },
+    { "a": {}, "b": {} },
+    { "a": { "a": "x" } }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "x": 1 },
+    { "x": 1, "y": 1 },
+    { "y": 1 }
+  ]
+}

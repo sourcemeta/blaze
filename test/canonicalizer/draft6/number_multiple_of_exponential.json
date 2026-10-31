@@ -1,0 +1,51 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "number",
+    "multipleOf": 1e-1
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": { "type": "number", "multipleOf": 0.1 } }
+  },
+  "examples": [
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    0.1,
+    0.2
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    [ 0.1 ],
+    [ 0.1, 0.1 ],
+    [ 0.2 ],
+    [ 0.2, 0.2 ]
+  ]
+}

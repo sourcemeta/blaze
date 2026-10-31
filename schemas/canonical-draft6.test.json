@@ -2,14 +2,1316 @@
   "target": "./canonical-draft6.json",
   "tests": [
     {
-      "description": "Boolean true is canonical",
+      "description": "A boolean true document",
       "valid": true,
       "data": true
     },
     {
-      "description": "Boolean false is canonical",
+      "description": "A boolean false document",
       "valid": true,
       "data": false
+    },
+    {
+      "description": "Canonical form holding an entry with `minLength`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `allOf`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/4"
+              }
+            ]
+          },
+          "1": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/3"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/2"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "2": true,
+          "3": {
+            "type": "integer",
+            "multipleOf": 1
+          },
+          "4": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/5"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/2"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "5": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `additionalProperties`, `minProperties`, `patternProperties`, `properties`, `propertyNames`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/4"
+              }
+            ]
+          },
+          "1": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/3"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/2"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "2": true,
+          "3": {
+            "type": "integer",
+            "multipleOf": 1
+          },
+          "4": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/5"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/2"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "5": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding a boolean entry",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/4"
+              }
+            ]
+          },
+          "1": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/3"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/2"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "2": true,
+          "3": {
+            "type": "integer",
+            "multipleOf": 1
+          },
+          "4": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/5"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/2"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "5": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `multipleOf`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/4"
+              }
+            ]
+          },
+          "1": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/definitions/3"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/2"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "2": true,
+          "3": {
+            "type": "integer",
+            "multipleOf": 1
+          },
+          "4": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/5"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/2"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "5": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `minimum`, `multipleOf`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "integer",
+            "minimum": 0,
+            "multipleOf": 1
+          },
+          "2": {
+            "type": "integer",
+            "maximum": 100,
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `maximum`, `multipleOf`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "integer",
+            "minimum": 0,
+            "multipleOf": 1
+          },
+          "2": {
+            "type": "integer",
+            "maximum": 100,
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `default`, `description`, `minLength`, `title`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "title": "Name",
+            "description": "The person name",
+            "default": "unknown",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `enum`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ 1 ]
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `anyOf`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          },
+          "2": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          },
+          "2": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `additionalProperties`, `minProperties`, `patternProperties`, `properties`, `propertyNames`, `required`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/5"
+              }
+            ]
+          },
+          "1": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/2"
+              },
+              {
+                "$ref": "#/definitions/4"
+              }
+            ]
+          },
+          "2": {
+            "type": "object",
+            "required": [ "name" ],
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/3"
+            },
+            "minProperties": 1,
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/3"
+              }
+            },
+            "additionalProperties": {
+              "$ref": "#/definitions/3"
+            }
+          },
+          "3": true,
+          "4": {
+            "type": "object",
+            "required": [ "age" ],
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/3"
+            },
+            "minProperties": 1,
+            "properties": {
+              "age": {
+                "$ref": "#/definitions/3"
+              }
+            },
+            "additionalProperties": {
+              "$ref": "#/definitions/3"
+            }
+          },
+          "5": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `items`, `minItems`, `type`, `uniqueItems`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "uniqueItems": false,
+            "items": {
+              "$ref": "#/definitions/1"
+            },
+            "minItems": 0
+          },
+          "1": true
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `items`, `maxItems`, `minItems`, `type`, `uniqueItems`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/1"
+            },
+            "minItems": 1,
+            "maxItems": 1,
+            "uniqueItems": false
+          },
+          "1": {
+            "not": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "2": {
+            "enum": [ null ]
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `not`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/1"
+            },
+            "minItems": 1,
+            "maxItems": 1,
+            "uniqueItems": false
+          },
+          "1": {
+            "not": {
+              "$ref": "#/definitions/2"
+            }
+          },
+          "2": {
+            "enum": [ null ]
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `additionalItems`, `items`, `minItems`, `type`, `uniqueItems`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "items": [
+              {
+                "$ref": "#/definitions/2"
+              }
+            ],
+            "additionalItems": {
+              "$ref": "#/definitions/1"
+            },
+            "uniqueItems": false,
+            "minItems": 0
+          },
+          "1": false,
+          "2": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `contains`, `items`, `minItems`, `type`, `uniqueItems`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "array",
+            "contains": {
+              "$ref": "#/definitions/1"
+            },
+            "uniqueItems": false,
+            "items": {
+              "$ref": "#/definitions/2"
+            },
+            "minItems": 0
+          },
+          "1": false,
+          "2": true
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `minLength`, `pattern`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "$ref": "#/definitions/2"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/1"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": true,
+          "2": {
+            "type": "object",
+            "properties": {
+              "street": {
+                "$ref": "#/definitions/3"
+              },
+              "city": {
+                "$ref": "#/definitions/3"
+              },
+              "zip": {
+                "$ref": "#/definitions/4"
+              }
+            },
+            "required": [ "street", "city" ],
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/1"
+            },
+            "minProperties": 2,
+            "additionalProperties": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "3": {
+            "type": "string",
+            "minLength": 0
+          },
+          "4": {
+            "type": "string",
+            "pattern": "^[0-9]{5}$",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `minLength`, `type`, `x-id`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "x-id": "http://old.com",
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `enum`, `title`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "enum": [ true ],
+            "title": "Always true"
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `examples`, `minLength`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "examples": [ "foo", "bar" ],
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `exclusiveMaximum`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              },
+              {
+                "$ref": "#/definitions/3"
+              },
+              {
+                "$ref": "#/definitions/5"
+              },
+              {
+                "$ref": "#/definitions/6"
+              },
+              {
+                "$ref": "#/definitions/7"
+              }
+            ]
+          },
+          "1": {
+            "enum": [ null ]
+          },
+          "2": {
+            "enum": [ false, true ]
+          },
+          "3": {
+            "type": "object",
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/4"
+            },
+            "minProperties": 0,
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/definitions/4"
+            }
+          },
+          "4": true,
+          "5": {
+            "type": "array",
+            "uniqueItems": false,
+            "items": {
+              "$ref": "#/definitions/4"
+            },
+            "minItems": 0
+          },
+          "6": {
+            "type": "string",
+            "minLength": 0
+          },
+          "7": {
+            "type": "number",
+            "exclusiveMaximum": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `exclusiveMinimum`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "number",
+            "exclusiveMinimum": 5
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `additionalProperties`, `minProperties`, `patternProperties`, `properties`, `propertyNames`, `required`, `title`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "title": "Person",
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/5"
+              },
+              "age": {
+                "$ref": "#/definitions/3"
+              },
+              "email": {
+                "$ref": "#/definitions/4"
+              },
+              "active": {
+                "$ref": "#/definitions/2"
+              },
+              "tags": {
+                "$ref": "#/definitions/6"
+              }
+            },
+            "required": [ "name", "email" ],
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/1"
+            },
+            "minProperties": 2,
+            "additionalProperties": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": true,
+          "2": {
+            "enum": [ false, true ]
+          },
+          "3": {
+            "type": "integer",
+            "minimum": 0,
+            "multipleOf": 1
+          },
+          "4": {
+            "type": "string",
+            "format": "email",
+            "minLength": 0
+          },
+          "5": {
+            "type": "string",
+            "minLength": 1
+          },
+          "6": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/7"
+            },
+            "uniqueItems": true,
+            "minItems": 0
+          },
+          "7": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `format`, `minLength`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "title": "Person",
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/5"
+              },
+              "age": {
+                "$ref": "#/definitions/3"
+              },
+              "email": {
+                "$ref": "#/definitions/4"
+              },
+              "active": {
+                "$ref": "#/definitions/2"
+              },
+              "tags": {
+                "$ref": "#/definitions/6"
+              }
+            },
+            "required": [ "name", "email" ],
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/1"
+            },
+            "minProperties": 2,
+            "additionalProperties": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": true,
+          "2": {
+            "enum": [ false, true ]
+          },
+          "3": {
+            "type": "integer",
+            "minimum": 0,
+            "multipleOf": 1
+          },
+          "4": {
+            "type": "string",
+            "format": "email",
+            "minLength": 0
+          },
+          "5": {
+            "type": "string",
+            "minLength": 1
+          },
+          "6": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/7"
+            },
+            "uniqueItems": true,
+            "minItems": 0
+          },
+          "7": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `maximum`, `minimum`, `multipleOf`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9,
+            "multipleOf": 1
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `minLength`, `type`, `x-deprecated-since`, `x-source`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "x-source": "database",
+            "x-deprecated-since": "2.0",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `additionalProperties`, `maxProperties`, `minProperties`, `patternProperties`, `properties`, `propertyNames`, `required`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "required": [ "a", "b", "c" ],
+            "maxProperties": 2,
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/1"
+            },
+            "minProperties": 3,
+            "properties": {
+              "a": {
+                "$ref": "#/definitions/1"
+              },
+              "b": {
+                "$ref": "#/definitions/1"
+              },
+              "c": {
+                "$ref": "#/definitions/1"
+              }
+            },
+            "additionalProperties": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": true
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `additionalProperties`, `maxProperties`, `minProperties`, `patternProperties`, `properties`, `propertyNames`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "maxProperties": 5,
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/1"
+            },
+            "minProperties": 0,
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": true
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `minimum`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "string",
+            "minLength": 1
+          },
+          "2": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `oneOf`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "string",
+            "maxLength": 5,
+            "minLength": 0
+          },
+          "2": {
+            "type": "string",
+            "minLength": 10
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `maxLength`, `minLength`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/1"
+              },
+              {
+                "$ref": "#/definitions/2"
+              }
+            ]
+          },
+          "1": {
+            "type": "string",
+            "maxLength": 5,
+            "minLength": 0
+          },
+          "2": {
+            "type": "string",
+            "minLength": 10
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `$ref`, `title`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/2"
+              }
+            },
+            "patternProperties": {},
+            "propertyNames": {
+              "$ref": "#/definitions/1"
+            },
+            "minProperties": 0,
+            "additionalProperties": {
+              "$ref": "#/definitions/1"
+            }
+          },
+          "1": true,
+          "2": {
+            "$ref": "#/definitions/3",
+            "title": "Name"
+          },
+          "3": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `format`, `maxLength`, `minLength`, `pattern`, `type`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "^[a-z]+$",
+            "format": "email"
+          }
+        }
+      }
+    },
+    {
+      "description": "Canonical form holding an entry with `minLength`, `type`, `x-customKeyword`",
+      "valid": true,
+      "data": {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "type": "string",
+            "x-customKeyword": "value",
+            "minLength": 0
+          }
+        }
+      }
     },
     {
       "description": "String value is rejected",
@@ -30,73 +1332,6 @@
       "description": "Array value is rejected",
       "valid": false,
       "data": [ 1, 2, 3 ]
-    },
-    {
-      "description": "$ref alone is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo"
-      }
-    },
-    {
-      "description": "$ref with title is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "title": "A reference"
-      }
-    },
-    {
-      "description": "$ref with description is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "description": "Refers to foo"
-      }
-    },
-    {
-      "description": "$ref with default is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "default": 42
-      }
-    },
-    {
-      "description": "$ref with examples is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "examples": [ "bar" ]
-      }
-    },
-    {
-      "description": "$ref with all annotations is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "title": "Ref",
-        "description": "A ref",
-        "default": null,
-        "examples": [ 1, 2 ]
-      }
-    },
-    {
-      "description": "$ref with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "x-note": "important"
-      }
-    },
-    {
-      "description": "$ref with multiple x-keywords is canonical",
-      "valid": true,
-      "data": {
-        "$ref": "#/definitions/foo",
-        "x-note": "important",
-        "x-source": "api"
-      }
     },
     {
       "description": "$ref as non-string is rejected",
@@ -296,110 +1531,6 @@
       }
     },
     {
-      "description": "Enum with booleans is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ false, true ]
-      }
-    },
-    {
-      "description": "Enum with null is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ null ]
-      }
-    },
-    {
-      "description": "Enum with values is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2, 3 ]
-      }
-    },
-    {
-      "description": "Enum with title is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1 ],
-        "title": "One"
-      }
-    },
-    {
-      "description": "Enum with description is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ "a" ],
-        "description": "A value"
-      }
-    },
-    {
-      "description": "Enum with default is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2 ],
-        "default": 1
-      }
-    },
-    {
-      "description": "Enum with examples is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2, 3 ],
-        "examples": [ 1 ]
-      }
-    },
-    {
-      "description": "Enum with $schema is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1 ],
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "Enum with $id is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1 ],
-        "$id": "https://example.com/e"
-      }
-    },
-    {
-      "description": "Enum with definitions is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1 ],
-        "definitions": {
-          "x": true
-        }
-      }
-    },
-    {
-      "description": "Enum with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2 ],
-        "x-source": "config"
-      }
-    },
-    {
-      "description": "Enum with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2, 3 ],
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/enum",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My enum",
-        "description": "An enumeration",
-        "default": 1,
-        "examples": [ 2 ],
-        "x-source": "api"
-      }
-    },
-    {
       "description": "Empty enum is rejected",
       "valid": false,
       "data": {
@@ -573,104 +1704,6 @@
       "valid": false,
       "data": {
         "enum": 42
-      }
-    },
-    {
-      "description": "String with minLength is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0
-      }
-    },
-    {
-      "description": "String with all keywords is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "maxLength": 100,
-        "pattern": "^[a-z]+$",
-        "format": "email"
-      }
-    },
-    {
-      "description": "String with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "title": "Name",
-        "description": "A name",
-        "default": "unknown"
-      }
-    },
-    {
-      "description": "String with examples is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "examples": [ "hello" ]
-      }
-    },
-    {
-      "description": "String with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "String with $id is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "$id": "https://example.com/s"
-      }
-    },
-    {
-      "description": "String with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "definitions": {
-          "x": true
-        }
-      }
-    },
-    {
-      "description": "String with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "x-custom": "value"
-      }
-    },
-    {
-      "description": "String with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 1,
-        "maxLength": 255,
-        "pattern": "^[A-Z]",
-        "format": "uri",
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/str",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My string",
-        "description": "A string value",
-        "default": "",
-        "examples": [ "abc", "def" ],
-        "x-custom": "value"
       }
     },
     {
@@ -895,110 +1928,6 @@
         "type": "string",
         "minLength": 0,
         "format": 42
-      }
-    },
-    {
-      "description": "Integer with multipleOf is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1
-      }
-    },
-    {
-      "description": "Integer with bounds is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "minimum": 0,
-        "maximum": 100
-      }
-    },
-    {
-      "description": "Integer with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "title": "Age",
-        "description": "Years",
-        "default": 0
-      }
-    },
-    {
-      "description": "Integer with examples is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "examples": [ 42 ]
-      }
-    },
-    {
-      "description": "Integer with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "Integer with $id is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "$id": "https://example.com/i"
-      }
-    },
-    {
-      "description": "Integer with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "definitions": {
-          "x": true
-        }
-      }
-    },
-    {
-      "description": "Integer with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "x-source": "db"
-      }
-    },
-    {
-      "description": "Integer with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "minimum": 0,
-        "maximum": 100,
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/int",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My integer",
-        "description": "An integer value",
-        "default": 0,
-        "examples": [ 1, 50, 100 ],
-        "x-source": "db"
-      }
-    },
-    {
-      "description": "Integer with fractional multipleOf is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 0.5
       }
     },
     {
@@ -1246,132 +2175,6 @@
       }
     },
     {
-      "description": "Number alone is canonical",
-      "valid": true,
-      "data": {
-        "type": "number"
-      }
-    },
-    {
-      "description": "Number with bounds is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 1.5
-      }
-    },
-    {
-      "description": "Number with multipleOf is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "multipleOf": 0.1
-      }
-    },
-    {
-      "description": "Number with exclusiveMinimum as number is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "exclusiveMinimum": 0
-      }
-    },
-    {
-      "description": "Number with exclusiveMaximum as number is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "exclusiveMaximum": 100
-      }
-    },
-    {
-      "description": "Number with all keywords is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "multipleOf": 0.5,
-        "minimum": 0,
-        "maximum": 100,
-        "exclusiveMinimum": -1,
-        "exclusiveMaximum": 101
-      }
-    },
-    {
-      "description": "Number with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "title": "Score",
-        "description": "A score",
-        "default": 0
-      }
-    },
-    {
-      "description": "Number with examples is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "examples": [ 3.14 ]
-      }
-    },
-    {
-      "description": "Number with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "Number with $id is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "$id": "https://example.com/n"
-      }
-    },
-    {
-      "description": "Number with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "definitions": {
-          "x": true
-        }
-      }
-    },
-    {
-      "description": "Number with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "x-unit": "meters"
-      }
-    },
-    {
-      "description": "Number with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "multipleOf": 0.1,
-        "minimum": 0,
-        "maximum": 100,
-        "exclusiveMinimum": -1,
-        "exclusiveMaximum": 101,
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/num",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My number",
-        "description": "A number value",
-        "default": 0,
-        "examples": [ 1.5, 99.9 ],
-        "x-unit": "meters"
-      }
-    },
-    {
       "description": "Number with multipleOf zero is rejected",
       "valid": false,
       "data": {
@@ -1593,193 +2396,6 @@
       "data": {
         "type": "number",
         "maximum": "100"
-      }
-    },
-    {
-      "description": "Object with all required keywords is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "minProperties": 0
-      }
-    },
-    {
-      "description": "Object with all keywords is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 0
-          }
-        },
-        "patternProperties": {
-          "^x-": true
-        },
-        "additionalProperties": false,
-        "propertyNames": {
-          "type": "string",
-          "minLength": 1
-        },
-        "required": [ "name" ],
-        "minProperties": 1,
-        "maxProperties": 10
-      }
-    },
-    {
-      "description": "Object with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "minProperties": 0,
-        "title": "Obj",
-        "description": "An object",
-        "default": {}
-      }
-    },
-    {
-      "description": "Object with examples is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "minProperties": 0,
-        "examples": [
-          {
-            "foo": "bar"
-          }
-        ]
-      }
-    },
-    {
-      "description": "Object with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "minProperties": 0,
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "Object with $id is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "minProperties": 0,
-        "$id": "https://example.com/o"
-      }
-    },
-    {
-      "description": "Object with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "minProperties": 0,
-        "definitions": {
-          "x": true
-        }
-      }
-    },
-    {
-      "description": "Object with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "minProperties": 0,
-        "x-db": "users"
-      }
-    },
-    {
-      "description": "Object with false propertyNames is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": false,
-        "minProperties": 0
-      }
-    },
-    {
-      "description": "Object with schema propertyNames is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": {
-          "type": "string",
-          "minLength": 0
-        },
-        "minProperties": 0
-      }
-    },
-    {
-      "description": "Object with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "patternProperties": {
-          "^x-": true
-        },
-        "additionalProperties": false,
-        "propertyNames": {
-          "type": "string",
-          "minLength": 1
-        },
-        "required": [ "name" ],
-        "minProperties": 1,
-        "maxProperties": 10,
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/obj",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My object",
-        "description": "An object value",
-        "default": {},
-        "examples": [
-          {
-            "name": "foo"
-          }
-        ],
-        "x-db": "users"
       }
     },
     {
@@ -2203,187 +2819,6 @@
       }
     },
     {
-      "description": "Array with schema items is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": {
-          "type": "string",
-          "minLength": 0
-        },
-        "minItems": 0,
-        "uniqueItems": false
-      }
-    },
-    {
-      "description": "Array with boolean items is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "uniqueItems": true
-      }
-    },
-    {
-      "description": "Array with false items is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": false,
-        "minItems": 0,
-        "uniqueItems": false
-      }
-    },
-    {
-      "description": "Array with false contains is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "contains": false,
-        "minItems": 0,
-        "uniqueItems": false
-      }
-    },
-    {
-      "description": "Array with schema contains is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "contains": {
-          "type": "string",
-          "minLength": 0
-        },
-        "minItems": 0,
-        "uniqueItems": false
-      }
-    },
-    {
-      "description": "Array with all keywords (schema items) is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "maxItems": 10,
-        "uniqueItems": true
-      }
-    },
-    {
-      "description": "Array schema items with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "title": "List",
-        "description": "A list",
-        "default": []
-      }
-    },
-    {
-      "description": "Array schema items with examples is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "examples": [
-          [ 1, 2 ]
-        ]
-      }
-    },
-    {
-      "description": "Array schema items with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "Array schema items with $id is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "$id": "https://example.com/a"
-      }
-    },
-    {
-      "description": "Array schema items with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "definitions": {
-          "x": true
-        }
-      }
-    },
-    {
-      "description": "Array schema items with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "x-max": 100
-      }
-    },
-    {
-      "description": "Array schema items with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": {
-          "type": "string",
-          "minLength": 0
-        },
-        "contains": {
-          "type": "string",
-          "minLength": 1
-        },
-        "minItems": 1,
-        "maxItems": 100,
-        "uniqueItems": true,
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/arr",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My array",
-        "description": "An array value",
-        "default": [],
-        "examples": [
-          [ "a" ]
-        ],
-        "x-max": 100
-      }
-    },
-    {
-      "description": "Array without contains is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 0,
-        "uniqueItems": false
-      }
-    },
-    {
       "description": "Array without minItems is rejected",
       "valid": false,
       "data": {
@@ -2662,187 +3097,6 @@
       }
     },
     {
-      "description": "Array with tuple items and additionalItems is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": true,
-        "minItems": 0,
-        "uniqueItems": false
-      }
-    },
-    {
-      "description": "Array with all keywords (tuple items) is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          }
-        ],
-        "additionalItems": {
-          "type": "number"
-        },
-        "contains": {
-          "type": "string",
-          "minLength": 0
-        },
-        "minItems": 0,
-        "maxItems": 5,
-        "uniqueItems": true
-      }
-    },
-    {
-      "description": "Array tuple items with annotations is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          }
-        ],
-        "additionalItems": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "title": "Pair"
-      }
-    },
-    {
-      "description": "Array tuple items with examples is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          }
-        ],
-        "additionalItems": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "examples": [
-          [ "hello" ]
-        ]
-      }
-    },
-    {
-      "description": "Array tuple items with $schema is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": false,
-        "minItems": 0,
-        "uniqueItems": false,
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "Array tuple items with $id is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "$id": "https://example.com/tuple"
-      }
-    },
-    {
-      "description": "Array tuple items with definitions is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "definitions": {
-          "x": true
-        }
-      }
-    },
-    {
-      "description": "Array tuple items with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": true,
-        "minItems": 0,
-        "uniqueItems": false,
-        "x-custom": "value"
-      }
-    },
-    {
-      "description": "Array tuple items with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "integer",
-            "multipleOf": 1
-          }
-        ],
-        "additionalItems": false,
-        "contains": {
-          "type": "string",
-          "minLength": 0
-        },
-        "minItems": 2,
-        "maxItems": 2,
-        "uniqueItems": true,
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/tuple",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My tuple",
-        "description": "A tuple value",
-        "default": [ "", 0 ],
-        "examples": [
-          [ "a", 1 ]
-        ],
-        "x-custom": "value"
-      }
-    },
-    {
       "description": "Array tuple without additionalItems is rejected",
       "valid": false,
       "data": {
@@ -2895,22 +3149,6 @@
           }
         ],
         "additionalItems": true,
-        "uniqueItems": false
-      }
-    },
-    {
-      "description": "Array tuple without contains is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": [
-          {
-            "type": "string",
-            "minLength": 0
-          }
-        ],
-        "additionalItems": true,
-        "minItems": 0,
         "uniqueItems": false
       }
     },
@@ -3123,136 +3361,6 @@
         "minItems": 0,
         "uniqueItems": false,
         "anyOf": [ true ]
-      }
-    },
-    {
-      "description": "anyOf with canonical branches is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
-      }
-    },
-    {
-      "description": "anyOf with title is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "title": "Wrapper"
-      }
-    },
-    {
-      "description": "anyOf with description is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [ true, false ],
-        "description": "A union"
-      }
-    },
-    {
-      "description": "anyOf with default is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [ true, false ],
-        "default": "foo"
-      }
-    },
-    {
-      "description": "anyOf with examples is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [ true, false ],
-        "examples": [ "bar" ]
-      }
-    },
-    {
-      "description": "anyOf with $schema is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [ true, false ],
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "anyOf with $id is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [ true, false ],
-        "$id": "https://example.com/u"
-      }
-    },
-    {
-      "description": "anyOf with definitions is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "$ref": "#/definitions/a"
-          },
-          true
-        ],
-        "definitions": {
-          "a": {
-            "type": "string",
-            "minLength": 0
-          }
-        }
-      }
-    },
-    {
-      "description": "anyOf with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "x-gen": "tool"
-      }
-    },
-    {
-      "description": "anyOf with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/anyof",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My anyOf",
-        "description": "An anyOf schema",
-        "default": "hello",
-        "examples": [ "world" ],
-        "x-gen": "tool"
       }
     },
     {
@@ -3475,131 +3583,6 @@
       }
     },
     {
-      "description": "allOf with canonical branches is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {
-            "$ref": "#/definitions/base"
-          },
-          {
-            "type": "object",
-            "properties": {},
-            "patternProperties": {},
-            "additionalProperties": true,
-            "propertyNames": true,
-            "minProperties": 0
-          }
-        ]
-      }
-    },
-    {
-      "description": "allOf with title is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "title": "Wrapper"
-      }
-    },
-    {
-      "description": "allOf with description is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [ true, false ],
-        "description": "Combined"
-      }
-    },
-    {
-      "description": "allOf with default is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [ true, false ],
-        "default": {}
-      }
-    },
-    {
-      "description": "allOf with examples is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [ true, false ],
-        "examples": [ "foo" ]
-      }
-    },
-    {
-      "description": "allOf with $schema is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [ true, false ],
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "allOf with $id is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [ true, false ],
-        "$id": "https://example.com/c"
-      }
-    },
-    {
-      "description": "allOf with definitions is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {
-            "$ref": "#/definitions/a"
-          },
-          true
-        ],
-        "definitions": {
-          "a": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    {
-      "description": "allOf with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [ true, false ],
-        "x-note": "combined"
-      }
-    },
-    {
-      "description": "allOf with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/allof",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My allOf",
-        "description": "An allOf schema",
-        "default": "hello",
-        "examples": [ "world" ],
-        "x-note": "combined"
-      }
-    },
-    {
       "description": "Empty allOf is rejected",
       "valid": false,
       "data": {
@@ -3799,127 +3782,6 @@
       }
     },
     {
-      "description": "oneOf with canonical branches is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ]
-      }
-    },
-    {
-      "description": "oneOf with title is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "title": "Wrapper"
-      }
-    },
-    {
-      "description": "oneOf with description is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [ true, false ],
-        "description": "Exclusive"
-      }
-    },
-    {
-      "description": "oneOf with default is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [ true, false ],
-        "default": "x"
-      }
-    },
-    {
-      "description": "oneOf with examples is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [ true, false ],
-        "examples": [ "bar" ]
-      }
-    },
-    {
-      "description": "oneOf with $schema is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [ true, false ],
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "oneOf with $id is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [ true, false ],
-        "$id": "https://example.com/x"
-      }
-    },
-    {
-      "description": "oneOf with definitions is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {
-            "$ref": "#/definitions/a"
-          },
-          true
-        ],
-        "definitions": {
-          "a": {
-            "type": "number"
-          }
-        }
-      }
-    },
-    {
-      "description": "oneOf with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [ true, false ],
-        "x-mode": "strict"
-      }
-    },
-    {
-      "description": "oneOf with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [
-          {
-            "type": "string",
-            "minLength": 0
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/oneof",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My oneOf",
-        "description": "A oneOf schema",
-        "default": "hello",
-        "examples": [ "world" ],
-        "x-mode": "strict"
-      }
-    },
-    {
       "description": "Empty oneOf is rejected",
       "valid": false,
       "data": {
@@ -4109,116 +3971,6 @@
       "valid": false,
       "data": {
         "oneOf": [ true ]
-      }
-    },
-    {
-      "description": "not with boolean is canonical",
-      "valid": true,
-      "data": {
-        "not": true
-      }
-    },
-    {
-      "description": "not with false is canonical",
-      "valid": true,
-      "data": {
-        "not": false
-      }
-    },
-    {
-      "description": "not with schema is canonical",
-      "valid": true,
-      "data": {
-        "not": {
-          "type": "string",
-          "minLength": 0
-        }
-      }
-    },
-    {
-      "description": "not with title is canonical",
-      "valid": true,
-      "data": {
-        "not": true,
-        "title": "Impossible"
-      }
-    },
-    {
-      "description": "not with description is canonical",
-      "valid": true,
-      "data": {
-        "not": true,
-        "description": "Negated"
-      }
-    },
-    {
-      "description": "not with default is canonical",
-      "valid": true,
-      "data": {
-        "not": true,
-        "default": null
-      }
-    },
-    {
-      "description": "not with examples is canonical",
-      "valid": true,
-      "data": {
-        "not": true,
-        "examples": [ "bar" ]
-      }
-    },
-    {
-      "description": "not with $schema is canonical",
-      "valid": true,
-      "data": {
-        "not": true,
-        "$schema": "http://json-schema.org/draft-06/schema#"
-      }
-    },
-    {
-      "description": "not with $id is canonical",
-      "valid": true,
-      "data": {
-        "not": true,
-        "$id": "https://example.com/not"
-      }
-    },
-    {
-      "description": "not with definitions is canonical",
-      "valid": true,
-      "data": {
-        "not": true,
-        "definitions": {
-          "x": true
-        }
-      }
-    },
-    {
-      "description": "not with x-keyword is canonical",
-      "valid": true,
-      "data": {
-        "not": true,
-        "x-reason": "legacy"
-      }
-    },
-    {
-      "description": "not with all optional fields is canonical",
-      "valid": true,
-      "data": {
-        "not": {
-          "type": "string",
-          "minLength": 0
-        },
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/not",
-        "definitions": {
-          "helper": true
-        },
-        "title": "My not",
-        "description": "A not schema",
-        "default": null,
-        "examples": [ "bar" ],
-        "x-reason": "legacy"
       }
     },
     {
@@ -4478,140 +4230,6 @@
       }
     },
     {
-      "description": "Full canonical root schema",
-      "valid": true,
-      "data": {
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/person",
-        "type": "object",
-        "title": "Person",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "age": {
-            "type": "integer",
-            "multipleOf": 1,
-            "minimum": 0
-          },
-          "email": {
-            "type": "string",
-            "minLength": 0,
-            "format": "email"
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 0
-            },
-            "minItems": 0,
-            "uniqueItems": false
-          }
-        },
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "required": [ "name" ],
-        "minProperties": 1,
-        "definitions": {
-          "address": {
-            "type": "object",
-            "properties": {},
-            "patternProperties": {},
-            "additionalProperties": true,
-            "propertyNames": true,
-            "minProperties": 0
-          }
-        }
-      }
-    },
-    {
-      "description": "Full canonical root schema with examples",
-      "valid": true,
-      "data": {
-        "$schema": "http://json-schema.org/draft-06/schema#",
-        "$id": "https://example.com/config",
-        "type": "object",
-        "title": "Config",
-        "description": "Application configuration",
-        "examples": [
-          {
-            "name": "test",
-            "port": 8080
-          }
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "examples": [ "my-app" ]
-          },
-          "port": {
-            "type": "integer",
-            "multipleOf": 1,
-            "minimum": 1,
-            "maximum": 65535,
-            "examples": [ 80, 443, 8080 ]
-          }
-        },
-        "patternProperties": {},
-        "additionalProperties": false,
-        "propertyNames": {
-          "type": "string",
-          "minLength": 1
-        },
-        "required": [ "name" ],
-        "minProperties": 1,
-        "definitions": {
-          "port-range": {
-            "type": "integer",
-            "multipleOf": 1,
-            "minimum": 0,
-            "maximum": 65535
-          }
-        }
-      }
-    },
-    {
-      "description": "Deeply nested canonical schema",
-      "valid": true,
-      "data": {
-        "anyOf": [
-          {
-            "type": "object",
-            "properties": {
-              "items": {
-                "type": "array",
-                "items": {
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "minLength": 0
-                    },
-                    {
-                      "type": "integer",
-                      "multipleOf": 1
-                    }
-                  ]
-                },
-                "minItems": 0,
-                "uniqueItems": false
-              }
-            },
-            "patternProperties": {},
-            "additionalProperties": true,
-            "propertyNames": true,
-            "minProperties": 0
-          },
-          {
-            "not": false
-          }
-        ]
-      }
-    },
-    {
       "description": "Deeply nested non-canonical schema is rejected",
       "valid": false,
       "data": {
@@ -4641,54 +4259,6 @@
       }
     },
     {
-      "description": "Number with exclusiveMinimum zero is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "exclusiveMinimum": 0
-      }
-    },
-    {
-      "description": "Number with exclusiveMaximum zero is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "exclusiveMaximum": 0
-      }
-    },
-    {
-      "description": "Number with negative exclusiveMinimum is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "exclusiveMinimum": -100
-      }
-    },
-    {
-      "description": "Number with negative exclusiveMaximum is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "exclusiveMaximum": -100
-      }
-    },
-    {
-      "description": "Number with fractional exclusiveMinimum is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "exclusiveMinimum": 0.5
-      }
-    },
-    {
-      "description": "Number with fractional exclusiveMaximum is canonical",
-      "valid": true,
-      "data": {
-        "type": "number",
-        "exclusiveMaximum": 99.9
-      }
-    },
-    {
       "description": "Array tuple with negative minItems is rejected",
       "valid": false,
       "data": {
@@ -4702,115 +4272,6 @@
         "additionalItems": true,
         "minItems": -1,
         "uniqueItems": false
-      }
-    },
-    {
-      "description": "Enum with single value is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 42 ]
-      }
-    },
-    {
-      "description": "String with minLength 0 and maxLength 0 is canonical",
-      "valid": true,
-      "data": {
-        "type": "string",
-        "minLength": 0,
-        "maxLength": 0
-      }
-    },
-    {
-      "description": "Integer with only minimum is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "minimum": 0
-      }
-    },
-    {
-      "description": "Integer with only maximum is canonical",
-      "valid": true,
-      "data": {
-        "type": "integer",
-        "multipleOf": 1,
-        "maximum": 100
-      }
-    },
-    {
-      "description": "Object with boolean additionalProperties is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": false,
-        "propertyNames": true,
-        "minProperties": 0
-      }
-    },
-    {
-      "description": "Object with schema additionalProperties is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {},
-        "patternProperties": {},
-        "additionalProperties": {
-          "type": "string",
-          "minLength": 0
-        },
-        "propertyNames": true,
-        "minProperties": 0
-      }
-    },
-    {
-      "description": "Array with maxItems same as minItems is canonical",
-      "valid": true,
-      "data": {
-        "type": "array",
-        "items": true,
-        "minItems": 5,
-        "maxItems": 5,
-        "uniqueItems": false
-      }
-    },
-    {
-      "description": "Object with required list is canonical",
-      "valid": true,
-      "data": {
-        "type": "object",
-        "properties": {
-          "a": true,
-          "b": true
-        },
-        "patternProperties": {},
-        "additionalProperties": true,
-        "propertyNames": true,
-        "required": [ "a", "b" ],
-        "minProperties": 2
-      }
-    },
-    {
-      "description": "anyOf with boolean branches is canonical",
-      "valid": true,
-      "data": {
-        "anyOf": [ true, false ]
-      }
-    },
-    {
-      "description": "allOf with boolean branches is canonical",
-      "valid": true,
-      "data": {
-        "allOf": [ true, false ]
-      }
-    },
-    {
-      "description": "oneOf with boolean branches is canonical",
-      "valid": true,
-      "data": {
-        "oneOf": [ true, false ]
       }
     },
     {
@@ -5023,20 +4484,6 @@
         "propertyNames": true,
         "minProperties": 0,
         "description": 42
-      }
-    },
-    {
-      "description": "Enum with a single type is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ "a", "b" ]
-      }
-    },
-    {
-      "description": "Enum mixing integers and reals is canonical",
-      "valid": true,
-      "data": {
-        "enum": [ 1, 2.5 ]
       }
     },
     {

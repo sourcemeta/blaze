@@ -1,0 +1,74 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": { "tags": { "type": "array", "items": { "type": "string" } } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "tags": { "$ref": "#/definitions/2" } },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": true,
+      "2": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/3" },
+        "uniqueItems": false,
+        "minItems": 0
+      },
+      "3": { "type": "string", "minLength": 0 }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "tags": [ "x" ] },
+    { "tags": [] }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    { "tags": "other" },
+    { "tags": [ -1 ] },
+    { "tags": 1 },
+    { "tags": "x" },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "tags": {} },
+    { "tags": { "tags": "x" } },
+    [ null ]
+  ]
+}
