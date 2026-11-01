@@ -5,6 +5,7 @@
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/blaze/convert.h>
 #include <sourcemeta/blaze/dependencies.h>
+#include <sourcemeta/blaze/documentation.h>
 #include <sourcemeta/blaze/editor.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
@@ -13,9 +14,10 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <cstdlib>  // EXIT_SUCCESS
+#include <cstdlib>  // EXIT_SUCCESS, EXIT_FAILURE
 #include <iostream> // std::cerr
 #include <sstream>  // std::ostringstream
+#include <string>   // std::string
 
 auto main() -> int {
   const auto schema{sourcemeta::core::parse_json(R"JSON({
@@ -80,6 +82,16 @@ auto main() -> int {
   std::ostringstream binpack_output;
   sourcemeta::blaze::BinPackEncoder binpack_encoder{binpack_output};
   binpack_encoder.write(sourcemeta::core::JSON{5}, binpack_encoding);
+
+  const auto documentation{sourcemeta::blaze::to_documentation(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver)};
+  std::string page;
+  sourcemeta::blaze::to_html(documentation, page);
+  if (page.empty()) {
+    std::cerr << "Documentation rendering failed\n";
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

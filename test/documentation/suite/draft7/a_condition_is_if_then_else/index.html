@@ -1,0 +1,63 @@
+<h1>Schema</h1>
+<p>1 property you can leave out, 3 that only apply in certain cases.</p>
+<p><b>A table inside a row</b> means those properties live inside that one.</p>
+<p><b>Click a line with an arrow</b> to open what it holds.</p>
+<section>
+  <h2>What this file holds</h2>
+  <table>
+    <tr>
+      <th>Property</th>
+      <th>What goes in it</th>
+      <th>Required?</th>
+      <th>What it means</th>
+    </tr>
+    <tr>
+      <td>kind</td>
+      <td>
+        <div>text</div>
+      </td>
+      <td>No, you can leave it out</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>when kind is &quot;gift&quot;</td>
+      <td></td>
+      <td>Only in certain cases</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary>then these apply (1 property)</summary>
+          <table>
+            <tr>
+              <td>note</td>
+              <td>
+                <div>text</div>
+              </td>
+              <td>Yes, when kind is &quot;gift&quot;</td>
+              <td></td>
+            </tr>
+          </table>
+        </details>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <details>
+          <summary>otherwise these apply (1 property)</summary>
+          <table>
+            <tr>
+              <td>plain</td>
+              <td>
+                <div>yes or no</div>
+              </td>
+              <td>Yes, otherwise</td>
+              <td></td>
+            </tr>
+          </table>
+        </details>
+      </td>
+    </tr>
+  </table>
+</section>

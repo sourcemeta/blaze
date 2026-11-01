@@ -10,7 +10,7 @@ SCHEMAS = \
 	sourcemeta-extension/v1/2019-09/vocabulary.json \
 	sourcemeta-extension/v1/2019-09/dialect.json \
 	sourcemeta-extension/v1/2020-12/vocabulary.json \
-	sourcemeta-extension/v1/2020-12/dialect.json
+	sourcemeta-extension/v1/2020-12/dialect.json 	table-format.json
 TESTS = \
 	canonical-draft1.test.json \
 	canonical-draft2.test.json \
@@ -21,7 +21,7 @@ TESTS = \
 	canonical-2019-09.test.json \
 	canonical-2020-12.test.json \
 	sourcemeta-extension/v1/vocabulary.test.json \
-	sourcemeta-extension/v1/dialect.test.json
+	sourcemeta-extension/v1/dialect.test.json 	table-format.test.json
 JSONSCHEMA ?= jsonschema
 
 .PHONY: all

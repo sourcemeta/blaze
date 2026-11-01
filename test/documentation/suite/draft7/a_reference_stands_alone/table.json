@@ -1,0 +1,18 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "http://json-schema.org/draft-07/schema#",
+  "root": {
+    "kind": "ref",
+    "ref": "/definitions/name"
+  },
+  "shapes": [
+    {
+      "id": "/definitions/name",
+      "name": "name",
+      "value": {
+        "kind": "string"
+      }
+    }
+  ]
+}
