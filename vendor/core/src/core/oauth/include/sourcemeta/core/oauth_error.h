@@ -5,10 +5,10 @@
 #include <sourcemeta/core/oauth_export.h>
 #endif
 
+#include <sourcemeta/core/error.h>
 #include <sourcemeta/core/http.h>
 
 #include <cstdint>     // std::uint8_t
-#include <exception>   // std::exception
 #include <optional>    // std::optional
 #include <string_view> // std::string_view
 
@@ -280,36 +280,27 @@ SOURCEMETA_CORE_OAUTH_EXPORT
 auto oauth_bearer_error_status(const OAuthBearerError error) noexcept
     -> HTTPStatus;
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup oauth
 /// An error that occurs when parsing an invalid authorization server or
 /// protected resource metadata document.
-class SOURCEMETA_CORE_OAUTH_EXPORT OAuthMetadataParseError
-    : public std::exception {
+class SOURCEMETA_CORE_OAUTH_EXPORT OAuthMetadataParseError : public Error {
 public:
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid OAuth metadata document";
-  }
+  OAuthMetadataParseError() noexcept
+      : Error{"The input is not a valid OAuth metadata document"} {}
 };
 
 /// @ingroup oauth
 /// An error that occurs when parsing an invalid dynamic client registration
 /// request or response.
-class SOURCEMETA_CORE_OAUTH_EXPORT OAuthRegistrationParseError
-    : public std::exception {
+class SOURCEMETA_CORE_OAUTH_EXPORT OAuthRegistrationParseError : public Error {
 public:
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid OAuth client registration document";
-  }
+  OAuthRegistrationParseError() noexcept
+      : Error{"The input is not a valid OAuth client registration document"} {}
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

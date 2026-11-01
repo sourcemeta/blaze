@@ -7,6 +7,8 @@ if(SOURCEMETA_CORE_INSTALL)
 endif()
 
 target_link_libraries(sourcemeta_core_jsonpath PUBLIC
+  sourcemeta::core::error)
+target_link_libraries(sourcemeta_core_jsonpath PUBLIC
   sourcemeta::core::json)
 target_link_libraries(sourcemeta_core_jsonpath PUBLIC
   sourcemeta::core::jsonpointer)

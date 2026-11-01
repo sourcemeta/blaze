@@ -163,8 +163,9 @@ public:
     return !this->as_property_;
   }
 
-  /// Get the underlying value of a JSON Pointer object property token (`const`
-  /// overload). For example:
+  /// Get the underlying value of a JSON Pointer object property token. A token
+  /// never hands out a mutable reference, as its precomputed hash would not
+  /// follow a write through one. For example:
   ///
   /// ```cpp
   /// #include <sourcemeta/core/jsonpointer.h>
@@ -224,26 +225,6 @@ public:
              (HASHER.is_perfect(value_hash) || this->to_property() == value);
     } else {
       return this->hash_ == value_hash && this->to_property() == value;
-    }
-  }
-
-  /// Get the underlying value of a JSON Pointer object property token
-  /// (non-`const` overload). For example:
-  ///
-  /// ```cpp
-  /// #include <sourcemeta/core/jsonpointer.h>
-  /// #include <cassert>
-  ///
-  /// sourcemeta::core::Pointer::Token token{"foo"};
-  /// assert(token.is_property());
-  /// assert(token.to_property() == "foo");
-  /// ```
-  auto to_property() noexcept -> auto & {
-    assert(this->is_property());
-    if constexpr (requires { this->property_.get(); }) {
-      return this->property_.get();
-    } else {
-      return this->property_;
     }
   }
 

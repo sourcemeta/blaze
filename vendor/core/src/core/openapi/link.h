@@ -40,15 +40,15 @@ inline auto openapi_check_link(const JSON &value, const Pointer &base,
       value.try_at("operationId", OPENAPI_HASH_OPERATION_ID)};
 
   if (operation_reference != nullptr && operation_identifier != nullptr) {
-    throw OpenAPIError{base,
-                       "The Link Object operation reference and operation "
-                       "identifier are mutually exclusive"};
+    throw OpenAPIError{"The Link Object operation reference and operation "
+                       "identifier are mutually exclusive",
+                       base};
   }
 
   if (operation_reference == nullptr && operation_identifier == nullptr) {
-    throw OpenAPIError{base,
-                       "The Link Object must declare an operation reference or "
-                       "an operation identifier"};
+    throw OpenAPIError{"The Link Object must declare an operation reference or "
+                       "an operation identifier",
+                       base};
   }
 
   // Section 4.8.20: "The identified or reference operation MUST be unique, and

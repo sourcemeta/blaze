@@ -212,7 +212,7 @@ inline auto openapi_check_components(const JSON &document, OpenAPIWalk &walk)
   const Pointer base{"components"};
   openapi_record(walk, base, OpenAPIObjectKind::Components);
   if (!components->is_object()) {
-    throw OpenAPIError{base, "The Components Object must be an object"};
+    throw OpenAPIError{"The Components Object must be an object", base};
   }
 
   openapi_reject_unknown_fields(
@@ -231,8 +231,8 @@ inline auto openapi_check_components(const JSON &document, OpenAPIWalk &walk)
 
     const auto location{openapi_child(base, entry.first)};
     if (!entry.second.is_object()) {
-      throw OpenAPIError{location,
-                         "The Components Object fields must each be an object"};
+      throw OpenAPIError{"The Components Object fields must each be an object",
+                         location};
     }
 
     // Every entry of every map but one is an Object or a Reference Object,
@@ -246,14 +246,14 @@ inline auto openapi_check_components(const JSON &document, OpenAPIWalk &walk)
 
     for (const auto &component : entry.second.as_object()) {
       if (component.first.empty()) {
-        throw OpenAPIError{openapi_child(location, component.first),
-                           "The Components Object keys must not be empty"};
+        throw OpenAPIError{"The Components Object keys must not be empty",
+                           openapi_child(location, component.first)};
       }
 
       if (!openapi_is_component_key(component.first)) {
-        throw OpenAPIError{openapi_child(location, component.first),
-                           "The Components Object keys may only hold letters, "
-                           "digits, dots, hyphens and underscores"};
+        throw OpenAPIError{"The Components Object keys may only hold letters, "
+                           "digits, dots, hyphens and underscores",
+                           openapi_child(location, component.first)};
       }
 
       const auto entry_location{openapi_child(location, component.first)};

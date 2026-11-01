@@ -303,8 +303,8 @@ auto URITemplateRouter::add(const std::string_view uri_template,
   }
 
   if (!uri_template.empty() && uri_template.front() != '/' &&
-      !(uri_template.size() >= 2 && uri_template[0] == '{' &&
-        uri_template[1] == '/')) {
+      (uri_template.size() < 2 || uri_template[0] != '{' ||
+       uri_template[1] != '/')) {
     throw URITemplateRouterInvalidSegmentError{"Template must start with '/'",
                                                uri_template};
   }

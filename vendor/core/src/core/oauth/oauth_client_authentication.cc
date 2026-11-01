@@ -169,7 +169,7 @@ auto oauth_parse_client_authentication(const std::string_view authorization,
   }
 
   // RFC 7521 Section 4.2: the assertion mechanism needs both parameters
-  if (assertion_present && !(has_assertion && has_assertion_type)) {
+  if (assertion_present && (!has_assertion || !has_assertion_type)) {
     return false;
   }
 

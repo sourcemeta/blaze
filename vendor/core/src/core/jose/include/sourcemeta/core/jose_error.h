@@ -5,54 +5,43 @@
 #include <sourcemeta/core/jose_export.h>
 #endif
 
-#include <exception> // std::exception
+#include <sourcemeta/core/error.h>
 
 namespace sourcemeta::core {
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup jose
 /// An error that occurs when parsing an invalid JSON Web Key.
-class SOURCEMETA_CORE_JOSE_EXPORT JWKParseError : public std::exception {
+class SOURCEMETA_CORE_JOSE_EXPORT JWKParseError : public Error {
 public:
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid JSON Web Key";
-  }
+  JWKParseError() noexcept : Error{"The input is not a valid JSON Web Key"} {}
 };
 
 /// @ingroup jose
 /// An error that occurs when parsing an invalid JSON Web Key Set.
-class SOURCEMETA_CORE_JOSE_EXPORT JWKSParseError : public std::exception {
+class SOURCEMETA_CORE_JOSE_EXPORT JWKSParseError : public Error {
 public:
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid JSON Web Key Set";
-  }
+  JWKSParseError() noexcept
+      : Error{"The input is not a valid JSON Web Key Set"} {}
 };
 
 /// @ingroup jose
 /// An error that occurs when parsing an invalid JSON Web Token.
-class SOURCEMETA_CORE_JOSE_EXPORT JWTParseError : public std::exception {
+class SOURCEMETA_CORE_JOSE_EXPORT JWTParseError : public Error {
 public:
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid JSON Web Token";
-  }
+  JWTParseError() noexcept : Error{"The input is not a valid JSON Web Token"} {}
 };
 
 /// @ingroup jose
 /// An error that occurs when parsing an invalid JSON Web Encryption object.
-class SOURCEMETA_CORE_JOSE_EXPORT JWEParseError : public std::exception {
+class SOURCEMETA_CORE_JOSE_EXPORT JWEParseError : public Error {
 public:
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid JSON Web Encryption object";
-  }
+  JWEParseError() noexcept
+      : Error{"The input is not a valid JSON Web Encryption object"} {}
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

@@ -86,7 +86,7 @@ constexpr std::array<JSON::StringView, 2>
     OPENAPI_PARAMETER_INAPPLICABLE_SCHEMA_FIELDS{
         {"allowEmptyValue"sv, "allowReserved"sv}};
 
-constexpr auto OPENAPI_PARAMETER_INAPPLICABLE_MESSAGE{
+constexpr StaticString OPENAPI_PARAMETER_INAPPLICABLE_MESSAGE{
     "The Parameter Object does not admit this field as declared"};
 
 // 3.2.1 Section 4.12 scopes `allowReserved` to the locations that
@@ -157,19 +157,19 @@ inline auto openapi_check_parameter(const JSON &value, const Pointer &base,
 
   if (schema != nullptr && content != nullptr) {
     throw OpenAPIError{
-        base, "The Parameter Object schema and content are mutually exclusive"};
+        "The Parameter Object schema and content are mutually exclusive", base};
   }
 
   if (schema == nullptr && content == nullptr) {
     throw OpenAPIError{
-        base, "The Parameter Object must declare a schema or a content"};
+        "The Parameter Object must declare a schema or a content", base};
   }
 
   // 3.2.1 Section 4.12, of `querystring`: its value "MUST be specified using
   // the `content` field"
   if (parameter_location == "querystring"sv && content == nullptr) {
-    throw OpenAPIError{base,
-                       "A querystring Parameter Object must declare a content"};
+    throw OpenAPIError{"A querystring Parameter Object must declare a content",
+                       base};
   }
 
   const auto in_query{parameter_location == "query"sv};
@@ -227,12 +227,12 @@ inline auto openapi_check_parameter(const JSON &value, const Pointer &base,
   if (parameter_location == "path"sv) {
     if (required == nullptr) {
       throw OpenAPIError{
-          base, "A path Parameter Object must declare that it is required"};
+          "A path Parameter Object must declare that it is required", base};
     }
 
     if (!required->to_boolean()) {
-      throw OpenAPIError{openapi_child(base, "required"sv),
-                         "A path Parameter Object must be required"};
+      throw OpenAPIError{"A path Parameter Object must be required",
+                         openapi_child(base, "required"sv)};
     }
 
     // OpenAPI Specification 3.2.1, Section 4.12.2.1 has such a name "correspond
@@ -249,8 +249,8 @@ inline auto openapi_check_parameter(const JSON &value, const Pointer &base,
     if (walk.version >= OpenAPIVersion::OPENAPI_3_2 &&
         (parameter_name.find('{') != JSON::StringView::npos ||
          parameter_name.find('}') != JSON::StringView::npos)) {
-      throw OpenAPIError{openapi_child(base, "name"sv),
-                         "A path Parameter Object name must not hold braces"};
+      throw OpenAPIError{"A path Parameter Object name must not hold braces",
+                         openapi_child(base, "name"sv)};
     }
   }
 
@@ -279,8 +279,8 @@ inline auto openapi_check_parameter(const JSON &value, const Pointer &base,
     // one entry"
     if (content->size() != 1) {
       throw OpenAPIError{
-          content_location,
-          "The Parameter Object content must hold exactly one entry"};
+          "The Parameter Object content must hold exactly one entry",
+          content_location};
     }
 
     walk.parameters.insert_or_assign(
@@ -374,8 +374,8 @@ inline auto openapi_check_parameters_entry(const JSON &value,
 // alongside the parameters written out in place. One that could not be
 // followed names nothing and is left out of the comparison
 inline auto openapi_check_parameters(const JSON &value, const Pointer &base,
-                                     const char *type_message,
-                                     const char *duplicate_message,
+                                     const StaticString type_message,
+                                     const StaticString duplicate_message,
                                      OpenAPIWalk &walk)
     -> std::vector<JSON::String> {
   openapi_expect_array(value, base, type_message);
@@ -400,14 +400,14 @@ inline auto openapi_check_parameters(const JSON &value, const Pointer &base,
       const auto *identity{openapi_parameter_identity(
           walk, openapi_location_uri(walk.base, location))};
       if (identity != nullptr && !seen.insert(*identity).second) {
-        throw OpenAPIError{location, duplicate_message};
+        throw OpenAPIError{duplicate_message, location};
       }
     } else {
       const auto identity{openapi_check_parameter(parameter, location, walk)};
       if (!seen.insert({JSON::String{identity.first},
                         JSON::String{identity.second}})
                .second) {
-        throw OpenAPIError{location, duplicate_message};
+        throw OpenAPIError{duplicate_message, location};
       }
     }
 
@@ -430,9 +430,9 @@ inline auto openapi_check_parameters(const JSON &value, const Pointer &base,
   }
 
   if (querystrings > 1) {
-    throw OpenAPIError{base,
-                       "A querystring Parameter Object must not appear more "
-                       "than once"};
+    throw OpenAPIError{"A querystring Parameter Object must not appear more "
+                       "than once",
+                       base};
   }
 
   // One list is enough to settle this when it holds both, as the list is
@@ -441,8 +441,9 @@ inline auto openapi_check_parameters(const JSON &value, const Pointer &base,
   // the two levels come to between them is settled where they meet, since
   // neither list alone shows it
   if (querystrings > 0 && query) {
-    throw OpenAPIError{base, "A querystring Parameter Object must not appear "
-                             "alongside a query Parameter Object"};
+    throw OpenAPIError{"A querystring Parameter Object must not appear "
+                       "alongside a query Parameter Object",
+                       base};
   }
 
   return result;

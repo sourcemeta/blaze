@@ -53,7 +53,7 @@ inline auto openapi_check_example(const JSON &value, const Pointer &base,
   const auto *data{value.try_at("dataValue", OPENAPI_HASH_DATA_VALUE)};
   if (data != nullptr && value.try_at("value", OPENAPI_HASH_VALUE) != nullptr) {
     throw OpenAPIError{
-        base, "The Example Object data value and value are mutually exclusive"};
+        "The Example Object data value and value are mutually exclusive", base};
   }
 
   // 3.2.1 Section 4.19: "serializedValue | string | An example of the
@@ -68,15 +68,15 @@ inline auto openapi_check_example(const JSON &value, const Pointer &base,
         "The Example Object serialized value must be a string");
 
     if (value.try_at("value", OPENAPI_HASH_VALUE) != nullptr) {
-      throw OpenAPIError{base,
-                         "The Example Object serialized value and value are "
-                         "mutually exclusive"};
+      throw OpenAPIError{"The Example Object serialized value and value are "
+                         "mutually exclusive",
+                         base};
     }
 
     if (value.try_at("externalValue", OPENAPI_HASH_EXTERNAL_VALUE) != nullptr) {
-      throw OpenAPIError{base,
-                         "The Example Object serialized value and external "
-                         "value are mutually exclusive"};
+      throw OpenAPIError{"The Example Object serialized value and external "
+                         "value are mutually exclusive",
+                         base};
     }
   }
 
@@ -97,8 +97,9 @@ inline auto openapi_check_example(const JSON &value, const Pointer &base,
   if (external != nullptr &&
       value.try_at("value", OPENAPI_HASH_VALUE) != nullptr) {
     throw OpenAPIError{
-        base, "The Example Object value and external value are mutually "
-              "exclusive"};
+        "The Example Object value and external value are mutually "
+        "exclusive",
+        base};
   }
 }
 
@@ -113,13 +114,13 @@ inline auto openapi_check_example_or_reference(const JSON &value,
 // three state that "The `example` and `examples` fields are mutually
 // exclusive"
 inline auto openapi_check_examples(const JSON &value, const Pointer &base,
-                                   const char *exclusive_message,
-                                   const char *type_message, OpenAPIWalk &walk)
-    -> void {
+                                   const StaticString exclusive_message,
+                                   const StaticString type_message,
+                                   OpenAPIWalk &walk) -> void {
   const auto *single{value.try_at("example", OPENAPI_HASH_EXAMPLE)};
   const auto *multiple{value.try_at("examples", OPENAPI_HASH_EXAMPLES)};
   if (single != nullptr && multiple != nullptr) {
-    throw OpenAPIError{base, exclusive_message};
+    throw OpenAPIError{exclusive_message, base};
   }
 
   if (multiple == nullptr) {

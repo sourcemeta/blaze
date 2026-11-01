@@ -444,14 +444,14 @@ inline auto openapi_child(const Pointer &base, const std::size_t index)
 template <std::size_t Size>
 auto openapi_reject_unknown_fields(
     const JSON &object, const std::array<JSON::StringView, Size> &fields,
-    const Pointer &base, const char *message) -> void {
+    const Pointer &base, const StaticString message) -> void {
   for (const auto &entry : object.as_object()) {
     if (entry.first.starts_with(OPENAPI_EXTENSION_PREFIX) ||
         std::ranges::find(fields, entry.first) != fields.cend()) {
       continue;
     }
 
-    throw OpenAPIError{openapi_child(base, entry.first), message};
+    throw OpenAPIError{message, openapi_child(base, entry.first)};
   }
 }
 
@@ -462,20 +462,20 @@ auto openapi_reject_unknown_fields(
 template <std::size_t Size, std::size_t Restricted>
 auto openapi_reject_unknown_fields(
     const JSON &object, const std::array<JSON::StringView, Size> &fields,
-    const Pointer &base, const char *message,
+    const Pointer &base, const StaticString message,
     const std::array<JSON::StringView, Restricted> &restricted,
-    const char *restricted_message) -> void {
+    const StaticString restricted_message) -> void {
   for (const auto &entry : object.as_object()) {
     if (entry.first.starts_with(OPENAPI_EXTENSION_PREFIX) ||
         std::ranges::find(fields, entry.first) != fields.cend()) {
       continue;
     }
 
-    throw OpenAPIError{openapi_child(base, entry.first),
-                       std::ranges::find(restricted, entry.first) !=
+    throw OpenAPIError{std::ranges::find(restricted, entry.first) !=
                                restricted.cend()
                            ? restricted_message
-                           : message};
+                           : message,
+                       openapi_child(base, entry.first)};
   }
 }
 
@@ -490,15 +490,15 @@ auto openapi_reject_unknown_fields(
 template <std::size_t Size>
 auto openapi_reject_fields_of_a_later_revision(
     const JSON &object, const std::array<JSON::StringView, Size> &arrivals,
-    const OpenAPIVersion arrival, const Pointer &base, const char *message,
-    const OpenAPIWalk &walk) -> void {
+    const OpenAPIVersion arrival, const Pointer &base,
+    const StaticString message, const OpenAPIWalk &walk) -> void {
   if (walk.version >= arrival) {
     return;
   }
 
   for (const auto &entry : object.as_object()) {
     if (std::ranges::find(arrivals, entry.first) != arrivals.cend()) {
-      throw OpenAPIError{openapi_child(base, entry.first), message};
+      throw OpenAPIError{message, openapi_child(base, entry.first)};
     }
   }
 }
@@ -528,7 +528,7 @@ template <std::size_t Size, std::size_t Later>
 auto openapi_reject_unknown_fields(
     const JSON &object, const std::array<JSON::StringView, Size> &fields,
     const std::array<JSON::StringView, Later> &later, const Pointer &base,
-    const char *message, const OpenAPIWalk &walk) -> void {
+    const StaticString message, const OpenAPIWalk &walk) -> void {
   if (walk.version >= OpenAPIVersion::OPENAPI_3_2) {
     openapi_reject_unknown_fields(object, later, base, message);
   } else {
@@ -540,9 +540,9 @@ template <std::size_t Size, std::size_t Later, std::size_t Restricted>
 auto openapi_reject_unknown_fields(
     const JSON &object, const std::array<JSON::StringView, Size> &fields,
     const std::array<JSON::StringView, Later> &later, const Pointer &base,
-    const char *message, const OpenAPIWalk &walk,
+    const StaticString message, const OpenAPIWalk &walk,
     const std::array<JSON::StringView, Restricted> &restricted,
-    const char *restricted_message) -> void {
+    const StaticString restricted_message) -> void {
   if (walk.version >= OpenAPIVersion::OPENAPI_3_2) {
     openapi_reject_unknown_fields(object, later, base, message, restricted,
                                   restricted_message);
@@ -688,7 +688,8 @@ inline auto openapi_within_document(const JSON::String &uri,
 // base it is keyed by and where under it the Object sits, and a field hangs
 // off that when the problem is with one rather than with the Object holding it
 inline auto openapi_error_at(const OpenAPIFrame::Locations &locations,
-                             const JSON::String &location, const char *message,
+                             const JSON::String &location,
+                             const StaticString message,
                              const JSON::StringView field = {})
     -> OpenAPIError {
   const auto match{locations.find(location)};
@@ -698,7 +699,7 @@ inline auto openapi_error_at(const OpenAPIFrame::Locations &locations,
     pointer = pointer.concat(JSON::String{field});
   }
 
-  return {openapi_document_uri(location), std::move(pointer), message};
+  return {message, openapi_document_uri(location), std::move(pointer)};
 }
 
 // OpenAPI Specification 3.1.1, Section 4.6 determines a document's base URI
@@ -737,9 +738,9 @@ inline auto openapi_canonical_base(const std::string_view input)
     return result.value();
   }
 
-  throw OpenAPIError{EMPTY_POINTER,
-                     "The OpenAPI Description base must be a URI with a "
-                     "scheme"};
+  throw OpenAPIError{"The OpenAPI Description base must be a URI with a "
+                     "scheme",
+                     EMPTY_POINTER};
 }
 
 // Every Object gets one of these. The nearest recorded ancestor is the parent,
@@ -775,8 +776,8 @@ inline auto openapi_record(OpenAPIWalk &walk, const Pointer &pointer,
   }
 
   if (known != walk.locations.cend() && known->second.type != kind) {
-    throw OpenAPIError{walk.base, pointer,
-                       "This place is read as more than one kind of Object"};
+    throw OpenAPIError{"This place is read as more than one kind of Object",
+                       walk.base, pointer};
   }
 
   walk.locations.insert_or_assign(
@@ -788,24 +789,24 @@ inline auto openapi_record(OpenAPIWalk &walk, const Pointer &pointer,
 }
 
 inline auto openapi_expect_object(const JSON &value, const Pointer &location,
-                                  const char *message) -> void {
+                                  const StaticString message) -> void {
   if (!value.is_object()) {
-    throw OpenAPIError{location, message};
+    throw OpenAPIError{message, location};
   }
 }
 
 inline auto openapi_expect_array(const JSON &value, const Pointer &location,
-                                 const char *message) -> void {
+                                 const StaticString message) -> void {
   if (!value.is_array()) {
-    throw OpenAPIError{location, message};
+    throw OpenAPIError{message, location};
   }
 }
 
 inline auto openapi_expect_boolean(const JSON &value, const Pointer &base,
                                    const JSON::StringView field,
-                                   const char *message) -> void {
+                                   const StaticString message) -> void {
   if (!value.is_boolean()) {
-    throw OpenAPIError{openapi_child(base, field), message};
+    throw OpenAPIError{message, openapi_child(base, field)};
   }
 }
 
@@ -829,11 +830,11 @@ inline auto openapi_expect_schema(const JSON &value, const Pointer &location,
   // earlier one has no room for
   if (walk.version >= OpenAPIVersion::OPENAPI_3_1) {
     if (!value.is_object() && !value.is_boolean()) {
-      throw OpenAPIError{location,
-                         "A Schema Object must be an object or a boolean"};
+      throw OpenAPIError{"A Schema Object must be an object or a boolean",
+                         location};
     }
   } else if (!value.is_object()) {
-    throw OpenAPIError{location, "A Schema Object must be an object"};
+    throw OpenAPIError{"A Schema Object must be an object", location};
   }
 
   // A Schema Object is a handoff rather than something this module reads, so
@@ -845,25 +846,27 @@ inline auto openapi_expect_schema(const JSON &value, const Pointer &location,
 
 inline auto openapi_check_map_of_strings(const JSON &value,
                                          const Pointer &location,
-                                         const char *type_message,
-                                         const char *entry_message) -> void {
+                                         const StaticString type_message,
+                                         const StaticString entry_message)
+    -> void {
   openapi_expect_object(value, location, type_message);
   for (const auto &entry : value.as_object()) {
     if (!entry.second.is_string()) {
-      throw OpenAPIError{openapi_child(location, entry.first), entry_message};
+      throw OpenAPIError{entry_message, openapi_child(location, entry.first)};
     }
   }
 }
 
 inline auto openapi_check_array_of_strings(const JSON &value,
                                            const Pointer &location,
-                                           const char *type_message,
-                                           const char *entry_message) -> void {
+                                           const StaticString type_message,
+                                           const StaticString entry_message)
+    -> void {
   openapi_expect_array(value, location, type_message);
   std::size_t index{0};
   for (const auto &entry : value.as_array()) {
     if (!entry.is_string()) {
-      throw OpenAPIError{openapi_child(location, index), entry_message};
+      throw OpenAPIError{entry_message, openapi_child(location, index)};
     }
 
     index += 1;
@@ -920,9 +923,10 @@ inline auto openapi_brace_expressions(const JSON::StringView value)
 
 inline auto openapi_expect_string(const JSON &value, const Pointer &base,
                                   const JSON::StringView field,
-                                  const char *message) -> JSON::StringView {
+                                  const StaticString message)
+    -> JSON::StringView {
   if (!value.is_string()) {
-    throw OpenAPIError{openapi_child(base, field), message};
+    throw OpenAPIError{message, openapi_child(base, field)};
   }
 
   return value.to_string();
@@ -935,7 +939,7 @@ inline auto openapi_check_optional_string(const JSON &value,
                                           const Pointer &base,
                                           const JSON::StringView field,
                                           const JSON::Object::hash_type hash,
-                                          const char *message) -> void {
+                                          const StaticString message) -> void {
   const auto *member{value.try_at(field, hash)};
   if (member != nullptr) {
     openapi_expect_string(*member, base, field, message);
@@ -946,11 +950,11 @@ inline auto openapi_check_optional_string(const JSON &value,
 // follows reads what is there rather than what might be
 inline auto openapi_require(const JSON &value, const JSON::StringView field,
                             const JSON::Object::hash_type hash,
-                            const Pointer &base, const char *message)
+                            const Pointer &base, const StaticString message)
     -> const JSON & {
   const auto *member{value.try_at(field, hash)};
   if (member == nullptr) {
-    throw OpenAPIError{base, message};
+    throw OpenAPIError{message, base};
   }
 
   return *member;
@@ -961,12 +965,12 @@ inline auto openapi_require(const JSON &value, const JSON::StringView field,
 // what these fields hold is a URI reference rather than an absolute URI
 inline auto openapi_expect_uri_reference(const JSON &value, const Pointer &base,
                                          const JSON::StringView field,
-                                         const char *type_message,
-                                         const char *syntax_message)
+                                         const StaticString type_message,
+                                         const StaticString syntax_message)
     -> JSON::StringView {
   const auto result{openapi_expect_string(value, base, field, type_message)};
   if (!URI::is_uri_reference(result)) {
-    throw OpenAPIError{openapi_child(base, field), syntax_message};
+    throw OpenAPIError{syntax_message, openapi_child(base, field)};
   }
 
   return result;
@@ -975,10 +979,11 @@ inline auto openapi_expect_uri_reference(const JSON &value, const Pointer &base,
 inline auto openapi_expect_enumeration(
     const JSON &value, const Pointer &base, const JSON::StringView field,
     const std::initializer_list<JSON::StringView> options,
-    const char *type_message, const char *value_message) -> JSON::StringView {
+    const StaticString type_message, const StaticString value_message)
+    -> JSON::StringView {
   const auto result{openapi_expect_string(value, base, field, type_message)};
   if (std::ranges::find(options, result) == options.end()) {
-    throw OpenAPIError{openapi_child(base, field), value_message};
+    throw OpenAPIError{value_message, openapi_child(base, field)};
   }
 
   return result;

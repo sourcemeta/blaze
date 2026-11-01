@@ -5,30 +5,21 @@
 #include <sourcemeta/core/jsonpath_export.h>
 #endif
 
-#include <cstdint>   // std::uint64_t
-#include <exception> // std::exception
+#include <sourcemeta/core/error.h>
+
+#include <cstdint> // std::uint64_t
 
 namespace sourcemeta::core {
 
-// Exporting symbols that depends on the standard C++ library is considered
-// safe.
-// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup jsonpath
 /// An error that represents a JSONPath parsing failure
-class SOURCEMETA_CORE_JSONPATH_EXPORT JSONPathParseError
-    : public std::exception {
+class SOURCEMETA_CORE_JSONPATH_EXPORT JSONPathParseError : public Error {
 public:
   /// Construct an error given the column number where parsing failed
-  JSONPathParseError(const std::uint64_t column) : column_{column} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid JSON Path query";
-  }
+  JSONPathParseError(const std::uint64_t column) noexcept
+      : Error{"The input is not a valid JSON Path query"}, column_{column} {}
 
   /// Get the column number of the error
   [[nodiscard]] auto column() const noexcept -> std::uint64_t {
@@ -39,9 +30,7 @@ private:
   std::uint64_t column_;
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

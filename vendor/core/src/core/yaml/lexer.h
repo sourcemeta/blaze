@@ -122,8 +122,8 @@ public:
       // admit one, so a tab opening a flow collection is separation rather
       // than indentation
       if (next_char != '{' && next_char != '[') [[unlikely]] {
-        throw YAMLParseError{this->line_, this->column_,
-                             "Tab characters cannot be used for indentation"};
+        throw YAMLParseError{"Tab characters cannot be used for indentation",
+                             this->line_, this->column_};
       }
     }
 
@@ -148,8 +148,8 @@ public:
         this->flow_base_indent_ != SIZE_MAX && this->peek() != ']' &&
         this->peek() != '}' &&
         this->line_leading_spaces_ <= this->flow_base_indent_) [[unlikely]] {
-      throw YAMLParseError{current_line, current_column,
-                           "Insufficient indentation in flow collection"};
+      throw YAMLParseError{"Insufficient indentation in flow collection",
+                           current_line, current_column};
     }
 
     if (this->column_ == 1 && this->check_document_marker('-')) {
@@ -234,8 +234,8 @@ public:
       }
     } else if (current == '-' && this->is_followed_by_whitespace()) {
       if (this->separation_tab_after_indicator_) [[unlikely]] {
-        throw YAMLParseError{current_line, current_column,
-                             "Tab characters cannot be used for indentation"};
+        throw YAMLParseError{"Tab characters cannot be used for indentation",
+                             current_line, current_column};
       }
       this->advance(1);
       this->after_block_indicator_ = true;
@@ -247,8 +247,8 @@ public:
 
     if (current == '?' && this->is_followed_by_whitespace()) {
       if (this->separation_tab_after_indicator_) [[unlikely]] {
-        throw YAMLParseError{current_line, current_column,
-                             "Tab characters cannot be used for indentation"};
+        throw YAMLParseError{"Tab characters cannot be used for indentation",
+                             current_line, current_column};
       }
       this->advance(1);
       this->after_block_indicator_ = true;
@@ -263,8 +263,8 @@ public:
       // indentation, which is made of spaces, so a tab in the leading
       // whitespace of the key's line is invalid
       if (this->flow_level_ == 0 && this->tab_in_line_indent_) [[unlikely]] {
-        throw YAMLParseError{current_line, current_column,
-                             "Tab characters cannot be used for indentation"};
+        throw YAMLParseError{"Tab characters cannot be used for indentation",
+                             current_line, current_column};
       }
       this->advance(1);
       this->last_was_quoted_scalar_ = false;
@@ -319,8 +319,8 @@ public:
     }
 
     if (current == '#') [[unlikely]] {
-      throw YAMLParseError{current_line, current_column,
-                           "Unexpected '#' character"};
+      throw YAMLParseError{"Unexpected '#' character", current_line,
+                           current_column};
     }
 
     this->last_was_quoted_scalar_ = false;
@@ -437,12 +437,12 @@ private:
       // the supported encodings, so a byte sequence that does not decode is not
       // a well-formed stream
       if (!decoded.has_value()) [[unlikely]] {
-        throw YAMLParseError{line, column,
-                             "Invalid UTF-8 sequence in YAML stream"};
+        throw YAMLParseError{"Invalid UTF-8 sequence in YAML stream", line,
+                             column};
       }
       if (is_disallowed_control(decoded->first)) [[unlikely]] {
-        throw YAMLParseError{line, column,
-                             "Control character not allowed in YAML stream"};
+        throw YAMLParseError{"Control character not allowed in YAML stream",
+                             line, column};
       }
       if (decoded->first == '\n') {
         line++;
@@ -696,8 +696,8 @@ private:
       // and the opening bracket is no tag character, so one left unclosed can
       // fall back on nothing
       if (this->peek() != '>') [[unlikely]] {
-        throw YAMLParseError{start_line, start_column,
-                             "Unterminated verbatim tag"};
+        throw YAMLParseError{"Unterminated verbatim tag", start_line,
+                             start_column};
       }
       this->advance(1);
     } else {
@@ -715,8 +715,8 @@ private:
     if (this->position_ < this->input_.size() && this->flow_level_ == 0) {
       const char after_tag{this->peek()};
       if (after_tag == ',') [[unlikely]] {
-        throw YAMLParseError{this->line_, this->column_,
-                             "Invalid character after tag in block context"};
+        throw YAMLParseError{"Invalid character after tag in block context",
+                             this->line_, this->column_};
       }
     }
 
@@ -799,8 +799,8 @@ private:
     }
 
     if (!found_closing_quote) [[unlikely]] {
-      throw YAMLParseError{start_line, start_column,
-                           "Missing closing quote in single-quoted scalar"};
+      throw YAMLParseError{"Missing closing quote in single-quoted scalar",
+                           start_line, start_column};
     }
 
     this->validate_trailing_content();
@@ -875,8 +875,8 @@ private:
         // space establishes no indentation
         if (this->flow_level_ == 0 && this->block_indent_ != SIZE_MAX &&
             !space_in_indent) [[unlikely]] {
-          throw YAMLParseError{this->line_, this->column_,
-                               "Tab characters cannot be used for indentation"};
+          throw YAMLParseError{"Tab characters cannot be used for indentation",
+                               this->line_, this->column_};
         }
         leading_space_run = false;
         this->advance(1);
@@ -909,13 +909,13 @@ private:
     }
     if (this->column_ == 1 && (this->check_document_marker('-') ||
                                this->check_document_marker('.'))) [[unlikely]] {
-      throw YAMLParseError{this->line_, this->column_,
-                           "Document marker inside flow scalar"};
+      throw YAMLParseError{"Document marker inside flow scalar", this->line_,
+                           this->column_};
     }
     if (this->flow_level_ == 0 && this->block_indent_ != SIZE_MAX) {
       if (space_indent <= this->block_indent_) [[unlikely]] {
-        throw YAMLParseError{this->line_, this->column_,
-                             "Insufficient indentation in flow scalar"};
+        throw YAMLParseError{"Insufficient indentation in flow scalar",
+                             this->line_, this->column_};
       }
     }
   }
@@ -937,8 +937,8 @@ private:
         if (seen_whitespace) {
           return;
         }
-        throw YAMLParseError{this->line_, this->column_,
-                             "Invalid trailing content"};
+        throw YAMLParseError{"Invalid trailing content", this->line_,
+                             this->column_};
       }
       if (character == ':') {
         return;
@@ -946,8 +946,8 @@ private:
       if (this->flow_level_ > 0 && is_flow_indicator(character)) {
         return;
       }
-      throw YAMLParseError{this->line_, this->column_,
-                           "Invalid trailing content"};
+      throw YAMLParseError{"Invalid trailing content", this->line_,
+                           this->column_};
     }
   }
 
@@ -1059,9 +1059,9 @@ private:
               }
               continue;
             default:
-              throw YAMLParseError{this->line_, this->column_,
-                                   "Invalid escape sequence in "
-                                   "double-quoted scalar"};
+              throw YAMLParseError{"Invalid escape sequence in "
+                                   "double-quoted scalar",
+                                   this->line_, this->column_};
           }
           this->advance(1);
           protected_length = line_content.size();
@@ -1079,8 +1079,8 @@ private:
     }
 
     if (!found_closing_quote) [[unlikely]] {
-      throw YAMLParseError{start_line, start_column,
-                           "Missing closing quote in double-quoted scalar"};
+      throw YAMLParseError{"Missing closing quote in double-quoted scalar",
+                           start_line, start_column};
     }
 
     this->validate_trailing_content();
@@ -1108,8 +1108,8 @@ private:
     }
 
     if (hex.size() != digits) [[unlikely]] {
-      throw YAMLParseError{this->line_, this->column_,
-                           "Truncated hex escape sequence"};
+      throw YAMLParseError{"Truncated hex escape sequence", this->line_,
+                           this->column_};
     }
 
     unsigned long codepoint{};
@@ -1117,8 +1117,8 @@ private:
         std::from_chars(hex.data(), hex.data() + hex.size(), codepoint, 16);
     if (result.ec != std::errc{} || result.ptr != hex.data() + hex.size())
         [[unlikely]] {
-      throw YAMLParseError{this->line_, this->column_,
-                           "Invalid hex escape sequence"};
+      throw YAMLParseError{"Invalid hex escape sequence", this->line_,
+                           this->column_};
     }
 
     // YAML 1.2.2 Section 5.7: an escape names a Unicode scalar value, so a
@@ -1126,8 +1126,8 @@ private:
     // malformed UTF-8
     const auto character{static_cast<char32_t>(codepoint)};
     if (!is_valid_codepoint(character)) [[unlikely]] {
-      throw YAMLParseError{this->line_, this->column_,
-                           "Invalid Unicode escape sequence"};
+      throw YAMLParseError{"Invalid Unicode escape sequence", this->line_,
+                           this->column_};
     }
 
     return codepoint_to_utf8(character);
@@ -1190,8 +1190,8 @@ private:
         // to contain more spaces than the first non-empty line"
         if (max_leading_empty_indent > content_indent) [[unlikely]] {
           throw YAMLParseError{
-              start_line, start_column,
-              "Leading empty line has more spaces than content indentation"};
+              "Leading empty line has more spaces than content indentation",
+              start_line, start_column};
         }
       } else {
         // Section 8.1.1.1: with no non-empty line of its own the level is
@@ -1251,8 +1251,8 @@ private:
       } else if (current == '\n' || current == '\r') {
         break;
       } else {
-        throw YAMLParseError{this->line_, this->column_,
-                             "Invalid content in block scalar header"};
+        throw YAMLParseError{"Invalid content in block scalar header",
+                             this->line_, this->column_};
       }
     }
 
@@ -1305,8 +1305,8 @@ private:
         if (lookahead >= this->input_.size() ||
             this->input_[lookahead] == '\n' || this->input_[lookahead] == '\r')
             [[unlikely]] {
-          throw YAMLParseError{this->line_, this->column_,
-                               "Tab characters cannot be used for indentation"};
+          throw YAMLParseError{"Tab characters cannot be used for indentation",
+                               this->line_, this->column_};
         }
       }
 
@@ -1520,8 +1520,8 @@ private:
         const char after{this->peek(1)};
         if (after == '\0' || is_whitespace(after) || is_flow_indicator(after))
             [[unlikely]] {
-          throw YAMLParseError{start_line, start_column,
-                               "Invalid plain scalar start in flow context"};
+          throw YAMLParseError{"Invalid plain scalar start in flow context",
+                               start_line, start_column};
         }
       }
     }

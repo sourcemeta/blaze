@@ -1,3 +1,4 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_hkdf.h>
 #include <sourcemeta/core/crypto_secure.h>
 
@@ -7,7 +8,6 @@
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint8_t
 #include <optional>    // std::optional, std::nullopt
-#include <stdexcept>   // std::runtime_error
 #include <string>      // std::string
 #include <string_view> // std::string_view
 
@@ -34,7 +34,8 @@ auto extract(const sourcemeta::core::KDFHash hash, const std::string_view salt,
   // never happened
   if (!sourcemeta::core::hkdf_extract(hash, salt, input_key_material,
                                       output.data())) {
-    throw std::runtime_error("Could not extract an HKDF pseudorandom key");
+    throw sourcemeta::core::CryptoError(
+        "Could not extract an HKDF pseudorandom key");
   }
 
   return output;

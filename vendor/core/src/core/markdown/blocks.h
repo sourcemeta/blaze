@@ -215,8 +215,8 @@ private:
         this->blank_line_matched_everything_ &&
         is_blank_until_line_end(line.substr(starting_offset)) &&
         (this->open_footnote_definitions_ == 0 || this->peek(0) == '\n') &&
-        !(this->node(starting_tip).type == NodeType::Item &&
-          this->node(starting_tip).first_child == NO_NODE);
+        (this->node(starting_tip).type != NodeType::Item ||
+         this->node(starting_tip).first_child != NO_NODE);
     this->blank_line_matched_everything_ = false;
     bool all_matched{true};
     const auto last_matched{this->check_open_blocks(all_matched)};
@@ -1046,7 +1046,7 @@ private:
 
     if (!indented &&
         (character == '*' || character == '_' || character == '-') &&
-        !(container_type == NodeType::Paragraph && !all_matched) &&
+        (container_type != NodeType::Paragraph || all_matched) &&
         this->thematic_break_kill_position_ <= this->first_nonspace_ &&
         this->scan_thematic_break(this->first_nonspace_) > 0) {
       container = this->add_child(container, NodeType::ThematicBreak);
@@ -1221,12 +1221,12 @@ private:
         container_type != NodeType::ThematicBreak &&
         container_type != NodeType::Table &&
         container_type != NodeType::TableRow &&
-        !(container_type == NodeType::CodeBlock &&
-          has_flag(this->node(container), FLAG_FENCED)) &&
-        !(container_type == NodeType::Item &&
-          this->node(container).first_child == NO_NODE &&
-          this->document_.lists[this->node(container).data].start_line ==
-              this->line_number_)};
+        (container_type != NodeType::CodeBlock ||
+         !has_flag(this->node(container), FLAG_FENCED)) &&
+        (container_type != NodeType::Item ||
+         this->node(container).first_child != NO_NODE ||
+         this->document_.lists[this->node(container).data].start_line !=
+             this->line_number_)};
     // The ancestors of the container do not end with a blank line. The only
     // open block that can is the container of the previous line, which is the
     // deepest open block when this line starts, so it is an ancestor exactly

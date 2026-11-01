@@ -1,3 +1,4 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_sha512.h>
 
 #define WIN32_LEAN_AND_MEAN
@@ -8,11 +9,10 @@
 
 #include <bcrypt.h> // BCrypt*, BCRYPT_*
 
-#include <array>     // std::array
-#include <cstddef>   // std::size_t
-#include <cstdint>   // std::uint8_t
-#include <limits>    // std::numeric_limits
-#include <stdexcept> // std::runtime_error
+#include <array>   // std::array
+#include <cstddef> // std::size_t
+#include <cstdint> // std::uint8_t
+#include <limits>  // std::numeric_limits
 
 namespace sourcemeta::core {
 
@@ -21,14 +21,14 @@ auto sha512_digest(const std::string_view input)
   BCRYPT_ALG_HANDLE algorithm{nullptr};
   if (!BCRYPT_SUCCESS(BCryptOpenAlgorithmProvider(
           &algorithm, BCRYPT_SHA512_ALGORITHM, nullptr, 0))) {
-    throw std::runtime_error("Could not open the CNG SHA-512 provider");
+    throw CryptoError("Could not open the CNG SHA-512 provider");
   }
 
   BCRYPT_HASH_HANDLE hash{nullptr};
   if (!BCRYPT_SUCCESS(
           BCryptCreateHash(algorithm, &hash, nullptr, 0, nullptr, 0, 0))) {
     BCryptCloseAlgorithmProvider(algorithm, 0);
-    throw std::runtime_error("Could not create the CNG SHA-512 hash");
+    throw CryptoError("Could not create the CNG SHA-512 hash");
   }
 
   // The data interface is not const-qualified but never writes through
@@ -57,7 +57,7 @@ auto sha512_digest(const std::string_view input)
   BCryptDestroyHash(hash);
   BCryptCloseAlgorithmProvider(algorithm, 0);
   if (!success) {
-    throw std::runtime_error("Could not compute the CNG SHA-512 digest");
+    throw CryptoError("Could not compute the CNG SHA-512 digest");
   }
 
   return digest;

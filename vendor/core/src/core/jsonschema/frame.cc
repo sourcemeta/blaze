@@ -103,8 +103,8 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
       const std::string_view dynamic_anchor_view{dynamic_anchor->to_string()};
       if (!is_valid_anchor_2020_12(dynamic_anchor_view)) {
         throw sourcemeta::core::SchemaKeywordError(
-            "$dynamicAnchor", dynamic_anchor_view,
-            "Invalid dynamic anchor value");
+            "Invalid dynamic anchor value", "$dynamicAnchor",
+            dynamic_anchor_view);
       }
 
       result.emplace_back(dynamic_anchor_view, AnchorType::Dynamic);
@@ -115,8 +115,8 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
     if ((anchor_2020 != nullptr) && anchor_2020->is_string()) {
       const std::string_view anchor_view{anchor_2020->to_string()};
       if (!is_valid_anchor_2020_12(anchor_view)) {
-        throw sourcemeta::core::SchemaKeywordError("$anchor", anchor_view,
-                                                   "Invalid anchor value");
+        throw sourcemeta::core::SchemaKeywordError("Invalid anchor value",
+                                                   "$anchor", anchor_view);
       }
 
       bool found = false;
@@ -150,7 +150,7 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
         std::ostringstream value;
         sourcemeta::core::stringify(*recursive_anchor, value);
         throw sourcemeta::core::SchemaKeywordError(
-            "$recursiveAnchor", value.str(), "Invalid recursive anchor value");
+            "Invalid recursive anchor value", "$recursiveAnchor", value.str());
       }
     }
 
@@ -159,8 +159,8 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
     if ((anchor_2019 != nullptr) && anchor_2019->is_string()) {
       const std::string_view anchor_view{anchor_2019->to_string()};
       if (!is_valid_anchor(anchor_view)) {
-        throw sourcemeta::core::SchemaKeywordError("$anchor", anchor_view,
-                                                   "Invalid anchor value");
+        throw sourcemeta::core::SchemaKeywordError("Invalid anchor value",
+                                                   "$anchor", anchor_view);
       }
 
       // A plain anchor names a fragment and nothing more. Section 8.2.3 gives
@@ -209,8 +209,8 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
         // begin with a letter `[A-Za-z]` followed by any number of
         // letters, digits, hyphens, underscores, colons, or periods.
         if (!is_valid_anchor(anchor_view)) {
-          throw sourcemeta::core::SchemaKeywordError("$id", id_view,
-                                                     "Invalid anchor value");
+          throw sourcemeta::core::SchemaKeywordError("Invalid anchor value",
+                                                     "$id", id_view);
         }
 
         result.emplace_back(anchor_view, AnchorType::Static);
@@ -241,7 +241,7 @@ auto find_anchors(const sourcemeta::core::JSON &schema,
         // value must still be a valid URI reference per RFC 3986
         if (!sourcemeta::core::URI::is_uri_reference(id_view)) {
           throw sourcemeta::core::SchemaKeywordError(
-              "id", id_view, "The identifier is not a valid URI");
+              "The identifier is not a valid URI", "id", id_view);
         }
 
         result.emplace_back(id_view.substr(1), AnchorType::Static);
@@ -527,8 +527,8 @@ auto canonicalize_identifier(const std::string_view identifier,
 
 [[noreturn]]
 auto throw_already_exists(const sourcemeta::core::JSON::String &uri) -> void {
-  throw sourcemeta::core::SchemaFrameError(uri,
-                                           "Schema identifier already exists");
+  throw sourcemeta::core::SchemaFrameError("Schema identifier already exists",
+                                           uri);
 }
 
 template <typename Locations>
@@ -951,8 +951,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
     const sourcemeta::core::URI base{default_base};
     const auto fragment{base.fragment()};
     if (fragment.has_value() && !fragment.value().empty()) {
-      throw SchemaFrameError(default_base,
-                             "The base must not contain a non-empty fragment");
+      throw SchemaFrameError("The base must not contain a non-empty fragment",
+                             default_base);
     }
 
     this->cache_->default_base =
@@ -1045,13 +1045,15 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         if (requires_plain_name_anchors(root_base_dialect.value())) {
           if (!is_valid_anchor(declared_id.substr(1))) {
             throw SchemaKeywordError(
+                "Invalid anchor value",
                 sourcemeta::core::id_keyword(root_base_dialect.value()).name,
-                declared_id, "Invalid anchor value");
+                declared_id);
           }
         } else if (!sourcemeta::core::URI::is_uri_reference(declared_id)) {
           throw SchemaKeywordError(
+              "The identifier is not a valid URI",
               sourcemeta::core::id_keyword(root_base_dialect.value()).name,
-              declared_id, "The identifier is not a valid URI");
+              declared_id);
         }
       }
 
@@ -1063,8 +1065,9 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           root_id = canonicalize_identifier(maybe_id, default_base);
         } catch (const sourcemeta::core::URIParseError &) {
           throw SchemaKeywordError(
+              "The identifier is not a valid URI",
               sourcemeta::core::id_keyword(root_base_dialect.value()).name,
-              maybe_id, "The identifier is not a valid URI");
+              maybe_id);
         }
 
         this->root_ = root_id.value();
@@ -1137,11 +1140,12 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         const auto fragment{identifier.fragment()};
         if (fragment.has_value() && !fragment.value().empty()) {
           throw SchemaFrameError(
-              root_id.value(),
               supports_id_anchors(root_base_dialect.value())
-                  ? "Identifiers may only carry a fragment when they consist "
-                    "of nothing else"
-                  : "Identifiers must not contain non-empty fragments");
+                  ? StaticString{"Identifiers may only carry a fragment when "
+                                 "they consist of nothing else"}
+                  : StaticString{"Identifiers must not contain non-empty "
+                                 "fragments"},
+              root_id.value());
         }
       }
 
@@ -1286,10 +1290,11 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
               maybe_relative = sourcemeta::core::URI{entry.id.value()};
             } catch (const sourcemeta::core::URIParseError &) {
               throw sourcemeta::core::SchemaKeywordError(
+                  "The identifier is not a valid URI",
                   sourcemeta::core::id_keyword(
                       entry.common.base_dialect.value())
                       .name,
-                  entry.id.value(), "The identifier is not a valid URI");
+                  entry.id.value());
             }
 
             const auto maybe_fragment{maybe_relative.fragment()};
@@ -1308,11 +1313,12 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
               // consisting of nothing else, in which case it declares an anchor
               // and never reaches here
               throw SchemaFrameError(
-                  entry.id.value(),
                   supports_id_anchors(entry.common.base_dialect.value())
-                      ? "Identifiers may only carry a fragment when they "
-                        "consist of nothing else"
-                      : "Identifiers must not contain non-empty fragments");
+                      ? StaticString{"Identifiers may only carry a fragment "
+                                     "when they consist of nothing else"}
+                      : StaticString{"Identifiers must not contain non-empty "
+                                     "fragments"},
+                  entry.id.value());
             }
 
             maybe_relative.resolve_from(base).canonicalize();
@@ -1366,8 +1372,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           try {
             metaschema = sourcemeta::core::URI{maybe_metaschema};
           } catch (const sourcemeta::core::URIParseError &) {
-            throw SchemaKeywordError("$schema", maybe_metaschema,
-                                     "The dialect is not a valid URI");
+            throw SchemaKeywordError("The dialect is not a valid URI",
+                                     "$schema", maybe_metaschema);
           }
 
           const auto nearest_bases{
@@ -1634,8 +1640,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         if (!ref_value->is_string()) {
           std::ostringstream value;
           sourcemeta::core::stringify(*ref_value, value);
-          throw sourcemeta::core::SchemaKeywordError("$ref", value.str(),
-                                                     "Invalid reference value");
+          throw sourcemeta::core::SchemaKeywordError("Invalid reference value",
+                                                     "$ref", value.str());
         }
 
         const auto &original{ref_value->to_string()};
@@ -1644,7 +1650,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           ref = sourcemeta::core::URI{original};
         } catch (const sourcemeta::core::URIParseError &) {
           throw sourcemeta::core::SchemaKeywordError(
-              "$ref", original, "The reference is not a valid URI");
+              "The reference is not a valid URI", "$ref", original);
         }
 
         if (!nearest_bases.first.empty()) {
@@ -1677,8 +1683,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           std::ostringstream value;
           sourcemeta::core::stringify(*recursive_ref_value, value);
           throw sourcemeta::core::SchemaKeywordError(
-              "$recursiveRef", value.str(),
-              "Invalid recursive reference value");
+              "Invalid recursive reference value", "$recursiveRef",
+              value.str());
         }
 
         const auto &ref{recursive_ref_value->to_string()};
@@ -1689,9 +1695,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
         // https://json-schema.org/draft/2019-09/draft-handrews-json-schema-02#rfc.section.8.2.4.2.1
         if (ref != "#") {
           throw sourcemeta::core::SchemaReferenceError(
-              entry.id.value_or(""),
-              to_pointer(common_pointer_weak).concat("$recursiveRef"),
-              "Invalid recursive reference");
+              "Invalid recursive reference", entry.id.value_or(""),
+              to_pointer(common_pointer_weak).concat("$recursiveRef"));
         }
 
         auto anchor_uri_string{
@@ -1726,7 +1731,7 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           std::ostringstream value;
           sourcemeta::core::stringify(*dynamic_ref_value, value);
           throw sourcemeta::core::SchemaKeywordError(
-              "$dynamicRef", value.str(), "Invalid dynamic reference value");
+              "Invalid dynamic reference value", "$dynamicRef", value.str());
         }
 
         const auto &original{dynamic_ref_value->to_string()};
@@ -1735,8 +1740,8 @@ SchemaFrame::SchemaFrame(const Mode mode, const sourcemeta::core::JSON &root,
           ref = sourcemeta::core::URI{original};
         } catch (const sourcemeta::core::URIParseError &) {
           throw sourcemeta::core::SchemaKeywordError(
-              "$dynamicRef", original,
-              "The dynamic reference is not a valid URI");
+              "The dynamic reference is not a valid URI", "$dynamicRef",
+              original);
         }
 
         if (!nearest_bases.first.empty()) {
@@ -1991,7 +1996,7 @@ auto SchemaFrame::metaschema(const SchemaResolver &resolver) const
     -> const sourcemeta::core::JSON & {
   const auto location{this->root_location()};
   if (!location.has_value()) {
-    throw SchemaFrameError(this->root_, "The schema has no root location");
+    throw SchemaFrameError("The schema has no root location", this->root_);
   }
 
   const auto &dialect{location.value().get().dialect};
@@ -2012,9 +2017,9 @@ auto SchemaFrame::metaschema(const SchemaResolver &resolver) const
       throw SchemaRelativeMetaschemaResolutionError{dialect};
     }
 
-    throw SchemaResolutionError(dialect,
-                                "Could not resolve the metaschema of the "
-                                "schema");
+    throw SchemaResolutionError("Could not resolve the metaschema of the "
+                                "schema",
+                                dialect);
   }
 
   return this->cache_->metaschemas

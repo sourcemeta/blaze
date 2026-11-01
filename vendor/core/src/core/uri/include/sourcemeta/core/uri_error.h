@@ -5,35 +5,25 @@
 #include <sourcemeta/core/uri_export.h>
 #endif
 
-#include <cstdint>     // std::uint64_t
-#include <exception>   // std::exception
-#include <string>      // std::string
-#include <string_view> // std::string_view
+#include <sourcemeta/core/error.h>
+
+#include <cstdint> // std::uint64_t
 
 namespace sourcemeta::core {
 
-// Exporting symbols that depends on the standard C++ library is considered
-// safe.
-// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup uri
 /// An error that represents a URI parsing failure
-class SOURCEMETA_CORE_URI_EXPORT URIParseError : public std::exception {
+class SOURCEMETA_CORE_URI_EXPORT URIParseError : public Error {
 public:
   /// Construct an error from the column at which parsing failed
-  URIParseError(const std::uint64_t column) : column_{column} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid URI";
-  }
+  URIParseError(const std::uint64_t column) noexcept
+      : Error{"The input is not a valid URI"}, column_{column} {}
 
   /// Get the column number of the error
   [[nodiscard]] auto column() const noexcept -> std::uint64_t {
-    return column_;
+    return this->column_;
   }
 
 private:
@@ -42,25 +32,13 @@ private:
 
 /// @ingroup uri
 /// An error that represents a general URI error event
-class SOURCEMETA_CORE_URI_EXPORT URIError : public std::exception {
+class SOURCEMETA_CORE_URI_EXPORT URIError : public Error {
 public:
   /// Construct an error with the given message
-  URIError(const char *message) : message_{message} {}
-  URIError(std::string message) = delete;
-  URIError(std::string &&message) = delete;
-  URIError(std::string_view message) = delete;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
-
-private:
-  const char *message_;
+  URIError(const StaticString message) noexcept : Error{message} {}
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

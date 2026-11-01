@@ -69,7 +69,7 @@ inline auto openapi_check_header_or_reference(const JSON &value,
 // The Header Objects an Object may map names to, which the Response Object
 // and the Encoding Object each declare the same way
 inline auto openapi_check_headers(const JSON &value, const Pointer &base,
-                                  const char *message, OpenAPIWalk &walk)
+                                  const StaticString message, OpenAPIWalk &walk)
     -> void {
   const auto *headers{value.try_at("headers", OPENAPI_HASH_HEADERS)};
   if (headers == nullptr) {
@@ -94,8 +94,8 @@ inline auto openapi_check_encoding(const JSON &value, const Pointer &base,
 // them: by name, by position, and one for every item
 inline auto openapi_check_nested_encoding(const JSON &value,
                                           const Pointer &base,
-                                          const char *object,
-                                          const char *positional,
+                                          const StaticString object,
+                                          const StaticString positional,
                                           OpenAPIWalk &walk) -> void {
   const auto *named{value.try_at("encoding", OPENAPI_HASH_ENCODING)};
 
@@ -111,9 +111,9 @@ inline auto openapi_check_nested_encoding(const JSON &value,
       (value.try_at("prefixEncoding", OPENAPI_HASH_PREFIX_ENCODING) !=
            nullptr ||
        value.try_at("itemEncoding", OPENAPI_HASH_ITEM_ENCODING) != nullptr)) {
-    throw OpenAPIError{base,
-                       "Encoding by name and encoding by position are mutually "
-                       "exclusive"};
+    throw OpenAPIError{"Encoding by name and encoding by position are mutually "
+                       "exclusive",
+                       base};
   }
 
   if (named != nullptr) {
@@ -241,8 +241,8 @@ inline auto openapi_check_media_type_or_reference(const JSON &value,
 // Type Object | Reference Object]", which is what its Components Object entry
 // for `mediaTypes` is there to be referenced from
 inline auto openapi_check_content(const JSON &value, const Pointer &location,
-                                  const char *type_message, OpenAPIWalk &walk)
-    -> void {
+                                  const StaticString type_message,
+                                  OpenAPIWalk &walk) -> void {
   openapi_expect_object(value, location, type_message);
   for (const auto &entry : value.as_object()) {
     const auto entry_location{openapi_child(location, entry.first)};
@@ -271,12 +271,12 @@ inline auto openapi_check_header(const JSON &value, const Pointer &base,
   // field, but not both"
   if (schema != nullptr && content != nullptr) {
     throw OpenAPIError{
-        base, "The Header Object schema and content are mutually exclusive"};
+        "The Header Object schema and content are mutually exclusive", base};
   }
 
   if (schema == nullptr && content == nullptr) {
-    throw OpenAPIError{base,
-                       "The Header Object must declare a schema or a content"};
+    throw OpenAPIError{"The Header Object must declare a schema or a content",
+                       base};
   }
 
   if (schema == nullptr) {
@@ -322,7 +322,7 @@ inline auto openapi_check_header(const JSON &value, const Pointer &base,
     // map answers no better than a crowded one
     if (content->size() != 1) {
       throw OpenAPIError{
-          location, "The Header Object content must hold exactly one entry"};
+          "The Header Object content must hold exactly one entry", location};
     }
 
     return;

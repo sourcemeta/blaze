@@ -260,7 +260,7 @@ auto process_context(ExpansionState &state, ActiveContext &active_context,
         // The offending entries live in the remote document, whose keys have
         // no position in the input, so the error is located at the reference
         // that loaded it
-        throw JSONLDError(error.what(), location);
+        throw JSONLDError(error.message(), location);
       }
 
       continue;
@@ -364,7 +364,7 @@ auto process_context(ExpansionState &state, ActiveContext &active_context,
         if (is_input_authored(error, context, location)) {
           throw;
         }
-        throw JSONLDError(error.what(), location, {KEYWORD_IMPORT});
+        throw JSONLDError(error.message(), location, {KEYWORD_IMPORT});
       }
       state.context_protected = saved_protected;
       continue;

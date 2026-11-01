@@ -1,3 +1,4 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_hmac_sha256.h>
 
 #include <openssl/core_names.h> // OSSL_MAC_PARAM_DIGEST
@@ -8,7 +9,6 @@
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint8_t
 #include <span>        // std::span
-#include <stdexcept>   // std::runtime_error
 #include <string_view> // std::string_view
 
 namespace {
@@ -20,7 +20,8 @@ namespace {
 struct HmacAlgorithm {
   HmacAlgorithm() : handle{EVP_MAC_fetch(nullptr, "HMAC", nullptr)} {
     if (this->handle == nullptr) {
-      throw std::runtime_error("Could not fetch the OpenSSL HMAC algorithm");
+      throw sourcemeta::core::CryptoError(
+          "Could not fetch the OpenSSL HMAC algorithm");
     }
   }
   ~HmacAlgorithm() { EVP_MAC_free(this->handle); }
@@ -41,7 +42,7 @@ auto hmac_sha256_digest(const std::string_view key,
   static const HmacAlgorithm algorithm;
   auto *context = EVP_MAC_CTX_new(algorithm.handle);
   if (context == nullptr) {
-    throw std::runtime_error("Could not allocate OpenSSL MAC context");
+    throw CryptoError("Could not allocate OpenSSL MAC context");
   }
 
   // The parameter interface is not const-qualified but never writes through
@@ -73,7 +74,7 @@ auto hmac_sha256_digest(const std::string_view key,
             EVP_MAC_final(context, digest.data(), &length, digest.size()) == 1;
   EVP_MAC_CTX_free(context);
   if (!success) {
-    throw std::runtime_error("Could not compute HMAC-SHA256 digest");
+    throw CryptoError("Could not compute HMAC-SHA256 digest");
   }
 
   return digest;

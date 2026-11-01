@@ -9,6 +9,8 @@ if(SOURCEMETA_CORE_INSTALL)
 endif()
 
 target_link_libraries(sourcemeta_core_uri
+  PUBLIC sourcemeta::core::error)
+target_link_libraries(sourcemeta_core_uri
   PRIVATE sourcemeta::core::io)
 target_link_libraries(sourcemeta_core_uri
   PRIVATE sourcemeta::core::ip)

@@ -46,7 +46,7 @@ auto append_reference_token(sourcemeta::core::JSON::String &output,
   return true;
 }
 
-template <template <typename T> typename Allocator, typename V,
+template <typename V,
           typename PointerT = sourcemeta::core::GenericPointer<
               typename V::String,
               sourcemeta::core::PropertyHashJSON<typename V::String>>>
@@ -94,145 +94,82 @@ auto traverse(V &document, typename PointerT::const_iterator begin,
   return *current;
 }
 
-// A variant of the above function that assumes traversing of
-// the entire pointer and does not rely on iterators for performance reasons
-template <template <typename T> typename Allocator, typename V,
-          typename PointerT = sourcemeta::core::GenericPointer<
-              typename V::String,
-              sourcemeta::core::PropertyHashJSON<typename V::String>>>
-auto traverse_all(V &document, const PointerT &pointer) -> V & {
-  // Make sure types match
-  static_assert(
-      std::is_same_v<typename PointerT::Value, std::remove_const_t<V>>);
-  V *current = &document;
-
-  for (const auto &token : pointer) {
-    if (token.is_property()) {
-      current = &current->at(token.to_property(), token.property_hash());
-    } else {
-      if (current->is_object()) {
-        sourcemeta::core::DigitsBuffer buffer;
-        current = &current->at(
-            sourcemeta::core::digits_view(token.to_index(), buffer));
-      } else {
-        current = &current->at(token.to_index());
-      }
-    }
+// A single reference token is evaluated the same way wherever it appears, and
+// the spelling of an index as a member name is kept here rather than in the
+// header so that an inlined traversal stays small
+// See https://www.rfc-editor.org/rfc/rfc6901#section-4
+template <typename V, typename TokenT>
+auto resolve_token(V &document, const TokenT &token) -> V & {
+  if (token.is_property()) {
+    return document.at(token.to_property(), token.property_hash());
   }
 
-  return *current;
+  if (document.is_object()) {
+    sourcemeta::core::DigitsBuffer buffer;
+    return document.at(sourcemeta::core::digits_view(token.to_index(), buffer));
+  }
+
+  return document.at(token.to_index());
 }
 
-template <typename PointerT>
-auto try_traverse(const sourcemeta::core::JSON &document,
-                  const PointerT &pointer) -> const sourcemeta::core::JSON * {
-  const sourcemeta::core::JSON *current = &document;
-
-  for (const auto &token : pointer) {
-    const auto type{current->type()};
-    const auto is_object{type == sourcemeta::core::JSON::Type::Object};
-
-    if (token.is_property()) {
-      if (!is_object) {
-        return nullptr;
-      }
-
-      const auto &property{token.to_property()};
-      const auto *json_value{current->try_at(property, token.property_hash())};
-      if (json_value) {
-        current = json_value;
-      } else {
-        return nullptr;
-      }
-    } else if (type != sourcemeta::core::JSON::Type::Array && !is_object) {
+template <typename TokenT>
+auto try_resolve_token(const sourcemeta::core::JSON &document,
+                       const TokenT &token) -> const sourcemeta::core::JSON * {
+  if (token.is_property()) {
+    if (!document.is_object()) {
       return nullptr;
-    } else {
-      const auto index{token.to_index()};
-      if (is_object) {
-        sourcemeta::core::DigitsBuffer buffer;
-        const auto *json_value{
-            current->try_at(sourcemeta::core::digits_view(index, buffer))};
-        if (json_value) {
-          current = json_value;
-        } else {
-          return nullptr;
-        }
-      } else if (index < current->size()) {
-        current = &current->at(index);
-      } else {
-        return nullptr;
-      }
     }
+
+    return document.try_at(token.to_property(), token.property_hash());
   }
 
-  return current;
+  if (document.is_object()) {
+    sourcemeta::core::DigitsBuffer buffer;
+    return document.try_at(
+        sourcemeta::core::digits_view(token.to_index(), buffer));
+  }
+
+  if (!document.is_array()) {
+    return nullptr;
+  }
+
+  const auto index{token.to_index()};
+  if (index >= document.size()) {
+    return nullptr;
+  }
+
+  return &document.at(index);
 }
 
 } // namespace
 
 namespace sourcemeta::core {
 
-auto get(const JSON &document, const Pointer &pointer) -> const JSON & {
-  if (pointer.empty()) {
-    return document;
-  }
-
-  return traverse_all<std::allocator, const JSON>(document, pointer);
-}
-
-auto get(const JSON &document, const WeakPointer &pointer) -> const JSON & {
-  if (pointer.empty()) {
-    return document;
-  }
-
-  return traverse_all<std::allocator, const JSON, WeakPointer>(document,
-                                                               pointer);
-}
-
-auto get(JSON &document, const Pointer &pointer) -> JSON & {
-  if (pointer.empty()) {
-    return document;
-  }
-
-  return traverse_all<std::allocator, JSON>(document, pointer);
-}
-
-auto get(JSON &document, const WeakPointer &pointer) -> JSON & {
-  if (pointer.empty()) {
-    return document;
-  }
-
-  return traverse_all<std::allocator, JSON>(document, pointer);
-}
-
-auto try_get(const JSON &document, const Pointer &pointer) -> const JSON * {
-  return pointer.empty() ? &document : try_traverse(document, pointer);
-}
-
-auto try_get(const JSON &document, const WeakPointer &pointer) -> const JSON * {
-  return pointer.empty() ? &document : try_traverse(document, pointer);
-}
-
 auto get(const JSON &document, const Pointer::Token &token) -> const JSON & {
-  if (token.is_property()) {
-    return document.at(token.to_property());
-  }
-  return document.at(token.to_index());
+  return resolve_token(document, token);
 }
 
 auto get(const JSON &document, const WeakPointer::Token &token)
     -> const JSON & {
-  if (token.is_property()) {
-    return document.at(token.to_property());
-  }
-  return document.at(token.to_index());
+  return resolve_token(document, token);
 }
 
 auto get(JSON &document, const Pointer::Token &token) -> JSON & {
-  if (token.is_property()) {
-    return document.at(token.to_property());
-  }
-  return document.at(token.to_index());
+  return resolve_token(document, token);
+}
+
+auto get(JSON &document, const WeakPointer::Token &token) -> JSON & {
+  return resolve_token(document, token);
+}
+
+auto try_get(const JSON &document, const Pointer::Token &token)
+    -> const JSON * {
+  return try_resolve_token(document, token);
+}
+
+auto try_get(const JSON &document, const WeakPointer::Token &token)
+    -> const JSON * {
+  return try_resolve_token(document, token);
 }
 
 auto set(JSON &document, const Pointer &pointer, const JSON &value) -> void {
@@ -241,8 +178,8 @@ auto set(JSON &document, const Pointer &pointer, const JSON &value) -> void {
     return;
   }
 
-  JSON &current{traverse<std::allocator, JSON>(document, std::cbegin(pointer),
-                                               std::prev(std::cend(pointer)))};
+  JSON &current{traverse<JSON>(document, std::cbegin(pointer),
+                               std::prev(std::cend(pointer)))};
   const auto &last{pointer.back()};
   // Handle the hyphen as a last constant
   // If the currently referenced value is a JSON array, the reference
@@ -269,8 +206,8 @@ auto set(JSON &document, const Pointer &pointer, JSON &&value) -> void {
     return;
   }
 
-  JSON &current{traverse<std::allocator, JSON>(document, std::cbegin(pointer),
-                                               std::prev(std::cend(pointer)))};
+  JSON &current{traverse<JSON>(document, std::cbegin(pointer),
+                               std::prev(std::cend(pointer)))};
   const auto &last{pointer.back()};
   // Handle the hyphen as a last constant
   // If the currently referenced value is a JSON array, the reference
@@ -302,8 +239,8 @@ auto remove_pointer(JSON &document, const PointerT &pointer) -> bool {
     return false;
   }
 
-  JSON &current{traverse<std::allocator, JSON, PointerT>(
-      document, std::cbegin(pointer), std::prev(std::cend(pointer)))};
+  JSON &current{traverse<JSON, PointerT>(document, std::cbegin(pointer),
+                                         std::prev(std::cend(pointer)))};
   const auto &last{pointer.back()};
 
   if (last.is_property()) {

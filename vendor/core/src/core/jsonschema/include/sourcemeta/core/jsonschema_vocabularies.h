@@ -5,6 +5,7 @@
 #include <sourcemeta/core/jsonschema_export.h>
 #endif
 
+#include <sourcemeta/core/error.h>
 #include <sourcemeta/core/json.h>
 
 #include <bitset>  // std::bitset
@@ -199,7 +200,7 @@ public:
   /// Throw if the current vocabularies have required ones outside the given
   /// supported set
   auto throw_if_any_unsupported(const std::unordered_set<URI> &supported,
-                                const char *message) const -> void;
+                                StaticString message) const -> void;
 
 private:
   // Invariant: required_known and optional_known must be mutually exclusive

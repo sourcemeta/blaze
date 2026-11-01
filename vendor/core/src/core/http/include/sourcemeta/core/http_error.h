@@ -5,24 +5,19 @@
 #include <sourcemeta/core/http_export.h>
 #endif
 
+#include <sourcemeta/core/error.h>
 #include <sourcemeta/core/http_method.h>
 #include <sourcemeta/core/http_status.h>
 
-#include <chrono>    // std::chrono::milliseconds
-#include <cstdint>   // std::uint16_t
-#include <stdexcept> // std::runtime_error
-#include <string>    // std::string
-#include <utility>   // std::move
+#include <chrono>      // std::chrono::milliseconds
+#include <cstdint>     // std::uint16_t
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <utility>     // std::move
 
 namespace sourcemeta::core {
 
-// Exporting symbols that depends on the standard C++ library is considered
-// safe.
-// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup http
 /// An error that prevented obtaining a response, such as a connection
@@ -33,17 +28,24 @@ namespace sourcemeta::core {
 /// #include <cassert>
 ///
 /// const sourcemeta::core::HTTPError error{
-///     sourcemeta::core::HTTPMethod::GET,
-///     "https://example.com", "Connection refused"};
+///     "Connection refused", sourcemeta::core::HTTPMethod::GET,
+///     "https://example.com"};
 /// assert(error.method() == sourcemeta::core::HTTPMethod::GET);
 /// assert(error.url() == "https://example.com");
 /// ```
-class SOURCEMETA_CORE_HTTP_EXPORT HTTPError : public std::runtime_error {
+class SOURCEMETA_CORE_HTTP_EXPORT HTTPError : public Error {
 public:
-  /// Construct an error from the request method, URL, and a message
-  HTTPError(const HTTPMethod method, std::string url,
-            const std::string &message)
-      : std::runtime_error{message}, method_{method}, url_{std::move(url)} {}
+  /// Construct an error from a message, the request method, and the URL
+  HTTPError(const StaticString message, const HTTPMethod method,
+            std::string url)
+      : Error{message}, method_{method}, url_{std::move(url)} {}
+
+  /// Construct an error that also carries what the backend reported, which is
+  /// the only account of the failure that names the condition the system hit
+  HTTPError(const StaticString message, const HTTPMethod method,
+            std::string url, std::string detail)
+      : Error{message}, method_{method}, url_{std::move(url)},
+        detail_{std::move(detail)} {}
 
   /// Get the request method that triggered the failure
   [[nodiscard]] auto method() const noexcept -> HTTPMethod {
@@ -55,9 +57,15 @@ public:
     return this->url_;
   }
 
+  /// Get what the backend reported, empty when it reported nothing
+  [[nodiscard]] auto detail() const noexcept -> std::string_view {
+    return this->detail_;
+  }
+
 private:
   HTTPMethod method_;
   std::string url_;
+  std::string detail_;
 };
 
 /// @ingroup http
@@ -79,7 +87,7 @@ public:
   /// that was configured for the request
   HTTPTimeoutError(const HTTPMethod method, std::string url,
                    const std::chrono::milliseconds timeout)
-      : HTTPError{method, std::move(url), "The HTTP request timed out"},
+      : HTTPError{"The HTTP request timed out", method, std::move(url)},
         timeout_{timeout} {}
 
   /// Get the total timeout that was configured for the request. A backend
@@ -112,7 +120,7 @@ public:
   /// response status
   HTTPStatusError(const HTTPMethod method, std::string url,
                   const HTTPStatus &status)
-      : HTTPError{method, std::move(url), "Unsuccessful HTTP response"},
+      : HTTPError{"Unsuccessful HTTP response", method, std::move(url)},
         code_{status.code}, phrase_{status.phrase}, wire_{status.wire} {}
 
   /// Get the response status that triggered the failure. The contained
@@ -127,9 +135,15 @@ private:
   std::string wire_;
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+/// @ingroup http
+/// An error raised when no non-zero trace context identifier could be drawn.
+class SOURCEMETA_CORE_HTTP_EXPORT HTTPEntropyError : public Error {
+public:
+  HTTPEntropyError() noexcept
+      : Error{"Could not draw a non-zero trace context identifier"} {}
+};
+
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

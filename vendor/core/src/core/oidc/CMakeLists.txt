@@ -8,11 +8,15 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME oidc
     oidc_request_object.cc oidc_logout.cc oidc_encryption.cc)
 
 target_link_libraries(sourcemeta_core_oidc
+  PUBLIC sourcemeta::core::error)
+target_link_libraries(sourcemeta_core_oidc
   PUBLIC sourcemeta::core::json)
 target_link_libraries(sourcemeta_core_oidc
   PUBLIC sourcemeta::core::jose)
 target_link_libraries(sourcemeta_core_oidc
   PUBLIC sourcemeta::core::oauth)
+target_link_libraries(sourcemeta_core_oidc
+  PRIVATE sourcemeta::core::numeric)
 target_link_libraries(sourcemeta_core_oidc
   PRIVATE sourcemeta::core::crypto)
 target_link_libraries(sourcemeta_core_oidc

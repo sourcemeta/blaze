@@ -50,7 +50,7 @@ auto parent_of(const sourcemeta::core::OpenAPIFrame::Locations &locations,
 
 auto error_at(const sourcemeta::core::OpenAPIWalk &walk,
               const sourcemeta::core::JSON::String &location,
-              const char *message,
+              const sourcemeta::core::StaticString message,
               const sourcemeta::core::JSON::StringView field = {})
     -> sourcemeta::core::OpenAPIError {
   return sourcemeta::core::openapi_error_at(walk.locations, location, message,
@@ -234,7 +234,7 @@ auto check_path_parameters(
     const sourcemeta::core::OpenAPIWalk &walk,
     const std::vector<sourcemeta::core::JSON::StringView> &templates,
     const std::vector<sourcemeta::core::JSON::String> &parameters,
-    const char *message) -> void {
+    const sourcemeta::core::StaticString message) -> void {
   for (const auto &position : parameters) {
     const auto *identity{identity_of(walk, position)};
     // A Reference Object that was never followed names no parameter, so
@@ -658,7 +658,7 @@ auto openapi_project(const OpenAPIWalk &walk) -> std::vector<OpenAPIOperation> {
     // whatever a path this does not hold would have added to it, so only the
     // first of those two is worth reading against on its own
     const auto own_only{templated && exposed == expressions.first.cend()};
-    const auto *const message{
+    const sourcemeta::core::StaticString message{
         "A path Parameter Object must name a template expression of a path "
         "that exposes it"};
     // What no path exposes is only known to be exposed by none once every path

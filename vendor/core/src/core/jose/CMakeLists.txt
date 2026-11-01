@@ -10,9 +10,13 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME jose
           jose_jwe_internal.h)
 
 target_link_libraries(sourcemeta_core_jose
+  PUBLIC sourcemeta::core::error)
+target_link_libraries(sourcemeta_core_jose
   PUBLIC sourcemeta::core::json)
 target_link_libraries(sourcemeta_core_jose
   PUBLIC sourcemeta::core::crypto)
+target_link_libraries(sourcemeta_core_jose
+  PRIVATE sourcemeta::core::numeric)
 target_link_libraries(sourcemeta_core_jose
   PRIVATE sourcemeta::core::text)
 target_link_libraries(sourcemeta_core_jose

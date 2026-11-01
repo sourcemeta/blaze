@@ -12,7 +12,6 @@
 #include <limits>     // std::numeric_limits
 #include <optional>   // std::optional
 #include <regex>      // std::regex, std::regex_match, std::smatch
-#include <stdexcept>  // std::out_of_range
 #include <utility>    // std::declval, std::move
 
 namespace sourcemeta::blaze {
@@ -272,7 +271,7 @@ inline auto is_numeric_integral_multiple_check(const Instruction &instruction)
   // divisor is never one, so a failed conversion just means no fusion
   try {
     return divisor.as_integer() == 1;
-  } catch (const std::out_of_range &) {
+  } catch (const sourcemeta::core::JSONIntegerRangeError &) {
     return false;
   }
 }
@@ -425,7 +424,7 @@ unsigned_integer_property(const sourcemeta::core::JSON &document,
       }
 
       return static_cast<std::size_t>(value);
-    } catch (const std::out_of_range &) {
+    } catch (const sourcemeta::core::JSONIntegerRangeError &) {
       return std::nullopt;
     }
   }

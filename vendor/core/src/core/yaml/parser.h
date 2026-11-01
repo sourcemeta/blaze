@@ -74,7 +74,7 @@ public:
     token = this->lexer_->next();
 
     if (token.type == TokenType::StreamEnd) [[unlikely]] {
-      throw YAMLParseError{1, 1, "Empty YAML document"};
+      throw YAMLParseError{"Empty YAML document", 1, 1};
     }
 
     if (token.type == TokenType::DirectiveYAML ||
@@ -117,7 +117,7 @@ public:
         empty_document = true;
       }
     } else if (token.type == TokenType::StreamEnd) [[unlikely]] {
-      throw YAMLParseError{1, 1, "Empty YAML document"};
+      throw YAMLParseError{"Empty YAML document", 1, 1};
     } else if (token.type == TokenType::DocumentEnd) {
       auto pos_before_pending{this->lexer_->position()};
       while (token.type == TokenType::DocumentEnd) {
@@ -126,7 +126,7 @@ public:
         token = this->lexer_->next();
       }
       if (token.type == TokenType::StreamEnd) [[unlikely]] {
-        throw YAMLParseError{1, 1, "Empty YAML document"};
+        throw YAMLParseError{"Empty YAML document", 1, 1};
       }
       // A token handed back has not been read as far as the caller is
       // concerned, so where the stream stands is where that token begins
@@ -222,8 +222,8 @@ public:
     }
 
     if (token.type != TokenType::StreamEnd) [[unlikely]] {
-      throw YAMLParseError{token.line, token.column,
-                           "Unexpected content after document"};
+      throw YAMLParseError{"Unexpected content after document", token.line,
+                           token.column};
     }
   }
 
@@ -293,9 +293,9 @@ public:
           token.type == TokenType::DirectiveTag ||
           token.type == TokenType::DirectiveReserved) {
         if (!saw_document_end) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Directive not allowed without preceding "
-                               "document end marker"};
+          throw YAMLParseError{"Directive not allowed without preceding "
+                               "document end marker",
+                               token.line, token.column};
         }
         this->process_directives(token);
         continue;
@@ -303,8 +303,8 @@ public:
       // A directives end marker is read above, which is what opens a document
       assert(opened_document || token.type != TokenType::DocumentStart);
       if (!saw_document_end && !opened_document) [[unlikely]] {
-        throw YAMLParseError{token.line, token.column,
-                             "Unexpected content after document"};
+        throw YAMLParseError{"Unexpected content after document", token.line,
+                             token.column};
       }
       this->parse_value(token, JSON::ParseContext::Root, 0, EMPTY_PROPERTY);
       saw_document_end = false;
@@ -449,8 +449,8 @@ private:
       }
       if (token.type == TokenType::DirectiveYAML) {
         if (seen_yaml_directive) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Duplicate %YAML directive"};
+          throw YAMLParseError{"Duplicate %YAML directive", token.line,
+                               token.column};
         }
         seen_yaml_directive = true;
         const auto content{token.value};
@@ -475,23 +475,23 @@ private:
             version.find_first_not_of("0123456789") != version_dot ||
             version.find_first_not_of("0123456789", version_dot + 1) !=
                 std::string_view::npos) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Invalid version in %YAML directive"};
+          throw YAMLParseError{"Invalid version in %YAML directive", token.line,
+                               token.column};
         }
         // YAML 1.2.2 Section 6.8.1: a document that names a higher major
         // version than this processor supports must be rejected
         const auto major{version.substr(0, version_dot)};
         if (major.size() > 1 || major.front() > '1') [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Unsupported major version in %YAML directive"};
+          throw YAMLParseError{"Unsupported major version in %YAML directive",
+                               token.line, token.column};
         }
         while (cursor < content.size() &&
                (content[cursor] == ' ' || content[cursor] == '\t')) {
           cursor++;
         }
         if (cursor < content.size() && content[cursor] != '#') [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Invalid content in %YAML directive"};
+          throw YAMLParseError{"Invalid content in %YAML directive", token.line,
+                               token.column};
         }
       } else if (token.type == TokenType::DirectiveTag) {
         const auto content{token.value};
@@ -521,17 +521,16 @@ private:
         // YAML 1.2.2 Section 6.8.2 spells the directive with a handle and a
         // prefix, so one that names neither is not a directive at all
         if (handle.empty() || prefix.empty()) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Incomplete %TAG directive"};
+          throw YAMLParseError{"Incomplete %TAG directive", token.line,
+                               token.column};
         }
 
         {
           // YAML 1.2.2 Section 6.8.2: a handle may carry at most one tag
           // directive in a document, even when both give the same prefix
           if (this->tag_directives_.contains(handle)) [[unlikely]] {
-            throw YAMLParseError{
-                token.line, token.column,
-                "Duplicate %TAG directive for the same handle"};
+            throw YAMLParseError{"Duplicate %TAG directive for the same handle",
+                                 token.line, token.column};
           }
           this->tag_directives_.insert_or_assign(handle, prefix);
         }
@@ -554,8 +553,8 @@ private:
       // The shorthand form takes one or more tag characters after its handle,
       // and Example 6.27 of the specification turns one down for want of them
       if (raw_tag.size() == 2) [[unlikely]] {
-        throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                             "Tag shorthand with no suffix"};
+        throw YAMLParseError{"Tag shorthand with no suffix",
+                             this->lexer_->line(), this->lexer_->column()};
       }
 
       const auto iterator{this->tag_directives_.find("!!")};
@@ -568,8 +567,8 @@ private:
     if (raw_tag.size() > 1) {
       const auto second_bang{raw_tag.find('!', 1)};
       if (second_bang == raw_tag.size() - 1) [[unlikely]] {
-        throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                             "Tag shorthand with no suffix"};
+        throw YAMLParseError{"Tag shorthand with no suffix",
+                             this->lexer_->line(), this->lexer_->column()};
       }
 
       if (second_bang != std::string_view::npos) {
@@ -581,8 +580,8 @@ private:
         }
         // YAML 1.2.2 Section 6.8.2.1: a named tag handle must be associated
         // with a prefix by a tag directive, so an undefined handle is an error
-        throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                             "Undefined tag handle"};
+        throw YAMLParseError{"Undefined tag handle", this->lexer_->line(),
+                             this->lexer_->column()};
       }
     }
 
@@ -647,8 +646,8 @@ private:
     // raises on the unhashable key and js-yaml rejects the complex key, so a
     // collection key is rejected rather than silently stringified
     if (value.is_array() || value.is_object()) [[unlikely]] {
-      throw YAMLParseError{key_line, key_column,
-                           "Mapping key cannot be a collection"};
+      throw YAMLParseError{"Mapping key cannot be a collection", key_line,
+                           key_column};
     }
     if (value.is_string()) {
       return value.to_string();
@@ -691,8 +690,8 @@ private:
                    const std::uint64_t key_column = 0) -> JSON {
     const DepthScope scope{this->depth_};
     if (this->depth_ > MAXIMUM_DEPTH) {
-      throw YAMLParseError{token.line, token.column,
-                           "Maximum nesting depth exceeded"};
+      throw YAMLParseError{"Maximum nesting depth exceeded", token.line,
+                           token.column};
     }
 
     if (this->roundtrip_ != nullptr) {
@@ -723,8 +722,8 @@ private:
         const auto parent_indent{this->lexer_->block_indent()};
         if (parent_indent != SIZE_MAX && value_indent <= parent_indent)
             [[unlikely]] {
-          throw YAMLParseError{current_token.line, current_token.column,
-                               "Node property at wrong indentation level"};
+          throw YAMLParseError{"Node property at wrong indentation level",
+                               current_token.line, current_token.column};
         }
       }
       if (current_token.type == TokenType::Anchor) {
@@ -855,9 +854,9 @@ private:
     if ((anchor_name.has_value() || tag.has_value()) &&
         this->lexer_->flow_level() == 0 && current_token.line == prefix_line &&
         current_token.type == TokenType::BlockSequenceEntry) [[unlikely]] {
-      throw YAMLParseError{current_token.line, current_token.column,
-                           "Block sequence after node property must start "
-                           "on a new line"};
+      throw YAMLParseError{"Block sequence after node property must start "
+                           "on a new line",
+                           current_token.line, current_token.column};
     }
 
     if (anchor_name.has_value()) {
@@ -889,30 +888,30 @@ private:
         if (next.type == TokenType::BlockMappingValue &&
             pair_without_brackets_allowed && indicator_shares_the_key_line) {
           if (current_token.multiline) [[unlikely]] {
-            throw YAMLParseError{current_token.line, current_token.column,
-                                 "Multi-line implicit mapping key"};
+            throw YAMLParseError{"Multi-line implicit mapping key",
+                                 current_token.line, current_token.column};
           }
           if (this->lexer_->flow_level() > 0 && next.line != current_token.line)
               [[unlikely]] {
-            throw YAMLParseError{next.line, next.column,
-                                 "Implicit key and value indicator on "
-                                 "different lines in flow context"};
+            throw YAMLParseError{"Implicit key and value indicator on "
+                                 "different lines in flow context",
+                                 next.line, next.column};
           }
           if (this->lexer_->flow_level() == 0 &&
               context == JSON::ParseContext::Property && key_line > 0 &&
               current_token.line == key_line) [[unlikely]] {
-            throw YAMLParseError{current_token.line, current_token.column,
-                                 "Implicit mapping key in block value on "
-                                 "same line as parent key"};
+            throw YAMLParseError{"Implicit mapping key in block value on "
+                                 "same line as parent key",
+                                 current_token.line, current_token.column};
           }
           if (this->lexer_->flow_level() == 0 &&
               (anchor_name.has_value() || tag.has_value()) &&
               this->document_start_line_ > 0 &&
               current_token.line == this->document_start_line_) [[unlikely]] {
             throw YAMLParseError{
-                current_token.line, current_token.column,
                 "Node properties before implicit mapping key on "
-                "document start line"};
+                "document start line",
+                current_token.line, current_token.column};
           }
           if (anchor_name.has_value() && anchor_line == current_token.line) {
             // The anchor names the resolved key node, so that aliasing it
@@ -933,8 +932,8 @@ private:
               node_start_column, tag);
         } else {
           if (anchor_count > 1) [[unlikely]] {
-            throw YAMLParseError{current_token.line, current_token.column,
-                                 "Multiple anchors on a scalar node"};
+            throw YAMLParseError{"Multiple anchors on a scalar node",
+                                 current_token.line, current_token.column};
           }
           result = this->parse_scalar(current_token, tag, context, index,
                                       property, key_line, key_column);
@@ -984,8 +983,8 @@ private:
               node_start_column, std::nullopt, true);
         } else {
           if (anchor_name.has_value()) [[unlikely]] {
-            throw YAMLParseError{current_token.line, current_token.column,
-                                 "Cannot anchor an alias node"};
+            throw YAMLParseError{"Cannot anchor an alias node",
+                                 current_token.line, current_token.column};
           }
           result = this->resolve_alias(current_token, context, index, property,
                                        input_read, key_line, key_column);
@@ -998,8 +997,8 @@ private:
         break;
       }
       default:
-        throw YAMLParseError{current_token.line, current_token.column,
-                             "Unexpected token"};
+        throw YAMLParseError{"Unexpected token", current_token.line,
+                             current_token.column};
     }
 
     if (anchor_name.has_value()) {
@@ -1097,8 +1096,8 @@ private:
         // representation. Round-trip mode preserves the original text instead
         if (is_special_float(value)) [[unlikely]] {
           if (this->roundtrip_ == nullptr) {
-            throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                                 "Infinity and NaN are not permitted"};
+            throw YAMLParseError{"Infinity and NaN are not permitted",
+                                 this->lexer_->line(), this->lexer_->column()};
           }
           return JSON{value};
         }
@@ -1133,8 +1132,8 @@ private:
       // infinity or not-a-number float has no JSON representation. Round-trip
       // mode preserves the original text instead, so it keeps the string
       if (this->roundtrip_ == nullptr) [[unlikely]] {
-        throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                             "Infinity and NaN are not permitted"};
+        throw YAMLParseError{"Infinity and NaN are not permitted",
+                             this->lexer_->line(), this->lexer_->column()};
       }
       return JSON{value};
     }
@@ -1326,8 +1325,8 @@ private:
         }
         token = this->next_token();
         if (token.type == TokenType::StreamEnd) [[unlikely]] {
-          throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                               "Unexpected end of input in flow mapping"};
+          throw YAMLParseError{"Unexpected end of input in flow mapping",
+                               this->lexer_->line(), this->lexer_->column()};
         }
         key_token = token;
       }
@@ -1342,8 +1341,8 @@ private:
         this->record_key_scalar_style(key, key_token.scalar_style,
                                       key_token.quoted_original);
       } else [[unlikely]] {
-        throw YAMLParseError{key_token.line, key_token.column,
-                             "Expected scalar key in mapping"};
+        throw YAMLParseError{"Expected scalar key in mapping", key_token.line,
+                             key_token.column};
       }
 
       if (seen_keys.contains(key)) [[unlikely]] {
@@ -1355,8 +1354,8 @@ private:
         token = this->next_token();
 
         if (token.type == TokenType::StreamEnd) [[unlikely]] {
-          throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                               "Unexpected end of input in flow mapping"};
+          throw YAMLParseError{"Unexpected end of input in flow mapping",
+                               this->lexer_->line(), this->lexer_->column()};
         }
 
         if (token.type == TokenType::FlowEntry ||
@@ -1371,15 +1370,15 @@ private:
         if (token.type != TokenType::BlockMappingValue) [[unlikely]] {
           const auto colon_column{key_token.column +
                                   static_cast<std::uint64_t>(key.size())};
-          throw YAMLParseError{key_token.line, colon_column,
-                               "Expected ':' after mapping key"};
+          throw YAMLParseError{"Expected ':' after mapping key", key_token.line,
+                               colon_column};
         }
       }
 
       token = this->next_token();
       if (token.type == TokenType::StreamEnd) [[unlikely]] {
-        throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                             "Expected value after ':'"};
+        throw YAMLParseError{"Expected value after ':'", this->lexer_->line(),
+                             this->lexer_->column()};
       }
 
       if (token.type == TokenType::FlowEntry ||
@@ -1402,8 +1401,8 @@ private:
         }
         if (token.type != TokenType::FlowEntry &&
             token.type != TokenType::MappingEnd) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Missing comma between flow mapping entries"};
+          throw YAMLParseError{"Missing comma between flow mapping entries",
+                               token.line, token.column};
         }
       }
     }
@@ -1445,22 +1444,22 @@ private:
                                     : 0UZ};
         if (token_indent <= parent_block_indent) [[unlikely]] {
           throw YAMLParseError{
-              token.line, token.column,
-              "Flow content indented less than or equal to parent block level"};
+              "Flow content indented less than or equal to parent block level",
+              token.line, token.column};
         }
       }
       if (token.type == TokenType::FlowEntry) {
         if (element_index == 0) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Leading comma in flow sequence"};
+          throw YAMLParseError{"Leading comma in flow sequence", token.line,
+                               token.column};
         }
         if (token.compact_separator) {
           found_compact_separator = true;
         }
         token = this->next_token();
         if (token.type == TokenType::FlowEntry) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Empty entry in flow sequence"};
+          throw YAMLParseError{"Empty entry in flow sequence", token.line,
+                               token.column};
         }
         continue;
       }
@@ -1469,8 +1468,8 @@ private:
         auto mapping{JSON::make_object()};
         token = this->next_token();
         if (token.type == TokenType::StreamEnd) [[unlikely]] {
-          throw YAMLParseError{this->lexer_->line(), this->lexer_->column(),
-                               "Unexpected end after explicit key in flow"};
+          throw YAMLParseError{"Unexpected end after explicit key in flow",
+                               this->lexer_->line(), this->lexer_->column()};
         }
 
         std::string key_string;
@@ -1517,8 +1516,8 @@ private:
       }
       if (token.type != TokenType::FlowEntry &&
           token.type != TokenType::SequenceEnd) [[unlikely]] {
-        throw YAMLParseError{token.line, token.column,
-                             "Missing comma in flow sequence"};
+        throw YAMLParseError{"Missing comma in flow sequence", token.line,
+                             token.column};
       }
     }
 
@@ -1593,8 +1592,8 @@ private:
 
       if (token.column > base_column) {
         if (token.column < base_column + 2) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Wrong indentation for sequence entry"};
+          throw YAMLParseError{"Wrong indentation for sequence entry",
+                               token.line, token.column};
         }
         auto value{this->parse_value(token, JSON::ParseContext::Index,
                                      element_index, EMPTY_PROPERTY)};
@@ -1685,8 +1684,8 @@ private:
         if (token.type == TokenType::SequenceStart ||
             token.type == TokenType::MappingStart ||
             token.type == TokenType::BlockSequenceEntry) [[unlikely]] {
-          throw YAMLParseError{token.line, token.column,
-                               "Mapping key cannot be a collection"};
+          throw YAMLParseError{"Mapping key cannot be a collection", token.line,
+                               token.column};
         }
         if (token.type == TokenType::DocumentEnd ||
             token.type == TokenType::DocumentStart) {
@@ -1887,8 +1886,8 @@ private:
 
     this->expanded_weight_ += anchored.expanded_weight;
     if (this->expanded_weight_ > expansion_budget(input_read)) [[unlikely]] {
-      throw YAMLParseError{token.line, token.column,
-                           "Maximum YAML alias expansion exceeded"};
+      throw YAMLParseError{"Maximum YAML alias expansion exceeded", token.line,
+                           token.column};
     }
 
     return anchored.value;
@@ -1918,8 +1917,8 @@ private:
   auto reject_misplaced_property(const Token &property, const Token &node) const
       -> void {
     if (node.type == TokenType::BlockSequenceEntry) [[unlikely]] {
-      throw YAMLParseError{property.line, property.column,
-                           "Node property at wrong indentation level"};
+      throw YAMLParseError{"Node property at wrong indentation level",
+                           property.line, property.column};
     }
   }
 
@@ -2050,8 +2049,8 @@ private:
         if (next.type == TokenType::BlockSequenceEntry && next.line == key_line)
             [[unlikely]] {
           throw YAMLParseError{
-              next.line, next.column,
-              "Block sequence entry on same line as mapping key"};
+              "Block sequence entry on same line as mapping key", next.line,
+              next.column};
         }
         // YAML 1.2.2 Section 8.2.2 reaches the block collection of an entry
         // through `s-l-comments`, which ends on a line break, so a nested
@@ -2059,8 +2058,8 @@ private:
         if (next.type == TokenType::BlockMappingKey && next.line == key_line)
             [[unlikely]] {
           throw YAMLParseError{
-              next.line, next.column,
-              "Explicit mapping key in block value on same line as parent key"};
+              "Explicit mapping key in block value on same line as parent key",
+              next.line, next.column};
         }
         this->record_inline_comment_for_key(key, next.line != key_line);
         auto value{this->parse_value(next, JSON::ParseContext::Property, 0, key,
@@ -2081,9 +2080,9 @@ private:
       if (this->document_start_line_ > 0 &&
           first_key_line == this->document_start_line_ &&
           next.line != this->document_start_line_) [[unlikely]] {
-        throw YAMLParseError{next.line, next.column,
-                             "Block mapping continuation after document "
-                             "start line"};
+        throw YAMLParseError{"Block mapping continuation after document "
+                             "start line",
+                             next.line, next.column};
       }
       this->lexer_->set_block_indent(static_cast<std::size_t>(base_column - 1));
 
@@ -2298,8 +2297,8 @@ private:
       this->record_preceding_comments_for_key(key);
 
       if (next.multiline) [[unlikely]] {
-        throw YAMLParseError{next.line, next.column,
-                             "Multi-line implicit mapping key"};
+        throw YAMLParseError{"Multi-line implicit mapping key", next.line,
+                             next.column};
       }
 
       if (seen_keys.contains(key)) [[unlikely]] {

@@ -298,7 +298,7 @@ auto process_deferred_scoped_context(ExpansionState &state,
     if (definition.context_authored) {
       throw;
     }
-    throw JSONLDError(error.what(), definition.context_location);
+    throw JSONLDError(error.message(), definition.context_location);
   }
 }
 

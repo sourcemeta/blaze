@@ -17,7 +17,7 @@
 
 namespace sourcemeta::core::internal {
 
-inline auto require(const bool condition, const char *message) -> void {
+inline auto require(const bool condition, const StaticString message) -> void {
   if (!condition) {
     throw MCPError{message};
   }
@@ -885,8 +885,9 @@ inline auto valid_tool(const MCPProtocolVersion version, const JSON &value)
 inline auto valid_resource(const MCPProtocolVersion version, const JSON &value,
                            const bool contents, const bool is_template,
                            const bool received) -> bool {
+  const auto uri_as_string{is_template || received};
   if (!value.is_object() || !valid_meta(version, value) ||
-      (is_template || received
+      (uri_as_string
            ? !validation::string_field(
                  value, is_template ? "uriTemplate" : "uri",
                  is_template ? sourcemeta::core::MCP_HASH_URI_TEMPLATE

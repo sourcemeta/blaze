@@ -54,8 +54,8 @@ inline auto openapi_record_discriminator(
     Pointer origin, const JSON &value, const JSON::String &scope) -> void {
   if (!value.is_string()) {
     throw OpenAPIError{
-        base, std::move(origin),
-        "A Discriminator Object mapping must name a schema with a string"};
+        "A Discriminator Object mapping must name a schema with a string", base,
+        std::move(origin)};
   }
 
   // Section 4.3.3 lists the name form among the connections a description
@@ -75,9 +75,9 @@ inline auto openapi_record_discriminator(
   }
 
   if (!URI::is_uri_reference(value.to_string())) {
-    throw OpenAPIError{base, std::move(origin),
-                       "A Discriminator Object mapping must name a schema by "
-                       "the name of a component or by a URI reference"};
+    throw OpenAPIError{"A Discriminator Object mapping must name a schema by "
+                       "the name of a component or by a URI reference",
+                       base, std::move(origin)};
   }
 
   const auto destination{openapi_resolve_uri(value.to_string(), scope)};
@@ -144,8 +144,8 @@ openapi_discriminators(const JSON &document, const SchemaFrame &schemas,
     // shape is read only once the dialect is known to define the keyword at
     // all, as a dialect that leaves it out leaves the member free
     if (!discriminator->is_object()) {
-      throw OpenAPIError{base, std::move(origin),
-                         "The Discriminator Object must be an object"};
+      throw OpenAPIError{"The Discriminator Object must be an object", base,
+                         std::move(origin)};
     }
 
     // Section 4.8.25 marks this one "**REQUIRED**. The name of the property in
@@ -158,22 +158,22 @@ openapi_discriminators(const JSON &document, const SchemaFrame &schemas,
         discriminator->try_at("propertyName", OPENAPI_HASH_PROPERTY_NAME)};
     if (property_name == nullptr) {
       throw OpenAPIError{
-          base, std::move(origin),
-          "The Discriminator Object must declare a property name"};
+          "The Discriminator Object must declare a property name", base,
+          std::move(origin)};
     }
 
     if (!property_name->is_string()) {
       throw OpenAPIError{
-          base, origin.concat(JSON::String{"propertyName"}),
-          "The Discriminator Object property name must be a string"};
+          "The Discriminator Object property name must be a string", base,
+          origin.concat(JSON::String{"propertyName"})};
     }
 
     const auto *mapping{discriminator->try_at("mapping", OPENAPI_HASH_MAPPING)};
     if (mapping != nullptr) {
       const auto mapped{origin.concat(JSON::String{"mapping"})};
       if (!mapping->is_object()) {
-        throw OpenAPIError{
-            base, mapped, "The Discriminator Object mapping must be an object"};
+        throw OpenAPIError{"The Discriminator Object mapping must be an object",
+                           base, mapped};
       }
 
       for (const auto &entry : mapping->as_object()) {

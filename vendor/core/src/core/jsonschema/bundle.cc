@@ -370,14 +370,14 @@ auto embed_schema(JSON &root, const Pointer &container,
       // place holds, so the two are told apart the way the step below tells
       // the kind of a place apart
       if (!current->is_array()) {
-        throw SchemaContainerError(container,
-                                   "Could not bundle to a container that is "
-                                   "not an array");
+        throw SchemaContainerError("Could not bundle to a container that is "
+                                   "not an array",
+                                   container);
       }
 
       if (current->size() <= token.to_index()) {
         throw SchemaContainerError(
-            container, "Could not bundle to a container that does not exist");
+            "Could not bundle to a container that does not exist", container);
       }
 
       current = &current->at(token.to_index());
@@ -385,9 +385,9 @@ auto embed_schema(JSON &root, const Pointer &container,
   }
 
   if (!current->is_object()) {
-    throw SchemaContainerError(container,
-                               "Could not bundle to a container that is not "
-                               "an object");
+    throw SchemaContainerError("Could not bundle to a container that is not "
+                               "an object",
+                               container);
   }
 
   std::string key{identifier};
@@ -495,8 +495,8 @@ auto settle_positional_references(
         // Whatever the fragment names, it is not a place of the schema, and a
         // dialect that reserves no keyword for a name reserves none for an
         // anchor either, so there is nothing for it to have named
-        throw SchemaReferenceError(reference.destination, to_pointer(pointer),
-                                   "Could not resolve schema reference");
+        throw SchemaReferenceError("Could not resolve schema reference",
+                                   reference.destination, to_pointer(pointer));
       }
     }
 
@@ -506,8 +506,8 @@ auto settle_positional_references(
     }
 
     if (try_get(schema, within_document) == nullptr) {
-      throw SchemaReferenceError(reference.destination, to_pointer(pointer),
-                                 "Could not resolve schema reference");
+      throw SchemaReferenceError("Could not resolve schema reference",
+                                 reference.destination, to_pointer(pointer));
     }
 
     // A pointer names a place of whichever resource is in force where it is
@@ -546,9 +546,9 @@ auto settle_positional_references(
             walker, frame.vocabularies(host_location.value().get(), resolver))};
         if (keyword.empty()) {
           throw SchemaReferenceError(
-              reference.destination, to_pointer(pointer),
               "Could not reach a schema that this dialect embeds without an "
-              "identifier from a resource that reserves nowhere to put one");
+              "identifier from a resource that reserves nowhere to put one",
+              reference.destination, to_pointer(pointer));
         }
 
         copies.push_back(
@@ -859,8 +859,8 @@ auto embed_references(
     // If we can't find the destination but there is a base and we can
     // find base, then we are facing an unresolved fragment
     if (!reference.base.empty() && frame.traverse(reference.base).has_value()) {
-      throw SchemaReferenceError(reference.destination, to_pointer(pointer),
-                                 "Could not resolve schema reference");
+      throw SchemaReferenceError("Could not resolve schema reference",
+                                 reference.destination, to_pointer(pointer));
     }
 
     // And so is one whose base is the very document being bundled. A wrapper
@@ -869,13 +869,13 @@ auto embed_references(
     // and the test above passes it over, even though the fragment is all that
     // leads nowhere
     if (!canonical_base.empty() && reference.base == canonical_base) {
-      throw SchemaReferenceError(reference.destination, to_pointer(pointer),
-                                 "Could not resolve schema reference");
+      throw SchemaReferenceError("Could not resolve schema reference",
+                                 reference.destination, to_pointer(pointer));
     }
 
     if (reference.base.empty()) {
-      throw SchemaReferenceError(reference.destination, to_pointer(pointer),
-                                 "Could not resolve schema reference");
+      throw SchemaReferenceError("Could not resolve schema reference",
+                                 reference.destination, to_pointer(pointer));
     }
 
     assert(!reference.base.empty());
@@ -910,16 +910,16 @@ auto embed_references(
       // A base the document itself holds is already answered for above, so
       // one that nobody hands over is a schema from elsewhere that is missing
       throw SchemaResolutionError(
-          identifier, "Could not resolve the reference to an external schema");
+          "Could not resolve the reference to an external schema", identifier);
     }
 
     // Bundling rewrites the schema before embedding it, so it needs a copy
     // it owns rather than whatever the resolver chose to hand back
     auto remote{std::move(resolved).to_owned()};
     if (!remote.is_object() && !remote.is_boolean()) {
-      throw SchemaReferenceError(identifier, to_pointer(pointer),
-                                 "The JSON document is not a valid JSON "
-                                 "Schema");
+      throw SchemaReferenceError("The JSON document is not a valid JSON "
+                                 "Schema",
+                                 identifier, to_pointer(pointer));
     }
 
     std::optional<SchemaFrame> remote_root_frame;
@@ -937,9 +937,9 @@ auto embed_references(
           SchemaFrame::Paths{EMPTY_WEAK_POINTER}, identifier, remaining);
       charge(remaining, remote_root_frame.value());
     } catch (const SchemaUnknownBaseDialectError &) {
-      throw SchemaReferenceError(identifier, to_pointer(pointer),
-                                 "The JSON document is not a valid JSON "
-                                 "Schema");
+      throw SchemaReferenceError("The JSON document is not a valid JSON "
+                                 "Schema",
+                                 identifier, to_pointer(pointer));
     }
 
     const auto &remote_root{remote_root_frame->root_location().value().get()};
@@ -956,10 +956,10 @@ auto embed_references(
     if (remote.is_object() &&
         remote.defines("$schema"sv, JSONSCHEMA_HASH_SCHEMA) &&
         !dialect_defines(walker, remote_vocabularies, "$schema"sv)) {
-      throw SchemaReferenceError(identifier, to_pointer(pointer),
-                                 "The referenced schema declares a dialect "
+      throw SchemaReferenceError("The referenced schema declares a dialect "
                                  "that does not define the keyword that "
-                                 "declares it");
+                                 "declares it",
+                                 identifier, to_pointer(pointer));
     }
 
     const auto remote_base_dialect{remote_root.base_dialect};
@@ -1002,8 +1002,8 @@ auto embed_references(
       }
 
       if (!exists) {
-        throw SchemaReferenceError(reference.destination, to_pointer(pointer),
-                                   "Could not resolve schema reference");
+        throw SchemaReferenceError("Could not resolve schema reference",
+                                   reference.destination, to_pointer(pointer));
       }
 
       // Where what it named carries a name of its own, that name is what
@@ -1207,9 +1207,9 @@ auto bundle_internal(JSON &schema, const SchemaWalker &walker,
                  initial_frame.vocabularies(parent.value().get(), resolver))
                   .type != SchemaKeywordType::LocationMembers) {
         throw SchemaContainerError(
-            default_container.value(),
             "Could not bundle to a container that the dialect does not "
-            "reserve for schema definitions");
+            "reserve for schema definitions",
+            default_container.value());
       }
     }
 

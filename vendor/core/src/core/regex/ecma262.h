@@ -710,7 +710,7 @@ struct Ecma262Reader {
       const auto strings{this->read_set_expression()};
       // A negated class can never stand for a set of strings, as there is no
       // sensible complement of one
-      return strings.has_value() && !(negated && strings.value()) &&
+      return strings.has_value() && (!negated || !strings.value()) &&
              this->consume(U']');
     }
 

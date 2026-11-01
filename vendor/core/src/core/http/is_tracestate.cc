@@ -15,8 +15,10 @@ namespace {
 // https://www.w3.org/TR/trace-context/#key
 auto key_part(const std::string_view identifier, const bool tenant,
               const std::size_t maximum) noexcept -> bool {
-  if (identifier.empty() || identifier.size() > maximum ||
-      !((identifier.front() >= 'a' && identifier.front() <= 'z') ||
+  if (identifier.empty() || identifier.size() > maximum) {
+    return false;
+  }
+  if (!((identifier.front() >= 'a' && identifier.front() <= 'z') ||
         (tenant && sourcemeta::core::is_digit(identifier.front())))) {
     return false;
   }

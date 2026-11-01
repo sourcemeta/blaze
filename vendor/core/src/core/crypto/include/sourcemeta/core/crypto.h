@@ -22,6 +22,7 @@
 #include <sourcemeta/core/crypto_base64.h>
 #include <sourcemeta/core/crypto_crc32.h>
 #include <sourcemeta/core/crypto_ecdh.h>
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_fnv128.h>
 #include <sourcemeta/core/crypto_hkdf.h>
 #include <sourcemeta/core/crypto_hmac_sha256.h>

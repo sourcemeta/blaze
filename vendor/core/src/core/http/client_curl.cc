@@ -80,7 +80,7 @@ constexpr CURLINFO CURLINFO_EFFECTIVE_URL{
 
 namespace {
 
-constexpr std::string_view HTTP_RESPONSE_TOO_LARGE_MESSAGE{
+constexpr sourcemeta::core::StaticString HTTP_RESPONSE_TOO_LARGE_MESSAGE{
     "The response exceeds the maximum allowed size"};
 
 // The subset of the libcurl C API this backend relies on, captured as
@@ -323,14 +323,14 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
 
   static const CURLcode global_initialization{api.global_init(CURL_GLOBAL_ALL)};
   if (global_initialization != CURLE_OK) {
-    throw HTTPError{this->method_, this->url_,
-                    api.easy_strerror(global_initialization)};
+    throw HTTPError{"Failed to initialise the HTTP client", this->method_,
+                    this->url_, api.easy_strerror(global_initialization)};
   }
 
   const CurlHandle handle{api};
   if (!handle) {
-    throw HTTPError{this->method_, this->url_,
-                    "Failed to initialise the HTTP client"};
+    throw HTTPError{"Failed to initialise the HTTP client", this->method_,
+                    this->url_};
   }
 
   HTTPResponse response;
@@ -431,8 +431,8 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
   const auto code{api.easy_perform(handle.get())};
   if (code != CURLE_OK) {
     if (body_context.maximum_size_exceeded) {
-      throw HTTPError{this->method_, this->url_,
-                      std::string{HTTP_RESPONSE_TOO_LARGE_MESSAGE}};
+      throw HTTPError{HTTP_RESPONSE_TOO_LARGE_MESSAGE, this->method_,
+                      this->url_};
     }
 
     // libcurl reports an expired CURLOPT_TIMEOUT_MS and an expired
@@ -442,7 +442,8 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
       throw HTTPTimeoutError{this->method_, this->url_, this->timeout_};
     }
 
-    throw HTTPError{this->method_, this->url_, api.easy_strerror(code)};
+    throw HTTPError{"The HTTP request failed", this->method_, this->url_,
+                    api.easy_strerror(code)};
   }
 
   long status_code{0};

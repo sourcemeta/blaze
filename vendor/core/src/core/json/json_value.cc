@@ -235,7 +235,7 @@ JSON::JSON(const double value) : current_type_{Type::Real} {
   // Infinity and NaN) are not permitted. See
   // https://www.ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf
   if (std::isinf(value) || std::isnan(value)) {
-    throw std::invalid_argument("JSON does not support Infinity or NaN");
+    throw JSONNonFiniteError{};
   }
 
   this->data_real = value;
@@ -281,7 +281,7 @@ JSON::JSON(const Object &value) : current_type_{Type::Object} {
 
 JSON::JSON(const Decimal &value) : current_type_{Type::Decimal} {
   if (value.is_nan() || value.is_infinite()) {
-    throw std::invalid_argument("JSON does not support Infinity or NaN");
+    throw JSONNonFiniteError{};
   }
 
   std::construct_at(&this->data_decimal, value);
@@ -289,7 +289,7 @@ JSON::JSON(const Decimal &value) : current_type_{Type::Decimal} {
 
 JSON::JSON(Decimal &&value) : current_type_{Type::Decimal} {
   if (value.is_nan() || value.is_infinite()) {
-    throw std::invalid_argument("JSON does not support Infinity or NaN");
+    throw JSONNonFiniteError{};
   }
 
   std::construct_at(&this->data_decimal, std::move(value));

@@ -155,8 +155,8 @@ inline auto openapi_check_operation(const JSON &value, const Pointer &base,
     const auto match{
         walk.operation_ids.try_emplace(JSON::String{identifier}, location)};
     if (!match.second && match.first->second != location) {
-      throw OpenAPIError{openapi_child(base, "operationId"sv),
-                         "The Operation Object identifiers must be unique"};
+      throw OpenAPIError{"The Operation Object identifiers must be unique",
+                         openapi_child(base, "operationId"sv)};
     }
   }
 
@@ -182,7 +182,7 @@ inline auto openapi_check_operation(const JSON &value, const Pointer &base,
   // from executing this operation". Every release of 3.0 marks it so, where
   // 3.1.1 Section 4.8.10 leaves it optional
   if (responses == nullptr && walk.version < OpenAPIVersion::OPENAPI_3_1) {
-    throw OpenAPIError{base, "The Operation Object must declare its responses"};
+    throw OpenAPIError{"The Operation Object must declare its responses", base};
   }
 
   if (responses != nullptr) {
@@ -316,17 +316,17 @@ inline auto openapi_check_path_item(const JSON &value, const Pointer &base,
       // token names no method that could be sent at all
       if (!http_is_token(entry.first)) {
         throw OpenAPIError{
-            openapi_child(location, entry.first),
             "The Path Item Object additional operations must name an HTTP "
-            "method"};
+            "method",
+            openapi_child(location, entry.first)};
       }
 
       if (std::ranges::find(OPENAPI_PATH_ITEM_METHOD_NAMES, entry.first) !=
           OPENAPI_PATH_ITEM_METHOD_NAMES.cend()) {
         throw OpenAPIError{
-            openapi_child(location, entry.first),
             "The Path Item Object additional operations must not name a "
-            "method that a field of its own defines"};
+            "method that a field of its own defines",
+            openapi_child(location, entry.first)};
       }
 
       const auto operation{openapi_child(location, entry.first)};

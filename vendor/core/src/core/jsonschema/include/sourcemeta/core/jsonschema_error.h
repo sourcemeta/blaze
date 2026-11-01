@@ -5,52 +5,35 @@
 #include <sourcemeta/core/jsonschema_export.h>
 #endif
 
+#include <sourcemeta/core/error.h>
 #include <sourcemeta/core/jsonpointer.h>
 
 #include <cstdint>     // std::uint64_t
-#include <exception>   // std::exception
 #include <string>      // std::string
 #include <string_view> // std::string_view
 
 namespace sourcemeta::core {
 
-// Exporting symbols that depends on the standard C++ library is considered
-// safe.
-// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
-#if defined(_MSC_VER)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup jsonschema
 /// An error that represents a general schema error event
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaError : public std::exception {
+class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaError : public Error {
 public:
   /// Create a general schema error
-  SchemaError(const char *message) : message_{message} {}
-  SchemaError(std::string message) = delete;
-  SchemaError(std::string &&message) = delete;
-  SchemaError(std::string_view message) = delete;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  SchemaError(const StaticString message) noexcept : Error{message} {}
 
 private:
-  const char *message_;
 };
 
 /// @ingroup jsonschema
 /// An error that represents a schema resolution failure event
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaResolutionError
-    : public std::exception {
+class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaResolutionError : public Error {
 public:
   /// Create a schema resolution error
-  SchemaResolutionError(const std::string_view identifier, const char *message)
-      : identifier_{identifier}, message_{message} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  SchemaResolutionError(const StaticString message,
+                        const std::string_view identifier)
+      : Error{message}, identifier_{identifier} {}
 
   /// The identifier that could not be resolved
   [[nodiscard]] auto identifier() const noexcept -> std::string_view {
@@ -59,7 +42,6 @@ public:
 
 private:
   std::string identifier_;
-  const char *message_;
 };
 
 /// @ingroup jsonschema
@@ -71,23 +53,18 @@ class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaRelativeMetaschemaResolutionError
 public:
   /// Create a relative meta-schema resolution error
   SchemaRelativeMetaschemaResolutionError(const std::string_view identifier)
-      : SchemaResolutionError{identifier,
-                              "Relative meta-schema URIs are not valid "
-                              "according to the JSON Schema specification"} {}
+      : SchemaResolutionError{"Relative meta-schema URIs are not valid "
+                              "according to the JSON Schema specification",
+                              identifier} {}
 };
 
 /// @ingroup jsonschema
 /// An error that represents a schema vocabulary error
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaVocabularyError
-    : public std::exception {
+class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaVocabularyError : public Error {
 public:
   /// Create a vocabulary error
-  SchemaVocabularyError(const std::string_view uri, const char *message)
-      : uri_{uri}, message_{message} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  SchemaVocabularyError(const StaticString message, const std::string_view uri)
+      : Error{message}, uri_{uri} {}
 
   /// The vocabulary that caused the error
   [[nodiscard]] auto uri() const noexcept -> std::string_view {
@@ -96,24 +73,18 @@ public:
 
 private:
   std::string uri_;
-  const char *message_;
 };
 
 /// @ingroup jsonschema
 /// An error that represents a schema resolution failure event
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaReferenceError
-    : public std::exception {
+class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaReferenceError : public Error {
 public:
   /// Create a reference error
-  SchemaReferenceError(const std::string_view identifier,
-                       sourcemeta::core::Pointer schema_location,
-                       const char *message)
-      : identifier_{identifier}, schema_location_{std::move(schema_location)},
-        message_{message} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  SchemaReferenceError(const StaticString message,
+                       const std::string_view identifier,
+                       sourcemeta::core::Pointer schema_location)
+      : Error{message}, identifier_{identifier},
+        schema_location_{std::move(schema_location)} {}
 
   /// The reference that caused the error
   [[nodiscard]] auto identifier() const noexcept -> std::string_view {
@@ -130,50 +101,41 @@ public:
 private:
   std::string identifier_;
   sourcemeta::core::Pointer schema_location_;
-  const char *message_;
 };
 
 /// @ingroup jsonschema
 /// An error that represents that the dialect of the schema could not determined
 class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaUnknownDialectError
-    : public std::exception {
+    : public Error {
 public:
-  SchemaUnknownDialectError() = default;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "Could not determine the dialect of the schema";
-  }
+  SchemaUnknownDialectError() noexcept
+      : Error{"Could not determine the dialect of the schema"} {}
 };
 
 /// @ingroup jsonschema
 /// An error that represents that the base dialect of the schema could not
 /// determined
 class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaUnknownBaseDialectError
-    : public std::exception {
+    : public Error {
 public:
-  SchemaUnknownBaseDialectError() = default;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "Could not determine the base dialect of the schema";
-  }
+  SchemaUnknownBaseDialectError() noexcept
+      : Error{"Could not determine the base dialect of the schema"} {}
 };
 
 /// @ingroup jsonschema
 /// In JSON Schema Draft 7 and older, a schema that defines `$ref` is a
 /// reference object where every other keywords are ignored
 class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaReferenceObjectResourceError
-    : public std::exception {
+    : public Error {
 public:
   /// Create a reference object resource error
   SchemaReferenceObjectResourceError(const std::string_view identifier)
-      : identifier_{identifier} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "A schema with a top-level `$ref` in JSON Schema Draft 7 and older "
-           "dialects ignores every sibling keywords (like identifiers and "
-           "meta-schema declarations) and therefore many operations, like "
-           "bundling, are not possible without undefined behavior";
-  }
+      : Error{"A schema with a top-level `$ref` in JSON Schema Draft 7 and "
+              "older dialects ignores every sibling keywords (like "
+              "identifiers and meta-schema declarations) and therefore many "
+              "operations, like bundling, are not possible without undefined "
+              "behavior"},
+        identifier_{identifier} {}
 
   /// The reference that caused the error
   [[nodiscard]] auto identifier() const noexcept -> std::string_view {
@@ -191,19 +153,16 @@ private:
 /// written, so no reading of the schema honours it. The caller has to name
 /// such a dialect from the outside instead
 class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaDialectImpossibleError
-    : public std::exception {
+    : public Error {
 public:
   /// Create a dialect impossibility error
   SchemaDialectImpossibleError(const std::string_view keyword,
                                const std::string_view dialect,
                                sourcemeta::core::Pointer schema_location)
-      : keyword_{keyword}, dialect_{dialect},
+      : Error{"The dialect that this schema declares does not define the "
+              "keyword that declares it"},
+        keyword_{keyword}, dialect_{dialect},
         schema_location_{std::move(schema_location)} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The dialect that this schema declares does not define the keyword "
-           "that declares it";
-  }
 
   /// The keyword that names the dialect
   [[nodiscard]] auto keyword() const noexcept -> std::string_view {
@@ -230,17 +189,12 @@ private:
 
 /// @ingroup jsonschema
 /// An error that represents a schema keyword error
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaKeywordError
-    : public std::exception {
+class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaKeywordError : public Error {
 public:
   /// Create a keyword error
-  SchemaKeywordError(const std::string_view keyword,
-                     const std::string_view value, const char *message)
-      : keyword_{keyword}, value_{value}, message_{message} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  SchemaKeywordError(const StaticString message, const std::string_view keyword,
+                     const std::string_view value)
+      : Error{message}, keyword_{keyword}, value_{value} {}
 
   /// The value that caused the error
   [[nodiscard]] auto value() const noexcept -> std::string_view {
@@ -255,22 +209,17 @@ public:
 private:
   std::string keyword_;
   std::string value_;
-  const char *message_;
 };
 
 /// @ingroup jsonschema
 /// An error that represents a place bundling was told to put schemas into but
 /// cannot
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaContainerError
-    : public std::exception {
+class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaContainerError : public Error {
 public:
   /// Create a container error
-  SchemaContainerError(sourcemeta::core::Pointer location, const char *message)
-      : location_{std::move(location)}, message_{message} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  SchemaContainerError(const StaticString message,
+                       sourcemeta::core::Pointer location)
+      : Error{message}, location_{std::move(location)} {}
 
   /// Where the container is, as a pointer from the root of the document that
   /// was being bundled
@@ -281,21 +230,16 @@ public:
 
 private:
   sourcemeta::core::Pointer location_;
-  const char *message_;
 };
 
 /// @ingroup jsonschema
 /// An error that represents a schema frame error
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaFrameError
-    : public std::exception {
+class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaFrameError : public Error {
 public:
   /// Create a framing error
-  SchemaFrameError(const std::string_view identifier, const char *message)
-      : identifier_{identifier}, message_{message} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  SchemaFrameError(const StaticString message,
+                   const std::string_view identifier)
+      : Error{message}, identifier_{identifier} {}
 
   /// The identifier of the schema that caused the error
   [[nodiscard]] auto identifier() const noexcept -> std::string_view {
@@ -304,21 +248,17 @@ public:
 
 private:
   std::string identifier_;
-  const char *message_;
 };
 
 /// @ingroup jsonschema
 /// An error that represents a schema that needs more frame locations than the
 /// caller was willing to spend on analysing it
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaFrameLimitError
-    : public std::exception {
+class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaFrameLimitError : public Error {
 public:
   /// Create a framing limit error
-  SchemaFrameLimitError(const std::uint64_t limit) : limit_{limit} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The schema exceeds the maximum number of frame locations";
-  }
+  SchemaFrameLimitError(const std::uint64_t limit) noexcept
+      : Error{"The schema exceeds the maximum number of frame locations"},
+        limit_{limit} {}
 
   /// The maximum number of locations that framing was allowed to register
   [[nodiscard]] auto limit() const noexcept -> std::uint64_t {
@@ -332,18 +272,14 @@ private:
 /// @ingroup jsonschema
 /// An error that represents a schema anchor collision error
 class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaAnchorCollisionError
-    : public std::exception {
+    : public Error {
 public:
   /// Create an anchor collision error
   SchemaAnchorCollisionError(const std::string_view identifier,
                              sourcemeta::core::Pointer location,
                              sourcemeta::core::Pointer other)
-      : identifier_{identifier}, location_(std::move(location)),
-        other_(std::move(other)) {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "Schema anchor already exists";
-  }
+      : Error{"Schema anchor already exists"}, identifier_{identifier},
+        location_(std::move(location)), other_(std::move(other)) {}
 
   /// The anchor that collided
   [[nodiscard]] auto identifier() const noexcept -> std::string_view {
@@ -369,9 +305,7 @@ private:
   sourcemeta::core::Pointer other_;
 };
 
-#if defined(_MSC_VER)
-#pragma warning(default : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

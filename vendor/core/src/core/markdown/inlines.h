@@ -174,7 +174,7 @@ inline auto delimiter_lengths_match(const Delimiter &opener,
     return opener.length == closer.length;
   }
 
-  return !(closer.can_open || opener.can_close) || closer.length % 3 == 0 ||
+  return (!closer.can_open && !opener.can_close) || closer.length % 3 == 0 ||
          (opener.length + closer.length) % 3 != 0;
 }
 

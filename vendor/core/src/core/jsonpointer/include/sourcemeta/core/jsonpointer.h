@@ -16,12 +16,14 @@
 // NOLINTEND(misc-include-cleaner)
 
 #include <cassert>     // assert
+#include <concepts>    // std::same_as
 #include <functional>  // std::reference_wrapper
 #include <memory>      // std::allocator
 #include <optional>    // std::optional
 #include <ostream>     // std::basic_ostream
 #include <string>      // std::basic_string
 #include <string_view> // std::string_view
+#include <type_traits> // std::remove_const_t
 
 /// @defgroup jsonpointer JSON Pointer
 /// @brief A growing implementation of RFC 6901 JSON Pointer.
@@ -54,157 +56,6 @@ const Pointer EMPTY_POINTER;
 const WeakPointer EMPTY_WEAK_POINTER;
 
 /// @ingroup jsonpointer
-/// Get a value from a JSON document using a JSON Pointer (`const` overload).
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/core/jsonpointer.h>
-/// #include <cassert>
-/// #include <sstream>
-///
-/// std::istringstream stream{"[ { \"foo\": 1 }, { \"bar\": 2 } ]"};
-/// const sourcemeta::core::JSON document =
-///   sourcemeta::core::parse_json(stream);
-///
-/// const sourcemeta::core::Pointer pointer{1, "bar"};
-/// const sourcemeta::core::JSON &value{
-///   sourcemeta::core::get(document, pointer)};
-/// assert(value.is_integer());
-/// assert(value.to_integer() == 2);
-/// ```
-SOURCEMETA_CORE_JSONPOINTER_EXPORT
-auto get(const JSON &document, const Pointer &pointer) -> const JSON &;
-
-// Constant reference parameters can accept xvalues which will be destructed
-// after the call. When the function returns such a parameter also as constant
-// reference, then the returned reference can be used after the object it refers
-// to has been destroyed.
-// https://clang.llvm.org/extra/clang-tidy/checks/bugprone/return-const-ref-from-parameter.html
-// This overload avoids mis-uses of retuning const reference parameter as
-// constant reference.
-auto get(JSON &&document, const Pointer &pointer) -> const JSON & = delete;
-
-/// @ingroup jsonpointer
-/// Get a value from a JSON document using a JSON WeakPointer (`const`
-/// overload).
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/core/jsonpointer.h>
-/// #include <cassert>
-/// #include <sstream>
-///
-/// std::istringstream stream{"[ { \"foo\": 1 }, { \"bar\": 2 } ]"};
-/// const sourcemeta::core::JSON document =
-///   sourcemeta::core::parse_json(stream);
-///
-/// const std::string bar = "bar";
-/// const sourcemeta::core::WeakPointer pointer{1, std::cref(bar)};
-/// const sourcemeta::core::JSON &value{
-///   sourcemeta::core::get(document, pointer)};
-/// assert(value.is_integer());
-/// assert(value.to_integer() == 2);
-/// ```
-SOURCEMETA_CORE_JSONPOINTER_EXPORT
-auto get(const JSON &document, const WeakPointer &pointer) -> const JSON &;
-
-// Constant reference parameters can accept xvalues which will be destructed
-// after the call. When the function returns such a parameter also as constant
-// reference, then the returned reference can be used after the object it refers
-// to has been destroyed.
-// https://clang.llvm.org/extra/clang-tidy/checks/bugprone/return-const-ref-from-parameter.html
-// This overload avoids mis-uses of retuning const reference parameter as
-// constant reference.
-auto get(JSON &&document, const WeakPointer &pointer) -> const JSON & = delete;
-
-/// @ingroup jsonpointer
-/// Get a value from a JSON document using a JSON WeakPointer (non-`const`
-/// overload). For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/core/jsonpointer.h>
-/// #include <cassert>
-/// #include <sstream>
-///
-/// std::istringstream stream{"[ { \"foo\": 1 }, { \"bar\": 2 } ]"};
-/// auto document{sourcemeta::core::parse_json(stream)};
-/// const sourcemeta::core::Pointer pointer{1, "bar"};
-/// sourcemeta::core::JSON &value{
-///   sourcemeta::core::get(document,
-///   sourcemeta::core::to_weak_pointer(pointer))};
-/// value = sourcemeta::core::JSON{3};
-/// assert(document.at(1).at("bar").to_integer() == 3);
-/// ```
-SOURCEMETA_CORE_JSONPOINTER_EXPORT
-auto get(JSON &document, const WeakPointer &pointer) -> JSON &;
-
-/// @ingroup jsonpointer
-/// Get a value from a JSON document using a Pointer, returning an optional that
-/// is not set if the path does not exist in the document. For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/core/jsonpointer.h>
-/// #include <cassert>
-/// #include <sstream>
-///
-/// std::istringstream stream{"[ { \"foo\": 1 }, { \"bar\": 2 } ]"};
-/// const auto document{sourcemeta::core::parse_json(stream)};
-/// const sourcemeta::core::Pointer pointer{1, "bar"};
-/// const auto result{sourcemeta::core::try_get(document, pointer)};
-/// assert(result);
-/// assert(*result == document.at(1).at("bar"));
-/// ```
-SOURCEMETA_CORE_JSONPOINTER_EXPORT
-auto try_get(const JSON &document, const Pointer &pointer) -> const JSON *;
-
-/// @ingroup jsonpointer
-/// Get a value from a JSON document using a WeakPointer, returning an optional
-/// that is not set if the path does not exist in the document. For example:
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/core/jsonpointer.h>
-/// #include <cassert>
-/// #include <sstream>
-///
-/// std::istringstream stream{"[ { \"foo\": 1 }, { \"bar\": 2 } ]"};
-/// const auto document{sourcemeta::core::parse_json(stream)};
-/// const std::string bar = "bar";
-/// const sourcemeta::core::WeakPointer pointer{1, std::cref(bar)};
-/// const auto result{sourcemeta::core::try_get(document, pointer)};
-/// assert(result);
-/// assert(*result == document.at(1).at("bar"));
-/// ```
-SOURCEMETA_CORE_JSONPOINTER_EXPORT
-auto try_get(const JSON &document, const WeakPointer &pointer) -> const JSON *;
-
-/// @ingroup jsonpointer
-/// Get a value from a JSON document using a JSON Pointer (non-`const`
-/// overload).
-///
-/// ```cpp
-/// #include <sourcemeta/core/json.h>
-/// #include <sourcemeta/core/jsonpointer.h>
-/// #include <cassert>
-/// #include <sstream>
-///
-/// std::istringstream stream{"[ { \"foo\": 1 }, { \"bar\": 2 } ]"};
-/// sourcemeta::core::JSON document =
-///   sourcemeta::core::parse_json(stream);
-/// assert(document.at("foo").to_integer() == 1);
-///
-/// const sourcemeta::core::Pointer pointer{1, "bar"};
-/// sourcemeta::core::JSON &value{
-///   sourcemeta::core::get(document, pointer)};
-/// assert(value.is_integer());
-/// assert(value.to_integer() == 2);
-/// ```
-SOURCEMETA_CORE_JSONPOINTER_EXPORT
-auto get(JSON &document, const Pointer &pointer) -> JSON &;
-
-/// @ingroup jsonpointer
 /// Get a value from a JSON document using a JSON Pointer token (`const`
 /// overload).
 ///
@@ -220,7 +71,7 @@ auto get(JSON &document, const Pointer &pointer) -> JSON &;
 ///
 /// const sourcemeta::core::JSON &value{
 ///   sourcemeta::core::get(document,
-///   sourcemeta::core::Pointer{"foo"})};
+///   sourcemeta::core::Pointer::Token{"foo"})};
 /// assert(value.is_integer());
 /// assert(value.to_integer() == 1);
 /// ```
@@ -244,7 +95,7 @@ auto get(const JSON &document, const Pointer::Token &token) -> const JSON &;
 /// const std::string foo = "foo";
 /// const sourcemeta::core::JSON &value{
 ///   sourcemeta::core::get(document,
-///   sourcemeta::core::WeakPointer{std::cref(foo)})};
+///   sourcemeta::core::WeakPointer::Token{std::cref(foo)})};
 /// assert(value.is_integer());
 /// assert(value.to_integer() == 1);
 /// ```
@@ -266,12 +117,197 @@ auto get(const JSON &document, const WeakPointer::Token &token) -> const JSON &;
 ///   sourcemeta::core::parse_json(stream);
 ///
 /// sourcemeta::core::JSON &value{
-///   sourcemeta::core::get(document, "bar")};
-/// assert(value.is_integer());
-/// assert(value.to_integer() == 2);
+///   sourcemeta::core::get(document,
+///   sourcemeta::core::Pointer::Token{"foo"})};
+/// value = sourcemeta::core::JSON{2};
+/// assert(document.at("foo").to_integer() == 2);
 /// ```
 SOURCEMETA_CORE_JSONPOINTER_EXPORT
 auto get(JSON &document, const Pointer::Token &token) -> JSON &;
+
+/// @ingroup jsonpointer
+/// Get a value from a JSON document using a JSON WeakPointer token
+/// (non-`const` overload).
+///
+/// ```cpp
+/// #include <sourcemeta/core/json.h>
+/// #include <sourcemeta/core/jsonpointer.h>
+/// #include <cassert>
+/// #include <sstream>
+///
+/// std::istringstream stream{"{ \"foo\": 1 }"};
+/// sourcemeta::core::JSON document =
+///   sourcemeta::core::parse_json(stream);
+///
+/// const std::string foo = "foo";
+/// sourcemeta::core::JSON &value{
+///   sourcemeta::core::get(document,
+///   sourcemeta::core::WeakPointer::Token{std::cref(foo)})};
+/// value = sourcemeta::core::JSON{2};
+/// assert(document.at("foo").to_integer() == 2);
+/// ```
+SOURCEMETA_CORE_JSONPOINTER_EXPORT
+auto get(JSON &document, const WeakPointer::Token &token) -> JSON &;
+
+/// @ingroup jsonpointer
+/// Get a value from a JSON document using a JSON Pointer token, returning no
+/// result if the token does not resolve in the document.
+///
+/// ```cpp
+/// #include <sourcemeta/core/json.h>
+/// #include <sourcemeta/core/jsonpointer.h>
+/// #include <cassert>
+/// #include <sstream>
+///
+/// std::istringstream stream{"{ \"foo\": 1 }"};
+/// const sourcemeta::core::JSON document =
+///   sourcemeta::core::parse_json(stream);
+///
+/// assert(sourcemeta::core::try_get(document,
+///   sourcemeta::core::Pointer::Token{"foo"}));
+/// assert(!sourcemeta::core::try_get(document,
+///   sourcemeta::core::Pointer::Token{"bar"}));
+/// ```
+SOURCEMETA_CORE_JSONPOINTER_EXPORT
+auto try_get(const JSON &document, const Pointer::Token &token) -> const JSON *;
+
+/// @ingroup jsonpointer
+/// Get a value from a JSON document using a JSON WeakPointer token, returning
+/// no result if the token does not resolve in the document.
+///
+/// ```cpp
+/// #include <sourcemeta/core/json.h>
+/// #include <sourcemeta/core/jsonpointer.h>
+/// #include <cassert>
+/// #include <sstream>
+///
+/// std::istringstream stream{"{ \"foo\": 1 }"};
+/// const sourcemeta::core::JSON document =
+///   sourcemeta::core::parse_json(stream);
+///
+/// const std::string foo = "foo";
+/// assert(sourcemeta::core::try_get(document,
+///   sourcemeta::core::WeakPointer::Token{std::cref(foo)}));
+/// ```
+SOURCEMETA_CORE_JSONPOINTER_EXPORT
+auto try_get(const JSON &document, const WeakPointer::Token &token)
+    -> const JSON *;
+
+/// @ingroup jsonpointer
+/// Get a value from a JSON document using a JSON Pointer, preserving the
+/// constness of the document.
+///
+/// ```cpp
+/// #include <sourcemeta/core/json.h>
+/// #include <sourcemeta/core/jsonpointer.h>
+/// #include <cassert>
+/// #include <sstream>
+///
+/// std::istringstream stream{"[ { \"foo\": 1 }, { \"bar\": 2 } ]"};
+/// const sourcemeta::core::JSON document =
+///   sourcemeta::core::parse_json(stream);
+///
+/// const sourcemeta::core::Pointer pointer{1, "bar"};
+/// const sourcemeta::core::JSON &value{
+///   sourcemeta::core::get(document, pointer)};
+/// assert(value.is_integer());
+/// assert(value.to_integer() == 2);
+/// ```
+template <typename V, typename PointerT>
+  requires std::same_as<std::remove_const_t<V>, JSON> &&
+           std::same_as<typename PointerT::Token::Value, JSON>
+auto get(V &document, const PointerT &pointer) -> V & {
+  V *current{&document};
+
+  // Evaluation begins with a reference to the root value of the document and
+  // every reference token is evaluated sequentially from there
+  // See https://www.rfc-editor.org/rfc/rfc6901#section-4
+  for (const auto &token : pointer) {
+    if (token.is_property()) {
+      current = &current->at(token.to_property(), token.property_hash());
+    } else if (current->is_object()) {
+      // A token holding an index still names an object member when the
+      // referenced value is an object, as the token is compared against the
+      // member name
+      // See https://www.rfc-editor.org/rfc/rfc6901#section-4
+      current = &get(*current, token);
+    } else {
+      current = &current->at(token.to_index());
+    }
+  }
+
+  return *current;
+}
+
+// Constant reference parameters can accept xvalues which will be destructed
+// after the call. When the function returns such a parameter also as constant
+// reference, then the returned reference can be used after the object it refers
+// to has been destroyed.
+// https://clang.llvm.org/extra/clang-tidy/checks/bugprone/return-const-ref-from-parameter.html
+// These overloads avoid mis-uses of retuning const reference parameter as
+// constant reference.
+auto get(JSON &&document, const Pointer &pointer) -> const JSON & = delete;
+auto get(JSON &&document, const WeakPointer &pointer) -> const JSON & = delete;
+
+/// @ingroup jsonpointer
+/// Get a value from a JSON document using a JSON Pointer, returning no result
+/// if the path does not exist in the document. For example:
+///
+/// ```cpp
+/// #include <sourcemeta/core/json.h>
+/// #include <sourcemeta/core/jsonpointer.h>
+/// #include <cassert>
+/// #include <sstream>
+///
+/// std::istringstream stream{"[ { \"foo\": 1 }, { \"bar\": 2 } ]"};
+/// const auto document{sourcemeta::core::parse_json(stream)};
+/// const sourcemeta::core::Pointer pointer{1, "bar"};
+/// const auto result{sourcemeta::core::try_get(document, pointer)};
+/// assert(result);
+/// assert(*result == document.at(1).at("bar"));
+/// ```
+template <typename PointerT>
+  requires std::same_as<typename PointerT::Token::Value, JSON>
+auto try_get(const JSON &document, const PointerT &pointer) -> const JSON * {
+  const JSON *current{&document};
+
+  for (const auto &token : pointer) {
+    const auto type{current->type()};
+    const auto is_object{type == JSON::Type::Object};
+
+    if (token.is_property()) {
+      if (!is_object) {
+        return nullptr;
+      }
+
+      const auto *json_value{
+          current->try_at(token.to_property(), token.property_hash())};
+      if (json_value) {
+        current = json_value;
+      } else {
+        return nullptr;
+      }
+    } else if (type != JSON::Type::Array && !is_object) {
+      return nullptr;
+    } else if (is_object) {
+      const auto *json_value{try_get(*current, token)};
+      if (json_value) {
+        current = json_value;
+      } else {
+        return nullptr;
+      }
+    } else {
+      const auto index{token.to_index()};
+      if (index < current->size()) {
+        current = &current->at(index);
+      } else {
+        return nullptr;
+      }
+    }
+  }
+
+  return current;
+}
 
 /// @ingroup jsonpointer
 /// Set a value in a JSON document using a JSON Pointer (`const` overload).

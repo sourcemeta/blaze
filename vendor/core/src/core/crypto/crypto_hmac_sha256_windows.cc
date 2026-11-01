@@ -1,3 +1,4 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_hmac_sha256.h>
 #include <sourcemeta/core/crypto_sha256.h>
 
@@ -15,7 +16,6 @@
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint8_t
 #include <span>        // std::span
-#include <stdexcept>   // std::runtime_error
 #include <string_view> // std::string_view
 
 namespace sourcemeta::core {
@@ -43,14 +43,14 @@ auto hmac_sha256_digest(const std::string_view key,
   if (!BCRYPT_SUCCESS(
           BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA256_ALGORITHM,
                                       nullptr, BCRYPT_ALG_HANDLE_HMAC_FLAG))) {
-    throw std::runtime_error("Could not open the CNG HMAC-SHA256 provider");
+    throw CryptoError("Could not open the CNG HMAC-SHA256 provider");
   }
 
   BCRYPT_HASH_HANDLE hash{nullptr};
   if (!BCRYPT_SUCCESS(BCryptCreateHash(algorithm, &hash, nullptr, 0, secret,
                                        static_cast<ULONG>(secret_size), 0))) {
     BCryptCloseAlgorithmProvider(algorithm, 0);
-    throw std::runtime_error("Could not create the CNG HMAC-SHA256 hash");
+    throw CryptoError("Could not create the CNG HMAC-SHA256 hash");
   }
 
   auto success{true};
@@ -67,7 +67,7 @@ auto hmac_sha256_digest(const std::string_view key,
   BCryptDestroyHash(hash);
   BCryptCloseAlgorithmProvider(algorithm, 0);
   if (!success) {
-    throw std::runtime_error("Could not compute the CNG HMAC-SHA256 digest");
+    throw CryptoError("Could not compute the CNG HMAC-SHA256 digest");
   }
 
   return digest;
