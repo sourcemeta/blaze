@@ -101,19 +101,7 @@ function describeExtras(valid, target, allowed) {
   if (extras.length === 0) return '';
   extras.sort();
 
-  if (extras.length === 1) {
-    return ', but it also defines the property ' + escapeString(extras[0]);
-  }
-
-  let message = ', but it also defines properties ';
-  for (let index = 0; index < extras.length; index++) {
-    if (index === extras.length - 1) {
-      message += 'and ' + escapeString(extras[index]);
-    } else {
-      message += escapeString(extras[index]) + ', ';
-    }
-  }
-  return message;
+  return ', but it also defines ' + describeProperties(extras, 'and');
 }
 
 function stringifyValue(value) {
@@ -409,7 +397,16 @@ function describeTypeList(bitmask) {
   return result;
 }
 
+function describeProperties(names, conjunction) {
+  return (names.length === 1 ? 'the property ' : 'properties ') +
+    formatList(names.map(escapeString), conjunction);
+}
+
 function formatList(items, conjunction) {
+  if (items.length === 1) {
+    return items[0];
+  }
+
   let result = '';
   for (let index = 0; index < items.length; index++) {
     if (index === items.length - 1) {
@@ -984,18 +981,7 @@ export function describe(valid, instruction, evaluatePath,
     }
     missing.sort();
 
-    if (missing.length === 1) {
-      message += ' but did not define the property ' + escapeString(missing[0]);
-    } else {
-      message += ' but did not define properties ';
-      for (let index = 0; index < missing.length; index++) {
-        if (index === missing.length - 1) {
-          message += 'and ' + escapeString(missing[index]);
-        } else {
-          message += escapeString(missing[index]) + ', ';
-        }
-      }
-    }
+    message += ' but did not define ' + describeProperties(missing, 'and');
     return message;
   }
 
@@ -1179,7 +1165,7 @@ export function describe(valid, instruction, evaluatePath,
       let message = '';
       if (isWithinKeyword(evaluatePath, 'propertyNames')) {
         const propertyName = lastInstanceToken(instanceLocation);
-        message += 'The object property name ' + escapeString(propertyName);
+        message += 'The property name ' + escapeString(propertyName);
         message += ' was expected to consist of at most ' + maximum +
           (maximum === 1 ? ' character' : ' characters');
         message += valid ? ' and' : ' but';
@@ -1206,7 +1192,7 @@ export function describe(valid, instruction, evaluatePath,
       let message = '';
       if (isWithinKeyword(evaluatePath, 'propertyNames')) {
         const propertyName = lastInstanceToken(instanceLocation);
-        message += 'The object property name ' + escapeString(propertyName);
+        message += 'The property name ' + escapeString(propertyName);
         message += ' was expected to consist of at least ' + minimum +
           (minimum === 1 ? ' character' : ' characters');
         message += valid ? ' and' : ' but';
@@ -1385,9 +1371,6 @@ export function describe(valid, instruction, evaluatePath,
       stringifyValue(target) +
       ' was expected to be greater than the ' +
       valueTypeName(value) + ' ' + stringifyValue(value);
-    if (!valid && jsonEqual(value, target)) {
-      message += ', but they were equal';
-    }
     return message;
   }
 
@@ -1396,9 +1379,6 @@ export function describe(valid, instruction, evaluatePath,
       stringifyValue(target) +
       ' was expected to be less than the ' +
       valueTypeName(value) + ' ' + stringifyValue(value);
-    if (!valid && jsonEqual(value, target)) {
-      message += ', but they were equal';
-    }
     return message;
   }
 
@@ -1567,34 +1547,16 @@ export function describe(valid, instruction, evaluatePath,
       const requiredArr = [...requiredProperties].sort();
 
       if (presentWithSchemas.size === 0 && presentWithProperties.size === 0) {
-        let message = 'The object value did not define the';
-        if (allDepsArr.length === 1) {
-          message += ' property ' + escapeString(allDepsArr[0]);
-        } else {
-          message += ' properties ';
-          message += formatList(allDepsArr.map(escapeString), 'or');
-        }
-        return message;
+        return 'The object value did not define ' +
+          describeProperties(allDepsArr, 'or');
       }
 
-      let message = '';
-      if (presentArr.length === 1) {
-        message += 'Because the object value defined the';
-        message += ' property ' + escapeString(presentArr[0]);
-      } else {
-        message += 'Because the object value defined the';
-        message += ' properties ';
-        message += formatList(presentArr.map(escapeString), 'and');
-      }
+      let message = 'Because the object value defined ' +
+        describeProperties(presentArr, 'and');
 
       if (requiredArr.length > 0) {
-        message += ', it was also expected to define the';
-        if (requiredArr.length === 1) {
-          message += ' property ' + escapeString(requiredArr[0]);
-        } else {
-          message += ' properties ';
-          message += formatList(requiredArr.map(escapeString), 'and');
-        }
+        message += ', it was also expected to define ' +
+          describeProperties(requiredArr, 'and');
       }
 
       if (presentSchemasArr.length > 0) {
@@ -1631,27 +1593,14 @@ export function describe(valid, instruction, evaluatePath,
       const presentArr = [...present].sort();
 
       if (present.size === 0) {
-        let message = 'The object value did not define the';
-        if (allDepsArr.length === 1) {
-          message += ' property ' + escapeString(allDepsArr[0]);
-        } else {
-          message += ' properties ';
-          message += formatList(allDepsArr.map(escapeString), 'or');
-        }
-        return message;
+        return 'The object value did not define ' +
+          describeProperties(allDepsArr, 'or');
       }
 
-      if (present.size === 1) {
-        return 'Because the object value defined the property ' +
-          escapeString(presentArr[0]) +
-          ', it was also expected to validate against the corresponding subschema';
-      }
-
-      let message = 'Because the object value defined the properties ';
-      message += formatList(presentArr.map(escapeString), 'and');
-      message += ', it was also expected to validate against the ' +
-        'corresponding subschemas';
-      return message;
+      return 'Because the object value defined ' +
+        describeProperties(presentArr, 'and') +
+        ', it was also expected to validate against the corresponding ' +
+        (present.size === 1 ? 'subschema' : 'subschemas');
     }
 
     return '<unknown>';
@@ -1680,34 +1629,14 @@ export function describe(valid, instruction, evaluatePath,
     const requiredArr = [...required].sort();
 
     if (present.length === 0) {
-      let message = 'The object value did not define the';
-      if (allDependencies.length === 1) {
-        message += ' property ' + escapeString(allDependencies[0]);
-      } else {
-        message += ' properties ';
-        message += formatList(allDependencies.map(escapeString), 'or');
-      }
-      return message;
+      return 'The object value did not define ' +
+        describeProperties(allDependencies, 'or');
     }
 
-    let message = '';
-    if (present.length === 1) {
-      message += 'Because the object value defined the';
-      message += ' property ' + escapeString(present[0]);
-    } else {
-      message += 'Because the object value defined the';
-      message += ' properties ';
-      message += formatList(present.map(escapeString), 'and');
-    }
-
-    message += ', it was also expected to define the';
-    if (requiredArr.length === 1) {
-      message += ' property ' + escapeString(requiredArr[0]);
-    } else {
-      message += ' properties ';
-      message += formatList(requiredArr.map(escapeString), 'and');
-    }
-    return message;
+    return 'Because the object value defined ' +
+      describeProperties(present, 'and') +
+      ', it was also expected to define ' +
+      describeProperties(requiredArr, 'and');
   }
 
   if (opcode === LOGICAL_WHEN_ARRAY_SIZE_GREATER) {

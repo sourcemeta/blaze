@@ -115,7 +115,7 @@
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
       "descriptions": [
-        "Because the object value defined the property \"foo\", it was also expected to define the properties \"bar\", and \"baz\""
+        "Because the object value defined the property \"foo\", it was also expected to define properties \"bar\", and \"baz\""
       ]
     },
     "exhaustive": {
@@ -126,7 +126,7 @@
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
       "descriptions": [
-        "Because the object value defined the property \"foo\", it was also expected to define the properties \"bar\", and \"baz\""
+        "Because the object value defined the property \"foo\", it was also expected to define properties \"bar\", and \"baz\""
       ]
     }
   },
@@ -177,7 +177,7 @@
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
       "descriptions": [
-        "The object value did not define the properties \"foo\", or \"qux\""
+        "The object value did not define properties \"foo\", or \"qux\""
       ]
     },
     "exhaustive": {
@@ -188,7 +188,7 @@
         [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
       ],
       "descriptions": [
-        "The object value did not define the properties \"foo\", or \"qux\""
+        "The object value did not define properties \"foo\", or \"qux\""
       ]
     }
   },
@@ -302,7 +302,7 @@
         [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
       ],
       "descriptions": [
-        "The object value did not define the properties \"foo\", or \"qux\""
+        "The object value did not define properties \"foo\", or \"qux\""
       ]
     },
     "exhaustive": {
@@ -313,7 +313,7 @@
         [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
       ],
       "descriptions": [
-        "The object value did not define the properties \"foo\", or \"qux\""
+        "The object value did not define properties \"foo\", or \"qux\""
       ]
     }
   },
@@ -345,7 +345,7 @@
         "The object value defined the property \"baz\"",
         "The object value was expected to define the property \"bar\"",
         "The object value defined the property \"foo\"",
-        "Because the object value defined the properties \"baz\", and \"foo\", it was also expected to validate against the corresponding subschemas"
+        "Because the object value defined properties \"baz\", and \"foo\", it was also expected to validate against the corresponding subschemas"
       ]
     },
     "exhaustive": {
@@ -368,7 +368,7 @@
         "The object value defined the property \"baz\"",
         "The object value was expected to define the property \"bar\"",
         "The object value defined the property \"foo\"",
-        "Because the object value defined the properties \"baz\", and \"foo\", it was also expected to validate against the corresponding subschemas"
+        "Because the object value defined properties \"baz\", and \"foo\", it was also expected to validate against the corresponding subschemas"
       ]
     }
   },
@@ -6001,7 +6001,7 @@
         [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"abcdefgh\" was expected to consist of at most 3 characters but it consisted of 8 characters",
+        "The property name \"abcdefgh\" was expected to consist of at most 3 characters but it consisted of 8 characters",
         "The object property \"abcdefgh\" was expected to validate against the given subschema"
       ]
     },
@@ -6015,7 +6015,7 @@
         [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"abcdefgh\" was expected to consist of at most 3 characters but it consisted of 8 characters",
+        "The property name \"abcdefgh\" was expected to consist of at most 3 characters but it consisted of 8 characters",
         "The object property \"abcdefgh\" was expected to validate against the given subschema"
       ]
     }
@@ -6038,7 +6038,7 @@
         [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"ab\" was expected to consist of at most 3 characters and it consisted of 2 characters",
+        "The property name \"ab\" was expected to consist of at most 3 characters and it consisted of 2 characters",
         "The object property \"ab\" was expected to validate against the given subschema"
       ]
     },
@@ -6052,7 +6052,7 @@
         [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"ab\" was expected to consist of at most 3 characters and it consisted of 2 characters",
+        "The property name \"ab\" was expected to consist of at most 3 characters and it consisted of 2 characters",
         "The object property \"ab\" was expected to validate against the given subschema"
       ]
     }
@@ -6075,7 +6075,7 @@
         [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"ab\" was expected to consist of at least 4 characters but it consisted of 2 characters",
+        "The property name \"ab\" was expected to consist of at least 4 characters but it consisted of 2 characters",
         "The object property \"ab\" was expected to validate against the given subschema"
       ]
     },
@@ -6089,7 +6089,7 @@
         [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"ab\" was expected to consist of at least 4 characters but it consisted of 2 characters",
+        "The property name \"ab\" was expected to consist of at least 4 characters but it consisted of 2 characters",
         "The object property \"ab\" was expected to validate against the given subschema"
       ]
     }
@@ -11796,7 +11796,7 @@
         [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
       ],
       "descriptions": [
-        "The integer value 11 was expected to be less than the integer 11, but they were equal"
+        "The integer value 11 was expected to be less than the integer 11"
       ]
     }
   },

@@ -5913,7 +5913,7 @@
         [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"abcdefgh\" was expected to consist of at most 3 characters but it consisted of 8 characters",
+        "The property name \"abcdefgh\" was expected to consist of at most 3 characters but it consisted of 8 characters",
         "The object property \"abcdefgh\" was expected to validate against the given subschema"
       ]
     },
@@ -5927,7 +5927,7 @@
         [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"abcdefgh\" was expected to consist of at most 3 characters but it consisted of 8 characters",
+        "The property name \"abcdefgh\" was expected to consist of at most 3 characters but it consisted of 8 characters",
         "The object property \"abcdefgh\" was expected to validate against the given subschema"
       ]
     }
@@ -5950,7 +5950,7 @@
         [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"ab\" was expected to consist of at most 3 characters and it consisted of 2 characters",
+        "The property name \"ab\" was expected to consist of at most 3 characters and it consisted of 2 characters",
         "The object property \"ab\" was expected to validate against the given subschema"
       ]
     },
@@ -5964,7 +5964,7 @@
         [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"ab\" was expected to consist of at most 3 characters and it consisted of 2 characters",
+        "The property name \"ab\" was expected to consist of at most 3 characters and it consisted of 2 characters",
         "The object property \"ab\" was expected to validate against the given subschema"
       ]
     }
@@ -5987,7 +5987,7 @@
         [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"ab\" was expected to consist of at least 4 characters but it consisted of 2 characters",
+        "The property name \"ab\" was expected to consist of at least 4 characters but it consisted of 2 characters",
         "The object property \"ab\" was expected to validate against the given subschema"
       ]
     },
@@ -6001,7 +6001,7 @@
         [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
       ],
       "descriptions": [
-        "The object property name \"ab\" was expected to consist of at least 4 characters but it consisted of 2 characters",
+        "The property name \"ab\" was expected to consist of at least 4 characters but it consisted of 2 characters",
         "The object property \"ab\" was expected to validate against the given subschema"
       ]
     }
@@ -13551,7 +13551,7 @@
         [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
       ],
       "descriptions": [
-        "The integer value 11 was expected to be less than the integer 11, but they were equal"
+        "The integer value 11 was expected to be less than the integer 11"
       ]
     }
   },
@@ -13618,7 +13618,7 @@
         [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
-        "The integer value -1 was expected to be greater than the integer -1, but they were equal"
+        "The integer value -1 was expected to be greater than the integer -1"
       ]
     }
   },
@@ -13651,7 +13651,7 @@
         [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
-        "The integer value 5 was expected to be greater than the integer 5, but they were equal"
+        "The integer value 5 was expected to be greater than the integer 5"
       ]
     }
   },
@@ -14091,7 +14091,7 @@
         [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
       ],
       "descriptions": [
-        "The integer value 11 was expected to be less than the integer 11, but they were equal"
+        "The integer value 11 was expected to be less than the integer 11"
       ]
     }
   },
@@ -14127,7 +14127,7 @@
       ],
       "descriptions": [
         "The integer value -1 was expected to be less than the integer 11",
-        "The integer value -1 was expected to be greater than the integer -1, but they were equal"
+        "The integer value -1 was expected to be greater than the integer -1"
       ]
     }
   },
@@ -14238,7 +14238,7 @@
         [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
       ],
       "descriptions": [
-        "The integer value -1 was expected to be greater than the integer -1, but they were equal"
+        "The integer value -1 was expected to be greater than the integer -1"
       ]
     }
   },
@@ -18610,7 +18610,7 @@
         [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
-        "The object value did not define the properties \"a\", or \"b\"",
+        "The object value did not define properties \"a\", or \"b\"",
         "The object value was not expected to define unevaluated properties"
       ]
     },
@@ -18626,7 +18626,7 @@
         [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
-        "The object value did not define the properties \"a\", or \"b\"",
+        "The object value did not define properties \"a\", or \"b\"",
         "The object value was expected to validate against the defined properties subschemas",
         "The object value was not expected to define unevaluated properties"
       ]
@@ -18795,7 +18795,7 @@
         [ false, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
-        "The object value did not define the properties \"a\", or \"b\"",
+        "The object value did not define properties \"a\", or \"b\"",
         "The object value was not expected to define the property \"allowed\"",
         "The object value was not expected to define unevaluated properties"
       ]
@@ -18814,7 +18814,7 @@
         [ false, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
-        "The object value did not define the properties \"a\", or \"b\"",
+        "The object value did not define properties \"a\", or \"b\"",
         "The object value was expected to validate against the defined properties subschemas",
         "The object value was not expected to define the property \"allowed\"",
         "The object value was not expected to define unevaluated properties"
