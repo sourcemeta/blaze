@@ -1467,6 +1467,27 @@
     }
   },
   {
+    "description": "examples_single",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "examples": [ 1 ]
+    },
+    "instance": 5,
+    "valid": true,
+    "fast": {},
+    "exhaustive": {
+      "pre": [
+        [ "Annotation", "/examples", "#/examples", "" ]
+      ],
+      "post": [
+        [ true, "Annotation", "/examples", "#/examples", "", [1] ]
+      ],
+      "descriptions": [
+        "Examples of the instance were 1"
+      ]
+    }
+  },
+  {
     "description": "format",
     "schema": {
       "$schema": "https://json-schema.org/draft/2019-09/schema",

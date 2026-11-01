@@ -645,14 +645,7 @@ export function describe(valid, instruction, evaluatePath,
         message += 'Examples of the instance location "' +
           instanceLocation + '"';
       }
-      message += ' were ';
-      for (let index = 0; index < annotation.length; index++) {
-        if (index === annotation.length - 1) {
-          message += 'and ' + stringifyValue(annotation[index]);
-        } else {
-          message += stringifyValue(annotation[index]) + ', ';
-        }
-      }
+      message += ' were ' + formatList(annotation.map(stringifyValue), 'and');
       return message;
     }
 
