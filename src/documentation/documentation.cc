@@ -7,6 +7,7 @@
 #include <sourcemeta/core/jsonschema.h>
 
 #include <algorithm>   // std::sort
+#include <cassert>     // assert
 #include <cstddef>     // std::size_t
 #include <exception>   // std::exception
 #include <map>         // std::map
@@ -27,7 +28,6 @@ using sourcemeta::blaze::DocumentationContext;
 using sourcemeta::blaze::fail;
 using sourcemeta::blaze::MAXIMUM_DEPTH;
 using sourcemeta::blaze::Rank;
-using sourcemeta::blaze::Shape;
 using sourcemeta::core::JSON;
 using sourcemeta::core::Pointer;
 
@@ -130,6 +130,57 @@ auto name_of(const Pointer &pointer, const std::string &identifier)
   return result;
 }
 
+// The vocabularies the official meta-schema of a dialect uses. Only 2019-09
+// and 2020-12 let a meta-schema choose its vocabularies.
+auto official_vocabularies(const Rank rank)
+    -> const sourcemeta::core::SchemaVocabularies & {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  static const sourcemeta::core::SchemaVocabularies DRAFT_2019{
+      {Known::JSON_SCHEMA_2019_09_CORE, true},
+      {Known::JSON_SCHEMA_2019_09_APPLICATOR, true},
+      {Known::JSON_SCHEMA_2019_09_VALIDATION, true},
+      {Known::JSON_SCHEMA_2019_09_META_DATA, true},
+      {Known::JSON_SCHEMA_2019_09_FORMAT, false},
+      {Known::JSON_SCHEMA_2019_09_CONTENT, true}};
+  static const sourcemeta::core::SchemaVocabularies DRAFT_2020{
+      {Known::JSON_SCHEMA_2020_12_CORE, true},
+      {Known::JSON_SCHEMA_2020_12_APPLICATOR, true},
+      {Known::JSON_SCHEMA_2020_12_UNEVALUATED, true},
+      {Known::JSON_SCHEMA_2020_12_VALIDATION, true},
+      {Known::JSON_SCHEMA_2020_12_META_DATA, true},
+      {Known::JSON_SCHEMA_2020_12_FORMAT_ANNOTATION, true},
+      {Known::JSON_SCHEMA_2020_12_CONTENT, true}};
+  return rank == Rank::Draft2019 ? DRAFT_2019 : DRAFT_2020;
+}
+
+// A keyword of the dialect whose vocabulary the meta-schema of a subschema
+// leaves out means nothing there, so it is set aside.
+auto ignore_left_out_vocabularies(
+    DocumentationContext &context,
+    const sourcemeta::core::SchemaFrame::Location &location,
+    const Pointer &where, const Rank rank) -> void {
+  if (rank < Rank::Draft2019) {
+    return;
+  }
+
+  const auto &subschema{sourcemeta::core::get(context.root, where)};
+  if (!subschema.is_object()) {
+    return;
+  }
+
+  const auto &vocabularies{
+      context.frame.vocabularies(location, context.resolver)};
+  const auto &official{official_vocabularies(rank)};
+  for (const auto &entry : subschema.as_object()) {
+    if (context.walker(entry.first, vocabularies).type ==
+            sourcemeta::core::SchemaKeywordType::Unknown &&
+        context.walker(entry.first, official).type !=
+            sourcemeta::core::SchemaKeywordType::Unknown) {
+      context.ignored[sourcemeta::core::to_string(where)].insert(entry.first);
+    }
+  }
+}
+
 } // namespace
 
 namespace sourcemeta::blaze {
@@ -140,9 +191,7 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
                       const std::string_view default_dialect)
     -> sourcemeta::core::JSON {
   const Pointer root_pointer;
-  if (!schema.is_object() && !schema.is_boolean()) {
-    fail("A schema must be an object or a boolean", root_pointer);
-  }
+  assert(schema.is_object() || schema.is_boolean());
 
   const auto declares{schema.is_object() && schema.defines("$schema") &&
                       schema.at("$schema").is_string() &&
@@ -186,6 +235,7 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
       .references = {},
       .dynamic_references = {},
       .dynamic_anchors = {},
+      .ignored = {},
       .depth = 0};
 
   // A resource may declare a dialect of its own, and then a keyword means
@@ -194,9 +244,9 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
   // subschema is read in the dialect in effect where it sits.
   frame->for_each_subschema([&context](const auto &location) {
     auto where{sourcemeta::core::to_pointer(location.pointer)};
-
-    context.ranks.insert_or_assign(sourcemeta::core::to_string(where),
-                                   rank_of(location.base_dialect, where));
+    const auto rank{rank_of(location.base_dialect, where)};
+    context.ranks.insert_or_assign(sourcemeta::core::to_string(where), rank);
+    ignore_left_out_vocabularies(context, location, where, rank);
   });
 
   frame->for_each_reference([&context](const auto type,
@@ -233,18 +283,12 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
   auto result{sourcemeta::core::JSON::make_object()};
   result.assign("$schema",
                 sourcemeta::core::JSON{std::string{DOCUMENTATION_FORMAT}});
-  if (schema.is_object() && schema.defines("title") &&
-      schema.at("title").is_string() &&
-      !schema.at("title").to_string().empty()) {
-    result.assign("title", schema.at("title"));
-  } else {
-    result.assign("title", sourcemeta::core::JSON{std::string{"Schema"}});
-  }
-
-  if (schema.is_object() && schema.defines("description") &&
-      schema.at("description").is_string() &&
-      !schema.at("description").to_string().empty()) {
-    result.assign("description", schema.at("description"));
+  // The root's own title and description are the document's.
+  result.assign("title", root.defines("title")
+                             ? root.at("title")
+                             : sourcemeta::core::JSON{std::string{"Schema"}});
+  if (root.defines("description")) {
+    result.assign("description", root.at("description"));
   }
 
   result.assign("language", sourcemeta::core::JSON{std::string{declared}});

@@ -14,7 +14,10 @@
     ],
     "patternProperties": [
       {
-        "pattern": "^(?!(?:x-own)$)[\\s\\S]*?(?:^x-)",
+        "pattern": "^x-",
+        "except": {
+          "names": [ "x-own" ]
+        },
         "value": {
           "kind": "boolean"
         }

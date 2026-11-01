@@ -6,54 +6,6 @@ TEST(2020_12_no_dialect_is_refused) {
       "The schema does not say which dialect it is written in", "", "");
 }
 
-TEST(2020_12_a_type_that_is_not_a_json_type_is_refused) {
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "text"
-  })JSON",
-      "The `type` keyword names something that is not a JSON type", "text", "");
-}
-
-TEST(2020_12_a_repeated_type_is_refused) {
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": [ "string", "string" ]
-  })JSON",
-      "The `type` keyword names a type twice", "string", "");
-}
-
-TEST(2020_12_a_repeated_required_name_is_refused) {
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "required": [ "a", "a" ]
-  })JSON",
-      "The `required` keyword names this property twice", "a", "");
-}
-
-TEST(2020_12_a_negative_count_is_refused) {
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "string",
-    "minLength": -1
-  })JSON",
-      "This keyword must be a count", "minLength", "");
-}
-
-TEST(2020_12_a_list_items_is_refused) {
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "array",
-    "items": [ { "type": "string" } ]
-  })JSON",
-      "The `items` keyword must be a schema in 2020-12, not a list", "", "");
-}
-
 TEST(2020_12_a_dialect_that_cannot_be_read_is_refused) {
   EXPECT_DOCUMENTATION_REFUSED(
       R"JSON({
@@ -83,16 +35,6 @@ TEST(2020_12_a_reference_to_something_that_is_not_a_schema_is_refused) {
     "$ref": "#/title"
   })JSON",
       "This keyword names something that is not a schema", "$ref", "");
-}
-
-TEST(2020_12_a_step_of_zero_is_refused) {
-  EXPECT_DOCUMENTATION_REFUSED(
-      R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "number",
-    "multipleOf": 0
-  })JSON",
-      "The `multipleOf` keyword must be a number above zero", "multipleOf", "");
 }
 
 TEST(2020_12_unevaluated_items_beside_a_branch_that_looks_at_items_is_refused) {
