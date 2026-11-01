@@ -133,15 +133,15 @@ describe('reviver', () => {
 
 describe('version', () => {
   it('rejects a template with an unsupported version', () => {
-    const template = [11, false, false, [[]], [], []];
+    const template = [13, false, false, [[]], [], []];
     assert.throws(() => new Blaze(template), {
-      message: 'Only version 12 of the compiled template is supported by this version of the evaluator'
+      message: 'Only version 14 of the compiled template is supported by this version of the evaluator'
     });
   });
 
   it('rejects a template that is not an array', () => {
     assert.throws(() => new Blaze({}), {
-      message: 'Only version 12 of the compiled template is supported by this version of the evaluator'
+      message: 'Only version 14 of the compiled template is supported by this version of the evaluator'
     });
   });
 });

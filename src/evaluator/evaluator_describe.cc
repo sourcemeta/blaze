@@ -1907,6 +1907,18 @@ auto describe(const bool valid, const Instruction &step,
     return unknown();
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::AssertionPropertyEqual) {
+    std::ostringstream message;
+    const auto &value{instruction_value<ValueJSON>(step)};
+    message << "The " << type_name(target.type()) << " value ";
+    describe_stringify(target, message);
+    message << " was expected to equal the " << type_name(value.type())
+            << " constant ";
+    describe_stringify(value, message);
+    return message.str();
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionEqual) {
     std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
