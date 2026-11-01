@@ -157,108 +157,19 @@ using ValueIndexPair = std::pair<std::size_t, std::size_t>;
 using ValuePointer = sourcemeta::core::Pointer;
 
 /// @ingroup evaluator
-/// @brief Selects which part of a property name's hash a lookup compares
-///
-/// The low half carries the name's size and its first seven bytes and the high
-/// half the eight after them, so either tells most sets of names apart on its
-/// own. `Folded` mixes the whole hash down to one word for the sets that
-/// neither half separates
-enum class ValueNamedDiscriminator : std::uint8_t { Low, High, Folded };
+/// Represents the precomputed hash of a property name, the index of the child
+/// instruction that applies to it, and the name itself. The hash comes first
+/// as it is what a lookup compares against
+using ValueNamedIndex = std::tuple<sourcemeta::core::JSON::Object::hash_type,
+                                   ValueUnsignedInteger, ValueString>;
 
 /// @ingroup evaluator
-/// @brief Represents a compiler step property name to child index map
-///
-/// The entries are sorted by the size of the name and held as parallel arrays
-/// so that a lookup scans nothing but `discriminators`, eight candidates to a
-/// cache line, and reads the arrays beside it only once a candidate matches.
-/// Everything a lookup reads before it finds a match comes first, so that it
-/// never touches a second cache line of the map to get started.
-/// A discriminator is the low half of the name's hash, which carries the name's
-/// size and its first seven bytes, so names that differ in either never
-/// collide. The half beside it carries the next eight bytes and settles a
-/// candidate whose discriminator matches, so the scan still reads one array
-/// while names that only differ further in are still told apart
-struct ValueNamedIndexes {
-  /// Bit N set when some name has size N, so that a size no name has is
-  /// rejected without reading an entry at all. A name too long for a bit of
-  /// its own leaves every bit set
-  ValueUnsignedInteger lengths{0};
-  /// Which half of the hash, or which mix of it, the discriminators were taken
-  /// from. The one chosen is the cheapest that tells this map's names apart
-  ValueNamedDiscriminator discriminator{ValueNamedDiscriminator::Low};
-  /// Whether matching a discriminator settles a lookup on its own, which holds
-  /// unless two names share one
-  bool exact{true};
-  /// For every name size, the one-based inclusive range of entries that have
-  /// that size. Empty when there are too few entries for the load it costs to
-  /// pay for the scan it saves
-  std::vector<ValueIndexPair> sizes;
-  /// The discriminator of every name, in ascending order of name size
-  std::vector<ValueUnsignedInteger> discriminators;
-  /// The child instruction each entry selects, parallel to `discriminators`
-  std::vector<ValueUnsignedInteger> children;
-  /// Each entry's name, parallel to `discriminators`. A lookup only reads one
-  /// when `exact` is false, though the map always carries them
-  std::vector<ValueString> names;
-
-  [[nodiscard]] auto to_json() const -> sourcemeta::core::JSON {
-    auto result{sourcemeta::core::JSON::make_array()};
-    result.push_back(sourcemeta::core::to_json(this->discriminators));
-    result.push_back(sourcemeta::core::to_json(this->children));
-    result.push_back(sourcemeta::core::to_json(this->names));
-    result.push_back(sourcemeta::core::to_json(this->sizes));
-    result.push_back(sourcemeta::core::to_json(this->lengths));
-    result.push_back(
-        sourcemeta::core::JSON{static_cast<std::int64_t>(this->discriminator)});
-    result.push_back(sourcemeta::core::JSON{this->exact});
-    return result;
-  }
-
-  static auto from_json(const sourcemeta::core::JSON &value)
-      -> std::optional<ValueNamedIndexes> {
-    if (!value.is_array() || value.size() != 7) {
-      return std::nullopt;
-    }
-
-    auto discriminators{
-        sourcemeta::core::from_json<std::vector<ValueUnsignedInteger>>(
-            value.at(0))};
-    auto children{
-        sourcemeta::core::from_json<std::vector<ValueUnsignedInteger>>(
-            value.at(1))};
-    auto names{
-        sourcemeta::core::from_json<std::vector<ValueString>>(value.at(2))};
-    auto sizes{
-        sourcemeta::core::from_json<std::vector<ValueIndexPair>>(value.at(3))};
-    auto lengths{
-        sourcemeta::core::from_json<ValueUnsignedInteger>(value.at(4))};
-    if (!discriminators.has_value() || !children.has_value() ||
-        !names.has_value() || !sizes.has_value() || !lengths.has_value() ||
-        !value.at(5).is_integer() || !value.at(6).is_boolean()) {
-      return std::nullopt;
-    }
-
-    const auto kind{value.at(5).to_integer()};
-    if (kind < 0 ||
-        kind > static_cast<std::int64_t>(ValueNamedDiscriminator::Folded)) {
-      return std::nullopt;
-    }
-
-    const auto entries{discriminators.value().size()};
-    if (children.value().size() != entries || names.value().size() != entries) {
-      return std::nullopt;
-    }
-
-    return ValueNamedIndexes{
-        .lengths = lengths.value(),
-        .discriminator = static_cast<ValueNamedDiscriminator>(kind),
-        .exact = value.at(6).to_boolean(),
-        .sizes = std::move(sizes).value(),
-        .discriminators = std::move(discriminators).value(),
-        .children = std::move(children).value(),
-        .names = std::move(names).value()};
-  }
-};
+/// Represents a compiler step string to index map. The entries are sorted by
+/// the size of the name, and the table of contents gives, for every name size,
+/// the one-based inclusive range of entries that have that size, so that a
+/// lookup only ever compares the names whose size can match
+using ValueNamedIndexes =
+    std::pair<std::vector<ValueNamedIndex>, std::vector<ValueIndexPair>>;
 
 /// @ingroup evaluator
 /// Represents a compiler step types properties value
