@@ -56,6 +56,7 @@ using sourcemeta::blaze::plural;
 using sourcemeta::blaze::render_group;
 using sourcemeta::blaze::Row;
 using sourcemeta::blaze::row_count;
+using sourcemeta::blaze::Rows;
 using sourcemeta::blaze::rows_of;
 using sourcemeta::blaze::strictly_equal;
 using sourcemeta::blaze::table;
@@ -65,6 +66,22 @@ using sourcemeta::blaze::value_cell;
 using sourcemeta::blaze::with_article;
 using sourcemeta::blaze::Writer;
 using sourcemeta::core::JSON;
+
+// How many of the rows are properties rather than conditions, as a label, or
+// nothing when none are.
+auto properties_in(const Rows &rows) -> std::string {
+  std::size_t amount{0};
+  for (const auto &row : rows.own) {
+    amount += row.condition ? 0 : 1;
+  }
+
+  for (const auto &group : rows.inherited) {
+    amount += group.rows.size();
+  }
+
+  return amount == 0 ? std::string{}
+                     : plural(amount, "property", "properties", true);
+}
 
 const JSON &never_value() {
   static const JSON NEVER{sourcemeta::core::parse_json(R"({"kind":"never"})")};
@@ -392,8 +409,9 @@ auto choice_rows(Writer &out, const JSON *choice, Draw &draw,
     }
 
     const auto form{"form " + std::to_string(index + 1) + " of "};
-    const auto amount{
-        kind(option) == "object" ? row_count(rows_of(option, draw)) : 0};
+    const auto inside{kind(option) == "object" ? rows_of(option, draw)
+                                               : Rows{}};
+    const auto amount{row_count(inside)};
     if (amount == 0) {
       const auto inner{piece([&](Writer &writer) {
         nested_of(writer, option, draw, form + name, under);
@@ -408,8 +426,8 @@ auto choice_rows(Writer &out, const JSON *choice, Draw &draw,
                  truthy(at(option, "description"))
                      ? ": " + text(option, "description")
                      : ""),
-         plural(amount, "property", "properties", true),
-         sub_table(render_group(option, draw, under)), "dep");
+         properties_in(inside), sub_table(render_group(option, draw, under)),
+         "dep");
   }
 }
 
@@ -464,10 +482,10 @@ auto render_branch(Writer &out, const JSON *value, Draw &draw,
   }
 
   if (truthy(body) && kind(body) == "object") {
-    const auto amount{row_count(rows_of(body, draw))};
+    const auto inside{rows_of(body, draw)};
+    const auto amount{row_count(inside)};
     if (amount > 0) {
-      nest(out, words(lead + " these apply"),
-           plural(amount, "property", "properties", true),
+      nest(out, words(lead + " these apply"), properties_in(inside),
            sub_table(render_group(body, draw, under)), "dep");
       return;
     }
@@ -1187,10 +1205,10 @@ auto render_group(const JSON *value, Draw &draw,
       continue;
     }
 
-    const auto amount{row_count(rows_of(also, draw))};
+    const auto inside{rows_of(also, draw)};
+    const auto amount{row_count(inside)};
     if (amount > 0) {
-      nest(out, words("and it must also match these"),
-           plural(amount, "property", "properties", true),
+      nest(out, words("and it must also match these"), properties_in(inside),
            sub_table(render_group(also, draw, under)), "dep");
     }
   }
@@ -1234,11 +1252,10 @@ auto nested_of(Writer &out, const JSON *value, Draw &draw,
   if (const auto *content{at(value, "content")};
       truthy(content) && truthy(at(content, "value"))) {
     const auto *inner{at(content, "value")};
-    const auto amount{kind(inner) == "object" ? row_count(rows_of(inner, draw))
-                                              : 0};
+    const auto inside{kind(inner) == "object" ? rows_of(inner, draw) : Rows{}};
+    const auto amount{row_count(inside)};
     if (amount > 0) {
-      nest(out, bold_in("the document inside ", name),
-           plural(amount, "property", "properties", true),
+      nest(out, bold_in("the document inside ", name), properties_in(inside),
            sub_table(render_group(inner, draw, std::nullopt)), "dep");
     } else {
       nest(out, bold_in("the document inside ", name, " is"), "",
@@ -1258,14 +1275,13 @@ auto nested_of(Writer &out, const JSON *value, Draw &draw,
   if (rows.has_value() && row_count(rows.value()) > 0 &&
       !(group.has_value() && is_map(group->group) &&
         !map_has_inside(group->group, draw))) {
-    nest(out, bold_in("inside ", name),
-         plural(row_count(rows.value()), "property", "properties", true),
+    nest(out, bold_in("inside ", name), properties_in(rows.value()),
          sub_table(render_group(group.has_value() ? group->group : value, draw,
                                 under)));
   } else if (kind(value) == "array" && truthy(item) && kind(item) == "object" &&
              row_count(rows_of(item, draw)) > 0) {
     nest(out, bold_in("inside ", "each entry of " + name),
-         plural(row_count(rows_of(item, draw)), "property", "properties", true),
+         properties_in(rows_of(item, draw)),
          sub_table(render_group(item, draw, under)));
   } else if (kind(value) == "array" && truthy(item) && kind(item) == "choice") {
     const auto options{list(item, "options")};
@@ -1292,10 +1308,10 @@ auto nested_of(Writer &out, const JSON *value, Draw &draw,
         continue;
       }
 
-      const auto amount{row_count(rows_of(also, draw))};
+      const auto inside{rows_of(also, draw)};
+      const auto amount{row_count(inside)};
       if (amount > 0) {
-        nest(out, words("and it must also match these"),
-             plural(amount, "property", "properties", true),
+        nest(out, words("and it must also match these"), properties_in(inside),
              sub_table(render_group(also, draw, under)), "dep");
       }
     }

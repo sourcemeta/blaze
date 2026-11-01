@@ -1,0 +1,5 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "type": "integer",
+  "enum": [ 1.0, 2.5, 3 ]
+}

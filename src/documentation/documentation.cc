@@ -283,10 +283,22 @@ auto to_documentation(const sourcemeta::core::JSON &schema,
   auto result{sourcemeta::core::JSON::make_object()};
   result.assign("$schema",
                 sourcemeta::core::JSON{std::string{DOCUMENTATION_FORMAT}});
-  // The root's own title and description are the document's.
-  result.assign("title", root.defines("title")
-                             ? root.at("title")
-                             : sourcemeta::core::JSON{std::string{"Schema"}});
+  // The root's own title and description are the document's. A root that is a
+  // reference before 2019-09 stands for the reference alone, yet its title
+  // still names the document, unless its vocabulary is left out.
+  const auto ignored{
+      context.ignored.find(sourcemeta::core::to_string(root_pointer))};
+  const auto title_ignored{ignored != context.ignored.cend() &&
+                           ignored->second.contains("title")};
+  if (root.defines("title")) {
+    result.assign("title", root.at("title"));
+  } else if (!title_ignored && schema.is_object() && schema.defines("title") &&
+             schema.at("title").is_string() &&
+             !schema.at("title").to_string().empty()) {
+    result.assign("title", schema.at("title"));
+  } else {
+    result.assign("title", sourcemeta::core::JSON{std::string{"Schema"}});
+  }
   if (root.defines("description")) {
     result.assign("description", root.at("description"));
   }

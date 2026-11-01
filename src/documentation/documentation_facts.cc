@@ -27,7 +27,7 @@ using sourcemeta::blaze::Rank;
 using sourcemeta::core::JSON;
 using sourcemeta::core::Pointer;
 
-auto kind_of_value(const JSON &entry) -> std::string {
+auto kind_of_value(const JSON &entry, const Rank rank) -> std::string {
   if (entry.is_string()) {
     return "string";
   }
@@ -36,8 +36,9 @@ auto kind_of_value(const JSON &entry) -> std::string {
     return "integer";
   }
 
+  // From Draft 6, a number with a zero fraction is an integer.
   if (entry.is_real()) {
-    return "number";
+    return rank >= Rank::Draft6 && entry.is_integral() ? "integer" : "number";
   }
 
   // A number too large for the other kinds, which may still be whole.
@@ -98,7 +99,7 @@ namespace sourcemeta::blaze {
 auto accepted_by(const JSON &entry, const JSON &subschema,
                  const std::vector<std::string> &kinds, const Rank rank)
     -> Verdict {
-  const auto kind{kind_of_value(entry)};
+  const auto kind{kind_of_value(entry, rank)};
   if (!kinds.empty()) {
     auto matches{false};
     for (const auto &wanted : kinds) {
@@ -205,9 +206,7 @@ auto string_facts(DocumentationContext &context, JSON &value,
   copy_if_present(subschema, "format", value, "format");
   if (defines(subschema, "pattern")) {
     const auto &pattern{subschema.at("pattern")};
-    if (!pattern.is_string()) {
-      fail("The `pattern` keyword must be a regular expression", pointer);
-    }
+    assert(pattern.is_string());
 
     value.assign("pattern", pattern);
   }

@@ -32,6 +32,7 @@ namespace {
 
 using sourcemeta::blaze::at;
 using sourcemeta::blaze::given;
+using sourcemeta::blaze::is_one;
 using sourcemeta::blaze::plain;
 using sourcemeta::blaze::text;
 using sourcemeta::core::JSON;
@@ -119,6 +120,19 @@ auto is_simple(const JSON *value) -> bool {
 }
 
 // The facts a value carries beyond its kind, in a few words.
+// The word for one of what a count counts.
+auto singular(const std::string &unit) -> std::string {
+  if (unit == "entries") {
+    return "entry";
+  }
+
+  if (unit == "properties") {
+    return "property";
+  }
+
+  return unit == "characters" ? "character" : unit;
+}
+
 // A count between two bounds, in words.
 auto bounds_words(const JSON *bounds, const std::string &unit) -> std::string {
   const auto *minimum{at(bounds, "min")};
@@ -128,10 +142,12 @@ auto bounds_words(const JSON *bounds, const std::string &unit) -> std::string {
   }
 
   if (given(minimum)) {
-    return "at least " + plain(minimum) + " " + unit;
+    return "at least " + plain(minimum) + " " +
+           (is_one(minimum) ? singular(unit) : unit);
   }
 
-  return given(maximum) ? "at most " + plain(maximum) + " " + unit
+  return given(maximum) ? "at most " + plain(maximum) + " " +
+                              (is_one(maximum) ? singular(unit) : unit)
                         : std::string{};
 }
 
@@ -322,9 +338,13 @@ auto strictly_equal(const JSON *left, const JSON *right) -> bool {
 // A browser throws away tabs, newlines and control characters before it reads
 // an address, so they are thrown away here too.
 auto linkable(const std::string_view address) -> bool {
+  const auto points{sourcemeta::core::utf8_to_utf32(address)};
+  if (!points.has_value()) {
+    return false;
+  }
+
   std::string bare;
-  for (const auto point :
-       sourcemeta::core::utf8_to_utf32(address).value_or(std::u32string{})) {
+  for (const auto point : points.value()) {
     if (point > 32 && point != 127) {
       // Only the start matters, which is ASCII when it is a scheme at all.
       bare += point < 128 ? static_cast<char>(point) : '?';
