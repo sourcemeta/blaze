@@ -3,7 +3,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer
     canonicalizer_2020_12_test.cc
     canonicalizer_2019_09_test.cc
     canonicalizer_draft7_test.cc
-    canonicalizer_draft6_test.cc
     canonicalizer_draft2_test.cc
     canonicalizer_draft1_test.cc
     canonicalizer_draft0_test.cc
@@ -25,7 +24,7 @@ target_compile_definitions(sourcemeta_blaze_canonicalizer_unit
 
 set_tests_properties(blaze.canonicalizer PROPERTIES TIMEOUT 90)
 
-# Complete draft 3 canonicalization tests, expressed as JSON fixtures
+# Complete canonicalization tests per dialect, expressed as JSON fixtures
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME canonicalizer_suite
   SOURCES canonicalizersuite.cc)
 target_compile_definitions(sourcemeta_blaze_canonicalizer_suite_unit

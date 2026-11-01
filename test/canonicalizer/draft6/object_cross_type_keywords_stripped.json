@@ -1,0 +1,70 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "minLength": 5,
+    "pattern": "^[a-z]+$",
+    "maximum": 10,
+    "uniqueItems": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": true
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    10.5,
+    9,
+    9.5,
+    "aaa",
+    "aaaaa",
+    "aaaaaa",
+    [ 10 ],
+    [ 10, 10 ],
+    [ 10.5 ],
+    [ 10.5, 10.5 ],
+    [ 11 ],
+    [ 11, 11 ]
+  ]
+}

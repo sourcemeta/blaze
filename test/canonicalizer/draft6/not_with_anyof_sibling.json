@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "not": { "type": "string" },
+    "anyOf": [ { "type": "number" }, { "type": "integer" } ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/3" }
+        ]
+      },
+      "1": { "not": { "$ref": "#/definitions/2" } },
+      "2": { "type": "string", "minLength": 0 },
+      "3": {
+        "anyOf": [
+          { "$ref": "#/definitions/4" },
+          { "$ref": "#/definitions/5" }
+        ]
+      },
+      "4": { "type": "number" },
+      "5": { "type": "integer", "multipleOf": 1 }
+    }
+  },
+  "examples": [ 0, 1, -1, 2, 3, 5, 10, 11, 1.5, 0.5, -1.5, 9007199254740993 ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ]
+  ]
+}

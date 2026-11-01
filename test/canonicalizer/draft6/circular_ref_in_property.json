@@ -1,0 +1,125 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "definitions": {
+      "node": {
+        "type": "object",
+        "properties": {
+          "value": { "type": "string" },
+          "child": { "$ref": "#/definitions/node" }
+        }
+      }
+    },
+    "properties": { "root": { "$ref": "#/definitions/node" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "root": { "$ref": "#/definitions/2" } },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": true,
+      "2": {
+        "type": "object",
+        "properties": {
+          "value": { "$ref": "#/definitions/3" },
+          "child": { "$ref": "#/definitions/2" }
+        },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "3": { "type": "string", "minLength": 0 }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "child": 1 },
+    { "child": "x" },
+    { "child": {}, "root": {}, "value": {} },
+    { "child": { "child": "x" } },
+    { "child": "x", "value": "x" },
+    { "child": -1, "value": "x" },
+    { "child": -1 },
+    { "child": "x", "value": -1 },
+    { "value": -1 }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {
+      "root": {
+        "child": { "child": { "child": "x", "value": "x" }, "value": "x" },
+        "value": "x"
+      }
+    },
+    { "root": "other" },
+    { "root": { "child": "other", "value": "x" } },
+    { "root": { "child": { "child": "other", "value": "x" }, "value": "x" } },
+    {
+      "root": {
+        "child": { "child": { "child": -1, "value": "x" }, "value": "x" },
+        "value": "x"
+      }
+    },
+    {
+      "root": {
+        "child": { "child": { "child": "x", "value": -1 }, "value": "x" },
+        "value": "x"
+      }
+    },
+    {
+      "root": {
+        "child": { "child": { "child": "x", "value": "x" }, "value": -1 },
+        "value": "x"
+      }
+    },
+    {
+      "root": {
+        "child": { "child": { "child": "x", "value": "x" }, "value": "x" },
+        "value": -1
+      }
+    },
+    { "child": 1, "root": 1, "value": 1 },
+    { "child": "x", "root": "x", "value": "x" },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "root": "x" },
+    { "root": -1 }
+  ]
+}
