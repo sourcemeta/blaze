@@ -390,7 +390,7 @@ static auto to_named_indexes(
   // anything, which only pays off once there are enough names that scanning
   // them all is worse. Below that, the entries are left without one and the
   // evaluator scans them, as it did before the table of contents existed
-  constexpr std::size_t MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS{32};
+  constexpr std::size_t MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS{12};
 
   sourcemeta::blaze::ValueNamedIndexes result;
   // The table of contents works as in `to_string_hashes`: each index marks the

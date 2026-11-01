@@ -19346,5 +19346,58 @@
         "The value was expected to be of type integer"
       ]
     }
+  },
+  {
+    "description": "properties_match_closed_undeclared_shares_prefix",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "abcdefgh": { "type": "string" },
+        "bbcdefgh": { "type": "string" },
+        "cbcdefgh": { "type": "string" },
+        "dbcdefgh": { "type": "string" },
+        "ebcdefgh": { "type": "string" },
+        "fbcdefgh": { "type": "string" },
+        "gbcdefgh": { "type": "string" },
+        "hbcdefgh": { "type": "string" },
+        "ibcdefgh": { "type": "string" },
+        "jbcdefgh": { "type": "string" },
+        "kbcdefgh": { "type": "string" },
+        "lbcdefgh": { "type": "string" },
+        "mbcdefgh": { "type": "string" }
+      }
+    },
+    "instance": { "abcdefgX": "ok" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "post": [
+        [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "Every object value was expected to validate against one of the 13 defined properties subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/abcdefgX" ]
+      ],
+      "post": [
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/abcdefgX" ],
+        [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+      ],
+      "descriptions": [
+        "The object value was expected to validate against the 13 defined properties subschemas",
+        "The object value was not expected to define the property \"abcdefgX\"",
+        "The object value was not expected to define additional properties"
+      ]
+    }
   }
 ]
