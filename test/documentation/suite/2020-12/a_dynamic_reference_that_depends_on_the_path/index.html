@@ -1,9 +1,9 @@
 <h1>Schema</h1>
-<div class="counts"><span class="c opt"><b>2</b> you can leave out</span></div>
-<div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Linked names</b> lead to the shape they name.</span></div>
-<section id="root">
+<p>2 you can leave out.</p>
+<p><b>A table inside a row</b> means those properties live inside that one.</p>
+<section>
   <h2>What this file holds</h2>
-  <table class="doc">
+  <table>
     <tr>
       <th>Property</th>
       <th>What goes in it</th>
@@ -11,43 +11,47 @@
       <th>What it means</th>
     </tr>
     <tr>
-      <td><span class="nm">strict</span></td>
-      <td><a class="ty link" href="#shape-defs-strict-jvpxiq">a strict</a></td>
-      <td><span class="rq opt">No, you can leave it out</span></td>
-      <td class="de"></td>
+      <td>strict</td>
+      <td>a strict</td>
+      <td>No, you can leave it out</td>
+      <td></td>
     </tr>
     <tr>
-      <td><span class="nm">loose</span></td>
-      <td><a class="ty link" href="#shape-defs-loose-i6ezmb">a loose</a></td>
-      <td><span class="rq opt">No, you can leave it out</span></td>
-      <td class="de"></td>
+      <td>loose</td>
+      <td>a loose</td>
+      <td>No, you can leave it out</td>
+      <td></td>
     </tr>
   </table>
 </section>
 <section>
   <h2>Every shape, written out once</h2>
-  <p class="snote">Each shape appears here once. Anywhere else on this page that names one, it means exactly this.</p>
-  <div class="defblock">
-    <div class="shapeblock" id="shape-defs-list-nkvbz">
-      <h4>list</h4>
-      <p class="snote">This one is a list.</p>
-      <div class="leafval"><span class="ty">a list, each entry either <a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a>, <a class="ty link" href="#shape-defs-loose-defs-entry-1323ykn">an entry</a> or <a class="ty link" href="#shape-defs-strict-defs-entry-bfiw2i">an entry</a></span></div>
+  <p>Each shape appears here once. Anywhere else on this page that names one, it means exactly this.</p>
+  <div>
+    <h4>list</h4>
+    <p>This one is a list.</p>
+    <div>
+      <div>a list, each entry either a list, and that shape is itself a list, an entry or an entry</div>
     </div>
-    <div class="shapeblock" id="shape-defs-loose-i6ezmb">
-      <h4>loose</h4>
-      <div class="leafval"><a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a></div>
+  </div>
+  <div>
+    <h4>loose</h4>
+    <div>a list, and that shape is itself a list</div>
+  </div>
+  <div>
+    <h4>entry</h4>
+    <div>
+      <div>a whole number</div>
     </div>
-    <div class="shapeblock" id="shape-defs-loose-defs-entry-1323ykn">
-      <h4>entry</h4>
-      <div class="leafval"><span class="ty">a whole number</span></div>
-    </div>
-    <div class="shapeblock" id="shape-defs-strict-jvpxiq">
-      <h4>strict</h4>
-      <div class="leafval"><a class="ty link" href="#shape-defs-list-nkvbz">a list, and that shape is itself a list</a></div>
-    </div>
-    <div class="shapeblock" id="shape-defs-strict-defs-entry-bfiw2i">
-      <h4>entry</h4>
-      <div class="leafval"><span class="ty">text</span></div>
+  </div>
+  <div>
+    <h4>strict</h4>
+    <div>a list, and that shape is itself a list</div>
+  </div>
+  <div>
+    <h4>entry</h4>
+    <div>
+      <div>text</div>
     </div>
   </div>
 </section>

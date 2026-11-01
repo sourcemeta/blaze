@@ -638,10 +638,39 @@
           "minItems": 1,
           "items": {
             "type": "object",
-            "required": [ "pattern", "value" ],
+            "required": [ "value" ],
             "properties": {
               "pattern": {
-                "type": "string"
+                "description": "Absent means every property name",
+                "x-format-assertion": true,
+                "type": "string",
+                "format": "regex"
+              },
+              "except": {
+                "description": "Names, and patterns of names, the entry leaves out",
+                "type": "object",
+                "minProperties": 1,
+                "properties": {
+                  "names": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "patterns": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "x-format-assertion": true,
+                      "type": "string",
+                      "format": "regex"
+                    }
+                  }
+                },
+                "additionalProperties": false
               },
               "value": {
                 "$ref": "#/$defs/value"

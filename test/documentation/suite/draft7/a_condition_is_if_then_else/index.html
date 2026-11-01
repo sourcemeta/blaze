@@ -1,9 +1,10 @@
 <h1>Schema</h1>
-<div class="counts"><span class="c opt"><b>1</b> you can leave out</span><span class="c cond"><b>3</b> that only apply in certain cases</span></div>
-<div class="legend"><span><b>A table inside a row</b> means those properties live inside that one.</span><span><b>Click a strip</b> to open what it holds.</span></div>
-<section id="root">
+<p>1 you can leave out, 3 that only apply in certain cases.</p>
+<p><b>A table inside a row</b> means those properties live inside that one.</p>
+<p><b>Click a strip</b> to open what it holds.</p>
+<section>
   <h2>What this file holds</h2>
-  <table class="doc">
+  <table>
     <tr>
       <th>Property</th>
       <th>What goes in it</th>
@@ -11,42 +12,48 @@
       <th>What it means</th>
     </tr>
     <tr>
-      <td><span class="nm">kind</span></td>
-      <td><span class="ty">text</span></td>
-      <td><span class="rq opt">No, you can leave it out</span></td>
-      <td class="de"></td>
+      <td>kind</td>
+      <td>
+        <div>text</div>
+      </td>
+      <td>No, you can leave it out</td>
+      <td></td>
     </tr>
     <tr>
-      <td><span class="nm cond">when kind is &quot;gift&quot;</span></td>
+      <td>when kind is &quot;gift&quot;</td>
       <td></td>
-      <td><span class="rq cond">Only in certain cases</span></td>
-      <td class="de"></td>
+      <td>Only in certain cases</td>
+      <td></td>
     </tr>
-    <tr class="nest dep">
+    <tr>
       <td colspan="4">
-        <details class="nestbox depbox">
-          <summary>then these apply <span class="cnt">1 property</span></summary>
-          <table class="doc sub">
+        <details>
+          <summary>then these apply (1 property)</summary>
+          <table>
             <tr>
-              <td><span class="nm">note</span></td>
-              <td><span class="ty">text</span></td>
-              <td><span class="rq cond">Yes, when kind is &quot;gift&quot;</span></td>
-              <td class="de"></td>
+              <td>note</td>
+              <td>
+                <div>text</div>
+              </td>
+              <td>Yes, when kind is &quot;gift&quot;</td>
+              <td></td>
             </tr>
           </table>
         </details>
       </td>
     </tr>
-    <tr class="nest dep">
+    <tr>
       <td colspan="4">
-        <details class="nestbox depbox">
-          <summary>otherwise these apply <span class="cnt">1 property</span></summary>
-          <table class="doc sub">
+        <details>
+          <summary>otherwise these apply (1 property)</summary>
+          <table>
             <tr>
-              <td><span class="nm">plain</span></td>
-              <td><span class="boolctl" title="a yes or no answer"><span class="bo">yes</span><span class="bo">no</span></span></td>
-              <td><span class="rq cond">Yes, otherwise</span></td>
-              <td class="de"></td>
+              <td>plain</td>
+              <td>
+                <div>yes or no</div>
+              </td>
+              <td>Yes, otherwise</td>
+              <td></td>
             </tr>
           </table>
         </details>

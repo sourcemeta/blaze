@@ -14,7 +14,9 @@
     ],
     "patternProperties": [
       {
-        "pattern": "^(?!(?:a)$)",
+        "except": {
+          "names": [ "a" ]
+        },
         "value": {
           "kind": "never"
         }

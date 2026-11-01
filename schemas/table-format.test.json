@@ -389,6 +389,29 @@
       }
     },
     {
+      "description": "Every other property, apart from some names and patterns",
+      "valid": true,
+      "data": {
+        "$schema": "tag:sourcemeta.com,2026:table-format/2",
+        "title": "Order",
+        "language": "https://json-schema.org/draft/2020-12/schema",
+        "root": {
+          "kind": "object",
+          "patternProperties": [
+            {
+              "except": {
+                "names": [ "id" ],
+                "patterns": [ "^x-" ]
+              },
+              "value": {
+                "kind": "never"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
       "description": "A property that says nothing about what goes in it",
       "valid": true,
       "data": {
@@ -651,6 +674,68 @@
         "root": {
           "kind": "string",
           "pattern": "["
+        }
+      }
+    },
+    {
+      "description": "A pattern of property names that is not a regular expression",
+      "valid": false,
+      "data": {
+        "$schema": "tag:sourcemeta.com,2026:table-format/2",
+        "title": "Order",
+        "language": "https://json-schema.org/draft/2020-12/schema",
+        "root": {
+          "kind": "object",
+          "patternProperties": [
+            {
+              "pattern": "[",
+              "value": {
+                "kind": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "Exceptions that leave nothing out",
+      "valid": false,
+      "data": {
+        "$schema": "tag:sourcemeta.com,2026:table-format/2",
+        "title": "Order",
+        "language": "https://json-schema.org/draft/2020-12/schema",
+        "root": {
+          "kind": "object",
+          "patternProperties": [
+            {
+              "except": {},
+              "value": {
+                "kind": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "An exception that is not a regular expression",
+      "valid": false,
+      "data": {
+        "$schema": "tag:sourcemeta.com,2026:table-format/2",
+        "title": "Order",
+        "language": "https://json-schema.org/draft/2020-12/schema",
+        "root": {
+          "kind": "object",
+          "patternProperties": [
+            {
+              "except": {
+                "patterns": [ "(" ]
+              },
+              "value": {
+                "kind": "string"
+              }
+            }
+          ]
         }
       }
     },
