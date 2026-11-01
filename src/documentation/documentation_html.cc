@@ -28,14 +28,15 @@
 
 // The table format into a page. This renderer reads the table format and
 // nothing else, so it draws a page for a schema of any language that was
-// converted into it. It writes bare markup with no stylesheet, so whoever shows
-// the page styles it through the class names on it. It holds:
+// converted into it. It writes bare markup with no stylesheet, no classes and
+// no ids, so whoever shows the page wraps it in an element of their own and
+// styles it from there. It holds:
 //
 // - the shapes everything else is built on, before the things built on them
-// - one row per property, with limits drawn rather than written
+// - one row per property, with its limits written out
 // - a thing inside a thing is a table inside that row
-// - inherited properties behind one strip, opened in place
-// - a shape pointed at is a link to where it is written out once
+// - inherited properties behind one disclosure, opened in place
+// - a shape is named wherever it is used, and written out once
 //
 // No scripting, no JSON on the page.
 
@@ -244,18 +245,26 @@ auto stat(const Draw &draw, const std::string &key) -> std::size_t {
 auto counts_sentence(const Draw &draw, const std::size_t shapes)
     -> std::string {
   std::vector<std::string> parts;
-  if (stat(draw, "req") > 0) {
-    parts.push_back(std::to_string(stat(draw, "req")) +
-                    " you must always fill in");
-  }
+  for (const auto &[key, sentence] :
+       std::array<std::pair<std::string, std::string>, 3>{
+           {{"req", "you must always fill in"},
+            {"opt", "you can leave out"},
+            {"cond", "that only apply in certain cases"}}}) {
+    const auto amount{stat(draw, key)};
+    if (amount == 0) {
+      continue;
+    }
 
-  if (stat(draw, "opt") > 0) {
-    parts.push_back(std::to_string(stat(draw, "opt")) + " you can leave out");
-  }
+    // One property applies, where many apply.
+    const auto said{key == "cond" && amount == 1
+                        ? std::string{"that only applies in certain cases"}
+                        : sentence};
 
-  if (stat(draw, "cond") > 0) {
-    parts.push_back(std::to_string(stat(draw, "cond")) +
-                    " that only apply in certain cases");
+    // The first number says what it counts, and the rest follow it.
+    parts.push_back(parts.empty()
+                        ? plural(amount, "property", "properties", true) + " " +
+                              said
+                        : std::to_string(amount) + " " + said);
   }
 
   if (parts.empty() && shapes > 0) {
@@ -516,7 +525,10 @@ auto to_html(const sourcemeta::core::JSON &documentation, std::string &output,
   }
 
   if (drawn.find("<details") != std::string::npos) {
-    page.p().b("Click a strip").text(" to open what it holds.").close();
+    page.p()
+        .b("Click a line with an arrow")
+        .text(" to open what it holds.")
+        .close();
   }
 
   page.raw(drawn);

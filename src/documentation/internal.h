@@ -7,13 +7,15 @@
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <cstddef> // std::size_t
-#include <cstdint> // std::uint8_t
-#include <map>     // std::map
-#include <set>     // std::set
-#include <string>  // std::string
-#include <utility> // std::move
-#include <vector>  // std::vector
+#include <cstddef>     // std::size_t
+#include <cstdint>     // std::uint8_t
+#include <map>         // std::map
+#include <optional>    // std::optional
+#include <set>         // std::set
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <utility>     // std::move
+#include <vector>      // std::vector
 
 // What both halves of this module need to agree on: how old a dialect is, what
 // a shape is, and what is being carried through a conversion. Reading one

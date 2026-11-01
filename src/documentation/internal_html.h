@@ -12,6 +12,7 @@
 #include <set>         // std::set
 #include <string>      // std::string
 #include <string_view> // std::string_view
+#include <utility>     // std::move
 #include <vector>      // std::vector
 
 // What the three files that draw a page share: the words a page says, in

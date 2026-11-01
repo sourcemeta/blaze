@@ -98,6 +98,18 @@ auto parts_of(const DocumentationContext &context, const JSON &subschema,
   if (rank == Rank::Draft3) {
     add_members(result, subschema, pointer, "extends", true);
     add_members(result, subschema, pointer, "type", false);
+    // A dependency that is a schema applies when its property is there.
+    if (defines(subschema, "dependencies") &&
+        subschema.at("dependencies").is_object()) {
+      for (const auto &entry : subschema.at("dependencies").as_object()) {
+        if (entry.second.is_object()) {
+          result.push_back(
+              {.pointer = pointer.concat("dependencies").concat(entry.first),
+               .always = false});
+        }
+      }
+    }
+
     return result;
   }
 

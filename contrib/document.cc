@@ -29,6 +29,12 @@ auto main(int argc, char *argv[]) -> int {
     // missing or is not JSON, and that is as much a failure of this command as
     // a schema it cannot describe.
     const auto schema{sourcemeta::core::read_json(argv[1])};
+    // Describing a schema assumes it is one, so anything else stops here.
+    if (!schema.is_object() && !schema.is_boolean()) {
+      std::cerr << "A schema must be an object or a boolean\n";
+      return EXIT_FAILURE;
+    }
+
     // A document already in the table format is drawn as it is.
     const auto described{schema.is_object() && schema.defines("$schema") &&
                          schema.at("$schema").is_string() &&
