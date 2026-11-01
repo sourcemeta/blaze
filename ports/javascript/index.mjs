@@ -7,7 +7,7 @@ import {
   CONTROL_JUMP, CONTROL_DYNAMIC_ANCHOR_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 13;
+const JSON_VERSION = 14;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -308,45 +308,46 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
     case 45: { var r=R('t'); return r?IO+r+'if(t===void 0)return true;return _es(t)==='+value+';':null; }
     case 46: return fb(46);
     case 47: { var r=R('t'); return r?IO+r+'if(t===void 0)return true;return('+value+'&(1<<_es(t)))!==0;':null; }
-    case 48: return fb(48); case 49: return fb(49); case 50: return fb(50);
-    case 51: return fb(51);
-    case 52: case 53: case 54: case 55: case 56: return 'return true;';
-    case 57: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return 'return false;'; var c=r; for(var j=0;j<children.length;j++)c+='if(!'+cc(children[j],'t')+')return true;'; return c+'return false;'; }
-    case 58: return fb(58);
-    case 59: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return 'return true;'; if(value){var c=r+'var __r=false;';for(var j=0;j<children.length;j++)c+='if('+cc(children[j],'t')+')__r=true;';return c+'return __r;';} var c=r;for(var j=0;j<children.length;j++)c+='if('+cc(children[j],'t')+')return true;';return c+'return false;'; }
-    case 60: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return 'return true;'; return r+seq(children,'t')+'return true;'; }
-    case 61: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return 'return false;'; var c=r+'var __r=true,__m=false;';for(var j=0;j<children.length;j++){c+='if('+cc(children[j],'t')+'){if(__m){__r=false;'+(!value?'return false;':'')+ '}else __m=true;}';}return c+'return __r&&__m;'; }
-    case 62: return fb(62);
-    case 63: { var r=R('t'); if(!r)return null; var c=r+'if(_jt(t)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'t'); return c+'return true;'; }
-    case 64: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'t'); return c+'return true;'; }
-    case 65: { var r=R('t'); if(!r)return null; var c=r+'if(!Array.isArray(t)||t.length<='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'t'); return c+'return true;'; }
-    case 66: return fb(66); case 67: return fb(67);
-    case 68: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; var mi=captures.length; captures.push(value); var gf=''; for(var gi=0;gi<children.length;gi++){var gc=children[gi][7]; if(gc&&gc.length>0){gf+='function(i,d,_t,_v){'+lb(gc,'i')+'return true;},';}else{gf+='null,';}} return r+TO+'return true;var __cg=['+gf+'];for(var k in t){var __mi=_c['+mi+'][k];if(__mi!==void 0){var __cf=__cg[__mi];if(__cf&&!__cf(t,d,_t,_v))return false;}}return true;'; }
-    case 69: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; var mi=captures.length; captures.push(value); var gf=''; for(var gi=0;gi<children.length;gi++){var gc=children[gi][7]; if(gc&&gc.length>0){gf+='function(i,d,_t,_v){'+lb(gc,'i')+'return true;},';}else{gf+='null,';}} return r+TO+'return true;var __cg=['+gf+'];for(var k in t){var __mi=_c['+mi+'][k];if(__mi===void 0)return false;var __cf=__cg[__mi];if(__cf&&!__cf(t,d,_t,_v))return false;}return true;'; }
-    case 70: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; return r+TO+'return true;for(var k in t){'+lb(children,'t[k]')+'}return true;'; }
-    case 71: return fb(71); case 72: return fb(72); case 73: return fb(73); case 74: return fb(74); case 75: return fb(75);
-    case 76: return fb(76); case 77: return fb(77); case 78: return fb(78);
-    case 79: return fb(79);
-    case 80: { var r=R('t'); return r?r+TO+'return true;for(var k in t){if(_es(t[k])!=='+value+')return false;}return true;':null; }
-    case 81: return fb(81); case 82: return fb(82); case 83: return fb(83);
-    case 84: return fb(84);
-    case 85: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; return r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){'+lb(children,'t[j]')+'}return true;'; }
-    case 86: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; return r+'if(!Array.isArray(t)||'+value+'>=t.length)return true;for(var j='+value+';j<t.length;j++){'+lb(children,'t[j]')+'}return true;'; }
-    case 87: return fb(87);
-    case 88: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){var a=_jt(t[j]);if(a!=='+value+'&&!('+value+'===2&&_ii(t[j])))return false;}return true;':null; }
-    case 89: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){if(_es(t[j])!=='+value+')return false;}return true;':null; }
-    case 90: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){if(('+value+'&(1<<_es(t[j])))===0)return false;}return true;':null; }
-    case 91: return fb(91); case 92: return fb(92); case 93: return fb(93); case 94: return fb(94);
-    case 95: return fb(95);
+    case 48: return fb(48);
+    case 49: { if(typeof value==='string'||typeof value==='number'||typeof value==='boolean'||value===null){var r=R('t');return r?IO+r+'if(t===void 0)return true;return t==='+JSON.stringify(value)+';':null;} return fb(49); }
+    case 50: return fb(50); case 51: return fb(51);
+    case 52: return fb(52);
+    case 53: case 54: case 55: case 56: case 57: return 'return true;';
+    case 58: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return 'return false;'; var c=r; for(var j=0;j<children.length;j++)c+='if(!'+cc(children[j],'t')+')return true;'; return c+'return false;'; }
+    case 59: return fb(59);
+    case 60: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return 'return true;'; if(value){var c=r+'var __r=false;';for(var j=0;j<children.length;j++)c+='if('+cc(children[j],'t')+')__r=true;';return c+'return __r;';} var c=r;for(var j=0;j<children.length;j++)c+='if('+cc(children[j],'t')+')return true;';return c+'return false;'; }
+    case 61: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return 'return true;'; return r+seq(children,'t')+'return true;'; }
+    case 62: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return 'return false;'; var c=r+'var __r=true,__m=false;';for(var j=0;j<children.length;j++){c+='if('+cc(children[j],'t')+'){if(__m){__r=false;'+(!value?'return false;':'')+ '}else __m=true;}';}return c+'return __r&&__m;'; }
+    case 63: return fb(63);
+    case 64: { var r=R('t'); if(!r)return null; var c=r+'if(_jt(t)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'t'); return c+'return true;'; }
+    case 65: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'t'); return c+'return true;'; }
+    case 66: { var r=R('t'); if(!r)return null; var c=r+'if(!Array.isArray(t)||t.length<='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'t'); return c+'return true;'; }
+    case 67: return fb(67); case 68: return fb(68);
+    case 69: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; var mi=captures.length; captures.push(value); var gf=''; for(var gi=0;gi<children.length;gi++){var gc=children[gi][7]; if(gc&&gc.length>0){gf+='function(i,d,_t,_v){'+lb(gc,'i')+'return true;},';}else{gf+='null,';}} return r+TO+'return true;var __cg=['+gf+'];for(var k in t){var __mi=_c['+mi+'][k];if(__mi!==void 0){var __cf=__cg[__mi];if(__cf&&!__cf(t,d,_t,_v))return false;}}return true;'; }
+    case 70: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; var mi=captures.length; captures.push(value); var gf=''; for(var gi=0;gi<children.length;gi++){var gc=children[gi][7]; if(gc&&gc.length>0){gf+='function(i,d,_t,_v){'+lb(gc,'i')+'return true;},';}else{gf+='null,';}} return r+TO+'return true;var __cg=['+gf+'];for(var k in t){var __mi=_c['+mi+'][k];if(__mi===void 0)return false;var __cf=__cg[__mi];if(__cf&&!__cf(t,d,_t,_v))return false;}return true;'; }
+    case 71: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; return r+TO+'return true;for(var k in t){'+lb(children,'t[k]')+'}return true;'; }
+    case 72: return fb(72); case 73: return fb(73); case 74: return fb(74); case 75: return fb(75); case 76: return fb(76);
+    case 77: return fb(77); case 78: return fb(78); case 79: return fb(79);
+    case 80: return fb(80);
+    case 81: { var r=R('t'); return r?r+TO+'return true;for(var k in t){if(_es(t[k])!=='+value+')return false;}return true;':null; }
+    case 82: return fb(82); case 83: return fb(83); case 84: return fb(84);
+    case 85: return fb(85);
+    case 86: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; return r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){'+lb(children,'t[j]')+'}return true;'; }
+    case 87: { var r=R('t'); if(!r)return null; if(!children||children.length===0)return r+'return true;'; return r+'if(!Array.isArray(t)||'+value+'>=t.length)return true;for(var j='+value+';j<t.length;j++){'+lb(children,'t[j]')+'}return true;'; }
+    case 88: return fb(88);
+    case 89: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){var a=_jt(t[j]);if(a!=='+value+'&&!('+value+'===2&&_ii(t[j])))return false;}return true;':null; }
+    case 90: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){if(_es(t[j])!=='+value+')return false;}return true;':null; }
+    case 91: { var r=R('t'); return r?r+'if(!Array.isArray(t))return true;for(var j=0;j<t.length;j++){if(('+value+'&(1<<_es(t[j])))===0)return false;}return true;':null; }
+    case 92: return fb(92); case 93: return fb(93); case 94: return fb(94); case 95: return fb(95);
     case 96: return fb(96);
-    case 97: { if(!children||children.length===0)return 'return true;'; var c=''; for(var j=0;j<children.length;j++){var r2=compileInstructionToCode(children[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(children[j]);c+='if(!_e(_c['+ci+'],i,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(i,d+1,_t,_v))return false;';}} return c+'return true;'; }
-    case 98: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 99: { var c=IO+'if(!Object.hasOwn(i,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 100: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 101: return 'return true;';
-    case 102: return fb(102);
-    case 104: { if(typeof value==='string'||typeof value==='number'||typeof value==='boolean'||value===null){var r=R('t');return r?IO+r+'if(t===void 0)return true;return t==='+JSON.stringify(value)+';':null;} return fb(104); }
-    case 103: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(103); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(103); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
+    case 97: return fb(97);
+    case 98: { if(!children||children.length===0)return 'return true;'; var c=''; for(var j=0;j<children.length;j++){var r2=compileInstructionToCode(children[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(children[j]);c+='if(!_e(_c['+ci+'],i,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(i,d+1,_t,_v))return false;';}} return c+'return true;'; }
+    case 99: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 100: { var c=IO+'if(!Object.hasOwn(i,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 101: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 102: return 'return true;';
+    case 103: return fb(103);
+    case 104: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(104); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(104); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
     default: return null;
   }
 }
@@ -2735,111 +2736,111 @@ function ControlJump(instruction, instance, depth, template, evaluator) {
 };
 
 const handlers = [
-  AssertionFail,                              // 0
-  AssertionDefines,                           // 1
-  AssertionDefinesStrict,                     // 2
-  AssertionDefinesAll,                        // 3
-  AssertionDefinesAllStrict,                  // 4
-  AssertionDefinesExactly,                    // 5
-  AssertionDefinesExactlyStrict,              // 6
-  AssertionDefinesExactlyStrictHash3,         // 7
-  AssertionPropertyDependencies,              // 8
-  AssertionType,                              // 9
-  AssertionTypeAny,                           // 10
-  AssertionTypeStrict,                        // 11
-  AssertionTypeStrictAny,                     // 12
-  AssertionNotTypeStrictAny,                  // 13
-  AssertionTypeStringBounded,                 // 14
-  AssertionTypeStringUpper,                   // 15
-  AssertionTypeArrayBounded,                  // 16
-  AssertionTypeArrayUpper,                    // 17
-  AssertionTypeObjectBounded,                 // 18
-  AssertionTypeObjectUpper,                   // 19
-  AssertionRegex,                             // 20
-  AssertionStringSizeLess,                    // 21
-  AssertionStringSizeGreater,                 // 22
-  AssertionArraySizeLess,                     // 23
-  AssertionArraySizeGreater,                  // 24
-  AssertionObjectSizeLess,                    // 25
-  AssertionObjectSizeGreater,                 // 26
-  AssertionEqual,                             // 27
-  AssertionEqualsAny,                         // 28
-  AssertionEqualsAnyStringHash,               // 29
-  AssertionGreaterEqual,                      // 30
-  AssertionLessEqual,                         // 31
-  AssertionGreater,                           // 32
-  AssertionLess,                              // 33
-  AssertionUnique,                            // 34
-  AssertionDivisible,                         // 35
-  AssertionTypeIntegerBounded,                // 36
-  AssertionTypeIntegerBoundedStrict,          // 37
-  AssertionTypeIntegerLowerBound,             // 38
-  AssertionTypeIntegerLowerBoundStrict,       // 39
-  AssertionNumberIntegerBounded,              // 40
-  AssertionNumberType,                        // 41
-  AssertionStringType, // 42
-  AssertionPropertyType, // 43
-  AssertionPropertyTypeEvaluate, // 44
-  AssertionPropertyTypeStrict, // 45
-  AssertionPropertyTypeStrictEvaluate, // 46
-  AssertionPropertyTypeStrictAny, // 47
-  AssertionPropertyTypeStrictAnyEvaluate, // 48
-  AssertionArrayPrefix, // 49
-  AssertionArrayPrefixEvaluate, // 50
-  AssertionObjectPropertiesSimple, // 51
-  AnnotationEmit, // 52
-  AnnotationEmitWrapped, // 53
-  AnnotationToParent, // 54
-  AnnotationBasenameToParent, // 55
-  Evaluate, // 56
-  LogicalNot, // 57
-  LogicalNotEvaluate, // 58
-  LogicalOr, // 59
-  LogicalAnd, // 60
-  LogicalXor, // 61
-  LogicalCondition, // 62
-  LogicalWhenType, // 63
-  LogicalWhenDefines, // 64
-  LogicalWhenArraySizeGreater, // 65
-  LoopPropertiesUnevaluated, // 66
-  LoopPropertiesUnevaluatedExcept, // 67
-  LoopPropertiesMatch, // 68
-  LoopPropertiesMatchClosed, // 69
-  LoopProperties, // 70
-  LoopPropertiesEvaluate, // 71
-  LoopPropertiesRegex, // 72
-  LoopPropertiesRegexClosed, // 73
-  LoopPropertiesStartsWith, // 74
-  LoopPropertiesExcept, // 75
-  LoopPropertiesType, // 76
-  LoopPropertiesTypeEvaluate, // 77
-  LoopPropertiesExactlyTypeStrict, // 78
-  LoopPropertiesExactlyTypeStrictHash, // 79
-  LoopPropertiesTypeStrict, // 80
-  LoopPropertiesTypeStrictEvaluate, // 81
-  LoopPropertiesTypeStrictAny, // 82
-  LoopPropertiesTypeStrictAnyEvaluate, // 83
-  LoopKeys, // 84
-  LoopItems, // 85
-  LoopItemsFrom, // 86
-  LoopItemsUnevaluated, // 87
-  LoopItemsType, // 88
-  LoopItemsTypeStrict, // 89
-  LoopItemsTypeStrictAny, // 90
-  LoopItemsPropertiesExactlyTypeStrictHash, // 91
-  LoopItemsPropertiesExactlyTypeStrictHash, // 92
-  LoopItemsIntegerBounded, // 93
-  LoopItemsIntegerBoundedSized, // 94
-  LoopItemsArrayBoundedTypeStrictAny, // 95
-  LoopContains, // 96
-  ControlGroup, // 97
-  ControlGroupWhenDefines, // 98
-  ControlGroupWhenDefinesDirect, // 99
-  ControlGroupWhenType, // 100
-  ControlEvaluate, // 101
-  ControlDynamicAnchorJump, // 102
-  ControlJump,                                // 103
-  AssertionPropertyEqual                      // 104
+  AssertionFail,                           // 0
+  AssertionDefines,                        // 1
+  AssertionDefinesStrict,                  // 2
+  AssertionDefinesAll,                     // 3
+  AssertionDefinesAllStrict,               // 4
+  AssertionDefinesExactly,                 // 5
+  AssertionDefinesExactlyStrict,           // 6
+  AssertionDefinesExactlyStrictHash3,      // 7
+  AssertionPropertyDependencies,           // 8
+  AssertionType,                           // 9
+  AssertionTypeAny,                        // 10
+  AssertionTypeStrict,                     // 11
+  AssertionTypeStrictAny,                  // 12
+  AssertionNotTypeStrictAny,               // 13
+  AssertionTypeStringBounded,              // 14
+  AssertionTypeStringUpper,                // 15
+  AssertionTypeArrayBounded,               // 16
+  AssertionTypeArrayUpper,                 // 17
+  AssertionTypeObjectBounded,              // 18
+  AssertionTypeObjectUpper,                // 19
+  AssertionRegex,                          // 20
+  AssertionStringSizeLess,                 // 21
+  AssertionStringSizeGreater,              // 22
+  AssertionArraySizeLess,                  // 23
+  AssertionArraySizeGreater,               // 24
+  AssertionObjectSizeLess,                 // 25
+  AssertionObjectSizeGreater,              // 26
+  AssertionEqual,                          // 27
+  AssertionEqualsAny,                      // 28
+  AssertionEqualsAnyStringHash,            // 29
+  AssertionGreaterEqual,                   // 30
+  AssertionLessEqual,                      // 31
+  AssertionGreater,                        // 32
+  AssertionLess,                           // 33
+  AssertionUnique,                         // 34
+  AssertionDivisible,                      // 35
+  AssertionTypeIntegerBounded,             // 36
+  AssertionTypeIntegerBoundedStrict,       // 37
+  AssertionTypeIntegerLowerBound,          // 38
+  AssertionTypeIntegerLowerBoundStrict,    // 39
+  AssertionNumberIntegerBounded,           // 40
+  AssertionNumberType,                     // 41
+  AssertionStringType,                     // 42
+  AssertionPropertyType,                   // 43
+  AssertionPropertyTypeEvaluate,           // 44
+  AssertionPropertyTypeStrict,             // 45
+  AssertionPropertyTypeStrictEvaluate,     // 46
+  AssertionPropertyTypeStrictAny,          // 47
+  AssertionPropertyTypeStrictAnyEvaluate,  // 48
+  AssertionPropertyEqual,                  // 49
+  AssertionArrayPrefix,                    // 50
+  AssertionArrayPrefixEvaluate,            // 51
+  AssertionObjectPropertiesSimple,         // 52
+  AnnotationEmit,                          // 53
+  AnnotationEmitWrapped,                   // 54
+  AnnotationToParent,                      // 55
+  AnnotationBasenameToParent,              // 56
+  Evaluate,                                // 57
+  LogicalNot,                              // 58
+  LogicalNotEvaluate,                      // 59
+  LogicalOr,                               // 60
+  LogicalAnd,                              // 61
+  LogicalXor,                              // 62
+  LogicalCondition,                        // 63
+  LogicalWhenType,                         // 64
+  LogicalWhenDefines,                      // 65
+  LogicalWhenArraySizeGreater,             // 66
+  LoopPropertiesUnevaluated,               // 67
+  LoopPropertiesUnevaluatedExcept,         // 68
+  LoopPropertiesMatch,                     // 69
+  LoopPropertiesMatchClosed,               // 70
+  LoopProperties,                          // 71
+  LoopPropertiesEvaluate,                  // 72
+  LoopPropertiesRegex,                     // 73
+  LoopPropertiesRegexClosed,               // 74
+  LoopPropertiesStartsWith,                // 75
+  LoopPropertiesExcept,                    // 76
+  LoopPropertiesType,                      // 77
+  LoopPropertiesTypeEvaluate,              // 78
+  LoopPropertiesExactlyTypeStrict,         // 79
+  LoopPropertiesExactlyTypeStrictHash,     // 80
+  LoopPropertiesTypeStrict,                // 81
+  LoopPropertiesTypeStrictEvaluate,        // 82
+  LoopPropertiesTypeStrictAny,             // 83
+  LoopPropertiesTypeStrictAnyEvaluate,     // 84
+  LoopKeys,                                // 85
+  LoopItems,                               // 86
+  LoopItemsFrom,                           // 87
+  LoopItemsUnevaluated,                    // 88
+  LoopItemsType,                           // 89
+  LoopItemsTypeStrict,                     // 90
+  LoopItemsTypeStrictAny,                  // 91
+  LoopItemsPropertiesExactlyTypeStrictHash,// 92
+  LoopItemsPropertiesExactlyTypeStrictHash,// 93
+  LoopItemsIntegerBounded,                 // 94
+  LoopItemsIntegerBoundedSized,            // 95
+  LoopItemsArrayBoundedTypeStrictAny,      // 96
+  LoopContains,                            // 97
+  ControlGroup,                            // 98
+  ControlGroupWhenDefines,                 // 99
+  ControlGroupWhenDefinesDirect,           // 100
+  ControlGroupWhenType,                    // 101
+  ControlEvaluate,                         // 102
+  ControlDynamicAnchorJump,                // 103
+  ControlJump                              // 104
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {
@@ -4075,36 +4076,36 @@ function AssertionTypeIntegerLowerBoundStrict_fast(instruction, instance, depth,
 
 const fastHandlers = handlers.slice();
 fastHandlers[16] = AssertionTypeArrayBounded_fast;
-fastHandlers[90] = LoopItemsTypeStrictAny_fast;
+fastHandlers[91] = LoopItemsTypeStrictAny_fast;
 fastHandlers[45] = AssertionPropertyTypeStrict_fast;
 fastHandlers[11] = AssertionTypeStrict_fast;
 fastHandlers[4] = AssertionDefinesAllStrict_fast;
 fastHandlers[27] = AssertionEqual_fast;
-fastHandlers[68] = LoopPropertiesMatch_fast;
-fastHandlers[59] = LogicalOr_fast;
-fastHandlers[103] = ControlJump_fast;
+fastHandlers[69] = LoopPropertiesMatch_fast;
+fastHandlers[60] = LogicalOr_fast;
+fastHandlers[104] = ControlJump_fast;
 fastHandlers[29] = AssertionEqualsAnyStringHash_fast;
-fastHandlers[61] = LogicalXor_fast;
+fastHandlers[62] = LogicalXor_fast;
 fastHandlers[2] = AssertionDefinesStrict_fast;
-fastHandlers[85] = LoopItems_fast;
-fastHandlers[69] = LoopPropertiesMatchClosed_fast;
+fastHandlers[86] = LoopItems_fast;
+fastHandlers[70] = LoopPropertiesMatchClosed_fast;
 fastHandlers[14] = AssertionTypeStringBounded_fast;
-fastHandlers[60] = LogicalAnd_fast;
+fastHandlers[61] = LogicalAnd_fast;
 fastHandlers[8] = AssertionPropertyDependencies_fast;
 fastHandlers[10] = AssertionTypeAny_fast;
-fastHandlers[62] = LogicalCondition_fast;
-fastHandlers[75] = LoopPropertiesExcept_fast;
+fastHandlers[63] = LogicalCondition_fast;
+fastHandlers[76] = LoopPropertiesExcept_fast;
 fastHandlers[20] = AssertionRegex_fast;
-fastHandlers[70] = LoopProperties_fast;
+fastHandlers[71] = LoopProperties_fast;
 fastHandlers[1] = AssertionDefines_fast;
-fastHandlers[63] = LogicalWhenType_fast;
-fastHandlers[64] = LogicalWhenDefines_fast;
+fastHandlers[64] = LogicalWhenType_fast;
+fastHandlers[65] = LogicalWhenDefines_fast;
 fastHandlers[0] = AssertionFail_fast;
-fastHandlers[95] = LoopItemsArrayBoundedTypeStrictAny_fast;
-fastHandlers[96] = LoopContains_fast;
-fastHandlers[57] = LogicalNot_fast;
-fastHandlers[88] = LoopItemsType_fast;
-fastHandlers[89] = LoopItemsTypeStrict_fast;
+fastHandlers[96] = LoopItemsArrayBoundedTypeStrictAny_fast;
+fastHandlers[97] = LoopContains_fast;
+fastHandlers[58] = LogicalNot_fast;
+fastHandlers[89] = LoopItemsType_fast;
+fastHandlers[90] = LoopItemsTypeStrict_fast;
 fastHandlers[28] = AssertionEqualsAny_fast;
 fastHandlers[3] = AssertionDefinesAll_fast;
 fastHandlers[5] = AssertionDefinesExactly_fast;
@@ -4141,38 +4142,38 @@ fastHandlers[44] = AssertionPropertyTypeEvaluate_fast;
 fastHandlers[46] = AssertionPropertyTypeStrictEvaluate_fast;
 fastHandlers[47] = AssertionPropertyTypeStrictAny_fast;
 fastHandlers[48] = AssertionPropertyTypeStrictAnyEvaluate_fast;
-fastHandlers[49] = AssertionArrayPrefix_fast;
-fastHandlers[50] = AssertionArrayPrefixEvaluate_fast;
-fastHandlers[51] = AssertionObjectPropertiesSimple_fast;
-fastHandlers[52] = AnnotationEmit_fast;
-fastHandlers[53] = AnnotationEmitWrapped_fast;
-fastHandlers[54] = AnnotationToParent_fast;
-fastHandlers[55] = AnnotationBasenameToParent_fast;
-fastHandlers[56] = Evaluate_fast;
-fastHandlers[58] = LogicalNotEvaluate_fast;
-fastHandlers[65] = LogicalWhenArraySizeGreater_fast;
-fastHandlers[66] = LoopPropertiesUnevaluated_fast;
-fastHandlers[67] = LoopPropertiesUnevaluatedExcept_fast;
-fastHandlers[71] = LoopPropertiesEvaluate_fast;
-fastHandlers[72] = LoopPropertiesRegex_fast;
-fastHandlers[73] = LoopPropertiesRegexClosed_fast;
-fastHandlers[74] = LoopPropertiesStartsWith_fast;
-fastHandlers[76] = LoopPropertiesType_fast;
-fastHandlers[77] = LoopPropertiesTypeEvaluate_fast;
-fastHandlers[78] = LoopPropertiesExactlyTypeStrict_fast;
-fastHandlers[79] = LoopPropertiesExactlyTypeStrictHash_fast;
-fastHandlers[80] = LoopPropertiesTypeStrict_fast;
-fastHandlers[81] = LoopPropertiesTypeStrictEvaluate_fast;
-fastHandlers[82] = LoopPropertiesTypeStrictAny_fast;
-fastHandlers[83] = LoopPropertiesTypeStrictAnyEvaluate_fast;
-fastHandlers[84] = LoopKeys_fast;
-fastHandlers[86] = LoopItemsFrom_fast;
-fastHandlers[87] = LoopItemsUnevaluated_fast;
-fastHandlers[91] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
+fastHandlers[50] = AssertionArrayPrefix_fast;
+fastHandlers[51] = AssertionArrayPrefixEvaluate_fast;
+fastHandlers[52] = AssertionObjectPropertiesSimple_fast;
+fastHandlers[53] = AnnotationEmit_fast;
+fastHandlers[54] = AnnotationEmitWrapped_fast;
+fastHandlers[55] = AnnotationToParent_fast;
+fastHandlers[56] = AnnotationBasenameToParent_fast;
+fastHandlers[57] = Evaluate_fast;
+fastHandlers[59] = LogicalNotEvaluate_fast;
+fastHandlers[66] = LogicalWhenArraySizeGreater_fast;
+fastHandlers[67] = LoopPropertiesUnevaluated_fast;
+fastHandlers[68] = LoopPropertiesUnevaluatedExcept_fast;
+fastHandlers[72] = LoopPropertiesEvaluate_fast;
+fastHandlers[73] = LoopPropertiesRegex_fast;
+fastHandlers[74] = LoopPropertiesRegexClosed_fast;
+fastHandlers[75] = LoopPropertiesStartsWith_fast;
+fastHandlers[77] = LoopPropertiesType_fast;
+fastHandlers[78] = LoopPropertiesTypeEvaluate_fast;
+fastHandlers[79] = LoopPropertiesExactlyTypeStrict_fast;
+fastHandlers[80] = LoopPropertiesExactlyTypeStrictHash_fast;
+fastHandlers[81] = LoopPropertiesTypeStrict_fast;
+fastHandlers[82] = LoopPropertiesTypeStrictEvaluate_fast;
+fastHandlers[83] = LoopPropertiesTypeStrictAny_fast;
+fastHandlers[84] = LoopPropertiesTypeStrictAnyEvaluate_fast;
+fastHandlers[85] = LoopKeys_fast;
+fastHandlers[87] = LoopItemsFrom_fast;
+fastHandlers[88] = LoopItemsUnevaluated_fast;
 fastHandlers[92] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
-fastHandlers[93] = LoopItemsIntegerBounded_fast;
-fastHandlers[94] = LoopItemsIntegerBoundedSized_fast;
-fastHandlers[102] = ControlDynamicAnchorJump_fast;
+fastHandlers[93] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
+fastHandlers[94] = LoopItemsIntegerBounded_fast;
+fastHandlers[95] = LoopItemsIntegerBoundedSized_fast;
+fastHandlers[103] = ControlDynamicAnchorJump_fast;
 
 import { describe } from './describe.mjs';
 

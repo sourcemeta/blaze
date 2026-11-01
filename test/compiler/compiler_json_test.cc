@@ -34,7 +34,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      13,
+      14,
       false,
       false,
       [
@@ -74,13 +74,13 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      13,
+      14,
       false,
       false,
       [
         [
           [
-            70,
+            71,
             [ "additionalProperties" ],
             [],
             "#/additionalProperties",
@@ -134,7 +134,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      13,
+      14,
       false,
       false,
       [
@@ -176,13 +176,13 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      13,
+      14,
       false,
       false,
       [
         [
           [
-            70,
+            71,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -262,13 +262,13 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      13,
+      14,
       false,
       true,
       [
         [
           [
-            52,
+            53,
             [ "foo%" ],
             [],
             "https://example.com/top#/foo%25",
@@ -311,13 +311,13 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      13,
+      14,
       false,
       true,
       [
         [
           [
-            70,
+            71,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -335,7 +335,7 @@ TEST(example_6) {
                 [ 8, 4 ]
               ],
               [
-                55,
+                56,
                 [],
                 [],
                 "https://example.com/top#/additionalProperties",
@@ -405,13 +405,13 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      13,
+      14,
       false,
       false,
       [
         [
           [
-            68,
+            69,
             [
               "properties"
             ],
@@ -489,7 +489,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
             ],
             [
               [
-                97,
+                98,
                 [],
                 [],
                 "#/properties",
@@ -519,7 +519,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                97,
+                98,
                 [],
                 [],
                 "#/properties",
@@ -549,7 +549,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                97,
+                98,
                 [],
                 [],
                 "#/properties",
@@ -579,7 +579,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                97,
+                98,
                 [],
                 [],
                 "#/properties",
@@ -609,7 +609,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                97,
+                98,
                 [],
                 [],
                 "#/properties",
@@ -639,7 +639,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                97,
+                98,
                 [],
                 [],
                 "#/properties",
@@ -885,13 +885,13 @@ TEST(items_fused_as_a_bounded_array_type_loop) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      13,
+      14,
       false,
       false,
       [
         [
           [
-            95,
+            96,
             [ "items" ],
             [],
             "#/items",

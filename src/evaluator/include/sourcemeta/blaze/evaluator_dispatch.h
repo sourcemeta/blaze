@@ -3086,6 +3086,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[105] = {
     AssertionPropertyTypeStrictEvaluate,
     AssertionPropertyTypeStrictAny,
     AssertionPropertyTypeStrictAnyEvaluate,
+    AssertionPropertyEqual,
     AssertionArrayPrefix,
     AssertionArrayPrefixEvaluate,
     AssertionObjectPropertiesSimple,
@@ -3140,8 +3141,7 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[105] = {
     ControlGroupWhenType,
     ControlEvaluate,
     ControlDynamicAnchorJump,
-    ControlJump,
-    AssertionPropertyEqual};
+    ControlJump};
 
 template <bool Track, bool Dynamic, bool HasCallback>
 inline auto
