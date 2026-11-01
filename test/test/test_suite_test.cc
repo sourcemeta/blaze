@@ -993,7 +993,7 @@ TEST(fast_template_validates_the_target) {
 
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{result.fast(0), instance};
   EXPECT_TRUE(
       result.evaluator.validate(result.fast(0), instance, std::ref(output)));
 
@@ -1034,7 +1034,7 @@ TEST(exhaustive_template_emits_annotations) {
 
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{result.exhaustive(0), instance};
   EXPECT_TRUE(result.evaluator.validate(result.exhaustive(0), instance,
                                         std::ref(output)));
 

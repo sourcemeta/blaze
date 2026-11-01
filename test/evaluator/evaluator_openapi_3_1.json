@@ -213,7 +213,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+        "The string value \"xxx\" was expected to consist of at most 2 characters but its length was 3"
       ]
     }
   },
@@ -246,7 +246,7 @@
         [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+        "The string value \"x\" was expected to consist of at least 2 characters but its length was 1"
       ]
     }
   },
@@ -279,7 +279,7 @@
         [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items but it contained 3 items"
+        "The array value was expected to contain at most 2 items but its size was 3"
       ]
     }
   },
@@ -312,7 +312,7 @@
         [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at least 2 items but it contained 1 item"
+        "The array value was expected to contain at least 2 items but its size was 1"
       ]
     }
   },
@@ -381,7 +381,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+        "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
       ]
     }
   },
@@ -414,7 +414,7 @@
         [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at least 2 properties but it contained 1 property: \"a\""
+        "The object value was expected to contain at least 2 properties but it defines 1 of them: \"a\""
       ]
     }
   },

@@ -432,8 +432,8 @@ TEST(entry_carries_the_instruction_for_describing) {
   std::vector<std::string> messages;
   sourcemeta::blaze::TraceOutput output{
       schema_template,
-      [&messages,
-       &instance](const sourcemeta::blaze::TraceOutput::Entry &entry) -> void {
+      [&messages, &instance, &schema_template](
+          const sourcemeta::blaze::TraceOutput::Entry &entry) -> void {
         if (entry.type == sourcemeta::blaze::TraceOutput::EntryType::Push) {
           return;
         }
@@ -441,8 +441,8 @@ TEST(entry_carries_the_instruction_for_describing) {
         const auto valid{entry.type !=
                          sourcemeta::blaze::TraceOutput::EntryType::Fail};
         messages.push_back(sourcemeta::blaze::describe(
-            valid, entry.step, entry.evaluate_path, entry.instance_location,
-            instance, entry.annotation));
+            schema_template, valid, entry.step, entry.evaluate_path,
+            entry.instance_location, instance, entry.annotation));
       }};
 
   sourcemeta::blaze::Evaluator evaluator;

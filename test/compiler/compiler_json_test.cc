@@ -2,6 +2,7 @@
 
 #include <sourcemeta/blaze/compiler.h>
 
+#include <algorithm>     // std::ranges::count
 #include <unordered_set> // std::unordered_set
 
 #define EXPECT_BIDIRECTIONAL_JSON(schema_template, expected_json)              \
@@ -34,7 +35,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      14,
+      15,
       false,
       false,
       [
@@ -46,12 +47,18 @@ TEST(example_1) {
             "#/type",
             0,
             1,
+            1,
+            2,
             [ 8, 4 ]
           ]
         ]
       ],
       [],
-      [ "https://json-schema.org/draft/2020-12/vocab/validation" ]
+      [ "https://json-schema.org/draft/2020-12/vocab/validation" ],
+      [
+        "{0} was expected to be of type {1}",
+        "{0} was expected to be of type {1} but it was of type {2}"
+      ]
     ]
   )JSON")};
 
@@ -74,7 +81,7 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      14,
+      15,
       false,
       false,
       [
@@ -86,6 +93,8 @@ TEST(example_2) {
             "#/additionalProperties",
             0,
             2,
+            1,
+            0,
             [ 0 ],
             [
               [
@@ -95,6 +104,8 @@ TEST(example_2) {
                 "#/additionalProperties/multipleOf",
                 0,
                 1,
+                2,
+                0,
                 [ 1, 2 ]
               ],
               [
@@ -104,6 +115,8 @@ TEST(example_2) {
                 "#/additionalProperties/type",
                 0,
                 1,
+                3,
+                4,
                 [ 7, 156 ]
               ]
             ]
@@ -114,6 +127,12 @@ TEST(example_2) {
       [
         "https://json-schema.org/draft/2020-12/vocab/validation",
         "https://json-schema.org/draft/2020-12/vocab/applicator"
+      ],
+      [
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The {0} value {1} was expected to be divisible by the {2} {3}",
+        "{0} was expected to be of type {1} and it was of type {2}",
+        "{0} was expected to be of type {1} but it was of type {2}"
       ]
     ]
   )JSON")};
@@ -134,7 +153,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      14,
+      15,
       false,
       false,
       [
@@ -146,12 +165,15 @@ TEST(example_3) {
             "#/pattern",
             0,
             1,
+            1,
+            0,
             [ 9, "^f" ]
           ]
         ]
       ],
       [],
-      [ "https://json-schema.org/draft/2020-12/vocab/validation" ]
+      [ "https://json-schema.org/draft/2020-12/vocab/validation" ],
+      [ "{0} was expected to match the regular expression {1}" ]
     ]
   )JSON")};
 
@@ -176,7 +198,7 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      14,
+      15,
       false,
       false,
       [
@@ -188,6 +210,8 @@ TEST(example_4) {
             "https://example.com/top#/additionalProperties",
             1,
             2,
+            1,
+            0,
             [ 0 ],
             [
               [
@@ -197,6 +221,8 @@ TEST(example_4) {
                 "https://other.com/nested#/multipleOf",
                 2,
                 1,
+                2,
+                0,
                 [ 1, 2 ]
               ],
               [
@@ -206,6 +232,8 @@ TEST(example_4) {
                 "https://other.com/nested#/type",
                 2,
                 1,
+                3,
+                4,
                 [ 7, 156 ]
               ]
             ]
@@ -216,6 +244,12 @@ TEST(example_4) {
       [
         "https://json-schema.org/draft/2020-12/vocab/validation",
         "https://json-schema.org/draft/2020-12/vocab/applicator"
+      ],
+      [
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "The {0} value {1} was expected to be divisible by the {2} {3}",
+        "{0} was expected to be of type {1} and it was of type {2}",
+        "{0} was expected to be of type {1} but it was of type {2}"
       ]
     ]
   )JSON")};
@@ -262,7 +296,7 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      14,
+      15,
       false,
       true,
       [
@@ -274,12 +308,15 @@ TEST(example_5) {
             "https://example.com/top#/foo%25",
             1,
             0,
+            1,
+            0,
             [ 1, true ]
           ]
         ]
       ],
       [],
-      []
+      [],
+      [ "The unrecognized keyword {4} was collected as the annotation {2}" ]
     ]
   )JSON")};
 
@@ -311,7 +348,7 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      14,
+      15,
       false,
       true,
       [
@@ -323,6 +360,8 @@ TEST(example_6) {
             "https://example.com/top#/additionalProperties",
             1,
             2,
+            1,
+            0,
             [ 0 ],
             [
               [
@@ -332,6 +371,8 @@ TEST(example_6) {
                 "https://example.com/top#/additionalProperties/type",
                 1,
                 1,
+                2,
+                3,
                 [ 8, 4 ]
               ],
               [
@@ -341,6 +382,8 @@ TEST(example_6) {
                 "https://example.com/top#/additionalProperties",
                 1,
                 2,
+                4,
+                0,
                 [ 0 ]
               ]
             ]
@@ -351,6 +394,12 @@ TEST(example_6) {
       [
         "https://json-schema.org/draft/2020-12/vocab/validation",
         "https://json-schema.org/draft/2020-12/vocab/applicator"
+      ],
+      [
+        "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+        "{0} was expected to be of type {1}",
+        "{0} was expected to be of type {1} but it was of type {2}",
+        "The object property {0} successfully validated against the additional properties subschema"
       ]
     ]
   )JSON")};
@@ -405,81 +454,51 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      14,
+      15,
       false,
       false,
       [
         [
           [
             69,
-            [
-              "properties"
-            ],
+            [ "properties" ],
             [],
             "#/properties",
             0,
             2,
+            1,
+            0,
             [
               13,
               [
                 [
                   [
-                    [
-                      0,
-                      24833,
-                      0,
-                      0
-                    ],
+                    [ 0, 24833, 0, 0 ],
                     0,
                     "a"
                   ],
                   [
-                    [
-                      0,
-                      6447618,
-                      0,
-                      0
-                    ],
+                    [ 0, 6447618, 0, 0 ],
                     1,
                     "bb"
                   ],
                   [
-                    [
-                      0,
-                      6513410,
-                      0,
-                      0
-                    ],
+                    [ 0, 6513410, 0, 0 ],
                     2,
                     "cc"
                   ],
                   [
-                    [
-                      0,
-                      431181030404,
-                      0,
-                      0
-                    ],
+                    [ 0, 431181030404, 0, 0 ],
                     3,
                     "dddd"
                   ],
                   [
-                    [
-                      0,
-                      111486167246085,
-                      0,
-                      0
-                    ],
+                    [ 0, 111486167246085, 0, 0 ],
                     4,
                     "eeeee"
                   ],
                   [
-                    [
-                      0,
-                      28823037615171078,
-                      0,
-                      0
-                    ],
+                    [ 0, 28823037615171078, 0, 0 ],
                     5,
                     "ffffff"
                   ]
@@ -495,26 +514,20 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 "#/properties",
                 0,
                 2,
-                [
-                  0
-                ],
+                0,
+                0,
+                [ 0 ],
                 [
                   [
                     45,
-                    [
-                      "a",
-                      "type"
-                    ],
-                    [
-                      "a"
-                    ],
+                    [ "a", "type" ],
+                    [ "a" ],
                     "#/properties/a/type",
                     0,
                     1,
-                    [
-                      8,
-                      4
-                    ]
+                    2,
+                    3,
+                    [ 8, 4 ]
                   ]
                 ]
               ],
@@ -525,26 +538,20 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 "#/properties",
                 0,
                 2,
-                [
-                  0
-                ],
+                0,
+                0,
+                [ 0 ],
                 [
                   [
                     43,
-                    [
-                      "bb",
-                      "type"
-                    ],
-                    [
-                      "bb"
-                    ],
+                    [ "bb", "type" ],
+                    [ "bb" ],
                     "#/properties/bb/type",
                     0,
                     1,
-                    [
-                      8,
-                      2
-                    ]
+                    2,
+                    3,
+                    [ 8, 2 ]
                   ]
                 ]
               ],
@@ -555,26 +562,20 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 "#/properties",
                 0,
                 2,
-                [
-                  0
-                ],
+                0,
+                0,
+                [ 0 ],
                 [
                   [
                     45,
-                    [
-                      "cc",
-                      "type"
-                    ],
-                    [
-                      "cc"
-                    ],
+                    [ "cc", "type" ],
+                    [ "cc" ],
                     "#/properties/cc/type",
                     0,
                     1,
-                    [
-                      8,
-                      1
-                    ]
+                    2,
+                    3,
+                    [ 8, 1 ]
                   ]
                 ]
               ],
@@ -585,26 +586,20 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 "#/properties",
                 0,
                 2,
-                [
-                  0
-                ],
+                0,
+                0,
+                [ 0 ],
                 [
                   [
                     45,
-                    [
-                      "dddd",
-                      "type"
-                    ],
-                    [
-                      "dddd"
-                    ],
+                    [ "dddd", "type" ],
+                    [ "dddd" ],
                     "#/properties/dddd/type",
                     0,
                     1,
-                    [
-                      8,
-                      0
-                    ]
+                    2,
+                    3,
+                    [ 8, 0 ]
                   ]
                 ]
               ],
@@ -615,26 +610,20 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 "#/properties",
                 0,
                 2,
-                [
-                  0
-                ],
+                0,
+                0,
+                [ 0 ],
                 [
                   [
                     45,
-                    [
-                      "eeeee",
-                      "type"
-                    ],
-                    [
-                      "eeeee"
-                    ],
+                    [ "eeeee", "type" ],
+                    [ "eeeee" ],
                     "#/properties/eeeee/type",
                     0,
                     1,
-                    [
-                      8,
-                      5
-                    ]
+                    2,
+                    3,
+                    [ 8, 5 ]
                   ]
                 ]
               ],
@@ -645,26 +634,20 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 "#/properties",
                 0,
                 2,
-                [
-                  0
-                ],
+                0,
+                0,
+                [ 0 ],
                 [
                   [
                     45,
-                    [
-                      "ffffff",
-                      "type"
-                    ],
-                    [
-                      "ffffff"
-                    ],
+                    [ "ffffff", "type" ],
+                    [ "ffffff" ],
                     "#/properties/ffffff/type",
                     0,
                     1,
-                    [
-                      8,
-                      6
-                    ]
+                    2,
+                    3,
+                    [ 8, 6 ]
                   ]
                 ]
               ]
@@ -676,6 +659,11 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
       [
         "https://json-schema.org/draft/2020-12/vocab/validation",
         "https://json-schema.org/draft/2020-12/vocab/applicator"
+      ],
+      [
+        "The object value was expected to validate against the {0} defined properties subschemas",
+        "{0} was expected to be of type {1}",
+        "{0} was expected to be of type {1} but it was of type {2}"
       ]
     ]
   )JSON")};
@@ -815,7 +803,7 @@ TEST(unreachable_refs_are_pruned) {
   const auto json_output{sourcemeta::blaze::to_json(schema_template)};
 
   EXPECT_TRUE(json_output.is_array());
-  EXPECT_EQ(json_output.size(), 6);
+  EXPECT_EQ(json_output.size(), 7);
   const auto &targets{json_output.at(3)};
 
   // NOTE: The targets must have exactly 1 entry (the root)
@@ -885,7 +873,7 @@ TEST(items_fused_as_a_bounded_array_type_loop) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      14,
+      15,
       false,
       false,
       [
@@ -897,6 +885,8 @@ TEST(items_fused_as_a_bounded_array_type_loop) {
             "#/items",
             0,
             1,
+            1,
+            0,
             [
               26,
               [
@@ -908,9 +898,149 @@ TEST(items_fused_as_a_bounded_array_type_loop) {
         ]
       ],
       [],
-      [ "http://json-schema.org/draft-07/schema#" ]
+      [ "http://json-schema.org/draft-07/schema#" ],
+      [
+        "Every item in the array was expected to be an array of the given size whose items were of the given types"
+      ]
     ]
   )JSON")};
 
   EXPECT_BIDIRECTIONAL_JSON(schema_template, expected);
+}
+
+TEST(messages_pool_carries_the_template_of_a_migrated_family) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  EXPECT_EQ(schema_template.extra.size(), 1);
+  const auto &metadata{schema_template.extra.at(0)};
+  EXPECT_TRUE(metadata.message > 0);
+  EXPECT_TRUE(metadata.message_detail > 0);
+  EXPECT_EQ(schema_template.messages.at(metadata.message - 1),
+            "{0} was expected to be of type {1}");
+  EXPECT_EQ(schema_template.messages.at(metadata.message_detail - 1),
+            "{0} was expected to be of type {1} but it was of type {2}");
+}
+
+TEST(messages_pool_leaves_a_control_instruction_without_a_template) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "string" }, { "type": "integer" } ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  EXPECT_EQ(schema_template.targets.size(), 1);
+  EXPECT_EQ(schema_template.targets.front().size(), 1);
+  const auto &group{schema_template.targets.front().front().children.front()};
+  EXPECT_EQ(group.type, sourcemeta::blaze::InstructionIndex::ControlGroup);
+  EXPECT_EQ(schema_template.extra.at(group.extra_index).message, 0);
+  EXPECT_EQ(schema_template.extra.at(group.extra_index).message_detail, 0);
+}
+
+TEST(messages_pool_carries_a_format_template) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "uri"
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};
+
+  EXPECT_EQ(std::ranges::count(
+                schema_template.messages,
+                "The string value {0} was expected to represent a valid URI"),
+            1);
+}
+
+TEST(messages_pool_deduplicates_a_repeated_template) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "a": { "format": "uri" },
+      "b": { "format": "uri" },
+      "c": { "format": "email" }
+    }
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};
+
+  EXPECT_EQ(std::ranges::count(
+                schema_template.messages,
+                "The string value {0} was expected to represent a valid URI"),
+            1);
+  EXPECT_EQ(std::ranges::count(schema_template.messages,
+                               "The string value {0} was expected to represent "
+                               "a valid email address"),
+            1);
+}
+
+TEST(messages_pool_survives_a_json_round_trip) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "format": "ipv4"
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  const auto schema_template{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};
+
+  const auto parsed{sourcemeta::blaze::from_json(
+      sourcemeta::blaze::to_json(schema_template))};
+  EXPECT_TRUE(parsed.has_value());
+  EXPECT_EQ(parsed.value().messages, schema_template.messages);
+
+  const auto &original{schema_template.extra};
+  const auto &restored{parsed.value().extra};
+  EXPECT_EQ(restored.size(), original.size());
+  for (std::size_t index = 0; index < original.size(); index++) {
+    EXPECT_EQ(restored.at(index).message, original.at(index).message);
+  }
+}
+
+TEST(rejects_the_previous_template_version) {
+  const auto input{sourcemeta::core::parse_json(R"JSON(
+    [
+      14,
+      false,
+      false,
+      [
+        []
+      ],
+      [],
+      [],
+      []
+    ]
+  )JSON")};
+
+  EXPECT_FALSE(sourcemeta::blaze::from_json(input).has_value());
 }

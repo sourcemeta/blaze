@@ -10,9 +10,11 @@
 
 namespace sourcemeta::blaze {
 
-SimpleOutput::SimpleOutput(const sourcemeta::core::JSON &instance,
+SimpleOutput::SimpleOutput(const Template &schema_template,
+                           const sourcemeta::core::JSON &instance,
                            sourcemeta::core::WeakPointer base)
-    : instance_{instance}, base_{std::move(base)} {}
+    : schema_template_{schema_template}, instance_{instance},
+      base_{std::move(base)} {}
 
 auto SimpleOutput::mask_kind(const Instruction &step) noexcept -> MaskKind {
   switch (step.type) {
@@ -196,8 +198,9 @@ auto SimpleOutput::operator()(
   for (auto &mask_entry : this->mask_) {
     if (evaluate_path.starts_with(mask_entry.evaluate_path)) {
       mask_entry.buffered_traces.push_back(
-          {.message = describe(result, step, evaluate_path, instance_location,
-                               this->instance_, annotation),
+          {.message =
+               describe(this->schema_template_, result, step, evaluate_path,
+                        instance_location, this->instance_, annotation),
            .instance_location = instance_location,
            .evaluate_path = std::move(effective_evaluate_path),
            .schema_location = step_metadata.keyword_location});
@@ -207,8 +210,8 @@ auto SimpleOutput::operator()(
   }
 
   this->output_.push_back(
-      {.message = describe(result, step, evaluate_path, instance_location,
-                           this->instance_, annotation),
+      {.message = describe(this->schema_template_, result, step, evaluate_path,
+                           instance_location, this->instance_, annotation),
        .instance_location = instance_location,
        .evaluate_path = std::move(effective_evaluate_path),
        .schema_location = step_metadata.keyword_location});

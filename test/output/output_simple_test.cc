@@ -55,7 +55,7 @@ TEST(success_string_1) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -94,7 +94,7 @@ TEST(fail_meaningless_if_1) {
     "bar": { "qux": {} }
   })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -136,7 +136,7 @@ TEST(success_dynamic_anchor_1) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -165,7 +165,7 @@ TEST(success_oneof_1) {
 
   const sourcemeta::core::JSON instance{"fo"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -194,7 +194,7 @@ TEST(success_anyof_1) {
 
   const sourcemeta::core::JSON instance{42};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -222,7 +222,7 @@ TEST(success_not_1) {
 
   const sourcemeta::core::JSON instance{42};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -248,7 +248,7 @@ TEST(fail_string) {
 
   const sourcemeta::core::JSON instance{5};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -278,7 +278,7 @@ TEST(release_yields_collected_errors_and_consumes_them) {
 
   const sourcemeta::core::JSON instance{5};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -311,7 +311,7 @@ TEST(release_yields_no_errors_on_success) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -341,7 +341,7 @@ TEST(fail_string_over_ref) {
 
   const sourcemeta::core::JSON instance{5};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -377,7 +377,7 @@ TEST(fail_string_with_matching_base) {
 
   const std::string ref = "$ref";
   const sourcemeta::core::WeakPointer pointer{std::cref(ref)};
-  sourcemeta::blaze::SimpleOutput output{instance, pointer};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance, pointer};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -412,7 +412,7 @@ TEST(fail_string_with_non_matching_base) {
   const sourcemeta::core::JSON instance{5};
   const std::string foo = "foo";
   const sourcemeta::core::WeakPointer pointer{std::cref(foo)};
-  sourcemeta::blaze::SimpleOutput output{instance, pointer};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance, pointer};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -444,7 +444,7 @@ TEST(fail_oneof_1) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -476,7 +476,7 @@ TEST(fail_oneof_2) {
 
   const sourcemeta::core::JSON instance{true};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -513,7 +513,7 @@ TEST(fail_not_1) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -525,7 +525,7 @@ TEST(fail_not_1) {
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(traces, 0, "", "/not", "#/not",
                 "The string value was expected to not validate against the "
-                "given subschema, but it did");
+                "given subschema");
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
@@ -546,7 +546,7 @@ TEST(fail_not_not_1) {
 
   const sourcemeta::core::JSON instance{1};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -558,7 +558,7 @@ TEST(fail_not_not_1) {
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(traces, 0, "", "/not", "#/not",
                 "The integer value was expected to not validate against the "
-                "given subschema, but it did");
+                "given subschema");
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
@@ -585,7 +585,7 @@ TEST(fail_anyof_1) {
     "bar": 1
   })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -619,7 +619,7 @@ TEST(fail_anyof_2) {
     "baz": 1
   })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -653,7 +653,7 @@ TEST(success_if_then_1) {
 
   const sourcemeta::core::JSON instance{"foobar"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -680,7 +680,7 @@ TEST(success_if_else_1) {
 
   const sourcemeta::core::JSON instance{42};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -707,7 +707,7 @@ TEST(fail_if_then_1) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -719,7 +719,7 @@ TEST(fail_if_then_1) {
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(traces, 0, "", "/then/minLength", "#/then/minLength",
                 "The string value \"foo\" was expected to consist of at least "
-                "10 characters but it consisted of 3 characters");
+                "10 characters but its length was 3");
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
@@ -737,7 +737,7 @@ TEST(fail_if_else_1) {
 
   const sourcemeta::core::JSON instance{42};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -767,7 +767,7 @@ TEST(success_contains_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, 2, \"foo\", 3 ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -794,7 +794,7 @@ TEST(fail_contains_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -834,7 +834,7 @@ TEST(success_contains_mincontains_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"([ 1, "foo", 2, "bar" ])")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -862,7 +862,7 @@ TEST(success_contains_maxcontains_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, \"foo\", 2 ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -890,7 +890,7 @@ TEST(fail_contains_mincontains_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, 2, 3 ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -930,7 +930,7 @@ TEST(fail_contains_maxcontains_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"([ "foo", "bar" ])")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -962,7 +962,7 @@ TEST(fail_nested_oneof_anyof_1) {
 
   const sourcemeta::core::JSON instance{sourcemeta::core::JSON{nullptr}};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1011,7 +1011,7 @@ TEST(annotations_failure_2) {
     "bar": "hello"
   })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1049,7 +1049,7 @@ TEST(annotations_success_oneof_1) {
 
   const sourcemeta::core::JSON instance{5};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1090,7 +1090,7 @@ TEST(annotations_success_whitelist_oneof_within_object_property) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "value": "foo" })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1121,7 +1121,7 @@ TEST(annotations_success_if_then_1) {
 
   const sourcemeta::core::JSON instance{"foobar"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1151,7 +1151,7 @@ TEST(annotations_success_if_else_1) {
 
   const sourcemeta::core::JSON instance{42};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1183,7 +1183,7 @@ TEST(annotations_failure_oneof_1) {
 
   const sourcemeta::core::JSON instance{true};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1221,7 +1221,7 @@ TEST(annotations_failure_anyof_1) {
 
   const sourcemeta::core::JSON instance{true};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1257,7 +1257,7 @@ TEST(annotations_failure_if_then_1) {
 
   const sourcemeta::core::JSON instance{"foo"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1268,7 +1268,7 @@ TEST(annotations_failure_if_then_1) {
   EXPECT_EQ(traces.size(), 1);
   EXPECT_OUTPUT(traces, 0, "", "/then/minLength", "#/then/minLength",
                 "The string value \"foo\" was expected to consist of at least "
-                "10 characters but it consisted of 3 characters");
+                "10 characters but its length was 3");
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
 
@@ -1302,7 +1302,7 @@ TEST(annotations_success_1) {
     "bar": "baz"
   })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1346,7 +1346,7 @@ TEST(annotations_success_2) {
 
   const sourcemeta::core::JSON instance{5};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1380,7 +1380,7 @@ TEST(annotations_success_3) {
 
   const sourcemeta::core::JSON instance{5};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1407,7 +1407,7 @@ TEST(annotations_success_4) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ false, 1, true, 2 ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1439,7 +1439,7 @@ TEST(annotations_success_5) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ false, 1, true ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1471,7 +1471,7 @@ TEST(annotations_success_6) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ false, true ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1503,7 +1503,7 @@ TEST(annotations_success_7) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ false ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1533,7 +1533,7 @@ TEST(annotations_success_8) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ 1, 2, 3, 4 ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1570,7 +1570,7 @@ TEST(annotations_success_9) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ true, 1, false, 2 ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1606,7 +1606,7 @@ TEST(annotations_success_10) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json("[ \"foo\", 42, true ]")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1638,7 +1638,7 @@ TEST(annotations_failure_1) {
 
   const sourcemeta::core::JSON instance{5};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1689,7 +1689,7 @@ TEST(annotations_success_anyof_failed_branch_nested_property_1) {
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
       R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1743,7 +1743,7 @@ TEST(annotations_success_anyof_failed_branch_nested_property_2) {
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
       R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1805,7 +1805,7 @@ TEST(annotations_success_whitelist_anyof_failed_branch_nested_property) {
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
       R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1859,7 +1859,7 @@ TEST(annotations_success_oneof_failed_branch_nested_property_1) {
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
       R"JSON({ "payment": { "amount": "hi", "kind": 999 } })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1916,7 +1916,7 @@ TEST(annotations_success_if_else_failed_branch_nested_property_1) {
   const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
       R"JSON({ "amount": "hi", "kind": 999 })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1952,7 +1952,7 @@ TEST(annotations_failure_multiple_locations_1) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": 1, "zzz": 2 })JSON")};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -1979,7 +1979,7 @@ TEST(annotations_success_whitelist_disallow_1) {
 
   const sourcemeta::core::JSON instance{"hello"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -2012,7 +2012,7 @@ TEST(annotations_success_whitelist_disallow_cross_dialect_1) {
 
   const sourcemeta::core::JSON instance{"hello"};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};
@@ -2042,7 +2042,7 @@ TEST(annotations_failure_whitelist_disallow_1) {
 
   const sourcemeta::core::JSON instance{5};
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
   sourcemeta::blaze::Evaluator evaluator;
   const auto result{
       evaluator.validate(schema_template, instance, std::ref(output))};

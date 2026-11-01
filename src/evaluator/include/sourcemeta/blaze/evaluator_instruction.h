@@ -272,6 +272,11 @@ inline auto is_wrapped_annotation(const InstructionIndex type) noexcept
 struct Instruction;
 #endif
 
+// Forward declaration, as the template is defined in terms of this header
+#ifndef DOXYGEN
+struct Template;
+#endif
+
 /// @ingroup evaluator
 /// Represents a set of schema compilation steps that can be evaluated
 using Instructions = std::vector<Instruction>;
@@ -283,6 +288,13 @@ struct InstructionExtra {
   std::string keyword_location;
   std::size_t schema_resource;
   std::size_t vocabulary;
+  /// An index into Template::messages, where zero means the instruction has no
+  /// message template of its own
+  std::size_t message;
+  /// The template to render instead when the instruction has something of its
+  /// own to report, such as which properties were missing. Zero when the
+  /// instruction says the same thing either way
+  std::size_t message_detail;
 };
 
 /// @ingroup evaluator
@@ -303,12 +315,12 @@ struct Instruction {
 /// results.
 ///
 /// Note that describing a "pre" step execution is NOT supported.
-auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT
-describe(const bool valid, const Instruction &step,
-         const sourcemeta::core::WeakPointer &evaluate_path,
-         const sourcemeta::core::WeakPointer &instance_location,
-         const sourcemeta::core::JSON &instance,
-         const sourcemeta::core::JSON &annotation) -> std::string;
+auto SOURCEMETA_BLAZE_EVALUATOR_EXPORT describe(
+    const Template &schema_template, const bool valid, const Instruction &step,
+    const sourcemeta::core::WeakPointer &evaluate_path,
+    const sourcemeta::core::WeakPointer &instance_location,
+    const sourcemeta::core::JSON &instance,
+    const sourcemeta::core::JSON &annotation) -> std::string;
 
 } // namespace sourcemeta::blaze
 

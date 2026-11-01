@@ -17,6 +17,7 @@
 
 #include "compile_helpers.h"
 #include "keyword_iterator.h"
+#include "message.h"
 #include "postprocess.h"
 #include "unevaluated.h"
 
@@ -891,6 +892,10 @@ auto compile(const sourcemeta::core::JSON &schema,
   // (8) Return final template
   ///////////////////////////////////////////////////////////////////
 
+  // The template carries only the message templates this schema refers to
+  std::vector<std::string> template_messages;
+  assign_messages(compiled_targets, instruction_extra, template_messages);
+
   // The template stores vocabularies as plain strings, as the evaluator does
   // not otherwise depend on the schema machinery
   std::vector<std::string> template_vocabularies;
@@ -913,7 +918,8 @@ auto compile(const sourcemeta::core::JSON &schema,
           .targets = std::move(compiled_targets),
           .labels = std::move(labels_map),
           .extra = std::move(instruction_extra).release(),
-          .vocabularies = std::move(template_vocabularies)};
+          .vocabularies = std::move(template_vocabularies),
+          .messages = std::move(template_messages)};
 }
 
 auto compile(const sourcemeta::core::JSON &schema,

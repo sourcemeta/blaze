@@ -164,7 +164,7 @@ BENCHMARK(Micro_2020_12_Simple_Output_Mask) {
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto iteration : state) {
-    sourcemeta::blaze::SimpleOutput output{instance};
+    sourcemeta::blaze::SimpleOutput output{schema_template, instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
@@ -208,7 +208,7 @@ BENCHMARK(Micro_2020_12_Simple_Output_Annotations) {
                                  sourcemeta::blaze::default_schema_compiler)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto iteration : state) {
-    sourcemeta::blaze::SimpleOutput output{instance};
+    sourcemeta::blaze::SimpleOutput output{schema_template, instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
@@ -285,7 +285,7 @@ BENCHMARK(Micro_2020_12_Simple_Output_Annotation_Dropping) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto iteration : state) {
-    sourcemeta::blaze::SimpleOutput output{instance};
+    sourcemeta::blaze::SimpleOutput output{schema_template, instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
@@ -391,7 +391,7 @@ BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto iteration : state) {
-    sourcemeta::blaze::SimpleOutput output{instance};
+    sourcemeta::blaze::SimpleOutput output{schema_template, instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(result);
@@ -459,7 +459,7 @@ BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput) {
                                  sourcemeta::blaze::Mode::Exhaustive)};
   sourcemeta::blaze::Evaluator evaluator;
   for (auto iteration : state) {
-    sourcemeta::blaze::SimpleOutput output{instance};
+    sourcemeta::blaze::SimpleOutput output{schema_template, instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
     assert(!result);

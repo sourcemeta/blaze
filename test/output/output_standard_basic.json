@@ -474,7 +474,7 @@
           "keywordLocation": "/not",
           "absoluteKeywordLocation": "#/not",
           "instanceLocation": "",
-          "error": "The string value was expected to not validate against the given subschema, but it did"
+          "error": "The string value was expected to not validate against the given subschema"
         }
       ]
     },
@@ -485,7 +485,7 @@
           "keywordLocation": "/not",
           "absoluteKeywordLocation": "#/not",
           "instanceLocation": "",
-          "error": "The string value was expected to not validate against the given subschema, but it did"
+          "error": "The string value was expected to not validate against the given subschema"
         }
       ]
     }
@@ -505,7 +505,7 @@
           "keywordLocation": "/not",
           "absoluteKeywordLocation": "#/not",
           "instanceLocation": "",
-          "error": "The integer value was expected to not validate against the given subschema, but it did"
+          "error": "The integer value was expected to not validate against the given subschema"
         }
       ]
     },
@@ -516,7 +516,7 @@
           "keywordLocation": "/not",
           "absoluteKeywordLocation": "#/not",
           "instanceLocation": "",
-          "error": "The integer value was expected to not validate against the given subschema, but it did"
+          "error": "The integer value was expected to not validate against the given subschema"
         }
       ]
     }
@@ -650,7 +650,7 @@
           "keywordLocation": "/then/minLength",
           "absoluteKeywordLocation": "#/then/minLength",
           "instanceLocation": "",
-          "error": "The string value \"foo\" was expected to consist of at least 10 characters but it consisted of 3 characters"
+          "error": "The string value \"foo\" was expected to consist of at least 10 characters but its length was 3"
         }
       ]
     },
@@ -661,7 +661,7 @@
           "keywordLocation": "/then/minLength",
           "absoluteKeywordLocation": "#/then/minLength",
           "instanceLocation": "",
-          "error": "The string value \"foo\" was expected to consist of at least 10 characters but it consisted of 3 characters"
+          "error": "The string value \"foo\" was expected to consist of at least 10 characters but its length was 3"
         }
       ]
     }
@@ -682,7 +682,7 @@
           "keywordLocation": "/then/minLength",
           "absoluteKeywordLocation": "#/then/minLength",
           "instanceLocation": "",
-          "error": "The string value \"foo\" was expected to consist of at least 10 characters but it consisted of 3 characters"
+          "error": "The string value \"foo\" was expected to consist of at least 10 characters but its length was 3"
         }
       ]
     },
@@ -693,7 +693,7 @@
           "keywordLocation": "/then/minLength",
           "absoluteKeywordLocation": "#/then/minLength",
           "instanceLocation": "",
-          "error": "The string value \"foo\" was expected to consist of at least 10 characters but it consisted of 3 characters"
+          "error": "The string value \"foo\" was expected to consist of at least 10 characters but its length was 3"
         }
       ]
     }

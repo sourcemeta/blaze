@@ -544,15 +544,15 @@ TEST(propertyNames_2) {
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                  "The property name \"foo\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                  "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 2,
-        "The object properties \"foo\", and \"bar\" were expected to "
-        "validate against the given subschema");
+        "The object value was expected to validate the property names \"foo\", "
+        "and \"bar\" against the given subschema");
   } else {
     EVALUATE_TRACE_PRE(0, LoopKeys, "/propertyNames", "#/propertyNames", "");
     EVALUATE_TRACE_PRE(1, AssertionStringSizeGreater,
@@ -574,15 +574,15 @@ TEST(propertyNames_2) {
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                  "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                  "The property name \"foo\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 2,
-        "The object properties \"bar\", and \"foo\" were expected to "
-        "validate against the given subschema");
+        "The object value was expected to validate the property names \"bar\", "
+        "and \"foo\" against the given subschema");
   }
 }
 
@@ -612,11 +612,11 @@ TEST(propertyNames_3) {
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 0,
         "The property name \"fo\" was expected to consist of at least 3 "
-        "characters but it consisted of 2 characters");
+        "characters but its length was 2");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 1,
-        "The object properties \"fo\", and \"bar\" were expected to validate "
-        "against the given subschema");
+        "The object value was expected to validate the property names \"fo\", "
+        "and \"bar\" against the given subschema");
   } else {
     EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3, "");
 
@@ -640,15 +640,15 @@ TEST(propertyNames_3) {
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                  "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 1,
         "The property name \"fo\" was expected to consist of at least 3 "
-        "characters but it consisted of 2 characters");
+        "characters but its length was 2");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 2,
-        "The object properties \"bar\", and \"fo\" were expected to validate "
-        "against the given subschema");
+        "The object value was expected to validate the property names \"bar\", "
+        "and \"fo\" against the given subschema");
   }
 }
 
@@ -686,15 +686,15 @@ TEST(propertyNames_5) {
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                  "The property name \"foo\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                  "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 2,
-        "The object properties \"foo\", and \"bar\" were expected to "
-        "validate against the given subschema");
+        "The object value was expected to validate the property names \"foo\", "
+        "and \"bar\" against the given subschema");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                  "The value was expected to be of type object");
   } else {
@@ -720,15 +720,15 @@ TEST(propertyNames_5) {
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                  "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
                                  "The property name \"foo\" was "
                                  "expected to consist of at least 3 "
-                                 "characters and it consisted of 3 characters");
+                                 "characters and its length was 3");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 2,
-        "The object properties \"bar\", and \"foo\" were expected to "
-        "validate against the given subschema");
+        "The object value was expected to validate the property names \"bar\", "
+        "and \"foo\" against the given subschema");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 3,
                                  "The value was expected to be of type object");
   }
