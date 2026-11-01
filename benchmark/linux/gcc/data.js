@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793498176509,
+  "lastUpdate": 1793538340524,
   "repoUrl": "https://github.com/sourcemeta/blaze",
   "entries": {
     "Benchmark (linux/gcc)": [
@@ -778118,6 +778118,685 @@ window.BENCHMARK_DATA = {
           {
             "name": "E2E_Evaluator_yamllint",
             "value": 6882.573260751846,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "officialbusiness9818@gmail.com",
+            "name": "Vansh Kapoor",
+            "username": "Vansh-kap-98"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d19c184f4e8c7aca4748ce43105da0f141d53d19",
+          "message": "Rewrite canonical Draft 6 schemas into graph form (#1158)\n\nSigned-off-by: Vansh <officialbusiness9818@gmail.com>",
+          "timestamp": "2026-11-01T09:36:45-03:00",
+          "tree_id": "983b855a31ceb00def575e0998fcbcc7ea431109",
+          "url": "https://github.com/sourcemeta/blaze/commit/d19c184f4e8c7aca4748ce43105da0f141d53d19"
+        },
+        "date": 1793538134822,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Convert_Draft3_To_2020_12",
+            "value": 2540578.5977011495,
+            "unit": "ns"
+          },
+          {
+            "name": "Convert_201909_To_2020_12_Unevaluated",
+            "value": 333589.3109243697,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Readibility_ISO_Language_Set_3",
+            "value": 185852474,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Readibility_OMC",
+            "value": 37902199.833333336,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Readibility_KrakenD",
+            "value": 443222995,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Apply_Readibility_KrakenD",
+            "value": 45462682697,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Invalid_External_Refs",
+            "value": 176042702,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Resolvable_External_Refs",
+            "value": 196815.992481203,
+            "unit": "ns"
+          },
+          {
+            "name": "TestSuite_Parse_WoT",
+            "value": 4133362.6071428573,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Dynamic_Ref",
+            "value": 637.6576768795175,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Dynamic_Ref_Single",
+            "value": 3.822836767109655,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Mask",
+            "value": 807.9660462665511,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Annotations",
+            "value": 38635.95962380412,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Annotation_Dropping",
+            "value": 1076724.773755656,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Compile_NonCircular_Shared_Refs",
+            "value": 394436.4202657807,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric",
+            "value": 6460.875104619455,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput",
+            "value": 33201.78703312192,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput",
+            "value": 23309.94617647059,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_Fail",
+            "value": 107.50567628198891,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput",
+            "value": 2044.3584952859078,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2019_09_Unevaluated_Properties",
+            "value": 20.2510572693179,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2019_09_Compile_Wrap",
+            "value": 70010963.66666667,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft7_If_Then_Else",
+            "value": 20.11798377393978,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft6_Property_Names",
+            "value": 110.58425943851957,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft6_Compile_FHIR",
+            "value": 3222143417,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Meta_1_No_Callback",
+            "value": 105.1209400323003,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Required_Properties",
+            "value": 585.5147948923449,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Many_Optional_Properties_Minimal_Match",
+            "value": 12.047971357135527,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Few_Optional_Properties_Minimal_Match",
+            "value": 9.288552452467924,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Items_Schema",
+            "value": 259.9202729750145,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Nested_Object",
+            "value": 1.363867395806444,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Properties_Triad_Optional",
+            "value": 299.06252663518745,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Properties_Triad_Required",
+            "value": 327.4092937771667,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Properties_Triad_Closed",
+            "value": 240.23021001071277,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Properties_Closed",
+            "value": 48.8827636446572,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Non_Recursive_Ref",
+            "value": 6.5719171258593,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Pattern_Properties_Empty",
+            "value": 150.7277076995508,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Ref_To_Single_Property",
+            "value": 9.289812967856237,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Additional_Properties_Type",
+            "value": 10.73280433420869,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Nested_Oneof",
+            "value": 49.97574141294106,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Short_Enum",
+            "value": 10.909377534133688,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Long_Enum",
+            "value": 11.79839740922974,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Long_Enum_Short_Strings",
+            "value": 10.91150352998691,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Type_Object",
+            "value": 3.822197091430365,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Ref_Single_100",
+            "value": 1070742.9683257919,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Compile_Ref_Many_Nested",
+            "value": 663323.0625,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Compile_Wrap",
+            "value": 862386.5163636364,
+            "unit": "ns"
+          },
+          {
+            "name": "JSONLD_Catalog_Simple",
+            "value": 17631871.09090909,
+            "unit": "ns"
+          },
+          {
+            "name": "JSONLD_Catalog_Override_Agreeing",
+            "value": 17430803.384615384,
+            "unit": "ns"
+          },
+          {
+            "name": "JSONLD_Catalog_Override_Shadowing",
+            "value": 27760278.5,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_adaptivecard",
+            "value": 29244094.25,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_ansible_meta",
+            "value": 8237989.8965517245,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_aws_cdk",
+            "value": 134923.9326542162,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_babelrc",
+            "value": 764889.3580645161,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_clang_format",
+            "value": 5137775.891304348,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_cmake_presets",
+            "value": 11902480.75,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_code_climate",
+            "value": 575902.9564164649,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_cql2",
+            "value": 5728119.414634147,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_cspell",
+            "value": 8643936.296296297,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_cypress",
+            "value": 1336984.8757062147,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_deno",
+            "value": 2692625.477272727,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_dependabot",
+            "value": 1064072.9551569507,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_draft_04",
+            "value": 1000540.1398305085,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_fabric_mod",
+            "value": 1644421.2620689655,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_geojson",
+            "value": 8347912.285714285,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_gitpod_configuration",
+            "value": 1637675.4,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_helm_chart_lock",
+            "value": 225758.775142315,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_importmap",
+            "value": 103647.63326039388,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_jasmine",
+            "value": 404536.39049235993,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_jshintrc",
+            "value": 1267667.4919786097,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_jsconfig",
+            "value": 7024209.235294118,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_krakend",
+            "value": 51739598,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_lazygit",
+            "value": 10785610.318181818,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_lerna",
+            "value": 499715.5864978903,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_nest_cli",
+            "value": 2454399.442105263,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_omc",
+            "value": 68196586.33333333,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_omnisharp",
+            "value": 2195250.6728971964,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_openapi",
+            "value": 10621621.090909092,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_pre_commit_hooks",
+            "value": 1112670.9158878506,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_pulumi",
+            "value": 1340220.242937853,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_semantic_release",
+            "value": 468421.0514851485,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_stale",
+            "value": 397881.06565656565,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_stylecop",
+            "value": 1821348.09375,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_tmuxinator",
+            "value": 634418.8333333334,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_ui5",
+            "value": 23773418.333333332,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_ui5_manifest",
+            "value": 137120935,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_unreal_engine_uproject",
+            "value": 1342760.47752809,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_users_array",
+            "value": 289030.6399026764,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_vercel",
+            "value": 4855504.9387755105,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_yamllint",
+            "value": 86162.04433139534,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_adaptivecard",
+            "value": 17585.390516662937,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ansible_meta",
+            "value": 183328.26303501945,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_aws_cdk",
+            "value": 34916.19970479705,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_babelrc",
+            "value": 60538.811428571425,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cerebrum_criminal_case",
+            "value": 800362.644295302,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_clang_format",
+            "value": 27182.645549132947,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cmake_presets",
+            "value": 3642800.25,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_code_climate",
+            "value": 121575.75359342915,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cql2",
+            "value": 163095.81736733287,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cspell",
+            "value": 349225.9212962963,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cypress",
+            "value": 54706.423784035374,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_deno",
+            "value": 205116.31392174703,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_dependabot",
+            "value": 259180.27540983606,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_draft_04",
+            "value": 5863436.368421053,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_fabric_mod",
+            "value": 499531.7803837953,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_geojson",
+            "value": 8103566.482758621,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_gitpod_configuration",
+            "value": 161579.24300341296,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_helm_chart_lock",
+            "value": 194465.1855486173,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_importmap",
+            "value": 27963.90842663524,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jasmine",
+            "value": 70830.72222222222,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jshintrc",
+            "value": 247690.13268608414,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jsconfig",
+            "value": 204619.2188340807,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_krakend",
+            "value": 132177.24958123954,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_lazygit",
+            "value": 90577.404287902,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_lerna",
+            "value": 83720.18901795143,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_nest_cli",
+            "value": 118618.70528967255,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_omc",
+            "value": 16185.706905964242,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_omnisharp",
+            "value": 136279.0916426513,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_openapi",
+            "value": 11009626.684210526,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_pre_commit_hooks",
+            "value": 296515.9225888325,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_pulumi",
+            "value": 608626.6476683938,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_semantic_release",
+            "value": 61316.126902244,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_stale",
+            "value": 108759.38776448942,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_stylecop",
+            "value": 205795.82263814617,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_tmuxinator",
+            "value": 55465.27228184788,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ui5",
+            "value": 413568.5186500888,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ui5_manifest",
+            "value": 1993340.1238938053,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_unreal_engine_uproject",
+            "value": 308913.5474934037,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_users_array",
+            "value": 508171.72881355934,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_vercel",
+            "value": 238135.23199152542,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_yamllint",
+            "value": 6894.081447834533,
             "unit": "ns"
           }
         ]
