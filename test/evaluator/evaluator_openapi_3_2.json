@@ -789,7 +789,7 @@
         [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
       ],
       "descriptions": [
-        "The integer value 11 was expected to be less than the integer 11, but they were equal"
+        "The integer value 11 was expected to be less than the integer 11"
       ]
     }
   },

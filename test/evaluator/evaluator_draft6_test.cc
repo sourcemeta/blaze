@@ -72,8 +72,7 @@ TEST(exclusiveMinimum_6) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The integer value 5 was expected to be greater than the integer 5, but "
-      "they were equal");
+      "The integer value 5 was expected to be greater than the integer 5");
 }
 
 TEST(exclusiveMinimum_7) {
@@ -115,8 +114,7 @@ TEST(exclusiveMinimum_8) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The integer value 5 was expected to be greater than the integer 5, but "
-      "they were equal");
+      "The integer value 5 was expected to be greater than the integer 5");
 }
 
 TEST(exclusiveMinimum_9) {
@@ -158,8 +156,7 @@ TEST(exclusiveMinimum_10) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The number value 2.5 was expected to be greater than the number 2.5, "
-      "but they were equal");
+      "The number value 2.5 was expected to be greater than the number 2.5");
 }
 
 TEST(exclusiveMinimum_11) {
@@ -195,8 +192,7 @@ TEST(exclusiveMinimum_12) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The integer value 5 was expected to be greater than the integer 5, but "
-      "they were equal");
+      "The integer value 5 was expected to be greater than the integer 5");
 }
 
 TEST(exclusiveMinimum_13) {
@@ -232,8 +228,7 @@ TEST(exclusiveMinimum_14) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The number value 2.5 was expected to be greater than the number 2.5, "
-      "but they were equal");
+      "The number value 2.5 was expected to be greater than the number 2.5");
 }
 
 TEST(exclusiveMinimum_17) {
@@ -275,8 +270,7 @@ TEST(exclusiveMinimum_18) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The number value 0.5 was expected to be greater than the number 0.5, "
-      "but they were equal");
+      "The number value 0.5 was expected to be greater than the number 0.5");
 }
 
 TEST(exclusiveMaximum_5) {
@@ -318,8 +312,7 @@ TEST(exclusiveMaximum_6) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The integer value 5 was expected to be less than the integer 5, but "
-      "they were equal");
+      "The integer value 5 was expected to be less than the integer 5");
 }
 
 TEST(exclusiveMaximum_7) {
@@ -361,8 +354,7 @@ TEST(exclusiveMaximum_8) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The integer value 5 was expected to be less than the integer 5, but "
-      "they were equal");
+      "The integer value 5 was expected to be less than the integer 5");
 }
 
 TEST(exclusiveMaximum_9) {
@@ -404,8 +396,7 @@ TEST(exclusiveMaximum_10) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The number value 2.5 was expected to be less than the number 2.5, but "
-      "they were equal");
+      "The number value 2.5 was expected to be less than the number 2.5");
 }
 
 TEST(exclusiveMaximum_11) {
@@ -441,8 +432,7 @@ TEST(exclusiveMaximum_12) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The integer value 5 was expected to be less than the integer 5, but "
-      "they were equal");
+      "The integer value 5 was expected to be less than the integer 5");
 }
 
 TEST(exclusiveMaximum_13) {
@@ -478,8 +468,7 @@ TEST(exclusiveMaximum_14) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The number value 2.5 was expected to be less than the number 2.5, but "
-      "they were equal");
+      "The number value 2.5 was expected to be less than the number 2.5");
 }
 
 TEST(exclusiveMaximum_17) {
@@ -521,8 +510,7 @@ TEST(exclusiveMaximum_18) {
 
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
-      "The number value 0.5 was expected to be less than the number 0.5, but "
-      "they were equal");
+      "The number value 0.5 was expected to be less than the number 0.5");
 }
 
 TEST(propertyNames_2) {
@@ -554,11 +542,11 @@ TEST(propertyNames_2) {
                                 "#/propertyNames", "");
 
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                                 "The object property name \"foo\" was "
+                                 "The property name \"foo\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                                 "The object property name \"bar\" was "
+                                 "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(
@@ -584,11 +572,11 @@ TEST(propertyNames_2) {
                                 "#/propertyNames", "");
 
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                                 "The object property name \"bar\" was "
+                                 "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                                 "The object property name \"foo\" was "
+                                 "The property name \"foo\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(
@@ -623,7 +611,7 @@ TEST(propertyNames_3) {
 
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 0,
-        "The object property name \"fo\" was expected to consist of at least 3 "
+        "The property name \"fo\" was expected to consist of at least 3 "
         "characters but it consisted of 2 characters");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 1,
@@ -650,12 +638,12 @@ TEST(propertyNames_3) {
                                 "#/propertyNames", "");
 
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                                 "The object property name \"bar\" was "
+                                 "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 1,
-        "The object property name \"fo\" was expected to consist of at least 3 "
+        "The property name \"fo\" was expected to consist of at least 3 "
         "characters but it consisted of 2 characters");
     EVALUATE_TRACE_POST_DESCRIBE(
         instance, 2,
@@ -696,11 +684,11 @@ TEST(propertyNames_5) {
     EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/type", "#/type", "");
 
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                                 "The object property name \"foo\" was "
+                                 "The property name \"foo\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                                 "The object property name \"bar\" was "
+                                 "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(
@@ -730,11 +718,11 @@ TEST(propertyNames_5) {
     EVALUATE_TRACE_POST_SUCCESS(3, AssertionTypeStrict, "/type", "#/type", "");
 
     EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                                 "The object property name \"bar\" was "
+                                 "The property name \"bar\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                                 "The object property name \"foo\" was "
+                                 "The property name \"foo\" was "
                                  "expected to consist of at least 3 "
                                  "characters and it consisted of 3 characters");
     EVALUATE_TRACE_POST_DESCRIBE(

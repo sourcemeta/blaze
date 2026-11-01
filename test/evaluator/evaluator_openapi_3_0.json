@@ -1617,7 +1617,7 @@
         [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
       ],
       "descriptions": [
-        "The integer value 5 was expected to be less than the integer 5, but they were equal"
+        "The integer value 5 was expected to be less than the integer 5"
       ]
     },
     "exhaustive": {
@@ -1628,7 +1628,7 @@
         [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
       ],
       "descriptions": [
-        "The integer value 5 was expected to be less than the integer 5, but they were equal"
+        "The integer value 5 was expected to be less than the integer 5"
       ]
     }
   },
@@ -1690,7 +1690,7 @@
         [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
-        "The integer value 5 was expected to be greater than the integer 5, but they were equal"
+        "The integer value 5 was expected to be greater than the integer 5"
       ]
     }
   },
@@ -5202,7 +5202,7 @@
         [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
       ],
       "descriptions": [
-        "The integer value 2 was expected to be less than the integer 2, but they were equal"
+        "The integer value 2 was expected to be less than the integer 2"
       ]
     },
     "exhaustive": {
@@ -5213,7 +5213,7 @@
         [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
       ],
       "descriptions": [
-        "The integer value 2 was expected to be less than the integer 2, but they were equal"
+        "The integer value 2 was expected to be less than the integer 2"
       ]
     }
   },
@@ -5230,7 +5230,7 @@
         [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
       ],
       "descriptions": [
-        "The integer value 5 was expected to be less than the integer 5, but they were equal"
+        "The integer value 5 was expected to be less than the integer 5"
       ]
     },
     "exhaustive": {
@@ -5241,7 +5241,7 @@
         [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
       ],
       "descriptions": [
-        "The integer value 5 was expected to be less than the integer 5, but they were equal"
+        "The integer value 5 was expected to be less than the integer 5"
       ]
     }
   },
@@ -5314,7 +5314,7 @@
         [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
-        "The integer value 2 was expected to be greater than the integer 2, but they were equal"
+        "The integer value 2 was expected to be greater than the integer 2"
       ]
     },
     "exhaustive": {
@@ -5325,7 +5325,7 @@
         [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
-        "The integer value 2 was expected to be greater than the integer 2, but they were equal"
+        "The integer value 2 was expected to be greater than the integer 2"
       ]
     }
   },
@@ -5342,7 +5342,7 @@
         [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
-        "The integer value 5 was expected to be greater than the integer 5, but they were equal"
+        "The integer value 5 was expected to be greater than the integer 5"
       ]
     },
     "exhaustive": {
@@ -5353,7 +5353,7 @@
         [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
       ],
       "descriptions": [
-        "The integer value 5 was expected to be greater than the integer 5, but they were equal"
+        "The integer value 5 was expected to be greater than the integer 5"
       ]
     }
   },
