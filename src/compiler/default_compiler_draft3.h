@@ -377,9 +377,45 @@ static auto to_string_hashes(
   return result;
 }
 
+// The low half of a name's hash carries its size and first seven bytes and the
+// high half the eight after them, so either usually tells a set of names apart
+// on its own, and folding the whole hash down to one word catches most of what
+// neither does. Picking one here lets a lookup scan a single dense array
+static auto
+to_named_discriminator(const sourcemeta::blaze::ValueNamedDiscriminator kind,
+                       const sourcemeta::core::JSON::Object::hash_type &hash)
+    -> sourcemeta::blaze::ValueUnsignedInteger {
+  switch (kind) {
+    case sourcemeta::blaze::ValueNamedDiscriminator::Low:
+      return static_cast<sourcemeta::blaze::ValueUnsignedInteger>(hash.a);
+    case sourcemeta::blaze::ValueNamedDiscriminator::High:
+      return static_cast<sourcemeta::blaze::ValueUnsignedInteger>(hash.a >> 64);
+    default:
+      return static_cast<sourcemeta::blaze::ValueUnsignedInteger>(hash.a) ^
+             static_cast<sourcemeta::blaze::ValueUnsignedInteger>(hash.a >>
+                                                                  64) ^
+             static_cast<sourcemeta::blaze::ValueUnsignedInteger>(hash.b) ^
+             static_cast<sourcemeta::blaze::ValueUnsignedInteger>(hash.b >> 64);
+  }
+}
+
+static auto
+separates(const std::vector<sourcemeta::core::JSON::Object::hash_type> &hashes,
+          const sourcemeta::blaze::ValueNamedDiscriminator kind) -> bool {
+  std::vector<sourcemeta::blaze::ValueUnsignedInteger> discriminators;
+  discriminators.reserve(hashes.size());
+  for (const auto &hash : hashes) {
+    discriminators.push_back(to_named_discriminator(kind, hash));
+  }
+
+  std::ranges::sort(discriminators);
+  return std::ranges::adjacent_find(discriminators) == discriminators.cend();
+}
+
 static auto to_named_indexes(
     std::vector<std::pair<sourcemeta::blaze::ValueString,
-                          sourcemeta::blaze::ValueUnsignedInteger>> &names)
+                          sourcemeta::blaze::ValueUnsignedInteger>> &names,
+    const bool always_table_of_contents = false)
     -> sourcemeta::blaze::ValueNamedIndexes {
   assert(!names.empty());
   std::ranges::sort(names, [](const auto &left, const auto &right) -> auto {
@@ -390,29 +426,63 @@ static auto to_named_indexes(
   // anything, which only pays off once there are enough names that scanning
   // them all is worse. Below that, the entries are left without one and the
   // evaluator scans them, as it did before the table of contents existed
-  constexpr std::size_t MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS{32};
+  constexpr std::size_t MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS{12};
 
   sourcemeta::blaze::ValueNamedIndexes result;
   // The table of contents works as in `to_string_hashes`: each index marks the
   // starting and end positions of the names whose size is equal to the index
-  if (names.size() > MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS) {
-    result.second.resize(names.back().first.size() + 1, std::make_pair(0, 0));
+  if (always_table_of_contents ||
+      names.size() > MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS) {
+    result.sizes.resize(names.back().first.size() + 1, std::make_pair(0, 0));
   }
 
-  result.first.reserve(names.size());
+  std::vector<sourcemeta::core::JSON::Object::hash_type> hashes;
+  hashes.reserve(names.size());
+  for (const auto &entry : names) {
+    hashes.push_back(sourcemeta::core::JSON::Object::hash(entry.first));
+  }
+
+  // A name the evaluator cannot tell from another by its discriminator alone
+  // leaves it to compare the names, so the cheapest kind that separates them
+  // all wins, and the mask stays as a last resort
+  for (const auto kind : {sourcemeta::blaze::ValueNamedDiscriminator::Low,
+                          sourcemeta::blaze::ValueNamedDiscriminator::High,
+                          sourcemeta::blaze::ValueNamedDiscriminator::Folded}) {
+    result.discriminator = kind;
+    result.exact = separates(hashes, kind);
+    if (result.exact) {
+      break;
+    }
+  }
+
+  result.discriminators.reserve(names.size());
+  result.children.reserve(names.size());
+  result.names.reserve(names.size());
   // TODO(C++23): Use std::views::enumerate when available in libc++
   for (std::size_t index = 0; index < names.size(); index++) {
     const auto &name{names[index].first};
-    result.first.emplace_back(sourcemeta::core::JSON::Object::hash(name),
-                              names[index].second, name);
-    if (result.second.empty()) {
+    result.discriminators.push_back(
+        to_named_discriminator(result.discriminator, hashes[index]));
+    result.children.push_back(names[index].second);
+    result.names.push_back(name);
+
+    // A name too long for a bit of its own must never be rejected by the mask,
+    // which leaving every bit set achieves
+    if (name.size() < 64) {
+      result.lengths |= sourcemeta::blaze::ValueUnsignedInteger{1}
+                        << name.size();
+    } else {
+      result.lengths = ~sourcemeta::blaze::ValueUnsignedInteger{0};
+    }
+
+    if (result.sizes.empty()) {
       continue;
     }
 
     // We leave position 0 to represent the absence of a size
     const auto position{index + 1};
-    assert(name.size() < result.second.size());
-    auto &bounds{result.second[name.size()]};
+    assert(name.size() < result.sizes.size());
+    auto &bounds{result.sizes[name.size()]};
     bounds.first =
         (bounds.first == 0) ? position : std::min(bounds.first, position);
     bounds.second =

@@ -232,47 +232,69 @@ resolve_string_target(const JSON::String *property_target, const JSON &instance,
   }
 }
 
+// The compiler picked whichever of these tells the map's names apart, so the
+// evaluator has only to apply the same one. It is read once per lookup, ahead
+// of the scan, never per entry
+inline auto named_discriminator(const ValueNamedDiscriminator kind,
+                                const JSON::Object::hash_type &hash) noexcept
+    -> ValueUnsignedInteger {
+  switch (kind) {
+    case ValueNamedDiscriminator::Low:
+      return static_cast<ValueUnsignedInteger>(hash.a);
+    case ValueNamedDiscriminator::High:
+      return static_cast<ValueUnsignedInteger>(hash.a >> 64);
+    default:
+      return static_cast<ValueUnsignedInteger>(hash.a) ^
+             static_cast<ValueUnsignedInteger>(hash.a >> 64) ^
+             static_cast<ValueUnsignedInteger>(hash.b) ^
+             static_cast<ValueUnsignedInteger>(hash.b >> 64);
+  }
+}
+
 inline auto named_index(const ValueNamedIndexes &indexes,
                         const JSON::String &name,
                         const JSON::Object::hash_type &name_hash) noexcept
     -> const ValueUnsignedInteger * {
+  // A size no name has settles the lookup without reading an entry, and most
+  // of the lookups that miss are of that shape
+  const auto size{name.size()};
+  if (size < 64 && (indexes.lengths & (ValueUnsignedInteger{1} << size)) == 0) {
+    return nullptr;
+  }
+
   // Few enough names come without a table of contents, as reaching one costs
   // more than scanning them, so the whole range is the candidate range
-  std::size_t first{1};
-  std::size_t last{indexes.first.size()};
-  if (!indexes.second.empty()) {
-    // A name whose size no entry has cannot match, which settles most of the
-    // misses without comparing against any entry at all
-    if (name.size() >= indexes.second.size()) {
+  std::size_t first{0};
+  std::size_t last{indexes.discriminators.size()};
+  if (!indexes.sizes.empty()) {
+    if (size >= indexes.sizes.size()) {
       return nullptr;
     }
 
-    const auto &bounds{indexes.second[name.size()]};
+    const auto &bounds{indexes.sizes[size]};
     if (bounds.second == 0) {
       return nullptr;
     }
 
-    first = bounds.first;
+    first = bounds.first - 1;
     last = bounds.second;
   }
 
-  // A perfect hash records the name's size, so matching one is proof the names
-  // are equal and only a longer name needs comparing. Whether the hash is
-  // perfect depends on the name alone, so it is decided once rather than per
-  // entry, as `JSONObject` does for the same reason
-  constexpr sourcemeta::core::PropertyHashJSON<JSON::String> HASHER{};
-  if (HASHER.is_perfect(name_hash)) {
-    for (auto position = first; position <= last; position++) {
-      const auto &entry{indexes.first[position - 1]};
-      if (std::get<0>(entry) == name_hash) {
-        return &std::get<1>(entry);
+  // Whether a discriminator settles a match is a property of the map, so it is
+  // decided once rather than per entry
+  const auto discriminator{
+      named_discriminator(indexes.discriminator, name_hash)};
+  if (indexes.exact) {
+    for (auto position = first; position < last; position++) {
+      if (indexes.discriminators[position] == discriminator) {
+        return &indexes.children[position];
       }
     }
   } else {
-    for (auto position = first; position <= last; position++) {
-      const auto &entry{indexes.first[position - 1]};
-      if (std::get<0>(entry) == name_hash && std::get<2>(entry) == name) {
-        return &std::get<1>(entry);
+    for (auto position = first; position < last; position++) {
+      if (indexes.discriminators[position] == discriminator &&
+          indexes.names[position] == name) {
+        return &indexes.children[position];
       }
     }
   }
@@ -1901,7 +1923,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
 INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatch, target.is_object());
   const auto &value{assume_value<ValueNamedIndexes>(instruction.value)};
-  assert(!value.first.empty());
+  assert(!value.discriminators.empty());
   result = true;
   // The loop already holds each property's value, so a child that only looks at
   // that value is decided here, rather than dispatched to and left to find the
@@ -1963,7 +1985,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
 INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   EVALUATE_BEGIN_NON_STRING(LoopPropertiesMatchClosed, target.is_object());
   const auto &value{assume_value<ValueNamedIndexes>(instruction.value)};
-  assert(!value.first.empty());
+  assert(!value.discriminators.empty());
   result = true;
   // The loop already holds each property's value, so a child that only looks at
   // that value is decided here, rather than dispatched to and left to find the
