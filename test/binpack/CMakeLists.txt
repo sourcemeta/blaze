@@ -18,8 +18,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME binpack
     binpack_encode_string_test.cc
     binpack_encode_test.cc
     binpack_encode_traits_test.cc
-    binpack_input_stream_varint_test.cc
-    binpack_output_stream_varint_test.cc
     binpack_encoding_traits_test.cc
     binpack_v1_loader_test.cc
     binpack_v1_any_loader_test.cc

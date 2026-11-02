@@ -1,6 +1,7 @@
 #include <sourcemeta/core/openapi.h>
 #include <sourcemeta/core/text.h>
 
+#include "dialect.h"
 #include "discriminator.h"
 #include "document.h"
 #include "helpers.h"
@@ -875,6 +876,19 @@ OpenAPIFrame::OpenAPIFrame(const JSON &document, const SchemaWalker &walker,
     // Framing the schemas was handed what was left rather than the whole, so
     // the allowance it reports is not the one the caller set
     throw OpenAPIFrameLimitError{max_locations};
+  }
+
+  // Which dialect a Schema Object may be read under is the revision's to say,
+  // and the earliest of them gives a Schema Object no way of naming one. What
+  // the schemas were read under is settled above rather than here, as working
+  // it out is the business of whatever reads inside a Schema Object
+  const auto foreign{openapi_schema_of_another_dialect(
+      this->internal_->version, *(this->internal_->schemas),
+      this->internal_->schema_paths, resolver)};
+  if (foreign.has_value()) {
+    throw OpenAPIError{"A Schema Object of this revision must be written "
+                       "against the OpenAPI 3.0 dialect",
+                       this->internal_->base, foreign.value()};
   }
 
   // OpenAPI Specification 3.1.1, Section 4.3 lists the URI form of a
