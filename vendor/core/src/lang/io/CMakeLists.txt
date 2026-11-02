@@ -8,3 +8,5 @@ endif()
 
 target_link_libraries(sourcemeta_core_io
   PUBLIC sourcemeta::core::error)
+target_link_libraries(sourcemeta_core_io
+  PUBLIC sourcemeta::core::numeric)

@@ -1,5 +1,6 @@
 #include <sourcemeta/core/openapi.h>
 
+#include "dialect.h"
 #include "discriminator.h"
 #include "document.h"
 #include "helpers.h"
@@ -1725,9 +1726,10 @@ auto adopt_mappings(
     std::map<JSON::String, Pointer> &adopted,
     std::map<JSON::String, Pointer> &identities, const JSON::String &base,
     const SchemaWalker &walker, const SchemaResolver &schema_resolver,
-    const JSON::StringView dialect, const OpenAPIBundleOptions &options,
+    const OpenAPIVersion version, const OpenAPIBundleOptions &options,
     std::uint64_t &remaining) -> bool {
   bool changed{false};
+  const auto dialect{openapi_dialect(version)};
   // What this pass brought in. Whether a mapping that named it still lands is
   // for the pass after to say, as a mapping may name a place within a schema
   // rather than the whole of it, and such a place is only there to be found
@@ -1750,9 +1752,17 @@ auto adopt_mappings(
       }
 
       for (const auto &pending : entry.second) {
-        JSON named{pending.scope == base
-                       ? to_uri(previous->second).recompose()
-                       : openapi_location_uri(base, previous->second)};
+        // Section 4.3.3 reads "no aspect of implicit connection resolution
+        // changes how URIs are resolved, or restricts their possible targets",
+        // so what a mapping names may be a place within that schema rather
+        // than the whole of it. Such a place travels with the schema, so the
+        // route to it is counted from wherever the schema landed
+        const auto nested{target_of(pending.destination)};
+        const auto reached{nested.has_value()
+                               ? previous->second.concat(nested.value())
+                               : previous->second};
+        JSON named{pending.scope == base ? to_uri(reached).recompose()
+                                         : openapi_location_uri(base, reached)};
         const auto *written{try_get(document, pending.origin)};
         if (written != nullptr && *written != named) {
           set(document, pending.origin, std::move(named));
@@ -1858,6 +1868,18 @@ auto adopt_mappings(
         walker(schema_identifier_keyword(root_location.base_dialect),
                root_vocabularies)
             .type != SchemaKeywordType::Unknown};
+
+    // And the dialect it is read under is one the revision has to admit. Where
+    // a Schema Object has no way of naming one, a schema read under anything
+    // other than what the revision publishes is none of this description to
+    // bring in, for the same reason as one a reference reaches
+    if (!openapi_schema_object_is_self_describing(version) &&
+        !openapi_is_3_0_vocabulary(root_vocabularies)) {
+      throw OpenAPIReferenceError{
+          "This mapping must name a schema written against the dialect that "
+          "this revision publishes",
+          base, entry.second.front().origin, identifier};
+    }
 
     // Section 4.8.24.5: "For standalone JSON Schema documents that do not set
     // `$schema` [...] the dialect SHOULD be assumed to be the OAS dialect". A
@@ -2044,6 +2066,16 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
 
       if (names_a_schema && !declared.has_value() &&
           unavailable.contains(identifier)) {
+        // A mapping whose schema has already been brought in still names the
+        // URI that schema was fetched by, and a revision that gives an
+        // embedded Schema Object no way of keeping that URI leaves nothing in
+        // the result answering to it. Leaving it here would hand back a
+        // description that does not hold what it names, so it goes on to be
+        // pointed at where that schema landed instead
+        if (reference.mapping) {
+          deferred[reference.destination].push_back(reference);
+        }
+
         continue;
       }
 
@@ -2350,8 +2382,7 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
       // And so is what a mapping names, which is settled after the references
       // are, as bringing one schema in may be what lets the next be read
       if (adopt_mappings(document, deferred, adopted, identities, base, walker,
-                         schema_resolver, openapi_dialect(walk.version),
-                         options, remaining)) {
+                         schema_resolver, walk.version, options, remaining)) {
         deferred.clear();
         continue;
       }
@@ -2385,6 +2416,40 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
       if (bundle_schemas(document, walk, walker, schema_resolver, base,
                          remaining, options)) {
         continue;
+      }
+
+      // And so is the dialect every Schema Object of the result is read under,
+      // which a revision that gives a Schema Object no way of naming one
+      // leaves nothing to settle but what it publishes. Nothing was brought in
+      // against that until here, as what a schema says of itself only counts
+      // once it has landed where it answers to the description rather than to
+      // wherever it was fetched from
+      SchemaFrame::Paths paths;
+      for (const auto &entry : walk.locations) {
+        if (entry.second.type == OpenAPIObjectKind::Schema) {
+          paths.push_back(to_weak_pointer(entry.second.pointer));
+        }
+      }
+
+      if (!paths.empty()) {
+        const SchemaFrame schemas{SchemaFrame::Mode::References,
+                                  document,
+                                  walker,
+                                  schema_resolver,
+                                  walk.dialect,
+                                  "",
+                                  SchemaFrame::IdentifierMode::Additional,
+                                  paths,
+                                  base,
+                                  remaining};
+        charge(remaining, schemas.location_count());
+        const auto foreign{openapi_schema_of_another_dialect(
+            walk.version, schemas, paths, schema_resolver)};
+        if (foreign.has_value()) {
+          throw OpenAPIError{"A Schema Object of this revision must be written "
+                             "against the OpenAPI 3.0 dialect",
+                             base, foreign.value()};
+        }
       }
 
       return;

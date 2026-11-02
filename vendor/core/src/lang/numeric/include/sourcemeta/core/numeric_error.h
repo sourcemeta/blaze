@@ -19,6 +19,13 @@ public:
 };
 
 /// @ingroup numeric
+/// This class represents a variable-length integer parse error
+class SOURCEMETA_CORE_NUMERIC_EXPORT VarintParseError : public Error {
+public:
+  VarintParseError() noexcept : Error{"Invalid variable-length integer"} {}
+};
+
+/// @ingroup numeric
 /// This class represents a numeric division by zero error
 class SOURCEMETA_CORE_NUMERIC_EXPORT NumericDivisionByZeroError : public Error {
 public:
