@@ -8,7 +8,7 @@ namespace sourcemeta::blaze {
 
 auto BinPackEncoder::UTF8_STRING_NO_LENGTH(
     const sourcemeta::core::JSON &document,
-    const struct UTF8_STRING_NO_LENGTH &options) -> void {
+    [[maybe_unused]] const struct UTF8_STRING_NO_LENGTH &options) -> void {
   assert(document.is_string());
   const sourcemeta::core::JSON::String &value{document.to_string()};
   assert(value.size() == options.size);
