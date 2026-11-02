@@ -175,7 +175,7 @@ auto run_annotation_test(const sourcemeta::core::JSON &schema_json,
 
   sourcemeta::blaze::Evaluator evaluator;
 
-  sourcemeta::blaze::SimpleOutput output{instance};
+  sourcemeta::blaze::SimpleOutput output{exhaustive_schema, instance};
   const auto result{
       evaluator.validate(exhaustive_schema, instance, std::ref(output))};
   EXPECT_TRUE(result);
@@ -183,7 +183,7 @@ auto run_annotation_test(const sourcemeta::core::JSON &schema_json,
 
   // The same annotations must be collected in fast validation mode when the
   // relevant keywords are whitelisted via tweaks
-  sourcemeta::blaze::SimpleOutput fast_output{instance};
+  sourcemeta::blaze::SimpleOutput fast_output{fast_validation_schema, instance};
   const auto fast_result{evaluator.validate(fast_validation_schema, instance,
                                             std::ref(fast_output))};
   EXPECT_TRUE(fast_result);

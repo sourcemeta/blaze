@@ -50,7 +50,7 @@ namespace sourcemeta::blaze {
 ///
 /// const sourcemeta::core::JSON instance{5};
 ///
-/// sourcemeta::blaze::SimpleOutput output{instance};
+/// sourcemeta::blaze::SimpleOutput output{schema_template, instance};
 /// sourcemeta::blaze::Evaluator evaluator;
 /// const auto result{evaluator.validate(
 ///   schema_template, instance, std::ref(output))};
@@ -67,7 +67,8 @@ namespace sourcemeta::blaze {
 /// ```
 class SOURCEMETA_BLAZE_OUTPUT_EXPORT SimpleOutput {
 public:
-  SimpleOutput(const sourcemeta::core::JSON &instance,
+  SimpleOutput(const Template &schema_template,
+               const sourcemeta::core::JSON &instance,
                sourcemeta::core::WeakPointer base =
                    sourcemeta::core::EMPTY_WEAK_POINTER);
 
@@ -149,6 +150,7 @@ private:
     std::vector<Entry> buffered_traces;
   };
 
+  const Template &schema_template_;
   const sourcemeta::core::JSON &instance_;
   const sourcemeta::core::WeakPointer base_;
   container_type output_;

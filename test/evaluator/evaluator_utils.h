@@ -12,6 +12,8 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
 }
 
 #define EVALUATE_WITH_TRACE(schema_template, instance, count)                  \
+  [[maybe_unused]] const sourcemeta::blaze::Template &trace_template{          \
+      schema_template};                                                        \
   std::vector<std::tuple<                                                      \
       bool, sourcemeta::core::WeakPointer, sourcemeta::core::WeakPointer,      \
       sourcemeta::blaze::Instruction, sourcemeta::core::JSON,                  \
@@ -385,12 +387,12 @@ inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
       keyword_location, instance_location)
 
 #define EVALUATE_TRACE_POST_DESCRIBE(instance, index, message)                 \
-  EXPECT_EQ(sourcemeta::blaze::describe(std::get<0>(trace_post.at(index)),     \
-                                        std::get<3>(trace_post.at(index)),     \
-                                        std::get<1>(trace_post.at(index)),     \
-                                        std::get<2>(trace_post.at(index)),     \
-                                        instance,                              \
-                                        std::get<4>(trace_post.at(index))),    \
+  EXPECT_EQ(sourcemeta::blaze::describe(                                       \
+                trace_template, std::get<0>(trace_post.at(index)),             \
+                std::get<3>(trace_post.at(index)),                             \
+                std::get<1>(trace_post.at(index)),                             \
+                std::get<2>(trace_post.at(index)), instance,                   \
+                std::get<4>(trace_post.at(index))),                            \
             (message));
 
 #endif

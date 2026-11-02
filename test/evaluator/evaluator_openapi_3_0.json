@@ -799,7 +799,7 @@
       ],
       "descriptions": [
         "The null value null was expected to equal the null constant null",
-        "The null value was expected to not validate against the given subschema, but it did"
+        "The null value was expected to not validate against the given subschema"
       ]
     },
     "exhaustive": {
@@ -813,7 +813,7 @@
       ],
       "descriptions": [
         "The null value null was expected to equal the null constant null",
-        "The null value was expected to not validate against the given subschema, but it did"
+        "The null value was expected to not validate against the given subschema"
       ]
     }
   },
@@ -870,7 +870,7 @@
         [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items but it contained 3 items"
+        "The array value was expected to contain at most 2 items but its size was 3"
       ]
     },
     "exhaustive": {
@@ -881,7 +881,7 @@
         [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items but it contained 3 items"
+        "The array value was expected to contain at most 2 items but its size was 3"
       ]
     }
   },
@@ -900,7 +900,7 @@
         [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items and it contained 1 item",
+        "The array value was expected to contain at most 2 items and its size was 1",
         "The value was expected to be of type null, or array and it was of type array"
       ]
     },
@@ -914,7 +914,7 @@
         [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items and it contained 1 item",
+        "The array value was expected to contain at most 2 items and its size was 1",
         "The value was expected to be of type null, or array and it was of type array"
       ]
     }
@@ -960,7 +960,7 @@
         [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at least 2 items but it contained 1 item"
+        "The array value was expected to contain at least 2 items but its size was 1"
       ]
     },
     "exhaustive": {
@@ -971,7 +971,7 @@
         [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at least 2 items but it contained 1 item"
+        "The array value was expected to contain at least 2 items but its size was 1"
       ]
     }
   },
@@ -1044,7 +1044,7 @@
         [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 1 item but it contained 2 items"
+        "The array value was expected to contain at most 1 item but its size was 2"
       ]
     },
     "exhaustive": {
@@ -1055,7 +1055,7 @@
         [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 1 item but it contained 2 items"
+        "The array value was expected to contain at most 1 item but its size was 2"
       ]
     }
   },
@@ -1072,7 +1072,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+        "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
       ]
     },
     "exhaustive": {
@@ -1083,7 +1083,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+        "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
       ]
     }
   },
@@ -1128,7 +1128,7 @@
         [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at least 2 properties but it contained 1 property: \"a\""
+        "The object value was expected to contain at least 2 properties but it defines 1 of them: \"a\""
       ]
     },
     "exhaustive": {
@@ -1139,7 +1139,7 @@
         [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at least 2 properties but it contained 1 property: \"a\""
+        "The object value was expected to contain at least 2 properties but it defines 1 of them: \"a\""
       ]
     }
   },
@@ -1222,7 +1222,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+        "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
       ]
     },
     "exhaustive": {
@@ -1233,7 +1233,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+        "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
       ]
     }
   },
@@ -1746,7 +1746,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+        "The string value \"xxx\" was expected to consist of at most 2 characters but its length was 3"
       ]
     },
     "exhaustive": {
@@ -1757,7 +1757,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+        "The string value \"xxx\" was expected to consist of at most 2 characters but its length was 3"
       ]
     }
   },
@@ -1776,7 +1776,7 @@
         [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters",
+        "The string value \"xx\" was expected to consist of at most 2 characters and its length was 2",
         "The value was expected to be of type null, or string and it was of type string"
       ]
     },
@@ -1790,7 +1790,7 @@
         [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
       ],
       "descriptions": [
-        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters",
+        "The string value \"xx\" was expected to consist of at most 2 characters and its length was 2",
         "The value was expected to be of type null, or string and it was of type string"
       ]
     }
@@ -1836,7 +1836,7 @@
         [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+        "The string value \"x\" was expected to consist of at least 2 characters but its length was 1"
       ]
     },
     "exhaustive": {
@@ -1847,7 +1847,7 @@
         [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+        "The string value \"x\" was expected to consist of at least 2 characters but its length was 1"
       ]
     }
   },
@@ -1920,7 +1920,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"ab\" was expected to consist of at most 1 character but it consisted of 2 characters"
+        "The string value \"ab\" was expected to consist of at most 1 character but its length was 2"
       ]
     },
     "exhaustive": {
@@ -1931,7 +1931,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"ab\" was expected to consist of at most 1 character but it consisted of 2 characters"
+        "The string value \"ab\" was expected to consist of at most 1 character but its length was 2"
       ]
     }
   },
@@ -2957,7 +2957,7 @@
         [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
       ],
       "descriptions": [
-        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines \"baz\""
       ]
     },
     "exhaustive": {
@@ -2968,7 +2968,7 @@
         [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
       ],
       "descriptions": [
-        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines the property \"baz\""
+        "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines \"baz\""
       ]
     }
   },
@@ -3183,7 +3183,7 @@
         [ false, "AssertionDefinesAll", "/required", "#/required", "" ]
       ],
       "descriptions": [
-        "The object value was expected to define properties \"baz\", and \"foo\" but did not define the property \"baz\""
+        "The object value was expected to define properties \"baz\", and \"foo\" but did not define \"baz\""
       ]
     },
     "exhaustive": {
@@ -3194,7 +3194,7 @@
         [ false, "AssertionDefinesAll", "/required", "#/required", "" ]
       ],
       "descriptions": [
-        "The object value was expected to define properties \"baz\", and \"foo\" but did not define the property \"baz\""
+        "The object value was expected to define properties \"baz\", and \"foo\" but did not define \"baz\""
       ]
     }
   },
@@ -3283,7 +3283,7 @@
       ],
       "descriptions": [
         "The value was expected to be of type object",
-        "The object value was expected to define properties \"bar\", and \"foo\" but did not define the property \"bar\""
+        "The object value was expected to define properties \"bar\", and \"foo\" but did not define \"bar\""
       ]
     },
     "exhaustive": {
@@ -3299,7 +3299,7 @@
       ],
       "descriptions": [
         "The value was expected to be of type object",
-        "The object value was expected to define properties \"bar\", and \"foo\" but did not define the property \"bar\"",
+        "The object value was expected to define properties \"bar\", and \"foo\" but did not define \"bar\"",
         "The object value was expected to validate against the 2 given subschemas"
       ]
     }
@@ -3859,7 +3859,7 @@
       ],
       "descriptions": [
         "The value was expected to be of type string",
-        "The string value was expected to not validate against the given subschema, but it did"
+        "The string value was expected to not validate against the given subschema"
       ]
     },
     "exhaustive": {
@@ -3873,7 +3873,7 @@
       ],
       "descriptions": [
         "The value was expected to be of type string",
-        "The string value was expected to not validate against the given subschema, but it did"
+        "The string value was expected to not validate against the given subschema"
       ]
     }
   },
@@ -3893,7 +3893,7 @@
       ],
       "descriptions": [
         "The value was expected to be of type null, or string and it was of type null",
-        "The null value was expected to not validate against the given subschema, but it did"
+        "The null value was expected to not validate against the given subschema"
       ]
     },
     "exhaustive": {
@@ -3907,7 +3907,7 @@
       ],
       "descriptions": [
         "The value was expected to be of type null, or string and it was of type null",
-        "The null value was expected to not validate against the given subschema, but it did"
+        "The null value was expected to not validate against the given subschema"
       ]
     }
   },
@@ -3966,7 +3966,7 @@
         [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 2 properties and it contained 2 properties: \"bar\", and \"foo\""
+        "The object value was expected to contain at most 2 properties and it defines 2 of them: \"bar\", and \"foo\""
       ]
     },
     "exhaustive": {
@@ -3977,7 +3977,7 @@
         [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 2 properties and it contained 2 properties: \"bar\", and \"foo\""
+        "The object value was expected to contain at most 2 properties and it defines 2 of them: \"bar\", and \"foo\""
       ]
     }
   },
@@ -3994,7 +3994,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 2 properties but it contained 3 properties: \"bar\", \"baz\", and \"foo\""
+        "The object value was expected to contain at most 2 properties but it defines 3 of them: \"bar\", \"baz\", and \"foo\""
       ]
     },
     "exhaustive": {
@@ -4005,7 +4005,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 2 properties but it contained 3 properties: \"bar\", \"baz\", and \"foo\""
+        "The object value was expected to contain at most 2 properties but it defines 3 of them: \"bar\", \"baz\", and \"foo\""
       ]
     }
   },
@@ -4033,7 +4033,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 2 properties but it contained 3 properties: \"bar\", \"baz\", and \"foo\""
+        "The object value was expected to contain at most 2 properties but it defines 3 of them: \"bar\", \"baz\", and \"foo\""
       ]
     }
   },
@@ -4069,7 +4069,7 @@
       ],
       "descriptions": [
         "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
-        "The object value was expected to contain at least 1 property and it contained 1 property: \"foo\"",
+        "The object value was expected to contain at least 1 property and it defines 1 of them: \"foo\"",
         "The value was expected to be of type object"
       ]
     }
@@ -4095,7 +4095,7 @@
         [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at least 2 properties but it contained 1 property: \"foo\""
+        "The object value was expected to contain at least 2 properties but it defines 1 of them: \"foo\""
       ]
     },
     "exhaustive": {
@@ -4106,7 +4106,7 @@
         [ false, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at least 2 properties but it contained 1 property: \"foo\""
+        "The object value was expected to contain at least 2 properties but it defines 1 of them: \"foo\""
       ]
     }
   },
@@ -4134,7 +4134,7 @@
         [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
       ],
       "descriptions": [
-        "The object value was expected to contain at most 1 property but it contained 2 properties: \"a\", and \"b\""
+        "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
       ]
     }
   },
@@ -4187,7 +4187,7 @@
         [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
       ],
       "descriptions": [
-        "The array value contained the following duplicate item: 2"
+        "The array value contained the following duplicates: 2"
       ]
     },
     "exhaustive": {
@@ -4198,7 +4198,7 @@
         [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
       ],
       "descriptions": [
-        "The array value contained the following duplicate item: 2"
+        "The array value contained the following duplicates: 2"
       ]
     }
   },
@@ -4215,7 +4215,7 @@
         [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
       ],
       "descriptions": [
-        "The array value contained the following duplicate item: 2"
+        "The array value contained the following duplicates: 2"
       ]
     },
     "exhaustive": {
@@ -4226,7 +4226,7 @@
         [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
       ],
       "descriptions": [
-        "The array value contained the following duplicate item: 2"
+        "The array value contained the following duplicates: 2"
       ]
     }
   },
@@ -4251,7 +4251,7 @@
         [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items and it contained 2 items"
+        "The array value was expected to contain at most 2 items and its size was 2"
       ]
     },
     "exhaustive": {
@@ -4262,7 +4262,7 @@
         [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items and it contained 2 items"
+        "The array value was expected to contain at most 2 items and its size was 2"
       ]
     }
   },
@@ -4279,7 +4279,7 @@
         [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items but it contained 3 items"
+        "The array value was expected to contain at most 2 items but its size was 3"
       ]
     },
     "exhaustive": {
@@ -4290,7 +4290,7 @@
         [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items but it contained 3 items"
+        "The array value was expected to contain at most 2 items but its size was 3"
       ]
     }
   },
@@ -4318,7 +4318,7 @@
         [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at most 2 items but it contained 3 items"
+        "The array value was expected to contain at most 2 items but its size was 3"
       ]
     }
   },
@@ -4354,7 +4354,7 @@
       ],
       "descriptions": [
         "The array value [1] was expected to equal the array constant [1]",
-        "The array value was expected to contain at least 1 item and it contained 1 item",
+        "The array value was expected to contain at least 1 item and its size was 1",
         "The value was expected to be of type array"
       ]
     }
@@ -4380,7 +4380,7 @@
         [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at least 2 items but it contained 1 item"
+        "The array value was expected to contain at least 2 items but its size was 1"
       ]
     },
     "exhaustive": {
@@ -4391,7 +4391,7 @@
         [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
       ],
       "descriptions": [
-        "The array value was expected to contain at least 2 items but it contained 1 item"
+        "The array value was expected to contain at least 2 items but its size was 1"
       ]
     }
   },
@@ -4426,7 +4426,7 @@
       ],
       "descriptions": [
         "Every item in the array value was expected to validate against the given subschema",
-        "The array value was expected to contain at least 1 item but it contained 0 items"
+        "The array value was expected to contain at least 1 item but its size was 0"
       ]
     }
   },
@@ -4515,7 +4515,7 @@
         [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters"
+        "The string value \"xx\" was expected to consist of at most 2 characters and its length was 2"
       ]
     },
     "exhaustive": {
@@ -4526,7 +4526,7 @@
         [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"xx\" was expected to consist of at most 2 characters and it consisted of 2 characters"
+        "The string value \"xx\" was expected to consist of at most 2 characters and its length was 2"
       ]
     }
   },
@@ -4543,7 +4543,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+        "The string value \"xxx\" was expected to consist of at most 2 characters but its length was 3"
       ]
     },
     "exhaustive": {
@@ -4554,7 +4554,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+        "The string value \"xxx\" was expected to consist of at most 2 characters but its length was 3"
       ]
     }
   },
@@ -4582,7 +4582,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"xxx\" was expected to consist of at most 2 characters but it consisted of 3 characters"
+        "The string value \"xxx\" was expected to consist of at most 2 characters but its length was 3"
       ]
     }
   },
@@ -4618,7 +4618,7 @@
       ],
       "descriptions": [
         "The string value \"foo\" was expected to equal the string constant \"foo\"",
-        "The string value \"foo\" was expected to consist of at least 1 character and it consisted of 3 characters",
+        "The string value \"foo\" was expected to consist of at least 1 character and its length was 3",
         "The value was expected to be of type string"
       ]
     }
@@ -4644,7 +4644,7 @@
         [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+        "The string value \"x\" was expected to consist of at least 2 characters but its length was 1"
       ]
     },
     "exhaustive": {
@@ -4655,7 +4655,7 @@
         [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
       ],
       "descriptions": [
-        "The string value \"x\" was expected to consist of at least 2 characters but it consisted of 1 character"
+        "The string value \"x\" was expected to consist of at least 2 characters but its length was 1"
       ]
     }
   },
@@ -4683,7 +4683,7 @@
         [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
       ],
       "descriptions": [
-        "The string value \"abcd\" was expected to consist of at most 1 character but it consisted of 4 characters"
+        "The string value \"abcd\" was expected to consist of at most 1 character but its length was 4"
       ]
     }
   },

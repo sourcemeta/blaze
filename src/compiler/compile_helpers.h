@@ -171,7 +171,9 @@ inline auto make_with_resource(const InstructionIndex type,
        .vocabulary = vocabulary_id(
            context.vocabularies, context.frame, context.walker,
            dynamic_context.keyword, schema_context.relative_pointer,
-           schema_context.base, schema_context.vocabularies)});
+           schema_context.base, schema_context.vocabularies),
+       .message = 0,
+       .message_detail = 0});
   return {.type = type,
           .relative_instance_location =
               to_pointer(dynamic_context.base_instance_location),
@@ -210,7 +212,9 @@ inline auto make(const InstructionIndex type, const Context &context,
        .vocabulary = vocabulary_id(
            context.vocabularies, context.frame, context.walker,
            dynamic_context.keyword, schema_context.relative_pointer,
-           schema_context.base, schema_context.vocabularies)});
+           schema_context.base, schema_context.vocabularies),
+       .message = 0,
+       .message_detail = 0});
   return {.type = type,
           .relative_instance_location =
               to_pointer(dynamic_context.base_instance_location),

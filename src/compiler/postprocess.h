@@ -290,7 +290,9 @@ inline auto fuse_numeric_bounds(Instructions &instructions,
         {.relative_schema_location = minimum_metadata.relative_schema_location,
          .keyword_location = minimum_metadata.keyword_location,
          .schema_resource = type_metadata.schema_resource,
-         .vocabulary = type_metadata.vocabulary});
+         .vocabulary = type_metadata.vocabulary,
+         .message = type_metadata.message,
+         .message_detail = type_metadata.message_detail});
 
     Instructions result;
     result.reserve(instructions.size() - bound_indices.size());
@@ -362,7 +364,9 @@ inline auto fuse_loop_type(Instruction &instruction, Instruction &child,
                            child_meta.relative_schema_location),
                    .keyword_location = std::move(child_meta.keyword_location),
                    .schema_resource = child_meta.schema_resource,
-                   .vocabulary = child_meta.vocabulary});
+                   .vocabulary = child_meta.vocabulary,
+                   .message = child_meta.message,
+                   .message_detail = child_meta.message_detail});
   output.push_back(Instruction{.type = result,
                                .relative_instance_location = std::move(
                                    instruction.relative_instance_location),

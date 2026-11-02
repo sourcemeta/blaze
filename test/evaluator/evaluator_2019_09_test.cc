@@ -4150,7 +4150,7 @@ TEST(annotation_fast_additional_items) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
-                               "The array value contains 1 additional item not "
+                               "The array value contains additional items not "
                                "described by related keywords");
 }
 
@@ -4497,7 +4497,7 @@ TEST(properties_closed_required_annotation_whitelist_fast) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an object that only defines properties "
-      "\"a\", and \"b\", but it also defines the property \"zzz\"");
+      "\"a\", and \"b\", but it also defines \"zzz\"");
 }
 
 TEST(properties_closed_required_annotation_whitelist_fast_exact) {
@@ -4581,7 +4581,7 @@ TEST(properties_closed_required_annotation_whitelist_fast_wrong_names) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an object that only defines properties "
-      "\"a\", and \"b\", but it also defines properties \"c\", and \"d\"");
+      "\"a\", and \"b\", but it also defines \"c\", and \"d\"");
 }
 
 TEST(properties_closed_required_annotation_whitelist_fast_missing_required) {

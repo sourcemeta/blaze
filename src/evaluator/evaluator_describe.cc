@@ -1,16 +1,18 @@
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <algorithm>   // std::ranges::any_of, std::ranges::sort
-#include <cassert>     // assert
-#include <cstddef>     // std::size_t
-#include <format>      // std::format
-#include <set>         // std::set
-#include <sstream>     // std::ostringstream
-#include <string>      // std::string
-#include <string_view> // std::string_view
-#include <utility>     // std::to_underlying, std::unreachable
-#include <variant>     // std::visit
-#include <vector>      // std::vector
+#include <algorithm> // std::ranges::any_of, std::ranges::copy, std::ranges::sort
+#include <array>     // std::array
+#include <cassert>   // assert
+#include <cstddef>   // std::size_t
+#include <format>    // std::format, std::make_format_args, std::vformat
+#include <initializer_list> // std::initializer_list
+#include <set>              // std::set
+#include <sstream>          // std::ostringstream
+#include <string>           // std::string, std::to_string
+#include <string_view>      // std::string_view
+#include <utility>          // std::to_underlying, std::unreachable
+#include <variant>          // std::get
+#include <vector>           // std::vector
 
 namespace {
 using namespace sourcemeta::blaze;
@@ -22,6 +24,74 @@ auto instruction_value(const T &step) -> decltype(auto) {
   } else {
     return step.id;
   }
+}
+
+// How many arguments a message template can draw on. Every template the
+// compiler emits names its arguments by index, as the renderer below has to
+// hand the same number of them to `std::vformat` whatever the sentence is
+constexpr std::size_t MESSAGE_ARGUMENTS{6};
+
+// Substitute the phrases a message draws on into the template the compiler
+// resolved for it. A caller names only the ones its sentence reaches for, and
+// the rest stay empty
+auto render_message(const std::string_view format,
+                    const std::initializer_list<std::string_view> arguments)
+    -> std::string {
+  static_assert(MESSAGE_ARGUMENTS == 6,
+                "Every argument must be named for std::make_format_args");
+  assert(arguments.size() <= MESSAGE_ARGUMENTS);
+  std::array<std::string_view, MESSAGE_ARGUMENTS> slots{};
+  std::ranges::copy(arguments, slots.begin());
+  return std::vformat(format,
+                      std::make_format_args(slots[0], slots[1], slots[2],
+                                            slots[3], slots[4], slots[5]));
+}
+
+// Whether a template draws on any argument at all, which is how the evaluator
+// tells the forms that state something of the instance from the ones that
+// state nothing but the schema
+auto takes_arguments(const std::string_view format) -> bool {
+  for (std::size_t cursor = 0; cursor + 1 < format.size(); cursor++) {
+    if (format[cursor] == '{' && format[cursor + 1] >= '0' &&
+        format[cursor + 1] <= '9') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// The message template the compiler resolved for this instruction, or empty
+// when no sentence applies to it
+auto message_format(const Template &schema_template, const Instruction &step)
+    -> std::string_view {
+  const auto &extra{schema_template.extra.at(step.extra_index)};
+  if (extra.message == 0) {
+    return {};
+  }
+
+  return schema_template.messages.at(extra.message - 1);
+}
+
+// As above, for the form the instruction renders when it has something of its
+// own to report
+auto message_detail_format(const Template &schema_template,
+                           const Instruction &step) -> std::string_view {
+  const auto &extra{schema_template.extra.at(step.extra_index)};
+  if (extra.message_detail == 0) {
+    return {};
+  }
+
+  return schema_template.messages.at(extra.message_detail - 1);
+}
+
+// The sentence an instruction renders when the compiler resolved every word
+// of it
+auto describe_literal(const Template &schema_template, const Instruction &step)
+    -> std::string {
+  const auto format{message_format(schema_template, step)};
+  assert(!format.empty());
+  return std::string{format};
 }
 
 template <typename T>
@@ -88,13 +158,6 @@ auto escape_string(const std::string_view input) -> std::string {
   return result;
 }
 
-// A count paired with its noun, in agreement. The plural is spelled out rather
-// than derived, as "property" does not inflect by suffix
-auto quantity(const std::size_t count, const std::string_view singular,
-              const std::string_view plural) -> std::string {
-  return std::format("{} {}", count, count == 1 ? singular : plural);
-}
-
 // Render a list of names as "a, b, and c", which is how every message that
 // names more than one of them ends. A conjunction of "or" spells the same
 // shape for a list of alternatives
@@ -135,54 +198,57 @@ auto describe_values(const Values &values, const std::string_view conjunction,
   }
 }
 
-auto describe_type_check(const bool valid,
+auto describe_type_check(const std::string_view format,
+                         const std::string_view detail,
+                         const std::string_view subject, const bool valid,
                          const sourcemeta::core::JSON::Type current,
                          const sourcemeta::core::JSON::Type expected)
     -> std::string {
-  std::ostringstream message;
-  message << "The value was expected to be of type " << type_name(expected);
-  if (!valid) {
-    message << " but it was of type "
-            << (current == sourcemeta::core::JSON::Type::Decimal
-                    ? std::string_view{"number"}
-                    : type_name(current));
+  if (valid) {
+    return render_message(format, {subject, type_name(expected)});
   }
 
-  return message.str();
+  return render_message(detail,
+                        {subject, type_name(expected),
+                         current == sourcemeta::core::JSON::Type::Decimal
+                             ? std::string_view{"number"}
+                             : type_name(current)});
 }
 
-auto describe_not_type_check(const bool valid,
+auto describe_not_type_check(const std::string_view format,
+                             const std::string_view detail,
+                             const std::string_view subject, const bool valid,
                              const sourcemeta::core::JSON::Type current,
                              const sourcemeta::core::JSON::Type expected)
     -> std::string {
-  std::ostringstream message;
-  message << "The value was expected to NOT be of type " << type_name(expected);
-  if (!valid) {
-    std::string_view actual{type_name(current)};
-    if (current == sourcemeta::core::JSON::Type::Decimal &&
-        expected == sourcemeta::core::JSON::Type::Integer) {
-      actual = "integer";
-    } else if ((current == sourcemeta::core::JSON::Type::Integer &&
-                expected == sourcemeta::core::JSON::Type::Real) ||
-               current == sourcemeta::core::JSON::Type::Decimal) {
-      actual = "number";
-    }
-
-    message << " but it was of type " << actual;
+  if (valid) {
+    return render_message(format, {subject, type_name(expected)});
   }
 
-  return message.str();
+  std::string_view actual{type_name(current)};
+  if (current == sourcemeta::core::JSON::Type::Decimal &&
+      expected == sourcemeta::core::JSON::Type::Integer) {
+    actual = "integer";
+  } else if ((current == sourcemeta::core::JSON::Type::Integer &&
+              expected == sourcemeta::core::JSON::Type::Real) ||
+             current == sourcemeta::core::JSON::Type::Decimal) {
+    actual = "number";
+  }
+
+  return render_message(detail, {subject, type_name(expected), actual});
 }
 
-// The numeric types a message cannot tell apart in prose get folded together,
-// so the set it names is not always the set the instruction holds
-struct ExpectedTypes {
+// A set of types with the numeric ones that read alike folded together, next
+// to which of them the set named before the fold. The compiler folds the same
+// way to decide whether a sentence names one type or several, and the two have
+// to agree
+struct CollapsedTypes {
   ValueTypes types;
   bool has_real;
   bool has_integer;
 };
 
-auto collapse_types(const ValueTypes expected) -> ExpectedTypes {
+auto collapse_types(const ValueTypes expected) -> CollapsedTypes {
   ValueTypes types{expected};
   const auto has_real{
       types.test(std::to_underlying(sourcemeta::core::JSON::Type::Real))};
@@ -242,6 +308,19 @@ auto describe_type_list(const ValueTypes types, std::ostringstream &message)
   }
 }
 
+// The types an instruction names, as a single type or as a list of
+// alternatives
+auto describe_types(const ValueTypes types) -> std::string {
+  const auto expectation{collapse_types(types)};
+  if (expectation.types.count() == 1) {
+    return std::string{type_name(first_type(expectation.types))};
+  }
+
+  std::ostringstream named;
+  describe_type_list(expectation.types, named);
+  return named.str();
+}
+
 // Which numeric type to report for the instance, given which numeric types the
 // message named as alternatives. A set that narrowed to one of them reports
 // that one, as the broader name would read as a contradiction
@@ -263,62 +342,50 @@ auto describe_actual_type(const bool narrowed,
   return type_name(current);
 }
 
-auto describe_types_check(const bool valid,
+auto describe_types_check(const Template &schema_template,
+                          const Instruction &step,
+                          const std::string_view subject, const bool valid,
                           const sourcemeta::core::JSON::Type current,
                           const ValueTypes expected) -> std::string {
   const auto expectation{collapse_types(expected)};
   if (expectation.types.count() == 1) {
-    return describe_type_check(valid, current, first_type(expectation.types));
+    return describe_type_check(message_format(schema_template, step),
+                               message_detail_format(schema_template, step),
+                               subject, valid, current,
+                               first_type(expectation.types));
   }
 
-  std::ostringstream message;
-  message << "The value was expected to be of type ";
-  describe_type_list(expectation.types, message);
-  message << (valid ? " and it was of type " : " but it was of type ")
-          << describe_actual_type(valid, current, expectation.has_real,
-                                  expectation.has_integer);
-  return message.str();
+  std::ostringstream named;
+  describe_type_list(expectation.types, named);
+  return render_message(
+      valid ? message_format(schema_template, step)
+            : message_detail_format(schema_template, step),
+      {subject, named.str(),
+       describe_actual_type(valid, current, expectation.has_real,
+                            expectation.has_integer)});
 }
 
-auto describe_not_types_check(const bool valid,
+auto describe_not_types_check(const Template &schema_template,
+                              const Instruction &step,
+                              const std::string_view subject, const bool valid,
                               const sourcemeta::core::JSON::Type current,
                               const ValueTypes expected) -> std::string {
   const auto expectation{collapse_types(expected)};
   if (expectation.types.count() == 1) {
-    return describe_not_type_check(valid, current,
+    return describe_not_type_check(message_format(schema_template, step),
+                                   message_detail_format(schema_template, step),
+                                   subject, valid, current,
                                    first_type(expectation.types));
   }
 
-  std::ostringstream message;
-  message << "The value was expected to NOT be of type ";
-  describe_type_list(expectation.types, message);
-  message << (valid ? " and it was of type " : " but it was of type ")
-          << describe_actual_type(!valid, current, expectation.has_real,
-                                  expectation.has_integer);
-  return message.str();
-}
-
-// Names a set of properties, with the noun agreeing. A single property takes
-// an article, which a list of them does not
-template <typename Names>
-auto describe_properties(const Names &names, const std::string_view conjunction,
-                         std::ostringstream &message) -> void {
-  message << (names.size() == 1 ? "the property " : "properties ");
-  describe_names(names, conjunction, message);
-}
-
-// Every message that says an object may only define certain properties ends by
-// naming the ones it defined beyond them
-auto describe_unexpected_properties(const std::set<std::string_view> &extras,
-                                    std::ostringstream &message)
-    -> std::string {
-  if (extras.empty()) {
-    return message.str();
-  }
-
-  message << ", but it also defines ";
-  describe_properties(extras, "and", message);
-  return message.str();
+  std::ostringstream named;
+  describe_type_list(expectation.types, named);
+  return render_message(
+      valid ? message_format(schema_template, step)
+            : message_detail_format(schema_template, step),
+      {subject, named.str(),
+       describe_actual_type(!valid, current, expectation.has_real,
+                            expectation.has_integer)});
 }
 
 // The property names a set carries, in the order it holds them
@@ -346,35 +413,16 @@ auto unexpected_properties(const sourcemeta::core::JSON &target,
   return result;
 }
 
-// The numeric relations differ only in the phrase they name. The instance
-// value goes in the subject, so none of them reports an actual of its own
-auto describe_comparison(const sourcemeta::core::JSON &target,
-                         const std::string_view relation,
+auto describe_comparison(const std::string_view format,
+                         const sourcemeta::core::JSON &target,
                          const sourcemeta::core::JSON &value) -> std::string {
-  std::ostringstream message;
-  message << "The " << value_type_name(target) << " value ";
-  describe_stringify(target, message);
-  message << " was expected to be " << relation << " the "
-          << value_type_name(value) << " ";
-  describe_stringify(value, message);
-  return message.str();
-}
-
-// A single subschema is named without a count or a selection, as "at least
-// one of the 1 given subschemas" does not read
-auto describe_subschemas(const std::size_t count,
-                         const std::string_view selection) -> std::string {
-  if (count == 1) {
-    return "the given subschema";
-  }
-
-  return std::format("{}the {} given subschemas", selection, count);
-}
-
-auto describe_reference(const sourcemeta::core::JSON &target) -> std::string {
-  return std::format(
-      "The {} value was expected to validate against the referenced schema",
-      type_name(target.type()));
+  assert(!format.empty());
+  std::ostringstream target_value;
+  describe_stringify(target, target_value);
+  std::ostringstream bound;
+  describe_stringify(value, bound);
+  return render_message(format, {value_type_name(target), target_value.str(),
+                                 value_type_name(value), bound.str()});
 }
 
 auto is_within_keyword(const sourcemeta::core::WeakPointer &evaluate_path,
@@ -438,67 +486,68 @@ auto describe_subject(const sourcemeta::core::WeakPointer &evaluate_path,
   return subject.str();
 }
 
-// `maxLength` and `minLength` differ only in which way the bound runs
-auto describe_string_size(
-    const bool valid, const sourcemeta::core::WeakPointer &evaluate_path,
+// The subject of a message about a string, which inside `propertyNames` is the
+// property name rather than the instance
+auto describe_string_subject(
+    const sourcemeta::core::WeakPointer &evaluate_path,
     const sourcemeta::core::WeakPointer &instance_location,
-    const sourcemeta::core::JSON &target, const std::string_view bound_name,
-    const std::size_t bound) -> std::string {
+    const sourcemeta::core::JSON &target) -> std::string {
+  if (names_a_property(evaluate_path, instance_location)) {
+    return std::format("The property name {}",
+                       escape_string(instance_location.back().to_property()));
+  }
+
+  assert(target.is_string());
+  return std::format("The string value {}", escape_string(target.to_string()));
+}
+
+auto describe_string_size(
+    const Template &schema_template, const Instruction &step, const bool valid,
+    const sourcemeta::core::WeakPointer &evaluate_path,
+    const sourcemeta::core::WeakPointer &instance_location,
+    const sourcemeta::core::JSON &target) -> std::string {
   const auto size{names_a_property(evaluate_path, instance_location)
                       ? instance_location.back().to_property().size()
                       : target.size()};
-  return std::format(
-      "{} was expected to consist of {} {} {} it consisted of {}",
-      describe_subject(evaluate_path, instance_location, target,
-                       SubjectDetail::Value),
-      bound_name, quantity(bound, "character", "characters"),
-      valid ? "and" : "but", quantity(size, "character", "characters"));
+  return render_message(valid ? message_format(schema_template, step)
+                              : message_detail_format(schema_template, step),
+                        {describe_subject(evaluate_path, instance_location,
+                                          target, SubjectDetail::Value),
+                         std::to_string(size)});
 }
 
-// As above, for `maxItems` and `minItems`
-auto describe_array_size(const bool valid, const sourcemeta::core::JSON &target,
-                         const std::string_view bound_name,
-                         const std::size_t bound) -> std::string {
+auto describe_array_size(const Template &schema_template,
+                         const Instruction &step, const bool valid,
+                         const sourcemeta::core::JSON &target) -> std::string {
   assert(target.is_array());
-  return std::format(
-      "The array value was expected to contain {} {} {} it contained {}",
-      bound_name, quantity(bound, "item", "items"), valid ? "and" : "but",
-      quantity(target.size(), "item", "items"));
+  return render_message(valid ? message_format(schema_template, step)
+                              : message_detail_format(schema_template, step),
+                        {std::to_string(target.size())});
 }
 
-// As above, for `maxProperties` and `minProperties`, which also name the
-// properties the instance turned out to carry
-auto describe_object_size(const bool valid,
-                          const sourcemeta::core::JSON &target,
-                          const std::string_view bound_name,
-                          const std::size_t bound) -> std::string {
+// As above, except that the message also names the properties the instance
+// turned out to carry, which an empty object has none of
+auto describe_object_size(const Template &schema_template,
+                          const Instruction &step, const bool valid,
+                          const sourcemeta::core::JSON &target) -> std::string {
   assert(target.is_object());
-  std::ostringstream message;
-  message << std::format(
-      "The object value was expected to contain {} {} {} it contained {}",
-      bound_name, quantity(bound, "property", "properties"),
-      valid ? "and" : "but", quantity(target.size(), "property", "properties"));
+  std::ostringstream carried;
 
-  if (target.empty()) {
-    return message.str();
+  if (!target.empty()) {
+    std::vector<std::string> properties;
+    properties.reserve(target.size());
+    for (const auto &entry : target.as_object()) {
+      properties.push_back(entry.first);
+    }
+
+    std::ranges::sort(properties);
+    carried << ": ";
+    describe_names(properties, "and", carried);
   }
 
-  message << ": ";
-
-  if (target.size() == 1) {
-    message << escape_string(target.as_object().cbegin()->first);
-    return message.str();
-  }
-
-  std::vector<std::string> properties;
-  properties.reserve(target.size());
-  for (const auto &entry : target.as_object()) {
-    properties.push_back(entry.first);
-  }
-
-  std::ranges::sort(properties);
-  describe_names(properties, "and", message);
-  return message.str();
+  return render_message(valid ? message_format(schema_template, step)
+                              : message_detail_format(schema_template, step),
+                        {std::to_string(target.size()), carried.str()});
 }
 
 } // namespace
@@ -508,7 +557,8 @@ namespace sourcemeta::blaze {
 // TODO: What will unlock even better error messages is being able to
 // get the subschema being evaluated along with the keyword
 // NOLINTNEXTLINE(google-readability-function-size,hicpp-function-size,readability-function-size)
-auto describe(const bool valid, const Instruction &step,
+auto describe(const Template &schema_template, const bool valid,
+              const Instruction &step,
               const sourcemeta::core::WeakPointer &evaluate_path,
               const sourcemeta::core::WeakPointer &instance_location,
               const sourcemeta::core::JSON &instance,
@@ -521,958 +571,265 @@ auto describe(const bool valid, const Instruction &step,
                                 : evaluate_path.back().to_property()};
   const sourcemeta::core::JSON &target{get(instance, instance_location)};
 
+  // The compiler resolved every word of these, as what they say does not
+  // depend on how the instance turned out
+  if (step.type == sourcemeta::blaze::InstructionIndex::Evaluate ||
+      step.type == sourcemeta::blaze::InstructionIndex::LoopProperties ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopPropertiesEvaluate ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       LoopPropertiesUnevaluatedExcept ||
+      step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionObjectPropertiesSimple ||
+      step.type == sourcemeta::blaze::InstructionIndex::LoopItems ||
+      step.type == sourcemeta::blaze::InstructionIndex::LoopItemsFrom ||
+      step.type == sourcemeta::blaze::InstructionIndex::LoopItemsUnevaluated ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBounded ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBoundedSized ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       LoopItemsArrayBoundedTypeStrictAny ||
+      step.type == sourcemeta::blaze::InstructionIndex::LoopContains ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeIntegerBounded ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionTypeIntegerBoundedStrict ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeIntegerLowerBound ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionTypeIntegerLowerBoundStrict ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeStringBounded ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeStringUpper ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeArrayBounded ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeArrayUpper ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeObjectBounded ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper) {
+    return describe_literal(schema_template, step);
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionFail) {
-    if (keyword == "enum") {
-      return std::format("The {} value was not expected to validate against "
-                         "the empty enumeration",
-                         type_name(target.type()));
-    }
-
-    if (keyword == "contains") {
-      return "The constraints declared for this keyword were not satisfiable";
-    }
-
+    const auto detail{message_detail_format(schema_template, step)};
     // A `false` subschema declares no keyword of its own, so its evaluation
     // path ends at whatever declared it, which under `properties` and its
     // relatives is a name the author chose. A name that happens to read like
-    // one of the keywords below must not be taken for the keyword itself, so
-    // each of these only applies when the instance location agrees with it
-    if ((keyword == "additionalProperties" ||
-         keyword == "unevaluatedProperties") &&
-        !instance_location.empty() && instance_location.back().is_property()) {
-      return std::format(
-          "The object value was not expected to define the property {}",
-          escape_string(instance_location.back().to_property()));
+    // one of the keywords that name what the instance carried must not be
+    // taken for the keyword itself, so the instance location has to agree
+    if (!detail.empty() && !instance_location.empty()) {
+      const auto &token{instance_location.back()};
+      if (keyword == "unevaluatedItems") {
+        if (token.is_index()) {
+          return render_message(detail, {std::to_string(token.to_index())});
+        }
+      } else if (token.is_property()) {
+        return render_message(detail, {escape_string(token.to_property())});
+      }
     }
 
-    if (keyword == "unevaluatedItems" && !instance_location.empty() &&
-        instance_location.back().is_index()) {
-      return std::format(
-          "The array value was not expected to define the item at index {}",
-          instance_location.back().to_index());
-    }
-
-    return "No instance is expected to succeed against the false schema";
+    return render_message(message_format(schema_template, step),
+                          {type_name(target.type())});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalOr) {
     assert(!step.children.empty());
-    return std::format(
-        "The {} value was expected to validate against {}",
-        type_name(target.type()),
-        describe_subschemas(step.children.size(), "at least one of "));
+    return render_message(message_format(schema_template, step),
+                          {type_name(target.type())});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalAnd) {
-    if (keyword == "allOf" || keyword == "extends") {
-      assert(!step.children.empty());
-      return std::format("The {} value was expected to validate against {}",
-                         type_name(target.type()),
-                         describe_subschemas(step.children.size(), ""));
+    const auto format{message_format(schema_template, step)};
+    if (format.empty()) {
+      return unknown();
     }
 
-    if (keyword == "$ref") {
-      return describe_reference(target);
-    }
-
-    // For the wrapper instruction we emit when hoisting `then` subschemas
-    // whose `if` condition compiles to nothing
-    if (keyword == "then") {
-      return std::format(
-          "The {} value was expected to validate against the given conditional",
-          type_name(target.type()));
-    }
-
-    return unknown();
+    return render_message(format, {type_name(target.type())});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalXor) {
     assert(!step.children.empty());
-    return std::format(
-        "{} was expected to validate against {}",
-        describe_subject(evaluate_path, instance_location, target,
-                         SubjectDetail::Type),
-        describe_subschemas(step.children.size(), "one and only one of "));
+    return render_message(message_format(schema_template, step),
+                          {describe_subject(evaluate_path, instance_location,
+                                            target, SubjectDetail::Type)});
   }
 
-  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalCondition) {
-    return std::format(
-        "The {} value was expected to validate against the given conditional",
-        type_name(target.type()));
+  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalCondition ||
+      step.type == sourcemeta::blaze::InstructionIndex::LogicalNot ||
+      step.type == sourcemeta::blaze::InstructionIndex::LogicalNotEvaluate) {
+    return render_message(message_format(schema_template, step),
+                          {type_name(target.type())});
   }
 
-  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalNot) {
-    std::ostringstream message;
-    message
-        << "The " << type_name(target.type())
-        << " value was expected to not validate against the given subschema";
-    if (!valid) {
-      message << ", but it did";
-    }
-
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LogicalNotEvaluate) {
-    std::ostringstream message;
-    message
-        << "The " << type_name(target.type())
-        << " value was expected to not validate against the given subschema";
-    if (!valid) {
-      message << ", but it did";
-    }
-
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::Evaluate) {
-    return "The instance location was marked as evaluated";
+  if (step.type == sourcemeta::blaze::InstructionIndex::ControlJump) {
+    // Inside `propertyNames` the subject is the property name, which is a
+    // string rather than the instance the location points at
+    return render_message(message_format(schema_template, step),
+                          {names_a_property(evaluate_path, instance_location)
+                               ? std::string_view{"string"}
+                               : type_name(target.type())});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump) {
     if (keyword == "$dynamicRef") {
-      const auto &value{instruction_value<ValueString>(step)};
-      return std::format(
-          "The {} value was expected to validate against the first subschema "
-          "in scope that declared the dynamic anchor {}",
-          type_name(target.type()), escape_string(value));
+      return render_message(
+          message_format(schema_template, step),
+          {type_name(target.type()),
+           escape_string(instruction_value<ValueString>(step))});
     }
 
     assert(keyword == "$recursiveRef");
-    return std::format(
-        "The {} value was expected to validate against the first subschema in "
-        "scope that declared a recursive anchor",
-        type_name(target.type()));
+    return render_message(message_format(schema_template, step),
+                          {type_name(target.type())});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmit ||
-      step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped) {
-    if (keyword == "properties") {
-      assert(annotation.is_string());
-      return std::format("The object property {} successfully validated "
-                         "against its property subschema",
-                         escape_string(annotation.to_string()));
+      step.type == sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped ||
+      step.type == sourcemeta::blaze::InstructionIndex::AnnotationToParent) {
+    const auto format{message_format(schema_template, step)};
+    if (format.empty()) {
+      return unknown();
     }
 
-    if ((keyword == "items" || keyword == "additionalItems") &&
-        annotation.is_boolean() && annotation.to_boolean()) {
-      assert(target.is_array());
-      return "Every item in the array value was successfully validated";
+    // Every annotation message draws on the same arguments, as the compiler
+    // picked the sentence from the keyword and the value but cannot phrase
+    // what fills it
+    std::ostringstream spelled;
+    describe_stringify(annotation, spelled);
+    std::ostringstream serialized;
+    stringify(annotation, serialized);
+    std::ostringstream listed;
+    if (annotation.is_array()) {
+      describe_values(annotation.as_array(), "and", listed);
     }
 
-    if ((keyword == "prefixItems" || keyword == "items") &&
-        annotation.is_integer()) {
-      assert(target.is_array());
-      assert(annotation.is_positive());
-      std::ostringstream message;
-      if (annotation.to_integer() == 0) {
-        message << "The first item of the array value successfully validated "
-                   "against the first "
-                   "positional subschema";
-      } else {
-        message << "The first " << annotation.to_integer() + 1
-                << " items of the array value successfully validated against "
-                   "the given "
-                   "positional subschemas";
-      }
-
-      return message.str();
-    }
-
-    if (keyword == "prefixItems" && annotation.is_boolean() &&
-        annotation.to_boolean()) {
-      assert(target.is_array());
-      std::ostringstream message;
-      message << "Every item of the array value validated against the given "
-                 "positional subschemas";
-      return message.str();
-    }
-
-    // Note that these annotation values come from the schema as they are
-    // written, and nothing forces them to have the type their keyword expects
-    if ((keyword == "title" || keyword == "description") &&
-        annotation.is_string()) {
-      std::ostringstream message;
-      message << "The " << keyword << " of the";
-      message << " " << describe_scope(instance_location);
-
-      message << " was " << escape_string(annotation.to_string());
-      return message.str();
-    }
-
-    if (keyword == "default") {
-      std::ostringstream message;
-      message << "The default value of the";
-      message << " " << describe_scope(instance_location);
-
-      message << " was ";
-      stringify(annotation, message);
-      return message.str();
-    }
-
-    if ((keyword == "deprecated" || keyword == "readOnly" ||
-         keyword == "writeOnly") &&
-        annotation.is_boolean()) {
-      const std::string_view quality{keyword == "deprecated" ? "deprecated"
-                                     : keyword == "readOnly" ? "read-only"
-                                                             : "write-only"};
-      return std::format("The {} was{} considered {}",
-                         describe_scope(instance_location),
-                         annotation.to_boolean() ? "" : " not", quality);
-    }
-
-    if (keyword == "examples" && annotation.is_array()) {
-      std::ostringstream message;
-      message << "Examples of the " << describe_scope(instance_location);
-
-      message << " were ";
-      describe_values(annotation.as_array(), "and", message);
-
-      return message.str();
-    }
-
-    if (keyword == "contentEncoding" && annotation.is_string()) {
-      std::ostringstream message;
-      message << "The content encoding of the";
-      message << " " << describe_scope(instance_location);
-
-      message << " was " << escape_string(annotation.to_string());
-      return message.str();
-    }
-
-    if (keyword == "contentMediaType" && annotation.is_string()) {
-      std::ostringstream message;
-      message << "The content media type of the";
-      message << " " << describe_scope(instance_location);
-
-      message << " was " << escape_string(annotation.to_string());
-      return message.str();
-    }
-
-    if (keyword == "contentSchema") {
-      std::ostringstream message;
-      message << "When decoded, the";
-      message << " " << describe_scope(instance_location);
-
-      message << " was expected to validate against the schema ";
-      describe_stringify(annotation, message);
-      return message.str();
-    }
-
-    if (keyword == "format") {
-      std::ostringstream message;
-      message << "The logical type of the";
-      message << " " << describe_scope(instance_location);
-
-      message << " was expected to be ";
-      describe_stringify(annotation, message);
-      return message.str();
-    }
-
-    if (keyword == "x-format-assertion" && annotation.is_boolean()) {
-      if (annotation.to_boolean()) {
-        return "A sibling `format` keyword was expected to be enforced as "
-               "an assertion";
-      }
-
-      return "A sibling `format` keyword was expected to be collected as "
-             "an annotation";
-    }
-
-    if (keyword == "x-jsonld-id" && annotation.is_string()) {
-      return std::format("The JSON-LD predicate was {}",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "x-jsonld-id" && annotation.is_null()) {
-      return "The nested JSON-LD predicates were expected to be removed";
-    }
-
-    if (keyword == "x-jsonld-reverse" && annotation.is_string()) {
-      return std::format("The reverse JSON-LD predicate was {}",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "x-jsonld-reverse" && annotation.is_null()) {
-      return "The nested reverse JSON-LD predicates were expected to be "
-             "removed";
-    }
-
-    if (keyword == "x-jsonld-type" && annotation.is_string()) {
-      return std::format("The JSON-LD type was {}",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "x-jsonld-type" && annotation.is_null()) {
-      return "The nested JSON-LD types were expected to be removed";
-    }
-
-    if (keyword == "x-jsonld-type" && annotation.is_array()) {
-      if (annotation.empty()) {
-        return "No JSON-LD types were assigned";
-      }
-
-      std::ostringstream message;
-      message << "The JSON-LD types were ";
-      const auto &elements{annotation.as_array()};
-      for (auto iterator = elements.cbegin(); iterator != elements.cend();
-           ++iterator) {
-        if (iterator != elements.cbegin()) {
-          message << (std::next(iterator) == elements.cend() ? ", and " : ", ");
-        }
-
-        describe_stringify(*iterator, message);
-      }
-
-      return message.str();
-    }
-
-    if (keyword == "x-jsonld-datatype" && annotation.is_string()) {
-      return std::format("The JSON-LD datatype was {}",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "x-jsonld-datatype" && annotation.is_null()) {
-      return "The JSON-LD datatype was expected to be removed";
-    }
-
-    if (keyword == "x-jsonld-language" && annotation.is_string()) {
-      return std::format("The natural language was {}",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "x-jsonld-language" && annotation.is_null()) {
-      return "The natural language was expected to be removed";
-    }
-
-    if (keyword == "x-jsonld-direction" && annotation.is_string()) {
-      return std::format("The base direction was {}",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "x-jsonld-direction" && annotation.is_null()) {
-      return "The base direction was expected to be removed";
-    }
-
-    if (keyword == "x-jsonld-json" &&
-        (annotation.is_boolean() || annotation.is_null())) {
-      if (annotation.is_boolean() && annotation.to_boolean()) {
-        return "The value was expected to be treated as an opaque JSON "
-               "literal";
-      }
-
-      return "The value was not expected to be treated as an opaque JSON "
-             "literal";
-    }
-
-    if (keyword == "x-jsonld-graph" &&
-        (annotation.is_boolean() || annotation.is_null())) {
-      if (annotation.is_boolean() && annotation.to_boolean()) {
-        return "The value was expected to be wrapped in a JSON-LD named graph";
-      }
-
-      return "The value was not expected to be wrapped in a JSON-LD named "
-             "graph";
-    }
-
-    if (keyword == "x-jsonld-container" && annotation.is_string()) {
-      return std::format("The JSON-LD container was {}",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "x-jsonld-container" && annotation.is_null()) {
-      return "The JSON-LD container was expected to be removed";
-    }
-
-    if (keyword == "x-jsonld-self" && annotation.is_string()) {
-      return std::format("The JSON-LD identifier template was {}",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "x-jsonld-self" && annotation.is_null()) {
-      return "The JSON-LD identifier was expected to be removed";
-    }
-
-    if (keyword == "x-jsonld-override" && annotation.is_boolean()) {
-      if (annotation.to_boolean()) {
-        return "The sibling JSON-LD annotations were expected to override "
-               "the nested annotations they shadow";
-      }
-
-      return "The sibling JSON-LD annotations were not expected to override "
-             "any other annotations";
-    }
-
-    std::ostringstream message;
-    message << "The unrecognized keyword " << escape_string(keyword)
-            << " was collected as the annotation ";
-    describe_stringify(annotation, message);
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::AnnotationToParent) {
-    if (keyword == "unevaluatedItems" && annotation.is_boolean() &&
-        annotation.to_boolean()) {
-      assert(target.is_array());
-      std::ostringstream message;
-      message << "At least one item of the array value successfully validated "
-                 "against the subschema for unevaluated items";
-      return message.str();
-    }
-
-    return unknown();
+    return render_message(format, {describe_scope(instance_location),
+                                   annotation.is_string()
+                                       ? escape_string(annotation.to_string())
+                                       : std::string{},
+                                   spelled.str(), listed.str(),
+                                   escape_string(keyword), serialized.str()});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent) {
-    if (keyword == "patternProperties") {
-      assert(annotation.is_string());
-      return std::format("The object property {} successfully validated "
-                         "against its pattern property subschema",
-                         escape_string(annotation.to_string()));
+    const auto format{message_format(schema_template, step)};
+    if (format.empty()) {
+      return unknown();
     }
 
-    if (keyword == "additionalProperties") {
-      assert(annotation.is_string());
-      return std::format("The object property {} successfully validated "
-                         "against the additional properties subschema",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "unevaluatedProperties") {
-      assert(annotation.is_string());
-      return std::format("The object property {} successfully validated "
-                         "against the subschema for unevaluated properties",
-                         escape_string(annotation.to_string()));
-    }
-
-    if (keyword == "contains" && annotation.is_integer()) {
-      assert(target.is_array());
+    std::ostringstream named;
+    if (annotation.is_string()) {
+      named << escape_string(annotation.to_string());
+    } else {
+      assert(annotation.is_integer());
       assert(annotation.is_positive());
-      return std::format("The item at index {} of the array value successfully "
-                         "validated against the containment check subschema",
-                         annotation.to_integer());
+      describe_stringify(annotation, named);
     }
 
-    return unknown();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopProperties) {
-    assert(keyword == "additionalProperties" ||
-           keyword == "unevaluatedProperties");
-    std::ostringstream message;
-    if (!step.children.empty() &&
-        step.children.front().type == InstructionIndex::AssertionFail) {
-      if (keyword == "unevaluatedProperties") {
-        message << "The object value was not expected to define unevaluated "
-                   "properties";
-      } else {
-        message << "The object value was not expected to define additional "
-                   "properties";
-      }
-    } else if (keyword == "unevaluatedProperties") {
-      message << "The object properties not covered by other object "
-                 "keywords were expected to validate against this subschema";
-    } else {
-      message << "The object properties not covered by other adjacent object "
-                 "keywords were expected to validate against this subschema";
-    }
-
-    return message.str();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesEvaluate) {
-    assert(keyword == "additionalProperties" ||
-           keyword == "unevaluatedProperties");
-    std::ostringstream message;
-    if (step.children.size() == 1 &&
-        step.children.front().type == InstructionIndex::AssertionFail) {
-      if (keyword == "unevaluatedProperties") {
-        message << "The object value was not expected to define unevaluated "
-                   "properties";
-      } else {
-        message << "The object value was not expected to define additional "
-                   "properties";
-      }
-    } else if (keyword == "unevaluatedProperties") {
-      message << "The object properties not covered by other object "
-                 "keywords were expected to validate against this subschema";
-    } else {
-      message << "The object properties not covered by other adjacent object "
-                 "keywords were expected to validate against this subschema";
-    }
-
-    return message.str();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated) {
-    if (keyword == "unevaluatedProperties") {
-      std::ostringstream message;
-      if (!step.children.empty() &&
-          step.children.front().type == InstructionIndex::AssertionFail) {
-        message << "The object value was not expected to define unevaluated "
-                   "properties";
-      } else {
-        message << "The object properties not covered by other object "
-                   "keywords were expected to validate against this subschema";
-      }
-
-      return message.str();
-    }
-
-    return unknown();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluatedExcept) {
-    if (keyword == "unevaluatedProperties") {
-      std::ostringstream message;
-      if (!step.children.empty() &&
-          step.children.front().type == InstructionIndex::AssertionFail) {
-        message << "The object value was not expected to define unevaluated "
-                   "properties";
-      } else {
-        message << "The object properties not covered by other object "
-                   "keywords were expected to validate against this subschema";
-      }
-
-      return message.str();
-    }
-
-    return unknown();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept) {
-    assert(keyword == "additionalProperties" ||
-           keyword == "unevaluatedProperties");
-    std::ostringstream message;
-    if (!step.children.empty() &&
-        step.children.front().type == InstructionIndex::AssertionFail) {
-      if (keyword == "unevaluatedProperties") {
-        message << "The object value was not expected to define unevaluated "
-                   "properties";
-      } else {
-        message << "The object value was not expected to define additional "
-                   "properties";
-      }
-    } else if (keyword == "unevaluatedProperties") {
-      message << "The object properties not covered by other object "
-                 "keywords were expected to validate against this subschema";
-    } else {
-      message << "The object properties not covered by other adjacent object "
-                 "keywords were expected to validate against this subschema";
-    }
-
-    return message.str();
+    return render_message(format, {named.str()});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::LoopPropertiesExactlyTypeStrict) {
-    return std::format(
-        "The required object properties were expected to be of type {}",
-        type_name(instruction_value<ValueTypedProperties>(step).first));
+    return render_message(
+        message_format(schema_template, step),
+        {type_name(instruction_value<ValueTypedProperties>(step).first)});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::
-                       LoopPropertiesExactlyTypeStrictHash) {
-    return std::format(
-        "The required object properties were expected to be of type {}",
-        type_name(instruction_value<ValueTypedHashes>(step).first));
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::
+                       LoopPropertiesExactlyTypeStrictHash ||
+      step.type == sourcemeta::blaze::InstructionIndex::
                        LoopItemsPropertiesExactlyTypeStrictHash ||
       step.type == sourcemeta::blaze::InstructionIndex::
                        LoopItemsPropertiesExactlyTypeStrictHash3) {
-    return std::format(
-        "Every item in the array was expected to be an object whose required "
-        "properties were of type {}",
-        type_name(instruction_value<ValueTypedHashes>(step).first));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBounded) {
-    return "Every item in the array was expected to be a number within the "
-           "given range";
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBoundedSized) {
-    return "Every item in the array was expected to be a number within the "
-           "given range";
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopItemsArrayBoundedTypeStrictAny) {
-    return "Every item in the array was expected to be an array of the given "
-           "size whose items were of the given types";
-  }
-
-  if (step.type ==
-          sourcemeta::blaze::InstructionIndex::AssertionTypeIntegerBounded ||
-      step.type == sourcemeta::blaze::InstructionIndex::
-                       AssertionTypeIntegerBoundedStrict) {
-    return "The value was expected to be an integer within the given range";
-  }
-
-  if (step.type ==
-          sourcemeta::blaze::InstructionIndex::AssertionTypeIntegerLowerBound ||
-      step.type == sourcemeta::blaze::InstructionIndex::
-                       AssertionTypeIntegerLowerBoundStrict) {
-    return "The value was expected to be an integer above the given minimum";
+    return render_message(
+        message_format(schema_template, step),
+        {type_name(instruction_value<ValueTypedHashes>(step).first)});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionNumberIntegerBounded) {
-    std::ostringstream message;
-    const auto &value{instruction_value<ValueIntegerBounds>(step)};
-    message << "The " << value_type_name(target) << " value ";
-    describe_stringify(target, message);
-    message << " was expected to be an integer between " << value.first
-            << " and " << value.second;
-    return message.str();
+    std::ostringstream actual;
+    describe_stringify(target, actual);
+    return render_message(message_format(schema_template, step),
+                          {value_type_name(target), actual.str()});
+  }
+
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeEvaluate ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       LoopPropertiesTypeStrictEvaluate ||
+      step.type == sourcemeta::blaze::InstructionIndex::LoopItemsType ||
+      step.type == sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrict) {
+    return render_message(message_format(schema_template, step),
+                          {type_name(instruction_value<ValueType>(step))});
   }
 
   if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionObjectPropertiesSimple) {
-    return "The object value was expected to validate against the defined "
-           "property subschemas";
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesType) {
-    return std::format("The object properties were expected to be of type {}",
-                       type_name(instruction_value<ValueType>(step)));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeEvaluate) {
-    return std::format("The object properties were expected to be of type {}",
-                       type_name(instruction_value<ValueType>(step)));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict) {
-    return std::format("The object properties were expected to be of type {}",
-                       type_name(instruction_value<ValueType>(step)));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictEvaluate) {
-    return std::format("The object properties were expected to be of type {}",
-                       type_name(instruction_value<ValueType>(step)));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny) {
-    std::ostringstream message;
-    message << "The object properties were expected to be of type ";
-    ValueTypes types{instruction_value<ValueTypes>(step)};
-
-    const auto has_real{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Real))};
-    const auto has_integer{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Integer))};
-    const auto has_decimal{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Decimal))};
-
-    if (has_real && has_integer) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
-    }
-    if (has_real && has_decimal) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-    }
-    if (has_integer && has_decimal) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-    }
-
-    const auto popcount{types.count()};
-
-    if (popcount == 1) {
-      std::uint8_t type_index{0};
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          type_index = bit;
-          break;
-        }
-      }
-      message << type_name(
-          static_cast<sourcemeta::core::JSON::Type>(type_index));
-    } else {
-      bool first{true};
-      std::uint8_t last_bit{255};
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          last_bit = bit;
-        }
-      }
-
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          if (!first) {
-            message << ", ";
-          }
-          if (bit == last_bit) {
-            message << "or ";
-          }
-          message << type_name(static_cast<sourcemeta::core::JSON::Type>(bit));
-          first = false;
-        }
-      }
-    }
-
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::
-                       LoopPropertiesTypeStrictAnyEvaluate) {
-    std::ostringstream message;
-    message << "The object properties were expected to be of type ";
-    ValueTypes types{instruction_value<ValueTypes>(step)};
-
-    const auto has_real{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Real))};
-    const auto has_integer{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Integer))};
-    const auto has_decimal{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Decimal))};
-
-    if (has_real && has_integer) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
-    }
-    if (has_real && has_decimal) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-    }
-    if (has_integer && has_decimal) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-    }
-
-    const auto popcount{types.count()};
-
-    if (popcount == 1) {
-      std::uint8_t type_index{0};
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          type_index = bit;
-          break;
-        }
-      }
-      message << type_name(
-          static_cast<sourcemeta::core::JSON::Type>(type_index));
-    } else {
-      bool first{true};
-      std::uint8_t last_bit{255};
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          last_bit = bit;
-        }
-      }
-
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          if (!first) {
-            message << ", ";
-          }
-          if (bit == last_bit) {
-            message << "or ";
-          }
-          message << type_name(static_cast<sourcemeta::core::JSON::Type>(bit));
-          first = false;
-        }
-      }
-    }
-
-    return message.str();
+          sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrictAny ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       LoopPropertiesTypeStrictAnyEvaluate ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAny) {
+    return render_message(
+        message_format(schema_template, step),
+        {describe_types(instruction_value<ValueTypes>(step))});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopKeys) {
     assert(keyword == "propertyNames");
     assert(target.is_object());
-    std::ostringstream message;
-
     if (target.empty()) {
       assert(valid);
-      message << "The object is empty and no properties were expected to "
-                 "validate against the given subschema";
-    } else if (target.size() == 1) {
-      message << "The object property ";
-      message << escape_string(target.as_object().cbegin()->first);
-      message << " was expected to validate against the given subschema";
-    } else {
-      message << "The object properties ";
-      for (auto iterator = target.as_object().cbegin();
-           iterator != target.as_object().cend(); ++iterator) {
-        if (std::next(iterator) == target.as_object().cend()) {
-          message << "and " << escape_string(iterator->first);
-        } else {
-          message << escape_string(iterator->first) << ", ";
-        }
-      }
-
-      message << " were expected to validate against the given subschema";
+      return describe_literal(schema_template, step);
     }
 
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItems) {
-    assert(target.is_array());
-    return "Every item in the array value was expected to validate against the "
-           "given subschema";
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsFrom) {
-    assert(target.is_array());
-    const auto &value{instruction_value<ValueUnsignedInteger>(step)};
-    std::ostringstream message;
-    message << "Every item in the array value";
-    if (value == 1) {
-      message << " except for the first one";
-    } else if (value > 0) {
-      message << " except for the first " << value;
+    std::vector<std::string> names;
+    names.reserve(target.size());
+    for (const auto &entry : target.as_object()) {
+      names.push_back(entry.first);
     }
 
-    message << " was expected to validate against the given subschema";
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsUnevaluated) {
-    assert(keyword == "unevaluatedItems");
-    std::ostringstream message;
-    message << "The array items not covered by other array keywords, if any, "
-               "were expected to validate against this subschema";
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsType) {
-    return std::format("The array items were expected to be of type {}",
-                       type_name(instruction_value<ValueType>(step)));
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrict) {
-    return std::format("The array items were expected to be of type {}",
-                       type_name(instruction_value<ValueType>(step)));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAny) {
-    std::ostringstream message;
-    message << "The array items were expected to be of type ";
-    ValueTypes types{instruction_value<ValueTypes>(step)};
-
-    const auto has_real{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Real))};
-    const auto has_integer{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Integer))};
-    const auto has_decimal{
-        types.test(std::to_underlying(sourcemeta::core::JSON::Type::Decimal))};
-
-    if (has_real && has_integer) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
-    }
-    if (has_real && has_decimal) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-    }
-    if (has_integer && has_decimal) {
-      types.reset(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-    }
-
-    const auto popcount{types.count()};
-
-    if (popcount == 1) {
-      std::uint8_t type_index{0};
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          type_index = bit;
-          break;
-        }
-      }
-      message << type_name(
-          static_cast<sourcemeta::core::JSON::Type>(type_index));
-    } else {
-      bool first{true};
-      std::uint8_t last_bit{255};
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          last_bit = bit;
-        }
-      }
-
-      for (std::uint8_t bit{0}; bit < 8; bit++) {
-        if (types.test(bit)) {
-          if (!first) {
-            message << ", ";
-          }
-          if (bit == last_bit) {
-            message << "or ";
-          }
-          message << type_name(static_cast<sourcemeta::core::JSON::Type>(bit));
-          first = false;
-        }
-      }
-    }
-
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopContains) {
-    assert(target.is_array());
-    const auto &[minimum, maximum, exhaustive] =
-        instruction_value<ValueRange>(step);
-    std::ostringstream bound;
-    std::size_t count{minimum};
-
-    if (!maximum.has_value()) {
-      bound << "at least " << minimum;
-    } else if (minimum == maximum.value() && minimum == 0) {
-      bound << "any number of";
-      count = 0;
-    } else if (minimum == maximum.value()) {
-      bound << "exactly " << minimum;
-    } else if (minimum == 0) {
-      bound << "up to " << maximum.value();
-      count = maximum.value();
-    } else {
-      bound << minimum << " to " << maximum.value();
-      count = maximum.value();
-    }
-
-    return std::format(
-        "The array value was expected to contain {} {} against the given "
-        "subschema",
-        bound.str(),
-        count == 1 ? "item that validates" : "items that validate");
+    std::ostringstream named;
+    describe_names(names, "and", named);
+    return render_message(message_detail_format(schema_template, step),
+                          {named.str()});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDefines) {
-    return std::format(
-        "The object value was expected to define the property {}",
-        escape_string(instruction_value<ValueProperty>(step).first));
+    return render_message(
+        message_format(schema_template, step),
+        {escape_string(instruction_value<ValueProperty>(step).first)});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionDefinesStrict) {
-    std::ostringstream message;
-    message
-        << "The value was expected to be an object that defines the property "
-        << escape_string(instruction_value<ValueProperty>(step).first);
-    return message.str();
+    return render_message(
+        message_format(schema_template, step),
+        {escape_string(instruction_value<ValueProperty>(step).first)});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDefinesAll) {
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
-
-    auto value_vector{property_names(value)};
-
-    std::ostringstream message;
-    message << "The object value was expected to define properties ";
-    describe_names(value_vector, "and", message);
+    std::ostringstream listed;
+    describe_names(property_names(value), "and", listed);
 
     if (valid) {
-      return message.str();
+      return render_message(message_format(schema_template, step),
+                            {listed.str()});
     }
 
     assert(target.is_object());
@@ -1484,78 +841,56 @@ auto describe(const bool valid, const Instruction &step,
     }
 
     assert(!missing.empty());
-    message << " but did not define ";
-    describe_properties(missing, "and", message);
-    return message.str();
+    std::ostringstream named;
+    describe_names(missing, "and", named);
+    return render_message(message_detail_format(schema_template, step),
+                          {listed.str(), named.str()});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionDefinesAllStrict) {
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
-
-    auto value_vector{property_names(value)};
-
-    std::ostringstream message;
-    message
-        << "The value was expected to be an object that defines properties ";
-    describe_names(value_vector, "and", message);
-
-    return message.str();
+    std::ostringstream properties;
+    describe_names(property_names(value), "and", properties);
+    return render_message(message_format(schema_template, step),
+                          {properties.str()});
   }
 
   if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly) {
+          sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict) {
     const auto &value{instruction_value<ValueStringSet>(step)};
     assert(value.size() > 1);
     auto value_vector{property_names(value)};
 
     std::ranges::sort(value_vector);
-    std::ostringstream message;
-    message << "The object value was expected to only define properties ";
-    describe_names(value_vector, "and", message);
-
-    if (valid) {
-      return message.str();
-    }
-
-    assert(target.is_object());
-    const auto extras{unexpected_properties(target, value)};
-
-    return describe_unexpected_properties(extras, message);
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict) {
-    const auto &value{instruction_value<ValueStringSet>(step)};
-    assert(value.size() > 1);
-    auto value_vector{property_names(value)};
-
-    std::ranges::sort(value_vector);
-    std::ostringstream message;
-    message << "The value was expected to be an object that only defines "
-               "properties ";
-    describe_names(value_vector, "and", message);
+    std::ostringstream listed;
+    describe_names(value_vector, "and", listed);
 
     if (valid || !target.is_object()) {
-      return message.str();
+      return render_message(message_format(schema_template, step),
+                            {listed.str()});
     }
 
     const auto extras{unexpected_properties(target, value)};
+    if (extras.empty()) {
+      return render_message(message_format(schema_template, step),
+                            {listed.str()});
+    }
 
-    return describe_unexpected_properties(extras, message);
+    std::ostringstream named;
+    describe_names(extras, "and", named);
+    return render_message(message_detail_format(schema_template, step),
+                          {listed.str(), named.str()});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrictHash3) {
     const auto &value{instruction_value<ValueStringHashes>(step).first};
-    std::ostringstream message;
-    message << "The value was expected to be an object that only defines "
-               "the "
-            << value.size() << " given properties";
-
     if (valid || !target.is_object()) {
-      return message.str();
+      return describe_literal(schema_template, step);
     }
 
     std::set<std::string_view> extras;
@@ -1573,697 +908,269 @@ auto describe(const bool valid, const Instruction &step,
       }
     }
 
-    return describe_unexpected_properties(extras, message);
+    if (extras.empty()) {
+      return describe_literal(schema_template, step);
+    }
+
+    std::ostringstream named;
+    describe_names(extras, "and", named);
+    return render_message(message_detail_format(schema_template, step),
+                          {named.str()});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionType ||
       step.type == sourcemeta::blaze::InstructionIndex::AssertionTypeStrict) {
-    if (names_a_property(evaluate_path, instance_location)) {
-      return std::format("The property name {} was expected to be of type {}",
-                         escape_string(instance_location.back().to_property()),
-                         type_name(instruction_value<ValueType>(step)));
-    }
-
-    return describe_type_check(valid, target.type(),
-                               instruction_value<ValueType>(step));
+    // Inside `propertyNames` the subject is the property name, which is a
+    // string however the assertion turns out, so there is nothing to report
+    // beyond the type the keyword asked for
+    const auto property{names_a_property(evaluate_path, instance_location)};
+    return describe_type_check(
+        message_format(schema_template, step),
+        message_detail_format(schema_template, step),
+        property
+            ? std::format("The property name {}",
+                          escape_string(instance_location.back().to_property()))
+            : std::string{"The value"},
+        valid || property, target.type(), instruction_value<ValueType>(step));
   }
 
-  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionTypeAny) {
-    return describe_types_check(valid, target.type(),
-                                instruction_value<ValueTypes>(step));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny) {
-    return describe_types_check(valid, target.type(),
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionTypeAny ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrictAny ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionPropertyTypeStrictAnyEvaluate) {
+    return describe_types_check(schema_template, step, "The value", valid,
+                                target.type(),
                                 instruction_value<ValueTypes>(step));
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny) {
-    // Draft 3 permits a negative `maxLength`, which we compile into a check
-    // that the value is not a string, as no string is that short. Saying so in
-    // terms of types would not explain the keyword the reader wrote
-    if (keyword == "maxLength") {
-      return "The value was expected to be of a type other than string, as no "
-             "string is short enough to satisfy a negative maximum length";
+    const auto format{message_format(schema_template, step)};
+    // The keywords whose bound no instance can satisfy compile into a type
+    // check that explains the keyword instead, in one sentence of its own
+    if (!takes_arguments(format)) {
+      return std::string{format};
     }
 
-    // The lower bounds below compile the same way when the bound is too large
-    // to hold, as nothing can be big enough to satisfy one
-    if (keyword == "minLength") {
-      return "The value was expected to be of a type other than string, as no "
-             "string is long enough to satisfy a minimum length that large";
-    }
-
-    if (keyword == "minItems") {
-      return "The value was expected to be of a type other than array, as no "
-             "array has enough items to satisfy a minimum size that large";
-    }
-
-    if (keyword == "minProperties") {
-      return "The value was expected to be of a type other than object, as no "
-             "object has enough properties to satisfy a minimum size that "
-             "large";
-    }
-
-    // `contains` compiles the same way when its `minContains` is too large to
-    // hold, as no array has that many items for the subschema to match
-    if (keyword == "contains") {
-      return "The value was expected to be of a type other than array, as no "
-             "array has enough matching items to satisfy a minimum count that "
-             "large";
-    }
-
-    return describe_not_types_check(valid, target.type(),
+    return describe_not_types_check(schema_template, step, "The value", valid,
+                                    target.type(),
                                     instruction_value<ValueTypes>(step));
   }
 
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionTypeStringBounded) {
-    std::ostringstream message;
-
-    const auto &[minimum, maximum, exhaustive] =
-        instruction_value<ValueRange>(step);
-    if (minimum == 0 && maximum.has_value()) {
-      message << "The value was expected to consist of a string of at most "
-              << maximum.value()
-              << (maximum.value() == 1 ? " character" : " characters");
-    } else if (maximum.has_value()) {
-      message << "The value was expected to consist of a string of " << minimum
-              << " to " << maximum.value()
-              << (maximum.value() == 1 ? " character" : " characters");
-    } else {
-      message << "The value was expected to consist of a string of at least "
-              << minimum << (minimum == 1 ? " character" : " characters");
-    }
-
-    return message.str();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionTypeStringUpper) {
-    return std::format(
-        "The value was expected to consist of a string of at most {}{}",
-        instruction_value<ValueUnsignedInteger>(step),
-        (instruction_value<ValueUnsignedInteger>(step) == 1 ? " character"
-                                                            : " characters"));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionTypeArrayBounded) {
-    std::ostringstream message;
-
-    const auto &[minimum, maximum, exhaustive] =
-        instruction_value<ValueRange>(step);
-    if (minimum == 0 && maximum.has_value()) {
-      message << "The value was expected to consist of an array of at most "
-              << maximum.value() << (maximum.value() == 1 ? " item" : " items");
-    } else if (maximum.has_value()) {
-      message << "The value was expected to consist of an array of " << minimum
-              << " to " << maximum.value()
-              << (maximum.value() == 1 ? " item" : " items");
-    } else {
-      message << "The value was expected to consist of an array of at least "
-              << minimum << (minimum == 1 ? " item" : " items");
-    }
-
-    return message.str();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionTypeArrayUpper) {
-    return std::format(
-        "The value was expected to consist of an array of at most {}{}",
-        instruction_value<ValueUnsignedInteger>(step),
-        (instruction_value<ValueUnsignedInteger>(step) == 1 ? " item"
-                                                            : " items"));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionTypeObjectBounded) {
-    std::ostringstream message;
-
-    const auto &[minimum, maximum, exhaustive] =
-        instruction_value<ValueRange>(step);
-    if (minimum == 0 && maximum.has_value()) {
-      message << "The value was expected to consist of an object of at most "
-              << maximum.value()
-              << (maximum.value() == 1 ? " property" : " properties");
-    } else if (maximum.has_value()) {
-      message << "The value was expected to consist of an object of " << minimum
-              << " to " << maximum.value()
-              << (maximum.value() == 1 ? " property" : " properties");
-    } else {
-      message << "The value was expected to consist of an object of at least "
-              << minimum << (minimum == 1 ? " property" : " properties");
-    }
-
-    return message.str();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper) {
-    return std::format(
-        "The value was expected to consist of an object of at most {}{}",
-        instruction_value<ValueUnsignedInteger>(step),
-        (instruction_value<ValueUnsignedInteger>(step) == 1 ? " property"
-                                                            : " properties"));
-  }
-
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionRegex) {
-    if (names_a_property(evaluate_path, instance_location)) {
-      return std::format(
-          "The property name {} was expected to match the regular expression "
-          "{}",
-          escape_string(instance_location.back().to_property()),
-          escape_string(instruction_value<ValueRegex>(step).second));
-    }
-
-    assert(target.is_string());
-    return std::format(
-        "The string value {} was expected to match the regular expression {}",
-        escape_string(target.to_string()),
-        escape_string(instruction_value<ValueRegex>(step).second));
+    return render_message(
+        message_format(schema_template, step),
+        {describe_string_subject(evaluate_path, instance_location, target),
+         escape_string(instruction_value<ValueRegex>(step).second)});
   }
 
   if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionStringSizeLess) {
-    if (keyword == "maxLength") {
-      return describe_string_size(
-          valid, evaluate_path, instance_location, target, "at most",
-          instruction_value<ValueUnsignedInteger>(step) - 1);
-    }
-
-    return unknown();
+          sourcemeta::blaze::InstructionIndex::AssertionStringSizeLess ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionStringSizeGreater) {
+    return describe_string_size(schema_template, step, valid, evaluate_path,
+                                instance_location, target);
   }
 
   if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionStringSizeGreater) {
-    if (keyword == "minLength") {
-      return describe_string_size(
-          valid, evaluate_path, instance_location, target, "at least",
-          instruction_value<ValueUnsignedInteger>(step) + 1);
-    }
-
-    return unknown();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionArraySizeLess) {
-    if (keyword == "maxItems") {
-      return describe_array_size(valid, target, "at most",
-                                 instruction_value<ValueUnsignedInteger>(step) -
-                                     1);
-    }
-
-    return unknown();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionArraySizeGreater) {
-    return describe_array_size(valid, target, "at least",
-                               instruction_value<ValueUnsignedInteger>(step) +
-                                   1);
+          sourcemeta::blaze::InstructionIndex::AssertionArraySizeLess ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionArraySizeGreater) {
+    return describe_array_size(schema_template, step, valid, target);
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionObjectSizeLess) {
-    if (keyword == "additionalProperties") {
-      return "The object value was not expected to define additional "
-             "properties";
+    const auto format{message_format(schema_template, step)};
+    // A closed object says so without counting, as the bound it compiled from
+    // is the number of properties the schema named
+    if (!takes_arguments(format)) {
+      return std::string{format};
     }
 
-    if (keyword == "maxProperties") {
-      return describe_object_size(
-          valid, target, "at most",
-          instruction_value<ValueUnsignedInteger>(step) - 1);
-    }
-
-    return unknown();
+    return describe_object_size(schema_template, step, valid, target);
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionObjectSizeGreater) {
-    if (keyword == "minProperties") {
-      return describe_object_size(
-          valid, target, "at least",
-          instruction_value<ValueUnsignedInteger>(step) + 1);
-    }
-
-    return unknown();
+    return describe_object_size(schema_template, step, valid, target);
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionPropertyEqual) {
-    std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-    message << "The " << type_name(target.type()) << " value ";
-    describe_stringify(target, message);
-    message << " was expected to equal the " << type_name(value.type())
-            << " constant ";
-    describe_stringify(value, message);
-    return message.str();
+    std::ostringstream actual;
+    describe_stringify(target, actual);
+    std::ostringstream constant;
+    describe_stringify(value, constant);
+    return render_message(message_format(schema_template, step),
+                          {type_name(target.type()), actual.str(),
+                           type_name(value.type()), constant.str()});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionEqual) {
-    std::ostringstream message;
     const auto &value{instruction_value<ValueJSON>(step)};
-
-    message << describe_subject(evaluate_path, instance_location, target,
-                                SubjectDetail::Value);
-
-    message << " was expected to equal the " << type_name(value.type())
-            << " constant ";
-    describe_stringify(value, message);
-    return message.str();
+    std::ostringstream constant;
+    describe_stringify(value, constant);
+    return render_message(message_format(schema_template, step),
+                          {describe_subject(evaluate_path, instance_location,
+                                            target, SubjectDetail::Value),
+                           type_name(value.type()), constant.str()});
   }
 
-  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreaterEqual) {
-    return describe_comparison(target, "greater than or equal to",
-                               instruction_value<ValueJSON>(step));
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionLessEqual) {
-    return describe_comparison(target, "less than or equal to",
-                               instruction_value<ValueJSON>(step));
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreater) {
-    return describe_comparison(target, "greater than",
-                               instruction_value<ValueJSON>(step));
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionLess) {
-    return describe_comparison(target, "less than",
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionGreaterEqual ||
+      step.type == sourcemeta::blaze::InstructionIndex::AssertionLessEqual ||
+      step.type == sourcemeta::blaze::InstructionIndex::AssertionGreater ||
+      step.type == sourcemeta::blaze::InstructionIndex::AssertionLess ||
+      step.type == sourcemeta::blaze::InstructionIndex::AssertionDivisible) {
+    return describe_comparison(message_format(schema_template, step), target,
                                instruction_value<ValueJSON>(step));
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionUnique) {
     assert(target.is_array());
-    auto array{target.as_array()};
-    std::ostringstream message;
     if (valid) {
-      message << "The array value was expected to not contain duplicate items";
-    } else {
-      std::set<sourcemeta::core::JSON> duplicates;
-      for (auto iterator = array.cbegin(); iterator != array.cend();
-           ++iterator) {
-        for (auto subiterator = std::next(iterator);
-             subiterator != array.cend(); ++subiterator) {
-          if (*iterator == *subiterator) {
-            duplicates.insert(*iterator);
-          }
-        }
-      }
-
-      assert(!duplicates.empty());
-      message << "The array value contained the following duplicate"
-              << (duplicates.size() == 1 ? " item: " : " items: ");
-      describe_values(duplicates, "and", message);
+      return describe_literal(schema_template, step);
     }
 
-    return message.str();
-  }
+    const auto &array{target.as_array()};
+    std::set<sourcemeta::core::JSON> duplicates;
+    for (auto iterator = array.cbegin(); iterator != array.cend(); ++iterator) {
+      for (auto subiterator = std::next(iterator); subiterator != array.cend();
+           ++subiterator) {
+        if (*iterator == *subiterator) {
+          duplicates.insert(*iterator);
+        }
+      }
+    }
 
-  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionDivisible) {
-    return describe_comparison(target, "divisible by",
-                               instruction_value<ValueJSON>(step));
+    assert(!duplicates.empty());
+    std::ostringstream listed;
+    describe_values(duplicates, "and", listed);
+    return render_message(message_detail_format(schema_template, step),
+                          {listed.str()});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionEqualsAny) {
-    std::ostringstream message;
     const auto &value{instruction_value<ValueSet>(step)};
     assert(!value.empty());
-
-    message << describe_subject(evaluate_path, instance_location, target,
-                                SubjectDetail::Value);
+    const auto subject{describe_subject(evaluate_path, instance_location,
+                                        target, SubjectDetail::Value)};
 
     if (value.size() == 1) {
-      message << " was expected to equal the "
-              << type_name(value.cbegin()->type()) << " constant ";
-      describe_stringify(*(value.cbegin()), message);
-    } else {
-      if (valid) {
-        message << " was expected to equal one of the " << value.size()
-                << " declared values";
-      } else {
-        message << " was expected to equal one of the following values: ";
-        std::vector<sourcemeta::core::JSON> copy{value.cbegin(), value.cend()};
-        std::ranges::sort(copy);
-        describe_values(copy, "and", message);
-      }
+      std::ostringstream constant;
+      describe_stringify(*(value.cbegin()), constant);
+      return render_message(
+          message_format(schema_template, step),
+          {subject, type_name(value.cbegin()->type()), constant.str()});
     }
 
-    return message.str();
+    if (valid) {
+      return render_message(message_format(schema_template, step), {subject});
+    }
+
+    std::vector<sourcemeta::core::JSON> copy{value.cbegin(), value.cend()};
+    std::ranges::sort(copy);
+    std::ostringstream listed;
+    describe_values(copy, "and", listed);
+    return render_message(message_detail_format(schema_template, step),
+                          {subject, listed.str()});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash) {
-    std::ostringstream message;
-    const auto &value{instruction_value<ValueStringHashes>(step).first};
-    assert(!value.empty());
-
-    message << describe_subject(evaluate_path, instance_location, target,
-                                SubjectDetail::Value);
-
-    message
-        << (value.size() == 1
-                ? " was expected to equal the given constant"
-                : " was expected to equal one of the given declared values");
-
-    return message.str();
+    assert(!instruction_value<ValueStringHashes>(step).first.empty());
+    return render_message(message_format(schema_template, step),
+                          {describe_subject(evaluate_path, instance_location,
+                                            target, SubjectDetail::Value)});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionNumberType) {
-    std::ostringstream message;
-    message << "The " << value_type_name(target) << " value ";
-    describe_stringify(target, message);
-    message << " was expected to be exactly representable as an IEEE 754 ";
-    switch (instruction_value<ValueNumberType>(step)) {
-      case ValueNumberType::Float:
-        message << "single precision floating point number";
-        break;
-      case ValueNumberType::Double:
-        message << "double precision floating point number";
-        break;
-    }
-
-    return message.str();
+    std::ostringstream actual;
+    describe_stringify(target, actual);
+    return render_message(message_format(schema_template, step),
+                          {value_type_name(target), actual.str()});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::AssertionStringType) {
     assert(target.is_string());
-    std::ostringstream message;
-    message << "The string value " << escape_string(target.to_string())
-            << " was expected to represent a valid";
-    switch (instruction_value<ValueStringType>(step)) {
-      case ValueStringType::URI:
-        message << " URI";
-        break;
-      case ValueStringType::URIReference:
-        message << " URI reference";
-        break;
-      case ValueStringType::URITemplate:
-        message << " URI template";
-        break;
-      case ValueStringType::IRI:
-        message << " IRI";
-        break;
-      case ValueStringType::IRIReference:
-        message << " IRI reference";
-        break;
-      case ValueStringType::Email:
-        message << " email address";
-        break;
-      case ValueStringType::IDNEmail:
-        message << " internationalized email address";
-        break;
-      case ValueStringType::IPv4:
-        message << " IPv4 address";
-        break;
-      case ValueStringType::IPv6:
-        message << " IPv6 address";
-        break;
-      case ValueStringType::Hostname:
-        message << " hostname";
-        break;
-      case ValueStringType::IDNHostname:
-        message << " internationalized hostname";
-        break;
-      case ValueStringType::DateTime:
-        message << " RFC 3339 date-time";
-        break;
-      case ValueStringType::Date:
-        message << " RFC 3339 full-date";
-        break;
-      case ValueStringType::Time:
-        message << " RFC 3339 full-time";
-        break;
-      case ValueStringType::PartialTime:
-        message << " RFC 3339 partial-time without fractional seconds";
-        break;
-      case ValueStringType::Duration:
-        message << " RFC 3339 duration";
-        break;
-      case ValueStringType::JSONPointer:
-        message << " JSON Pointer";
-        break;
-      case ValueStringType::RelativeJSONPointer:
-        message << " relative JSON Pointer";
-        break;
-      case ValueStringType::UUID:
-        message << " UUID";
-        break;
-      case ValueStringType::Regex:
-        message << " ECMA-262 regular expression";
-        break;
-      case ValueStringType::Color:
-        message << " CSS 2 color";
-        break;
-      case ValueStringType::Base64:
-        message << " RFC 4648 Base64 string";
-        break;
-      default:
-        return unknown();
+    const auto format{message_format(schema_template, step)};
+    if (format.empty()) {
+      return unknown();
     }
 
-    return message.str();
+    return render_message(format, {escape_string(target.to_string())});
   }
 
-  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionPropertyType) {
-    return describe_type_check(valid, target.type(),
-                               instruction_value<ValueType>(step));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeEvaluate) {
-    return describe_type_check(valid, target.type(),
-                               instruction_value<ValueType>(step));
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrict) {
-    return describe_type_check(valid, target.type(),
-                               instruction_value<ValueType>(step));
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionPropertyType ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeEvaluate ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrict ||
+      step.type == sourcemeta::blaze::InstructionIndex::
                        AssertionPropertyTypeStrictEvaluate) {
-    return describe_type_check(valid, target.type(),
+    return describe_type_check(message_format(schema_template, step),
+                               message_detail_format(schema_template, step),
+                               "The value", valid, target.type(),
                                instruction_value<ValueType>(step));
   }
 
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeStrictAny) {
-    return describe_types_check(valid, target.type(),
-                                instruction_value<ValueTypes>(step));
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::
-                       AssertionPropertyTypeStrictAnyEvaluate) {
-    return describe_types_check(valid, target.type(),
-                                instruction_value<ValueTypes>(step));
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionArrayPrefix) {
+  if (step.type == sourcemeta::blaze::InstructionIndex::AssertionArrayPrefix ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::AssertionArrayPrefixEvaluate) {
     assert(keyword == "items" || keyword == "prefixItems");
     assert(!step.children.empty());
     assert(target.is_array());
-
-    std::ostringstream message;
-    message << "The first ";
-    if (step.children.size() <= 2) {
-      message << "item of the array value was";
-    } else {
-      message << (step.children.size() - 1) << " items of the array value were";
-    }
-
-    message << " expected to validate against the corresponding subschemas";
-    return message.str();
+    return render_message(message_format(schema_template, step),
+                          {std::to_string(step.children.size() - 1)});
   }
 
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionArrayPrefixEvaluate) {
-    assert(keyword == "items" || keyword == "prefixItems");
-    assert(!step.children.empty());
-    assert(target.is_array());
-
-    std::ostringstream message;
-    message << "The first ";
-    if (step.children.size() <= 2) {
-      message << "item of the array value was";
-    } else {
-      message << (step.children.size() - 1) << " items of the array value were";
-    }
-
-    message << " expected to validate against the corresponding subschemas";
-    return message.str();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesMatch) {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesMatch ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchClosed) {
     assert(!step.children.empty());
     assert(target.is_object());
-    std::ostringstream message;
-    message << "The object value was expected to validate against the ";
-    if (step.children.size() == 1) {
-      message << "single defined property subschema";
-    } else {
-      message << step.children.size() << " defined properties subschemas";
-    }
-
-    return message.str();
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchClosed) {
-    assert(!step.children.empty());
-    assert(target.is_object());
-    std::ostringstream message;
-    if (step.children.size() == 1) {
-      message << "The object value was expected to validate against the ";
-      message << "single defined property subschema";
-    } else {
-      message
-          << "Every object value was expected to validate against one of the ";
-      message << step.children.size() << " defined properties subschemas";
-    }
-
-    return message.str();
+    return render_message(message_format(schema_template, step),
+                          {std::to_string(step.children.size())});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalWhenDefines) {
-    return std::format("The object value defined the property \"{}\"",
-                       instruction_value<ValueProperty>(step).first);
+    return render_message(message_format(schema_template, step),
+                          {instruction_value<ValueProperty>(step).first});
   }
 
-  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesRegex) {
+  if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesRegex ||
+      step.type ==
+          sourcemeta::blaze::InstructionIndex::LoopPropertiesRegexClosed) {
     assert(target.is_object());
-    return std::format(
-        "The object properties that match the regular expression \"{}\" were "
-        "expected to validate against the defined pattern property subschema",
-        instruction_value<ValueRegex>(step).second);
-  }
-
-  if (step.type ==
-      sourcemeta::blaze::InstructionIndex::LoopPropertiesRegexClosed) {
-    assert(target.is_object());
-    return std::format(
-        "The object properties were expected to match the regular expression "
-        "\"{}\" and validate against the defined pattern property subschema",
-        instruction_value<ValueRegex>(step).second);
+    return render_message(message_format(schema_template, step),
+                          {instruction_value<ValueRegex>(step).second});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::LoopPropertiesStartsWith) {
     assert(target.is_object());
-    return std::format(
-        "The object properties that start with the string \"{}\" were expected "
-        "to validate against the defined pattern property subschema",
-        instruction_value<ValueString>(step));
+    return render_message(message_format(schema_template, step),
+                          {instruction_value<ValueString>(step)});
   }
 
   if (step.type == sourcemeta::blaze::InstructionIndex::LogicalWhenType) {
     if (keyword == "items") {
-      return describe_type_check(valid, target.type(),
+      return describe_type_check(message_format(schema_template, step),
+                                 message_detail_format(schema_template, step),
+                                 "The value", valid, target.type(),
                                  instruction_value<ValueType>(step));
     }
 
+    // The evaluator only reaches this instruction when the instance is of the
+    // type it names, so there is never a mismatch of its own to report
     if (keyword == "properties") {
-      assert(!step.children.empty());
-      if (!target.is_object()) {
-        return describe_type_check(valid, target.type(),
-                                   sourcemeta::core::JSON::Type::Object);
-      }
-
-      std::ostringstream message;
-      message << "The object value was expected to validate against the ";
-      if (step.children.size() == 1) {
-        message << "single defined property subschema";
-      } else {
-        // We cannot provide the specific number of properties,
-        // as the number of children might be flatten out
-        // for performance reasons
-        message << "defined properties subschemas";
-      }
-
-      return message.str();
-    }
-
-    if (keyword == "dependencies") {
       assert(target.is_object());
       assert(!step.children.empty());
-
-      std::set<std::string> present;
-      std::set<std::string> present_with_schemas;
-      std::set<std::string> present_with_properties;
-      std::set<std::string> all_dependencies;
-      std::set<std::string> required_properties;
-
-      for (const auto &child : step.children) {
-        // Schema
-        if (child.type == InstructionIndex::LogicalWhenDefines) {
-          const auto &substep{child};
-          const auto &property{instruction_value<ValueProperty>(substep).first};
-          all_dependencies.insert(property);
-          if (!target.defines(property)) {
-            continue;
-          }
-
-          present.insert(property);
-          present_with_schemas.insert(property);
-
-          // Properties
-        } else {
-          assert(child.type == InstructionIndex::AssertionPropertyDependencies);
-          const auto &substep{child};
-
-          for (const auto &entry : std::get<ValueStringMap>(substep.value)) {
-            all_dependencies.insert(entry.first);
-            if (target.defines(entry.first)) {
-              present.insert(entry.first);
-              present_with_properties.insert(entry.first);
-              for (const auto &dependency : entry.second) {
-                if (valid || !target.defines(dependency)) {
-                  required_properties.insert(dependency);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      std::ostringstream message;
-
-      if (present_with_schemas.empty() && present_with_properties.empty()) {
-        assert(!all_dependencies.empty());
-        message << "The object value did not define ";
-        describe_properties(all_dependencies, "or", message);
-        return message.str();
-      }
-
-      message << "Because the object value defined ";
-      describe_properties(present, "and", message);
-
-      if (!required_properties.empty()) {
-        message << ", it was also expected to define ";
-        describe_properties(required_properties, "and", message);
-      }
-
-      if (!present_with_schemas.empty()) {
-        message << ", ";
-        if (!required_properties.empty()) {
-          message << "and ";
-        }
-
-        message << "it was also expected to successfully validate against the "
-                   "corresponding ";
-        describe_names(present_with_schemas, "and", message);
-        message << (present_with_schemas.size() == 1 ? " subschema"
-                                                     : " subschemas");
-      }
-
-      return message.str();
+      return describe_literal(schema_template, step);
     }
 
     if (keyword == "dependentSchemas") {
@@ -2273,31 +1180,24 @@ auto describe(const bool valid, const Instruction &step,
       std::set<std::string> all_dependencies;
       for (const auto &child : step.children) {
         assert(child.type == InstructionIndex::LogicalWhenDefines);
-        const auto &substep{child};
-        const auto &property{instruction_value<ValueProperty>(substep).first};
+        const auto &property{instruction_value<ValueProperty>(child).first};
         all_dependencies.insert(property);
-        if (!target.defines(property)) {
-          continue;
+        if (target.defines(property)) {
+          present.insert(property);
         }
-
-        present.insert(property);
       }
 
-      std::ostringstream message;
-
+      std::ostringstream named;
       if (present.empty()) {
         assert(!all_dependencies.empty());
-        message << "The object value did not define ";
-        describe_properties(all_dependencies, "or", message);
-      } else {
-        message << "Because the object value defined ";
-        describe_properties(present, "and", message);
-        message << ", it was also expected to validate against the "
-                   "corresponding "
-                << (present.size() == 1 ? "subschema" : "subschemas");
+        describe_names(all_dependencies, "or", named);
+        return render_message(message_format(schema_template, step),
+                              {named.str()});
       }
 
-      return message.str();
+      describe_names(present, "and", named);
+      return render_message(message_detail_format(schema_template, step),
+                            {named.str()});
     }
 
     return unknown();
@@ -2322,54 +1222,32 @@ auto describe(const bool valid, const Instruction &step,
       }
     }
 
-    std::ostringstream message;
-
+    std::ostringstream defined;
     if (present.empty()) {
       assert(!all_dependencies.empty());
-      message << "The object value did not define ";
-      describe_properties(all_dependencies, "or", message);
-      return message.str();
+      describe_names(all_dependencies, "or", defined);
+      return render_message(message_format(schema_template, step),
+                            {defined.str()});
     }
 
-    message << "Because the object value defined ";
-    describe_properties(present, "and", message);
-
+    describe_names(present, "and", defined);
     assert(!required.empty());
-    message << ", it was also expected to define ";
-    describe_properties(required, "and", message);
-    return message.str();
+    std::ostringstream expected;
+    describe_names(required, "and", expected);
+
+    return render_message(message_detail_format(schema_template, step),
+                          {defined.str(), expected.str()});
   }
 
   if (step.type ==
       sourcemeta::blaze::InstructionIndex::LogicalWhenArraySizeGreater) {
-    if (keyword == "additionalItems" || keyword == "items") {
-      assert(target.is_array());
-      std::ostringstream message;
-
-      if (target.size() > instruction_value<ValueUnsignedInteger>(step)) {
-        const auto rest{target.size() -
-                        instruction_value<ValueUnsignedInteger>(step)};
-        message << "The array value contains " << rest << " additional"
-                << (rest == 1 ? " item" : " items")
-                << " not described by related keywords";
-      } else {
-        message << "The array value does not contain additional items not "
-                   "described by related keywords";
-      }
-
-      return message.str();
+    assert(keyword == "additionalItems" || keyword == "items");
+    assert(target.is_array());
+    if (target.size() <= instruction_value<ValueUnsignedInteger>(step)) {
+      return describe_literal(schema_template, step);
     }
 
-    return unknown();
-  }
-
-  if (step.type == sourcemeta::blaze::InstructionIndex::ControlJump) {
-    if (names_a_property(evaluate_path, instance_location)) {
-      return "The string value was expected to validate against the "
-             "referenced schema";
-    }
-
-    return describe_reference(target);
+    return std::string{message_detail_format(schema_template, step)};
   }
 
   return unknown();

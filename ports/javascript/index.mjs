@@ -7,7 +7,7 @@ import {
   CONTROL_JUMP, CONTROL_DYNAMIC_ANCHOR_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 14;
+const JSON_VERSION = 15;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -64,7 +64,16 @@ function resolveInstance(instance, relativeInstanceLocation) {
   return current;
 }
 
-function prepareInstruction(instruction) {
+function prepareInstruction(instruction, messages) {
+  // The compiled template carries this instruction's message template indices
+  // at 6 and 7, where zero means it has none. Resolving them against the pool
+  // here leaves the instruction in the shape the rest of this port indexes it
+  // by, and hands `describe` the sentence rather than a lookup
+  const templates = instruction.splice(6, 2);
+  instruction.message = templates[0] === 0 ? '' : messages[templates[0] - 1];
+  instruction.messageDetail =
+    templates[1] === 0 ? '' : messages[templates[1] - 1];
+
   const wrapper = instruction[6];
   if (wrapper === undefined || wrapper === null) {
     instruction[6] = null;
@@ -149,7 +158,7 @@ function prepareInstruction(instruction) {
   const children = instruction[7];
   if (children) {
     for (let index = 0; index < children.length; index++) {
-      prepareInstruction(children[index]);
+      prepareInstruction(children[index], messages);
     }
   }
 }
@@ -203,10 +212,11 @@ function collectAnchorNamesFromInstructions(instructions, result) {
 
 function compile(template) {
   const targets = template[3];
+  const messages = template[6];
   for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
     const target = targets[targetIndex];
     for (let index = 0; index < target.length; index++) {
-      prepareInstruction(target[index]);
+      prepareInstruction(target[index], messages);
     }
   }
 
@@ -238,7 +248,7 @@ function compile(template) {
   }
 
   template[4] = labels;
-  template[6] = anchors;
+  template[7] = anchors;
   return template;
 }
 
@@ -2698,7 +2708,7 @@ function ControlDynamicAnchorJump(instruction, instance, depth, template, evalua
     return false;
   }
 
-  const anchors = template[6];
+  const anchors = template[7];
   for (let index = 0; index < evaluator.resources.length; index++) {
     const jumpTarget = anchors.get(evaluator.resources[index] + ':' + anchor);
     if (jumpTarget !== undefined) {
@@ -3975,7 +3985,7 @@ function ControlDynamicAnchorJump_fast(instruction, instance, depth, template, e
   const resolved = resolveInstance(instance, instruction[2]);
   const anchor = instruction[6];
   if (!evaluator.resources) return false;
-  const anchors = template[6];
+  const anchors = template[7];
   for (let index = 0; index < evaluator.resources.length; index++) {
     const jumpTarget = anchors.get(evaluator.resources[index] + ':' + anchor);
     if (jumpTarget !== undefined) {

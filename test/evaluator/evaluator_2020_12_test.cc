@@ -5476,7 +5476,7 @@ TEST(annotation_fast_items) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 4, "Every item in the array value was successfully validated");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 5,
-                               "The array value contains 1 additional item not "
+                               "The array value contains additional items not "
                                "described by related keywords");
 }
 
@@ -5876,10 +5876,10 @@ TEST(annotation_fast_whitelist_if_then_else_inlined_shared_ref) {
 
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The string value \"foo\" was expected to "
-                               "consist of at least 1 character and it "
-                               "consisted of 3 characters");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The string value \"foo\" was expected to "
+      "consist of at least 1 character and its length was 3");
   EVALUATE_TRACE_POST_DESCRIBE(instance, 2,
                                "The unrecognized keyword \"x-test-custom\" was "
                                "collected as the annotation \"Then\"");
@@ -5996,7 +5996,7 @@ TEST(properties_closed_required_annotation_whitelist_fast) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an object that only defines properties "
-      "\"a\", and \"b\", but it also defines the property \"zzz\"");
+      "\"a\", and \"b\", but it also defines \"zzz\"");
 }
 
 TEST(properties_closed_required_annotation_whitelist_fast_exact) {
@@ -6078,7 +6078,7 @@ TEST(properties_closed_required_annotation_whitelist_fast_wrong_names) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an object that only defines properties "
-      "\"a\", and \"b\", but it also defines properties \"c\", and \"d\"");
+      "\"a\", and \"b\", but it also defines \"c\", and \"d\"");
 }
 
 TEST(properties_closed_required_annotation_whitelist_fast_missing_required) {
