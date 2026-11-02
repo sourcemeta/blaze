@@ -1,17 +1,18 @@
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <algorithm>   // std::ranges::any_of, std::ranges::sort
-#include <array>       // std::array
-#include <cassert>     // assert
-#include <cstddef>     // std::size_t
-#include <format>      // std::format, std::make_format_args, std::vformat
-#include <set>         // std::set
-#include <sstream>     // std::ostringstream
-#include <string>      // std::string, std::to_string
-#include <string_view> // std::string_view
-#include <utility>     // std::to_underlying, std::unreachable
-#include <variant>     // std::get
-#include <vector>      // std::vector
+#include <algorithm> // std::ranges::any_of, std::ranges::copy, std::ranges::sort
+#include <array>     // std::array
+#include <cassert>   // assert
+#include <cstddef>   // std::size_t
+#include <format>    // std::format, std::make_format_args, std::vformat
+#include <initializer_list> // std::initializer_list
+#include <set>              // std::set
+#include <sstream>          // std::ostringstream
+#include <string>           // std::string, std::to_string
+#include <string_view>      // std::string_view
+#include <utility>          // std::to_underlying, std::unreachable
+#include <variant>          // std::get
+#include <vector>           // std::vector
 
 namespace {
 using namespace sourcemeta::blaze;
@@ -29,18 +30,21 @@ auto instruction_value(const T &step) -> decltype(auto) {
 // compiler emits names its arguments by index, as the renderer below has to
 // hand the same number of them to `std::vformat` whatever the sentence is
 constexpr std::size_t MESSAGE_ARGUMENTS{6};
-using MessageArguments = std::array<std::string_view, MESSAGE_ARGUMENTS>;
 
 // Substitute the phrases a message draws on into the template the compiler
-// resolved for it. A template that names fewer arguments than this leaves the
-// rest empty, which costs nothing to pass
+// resolved for it. A caller names only the ones its sentence reaches for, and
+// the rest stay empty
 auto render_message(const std::string_view format,
-                    const MessageArguments &arguments) -> std::string {
+                    const std::initializer_list<std::string_view> arguments)
+    -> std::string {
   static_assert(MESSAGE_ARGUMENTS == 6,
                 "Every argument must be named for std::make_format_args");
-  return std::vformat(
-      format, std::make_format_args(arguments[0], arguments[1], arguments[2],
-                                    arguments[3], arguments[4], arguments[5]));
+  assert(arguments.size() <= MESSAGE_ARGUMENTS);
+  std::array<std::string_view, MESSAGE_ARGUMENTS> slots{};
+  std::ranges::copy(arguments, slots.begin());
+  return std::vformat(format,
+                      std::make_format_args(slots[0], slots[1], slots[2],
+                                            slots[3], slots[4], slots[5]));
 }
 
 // Whether a template draws on any argument at all, which is how the evaluator

@@ -288,8 +288,8 @@ struct InstructionExtra {
   std::string keyword_location;
   std::size_t schema_resource;
   std::size_t vocabulary;
-  /// An index into Template::messages, where zero means the instruction has no
-  /// message template of its own
+  /// A one-based index into Template::messages, where zero means the
+  /// instruction has no message template of its own
   std::size_t message;
   /// The template to render instead when the instruction has something of its
   /// own to report, such as which properties were missing. Zero when the

@@ -217,6 +217,17 @@ auto from_json(const sourcemeta::core::JSON &json) -> std::optional<Template> {
     messages_result.push_back(message.to_string());
   }
 
+  // Both pools are read after the instructions that point into them, so this
+  // is the first place the indices can be checked. Letting one through would
+  // only move the failure to whoever renders a description
+  for (const auto &metadata : template_extra) {
+    if (metadata.vocabulary > vocabularies_result.size() ||
+        metadata.message > messages_result.size() ||
+        metadata.message_detail > messages_result.size()) {
+      return std::nullopt;
+    }
+  }
+
   return Template{.dynamic = dynamic.to_boolean(),
                   .track = track.to_boolean(),
                   .targets = std::move(targets_result),

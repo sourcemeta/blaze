@@ -1027,6 +1027,86 @@ TEST(messages_pool_survives_a_json_round_trip) {
   }
 }
 
+TEST(accepts_a_message_index_at_the_pool_size) {
+  const auto input{sourcemeta::core::parse_json(R"JSON(
+    [
+      15,
+      false,
+      false,
+      [
+        [
+          [ 11, [ "type" ], [], "#/type", 0, 0, 1, 0, [ 8, 4 ] ]
+        ]
+      ],
+      [],
+      [],
+      [ "{0} was expected to be of type {1}" ]
+    ]
+  )JSON")};
+
+  EXPECT_TRUE(sourcemeta::blaze::from_json(input).has_value());
+}
+
+TEST(rejects_a_message_index_beyond_the_pool) {
+  const auto input{sourcemeta::core::parse_json(R"JSON(
+    [
+      15,
+      false,
+      false,
+      [
+        [
+          [ 11, [ "type" ], [], "#/type", 0, 0, 2, 0, [ 8, 4 ] ]
+        ]
+      ],
+      [],
+      [],
+      [ "{0} was expected to be of type {1}" ]
+    ]
+  )JSON")};
+
+  EXPECT_FALSE(sourcemeta::blaze::from_json(input).has_value());
+}
+
+TEST(rejects_a_message_detail_index_beyond_the_pool) {
+  const auto input{sourcemeta::core::parse_json(R"JSON(
+    [
+      15,
+      false,
+      false,
+      [
+        [
+          [ 11, [ "type" ], [], "#/type", 0, 0, 1, 2, [ 8, 4 ] ]
+        ]
+      ],
+      [],
+      [],
+      [ "{0} was expected to be of type {1}" ]
+    ]
+  )JSON")};
+
+  EXPECT_FALSE(sourcemeta::blaze::from_json(input).has_value());
+}
+
+TEST(rejects_a_vocabulary_index_beyond_the_pool) {
+  const auto input{sourcemeta::core::parse_json(R"JSON(
+    [
+      15,
+      false,
+      false,
+      [
+        [
+          [ 11, [ "type" ], [], "#/type", 0, 1, 1, 0, [ 8, 4 ] ]
+        ]
+      ],
+      [],
+      [],
+      [ "{0} was expected to be of type {1}" ]
+    ]
+  )JSON")};
+
+  EXPECT_FALSE(sourcemeta::blaze::from_json(input).has_value());
+}
+
 TEST(rejects_the_previous_template_version) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
