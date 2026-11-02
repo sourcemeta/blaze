@@ -542,8 +542,9 @@ auto compiler_draft3_core_ref(const Context &context,
   const auto reference{context.frame.reference(type, entry_pointer)};
   if (!reference.has_value()) [[unlikely]] {
     throw sourcemeta::core::SchemaReferenceError(
+        "Could not resolve schema reference",
         schema_context.schema.at(dynamic_context.keyword).to_string(),
-        to_pointer(entry_pointer), "Could not resolve schema reference");
+        to_pointer(entry_pointer));
   }
 
   const auto key{std::make_tuple(type,

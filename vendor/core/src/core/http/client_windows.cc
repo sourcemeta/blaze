@@ -29,7 +29,7 @@
 
 namespace {
 
-constexpr std::string_view HTTP_RESPONSE_TOO_LARGE_MESSAGE{
+constexpr sourcemeta::core::StaticString HTTP_RESPONSE_TOO_LARGE_MESSAGE{
     "The response exceeds the maximum allowed size"};
 
 // WinHttpSetTimeouts takes signed millisecond counts where zero requests no
@@ -51,16 +51,15 @@ auto to_winhttp_timeout(const std::chrono::milliseconds value) -> int {
 // WinHTTP reports an expired resolution, connection, send, or receive bound
 // from WinHttpSetTimeouts with the same error, so which of the configured
 // bounds elapsed cannot be recovered here
-[[noreturn]] auto
-throw_transfer_failure(const sourcemeta::core::HTTPMethod method,
-                       const std::string &url,
-                       const std::chrono::milliseconds timeout,
-                       const DWORD error, const char *message) -> void {
+[[noreturn]] auto throw_transfer_failure(
+    const sourcemeta::core::HTTPMethod method, const std::string &url,
+    const std::chrono::milliseconds timeout, const DWORD error,
+    const sourcemeta::core::StaticString message) -> void {
   if (error == ERROR_WINHTTP_TIMEOUT) {
     throw sourcemeta::core::HTTPTimeoutError{method, url, timeout};
   }
 
-  throw sourcemeta::core::HTTPError{method, url, message};
+  throw sourcemeta::core::HTTPError{message, method, url};
 }
 
 class WinHTTPHandle {
@@ -140,7 +139,7 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
   components.dwUrlPathLength = static_cast<DWORD>(-1);
   components.dwExtraInfoLength = static_cast<DWORD>(-1);
   if (!WinHttpCrackUrl(wide_url.c_str(), 0, 0, &components)) {
-    throw HTTPError{this->method_, this->url_, "Invalid URL"};
+    throw HTTPError{"Invalid URL", this->method_, this->url_};
   }
 
   const std::wstring host{components.lpszHostName, components.dwHostNameLength};
@@ -156,14 +155,14 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
       WinHttpOpen(nullptr, WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,
                   WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0)};
   if (!session) {
-    throw HTTPError{this->method_, this->url_,
-                    "Failed to initialise the HTTP client"};
+    throw HTTPError{"Failed to initialise the HTTP client", this->method_,
+                    this->url_};
   }
 
   const WinHTTPHandle connection{
       WinHttpConnect(session.get(), host.c_str(), components.nPort, 0)};
   if (!connection) {
-    throw HTTPError{this->method_, this->url_, "Failed to connect to the host"};
+    throw HTTPError{"Failed to connect to the host", this->method_, this->url_};
   }
 
   const auto secure{components.nScheme == INTERNET_SCHEME_HTTPS};
@@ -174,8 +173,8 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
       WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES,
       secure ? WINHTTP_FLAG_SECURE : 0)};
   if (!request_handle) {
-    throw HTTPError{this->method_, this->url_,
-                    "Failed to create the HTTP request"};
+    throw HTTPError{"Failed to create the HTTP request", this->method_,
+                    this->url_};
   }
 
   if (this->follow_redirects_) {
@@ -214,8 +213,8 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
   if (this->body_.has_value()) {
     if (this->body_.value().bytes().size() >
         std::numeric_limits<DWORD>::max()) {
-      throw HTTPError{this->method_, this->url_,
-                      "The request body is too large"};
+      throw HTTPError{"The request body is too large", this->method_,
+                      this->url_};
     }
 
     serialized_headers += "Content-Type: ";
@@ -261,8 +260,8 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
                                WINHTTP_QUERY_FLAG_NUMBER,
                            WINHTTP_HEADER_NAME_BY_INDEX, &status_code,
                            &status_code_size, WINHTTP_NO_HEADER_INDEX)) {
-    throw HTTPError{this->method_, this->url_,
-                    "Failed to read the HTTP response status"};
+    throw HTTPError{"Failed to read the HTTP response status", this->method_,
+                    this->url_};
   }
 
   parse_response_headers(request_handle.get(), response.headers);
@@ -284,8 +283,8 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
         (response.body.size() > this->maximum_response_size_.value() ||
          available >
              this->maximum_response_size_.value() - response.body.size())) {
-      throw HTTPError{this->method_, this->url_,
-                      std::string{HTTP_RESPONSE_TOO_LARGE_MESSAGE}};
+      throw HTTPError{HTTP_RESPONSE_TOO_LARGE_MESSAGE, this->method_,
+                      this->url_};
     }
 
     const auto offset{response.body.size()};

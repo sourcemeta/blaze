@@ -5,49 +5,39 @@
 #include <sourcemeta/core/jsonld_export.h>
 #endif
 
+#include <sourcemeta/core/error.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <exception>        // std::exception
 #include <initializer_list> // std::initializer_list
 #include <utility>          // std::move
 
 namespace sourcemeta::core {
 
-// Exporting symbols that depends on the standard C++ library is considered
-// safe.
-// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup jsonld
 /// An error that represents a JSON-LD processing failure. The message is one of
 /// the error codes defined by the JSON-LD 1.1 API specification, and the
 /// pointer locates the offending position in the input document
-class SOURCEMETA_CORE_JSONLD_EXPORT JSONLDError : public std::exception {
+class SOURCEMETA_CORE_JSONLD_EXPORT JSONLDError : public Error {
 public:
   /// Locate the error at an owned pointer.
-  JSONLDError(const char *code, Pointer pointer)
-      : code_{code}, pointer_{std::move(pointer)} {}
+  JSONLDError(const StaticString code, Pointer pointer)
+      : Error{code}, pointer_{std::move(pointer)} {}
 
   /// Locate the error at a weak pointer, materialising an owned pointer.
-  JSONLDError(const char *code, const WeakPointer &pointer)
-      : code_{code}, pointer_{to_pointer(pointer)} {}
+  JSONLDError(const StaticString code, const WeakPointer &pointer)
+      : Error{code}, pointer_{to_pointer(pointer)} {}
 
   /// Locate the error at a weak pointer extended with the given trailing
   /// property tokens.
-  JSONLDError(const char *code, const WeakPointer &pointer,
+  JSONLDError(const StaticString code, const WeakPointer &pointer,
               const std::initializer_list<JSON::StringView> children)
-      : code_{code}, pointer_{to_pointer(pointer)} {
+      : Error{code}, pointer_{to_pointer(pointer)} {
     for (const auto child : children) {
       this->pointer_.push_back(JSON::String{child});
     }
-  }
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->code_.c_str();
   }
 
   /// Get the JSON Pointer to the position in the input document that caused the
@@ -57,7 +47,6 @@ public:
   }
 
 private:
-  JSON::String code_;
   Pointer pointer_;
 };
 
@@ -69,7 +58,8 @@ private:
 class SOURCEMETA_CORE_JSONLD_EXPORT JSONLDFragmentError : public JSONLDError {
 public:
   /// Locate the error at a fragment entry.
-  JSONLDFragmentError(const char *code, Pointer pointer, JSON::String key)
+  JSONLDFragmentError(const StaticString code, Pointer pointer,
+                      JSON::String key)
       : JSONLDError{code, std::move(pointer)}, key_{std::move(key)} {}
 
   /// Get the key of the fragment entry that caused the error, empty when the
@@ -82,9 +72,7 @@ private:
   JSON::String key_;
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

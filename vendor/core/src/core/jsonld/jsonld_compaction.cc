@@ -130,8 +130,8 @@ auto compact(ExpansionState &state, const ActiveContext &active_context,
   JSON reverted_inverse{JSON::make_object()};
   const bool did_revert{static_cast<bool>(active_context.previous) &&
                         !element.defines(KEYWORD_VALUE, KEYWORD_VALUE_HASH) &&
-                        !(element.object_size() == 1 &&
-                          element.defines(KEYWORD_ID, KEYWORD_ID_HASH))};
+                        (element.object_size() != 1 ||
+                         !element.defines(KEYWORD_ID, KEYWORD_ID_HASH))};
   if (did_revert) {
     reverted = *active_context.previous;
     reverted_inverse = create_inverse_context(reverted);

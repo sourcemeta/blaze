@@ -13,6 +13,8 @@ if(SOURCEMETA_CORE_INSTALL)
 endif()
 
 target_link_libraries(sourcemeta_core_jsonschema PUBLIC
+  sourcemeta::core::error)
+target_link_libraries(sourcemeta_core_jsonschema PUBLIC
   sourcemeta::core::json)
 target_link_libraries(sourcemeta_core_jsonschema PUBLIC
   sourcemeta::core::jsonpointer)

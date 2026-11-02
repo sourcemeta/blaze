@@ -970,8 +970,8 @@ auto compile(const Context &context, const SchemaContext &schema_context,
     // Otherwise the recursion attempt is non-sense
     if (!entry.has_value()) [[unlikely]] {
       throw sourcemeta::core::SchemaReferenceError(
-          destination, absolute_schema_location(context, schema_context),
-          "The target of the reference does not exist in the schema");
+          "The target of the reference does not exist in the schema",
+          destination, absolute_schema_location(context, schema_context));
     }
 
     target = entry.value().get().pointer;
@@ -982,12 +982,12 @@ auto compile(const Context &context, const SchemaContext &schema_context,
     if (sourcemeta::core::try_get(context.root, target) == nullptr)
         [[unlikely]] {
       throw sourcemeta::core::SchemaReferenceError(
+          "The target of the reference does not exist in the schema",
           to_uri(schema_context.relative_pointer.concat(schema_suffix),
                  schema_context.base)
               .canonicalize()
               .recompose(),
-          absolute_schema_location(context, schema_context),
-          "The target of the reference does not exist in the schema");
+          absolute_schema_location(context, schema_context));
     }
 
     // A pointer that sits under more than one base is framed once per base, so

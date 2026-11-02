@@ -74,7 +74,7 @@ auto process_expansion_context(ExpansionState &state,
   try {
     process_context(state, active_context, context, EMPTY_WEAK_POINTER);
   } catch (const JSONLDError &error) {
-    throw JSONLDError(error.what(), EMPTY_WEAK_POINTER);
+    throw JSONLDError(error.message(), EMPTY_WEAK_POINTER);
   }
 }
 

@@ -5,44 +5,36 @@
 #include <sourcemeta/core/oidc_export.h>
 #endif
 
+#include <sourcemeta/core/error.h>
+
 #include <cstdint>     // std::uint8_t
-#include <exception>   // std::exception
 #include <optional>    // std::optional
 #include <string_view> // std::string_view
 
 namespace sourcemeta::core {
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup oidc
 /// An error that occurs when parsing an invalid OpenID Provider metadata
 /// document.
-class SOURCEMETA_CORE_OIDC_EXPORT OIDCMetadataParseError
-    : public std::exception {
+class SOURCEMETA_CORE_OIDC_EXPORT OIDCMetadataParseError : public Error {
 public:
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid OpenID Provider metadata document";
-  }
+  OIDCMetadataParseError() noexcept
+      : Error{"The input is not a valid OpenID Provider metadata document"} {}
 };
 
 /// @ingroup oidc
 /// An error that occurs when parsing an invalid OpenID Connect client
 /// registration document.
-class SOURCEMETA_CORE_OIDC_EXPORT OIDCRegistrationParseError
-    : public std::exception {
+class SOURCEMETA_CORE_OIDC_EXPORT OIDCRegistrationParseError : public Error {
 public:
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The input is not a valid OpenID Connect client registration "
-           "document";
-  }
+  OIDCRegistrationParseError() noexcept
+      : Error{"The input is not a valid OpenID Connect client registration "
+              "document"} {}
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 /// @ingroup oidc
 /// The error codes an authentication endpoint returns in addition to the OAuth

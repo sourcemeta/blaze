@@ -2,11 +2,11 @@
 #define SOURCEMETA_CORE_HTTP_ENTROPY_H_
 
 #include <sourcemeta/core/crypto.h>
+#include <sourcemeta/core/http_error.h>
 
 #include <algorithm> // std::ranges::all_of
 #include <cstdint>   // std::uint8_t
 #include <span>      // std::span
-#include <stdexcept> // std::runtime_error
 
 namespace sourcemeta::core {
 
@@ -24,8 +24,7 @@ inline auto http_draw_identifier(const std::span<std::uint8_t> bytes) -> void {
     }
   }
 
-  throw std::runtime_error{
-      "Could not draw a non-zero trace context identifier"};
+  throw HTTPEntropyError{};
 }
 
 } // namespace sourcemeta::core

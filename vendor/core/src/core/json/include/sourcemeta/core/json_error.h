@@ -5,46 +5,29 @@
 #include <sourcemeta/core/json_export.h>
 #endif
 
-#include <cstdint>     // std::uint64_t
-#include <exception>   // std::exception
-#include <filesystem>  // std::filesystem::path
-#include <string>      // std::string
-#include <string_view> // std::string_view
-#include <utility>     // std::move
+#include <sourcemeta/core/error.h>
+
+#include <cstdint>    // std::uint64_t
+#include <filesystem> // std::filesystem::path
+#include <utility>    // std::move
 
 namespace sourcemeta::core {
 
-// Exporting symbols that depends on the standard C++ library is considered
-// safe.
-// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup json
 /// This class represents a parsing error
-class SOURCEMETA_CORE_JSON_EXPORT JSONParseError : public std::exception {
+class SOURCEMETA_CORE_JSON_EXPORT JSONParseError : public Error {
 public:
   /// Create a parsing error
-  JSONParseError(const std::uint64_t line, const std::uint64_t column)
-      : line_{line}, column_{column},
-        message_{"Failed to parse the JSON document"} {}
+  JSONParseError(const std::uint64_t line, const std::uint64_t column) noexcept
+      : Error{"Failed to parse the JSON document"}, line_{line},
+        column_{column} {}
 
-  /// Create a parsing error with a custom error
-  JSONParseError(const std::uint64_t line, const std::uint64_t column,
-                 const char *message)
-      : line_{line}, column_{column}, message_{message} {}
-  JSONParseError(const std::uint64_t line, const std::uint64_t column,
-                 std::string message) = delete;
-  JSONParseError(const std::uint64_t line, const std::uint64_t column,
-                 std::string &&message) = delete;
-  JSONParseError(const std::uint64_t line, const std::uint64_t column,
-                 std::string_view message) = delete;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  /// Create a parsing error with a custom message
+  JSONParseError(const StaticString message, const std::uint64_t line,
+                 const std::uint64_t column) noexcept
+      : Error{message}, line_{line}, column_{column} {}
 
   /// Get the line number of the error
   [[nodiscard]] auto line() const noexcept -> std::uint64_t {
@@ -59,7 +42,6 @@ public:
 private:
   std::uint64_t line_;
   std::uint64_t column_;
-  const char *message_;
 };
 
 /// @ingroup json
@@ -67,21 +49,13 @@ private:
 class SOURCEMETA_CORE_JSON_EXPORT JSONFileParseError : public JSONParseError {
 public:
   /// Create a file parsing error
-  JSONFileParseError(std::filesystem::path path, const std::uint64_t line,
-                     const std::uint64_t column, const char *message)
-      : JSONParseError{line, column, message}, path_{std::move(path)} {}
-  JSONFileParseError(std::filesystem::path path, const std::uint64_t line,
-                     const std::uint64_t column, std::string message) = delete;
-  JSONFileParseError(std::filesystem::path path, const std::uint64_t line,
-                     const std::uint64_t column,
-                     std::string &&message) = delete;
-  JSONFileParseError(std::filesystem::path path, const std::uint64_t line,
-                     const std::uint64_t column,
-                     std::string_view message) = delete;
+  JSONFileParseError(const StaticString message, std::filesystem::path path,
+                     const std::uint64_t line, const std::uint64_t column)
+      : JSONParseError{message, line, column}, path_{std::move(path)} {}
 
   /// Create a file parsing error from a parse error
   JSONFileParseError(std::filesystem::path path, const JSONParseError &parent)
-      : JSONParseError{parent.line(), parent.column(), parent.what()},
+      : JSONParseError{parent.message(), parent.line(), parent.column()},
         path_{std::move(path)} {}
 
   /// Get the file path of the error
@@ -93,9 +67,25 @@ private:
   std::filesystem::path path_;
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+/// @ingroup json
+/// This class represents an attempt to hold a number that JSON does not
+/// define, as per ECMA-404
+class SOURCEMETA_CORE_JSON_EXPORT JSONNonFiniteError : public Error {
+public:
+  JSONNonFiniteError() noexcept
+      : Error{"JSON does not support Infinity or NaN"} {}
+};
+
+/// @ingroup json
+/// This class represents a number that does not fit in the integer type the
+/// caller asked for
+class SOURCEMETA_CORE_JSON_EXPORT JSONIntegerRangeError : public Error {
+public:
+  /// Construct an error with the given message
+  JSONIntegerRangeError(const StaticString message) noexcept : Error{message} {}
+};
+
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

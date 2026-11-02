@@ -14,6 +14,8 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME oauth
     oauth_assertion.cc oauth_registration.cc oauth_duration.cc)
 
 target_link_libraries(sourcemeta_core_oauth
+  PUBLIC sourcemeta::core::error)
+target_link_libraries(sourcemeta_core_oauth
   PUBLIC sourcemeta::core::json)
 target_link_libraries(sourcemeta_core_oauth
   PUBLIC sourcemeta::core::crypto)

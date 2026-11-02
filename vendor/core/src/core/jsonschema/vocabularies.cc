@@ -292,7 +292,7 @@ auto sourcemeta::core::operator<<(std::ostream &stream,
 }
 
 auto sourcemeta::core::SchemaVocabularies::throw_if_any_unsupported(
-    const std::unordered_set<URI> &supported, const char *message) const
+    const std::unordered_set<URI> &supported, const StaticString message) const
     -> void {
   for (std::size_t index = 0; index < KNOWN_VOCABULARY_COUNT; ++index) {
     if (!this->required_known_[index]) {
@@ -312,7 +312,7 @@ auto sourcemeta::core::SchemaVocabularies::throw_if_any_unsupported(
       continue;
     }
 
-    throw SchemaVocabularyError(uri, message);
+    throw SchemaVocabularyError(message, uri);
   }
 
   if (this->unknown_.has_value()) {
@@ -325,7 +325,7 @@ auto sourcemeta::core::SchemaVocabularies::throw_if_any_unsupported(
       // i.e. we should never have an official vocabulary in the unknown map
       assert(!uri_to_known_vocabulary(uri).has_value());
 
-      throw SchemaVocabularyError(uri, message);
+      throw SchemaVocabularyError(message, uri);
     }
   }
 }

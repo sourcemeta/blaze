@@ -3,6 +3,7 @@
 #include <sourcemeta/core/crypto.h>
 #include <sourcemeta/core/jose.h>
 #include <sourcemeta/core/json.h>
+#include <sourcemeta/core/numeric.h>
 #include <sourcemeta/core/oidc_hash.h>
 #include <sourcemeta/core/time.h>
 
@@ -10,7 +11,6 @@
 #include <cstdint>     // std::int64_t
 #include <optional>    // std::optional, std::nullopt
 #include <span>        // std::span
-#include <stdexcept>   // std::out_of_range
 #include <string>      // std::string
 #include <string_view> // std::string_view
 
@@ -178,7 +178,7 @@ auto oidc_id_token_checks(const JWT &token, const std::string_view issuer,
     try {
       authentication_time = from_unix_timestamp(
           std::chrono::duration<double>{auth_time->as_real()});
-    } catch (const std::out_of_range &) {
+    } catch (const NumericOutOfRangeError &) {
       authentication_time = std::nullopt;
     }
   }

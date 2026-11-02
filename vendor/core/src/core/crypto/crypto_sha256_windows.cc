@@ -1,3 +1,4 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_sha256.h>
 
 #define WIN32_LEAN_AND_MEAN
@@ -13,7 +14,6 @@
 #include <array>       // std::array
 #include <cstdint>     // std::uint8_t
 #include <span>        // std::span
-#include <stdexcept>   // std::runtime_error
 #include <string_view> // std::string_view
 
 namespace sourcemeta::core {
@@ -23,14 +23,14 @@ auto sha256_digest(const std::span<const std::string_view> input)
   BCRYPT_ALG_HANDLE algorithm{nullptr};
   if (!BCRYPT_SUCCESS(BCryptOpenAlgorithmProvider(
           &algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0))) {
-    throw std::runtime_error("Could not open the CNG SHA-256 provider");
+    throw CryptoError("Could not open the CNG SHA-256 provider");
   }
 
   BCRYPT_HASH_HANDLE hash{nullptr};
   if (!BCRYPT_SUCCESS(
           BCryptCreateHash(algorithm, &hash, nullptr, 0, nullptr, 0, 0))) {
     BCryptCloseAlgorithmProvider(algorithm, 0);
-    throw std::runtime_error("Could not create the CNG SHA-256 hash");
+    throw CryptoError("Could not create the CNG SHA-256 hash");
   }
 
   auto success{true};
@@ -47,7 +47,7 @@ auto sha256_digest(const std::span<const std::string_view> input)
   BCryptDestroyHash(hash);
   BCryptCloseAlgorithmProvider(algorithm, 0);
   if (!success) {
-    throw std::runtime_error("Could not compute the CNG SHA-256 digest");
+    throw CryptoError("Could not compute the CNG SHA-256 digest");
   }
 
   return digest;

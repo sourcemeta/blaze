@@ -1,12 +1,13 @@
 #include "crypto_kdf.h"
 
+#include <sourcemeta/core/crypto_error.h>
+
 #include <openssl/core_names.h> // OSSL_KDF_PARAM_*
 #include <openssl/kdf.h>        // EVP_KDF_*, EVP_KDF_HKDF_MODE_*
 #include <openssl/params.h>     // OSSL_PARAM, OSSL_PARAM_construct_*
 
 #include <array>       // std::array
 #include <cstddef>     // std::size_t
-#include <stdexcept>   // std::runtime_error
 #include <string_view> // std::string_view
 #include <utility>     // std::unreachable
 
@@ -18,7 +19,8 @@ namespace {
 struct HkdfAlgorithm {
   HkdfAlgorithm() : handle{EVP_KDF_fetch(nullptr, "HKDF", nullptr)} {
     if (this->handle == nullptr) {
-      throw std::runtime_error("Could not fetch the OpenSSL HKDF algorithm");
+      throw sourcemeta::core::CryptoError(
+          "Could not fetch the OpenSSL HKDF algorithm");
     }
   }
   ~HkdfAlgorithm() { EVP_KDF_free(this->handle); }

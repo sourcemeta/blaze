@@ -5,24 +5,16 @@
 #include <sourcemeta/core/openapi_export.h>
 #endif
 
+#include <sourcemeta/core/error.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <cstdint>     // std::uint64_t
-#include <exception>   // std::exception
-#include <string>      // std::string
-#include <string_view> // std::string_view
-#include <utility>     // std::move
+#include <cstdint> // std::uint64_t
+#include <utility> // std::move
 
 namespace sourcemeta::core {
 
-// Exporting symbols that depends on the standard C++ library is considered
-// safe.
-// https://learn.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-2-c4275?view=msvc-170&redirectedfrom=MSDN
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_PUSH
 
 /// @ingroup openapi
 /// An error that represents an OpenAPI Description that does not conform to
@@ -34,32 +26,19 @@ namespace sourcemeta::core {
 /// #include <cassert>
 ///
 /// const sourcemeta::core::OpenAPIError error{
-///     sourcemeta::core::Pointer{"info"}, "The Info Object is required"};
+///     "The Info Object is required", sourcemeta::core::Pointer{"info"}};
 /// assert(error.location() == sourcemeta::core::Pointer{"info"});
 /// ```
-class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIError : public std::exception {
+class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIError : public Error {
 public:
-  /// Construct an error from where the problem is and a message
-  OpenAPIError(Pointer location, const char *message)
-      : location_{std::move(location)}, message_{message} {}
-  OpenAPIError(Pointer location, std::string message) = delete;
-  OpenAPIError(Pointer location, std::string &&message) = delete;
-  OpenAPIError(Pointer location, std::string_view message) = delete;
+  /// Construct an error from a message and where the problem is
+  OpenAPIError(const StaticString message, Pointer location)
+      : Error{message}, location_{std::move(location)} {}
 
   /// Construct an error that names the document the problem is in, which is
   /// what a caller that framed more than one of them tells them apart by
-  OpenAPIError(JSON::String base, Pointer location, const char *message)
-      : base_{std::move(base)}, location_{std::move(location)},
-        message_{message} {}
-  OpenAPIError(JSON::String base, Pointer location,
-               std::string message) = delete;
-  OpenAPIError(JSON::String base, Pointer location,
-               std::string &&message) = delete;
-  OpenAPIError(JSON::String base, Pointer location,
-               std::string_view message) = delete;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
+  OpenAPIError(const StaticString message, JSON::String base, Pointer location)
+      : Error{message}, base_{std::move(base)}, location_{std::move(location)} {
   }
 
   /// Get where the problem is, as a pointer from the root of the document
@@ -77,7 +56,6 @@ public:
 private:
   JSON::String base_;
   Pointer location_;
-  const char *message_;
 };
 
 /// @ingroup openapi
@@ -90,31 +68,18 @@ private:
 /// #include <cassert>
 ///
 /// const sourcemeta::core::OpenAPIResolutionError error{
-///     "https://example.com/openapi.json", sourcemeta::core::Pointer{"$ref"},
-///     "https://example.com/shared.json", "Could not resolve"};
+///     "Could not resolve", "https://example.com/openapi.json",
+///     sourcemeta::core::Pointer{"$ref"}, "https://example.com/shared.json"};
 /// assert(error.identifier() == "https://example.com/shared.json");
 /// ```
-class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIResolutionError
-    : public std::exception {
+class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIResolutionError : public Error {
 public:
-  /// Create a resolution error from the document the reference was made in,
-  /// where in it the reference sits, what it names, and a message
-  OpenAPIResolutionError(JSON::String base, Pointer location,
-                         JSON::String identifier, const char *message)
-      : base_{std::move(base)}, location_{std::move(location)},
-        identifier_{std::move(identifier)}, message_{message} {}
-  OpenAPIResolutionError(JSON::String base, Pointer location,
-                         JSON::String identifier, std::string message) = delete;
-  OpenAPIResolutionError(JSON::String base, Pointer location,
-                         JSON::String identifier,
-                         std::string &&message) = delete;
-  OpenAPIResolutionError(JSON::String base, Pointer location,
-                         JSON::String identifier,
-                         std::string_view message) = delete;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  /// Create a resolution error from a message, the document the reference was
+  /// made in, where in it the reference sits, and what it names
+  OpenAPIResolutionError(const StaticString message, JSON::String base,
+                         Pointer location, JSON::String identifier)
+      : Error{message}, base_{std::move(base)}, location_{std::move(location)},
+        identifier_{std::move(identifier)} {}
 
   /// The URI that nothing could produce a document for
   [[nodiscard]] auto identifier() const noexcept -> JSON::StringView {
@@ -136,7 +101,6 @@ private:
   JSON::String base_;
   Pointer location_;
   JSON::String identifier_;
-  const char *message_;
 };
 
 /// @ingroup openapi
@@ -149,31 +113,19 @@ private:
 /// #include <cassert>
 ///
 /// const sourcemeta::core::OpenAPIReferenceError error{
-///     "https://example.com/openapi.json", sourcemeta::core::Pointer{"$ref"},
-///     "https://example.com/shared.json#/info", "Wrong kind"};
+///     "Wrong kind", "https://example.com/openapi.json",
+///     sourcemeta::core::Pointer{"$ref"},
+///     "https://example.com/shared.json#/info"};
 /// assert(error.identifier() == "https://example.com/shared.json#/info");
 /// ```
-class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIReferenceError
-    : public std::exception {
+class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIReferenceError : public Error {
 public:
-  /// Create a reference error from the document the reference was made in,
-  /// where in it the reference sits, what it names, and a message
-  OpenAPIReferenceError(JSON::String base, Pointer location,
-                        JSON::String identifier, const char *message)
-      : base_{std::move(base)}, location_{std::move(location)},
-        identifier_{std::move(identifier)}, message_{message} {}
-  OpenAPIReferenceError(JSON::String base, Pointer location,
-                        JSON::String identifier, std::string message) = delete;
-  OpenAPIReferenceError(JSON::String base, Pointer location,
-                        JSON::String identifier,
-                        std::string &&message) = delete;
-  OpenAPIReferenceError(JSON::String base, Pointer location,
-                        JSON::String identifier,
-                        std::string_view message) = delete;
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return this->message_;
-  }
+  /// Create a reference error from a message, the document the reference was
+  /// made in, where in it the reference sits, and what it names
+  OpenAPIReferenceError(const StaticString message, JSON::String base,
+                        Pointer location, JSON::String identifier)
+      : Error{message}, base_{std::move(base)}, location_{std::move(location)},
+        identifier_{std::move(identifier)} {}
 
   /// The URI that the reference names, resolved and canonicalised
   [[nodiscard]] auto identifier() const noexcept -> JSON::StringView {
@@ -195,7 +147,6 @@ private:
   JSON::String base_;
   Pointer location_;
   JSON::String identifier_;
-  const char *message_;
 };
 
 /// @ingroup openapi
@@ -209,16 +160,13 @@ private:
 /// const sourcemeta::core::OpenAPIFrameLimitError error{100};
 /// assert(error.limit() == 100);
 /// ```
-class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIFrameLimitError
-    : public std::exception {
+class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIFrameLimitError : public Error {
 public:
   /// Create a framing limit error
-  OpenAPIFrameLimitError(const std::uint64_t limit) : limit_{limit} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The OpenAPI Description exceeds the maximum number of locations "
-           "that framing may register";
-  }
+  OpenAPIFrameLimitError(const std::uint64_t limit) noexcept
+      : Error{"The OpenAPI Description exceeds the maximum number of "
+              "locations that framing may register"},
+        limit_{limit} {}
 
   /// The maximum number of locations that framing was allowed to register
   [[nodiscard]] auto limit() const noexcept -> std::uint64_t {
@@ -240,16 +188,13 @@ private:
 /// const sourcemeta::core::OpenAPIBundleLimitError error{100};
 /// assert(error.limit() == 100);
 /// ```
-class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIBundleLimitError
-    : public std::exception {
+class SOURCEMETA_CORE_OPENAPI_EXPORT OpenAPIBundleLimitError : public Error {
 public:
   /// Create a bundling limit error
-  OpenAPIBundleLimitError(const std::uint64_t limit) : limit_{limit} {}
-
-  [[nodiscard]] auto what() const noexcept -> const char * override {
-    return "The OpenAPI Description exceeds the maximum number of locations "
-           "that bundling may analyse";
-  }
+  OpenAPIBundleLimitError(const std::uint64_t limit) noexcept
+      : Error{"The OpenAPI Description exceeds the maximum number of "
+              "locations that bundling may analyse"},
+        limit_{limit} {}
 
   /// The maximum number of locations that bundling was allowed to register
   [[nodiscard]] auto limit() const noexcept -> std::uint64_t {
@@ -260,9 +205,7 @@ private:
   std::uint64_t limit_;
 };
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+SOURCEMETA_CORE_ERROR_WARNINGS_POP
 
 } // namespace sourcemeta::core
 

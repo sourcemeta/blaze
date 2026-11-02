@@ -32,7 +32,7 @@ public:
     const auto resolved{this->resolver_(base)};
     if (!resolved.has_value()) {
       throw sourcemeta::core::SchemaResolutionError{
-          base, "Could not resolve schema under test"};
+          "Could not resolve schema under test", base};
     }
 
     const auto &document{

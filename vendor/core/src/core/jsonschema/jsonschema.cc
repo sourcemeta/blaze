@@ -156,7 +156,7 @@ auto sourcemeta::core::identify(const sourcemeta::core::JSON &schema,
     std::ostringstream value;
     sourcemeta::core::stringify(*identifier, value);
     throw sourcemeta::core::SchemaKeywordError(
-        keyword.name, value.str(), "The schema identifier is invalid");
+        "The schema identifier is invalid", keyword.name, value.str());
   }
 
   // In older drafts, the presence of `$ref` would override any sibling
@@ -215,9 +215,9 @@ auto sourcemeta::core::schema_reidentify(sourcemeta::core::JSON &schema,
               effective_dialect),
           resolved_base_dialect.value())) {
     throw sourcemeta::core::SchemaKeywordError(
+        "The dialect of the schema does not support identification",
         sourcemeta::core::id_keyword(resolved_base_dialect.value()).name,
-        new_identifier,
-        "The dialect of the schema does not support identification");
+        new_identifier);
   }
 
   schema_reidentify(schema, new_identifier, resolved_base_dialect.value());
@@ -275,8 +275,8 @@ auto sourcemeta::core::dialect(const sourcemeta::core::JSON &schema,
   if (!dialect_value->is_string()) {
     std::ostringstream value;
     sourcemeta::core::stringify(*dialect_value, value);
-    throw sourcemeta::core::SchemaKeywordError("$schema", value.str(),
-                                               "The dialect value is invalid");
+    throw sourcemeta::core::SchemaKeywordError("The dialect value is invalid",
+                                               "$schema", value.str());
   }
 
   return dialect_value->to_string();
@@ -431,7 +431,7 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
       effective_dialect_uri = sourcemeta::core::URI{effective_dialect};
     } catch (const sourcemeta::core::URIParseError &) {
       throw sourcemeta::core::SchemaKeywordError(
-          "$schema", effective_dialect, "The dialect is not a valid URI");
+          "The dialect is not a valid URI", "$schema", effective_dialect);
     }
 
     // Relative meta-schema references are invalid according to the
@@ -441,7 +441,7 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
           effective_dialect);
     }
     throw sourcemeta::core::SchemaResolutionError(
-        effective_dialect, "Could not resolve the metaschema of the schema");
+        "Could not resolve the metaschema of the schema", effective_dialect);
   }
 
   // If the metaschema declares the same dialect (self-descriptive), and it's
@@ -614,15 +614,15 @@ auto parse_vocabularies(const sourcemeta::core::JSON &schema,
   // a document that never said so
   if (!vocabulary_entry->is_object()) {
     throw sourcemeta::core::SchemaVocabularyError(
-        dialect, "The vocabularies of a metaschema must be an object");
+        "The vocabularies of a metaschema must be an object", dialect);
   }
 
   sourcemeta::core::SchemaVocabularies result;
   for (const auto &entry : vocabulary_entry->as_object()) {
     if (!entry.second.is_boolean()) {
       throw sourcemeta::core::SchemaVocabularyError(
-          dialect,
-          "Every vocabulary of a metaschema must be declared with a boolean");
+          "Every vocabulary of a metaschema must be declared with a boolean",
+          dialect);
     }
 
     result.insert(entry.first, entry.second.to_boolean());
@@ -688,7 +688,7 @@ auto sourcemeta::core::vocabularies(const SchemaResolver &resolver,
   const auto maybe_schema_dialect{resolver(dialect)};
   if (!maybe_schema_dialect.has_value()) {
     throw sourcemeta::core::SchemaResolutionError(
-        dialect, "Could not resolve the metaschema of the schema");
+        "Could not resolve the metaschema of the schema", dialect);
   }
   const sourcemeta::core::JSON &schema_dialect{maybe_schema_dialect.value()};
 

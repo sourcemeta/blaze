@@ -466,7 +466,7 @@ auto URITemplateRouterView::save(const URITemplateRouter &router,
 
   std::ofstream file(path, std::ios::binary);
   if (!file) {
-    throw URITemplateRouterSaveError{path, "Failed to open file for writing"};
+    throw URITemplateRouterSaveError{"Failed to open file for writing", path};
   }
 
   file.write(reinterpret_cast<const char *>(&header), sizeof(header));
@@ -523,8 +523,8 @@ auto URITemplateRouterView::save(const URITemplateRouter &router,
   // file before that reports a save that wrote nothing as one that went through
   file.close();
   if (!file) {
-    throw URITemplateRouterSaveError{path,
-                                     "Failed to write router data to file"};
+    throw URITemplateRouterSaveError{"Failed to write router data to file",
+                                     path};
   }
 }
 

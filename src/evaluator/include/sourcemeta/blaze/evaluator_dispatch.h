@@ -213,6 +213,15 @@ inline auto resolve_instance(const JSON &instance,
     return instance;
   }
 
+  // A single property is what almost every instruction that navigates at all
+  // carries, and resolving it here keeps the lookup inline, rather than
+  // calling out to the pointer walk that the general case needs
+  if (relative_instance_location.size() == 1 &&
+      relative_instance_location.at(0).is_property()) {
+    return instance.at(relative_instance_location.at(0).to_property(),
+                       relative_instance_location.at(0).property_hash());
+  }
+
   return get(instance, relative_instance_location);
 }
 

@@ -1,13 +1,13 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_hmac_sha384.h>
 #include <sourcemeta/core/crypto_sha384.h>
 
 #include <openssl/evp.h>  // EVP_sha384
 #include <openssl/hmac.h> // HMAC
 
-#include <array>     // std::array
-#include <cstddef>   // std::size_t
-#include <cstdint>   // std::uint8_t
-#include <stdexcept> // std::runtime_error
+#include <array>   // std::array
+#include <cstddef> // std::size_t
+#include <cstdint> // std::uint8_t
 
 namespace sourcemeta::core {
 
@@ -32,7 +32,7 @@ auto hmac_sha384_digest(const std::string_view key,
   if (HMAC(EVP_sha384(), key_data, static_cast<int>(key_size),
            reinterpret_cast<const unsigned char *>(message.data()),
            message.size(), digest.data(), &length) == nullptr) {
-    throw std::runtime_error("Could not compute HMAC-SHA384 digest");
+    throw CryptoError("Could not compute HMAC-SHA384 digest");
   }
 
   return digest;

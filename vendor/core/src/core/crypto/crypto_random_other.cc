@@ -1,5 +1,7 @@
 #include "crypto_random.h"
 
+#include <sourcemeta/core/crypto_error.h>
+
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #ifndef NOMINMAX
@@ -14,7 +16,6 @@
 #include <cstdint>   // std::uint8_t
 #include <limits>    // std::numeric_limits
 #include <span>      // std::span
-#include <stdexcept> // std::runtime_error
 #else
 // glibc and the BSDs declare the entropy call in the random header while
 // musl only declares it in the standard POSIX header, so both are needed
@@ -25,7 +26,6 @@
 #include <cstddef>   // std::size_t
 #include <cstdint>   // std::uint8_t
 #include <span>      // std::span
-#include <stdexcept> // std::runtime_error
 #endif
 
 namespace sourcemeta::core {
@@ -41,7 +41,7 @@ auto fill_random_bytes(std::span<std::uint8_t> bytes) -> void {
         bytes.size(), std::numeric_limits<ULONG>::max()))};
     if (!BCRYPT_SUCCESS(BCryptGenRandom(nullptr, bytes.data(), chunk,
                                         BCRYPT_USE_SYSTEM_PREFERRED_RNG))) {
-      throw std::runtime_error("Could not generate random bytes with CNG");
+      throw CryptoError("Could not generate random bytes with CNG");
     }
 
     bytes = bytes.subspan(chunk);
@@ -61,7 +61,7 @@ auto fill_random_bytes(std::span<std::uint8_t> bytes) -> void {
   while (offset < bytes.size()) {
     const auto chunk{std::min(bytes.size() - offset, maximum_per_call)};
     if (getentropy(bytes.data() + offset, chunk) != 0) {
-      throw std::runtime_error(
+      throw CryptoError(
           "Could not generate random bytes with the system entropy call");
     }
 

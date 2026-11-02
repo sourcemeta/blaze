@@ -1,3 +1,4 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_sha1.h>
 #include <sourcemeta/core/text.h>
 
@@ -9,11 +10,10 @@
 
 #include <bcrypt.h> // BCrypt*, BCRYPT_*
 
-#include <array>     // std::array
-#include <cstddef>   // std::size_t
-#include <cstdint>   // std::uint8_t
-#include <limits>    // std::numeric_limits
-#include <stdexcept> // std::runtime_error
+#include <array>   // std::array
+#include <cstddef> // std::size_t
+#include <cstdint> // std::uint8_t
+#include <limits>  // std::numeric_limits
 
 namespace sourcemeta::core {
 
@@ -21,14 +21,14 @@ auto sha1(const std::string_view input) -> std::string {
   BCRYPT_ALG_HANDLE algorithm{nullptr};
   if (!BCRYPT_SUCCESS(BCryptOpenAlgorithmProvider(
           &algorithm, BCRYPT_SHA1_ALGORITHM, nullptr, 0))) {
-    throw std::runtime_error("Could not open the CNG SHA-1 provider");
+    throw CryptoError("Could not open the CNG SHA-1 provider");
   }
 
   BCRYPT_HASH_HANDLE hash{nullptr};
   if (!BCRYPT_SUCCESS(
           BCryptCreateHash(algorithm, &hash, nullptr, 0, nullptr, 0, 0))) {
     BCryptCloseAlgorithmProvider(algorithm, 0);
-    throw std::runtime_error("Could not create the CNG SHA-1 hash");
+    throw CryptoError("Could not create the CNG SHA-1 hash");
   }
 
   // The data interface is not const-qualified but never writes through
@@ -57,7 +57,7 @@ auto sha1(const std::string_view input) -> std::string {
   BCryptDestroyHash(hash);
   BCryptCloseAlgorithmProvider(algorithm, 0);
   if (!success) {
-    throw std::runtime_error("Could not compute the CNG SHA-1 digest");
+    throw CryptoError("Could not compute the CNG SHA-1 digest");
   }
 
   return bytes_to_hex(

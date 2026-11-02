@@ -395,8 +395,8 @@ auto oidc_parse_authentication_request(const std::string_view query,
          space_list_contains(result.scope, "openid") &&
          prompt_is_valid(result.prompt) && !result.response_type.empty() &&
          response_type_is_allowed(result.response_type, profile) &&
-         !(response_type_requires_nonce(result.response_type) &&
-           result.nonce.empty()) &&
+         (!response_type_requires_nonce(result.response_type) ||
+          !result.nonce.empty()) &&
          pkce_is_valid(result.code_challenge, result.code_challenge_method,
                        profile) &&
          // A refusable offline_access request must have been dropped above, so

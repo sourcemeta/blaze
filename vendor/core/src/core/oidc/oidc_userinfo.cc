@@ -45,7 +45,7 @@ constexpr Claim CLAIM_SOURCES{
 // value". It names no others, so an empty array or object is a value like any
 // other here and only the aggregated members below read one differently
 auto carries(const sourcemeta::core::JSON &value) -> bool {
-  return !value.is_null() && !(value.is_string() && value.empty());
+  return !value.is_null() && (!value.is_string() || !value.empty());
 }
 
 auto carries(const sourcemeta::core::JSON &claims, const Claim &claim) -> bool {

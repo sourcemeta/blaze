@@ -131,8 +131,8 @@ inline auto openapi_check_paths(const JSON &document, OpenAPIWalk &walk)
     // OpenAPI Specification 3.1.1, Section 4.8.8: "The field name MUST begin
     // with a forward slash (`/`)"
     if (!entry.first.starts_with('/')) {
-      throw OpenAPIError{location,
-                         "The Paths Object keys must begin with a slash"};
+      throw OpenAPIError{"The Paths Object keys must begin with a slash",
+                         location};
     }
 
     // 3.1 says nothing more about the shape of a path than that, while 3.2
@@ -150,17 +150,17 @@ inline auto openapi_check_paths(const JSON &document, OpenAPIWalk &walk)
     // a path template is, and it is read for nothing but the shape
     if (walk.version >= OpenAPIVersion::OPENAPI_3_2) {
       if (!openapi_is_path_template(entry.first)) {
-        throw OpenAPIError{location,
-                           "The Paths Object keys must take the form of a "
-                           "path template"};
+        throw OpenAPIError{"The Paths Object keys must take the form of a "
+                           "path template",
+                           location};
       }
 
       std::set<JSON::StringView> expressions;
       for (const auto &expression : openapi_brace_expressions(entry.first)) {
         if (!expressions.insert(expression).second) {
           throw OpenAPIError{
-              location,
-              "A path template must not repeat a template expression"};
+              "A path template must not repeat a template expression",
+              location};
         }
       }
     }
@@ -171,7 +171,7 @@ inline auto openapi_check_paths(const JSON &document, OpenAPIWalk &walk)
     // there compares one property name against another
     if (!shapes.insert(openapi_path_shape(entry.first)).second) {
       throw OpenAPIError{
-          location, "The Paths Object keys must not repeat a templated path"};
+          "The Paths Object keys must not repeat a templated path", location};
     }
 
     openapi_check_path_item(entry.second, location, walk);

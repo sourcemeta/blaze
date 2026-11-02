@@ -3,7 +3,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME crypto
     sha512.h sha1.h
     fnv128.h
     uuid.h crc32.h base64.h secure.h verify.h sign.h aes_gcm.h aes_cbc_hmac.h
-    aes_kw.h rsa_oaep.h ecdh.h hkdf.h
+    aes_kw.h rsa_oaep.h ecdh.h hkdf.h error.h
   SOURCES crypto_sha256.cc crypto_hmac_sha256.cc crypto_hmac_sha384.cc
     crypto_hmac_sha512.cc
     crypto_sha384.cc
@@ -14,6 +14,8 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT core NAME crypto
     crypto_sha2_64.h crypto_sha256_other.h crypto_random.h crypto_helpers.h
     crypto_der.h crypto_aes.h crypto_kdf.h crypto_hkdf_loop.h)
 
+target_link_libraries(sourcemeta_core_crypto
+  PUBLIC sourcemeta::core::error)
 target_link_libraries(sourcemeta_core_crypto
   PRIVATE sourcemeta::core::text sourcemeta::core::numeric)
 

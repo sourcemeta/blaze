@@ -334,7 +334,7 @@ inline auto embedded_metaschema_link_valid(const sourcemeta::core::JSON &link,
   // newer one as well as for the ones that reserve it in their own right
   const auto keyword{definitions_keyword(base_dialect)};
   if (container != keyword &&
-      !(keyword == "$defs" && container == "definitions")) {
+      (keyword != "$defs" || container != "definitions")) {
     return false;
   }
 

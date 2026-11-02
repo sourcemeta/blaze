@@ -1,3 +1,4 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_hmac_sha384.h>
 #include <sourcemeta/core/crypto_sha384.h>
 
@@ -9,11 +10,10 @@
 
 #include <bcrypt.h> // BCrypt*, BCRYPT_*
 
-#include <array>     // std::array
-#include <cstddef>   // std::size_t
-#include <cstdint>   // std::uint8_t
-#include <limits>    // std::numeric_limits
-#include <stdexcept> // std::runtime_error
+#include <array>   // std::array
+#include <cstddef> // std::size_t
+#include <cstdint> // std::uint8_t
+#include <limits>  // std::numeric_limits
 
 namespace sourcemeta::core {
 
@@ -40,14 +40,14 @@ auto hmac_sha384_digest(const std::string_view key,
   if (!BCRYPT_SUCCESS(
           BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA384_ALGORITHM,
                                       nullptr, BCRYPT_ALG_HANDLE_HMAC_FLAG))) {
-    throw std::runtime_error("Could not open the CNG HMAC-SHA384 provider");
+    throw CryptoError("Could not open the CNG HMAC-SHA384 provider");
   }
 
   BCRYPT_HASH_HANDLE hash{nullptr};
   if (!BCRYPT_SUCCESS(BCryptCreateHash(algorithm, &hash, nullptr, 0, secret,
                                        static_cast<ULONG>(secret_size), 0))) {
     BCryptCloseAlgorithmProvider(algorithm, 0);
-    throw std::runtime_error("Could not create the CNG HMAC-SHA384 hash");
+    throw CryptoError("Could not create the CNG HMAC-SHA384 hash");
   }
 
   // The data interface is not const-qualified but never writes through
@@ -76,7 +76,7 @@ auto hmac_sha384_digest(const std::string_view key,
   BCryptDestroyHash(hash);
   BCryptCloseAlgorithmProvider(algorithm, 0);
   if (!success) {
-    throw std::runtime_error("Could not compute the CNG HMAC-SHA384 digest");
+    throw CryptoError("Could not compute the CNG HMAC-SHA384 digest");
   }
 
   return digest;

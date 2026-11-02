@@ -6,13 +6,14 @@
 
 #include <cstddef>     // std::size_t
 #include <cstdint>     // std::uint16_t
+#include <optional>    // std::optional
 #include <string>      // std::string
 #include <string_view> // std::string_view
 #include <utility>     // std::move
 
 namespace {
 
-constexpr std::string_view HTTP_RESPONSE_TOO_LARGE_MESSAGE{
+constexpr sourcemeta::core::StaticString HTTP_RESPONSE_TOO_LARGE_MESSAGE{
     "The response exceeds the maximum allowed size"};
 
 auto to_nsstring(const std::string_view input) -> NSString * {
@@ -28,7 +29,9 @@ auto to_nsstring(const std::string_view input) -> NSString * {
 // entire response in memory
 @interface SourcemetaCoreHTTPDelegate : NSObject <NSURLSessionDataDelegate>
 @property(nonatomic, assign) sourcemeta::core::HTTPResponse *response;
-@property(nonatomic, assign) std::string *failure;
+@property(nonatomic, assign) std::optional<sourcemeta::core::StaticString>
+    *failure;
+@property(nonatomic, assign) std::string *detail;
 @property(nonatomic, assign) bool *timedOut;
 @property(nonatomic, strong) dispatch_semaphore_t semaphore;
 @property(nonatomic, assign) BOOL hasMaximumResponseSize;
@@ -55,7 +58,9 @@ auto to_nsstring(const std::string_view input) -> NSString * {
 
   self.redirectCount += 1;
   if (self.redirectCount > self.maximumRedirects) {
-    self.failure->assign("The maximum number of redirects was exceeded");
+    *self.failure =
+        sourcemeta::core::StaticString{
+            "The maximum number of redirects was exceeded"};
     [task cancel];
     completion_handler(nil);
     return;
@@ -72,7 +77,7 @@ auto to_nsstring(const std::string_view input) -> NSString * {
       (body->size() > self.maximumResponseSize ||
        static_cast<std::size_t>(data.length) >
            self.maximumResponseSize - body->size())) {
-    self.failure->assign(HTTP_RESPONSE_TOO_LARGE_MESSAGE);
+    *self.failure = HTTP_RESPONSE_TOO_LARGE_MESSAGE;
     [data_task cancel];
     return;
   }
@@ -88,16 +93,22 @@ auto to_nsstring(const std::string_view input) -> NSString * {
     didCompleteWithError:(NSError *)error {
   // A failure recorded while streaming, such as exceeding the maximum
   // response size, takes precedence over the resulting cancellation error
-  if (self.failure->empty()) {
+  if (!self.failure->has_value()) {
     if (error != nil) {
-      self.failure->assign([error.localizedDescription UTF8String]);
+      // The system is the only one that can say what went wrong here, so its
+      // account rides alongside the message rather than replacing it
+      *self.failure =
+          sourcemeta::core::StaticString{"The HTTP request failed"};
+      self.detail->assign([error.localizedDescription UTF8String]);
       // NSURLSession reports an expired timeoutIntervalForRequest and an
       // expired timeoutIntervalForResource with the same code, so which of
       // the two bounds elapsed cannot be recovered here
       *self.timedOut = [error.domain isEqualToString:NSURLErrorDomain] &&
                        error.code == NSURLErrorTimedOut;
     } else if (![task.response isKindOfClass:[NSHTTPURLResponse class]]) {
-      self.failure->assign("The response is not an HTTP response");
+      *self.failure =
+          sourcemeta::core::StaticString{"The response is not an HTTP "
+                                        "response"};
     } else {
       const auto *http_response{(NSHTTPURLResponse *)task.response};
       self.response->status = sourcemeta::core::http_status_from_code(
@@ -129,13 +140,14 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
   // The delegate runs on a background queue, where throwing would
   // terminate the process, so failures are recorded here and thrown
   // from the calling thread once the request settles
-  std::string failure;
+  std::optional<StaticString> failure;
+  std::string detail;
   bool timed_out{false};
 
   @autoreleasepool {
     NSURL *target{[NSURL URLWithString:to_nsstring(this->url_)]};
     if (target == nil) {
-      failure = "Invalid URL";
+      failure = StaticString{"Invalid URL"};
     } else {
       NSMutableURLRequest *url_request{
           [NSMutableURLRequest requestWithURL:target]};
@@ -171,6 +183,7 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
           [[SourcemetaCoreHTTPDelegate alloc] init]};
       delegate.response = &response;
       delegate.failure = &failure;
+      delegate.detail = &detail;
       delegate.timedOut = &timed_out;
       delegate.semaphore = dispatch_semaphore_create(0);
       delegate.hasMaximumResponseSize =
@@ -192,12 +205,13 @@ auto HTTPSystemRequest::send() const -> HTTPResponse {
     }
   }
 
-  if (!failure.empty()) {
+  if (failure.has_value()) {
     if (timed_out) {
       throw HTTPTimeoutError{this->method_, this->url_, this->timeout_};
     }
 
-    throw HTTPError{this->method_, this->url_, failure};
+    throw HTTPError{failure.value(), this->method_, this->url_,
+                    std::move(detail)};
   }
 
   return response;

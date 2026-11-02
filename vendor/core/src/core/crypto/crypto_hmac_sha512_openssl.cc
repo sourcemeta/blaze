@@ -1,13 +1,13 @@
+#include <sourcemeta/core/crypto_error.h>
 #include <sourcemeta/core/crypto_hmac_sha512.h>
 #include <sourcemeta/core/crypto_sha512.h>
 
 #include <openssl/evp.h>  // EVP_sha512
 #include <openssl/hmac.h> // HMAC
 
-#include <array>     // std::array
-#include <cstddef>   // std::size_t
-#include <cstdint>   // std::uint8_t
-#include <stdexcept> // std::runtime_error
+#include <array>   // std::array
+#include <cstddef> // std::size_t
+#include <cstdint> // std::uint8_t
 
 namespace sourcemeta::core {
 
@@ -32,7 +32,7 @@ auto hmac_sha512_digest(const std::string_view key,
   if (HMAC(EVP_sha512(), key_data, static_cast<int>(key_size),
            reinterpret_cast<const unsigned char *>(message.data()),
            message.size(), digest.data(), &length) == nullptr) {
-    throw std::runtime_error("Could not compute HMAC-SHA512 digest");
+    throw CryptoError("Could not compute HMAC-SHA512 digest");
   }
 
   return digest;

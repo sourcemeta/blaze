@@ -122,14 +122,14 @@ inline auto openapi_check_oauth_flow(const JSON &value, const Pointer &base,
       value.try_at("authorizationUrl", OPENAPI_HASH_AUTHORIZATION_URL) !=
           nullptr) {
     throw OpenAPIError{
-        openapi_child(base, "authorizationUrl"sv),
-        "This OAuth Flow Object does not define an authorization URI"};
+        "This OAuth Flow Object does not define an authorization URI",
+        openapi_child(base, "authorizationUrl"sv)};
   }
 
   if (!needs_token_url &&
       value.try_at("tokenUrl", OPENAPI_HASH_TOKEN_URL) != nullptr) {
-    throw OpenAPIError{openapi_child(base, "tokenUrl"sv),
-                       "This OAuth Flow Object does not define a token URI"};
+    throw OpenAPIError{"This OAuth Flow Object does not define a token URI",
+                       openapi_child(base, "tokenUrl"sv)};
   }
 
   // OpenAPI Specification 3.2.1, Section 4.29 scopes `deviceAuthorizationUrl`
@@ -138,15 +138,15 @@ inline auto openapi_check_oauth_flow(const JSON &value, const Pointer &base,
       value.try_at("deviceAuthorizationUrl", OPENAPI_HASH_DEVICE_URL)};
   if (!needs_device_url && device != nullptr) {
     throw OpenAPIError{
-        openapi_child(base, "deviceAuthorizationUrl"sv),
-        "This OAuth Flow Object does not define a device authorization URI"};
+        "This OAuth Flow Object does not define a device authorization URI",
+        openapi_child(base, "deviceAuthorizationUrl"sv)};
   }
 
   if (needs_device_url) {
     if (device == nullptr) {
       throw OpenAPIError{
-          base,
-          "This OAuth Flow Object must declare a device authorization URI"};
+          "This OAuth Flow Object must declare a device authorization URI",
+          base};
     }
 
     openapi_expect_uri_reference(
@@ -160,7 +160,7 @@ inline auto openapi_check_oauth_flow(const JSON &value, const Pointer &base,
       value.try_at("authorizationUrl", OPENAPI_HASH_AUTHORIZATION_URL)};
   if (needs_authorization_url && authorization == nullptr) {
     throw OpenAPIError{
-        base, "This OAuth Flow Object must declare an authorization URI"};
+        "This OAuth Flow Object must declare an authorization URI", base};
   }
 
   if (authorization != nullptr) {
@@ -172,7 +172,7 @@ inline auto openapi_check_oauth_flow(const JSON &value, const Pointer &base,
 
   const auto *token{value.try_at("tokenUrl", OPENAPI_HASH_TOKEN_URL)};
   if (needs_token_url && token == nullptr) {
-    throw OpenAPIError{base, "This OAuth Flow Object must declare a token URI"};
+    throw OpenAPIError{"This OAuth Flow Object must declare a token URI", base};
   }
 
   if (token != nullptr) {
@@ -349,8 +349,8 @@ inline auto openapi_check_security_scheme(const JSON &value,
     }
 
     if (scheme == nullptr) {
-      throw OpenAPIError{
-          base, "An http Security Scheme Object must declare a scheme"};
+      throw OpenAPIError{"An http Security Scheme Object must declare a scheme",
+                         base};
     }
 
     openapi_expect_string(*scheme, base, "scheme"sv,
@@ -435,15 +435,17 @@ inline auto openapi_check_security_scheme_name(const JSON::StringView name,
                                                OpenAPIWalk &walk) -> void {
   if (walk.version < OpenAPIVersion::OPENAPI_3_2) {
     throw OpenAPIError{
-        origin, "The Security Requirement Object must name a declared security "
-                "scheme"};
+        "The Security Requirement Object must name a declared security "
+        "scheme",
+        origin};
   }
 
   const auto target{openapi_reference_target(name, walk)};
   if (!target.has_value()) {
     throw OpenAPIError{
-        origin, "The Security Requirement Object must name a declared security "
-                "scheme or the URI of one"};
+        "The Security Requirement Object must name a declared security "
+        "scheme or the URI of one",
+        origin};
   }
 
   // A name that leads out of the document it was written in is one this does
@@ -496,9 +498,9 @@ inline auto openapi_check_security_requirement(const JSON &value,
     if (walk.version < OpenAPIVersion::OPENAPI_3_1 && !entry.second.empty() &&
         walk.security_schemes_without_scopes.contains(entry.first,
                                                       entry.hash)) {
-      throw OpenAPIError{openapi_child(base, entry.first),
-                         "The Security Requirement Object entry must be empty "
-                         "for a security scheme of this type"};
+      throw OpenAPIError{"The Security Requirement Object entry must be empty "
+                         "for a security scheme of this type",
+                         openapi_child(base, entry.first)};
     }
   }
 }
@@ -506,7 +508,8 @@ inline auto openapi_check_security_requirement(const JSON &value,
 // What comes back is where each Security Requirement Object was recorded, so
 // that an operation can name the requirements in force without repeating them
 inline auto openapi_check_security(const JSON &value, const Pointer &base,
-                                   const char *type_message, OpenAPIWalk &walk)
+                                   const StaticString type_message,
+                                   OpenAPIWalk &walk)
     -> std::vector<JSON::String> {
   openapi_expect_array(value, base, type_message);
   std::vector<JSON::String> result;

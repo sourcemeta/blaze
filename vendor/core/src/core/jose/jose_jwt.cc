@@ -2,12 +2,12 @@
 #include <sourcemeta/core/jose_jwt.h>
 
 #include <sourcemeta/core/crypto.h>
+#include <sourcemeta/core/numeric.h>
 #include <sourcemeta/core/text.h>
 #include <sourcemeta/core/time.h>
 
 #include <chrono>      // std::chrono::duration, std::chrono::system_clock
 #include <optional>    // std::optional, std::nullopt
-#include <stdexcept>   // std::out_of_range
 #include <string_view> // std::string_view
 #include <utility>     // std::move
 
@@ -70,7 +70,7 @@ auto date_claim(const sourcemeta::core::JSON &object,
   double seconds{0};
   try {
     seconds = member->as_real();
-  } catch (const std::out_of_range &) {
+  } catch (const sourcemeta::core::NumericOutOfRangeError &) {
     return std::nullopt;
   }
 

@@ -22,8 +22,8 @@ inline auto openapi_check_external_documentation(const JSON &value,
                                                  OpenAPIWalk &walk) -> void {
   openapi_record(walk, base, OpenAPIObjectKind::ExternalDocumentation);
   if (!value.is_object()) {
-    throw OpenAPIError{base,
-                       "The External Documentation Object must be an object"};
+    throw OpenAPIError{"The External Documentation Object must be an object",
+                       base};
   }
 
   openapi_reject_unknown_fields(

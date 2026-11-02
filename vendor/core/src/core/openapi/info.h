@@ -53,7 +53,7 @@ inline auto openapi_parse_contact(const JSON &value, const Pointer &base,
                                   OpenAPIWalk &walk) -> OpenAPIContact {
   openapi_record(walk, base, OpenAPIObjectKind::Contact);
   if (!value.is_object()) {
-    throw OpenAPIError{base, "The Contact Object must be an object"};
+    throw OpenAPIError{"The Contact Object must be an object", base};
   }
 
   openapi_reject_unknown_fields(
@@ -82,8 +82,8 @@ inline auto openapi_parse_contact(const JSON &value, const Pointer &base,
     const auto address{openapi_expect_string(
         *email, base, "email"sv, "The Contact Object email must be a string")};
     if (!is_email(address)) {
-      throw OpenAPIError{openapi_child(base, "email"sv),
-                         "The Contact Object email must be an email address"};
+      throw OpenAPIError{"The Contact Object email must be an email address",
+                         openapi_child(base, "email"sv)};
     }
 
     result.email = address;
@@ -98,7 +98,7 @@ inline auto openapi_parse_license(const JSON &value, const Pointer &base,
                                   OpenAPIWalk &walk) -> OpenAPILicense {
   openapi_record(walk, base, OpenAPIObjectKind::License);
   if (!value.is_object()) {
-    throw OpenAPIError{base, "The License Object must be an object"};
+    throw OpenAPIError{"The License Object must be an object", base};
   }
 
   openapi_reject_unknown_fields(
@@ -140,7 +140,7 @@ inline auto openapi_parse_license(const JSON &value, const Pointer &base,
   // mutually exclusive of the `url` field"
   if (result.identifier.has_value() && result.url.has_value()) {
     throw OpenAPIError{
-        base, "The License Object identifier and URI are mutually exclusive"};
+        "The License Object identifier and URI are mutually exclusive", base};
   }
 
   return result;
@@ -159,7 +159,7 @@ inline auto openapi_parse_info(const JSON &document, OpenAPIWalk &walk)
   const Pointer base{"info"};
   openapi_record(walk, base, OpenAPIObjectKind::Info);
   if (!value.is_object()) {
-    throw OpenAPIError{base, "The Info Object must be an object"};
+    throw OpenAPIError{"The Info Object must be an object", base};
   }
 
   openapi_reject_unknown_fields(value, OPENAPI_INFO_FIELDS, base,

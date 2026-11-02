@@ -301,9 +301,9 @@ inline auto openapi_follow_target(const URI &target, const Pointer &origin,
 
   if (!names_a_fragment && walk.document != nullptr &&
       openapi_has_version_field(*walk.document)) {
-    throw OpenAPIError{walk.base, origin,
-                       "This reference must name a document that holds only "
-                       "what the reference expects"};
+    throw OpenAPIError{"This reference must name a document that holds only "
+                       "what the reference expects",
+                       walk.base, origin};
   }
 
   openapi_follow_internal_reference(target, names_a_fragment, expected, walk);
@@ -365,8 +365,8 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
     // Section 4.2: "An OpenAPI Document that conforms to the OpenAPI
     // Specification is itself a JSON object"
     if (!document.is_object()) {
-      throw OpenAPIError{EMPTY_POINTER,
-                         "The OpenAPI Description must be an object"};
+      throw OpenAPIError{"The OpenAPI Description must be an object",
+                         EMPTY_POINTER};
     }
 
     // Section 4.8.1: "openapi | string | REQUIRED"
@@ -375,14 +375,14 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
         "The OpenAPI Description must declare its version")};
 
     if (!version.is_string()) {
-      throw OpenAPIError{Pointer{"openapi"},
-                         "The OpenAPI version must be a string"};
+      throw OpenAPIError{"The OpenAPI version must be a string",
+                         Pointer{"openapi"}};
     }
 
     const auto revision{openapi_version(document)};
     if (!revision.has_value()) {
-      throw OpenAPIError{Pointer{"openapi"},
-                         "Unsupported OpenAPI Specification version"};
+      throw OpenAPIError{"Unsupported OpenAPI Specification version",
+                         Pointer{"openapi"}};
     }
 
     // Every field table below is the one this document's own revision
@@ -484,8 +484,8 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
     // one reaches is held to it alike
     if (walk.version < OpenAPIVersion::OPENAPI_3_1 &&
         document.try_at("paths", OPENAPI_HASH_PATHS) == nullptr) {
-      throw OpenAPIError{EMPTY_POINTER,
-                         "The OpenAPI Object must declare paths"};
+      throw OpenAPIError{"The OpenAPI Object must declare paths",
+                         EMPTY_POINTER};
     }
 
     // OpenAPI Specification 3.2.1, Section 4.1 binds every document that holds
@@ -504,8 +504,8 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
         document.try_at("components", OPENAPI_HASH_COMPONENTS) == nullptr &&
         document.try_at("webhooks", OPENAPI_HASH_WEBHOOKS) == nullptr) {
       throw OpenAPIError{
-          EMPTY_POINTER,
-          "The OpenAPI Description must declare paths, components or webhooks"};
+          "The OpenAPI Description must declare paths, components or webhooks",
+          EMPTY_POINTER};
     }
 
     // What the frame reports is what the entry document says, and an entry
@@ -575,7 +575,7 @@ inline auto openapi_check_document(const JSON &document, OpenAPIWalk &walk)
       throw;
     }
 
-    throw OpenAPIError{walk.base, error.location(), error.what()};
+    throw OpenAPIError{error.message(), walk.base, error.location()};
   }
 }
 
@@ -671,8 +671,8 @@ inline auto openapi_check_schema_positions(const OpenAPIWalk &walk) -> void {
       if (enclosing != walk.locations.cend() &&
           enclosing->second.type == OpenAPIObjectKind::Schema) {
         throw OpenAPIError{
-            walk.base, location.second.pointer,
-            "A Schema Object must not sit within another Schema Object"};
+            "A Schema Object must not sit within another Schema Object",
+            walk.base, location.second.pointer};
       }
     }
   }

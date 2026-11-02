@@ -82,8 +82,8 @@ auto pending(const sourcemeta::core::OpenAPIWalk &walk)
     if (sourcemeta::core::openapi_within_document(entry.second.destination,
                                                   walk.base)) {
       throw sourcemeta::core::OpenAPIReferenceError{
-          walk.base, entry.second.origin, entry.second.destination,
-          "This reference must name a place within the document it points at"};
+          "This reference must name a place within the document it points at",
+          walk.base, entry.second.origin, entry.second.destination};
     }
 
     result.push_back({.origin = entry.second.origin,
@@ -107,9 +107,9 @@ auto pending(const sourcemeta::core::OpenAPIWalk &walk)
     if (sourcemeta::core::openapi_within_document(entry.second.destination,
                                                   walk.base)) {
       throw sourcemeta::core::OpenAPIReferenceError{
-          walk.base, entry.second.origin, entry.second.destination,
           "This security requirement must name a Security Scheme Object "
-          "within the document it points at"};
+          "within the document it points at",
+          walk.base, entry.second.origin, entry.second.destination};
     }
 
     result.push_back({.origin = entry.second.origin,
@@ -905,10 +905,10 @@ auto bundle_schemas(sourcemeta::core::JSON &document,
     if (result.has_value() &&
         sourcemeta::core::openapi_has_version_field(result.value())) {
       throw sourcemeta::core::OpenAPIReferenceError{
-          base, sourcemeta::core::EMPTY_POINTER,
-          sourcemeta::core::JSON::String{identifier},
           "This reference must name a schema rather than a document that "
-          "holds an OpenAPI Description"};
+          "holds an OpenAPI Description",
+          base, sourcemeta::core::EMPTY_POINTER,
+          sourcemeta::core::JSON::String{identifier}};
     }
 
     // A schema that says nothing about the dialect it is written against is
@@ -921,9 +921,9 @@ auto bundle_schemas(sourcemeta::core::JSON &document,
     // one of those is no schema of this description to bring in
     if (result.has_value() && result.value().is_boolean() && !booleans) {
       throw sourcemeta::core::OpenAPIReferenceError{
-          base, sourcemeta::core::EMPTY_POINTER,
-          sourcemeta::core::JSON::String{identifier},
-          "A Schema Object must be an object"};
+          "A Schema Object must be an object", base,
+          sourcemeta::core::EMPTY_POINTER,
+          sourcemeta::core::JSON::String{identifier}};
     }
 
     // Schema bundling restates a boolean as the object saying the same thing
@@ -1375,10 +1375,11 @@ auto absolutize(JSON &value, const OpenAPIWalk &remote, const Pointer &origin,
       // key that holds one list of scopes rather than two
       const auto *taken{rebuilt.try_at(name)};
       if (taken != nullptr && *taken != member.second) {
-        throw OpenAPIError{remote.base, held.concat(JSON::String{member.first}),
-                           "A Security Requirement Object that names one "
+        throw OpenAPIError{"A Security Requirement Object that names one "
                            "security scheme twice over cannot keep a list of "
-                           "scopes for each of them"};
+                           "scopes for each of them",
+                           remote.base,
+                           held.concat(JSON::String{member.first})};
       }
 
       rebuilt.assign(name, member.second);
@@ -1414,10 +1415,10 @@ auto absolutize(JSON &value, const OpenAPIWalk &remote, const Pointer &origin,
             try_get(value, relative.concat(JSON::String{"variables"})))};
         if (!address.has_value()) {
           throw OpenAPIError{
-              remote.base, entry.second.pointer.concat(JSON::String{"url"}),
               "A Server Object URL template that leaves what it is "
               "relative to for its variables to decide cannot be read "
-              "from another document"};
+              "from another document",
+              remote.base, entry.second.pointer.concat(JSON::String{"url"})};
         }
 
         set(value, held, JSON{std::move(address.value())});
@@ -1773,9 +1774,9 @@ auto adopt_mappings(
     // undefined
     if (openapi_has_version_field(resolved.value())) {
       throw OpenAPIReferenceError{
-          base, entry.second.front().origin, identifier,
           "This mapping must name a schema rather than a document that holds "
-          "an OpenAPI Description"};
+          "an OpenAPI Description",
+          base, entry.second.front().origin, identifier};
     }
 
     auto schema{std::move(resolved).to_owned()};
@@ -1785,8 +1786,8 @@ auto adopt_mappings(
     // what a resolver hands back is no different
     if (!schema.is_object() && !schema.is_boolean()) {
       throw OpenAPIReferenceError{
-          base, entry.second.front().origin, identifier,
-          "A Schema Object must be an object or a boolean"};
+          "A Schema Object must be an object or a boolean", base,
+          entry.second.front().origin, identifier};
     }
 
     // What a schema answers to is its own to say. JSON Schema 2020-12
@@ -1820,9 +1821,9 @@ auto adopt_mappings(
       // read, which is a different complaint from naming the wrong kind of
       // document altogether
       throw OpenAPIReferenceError{
-          base, entry.second.front().origin, identifier,
           "This mapping must name a schema written against a dialect that is "
-          "possible to determine"};
+          "possible to determine",
+          base, entry.second.front().origin, identifier};
     }
 
     charge(remaining, root.value().location_count());
@@ -2026,9 +2027,9 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
         // from being reported as a document that could not be fetched
         if (reference.requirement) {
           throw OpenAPIReferenceError{
-              base, reference.origin, reference.destination,
               "This security requirement must name a Security Scheme Object "
-              "within the document it points at"};
+              "within the document it points at",
+              base, reference.origin, reference.destination};
         }
 
         // Everything else goes on to have its document read, so that a
@@ -2059,8 +2060,8 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
           }
 
           throw OpenAPIResolutionError{
-              base, reference.origin, identifier,
-              "Could not resolve the reference to an external document"};
+              "Could not resolve the reference to an external document", base,
+              reference.origin, identifier};
         }
 
         auto candidate{std::move(resolved).to_owned()};
@@ -2105,9 +2106,9 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
             continue;
           }
 
-          throw OpenAPIReferenceError{base, reference.origin, identifier,
-                                      "This reference must name a document "
-                                      "that holds an OpenAPI Description"};
+          throw OpenAPIReferenceError{"This reference must name a document "
+                                      "that holds an OpenAPI Description",
+                                      base, reference.origin, identifier};
         }
 
         // Nothing in the specification asks for this. It says what a
@@ -2133,9 +2134,9 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
         const auto revision{openapi_version(candidate)};
         if (revision.has_value() && revision.value() != walk.version) {
           throw OpenAPIReferenceError{
-              base, reference.origin, identifier,
               "This reference must name a document of the same OpenAPI "
-              "Specification revision"};
+              "Specification revision",
+              base, reference.origin, identifier};
         }
 
         // The walk keeps a view into the document it read, so the document
@@ -2180,10 +2181,10 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
           continue;
         }
 
-        throw OpenAPIReferenceError{base, reference.origin,
-                                    reference.destination,
-                                    "This reference must name a place within "
-                                    "the document it points at"};
+        throw OpenAPIReferenceError{"This reference must name a place within "
+                                    "the document it points at",
+                                    base, reference.origin,
+                                    reference.destination};
       }
 
       const auto &remote_document{documents.at(identifier)};
@@ -2197,9 +2198,9 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
       // place the result does not hold
       if (!lands(remote, remote.base, spelled, reference.expected)) {
         throw OpenAPIReferenceError{
-            base, reference.origin, reference.destination,
             "This reference must name an Object of the kind that the "
-            "position it sits in expects"};
+            "position it sits in expects",
+            base, reference.origin, reference.destination};
       }
 
       // An Operation Object is the one kind the Components Object has no home
@@ -2234,8 +2235,8 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
         const auto within{openapi_location_uri(base, host)};
         if (!inlined[within].insert(key).second) {
           throw OpenAPIError{
-              base, reference.origin,
-              "The Path Item Object references must not form a cycle"};
+              "The Path Item Object references must not form a cycle", base,
+              reference.origin};
         }
 
         inline_path_item(document, remote_document, remote, origin, host, key,
@@ -2251,9 +2252,9 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
       if (names_an_operation &&
           !openapi_components_hold_path_items(walk.version)) {
         throw OpenAPIReferenceError{
-            base, reference.origin, reference.destination,
             "This revision has nowhere to hold the Path Item Object that "
-            "holds the operation this reference names"};
+            "holds the operation this reference names",
+            base, reference.origin, reference.destination};
       }
 
       const auto container{
@@ -2287,10 +2288,10 @@ auto bundle_internal(JSON &document, const SchemaWalker &walker,
         JSON::String name{landed.back().to_property()};
         const auto *taken{requirement.try_at(name)};
         if (taken != nullptr && *taken != requirement.at(member)) {
-          throw OpenAPIError{base, reference.origin,
-                             "A Security Requirement Object that names one "
+          throw OpenAPIError{"A Security Requirement Object that names one "
                              "security scheme twice over cannot keep a list of "
-                             "scopes for each of them"};
+                             "scopes for each of them",
+                             base, reference.origin};
         }
 
         requirement.rename(member, std::move(name));

@@ -44,7 +44,7 @@ inline auto openapi_check_response(const JSON &value, const Pointer &base,
   const auto *description{
       value.try_at("description", OPENAPI_HASH_DESCRIPTION)};
   if (description == nullptr && walk.version < OpenAPIVersion::OPENAPI_3_2) {
-    throw OpenAPIError{base, "The Response Object must declare a description"};
+    throw OpenAPIError{"The Response Object must declare a description", base};
   }
 
   if (description != nullptr) {
@@ -115,7 +115,7 @@ inline auto openapi_check_responses(const JSON &value, const Pointer &base,
   // answers for a response here, and only an Object answering for none at all
   // is turned down
   if (value.empty()) {
-    throw OpenAPIError{base, "The Responses Object must not be empty"};
+    throw OpenAPIError{"The Responses Object must not be empty", base};
   }
 
   bool answers_for_a_response{false};
@@ -132,9 +132,9 @@ inline auto openapi_check_responses(const JSON &value, const Pointer &base,
     }
 
     if (!openapi_is_status_code(entry.first)) {
-      throw OpenAPIError{location,
-                         "The Responses Object keys must be an HTTP status "
-                         "code or a status code range"};
+      throw OpenAPIError{"The Responses Object keys must be an HTTP status "
+                         "code or a status code range",
+                         location};
     }
 
     answers_for_a_response = true;
@@ -143,7 +143,7 @@ inline auto openapi_check_responses(const JSON &value, const Pointer &base,
 
   if (!answers_for_a_response) {
     throw OpenAPIError{
-        base, "The Responses Object must declare a status code or a default"};
+        "The Responses Object must declare a status code or a default", base};
   }
 }
 

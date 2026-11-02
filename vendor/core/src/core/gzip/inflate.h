@@ -8,8 +8,9 @@
 #include <array>     // std::array
 #include <bit>       // std::endian, std::byteswap, std::countl_zero
 #include <cstddef>   // std::size_t
-#include <cstdint> // std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t
-#include <cstring> // std::memcpy, std::memset, std::memchr
+#include <cstdint>  // std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t
+#include <cstring>  // std::memcpy, std::memset, std::memchr
+#include <optional> // std::optional, std::nullopt
 #include <string_view> // std::string_view
 #include <utility>     // std::cmp_greater
 
@@ -425,15 +426,14 @@ inline auto inflate_make_entry(const std::uint32_t result,
 }
 
 // Builds a decode table from a sequence of code lengths as per RFC 1951
-// section 3.2.2, returning a null pointer on success or the reason the code
+// section 3.2.2, returning no value on success or the reason the code
 // is invalid. Codewords are read starting from their most significant bit
 // while the input is packed starting from the least significant bit, so every
 // index is the bit reversal of the codeword
-inline auto inflate_build_table(const std::uint8_t *lengths,
-                                const std::size_t symbol_count,
-                                const std::uint32_t *results,
-                                const unsigned int table_bits,
-                                std::uint32_t *table) -> const char * {
+inline auto
+inflate_build_table(const std::uint8_t *lengths, const std::size_t symbol_count,
+                    const std::uint32_t *results, const unsigned int table_bits,
+                    std::uint32_t *table) -> std::optional<StaticString> {
   std::array<std::uint16_t, INFLATE_MAXIMUM_CODEWORD_LENGTH + 1> counts{};
   for (std::size_t symbol = 0; symbol < symbol_count; ++symbol) {
     counts[lengths[symbol]] += 1;
@@ -446,7 +446,7 @@ inline auto inflate_build_table(const std::uint8_t *lengths,
     remaining_codespace <<= 1;
     remaining_codespace -= counts[length];
     if (remaining_codespace < 0) {
-      return "Over-subscribed Huffman code";
+      return StaticString{"Over-subscribed Huffman code"};
     }
   }
 
@@ -455,7 +455,7 @@ inline auto inflate_build_table(const std::uint8_t *lengths,
     // RFC 1951 section 3.2.7 only sanctions an incomplete code that is empty
     // or that holds a single codeword of one bit
     if (used_symbols > 1 || (used_symbols == 1 && counts[1] != 1)) {
-      return "Incomplete Huffman code";
+      return StaticString{"Incomplete Huffman code"};
     }
 
     const std::uint32_t invalid{INFLATE_ENTRY_EXCEPTIONAL |
@@ -491,7 +491,7 @@ inline auto inflate_build_table(const std::uint8_t *lengths,
       }
     }
 
-    return nullptr;
+    return std::nullopt;
   }
 
   // Walks the codewords in canonical order while keeping them bit reversed,
@@ -520,7 +520,7 @@ inline auto inflate_build_table(const std::uint8_t *lengths,
           table_end <<= 1;
         }
 
-        return nullptr;
+        return std::nullopt;
       }
 
       const auto flipped{codeword ^ static_cast<std::uint32_t>(table_end - 1)};
@@ -572,7 +572,7 @@ inline auto inflate_build_table(const std::uint8_t *lengths,
 
     const std::uint32_t last{(std::uint32_t{1} << length) - 1};
     if (codeword == last) {
-      return nullptr;
+      return std::nullopt;
     }
 
     const auto flipped{codeword ^ last};
@@ -799,8 +799,8 @@ private:
 
   // Reports the input as truncated when the bits that led to the error were
   // not all real input, as the error may only be an artifact of the padding
-  [[noreturn]] auto fail(const char *message, const long long bits_needed) const
-      -> void {
+  [[noreturn]] auto fail(const StaticString message,
+                         const long long bits_needed) const -> void {
     if (this->real_bits() < bits_needed) {
       unexpected_end();
     }
@@ -1216,12 +1216,12 @@ private:
           static_cast<std::uint8_t>(this->read_bits(buffers, 3));
     }
 
-    const auto *code_length_error{inflate_build_table(
+    const auto code_length_error{inflate_build_table(
         code_length_lengths.data(), code_length_lengths.size(),
         INFLATE_CODE_LENGTH_RESULTS.data(), INFLATE_CODE_LENGTH_TABLE_BITS,
         this->code_length_table_.data())};
-    if (code_length_error != nullptr) {
-      this->fail(code_length_error, 0);
+    if (code_length_error.has_value()) {
+      this->fail(code_length_error.value(), 0);
     }
 
     std::array<std::uint8_t,
@@ -1272,20 +1272,20 @@ private:
     }
 
     this->check_not_overread();
-    const auto *literal_length_error{inflate_build_table(
+    const auto literal_length_error{inflate_build_table(
         lengths.data(), literal_length_count,
         INFLATE_LITERAL_LENGTH_RESULTS.data(),
         INFLATE_LITERAL_LENGTH_TABLE_BITS, this->literal_length_table_.data())};
-    if (literal_length_error != nullptr) {
-      throw GZIPError{literal_length_error};
+    if (literal_length_error.has_value()) {
+      throw GZIPError{literal_length_error.value()};
     }
 
-    const auto *distance_error{inflate_build_table(
+    const auto distance_error{inflate_build_table(
         lengths.data() + literal_length_count, distance_count,
         INFLATE_DISTANCE_RESULTS.data(), INFLATE_DISTANCE_TABLE_BITS,
         this->distance_table_.data())};
-    if (distance_error != nullptr) {
-      throw GZIPError{distance_error};
+    if (distance_error.has_value()) {
+      throw GZIPError{distance_error.value()};
     }
 
     this->fixed_tables_ = false;

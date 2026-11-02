@@ -32,7 +32,7 @@ inline auto openapi_check_tag(const JSON &value, const Pointer &base,
                               OpenAPIWalk &walk) -> JSON::StringView {
   openapi_record(walk, base, OpenAPIObjectKind::Tag);
   if (!value.is_object()) {
-    throw OpenAPIError{base, "The Tag Object must be an object"};
+    throw OpenAPIError{"The Tag Object must be an object", base};
   }
 
   openapi_reject_unknown_fields(
@@ -126,7 +126,7 @@ inline auto openapi_check_tags(const JSON &document, OpenAPIWalk &walk)
 
   const Pointer base{"tags"};
   if (!tags->is_array()) {
-    throw OpenAPIError{base, "The OpenAPI Description tags must be an array"};
+    throw OpenAPIError{"The OpenAPI Description tags must be an array", base};
   }
 
   // Uniqueness is stated in the prose alone. The published meta-schema says
@@ -138,8 +138,8 @@ inline auto openapi_check_tags(const JSON &document, OpenAPIWalk &walk)
     const auto location{openapi_child(base, index)};
     const auto name{openapi_check_tag(tag, location, walk)};
     if (!names.insert(name).second) {
-      throw OpenAPIError{openapi_child(location, "name"sv),
-                         "The OpenAPI Description tag names must be unique"};
+      throw OpenAPIError{"The OpenAPI Description tag names must be unique",
+                         openapi_child(location, "name"sv)};
     }
 
     index += 1;

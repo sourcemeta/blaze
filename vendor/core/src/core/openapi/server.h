@@ -43,7 +43,7 @@ inline auto openapi_check_server_variable(const JSON &value,
                                           OpenAPIWalk &walk) -> void {
   openapi_record(walk, base, OpenAPIObjectKind::ServerVariable);
   if (!value.is_object()) {
-    throw OpenAPIError{base, "The Server Variable Object must be an object"};
+    throw OpenAPIError{"The Server Variable Object must be an object", base};
   }
 
   openapi_reject_unknown_fields(
@@ -57,8 +57,8 @@ inline auto openapi_check_server_variable(const JSON &value,
   if (enumeration != nullptr) {
     if (!enumeration->is_array()) {
       throw OpenAPIError{
-          openapi_child(base, "enum"sv),
-          "The Server Variable Object enumeration must be an array"};
+          "The Server Variable Object enumeration must be an array",
+          openapi_child(base, "enum"sv)};
     }
 
     // 3.0 asks for the same thing without requiring it. Its first three
@@ -69,8 +69,8 @@ inline auto openapi_check_server_variable(const JSON &value,
     // and turning one down there would refuse a document the revision admits
     if (walk.version >= OpenAPIVersion::OPENAPI_3_1 && enumeration->empty()) {
       throw OpenAPIError{
-          openapi_child(base, "enum"sv),
-          "The Server Variable Object enumeration must not be empty"};
+          "The Server Variable Object enumeration must not be empty",
+          openapi_child(base, "enum"sv)};
     }
 
     const auto enumeration_base{openapi_child(base, "enum"sv)};
@@ -78,8 +78,8 @@ inline auto openapi_check_server_variable(const JSON &value,
     for (const auto &option : enumeration->as_array()) {
       if (!option.is_string()) {
         throw OpenAPIError{
-            openapi_child(enumeration_base, index),
-            "The Server Variable Object enumeration must only hold strings"};
+            "The Server Variable Object enumeration must only hold strings",
+            openapi_child(enumeration_base, index)};
       }
 
       index += 1;
@@ -115,8 +115,8 @@ inline auto openapi_check_server_variable(const JSON &value,
                              return option.to_string() == default_value;
                            })) {
     throw OpenAPIError{
-        openapi_child(base, "default"sv),
-        "The Server Variable Object default must exist in its enumeration"};
+        "The Server Variable Object default must exist in its enumeration",
+        openapi_child(base, "default"sv)};
   }
 }
 
@@ -419,7 +419,7 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
                                  OpenAPIWalk &walk) -> void {
   openapi_record(walk, base, OpenAPIObjectKind::Server);
   if (!value.is_object()) {
-    throw OpenAPIError{base, "The Server Object must be an object"};
+    throw OpenAPIError{"The Server Object must be an object", base};
   }
 
   openapi_reject_unknown_fields(
@@ -456,8 +456,8 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
       (address.find('?') != JSON::StringView::npos ||
        address.find('#') != JSON::StringView::npos)) {
     throw OpenAPIError{
-        openapi_child(base, "url"sv),
-        "The Server Object URL must carry no query and no fragment"};
+        "The Server Object URL must carry no query and no fragment",
+        openapi_child(base, "url"sv)};
   }
 
   // 3.1 says nothing more about the shape of the template, while Section 4.6
@@ -481,16 +481,16 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
   // until now, so it waits for a release that can carry it
   if (walk.version >= OpenAPIVersion::OPENAPI_3_2) {
     if (!openapi_is_server_url_template(address)) {
-      throw OpenAPIError{openapi_child(base, "url"sv),
-                         "The Server Object URL must take the form of a "
-                         "server URL template"};
+      throw OpenAPIError{"The Server Object URL must take the form of a "
+                         "server URL template",
+                         openapi_child(base, "url"sv)};
     }
 
     std::set<JSON::StringView> names;
     for (const auto &variable : openapi_brace_expressions(address)) {
       if (!names.insert(variable).second) {
-        throw OpenAPIError{openapi_child(base, "url"sv),
-                           "A server URL template must not repeat a variable"};
+        throw OpenAPIError{"A server URL template must not repeat a variable",
+                           openapi_child(base, "url"sv)};
       }
     }
   }
@@ -509,8 +509,8 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
       value.try_at("variables", OPENAPI_HASH_SERVER_VARIABLES)};
   if (variables != nullptr) {
     if (!variables->is_object()) {
-      throw OpenAPIError{openapi_child(base, "variables"sv),
-                         "The Server Object variables must be an object"};
+      throw OpenAPIError{"The Server Object variables must be an object",
+                         openapi_child(base, "variables"sv)};
     }
 
     const auto variables_base{openapi_child(base, "variables"sv)};
@@ -525,7 +525,8 @@ inline auto openapi_check_server(const JSON &value, const Pointer &base,
 // back is where each Server Object was recorded, which is how an operation
 // names the servers in force where it sits without repeating them
 inline auto openapi_check_server_array(const JSON &value, const Pointer &base,
-                                       const char *message, OpenAPIWalk &walk)
+                                       const StaticString message,
+                                       OpenAPIWalk &walk)
     -> std::vector<JSON::String> {
   openapi_expect_array(value, base, message);
   std::vector<JSON::String> result;
