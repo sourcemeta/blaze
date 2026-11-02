@@ -12,6 +12,20 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
+namespace {
+
+// A callback that does nothing at all, to separate the cost of the callback
+// plumbing the evaluator sets up from the cost of what an output class then
+// makes of the events
+auto noop_callback(const sourcemeta::blaze::EvaluationType, const bool,
+                   const sourcemeta::blaze::Instruction &,
+                   const sourcemeta::blaze::InstructionExtra &,
+                   const sourcemeta::core::WeakPointer &,
+                   const sourcemeta::core::WeakPointer &,
+                   const sourcemeta::core::JSON &) -> void {}
+
+} // namespace
+
 BENCHMARK(Micro_2020_12_Dynamic_Ref) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$id": "https://example.com",
@@ -172,6 +186,146 @@ BENCHMARK(Micro_2020_12_Simple_Output_Mask) {
   }
 }
 
+BENCHMARK(Micro_2020_12_Simple_Output_Mask_Control) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "data": {
+        "oneOf": [
+          {
+            "anyOf": [
+              { "type": "string", "minLength": 100 },
+              { "type": "number", "minimum": 1000 },
+              { "type": "boolean" }
+            ]
+          },
+          {
+            "anyOf": [
+              { "type": "string", "pattern": "^[A-Z]+$" },
+              { "type": "array", "minItems": 50 },
+              { "type": "object", "required": ["x", "y", "z"] }
+            ]
+          },
+          {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "integer", "multipleOf": 7 },
+              { "type": "string", "maxLength": 2 }
+            ]
+          },
+          {
+            "type": "array",
+            "contains": {
+              "oneOf": [
+                { "type": "string", "minLength": 20 },
+                { "type": "number", "minimum": 100 },
+                { "const": "special" }
+              ]
+            },
+            "minContains": 3
+          },
+          {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                { "type": "number", "maximum": 50 },
+                { "type": "string", "maxLength": 10 }
+              ]
+            },
+            "minItems": 1
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "data": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "a", "b", "c", "d", "e" ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto iteration : state) {
+    auto result{evaluator.validate(schema_template, instance)};
+    assert(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
+  }
+}
+
+BENCHMARK(Micro_2020_12_Simple_Output_Mask_Noop) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "data": {
+        "oneOf": [
+          {
+            "anyOf": [
+              { "type": "string", "minLength": 100 },
+              { "type": "number", "minimum": 1000 },
+              { "type": "boolean" }
+            ]
+          },
+          {
+            "anyOf": [
+              { "type": "string", "pattern": "^[A-Z]+$" },
+              { "type": "array", "minItems": 50 },
+              { "type": "object", "required": ["x", "y", "z"] }
+            ]
+          },
+          {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "integer", "multipleOf": 7 },
+              { "type": "string", "maxLength": 2 }
+            ]
+          },
+          {
+            "type": "array",
+            "contains": {
+              "oneOf": [
+                { "type": "string", "minLength": 20 },
+                { "type": "number", "minimum": 100 },
+                { "const": "special" }
+              ]
+            },
+            "minContains": 3
+          },
+          {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                { "type": "number", "maximum": 50 },
+                { "type": "string", "maxLength": 10 }
+              ]
+            },
+            "minItems": 1
+          }
+        ]
+      }
+    }
+  })JSON")};
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "data": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "a", "b", "c", "d", "e" ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto iteration : state) {
+    auto result{evaluator.validate(schema_template, instance, noop_callback)};
+    assert(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
+  }
+}
+
 BENCHMARK(Micro_2020_12_Simple_Output_Annotations) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -293,6 +447,156 @@ BENCHMARK(Micro_2020_12_Simple_Output_Annotation_Dropping) {
   }
 }
 
+BENCHMARK(Micro_2020_12_Simple_Output_Annotation_Dropping_Control) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": {
+      "oneOf": [
+        {
+          "type": "string",
+          "title": "String branch",
+          "description": "This branch matches string values"
+        },
+        {
+          "type": "integer",
+          "title": "Integer branch",
+          "description": "This branch matches integer values"
+        },
+        {
+          "type": "boolean",
+          "title": "Boolean branch",
+          "description": "This branch matches boolean values"
+        },
+        {
+          "type": "object",
+          "title": "Object branch",
+          "description": "This branch matches object values"
+        },
+        {
+          "type": "array",
+          "title": "Array branch",
+          "description": "This branch matches array values"
+        }
+      ]
+    }
+  })JSON")};
+
+  // Every element matches exactly one branch, so the array validates, but the
+  // four losing branches each collect a title and a description annotation that
+  // are then dropped. Exhaustive mode forces every branch to run, so this
+  // stresses the annotation collection and retraction path heavily
+  auto instance{sourcemeta::core::JSON::make_array()};
+  for (std::size_t index = 0; index < 512; index += 1) {
+    switch (index % 5) {
+      case 0:
+        instance.push_back(
+            sourcemeta::core::JSON{sourcemeta::core::JSON::String{"text"}});
+        break;
+      case 1:
+        instance.push_back(
+            sourcemeta::core::JSON{static_cast<std::int64_t>(index)});
+        break;
+      case 2:
+        instance.push_back(sourcemeta::core::JSON{index % 2 == 0});
+        break;
+      case 3:
+        instance.push_back(sourcemeta::core::JSON::make_object());
+        break;
+      default:
+        instance.push_back(sourcemeta::core::JSON::make_array());
+        break;
+    }
+  }
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto iteration : state) {
+    auto result{evaluator.validate(schema_template, instance)};
+    assert(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
+  }
+}
+
+BENCHMARK(Micro_2020_12_Simple_Output_Annotation_Dropping_Noop) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": {
+      "oneOf": [
+        {
+          "type": "string",
+          "title": "String branch",
+          "description": "This branch matches string values"
+        },
+        {
+          "type": "integer",
+          "title": "Integer branch",
+          "description": "This branch matches integer values"
+        },
+        {
+          "type": "boolean",
+          "title": "Boolean branch",
+          "description": "This branch matches boolean values"
+        },
+        {
+          "type": "object",
+          "title": "Object branch",
+          "description": "This branch matches object values"
+        },
+        {
+          "type": "array",
+          "title": "Array branch",
+          "description": "This branch matches array values"
+        }
+      ]
+    }
+  })JSON")};
+
+  // Every element matches exactly one branch, so the array validates, but the
+  // four losing branches each collect a title and a description annotation that
+  // are then dropped. Exhaustive mode forces every branch to run, so this
+  // stresses the annotation collection and retraction path heavily
+  auto instance{sourcemeta::core::JSON::make_array()};
+  for (std::size_t index = 0; index < 512; index += 1) {
+    switch (index % 5) {
+      case 0:
+        instance.push_back(
+            sourcemeta::core::JSON{sourcemeta::core::JSON::String{"text"}});
+        break;
+      case 1:
+        instance.push_back(
+            sourcemeta::core::JSON{static_cast<std::int64_t>(index)});
+        break;
+      case 2:
+        instance.push_back(sourcemeta::core::JSON{index % 2 == 0});
+        break;
+      case 3:
+        instance.push_back(sourcemeta::core::JSON::make_object());
+        break;
+      default:
+        instance.push_back(sourcemeta::core::JSON::make_array());
+        break;
+    }
+  }
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto iteration : state) {
+    auto result{evaluator.validate(schema_template, instance, noop_callback)};
+    assert(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
+  }
+}
+
 BENCHMARK(Micro_2020_12_Compile_NonCircular_Shared_Refs) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -399,6 +703,26 @@ BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput) {
   }
 }
 
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Noop) {
+  const auto schema{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
+      "2020_12_trace_deep_numeric.json")};
+  const auto instance{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
+      "2020_12_deep_numeric.json")};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto iteration : state) {
+    auto result{evaluator.validate(schema_template, instance, noop_callback)};
+    assert(result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
+  }
+}
+
 BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput) {
   const auto schema{sourcemeta::core::read_json(
       std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
@@ -462,6 +786,26 @@ BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput) {
     sourcemeta::blaze::SimpleOutput output{schema_template, instance};
     auto result{
         evaluator.validate(schema_template, instance, std::ref(output))};
+    assert(!result);
+    sourcemeta::core::benchmark_do_not_optimize(result);
+  }
+}
+
+BENCHMARK(Micro_2020_12_Exhaustive_Deep_Numeric_Fail_Noop) {
+  const auto schema{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "schemas" /
+      "2020_12_trace_deep_numeric.json")};
+  const auto instance{sourcemeta::core::read_json(
+      std::filesystem::path{CURRENT_DIRECTORY} / "micro" / "instances" /
+      "2020_12_deep_numeric_invalid.json")};
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::Exhaustive)};
+  sourcemeta::blaze::Evaluator evaluator;
+  for (auto iteration : state) {
+    auto result{evaluator.validate(schema_template, instance, noop_callback)};
     assert(!result);
     sourcemeta::core::benchmark_do_not_optimize(result);
   }
