@@ -1,0 +1,65 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "writeOnly": true,
+    "if": { "type": "string", "minLength": 5 },
+    "then": { "type": "string", "pattern": "^[a-z]+$" },
+    "else": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/5" }
+        ]
+      },
+      "1": {
+        "if": { "$ref": "#/definitions/3" },
+        "then": { "$ref": "#/definitions/4" },
+        "else": { "$ref": "#/definitions/2" }
+      },
+      "2": true,
+      "3": { "type": "string", "minLength": 5 },
+      "4": { "type": "string", "pattern": "^[a-z]+$", "minLength": 0 },
+      "5": { "type": "string", "writeOnly": true, "minLength": 0 }
+    }
+  },
+  "examples": [ "", "a", "x", "foo", "aaa", "aaaaa", "aaaaaa" ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    [ "aaa" ],
+    [ "aaa", "aaa" ],
+    [ "aaaaa" ],
+    [ "aaaaa", "aaaaa" ],
+    [ "aaaaaa" ],
+    [ "aaaaaa", "aaaaaa" ]
+  ]
+}

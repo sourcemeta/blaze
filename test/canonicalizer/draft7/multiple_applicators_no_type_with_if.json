@@ -1,0 +1,79 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "not": { "type": "null" },
+    "oneOf": [ { "type": "string" }, { "type": "integer" } ],
+    "if": { "type": "string" },
+    "then": { "type": "string", "minLength": 5 },
+    "else": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/6" }
+        ]
+      },
+      "1": { "not": { "$ref": "#/definitions/2" } },
+      "2": { "enum": [ null ] },
+      "3": {
+        "anyOf": [
+          { "$ref": "#/definitions/4" },
+          { "$ref": "#/definitions/5" }
+        ]
+      },
+      "4": { "type": "string", "minLength": 0 },
+      "5": { "type": "integer", "multipleOf": 1 },
+      "6": {
+        "if": { "$ref": "#/definitions/4" },
+        "then": { "$ref": "#/definitions/8" },
+        "else": { "$ref": "#/definitions/7" }
+      },
+      "7": true,
+      "8": { "type": "string", "minLength": 5 }
+    }
+  },
+  "examples": [
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    9007199254740993,
+    "aaaaa",
+    "aaaaaa"
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    1.5,
+    0.5,
+    -1.5,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    [ "aaaaa" ],
+    [ "aaaaa", "aaaaa" ],
+    [ "aaaaaa" ],
+    [ "aaaaaa", "aaaaaa" ]
+  ]
+}
