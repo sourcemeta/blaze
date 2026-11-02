@@ -2050,3 +2050,145 @@ TEST(annotations_failure_whitelist_disallow_1) {
 
   EXPECT_ANNOTATION_COUNT(output, 0);
 }
+
+TEST(fail_oneof_with_passing_not_branch_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "not": { "type": "string" }, "type": "integer" },
+      { "type": "boolean" }
+    ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{nullptr};
+
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 3);
+  EXPECT_OUTPUT(
+      traces, 0, "", "/oneOf/0/type", "#/oneOf/0/type",
+      "The value was expected to be of type integer but it was of type null");
+  EXPECT_OUTPUT(
+      traces, 1, "", "/oneOf/1/type", "#/oneOf/1/type",
+      "The value was expected to be of type boolean but it was of type null");
+  EXPECT_OUTPUT(traces, 2, "", "/oneOf", "#/oneOf",
+                "The null value was expected to validate against one and only "
+                "one of the 2 given subschemas");
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(fail_oneof_with_meaningless_if_branch_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "if": { "type": "string" }, "then": { "minLength": 10 },
+        "type": "integer" },
+      { "type": "boolean" }
+    ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{nullptr};
+
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 3);
+  EXPECT_OUTPUT(
+      traces, 0, "", "/oneOf/0/type", "#/oneOf/0/type",
+      "The value was expected to be of type integer but it was of type null");
+  EXPECT_OUTPUT(
+      traces, 1, "", "/oneOf/1/type", "#/oneOf/1/type",
+      "The value was expected to be of type boolean but it was of type null");
+  EXPECT_OUTPUT(traces, 2, "", "/oneOf", "#/oneOf",
+                "The null value was expected to validate against one and only "
+                "one of the 2 given subschemas");
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(fail_contains_with_passing_not_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "not": { "type": "string" }, "type": "integer" }
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON([ null ])JSON")};
+
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_FALSE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+
+  EXPECT_EQ(traces.size(), 2);
+  EXPECT_OUTPUT(
+      traces, 0, "/0", "/contains/type", "#/contains/type",
+      "The value was expected to be of type integer but it was of type null");
+  EXPECT_OUTPUT(traces, 1, "", "/contains", "#/contains",
+                "The array value was expected to contain at least 1 item that "
+                "validates against the given subschema");
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}
+
+TEST(success_oneof_with_failing_nested_anyof_1) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "anyOf": [ { "type": "string" }, { "type": "integer" } ] },
+      { "type": "null" }
+    ]
+  })JSON")};
+
+  const auto schema_template{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+
+  const sourcemeta::core::JSON instance{nullptr};
+
+  sourcemeta::blaze::SimpleOutput output{schema_template, instance};
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{
+      evaluator.validate(schema_template, instance, std::ref(output))};
+
+  EXPECT_TRUE(result);
+  std::vector<sourcemeta::blaze::SimpleOutput::Entry> traces{output.cbegin(),
+                                                             output.cend()};
+  EXPECT_TRUE(traces.empty());
+
+  EXPECT_ANNOTATION_COUNT(output, 0);
+}

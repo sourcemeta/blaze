@@ -140,6 +140,13 @@ private:
   /// Classify an instruction according to how it absorbs failures
   static auto mask_kind(const Instruction &step) noexcept -> MaskKind;
 
+  /// Where the trace of an instruction at the given evaluation path belongs,
+  /// which is the innermost branching keyword that encloses it, or the output
+  /// itself when none does. A null result means the trace cannot ever surface
+  /// and is to be dropped without even assembling its message
+  auto destination(const sourcemeta::core::WeakPointer &evaluate_path)
+      -> container_type *;
+
   /// An in-flight branching keyword, along with the number of annotations
   /// collected before it started and the error traces it buffers
   struct MaskEntry {
