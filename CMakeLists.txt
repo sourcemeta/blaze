@@ -15,7 +15,6 @@ option(BLAZE_CODEGEN "Build the Blaze codegen library" ON)
 option(BLAZE_CANONICALIZER "Build the Blaze canonicalizer library" ON)
 option(BLAZE_CONVERT "Build the Blaze convert library" ON)
 option(BLAZE_EDITOR "Build the Blaze editor schema compatibility library" ON)
-option(BLAZE_DEPENDENCIES "Build the Blaze dependencies library" ON)
 option(BLAZE_BINPACK "Build the Blaze BinPack serialization library" ON)
 option(BLAZE_TESTS "Build the Blaze tests" OFF)
 option(BLAZE_BENCHMARK "Build the Blaze benchmarks" OFF)
@@ -94,10 +93,6 @@ endif()
 
 if(BLAZE_EDITOR)
   add_subdirectory(src/editor)
-endif()
-
-if(BLAZE_DEPENDENCIES)
-  add_subdirectory(src/dependencies)
 endif()
 
 if(BLAZE_BINPACK)
@@ -190,10 +185,6 @@ if(BLAZE_TESTS)
 
   if(BLAZE_EDITOR)
     add_subdirectory(test/editor)
-  endif()
-
-  if(BLAZE_DEPENDENCIES)
-    add_subdirectory(test/dependencies)
   endif()
 
   if(BLAZE_BINPACK)

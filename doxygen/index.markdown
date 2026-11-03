@@ -77,7 +77,6 @@ CMake
 | `BLAZE_CANONICALIZER`       | Boolean | `ON`    | Build the Blaze canonicalizer library               |
 | `BLAZE_CONVERT`             | Boolean | `ON`    | Build the Blaze convert library                     |
 | `BLAZE_EDITOR`              | Boolean | `ON`    | Build the Blaze editor schema compatibility library |
-| `BLAZE_DEPENDENCIES`        | Boolean | `ON`    | Build the Blaze dependencies library                |
 | `BLAZE_BINPACK`             | Boolean | `ON`    | Build the Blaze BinPack serialization library       |
 | `BLAZE_TESTS`               | Boolean | `OFF`   | Build the Blaze tests                               |
 | `BLAZE_BENCHMARK`           | Boolean | `OFF`   | Build the Blaze benchmarks                          |
