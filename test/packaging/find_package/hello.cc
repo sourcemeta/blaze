@@ -4,7 +4,6 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/configuration.h>
 #include <sourcemeta/blaze/convert.h>
-#include <sourcemeta/blaze/dependencies.h>
 #include <sourcemeta/blaze/editor.h>
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
@@ -49,15 +48,6 @@ auto main() -> int {
   sourcemeta::core::SchemaFrame schema_frame{
       sourcemeta::core::SchemaFrame::Mode::Locations, frame_schema,
       sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver};
-
-  const auto dependencies_schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "string"
-  })JSON")};
-  sourcemeta::blaze::dependencies(
-      dependencies_schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      [](const auto &, const auto &, const auto &, const auto &) {});
 
   auto convert_schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
