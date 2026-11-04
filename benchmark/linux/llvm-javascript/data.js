@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1793751209564,
+  "lastUpdate": 1793821960326,
   "repoUrl": "https://github.com/sourcemeta/blaze",
   "entries": {
     "JavaScript (linux/llvm)": [
@@ -142143,6 +142143,235 @@ window.BENCHMARK_DATA = {
           {
             "name": "E2E_Evaluator_yamllint",
             "value": 25188,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jv@jviotti.com",
+            "name": "Juan Cruz Viotti",
+            "username": "jviotti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a30ce5a0aef974636154b5b65c1d01e8ae64b2a1",
+          "message": "Pin pruning of inapplicable object size bounds beside nullable (#1182)\n\nSigned-off-by: Juan Cruz Viotti <jv@jviotti.com>",
+          "timestamp": "2026-11-04T16:25:23-03:00",
+          "tree_id": "ef6d506c31aee046b284fb9fa69452e5d98fb045",
+          "url": "https://github.com/sourcemeta/blaze/commit/a30ce5a0aef974636154b5b65c1d01e8ae64b2a1"
+        },
+        "date": 1793821959097,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "E2E_Evaluator_adaptivecard",
+            "value": 116133,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ansible-meta",
+            "value": 531875,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_aws-cdk",
+            "value": 144654,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_babelrc",
+            "value": 349818,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cerebrum-criminal-case",
+            "value": 2484729,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_clang-format",
+            "value": 280293,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cmake-presets",
+            "value": 17136820,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_code-climate",
+            "value": 527742,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cql2",
+            "value": 1316432,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cspell",
+            "value": 1383868,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cypress",
+            "value": 576734,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_deno",
+            "value": 990606,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_dependabot",
+            "value": 1238607,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_draft-04",
+            "value": 24404360,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_fabric-mod",
+            "value": 2084810,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_geojson",
+            "value": 14617274,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_gitpod-configuration",
+            "value": 714931,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_helm-chart-lock",
+            "value": 1079361,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_importmap",
+            "value": 277759,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jasmine",
+            "value": 292100,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jsconfig",
+            "value": 1307693,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jshintrc",
+            "value": 2154854,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_krakend",
+            "value": 688552,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_lazygit",
+            "value": 503063,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_lerna",
+            "value": 440228,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_nest-cli",
+            "value": 586913,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_omc",
+            "value": 119115,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_omnisharp",
+            "value": 1051189,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_openapi",
+            "value": 46933192,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_pre-commit-hooks",
+            "value": 1655238,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_pulumi",
+            "value": 1850970,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_semantic-release",
+            "value": 253024,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_stale",
+            "value": 390447,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_stylecop",
+            "value": 893905,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_tmuxinator",
+            "value": 224034,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ui5",
+            "value": 2356246,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ui5-manifest",
+            "value": 12982406,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_unreal-engine-uproject",
+            "value": 1428890,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_users-array",
+            "value": 2825971,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_vercel",
+            "value": 958901,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_yamllint",
+            "value": 25990,
             "unit": "ns"
           }
         ]
