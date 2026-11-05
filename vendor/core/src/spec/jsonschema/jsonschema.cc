@@ -282,6 +282,42 @@ auto sourcemeta::core::dialect(const sourcemeta::core::JSON &schema,
   return dialect_value->to_string();
 }
 
+// Settling a URI costs a parse, and the only spellings that settle into
+// something else are the ones carrying an upper case letter in a part that is
+// compared without regard to case, or an empty fragment. Reading the string
+// first is what keeps every dialect that has to be resolved from paying for a
+// parse that was never going to change it
+static auto may_settle_differently(const std::string_view uri) -> bool {
+  return uri.ends_with('#') ||
+         std::ranges::any_of(uri, [](const auto character) {
+           return character >= 'A' && character <= 'Z';
+         });
+}
+
+// A URI that differs only in the case of its scheme or its host names the same
+// meta-schema, so a dialect the library knows is still one it knows however
+// the document happens to spell it. Settling a URI also drops an empty
+// fragment, which the identifiers of the drafts before 2019-09 carry, so what
+// the document spells is held up against both forms
+static auto base_dialect_of_settled(const std::string_view dialect)
+    -> std::optional<sourcemeta::core::SchemaBaseDialect> {
+  if (!may_settle_differently(dialect)) {
+    return std::nullopt;
+  }
+
+  const auto settled{sourcemeta::core::maybe_canonicalize(dialect)};
+  if (!settled.has_value() || settled.value() == dialect) {
+    return std::nullopt;
+  }
+
+  const auto result{sourcemeta::core::to_base_dialect(settled.value())};
+  if (result.has_value()) {
+    return result;
+  }
+
+  return sourcemeta::core::to_base_dialect(settled.value() + "#");
+}
+
 // A meta-schema that the document embeds takes precedence over what the
 // resolver knows about, at every link of the chain, as the document pins the
 // exact meta-schemas it is described by. Across every official base dialect,
@@ -337,7 +373,11 @@ auto sourcemeta::core::metaschema_try_embedded(
     }
 
     const auto &dialect_uri{metaschema_dialect->to_string()};
-    const auto known{sourcemeta::core::to_base_dialect(dialect_uri)};
+    auto known{sourcemeta::core::to_base_dialect(dialect_uri)};
+    if (!known.has_value()) {
+      known = base_dialect_of_settled(dialect_uri);
+    }
+
     if (known.has_value()) {
       terminal = known;
       break;
@@ -378,6 +418,23 @@ auto sourcemeta::core::metaschema_try_embedded(
   return candidate.first;
 }
 
+// A resolver that answers to one spelling of a URI answers for the document
+// that spells it another way
+static auto resolve_settled(const sourcemeta::core::SchemaResolver &resolver,
+                            const std::string_view identifier)
+    -> sourcemeta::core::SchemaResolverResult {
+  if (!may_settle_differently(identifier)) {
+    return std::nullopt;
+  }
+
+  const auto settled{sourcemeta::core::maybe_canonicalize(identifier)};
+  if (!settled.has_value() || settled.value() == identifier) {
+    return std::nullopt;
+  }
+
+  return resolver(settled.value());
+}
+
 static auto
 base_dialect_with_visited(const sourcemeta::core::JSON &schema,
                           const sourcemeta::core::SchemaResolver &resolver,
@@ -402,6 +459,11 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
     return result;
   }
 
+  const auto settled_result{base_dialect_of_settled(effective_dialect)};
+  if (settled_result.has_value()) {
+    return settled_result;
+  }
+
   // Detect cycles in the metaschema chain
   if (!visited.emplace(effective_dialect).second) {
     throw sourcemeta::core::SchemaUnknownBaseDialectError();
@@ -424,7 +486,11 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
   }
 
   // Otherwise, traverse the metaschema hierarchy up
-  const auto metaschema{resolver(effective_dialect)};
+  auto metaschema{resolver(effective_dialect)};
+  if (!metaschema.has_value()) {
+    metaschema = resolve_settled(resolver, effective_dialect);
+  }
+
   if (!metaschema.has_value()) {
     sourcemeta::core::URI effective_dialect_uri;
     try {
@@ -685,7 +751,11 @@ auto sourcemeta::core::vocabularies(const SchemaResolver &resolver,
    * (3) If the dialect is vocabulary aware, then fetch such dialect
    */
 
-  const auto maybe_schema_dialect{resolver(dialect)};
+  auto maybe_schema_dialect{resolver(dialect)};
+  if (!maybe_schema_dialect.has_value()) {
+    maybe_schema_dialect = resolve_settled(resolver, dialect);
+  }
+
   if (!maybe_schema_dialect.has_value()) {
     throw sourcemeta::core::SchemaResolutionError(
         "Could not resolve the metaschema of the schema", dialect);

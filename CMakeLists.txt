@@ -43,11 +43,6 @@ endif()
 
 find_package(Core REQUIRED)
 
-# Don't force downstream consumers on it
-if(PROJECT_IS_TOP_LEVEL)
-  sourcemeta_enable_simd()
-endif()
-
 # Enable the sanitizers before defining any target
 if(BLAZE_ADDRESS_SANITIZER)
   sourcemeta_sanitizer(TYPE address)

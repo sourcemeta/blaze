@@ -194,11 +194,16 @@ auto JWT::has_audience(const std::string_view audience) const noexcept -> bool {
   }
 
   if (member->is_array()) {
+    bool matched{false};
     for (const auto &element : member->as_array()) {
-      if (element.is_string() && element.to_string() == audience) {
-        return true;
+      if (!element.is_string()) {
+        return false;
       }
+
+      matched = matched || element.to_string() == audience;
     }
+
+    return matched;
   }
 
   return false;
