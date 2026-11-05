@@ -31,29 +31,41 @@ if(BENCHMARK_SOURCES)
 
   # The evaluator hot path lives entirely in headers, so it compiles into this
   # target rather than into the library, which makes this target's ISA level
-  # the one the benchmark measures. Raise it to AVX2 where the machine can
-  # execute those instructions, leaving everything we install at the baseline.
-  # Asking the machine rather than the compiler is sound here, as this binary
-  # only ever runs where it was built
+  # the one the benchmark measures. Raise it to AVX2 where the compiler accepts
+  # the flag and the processor reports the instructions, leaving everything we
+  # install at the baseline. Requiring the processor to report them is sound
+  # here, as this binary only ever runs where it was built
   if(NOT CMAKE_CROSSCOMPILING AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86|AMD64")
+    include(CheckCXXCompilerFlag)
     include(CheckCXXSourceRuns)
 
+    # Ask the processor what it reports rather than executing an AVX2
+    # instruction to find out. A probe built out of intrinsics folds to a
+    # constant at every optimisation level above none, which leaves it passing
+    # on a machine that cannot run a single one of those instructions
     if(MSVC)
       set(BENCHMARK_AVX2_FLAGS "/arch:AVX2")
+      set(BENCHMARK_AVX2_PROBE "
+        #include <windows.h>
+        auto main() -> int {
+          return IsProcessorFeaturePresent(PF_AVX2_INSTRUCTIONS_AVAILABLE)
+                     ? 0
+                     : 1;
+        }")
     else()
       set(BENCHMARK_AVX2_FLAGS "-mavx2")
+      set(BENCHMARK_AVX2_PROBE "
+        auto main() -> int {
+          return __builtin_cpu_supports(\"avx2\") ? 0 : 1;
+        }")
     endif()
 
-    list(JOIN BENCHMARK_AVX2_FLAGS " " CMAKE_REQUIRED_FLAGS)
-    check_cxx_source_runs("
-      #include <immintrin.h>
-      auto main() -> int {
-        const auto zero{_mm256_setzero_si256()};
-        return _mm256_extract_epi32(_mm256_xor_si256(zero, zero), 0);
-      }" BENCHMARK_MACHINE_SUPPORTS_AVX2)
-    unset(CMAKE_REQUIRED_FLAGS)
+    check_cxx_compiler_flag("${BENCHMARK_AVX2_FLAGS}"
+      BENCHMARK_COMPILER_SUPPORTS_AVX2)
+    check_cxx_source_runs("${BENCHMARK_AVX2_PROBE}"
+      BENCHMARK_MACHINE_SUPPORTS_AVX2)
 
-    if(BENCHMARK_MACHINE_SUPPORTS_AVX2)
+    if(BENCHMARK_COMPILER_SUPPORTS_AVX2 AND BENCHMARK_MACHINE_SUPPORTS_AVX2)
       message(STATUS "Benchmarking the evaluator with AVX2")
       target_compile_options(sourcemeta_blaze_benchmarks
         PRIVATE ${BENCHMARK_AVX2_FLAGS})
