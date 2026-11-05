@@ -1,0 +1,95 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "if": { "type": "object", "required": [ "foo" ] },
+    "then": { "type": "object", "required": [ "bar" ] },
+    "else": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/5" }
+        ]
+      },
+      "1": {
+        "if": { "$ref": "#/definitions/3" },
+        "then": { "$ref": "#/definitions/4" },
+        "else": { "$ref": "#/definitions/2" }
+      },
+      "2": true,
+      "3": {
+        "type": "object",
+        "required": [ "foo" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/2" },
+        "minProperties": 1,
+        "properties": { "foo": { "$ref": "#/definitions/2" } },
+        "additionalProperties": { "$ref": "#/definitions/2" }
+      },
+      "4": {
+        "type": "object",
+        "required": [ "bar" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/2" },
+        "minProperties": 1,
+        "properties": { "bar": { "$ref": "#/definitions/2" } },
+        "additionalProperties": { "$ref": "#/definitions/2" }
+      },
+      "5": {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/2" },
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/2" }
+      }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "bar": 1, "foo": 1 },
+    { "bar": 1 },
+    { "bar": "x", "foo": "x" },
+    { "bar": "x" },
+    { "bar": {}, "foo": {} },
+    { "bar": { "bar": "x" } }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ]
+  ]
+}

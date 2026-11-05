@@ -367,20 +367,24 @@ TEST(unsupported_keyword_error_draft4_empty_enum) {
   }
 }
 
-TEST(draft7_empty_enum) {
+TEST(unsupported_keyword_error_draft7_empty_enum) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
     "enum": []
   })JSON")};
 
-  const auto result{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::blaze::default_compiler)};
-
-  std::ostringstream output;
-  sourcemeta::blaze::generate<sourcemeta::blaze::TypeScript>(output, result);
-
-  EXPECT_EQ(output.str(), "export type Schema = never;\n");
+  try {
+    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                               sourcemeta::core::schema_resolver,
+                               sourcemeta::blaze::default_compiler);
+    FAIL();
+  } catch (const sourcemeta::blaze::CodegenUnsupportedKeywordError &error) {
+    EXPECT_STREQ(error.what(), "Unsupported keyword in subschema");
+    EXPECT_EQ(error.keyword(), "not");
+    // Draft 7 canonicalises into its graph form, as Draft 4 does, so a schema
+    // nothing satisfies is a negation entry rather than a bare boolean
+    EXPECT_AS_STRING(error.pointer(), "/definitions/0");
+  }
 }
 
 TEST(unexpected_schema_error_required_property_not_allowed) {

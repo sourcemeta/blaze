@@ -1,0 +1,135 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "dependencies": {
+      "credit_card": { "type": "object", "required": [ "billing_address" ] }
+    },
+    "if": { "type": "object", "required": [ "premium" ] },
+    "then": { "type": "object", "required": [ "premium", "support_level" ] },
+    "else": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/7" },
+          { "$ref": "#/definitions/10" }
+        ]
+      },
+      "1": {
+        "anyOf": [
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/5" }
+        ]
+      },
+      "2": { "not": { "$ref": "#/definitions/3" } },
+      "3": {
+        "type": "object",
+        "required": [ "credit_card" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/4" },
+        "minProperties": 1,
+        "properties": { "credit_card": { "$ref": "#/definitions/4" } },
+        "additionalProperties": { "$ref": "#/definitions/4" }
+      },
+      "4": true,
+      "5": {
+        "allOf": [
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/6" }
+        ]
+      },
+      "6": {
+        "type": "object",
+        "required": [ "billing_address" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/4" },
+        "minProperties": 1,
+        "properties": { "billing_address": { "$ref": "#/definitions/4" } },
+        "additionalProperties": { "$ref": "#/definitions/4" }
+      },
+      "7": {
+        "if": { "$ref": "#/definitions/8" },
+        "then": { "$ref": "#/definitions/9" },
+        "else": { "$ref": "#/definitions/4" }
+      },
+      "8": {
+        "type": "object",
+        "required": [ "premium" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/4" },
+        "minProperties": 1,
+        "properties": { "premium": { "$ref": "#/definitions/4" } },
+        "additionalProperties": { "$ref": "#/definitions/4" }
+      },
+      "9": {
+        "type": "object",
+        "required": [ "premium", "support_level" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/4" },
+        "minProperties": 2,
+        "properties": {
+          "premium": { "$ref": "#/definitions/4" },
+          "support_level": { "$ref": "#/definitions/4" }
+        },
+        "additionalProperties": { "$ref": "#/definitions/4" }
+      },
+      "10": {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/4" },
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/4" }
+      }
+    }
+  },
+  "examples": [
+    {},
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "billing_address": 1, "premium": 1, "support_level": 1 },
+    { "billing_address": 1 },
+    { "billing_address": "x", "premium": "x", "support_level": "x" },
+    { "billing_address": "x" },
+    { "billing_address": {}, "premium": {}, "support_level": {} },
+    { "billing_address": { "billing_address": "x" } },
+    { "credit_card": 1, "billing_address": 1 }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "credit_card": 1 }
+  ]
+}

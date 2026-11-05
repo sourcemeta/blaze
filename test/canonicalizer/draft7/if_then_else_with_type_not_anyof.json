@@ -1,0 +1,137 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "not": { "type": "object", "required": [ "banned" ] },
+    "anyOf": [
+      { "type": "object", "required": [ "a" ] },
+      { "type": "object", "required": [ "b" ] }
+    ],
+    "if": { "type": "object", "required": [ "flag" ] },
+    "then": { "type": "object", "required": [ "flag", "extra" ] },
+    "else": true
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/4" },
+          { "$ref": "#/definitions/7" },
+          { "$ref": "#/definitions/10" }
+        ]
+      },
+      "1": { "not": { "$ref": "#/definitions/2" } },
+      "2": {
+        "type": "object",
+        "required": [ "banned" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 1,
+        "properties": { "banned": { "$ref": "#/definitions/3" } },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "3": true,
+      "4": {
+        "anyOf": [
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/6" }
+        ]
+      },
+      "5": {
+        "type": "object",
+        "required": [ "a" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 1,
+        "properties": { "a": { "$ref": "#/definitions/3" } },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "6": {
+        "type": "object",
+        "required": [ "b" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 1,
+        "properties": { "b": { "$ref": "#/definitions/3" } },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "7": {
+        "if": { "$ref": "#/definitions/8" },
+        "then": { "$ref": "#/definitions/9" },
+        "else": { "$ref": "#/definitions/3" }
+      },
+      "8": {
+        "type": "object",
+        "required": [ "flag" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 1,
+        "properties": { "flag": { "$ref": "#/definitions/3" } },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "9": {
+        "type": "object",
+        "required": [ "flag", "extra" ],
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 2,
+        "properties": {
+          "flag": { "$ref": "#/definitions/3" },
+          "extra": { "$ref": "#/definitions/3" }
+        },
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      },
+      "10": {
+        "type": "object",
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/3" },
+        "minProperties": 0,
+        "properties": {},
+        "additionalProperties": { "$ref": "#/definitions/3" }
+      }
+    }
+  },
+  "examples": [
+    { "a": 1 },
+    { "a": "x" },
+    { "b": 2 },
+    { "a": 1, "b": 2 },
+    { "a": "x", "b": "y" },
+    { "a": { "a": "x" } }
+  ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    2,
+    3,
+    5,
+    10,
+    11,
+    1.5,
+    0.5,
+    -1.5,
+    9007199254740993,
+    "",
+    "a",
+    "x",
+    "foo",
+    [],
+    [ 1 ],
+    [ 1, 2 ],
+    [ "a" ],
+    {},
+    { "a": 1, "b": 1, "banned": 1, "extra": 1, "flag": 1 },
+    { "a": "x", "b": "x", "banned": "x", "extra": "x", "flag": "x" },
+    [ 1, 1 ],
+    [ "x" ],
+    [ "x", "x" ],
+    { "a": {}, "b": {}, "banned": {}, "extra": {}, "flag": {} }
+  ]
+}
