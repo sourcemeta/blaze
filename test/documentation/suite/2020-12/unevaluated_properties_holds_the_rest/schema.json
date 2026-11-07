@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "a": {
+      "type": "string"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "kind": {
+          "const": "x"
+        },
+        "x": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "y"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    }
+  ],
+  "unevaluatedProperties": {
+    "type": "boolean"
+  }
+}

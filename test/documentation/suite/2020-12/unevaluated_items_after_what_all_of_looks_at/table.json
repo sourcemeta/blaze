@@ -1,0 +1,39 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "array",
+    "slots": [
+      {
+        "kind": "string"
+      },
+      {
+        "kind": "any"
+      },
+      {
+        "kind": "any"
+      }
+    ],
+    "item": {
+      "kind": "never"
+    },
+    "also": [
+      {
+        "kind": "array",
+        "slots": [
+          {
+            "kind": "any"
+          },
+          {
+            "kind": "integer"
+          },
+          {
+            "kind": "integer"
+          }
+        ],
+        "otherTypesAllowed": true
+      }
+    ]
+  }
+}

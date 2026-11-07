@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "if": {
+    "properties": {
+      "kind": {
+        "const": "wide"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "width"
+    ]
+  }
+}

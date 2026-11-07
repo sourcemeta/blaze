@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Payment",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "card": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "card"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "invoice": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "invoice"
+      ]
+    }
+  ]
+}

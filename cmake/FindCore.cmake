@@ -17,7 +17,6 @@ if(NOT Core_FOUND)
   # subset of them, and consumers otherwise end up with a pile of libraries
   # they have no use for, plus the OpenSSL and cURL dependencies that some of
   # them bring in
-  set(SOURCEMETA_CORE_HTML OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_HTTP OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_JOSE OFF CACHE BOOL "unused by Blaze")
   set(SOURCEMETA_CORE_JSONPATH OFF CACHE BOOL "unused by Blaze")

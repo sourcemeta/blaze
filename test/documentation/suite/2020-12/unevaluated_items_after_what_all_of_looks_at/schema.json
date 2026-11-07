@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "prefixItems": [
+    {
+      "type": "string"
+    }
+  ],
+  "allOf": [
+    {
+      "prefixItems": [
+        true,
+        {
+          "type": "integer"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    }
+  ],
+  "unevaluatedItems": false
+}

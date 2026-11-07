@@ -1,0 +1,46 @@
+{
+  "$schema": "tag:sourcemeta.com,2026:table-format/2",
+  "title": "Schema",
+  "language": "https://json-schema.org/draft/2020-12/schema",
+  "root": {
+    "kind": "object",
+    "properties": [
+      {
+        "name": "a",
+        "value": {
+          "kind": "string"
+        }
+      }
+    ],
+    "patternProperties": [
+      {
+        "except": {
+          "names": [ "a" ]
+        },
+        "value": {
+          "kind": "never"
+        }
+      }
+    ],
+    "closed": true,
+    "also": [
+      {
+        "kind": "ref",
+        "ref": "/$defs/base"
+      }
+    ]
+  },
+  "shapes": [
+    {
+      "id": "/$defs/base",
+      "name": "base",
+      "value": {
+        "kind": "object",
+        "otherProperties": {
+          "kind": "any"
+        },
+        "otherTypesAllowed": true
+      }
+    }
+  ]
+}
