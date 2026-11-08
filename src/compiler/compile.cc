@@ -2,9 +2,11 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <algorithm> // std::move, std::sort, std::unique
+#include <algorithm> // std::ranges::sort, std::ranges::unique, std::max, std::min
 #include <cassert>   // assert
+#include <cstdint>   // std::uint64_t
 #include <format>    // std::format
+#include <functional> // std::cref, std::reference_wrapper
 // TODO(C++23): Consider std::flat_map/std::flat_set when available in libc++
 #include <map>           // std::map
 #include <set>           // std::set
@@ -16,7 +18,6 @@
 #include <vector>        // std::vector
 
 #include "compile_helpers.h"
-#include "keyword_iterator.h"
 #include "message.h"
 #include "postprocess.h"
 #include "unevaluated.h"
@@ -42,15 +43,8 @@ auto is_metaschema_reference(const sourcemeta::core::WeakPointer &origin)
 // well-formed there and merely has nothing to modify
 auto exclusive_bounds_need_a_sibling(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  return vocabularies.contains_any(
-      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
-       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER});
-}
-
-auto is_schema(const sourcemeta::core::JSON &value, const bool allow_boolean)
-    -> bool {
-  return value.is_object() || (allow_boolean && value.is_boolean());
+  return sourcemeta::blaze::is_draft3(vocabularies) ||
+         sourcemeta::blaze::is_draft4(vocabularies);
 }
 
 // The reason the keyword's value is not the shape the meta-schema asks for, or
@@ -72,31 +66,6 @@ auto keyword_shape_error(
     const sourcemeta::core::JSON &value, const bool allow_boolean,
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> const char * {
   using namespace sourcemeta::blaze;
-  static constexpr auto EXPECTED_STRING{
-      "This keyword was expected to be set to a string"};
-  static constexpr auto EXPECTED_ARRAY{
-      "This keyword was expected to be set to an array"};
-  static constexpr auto EXPECTED_BOOLEAN{
-      "This keyword was expected to be set to a boolean"};
-  static constexpr auto EXPECTED_NUMBER{
-      "This keyword was expected to be set to a number"};
-  static constexpr auto EXPECTED_OBJECT{
-      "This keyword was expected to be set to an object"};
-  static constexpr auto EXPECTED_DIALECT_OBJECT{
-      "This keyword was expected to be set to an object of the shape this "
-      "dialect defines"};
-  static constexpr auto EXPECTED_NON_NEGATIVE_INTEGER{
-      "This keyword was expected to be set to a non-negative integer"};
-  static constexpr auto EXPECTED_SCHEMA{
-      "This keyword was expected to be set to a valid schema"};
-  static constexpr auto EXPECTED_SCHEMA_OR_ARRAY{
-      "This keyword was expected to be set to a valid schema or to an array "
-      "of them"};
-  static constexpr auto EXPECTED_SCHEMA_ARRAY{
-      "This keyword was expected to be set to an array of valid schemas"};
-  static constexpr auto EXPECTED_SCHEMA_OBJECT{
-      "This keyword was expected to be set to an object whose values are "
-      "valid schemas"};
 
   // What follows describes the contracts of the official vocabularies. A
   // keyword the dialect does not define carries no vocabulary at all, and one
@@ -197,25 +166,15 @@ auto keyword_shape_error(
                  : EXPECTED_NON_NEGATIVE_INTEGER;
     }
     if (keyword == "exclusiveMaximum" || keyword == "exclusiveMinimum") {
-      return (
-          vocabularies.contains_any(
-              {sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
-               sourcemeta::core::SchemaVocabularies::Known::
-                   JSON_SCHEMA_DRAFT_3_HYPER,
-               sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_4,
-               sourcemeta::core::SchemaVocabularies::Known::
-                   JSON_SCHEMA_DRAFT_4_HYPER,
-               sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE})
-              ? (value.is_boolean() ? nullptr : EXPECTED_BOOLEAN)
-              : (value.is_number() ? nullptr : EXPECTED_NUMBER));
+      return ((is_draft3(vocabularies) || is_draft4(vocabularies) ||
+               is_openapi_3_0(vocabularies))
+                  ? (value.is_boolean() ? nullptr : EXPECTED_BOOLEAN)
+                  : (value.is_number() ? nullptr : EXPECTED_NUMBER));
     }
     if ((keyword == "$defs" || keyword == "definitions") &&
         // The walker treats these as containers in every dialect, but
         // no meta-schema before Draft 4 defines either of them
-        !vocabularies.contains_any(
-            {sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
-             sourcemeta::core::SchemaVocabularies::Known::
-                 JSON_SCHEMA_DRAFT_3_HYPER})) {
+        !is_draft3(vocabularies)) {
       return (value.is_object() &&
               std::ranges::all_of(value.as_object(),
                                   [allow_boolean](const auto &entry) -> bool {
@@ -229,11 +188,7 @@ auto keyword_shape_error(
 
   // Draft 3 spells `required` as a flag on the property itself rather than as
   // a list on the object, so the shape it asks for is a different one
-  if (keyword == "required" &&
-      vocabularies.contains_any(
-          {sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
-           sourcemeta::core::SchemaVocabularies::Known::
-               JSON_SCHEMA_DRAFT_3_HYPER})) {
+  if (keyword == "required" && is_draft3(vocabularies)) {
     return value.is_boolean() ? nullptr : EXPECTED_BOOLEAN;
   }
 
@@ -302,6 +257,63 @@ auto keyword_shape_error(
   }
 }
 
+// A keyword evaluates after everything it reads, so its priority is one above
+// the highest of what it depends on
+auto schema_keyword_priority(
+    const std::string_view keyword,
+    const sourcemeta::core::SchemaVocabularies &vocabularies,
+    const sourcemeta::core::SchemaWalker &walker) -> std::uint64_t {
+  const auto &metadata{walker(keyword, vocabularies)};
+  std::uint64_t priority{0};
+  for (const auto &dependency : metadata.dependencies) {
+    priority =
+        std::max(priority,
+                 schema_keyword_priority(dependency, vocabularies, walker) + 1);
+  }
+
+  for (const auto &dependency : metadata.order_dependencies) {
+    priority =
+        std::max(priority,
+                 schema_keyword_priority(dependency, vocabularies, walker) + 1);
+  }
+
+  return priority;
+}
+
+// The top-level keywords of a schema in evaluation order
+auto schema_keywords(const sourcemeta::core::JSON &schema,
+                     const sourcemeta::core::SchemaWalker &walker,
+                     const sourcemeta::core::SchemaVocabularies &vocabularies)
+    -> std::vector<
+        std::reference_wrapper<const sourcemeta::core::JSON::String>> {
+  assert(schema.is_object());
+  std::vector<std::reference_wrapper<const sourcemeta::core::JSON::String>>
+      result;
+  result.reserve(schema.size());
+  for (const auto &entry : schema.as_object()) {
+    result.emplace_back(std::cref(entry.first));
+  }
+
+  // Sort first on priority, second on the keyword itself. The latter is to
+  // make sure different compilers with different STL implementations end up at
+  // the exact same result
+  std::ranges::sort(
+      result,
+      [&vocabularies, &walker](const auto left, const auto right) -> bool {
+        const auto left_priority{
+            schema_keyword_priority(left.get(), vocabularies, walker)};
+        const auto right_priority{
+            schema_keyword_priority(right.get(), vocabularies, walker)};
+        if (left_priority != right_priority) {
+          return left_priority < right_priority;
+        }
+
+        return left.get() < right.get();
+      });
+
+  return result;
+}
+
 // Compiling a subschema recurses back into itself through the keyword
 // handlers, so what bounds that recursion has to survive across those calls.
 // A guard that throws never incremented, and so never decrements either
@@ -341,9 +353,8 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
   if (schema_context.schema.is_boolean() &&
       schema_context.relative_pointer.empty() &&
       !booleans_are_schemas(schema_context.vocabularies)) [[unlikely]] {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        "This dialect does not support boolean schemas");
+    throw_keyword_error(context, schema_context,
+                        "This dialect does not support boolean schemas");
   }
 
   // Handle boolean schemas earlier on, as nobody should be able to
@@ -361,12 +372,12 @@ auto compile_subschema(const sourcemeta::blaze::Context &context,
              ValueNone{})};
   }
 
+  const auto keywords{schema_keywords(schema_context.schema, context.walker,
+                                      schema_context.vocabularies)};
+
   Instructions steps;
-  for (const auto &entry : sourcemeta::blaze::SchemaKeywordIterator{
-           schema_context.schema, context.walker,
-           schema_context.vocabularies}) {
-    assert(entry.pointer.back().is_property());
-    const auto &keyword{entry.pointer.back().to_property()};
+  for (const auto keyword_reference : keywords) {
+    const auto &keyword{keyword_reference.get()};
     const auto &metadata{context.walker(keyword, schema_context.vocabularies)};
     const auto official{
         metadata.vocabulary.has_value() &&

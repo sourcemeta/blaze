@@ -5,14 +5,14 @@
 #include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/uri.h>
 
-#include <algorithm> // std::ranges::find, std::ranges::any_of, std::ranges::all_of
+#include <algorithm>  // std::ranges::find, std::ranges::all_of
 #include <cassert>    // assert
 #include <functional> // std::cref
 #include <iterator>   // std::distance
 #include <limits>     // std::numeric_limits
 #include <optional>   // std::optional
 #include <regex>      // std::regex, std::regex_match, std::smatch
-#include <utility>    // std::declval, std::move
+#include <utility>    // std::move
 
 namespace sourcemeta::blaze {
 
@@ -250,85 +250,6 @@ inline auto rephrase(const Context &context, const InstructionIndex type,
           .extra_index = extra_index};
 }
 
-inline auto is_numeric_integer_type_check(const Instruction &instruction)
-    -> bool {
-  return (instruction.type == InstructionIndex::AssertionType ||
-          instruction.type == InstructionIndex::AssertionTypeStrict) &&
-         std::get<ValueType>(instruction.value) ==
-             sourcemeta::core::JSON::Type::Integer;
-}
-
-// A multiple of one admits exactly the integers, so it bounds a number the way
-// an integer type check does, without saying anything about the type
-inline auto is_numeric_integral_multiple_check(const Instruction &instruction)
-    -> bool {
-  if (instruction.type != InstructionIndex::AssertionDivisible) {
-    return false;
-  }
-
-  const auto &divisor{std::get<ValueJSON>(instruction.value)};
-  if (!divisor.is_integral()) {
-    return false;
-  }
-
-  // A real or decimal may spell an integer too large to represent, and such a
-  // divisor is never one, so a failed conversion just means no fusion
-  try {
-    return divisor.as_integer() == 1;
-  } catch (const sourcemeta::core::JSONIntegerRangeError &) {
-    return false;
-  }
-}
-
-inline auto is_numeric_bound_check(const Instruction &instruction) -> bool {
-  return instruction.type == InstructionIndex::AssertionGreaterEqual ||
-         instruction.type == InstructionIndex::AssertionGreater ||
-         instruction.type == InstructionIndex::AssertionLessEqual ||
-         instruction.type == InstructionIndex::AssertionLess;
-}
-
-inline auto merge_integer_bound(const Instruction &instruction,
-                                std::optional<std::int64_t> &minimum,
-                                std::optional<std::int64_t> &maximum) -> bool {
-  if (!is_numeric_bound_check(instruction)) {
-    return false;
-  }
-
-  const auto &bound{std::get<ValueJSON>(instruction.value)};
-  if (!bound.is_integer()) {
-    return false;
-  }
-
-  const auto value{bound.to_integer()};
-  if (instruction.type == InstructionIndex::AssertionGreaterEqual) {
-    minimum = minimum.has_value() ? std::max(minimum.value(), value) : value;
-  } else if (instruction.type == InstructionIndex::AssertionGreater) {
-    // Tightening the bound past the representable range would wrap around, so
-    // leave such a bound to the standalone instruction that can still hold it
-    if (value == std::numeric_limits<std::int64_t>::max()) {
-      return false;
-    }
-
-    const auto adjusted{value + 1};
-    minimum =
-        minimum.has_value() ? std::max(minimum.value(), adjusted) : adjusted;
-  } else if (instruction.type == InstructionIndex::AssertionLessEqual) {
-    maximum = maximum.has_value() ? std::min(maximum.value(), value) : value;
-  } else if (instruction.type == InstructionIndex::AssertionLess) {
-    if (value == std::numeric_limits<std::int64_t>::min()) {
-      return false;
-    }
-
-    const auto adjusted{value - 1};
-    maximum =
-        maximum.has_value() ? std::min(maximum.value(), adjusted) : adjusted;
-  } else {
-    return false;
-  }
-
-  return true;
-}
-
 // Whether the bound fits the integer the instructions carry. One that does not
 // sits beyond the size of anything that can be held in memory, so the keyword
 // compilers say such a bound outright rather than convert a value that does
@@ -341,6 +262,47 @@ inline auto bound_is_representable(const sourcemeta::core::JSON &value)
   return value <= LIMIT;
 }
 
+// Each of these dialects pairs a validation vocabulary with a hyper-schema one
+// that shares every keyword under discussion here, so asking which rung a
+// schema is written against means asking about both. Note these answer about
+// the vocabularies in force rather than about the base dialect, which is why
+// the OpenAPI 3.0 Schema Object answers no to all of them: it extends the
+// Draft 4 base dialect structurally while defining a keyword set of its own
+inline auto is_draft3(const sourcemeta::core::SchemaVocabularies &vocabularies)
+    -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return vocabularies.contains_any(
+      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER});
+}
+
+inline auto is_draft4(const sourcemeta::core::SchemaVocabularies &vocabularies)
+    -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return vocabularies.contains_any(
+      {Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER});
+}
+
+inline auto is_draft6(const sourcemeta::core::SchemaVocabularies &vocabularies)
+    -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return vocabularies.contains_any(
+      {Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER});
+}
+
+inline auto is_draft7(const sourcemeta::core::SchemaVocabularies &vocabularies)
+    -> bool {
+  using Known = sourcemeta::core::SchemaVocabularies::Known;
+  return vocabularies.contains_any(
+      {Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER});
+}
+
+inline auto
+is_openapi_3_0(const sourcemeta::core::SchemaVocabularies &vocabularies)
+    -> bool {
+  return vocabularies.contains(
+      sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE);
+}
+
 // Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
 // only places they accept a boolean are `additionalProperties` and
 // `additionalItems`, whose own definitions spell that out. The OpenAPI 3.0
@@ -349,11 +311,8 @@ inline auto bound_is_representable(const sourcemeta::core::JSON &value)
 inline auto
 booleans_are_schemas(const sourcemeta::core::SchemaVocabularies &vocabularies)
     -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  return !vocabularies.contains_any(
-      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
-       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
-       Known::OPENAPI_3_0_BASE});
+  return !is_draft3(vocabularies) && !is_draft4(vocabularies) &&
+         !is_openapi_3_0(vocabularies);
 }
 
 inline auto is_schema(const sourcemeta::core::JSON &value,
@@ -385,15 +344,13 @@ inline auto is_schema_array(const sourcemeta::core::JSON &value,
 // drafts either, which is what keeps such a sibling from compiling at all
 inline auto ref_overrides_sibling_keywords(const SchemaContext &schema_context)
     -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
   return schema_context.schema.is_object() &&
          schema_context.schema.defines("$ref") &&
-         schema_context.vocabularies.contains_any(
-             {Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
-              Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
-              Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
-              Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
-              Known::OPENAPI_3_0_BASE});
+         (is_draft3(schema_context.vocabularies) ||
+          is_draft4(schema_context.vocabularies) ||
+          is_draft6(schema_context.vocabularies) ||
+          is_draft7(schema_context.vocabularies) ||
+          is_openapi_3_0(schema_context.vocabularies));
 }
 
 // The OpenAPI 3.0 Schema Object spells a reference as a Reference Object, whose
@@ -404,8 +361,7 @@ inline auto ref_overrides_sibling_keywords(const SchemaContext &schema_context)
 // being well-formed, which their meta-schemas do go on to check
 inline auto ref_object_ignores_siblings(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
-  return vocabularies.contains(
-      sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE);
+  return is_openapi_3_0(vocabularies);
 }
 
 // Note that the size keywords that let the type level fuse their bound accept
@@ -486,6 +442,72 @@ inline auto absolute_schema_location(const Context &context,
                                   schema_context.relative_pointer);
 }
 
+// The messages that compilation refuses a keyword with. The location such an
+// error carries names the keyword, so these read as statements about it
+static constexpr auto EXPECTED_STRING{
+    "This keyword was expected to be set to a string"};
+static constexpr auto EXPECTED_INTEGER{
+    "This keyword was expected to be set to an integer"};
+static constexpr auto EXPECTED_NUMBER{
+    "This keyword was expected to be set to a number"};
+static constexpr auto EXPECTED_BOOLEAN{
+    "This keyword was expected to be set to a boolean"};
+static constexpr auto EXPECTED_ARRAY{
+    "This keyword was expected to be set to an array"};
+static constexpr auto EXPECTED_OBJECT{
+    "This keyword was expected to be set to an object"};
+static constexpr auto EXPECTED_DIALECT_OBJECT{
+    "This keyword was expected to be set to an object of the shape this "
+    "dialect defines"};
+static constexpr auto EXPECTED_NON_NEGATIVE_INTEGER{
+    "This keyword was expected to be set to a non-negative integer"};
+static constexpr auto EXPECTED_SCHEMA{
+    "This keyword was expected to be set to a valid schema"};
+static constexpr auto EXPECTED_SCHEMA_OR_ARRAY{
+    "This keyword was expected to be set to a valid schema or to an array "
+    "of them"};
+static constexpr auto EXPECTED_SCHEMA_ARRAY{
+    "This keyword was expected to be set to an array of valid schemas"};
+static constexpr auto EXPECTED_SCHEMA_ARRAY_NON_EMPTY{
+    "This keyword was expected to be set to a non-empty array of valid "
+    "schemas"};
+static constexpr auto EXPECTED_SCHEMA_OBJECT{
+    "This keyword was expected to be set to an object whose values are "
+    "valid schemas"};
+static constexpr auto EXPECTED_PROPERTY_NAME_ARRAY{
+    "This keyword was expected to be set to an array of unique property "
+    "names"};
+static constexpr auto EXPECTED_POSITIVE{
+    "This keyword was expected to be set to a number greater than zero"};
+static constexpr auto EXPECTED_NON_NEGATIVE{
+    "This keyword was expected to be set to a non-negative number"};
+static constexpr auto EXPECTED_TYPE_NAMES{
+    "This keyword was expected to be set to a known type name, or to a "
+    "non-empty array of unique ones"};
+static constexpr auto EXPECTED_UNIQUE_VALUES{
+    "This keyword was expected to be set to a non-empty array of unique "
+    "values"};
+static constexpr auto EXPECTED_NON_EMPTY_VALUES{
+    "This keyword was expected to be set to a non-empty array of values"};
+static constexpr auto EXPECTED_DEPENDENCIES{
+    "Every value of this keyword was expected to be a valid schema or an "
+    "array of unique property names"};
+static constexpr auto UNSUPPORTED_VALUE_FOR_DIALECT{
+    "The value this keyword is set to is not supported by this dialect"};
+static constexpr auto PROHIBITED_KEYWORD_FOR_DIALECT{
+    "This keyword is prohibited by this dialect"};
+
+// Refuse the keyword that the schema context points at. The location the error
+// carries names that keyword, so every message passed here reads as a
+// statement about it
+[[noreturn]] inline auto
+throw_keyword_error(const Context &context, const SchemaContext &schema_context,
+                    const char *const message) -> void {
+  throw CompilerError{schema_context.base,
+                      absolute_schema_location(context, schema_context),
+                      message};
+}
+
 // Same bridging as above, but keeping the pointer weak, as every caller only
 // wants to address the frame with it rather than to hand it out
 inline auto
@@ -535,68 +557,6 @@ inline auto pattern_as_prefix(const std::string &pattern)
     return matches[1].str();
   }
   return std::nullopt;
-}
-
-inline auto find_adjacent(const Context &context,
-                          const SchemaContext &schema_context,
-                          const std::set<std::string> &vocabularies,
-                          const std::string &keyword,
-                          const sourcemeta::core::JSON::Type type) -> auto {
-  // A candidate is the subschema that may declare the keyword, paired with the
-  // vocabularies in force there, as following a reference can land the search
-  // in a resource that speaks a different dialect than the one we started from
-  std::vector<std::pair<
-      sourcemeta::core::WeakPointer,
-      std::reference_wrapper<const sourcemeta::core::SchemaVocabularies>>>
-      candidates;
-  const auto current{
-      absolute_schema_pointer(context, schema_context).initial()};
-  candidates.emplace_back(current, std::cref(schema_context.vocabularies));
-
-  // TODO: Do something similar with `allOf`
-
-  // Attempt to statically follow references
-  static const std::string REF_KEYWORD{"$ref"};
-  if (schema_context.schema.defines("$ref")) {
-    const auto reference_type{sourcemeta::core::SchemaReferenceType::Static};
-    const auto origin{current.concat(make_weak_pointer(REF_KEYWORD))};
-    assert(context.frame.reference(reference_type, origin).has_value());
-    const auto &reference{
-        context.frame.reference(reference_type, origin).value().get()};
-    const auto destination{context.frame.traverse(reference.destination)};
-
-    // TODO: When this logic is used by
-    // `unevaluatedProperties`/`unevaluatedItems`, how can we let the
-    // applicators we detect here know that they have already been taken into
-    // consideration and thus do not have to track evaluation?
-    if (destination.has_value()) {
-      candidates.emplace_back(
-          destination.value().get().pointer,
-          std::cref(context.frame.vocabularies(destination.value().get(),
-                                               context.resolver)));
-    }
-  }
-
-  std::vector<std::reference_wrapper<const sourcemeta::core::JSON>> result;
-
-  for (const auto &[subschema, subschema_vocabularies] : candidates) {
-    const auto *value{sourcemeta::core::try_get(
-        context.root, subschema.concat(make_weak_pointer(keyword)))};
-    if (value == nullptr) {
-      continue;
-    }
-
-    if (std::ranges::any_of(
-            vocabularies,
-            [&subschema_vocabularies](const auto &vocabulary) -> auto {
-              return subschema_vocabularies.get().contains(vocabulary);
-            }) &&
-        value->type() == type) {
-      result.emplace_back(*value);
-    }
-  }
-
-  return result;
 }
 
 inline auto recursive_template_size(const Instructions &steps) -> std::size_t {
@@ -709,11 +669,8 @@ inline auto required_properties(const SchemaContext &schema_context)
     return result;
   }
 
-  const auto imports_draft3_vocabulary{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3_HYPER)};
-
-  if (imports_draft3_vocabulary && schema_context.schema.is_object() &&
+  if (is_draft3(schema_context.vocabularies) &&
+      schema_context.schema.is_object() &&
       schema_context.schema.defines("properties") &&
       schema_context.schema.at("properties").is_object()) {
     for (const auto &entry :

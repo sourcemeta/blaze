@@ -18,6 +18,8 @@
 
 #include "compile_helpers.h"
 
+namespace sourcemeta::blaze {
+
 // Draft 3 spells the absence of a type restriction as a type of its own, so a
 // schema that declares `any` narrows nothing and every keyword it carries
 // still applies. Only a type that rules the keyword out lets us skip it
@@ -43,14 +45,13 @@ narrows_type_away(const sourcemeta::core::JSON &schema,
   return true;
 }
 
-static auto parse_regex(const std::string &pattern,
-                        const sourcemeta::blaze::Context &context,
+static auto parse_regex(const std::string &pattern, const Context &context,
                         const sourcemeta::core::URI &base,
                         const sourcemeta::core::WeakPointer &schema_location)
     -> sourcemeta::core::Regex {
   const auto result{sourcemeta::core::to_regex(pattern)};
   if (!result.has_value()) [[unlikely]] {
-    throw sourcemeta::blaze::CompilerInvalidRegexError(
+    throw CompilerInvalidRegexError(
         base, absolute_schema_location(context, base, schema_location),
         pattern);
   }
@@ -58,19 +59,17 @@ static auto parse_regex(const std::string &pattern,
   return result.value();
 }
 
-static auto
-relative_schema_location_size(const sourcemeta::blaze::Context &context,
-                              const sourcemeta::blaze::Instruction &step)
+static auto relative_schema_location_size(const Context &context,
+                                          const Instruction &step)
     -> std::size_t {
   return context.extra[step.extra_index].relative_schema_location.size();
 }
 
-static auto
-defines_direct_enumeration(const sourcemeta::blaze::Instructions &steps)
+static auto defines_direct_enumeration(const Instructions &steps)
     -> std::optional<std::size_t> {
   const auto iterator{std::ranges::find_if(steps, [](const auto &step) -> auto {
-    return step.type == sourcemeta::blaze::InstructionIndex::AssertionEqual ||
-           step.type == sourcemeta::blaze::InstructionIndex::AssertionEqualsAny;
+    return step.type == InstructionIndex::AssertionEqual ||
+           step.type == InstructionIndex::AssertionEqualsAny;
   })};
 
   if (iterator == steps.cend()) {
@@ -88,37 +87,6 @@ static auto is_inside_disjunctor(const sourcemeta::core::WeakPointer &pointer)
           pointer.at(pointer.size() - 3).to_property() == "anyOf");
 }
 
-// The location a `CompilerError` carries names the keyword, so these read as
-// statements about it
-static constexpr auto EXPECTED_STRING{
-    "This keyword was expected to be set to a string"};
-static constexpr auto EXPECTED_INTEGER{
-    "This keyword was expected to be set to an integer"};
-static constexpr auto EXPECTED_NUMBER{
-    "This keyword was expected to be set to a number"};
-static constexpr auto EXPECTED_ARRAY{
-    "This keyword was expected to be set to an array"};
-static constexpr auto EXPECTED_OBJECT{
-    "This keyword was expected to be set to an object"};
-static constexpr auto EXPECTED_SCHEMA_ARRAY{
-    "This keyword was expected to be set to a non-empty array of valid "
-    "schemas"};
-static constexpr auto EXPECTED_SCHEMA_ARRAY_ANY_SIZE{
-    "This keyword was expected to be set to an array of valid schemas"};
-static constexpr auto EXPECTED_PROPERTY_NAME_ARRAY{
-    "This keyword was expected to be set to an array of unique property "
-    "names"};
-static constexpr auto EXPECTED_POSITIVE{
-    "This keyword was expected to be set to a number greater than zero"};
-static constexpr auto EXPECTED_NON_NEGATIVE{
-    "This keyword was expected to be set to a non-negative number"};
-static constexpr auto EXPECTED_TYPE_NAMES{
-    "This keyword was expected to be set to a known type name, or to a "
-    "non-empty array of unique ones"};
-static constexpr auto UNSUPPORTED_VALUE_FOR_DIALECT{
-    "The value this keyword is set to is not supported by this dialect"};
-static constexpr auto PROHIBITED_KEYWORD_FOR_DIALECT{
-    "This keyword is prohibited by this dialect"};
 // A subschema that `narrows_type_away` drops is never compiled, so neither
 // the refusal at the end of the dispatch table nor the keyword shape checks
 // ever reach its members. The OpenAPI 3.0 Schema Object is the only dialect
@@ -126,29 +94,15 @@ static constexpr auto PROHIBITED_KEYWORD_FOR_DIALECT{
 // compile the subschema the way a reachable one compiles and discard what it
 // yields: the checks are the point rather than the instructions
 static inline auto
-compile_pruned_subschema(const sourcemeta::blaze::Context &context,
-                         const sourcemeta::blaze::SchemaContext &schema_context,
+compile_pruned_subschema(const Context &context,
+                         const SchemaContext &schema_context,
                          const sourcemeta::core::WeakPointer &suffix) -> void {
-  if (!schema_context.vocabularies.contains(
-          sourcemeta::core::SchemaVocabularies::Known::OPENAPI_3_0_BASE)) {
+  if (!is_openapi_3_0(schema_context.vocabularies)) {
     return;
   }
 
-  sourcemeta::blaze::compile(context, schema_context,
-                             sourcemeta::blaze::relative_dynamic_context(),
-                             suffix, suffix);
+  compile(context, schema_context, relative_dynamic_context(), suffix, suffix);
 }
-
-static constexpr auto EXPECTED_UNIQUE_VALUES{
-    "This keyword was expected to be set to a non-empty array of unique "
-    "values"};
-static constexpr auto EXPECTED_NON_EMPTY_VALUES{
-    "This keyword was expected to be set to a non-empty array of values"};
-static constexpr auto EXPECTED_SCHEMA_OBJECT{
-    "Every value of this keyword was expected to be a valid schema"};
-static constexpr auto EXPECTED_DEPENDENCIES{
-    "Every value of this keyword was expected to be a valid schema or an "
-    "array of unique property names"};
 
 // Draft 3 and Draft 4 read "integer" as a number written without a fractional
 // part, so a bound like `2.0` is not one there. Draft 6 onwards widened it to
@@ -163,11 +117,8 @@ static constexpr auto EXPECTED_DEPENDENCIES{
 // release's to redefine
 auto integral_reals_are_integers(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  return !vocabularies.contains_any(
-      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
-       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
-       Known::OPENAPI_3_0_BASE});
+  return !is_draft3(vocabularies) && !is_draft4(vocabularies) &&
+         !is_openapi_3_0(vocabularies);
 }
 
 // A number too large to hold as a 64-bit integer is kept as a decimal, where
@@ -193,8 +144,7 @@ auto is_dialect_integer(
 // the next
 auto is_nullable(const sourcemeta::core::SchemaVocabularies &vocabularies,
                  const sourcemeta::core::JSON &schema) -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  return vocabularies.contains(Known::OPENAPI_3_0_BASE) && schema.is_object() &&
+  return is_openapi_3_0(vocabularies) && schema.is_object() &&
          schema.defines("nullable") && schema.at("nullable").is_boolean() &&
          schema.at("nullable").to_boolean();
 }
@@ -220,8 +170,7 @@ auto assume_type(const sourcemeta::core::SchemaVocabularies &vocabularies,
 // conjunction or disjunction has a settled meaning of its own
 auto in_place_applicators_may_be_empty(
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> bool {
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  return vocabularies.contains(Known::OPENAPI_3_0_BASE);
+  return is_openapi_3_0(vocabularies);
 }
 
 // Draft 3 describes `type` and `disallow` as a type name or an array of unique
@@ -243,8 +192,8 @@ auto is_string_array(const sourcemeta::core::JSON &value) -> bool {
 }
 
 static auto json_array_to_string_set(const sourcemeta::core::JSON &document)
-    -> sourcemeta::blaze::ValueStringSet {
-  sourcemeta::blaze::ValueStringSet result;
+    -> ValueStringSet {
+  ValueStringSet result;
   for (const auto &value : document.as_array()) {
     if (!value.is_string()) {
       continue;
@@ -256,9 +205,8 @@ static auto json_array_to_string_set(const sourcemeta::core::JSON &document)
   return result;
 }
 
-static auto
-is_closed_properties_required(const sourcemeta::core::JSON &schema,
-                              const sourcemeta::blaze::ValueStringSet &required)
+static auto is_closed_properties_required(const sourcemeta::core::JSON &schema,
+                                          const ValueStringSet &required)
     -> bool {
   return !schema.defines("patternProperties") &&
          schema.defines("additionalProperties") &&
@@ -273,11 +221,9 @@ is_closed_properties_required(const sourcemeta::core::JSON &schema,
 }
 
 static auto
-compile_properties(const sourcemeta::blaze::Context &context,
-                   const sourcemeta::blaze::SchemaContext &schema_context,
-                   const sourcemeta::blaze::DynamicContext &dynamic_context,
-                   const sourcemeta::blaze::Instructions &)
-    -> std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>> {
+compile_properties(const Context &context, const SchemaContext &schema_context,
+                   const DynamicContext &dynamic_context, const Instructions &)
+    -> std::vector<std::pair<std::string, Instructions>> {
   // The keywords that fuse with `properties` reach it from the side, past the
   // point where an overridden keyword is dropped. A `properties` that `$ref`
   // overrides enforces nothing, and nothing under it is framed, so there is
@@ -286,14 +232,12 @@ compile_properties(const sourcemeta::blaze::Context &context,
     return {};
   }
 
-  std::vector<std::pair<std::string, sourcemeta::blaze::Instructions>>
-      properties;
+  std::vector<std::pair<std::string, Instructions>> properties;
   for (const auto &entry : schema_context.schema.at("properties").as_object()) {
-    properties.emplace_back(
-        entry.first,
-        compile(context, schema_context, dynamic_context,
-                sourcemeta::blaze::make_weak_pointer(entry.first),
-                sourcemeta::blaze::make_weak_pointer(entry.first)));
+    properties.emplace_back(entry.first,
+                            compile(context, schema_context, dynamic_context,
+                                    make_weak_pointer(entry.first),
+                                    make_weak_pointer(entry.first)));
   }
 
   // In many cases, `properties` have some subschemas that are small
@@ -340,15 +284,14 @@ compile_properties(const sourcemeta::blaze::Context &context,
 }
 
 static auto to_string_hashes(
-    std::vector<std::pair<sourcemeta::blaze::ValueString,
-                          sourcemeta::blaze::ValueStringSet::hash_type>>
-        &hashes) -> sourcemeta::blaze::ValueStringHashes {
+    std::vector<std::pair<ValueString, ValueStringSet::hash_type>> &hashes)
+    -> ValueStringHashes {
   assert(!hashes.empty());
   std::ranges::sort(hashes, [](const auto &left, const auto &right) -> auto {
     return left.first.size() < right.first.size();
   });
 
-  sourcemeta::blaze::ValueStringHashes result;
+  ValueStringHashes result;
   // The idea with the table of contents is as follows: each index
   // marks the starting and end positions for a string where the size
   // is equal to the index.
@@ -378,9 +321,8 @@ static auto to_string_hashes(
 }
 
 static auto to_named_indexes(
-    std::vector<std::pair<sourcemeta::blaze::ValueString,
-                          sourcemeta::blaze::ValueUnsignedInteger>> &names)
-    -> sourcemeta::blaze::ValueNamedIndexes {
+    std::vector<std::pair<ValueString, ValueUnsignedInteger>> &names)
+    -> ValueNamedIndexes {
   assert(!names.empty());
   std::ranges::sort(names, [](const auto &left, const auto &right) -> auto {
     return left.first.size() < right.first.size();
@@ -392,7 +334,7 @@ static auto to_named_indexes(
   // evaluator scans them, as it did before the table of contents existed
   constexpr std::size_t MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS{12};
 
-  sourcemeta::blaze::ValueNamedIndexes result;
+  ValueNamedIndexes result;
   // The table of contents works as in `to_string_hashes`: each index marks the
   // starting and end positions of the names whose size is equal to the index
   if (names.size() > MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS) {
@@ -423,9 +365,6 @@ static auto to_named_indexes(
   return result;
 }
 
-namespace internal {
-using namespace sourcemeta::blaze;
-
 auto compile_required_assertions(const Context &context,
                                  const SchemaContext &schema_context,
                                  const DynamicContext &dynamic_context,
@@ -450,7 +389,7 @@ auto compile_required_assertions(const Context &context,
         // pointer must outlive `new_schema_context`
         const auto properties_pointer{
             schema_context.relative_pointer.initial().concat(
-                sourcemeta::blaze::make_weak_pointer(PROPERTIES_KEYWORD))};
+                make_weak_pointer(PROPERTIES_KEYWORD))};
         const SchemaContext new_schema_context{
             .relative_pointer = properties_pointer,
             .schema = schema_context.schema,
@@ -499,38 +438,32 @@ auto compile_required_assertions(const Context &context,
             hashes.emplace_back(property.first, property.second);
           }
 
-          return {make(sourcemeta::blaze::InstructionIndex::
-                           AssertionDefinesExactlyStrictHash3,
+          return {make(InstructionIndex::AssertionDefinesExactlyStrictHash3,
                        context, schema_context, dynamic_context,
                        to_string_hashes(hashes))};
         }
 
-        return {make(
-            sourcemeta::blaze::InstructionIndex::AssertionDefinesExactlyStrict,
-            context, schema_context, dynamic_context,
-            std::move(properties_set))};
+        return {make(InstructionIndex::AssertionDefinesExactlyStrict, context,
+                     schema_context, dynamic_context,
+                     std::move(properties_set))};
       }
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionDefinesExactly,
-                   context, schema_context, dynamic_context,
-                   std::move(properties_set))};
+      return {make(InstructionIndex::AssertionDefinesExactly, context,
+                   schema_context, dynamic_context, std::move(properties_set))};
     }
     if (assume_object) {
-      return {make(
-          sourcemeta::blaze::InstructionIndex::AssertionDefinesAllStrict,
-          context, schema_context, dynamic_context, std::move(properties_set))};
+      return {make(InstructionIndex::AssertionDefinesAllStrict, context,
+                   schema_context, dynamic_context, std::move(properties_set))};
     }
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionDefinesAll,
-                 context, schema_context, dynamic_context,
-                 std::move(properties_set))};
+    return {make(InstructionIndex::AssertionDefinesAll, context, schema_context,
+                 dynamic_context, std::move(properties_set))};
   }
   if (assume_object) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionDefinesStrict,
-                 context, schema_context, dynamic_context,
+    return {make(InstructionIndex::AssertionDefinesStrict, context,
+                 schema_context, dynamic_context,
                  make_property(properties_set.begin()->first))};
   }
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionDefines, context,
-               schema_context, dynamic_context,
-               make_property(properties_set.begin()->first))};
+  return {make(InstructionIndex::AssertionDefines, context, schema_context,
+               dynamic_context, make_property(properties_set.begin()->first))};
 }
 
 auto compiler_draft3_core_ref(const Context &context,
@@ -551,8 +484,8 @@ auto compiler_draft3_core_ref(const Context &context,
                                  std::string_view{reference->get().destination},
                                  schema_context.is_property_name)};
   assert(context.targets.contains(key));
-  return {make(sourcemeta::blaze::InstructionIndex::ControlJump, context,
-               schema_context, dynamic_context,
+  return {make(InstructionIndex::ControlJump, context, schema_context,
+               dynamic_context,
                ValueUnsignedInteger{context.targets.at(key).first})};
 }
 
@@ -663,8 +596,8 @@ auto draft3_any_type_instructions(const Context &context,
   types.set(std::to_underlying(JSON::Type::Real));
   types.set(std::to_underlying(JSON::Type::Decimal));
   types.set(std::to_underlying(JSON::Type::String));
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
-               context, schema_context, dynamic_context, types)};
+  return {make(InstructionIndex::AssertionTypeStrictAny, context,
+               schema_context, dynamic_context, types)};
 }
 
 // The instruction that asserts a single type name, or nothing at all for a
@@ -681,16 +614,16 @@ auto make_type_assertion(const Context &context,
     types.set(std::to_underlying(JSON::Type::Real));
     types.set(std::to_underlying(JSON::Type::Integer));
     types.set(std::to_underlying(JSON::Type::Decimal));
-    return make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
-                context, schema_context, dynamic_context, types);
+    return make(InstructionIndex::AssertionTypeStrictAny, context,
+                schema_context, dynamic_context, types);
   }
 
   // A dialect that reads a number written with a fractional part as an integer
   // needs the check that accepts one
   if (name == "integer") {
     return make(integral_reals_are_integers(schema_context.vocabularies)
-                    ? sourcemeta::blaze::InstructionIndex::AssertionType
-                    : sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
+                    ? InstructionIndex::AssertionType
+                    : InstructionIndex::AssertionTypeStrict,
                 context, schema_context, dynamic_context, JSON::Type::Integer);
   }
 
@@ -709,29 +642,25 @@ auto make_type_assertion(const Context &context,
     return std::nullopt;
   }
 
-  return make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict, context,
-              schema_context, dynamic_context, type);
+  return make(InstructionIndex::AssertionTypeStrict, context, schema_context,
+              dynamic_context, type);
 }
 
 // A pair of sibling size bounds folds into the type assertion itself, which
 // then settles the type and the size in one instruction. Bounds that cross
 // leave nothing for an instance to satisfy
-auto fuse_type_size_bound(const Context &context,
-                          const SchemaContext &schema_context,
-                          const DynamicContext &dynamic_context,
-                          const std::size_t minimum,
-                          const std::optional<std::size_t> maximum,
-                          const sourcemeta::blaze::InstructionIndex upper,
-                          const sourcemeta::blaze::InstructionIndex bounded)
-    -> std::optional<Instructions> {
+auto fuse_type_size_bound(
+    const Context &context, const SchemaContext &schema_context,
+    const DynamicContext &dynamic_context, const std::size_t minimum,
+    const std::optional<std::size_t> maximum, const InstructionIndex upper,
+    const InstructionIndex bounded) -> std::optional<Instructions> {
   if (context.mode != Mode::FastValidation) {
     return std::nullopt;
   }
 
   if (maximum.has_value() && minimum > maximum.value()) {
-    return Instructions{make(sourcemeta::blaze::InstructionIndex::AssertionFail,
-                             context, schema_context, dynamic_context,
-                             ValueNone{})};
+    return Instructions{make(InstructionIndex::AssertionFail, context,
+                             schema_context, dynamic_context, ValueNone{})};
   }
 
   if (maximum.has_value() && minimum == 0) {
@@ -941,9 +870,7 @@ auto compiler_draft3_applicator_properties_with_options(
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_OBJECT);
+    throw_keyword_error(context, schema_context, EXPECTED_OBJECT);
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
@@ -953,9 +880,8 @@ auto compiler_draft3_applicator_properties_with_options(
   if (narrows_type_away(schema_context.schema, {"object"})) {
     for (const auto &entry :
          schema_context.schema.at(dynamic_context.keyword).as_object()) {
-      compile_pruned_subschema(
-          context, schema_context,
-          sourcemeta::blaze::make_weak_pointer(entry.first));
+      compile_pruned_subschema(context, schema_context,
+                               make_weak_pointer(entry.first));
     }
 
     return {};
@@ -975,23 +901,21 @@ auto compiler_draft3_applicator_properties_with_options(
       names.emplace_back(name, cursor);
 
       if (track_evaluation) {
-        substeps.push_back(make(
-            sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-            schema_context, relative_dynamic_context(), ValuePointer{name}));
+        substeps.push_back(make(InstructionIndex::ControlEvaluate, context,
+                                schema_context, relative_dynamic_context(),
+                                ValuePointer{name}));
       }
 
       if (emit_annotation) {
-        substeps.push_back(
-            make(sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped,
-                 context, schema_context, relative_dynamic_context(),
-                 sourcemeta::core::JSON{name}));
+        substeps.push_back(make(
+            InstructionIndex::AnnotationEmitWrapped, context, schema_context,
+            relative_dynamic_context(), sourcemeta::core::JSON{name}));
       }
 
       // Note that the evaluator completely ignores this wrapper anyway
-      children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
-                              context, schema_context,
-                              relative_dynamic_context(), ValueNone{},
-                              std::move(substeps)));
+      children.push_back(make(InstructionIndex::ControlGroup, context,
+                              schema_context, relative_dynamic_context(),
+                              ValueNone{}, std::move(substeps)));
       cursor += 1;
     }
 
@@ -1000,15 +924,14 @@ auto compiler_draft3_applicator_properties_with_options(
         schema_context.schema.defines("additionalProperties") &&
         schema_context.schema.at("additionalProperties").is_boolean() &&
         !schema_context.schema.at("additionalProperties").to_boolean()) {
-      return {
-          make(sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchClosed,
-               context, schema_context, dynamic_context,
-               to_named_indexes(names), std::move(children))};
+      return {make(InstructionIndex::LoopPropertiesMatchClosed, context,
+                   schema_context, dynamic_context, to_named_indexes(names),
+                   std::move(children))};
     }
 
-    return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesMatch,
-                 context, schema_context, dynamic_context,
-                 to_named_indexes(names), std::move(children))};
+    return {make(InstructionIndex::LoopPropertiesMatch, context, schema_context,
+                 dynamic_context, to_named_indexes(names),
+                 std::move(children))};
   }
 
   Instructions children;
@@ -1064,24 +987,22 @@ auto compiler_draft3_applicator_properties_with_options(
             }
 
             if (perfect_hashes.size() == required.size()) {
-              return {make(sourcemeta::blaze::InstructionIndex::
-                               LoopPropertiesExactlyTypeStrictHash,
-                           context, schema_context, dynamic_context,
-                           ValueTypedHashes{*types.cbegin(),
-                                            to_string_hashes(perfect_hashes)})};
+              return {
+                  make(InstructionIndex::LoopPropertiesExactlyTypeStrictHash,
+                       context, schema_context, dynamic_context,
+                       ValueTypedHashes{*types.cbegin(),
+                                        to_string_hashes(perfect_hashes)})};
             }
 
             return {make(
-                sourcemeta::blaze::InstructionIndex::
-                    LoopPropertiesExactlyTypeStrict,
-                context, schema_context, dynamic_context,
+                InstructionIndex::LoopPropertiesExactlyTypeStrict, context,
+                schema_context, dynamic_context,
                 ValueTypedProperties{*types.cbegin(), std::move(required)})};
           }
         }
 
-        return {
-            make(sourcemeta::blaze::InstructionIndex::LoopPropertiesTypeStrict,
-                 context, schema_context, dynamic_context, *types.cbegin())};
+        return {make(InstructionIndex::LoopPropertiesTypeStrict, context,
+                     schema_context, dynamic_context, *types.cbegin())};
       }
     }
 
@@ -1096,9 +1017,8 @@ auto compiler_draft3_applicator_properties_with_options(
       }
 
       if (types.size() == 1) {
-        return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesType,
-                     context, schema_context, dynamic_context,
-                     *types.cbegin())};
+        return {make(InstructionIndex::LoopPropertiesType, context,
+                     schema_context, dynamic_context, *types.cbegin())};
       }
     }
   }
@@ -1138,10 +1058,9 @@ auto compiler_draft3_applicator_properties_with_options(
 
   for (auto &&[name, substeps] : properties) {
     if (emit_annotation) {
-      substeps.push_back(
-          make(sourcemeta::blaze::InstructionIndex::AnnotationEmitWrapped,
-               context, schema_context, effective_dynamic_context,
-               sourcemeta::core::JSON{name}));
+      substeps.push_back(make(InstructionIndex::AnnotationEmitWrapped, context,
+                              schema_context, effective_dynamic_context,
+                              sourcemeta::core::JSON{name}));
     }
 
     // Optimize `properties` where its subschemas just include a type check
@@ -1149,25 +1068,22 @@ auto compiler_draft3_applicator_properties_with_options(
     if (context.mode == Mode::FastValidation && track_evaluation &&
         substeps.size() == 1 &&
         substeps.front().type == InstructionIndex::AssertionTypeStrict) {
-      children.push_back(rephrase(context,
-                                  sourcemeta::blaze::InstructionIndex::
-                                      AssertionPropertyTypeStrictEvaluate,
-                                  substeps.front()));
+      children.push_back(rephrase(
+          context, InstructionIndex::AssertionPropertyTypeStrictEvaluate,
+          substeps.front()));
     } else if (context.mode == Mode::FastValidation && track_evaluation &&
                substeps.size() == 1 &&
                substeps.front().type == InstructionIndex::AssertionType) {
-      children.push_back(rephrase(
-          context,
-          sourcemeta::blaze::InstructionIndex::AssertionPropertyTypeEvaluate,
-          substeps.front()));
+      children.push_back(
+          rephrase(context, InstructionIndex::AssertionPropertyTypeEvaluate,
+                   substeps.front()));
     } else if (context.mode == Mode::FastValidation && track_evaluation &&
                substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionTypeStrictAny) {
-      children.push_back(rephrase(context,
-                                  sourcemeta::blaze::InstructionIndex::
-                                      AssertionPropertyTypeStrictAnyEvaluate,
-                                  substeps.front()));
+      children.push_back(rephrase(
+          context, InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate,
+          substeps.front()));
 
       // NOLINTBEGIN(bugprone-branch-clone)
     } else if (!fusion_possible && context.mode == Mode::FastValidation &&
@@ -1199,8 +1115,7 @@ auto compiler_draft3_applicator_properties_with_options(
             effective_dynamic_context.base_instance_location};
         new_base_instance_location.push_back({name});
         substeps.push_back(
-            make(sourcemeta::blaze::InstructionIndex::Evaluate, context,
-                 schema_context,
+            make(InstructionIndex::Evaluate, context, schema_context,
                  DynamicContext{
                      .keyword = effective_dynamic_context.keyword,
                      .base_schema_location =
@@ -1379,17 +1294,16 @@ auto compiler_draft3_applicator_properties_with_options(
               children.push_back(std::move(step));
             }
           } else {
-            children.push_back(make(sourcemeta::blaze::InstructionIndex::
-                                        ControlGroupWhenDefinesDirect,
-                                    context, schema_context,
-                                    effective_dynamic_context,
-                                    make_property(name), std::move(substeps)));
+            children.push_back(
+                make(InstructionIndex::ControlGroupWhenDefinesDirect, context,
+                     schema_context, effective_dynamic_context,
+                     make_property(name), std::move(substeps)));
           }
         } else {
-          children.push_back(
-              make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenDefines,
-                   context, schema_context, effective_dynamic_context,
-                   make_property(name), std::move(substeps)));
+          children.push_back(make(InstructionIndex::ControlGroupWhenDefines,
+                                  context, schema_context,
+                                  effective_dynamic_context,
+                                  make_property(name), std::move(substeps)));
         }
       }
     }
@@ -1428,9 +1342,9 @@ auto compiler_draft3_applicator_properties_with_options(
   if (children.empty()) {
     return {};
   }
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalWhenType, context,
-               schema_context, dynamic_context,
-               sourcemeta::core::JSON::Type::Object, std::move(children))};
+  return {make(InstructionIndex::LogicalWhenType, context, schema_context,
+               dynamic_context, sourcemeta::core::JSON::Type::Object,
+               std::move(children))};
 }
 
 auto compiler_draft3_applicator_properties(
@@ -1440,11 +1354,7 @@ auto compiler_draft3_applicator_properties(
   auto property_instructions{compiler_draft3_applicator_properties_with_options(
       context, schema_context, dynamic_context, current, false, false)};
 
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  const auto is_draft3{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3_HYPER)};
-  if (!is_draft3) {
+  if (!is_draft3(schema_context.vocabularies)) {
     return property_instructions;
   }
 
@@ -1471,9 +1381,7 @@ auto compiler_draft3_applicator_patternproperties_with_options(
     const DynamicContext &dynamic_context, const bool annotate,
     const bool track_evaluation) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_OBJECT);
+    throw_keyword_error(context, schema_context, EXPECTED_OBJECT);
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
@@ -1498,18 +1406,18 @@ auto compiler_draft3_applicator_patternproperties_with_options(
   // For each regular expression and corresponding subschema in the object
   for (const auto &pattern : patterns) {
     auto substeps{compile(context, schema_context, relative_dynamic_context(),
-                          sourcemeta::blaze::make_weak_pointer(pattern))};
+                          make_weak_pointer(pattern))};
 
     if (annotate && annotations_enabled(context, dynamic_context.keyword)) {
-      substeps.push_back(make(
-          sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
-          context, schema_context, relative_dynamic_context(), ValueNone{}));
+      substeps.push_back(make(InstructionIndex::AnnotationBasenameToParent,
+                              context, schema_context,
+                              relative_dynamic_context(), ValueNone{}));
     }
 
     if (track_evaluation) {
-      substeps.push_back(
-          make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-               schema_context, relative_dynamic_context(), ValuePointer{}));
+      substeps.push_back(make(InstructionIndex::ControlEvaluate, context,
+                              schema_context, relative_dynamic_context(),
+                              ValuePointer{}));
     }
 
     if (context.mode == Mode::FastValidation && !track_evaluation &&
@@ -1521,8 +1429,8 @@ auto compiler_draft3_applicator_patternproperties_with_options(
         schema_context.schema.at("additionalProperties").is_boolean() &&
         !schema_context.schema.at("additionalProperties").to_boolean()) {
       children.push_back(make(
-          sourcemeta::blaze::InstructionIndex::LoopPropertiesRegexClosed,
-          context, schema_context, dynamic_context,
+          InstructionIndex::LoopPropertiesRegexClosed, context, schema_context,
+          dynamic_context,
           ValueRegex{.first = parse_regex(pattern, context, schema_context.base,
                                           schema_context.relative_pointer),
                      .second = pattern},
@@ -1533,14 +1441,14 @@ auto compiler_draft3_applicator_patternproperties_with_options(
     } else if (!substeps.empty()) {
       const auto maybe_prefix{pattern_as_prefix(pattern)};
       if (maybe_prefix.has_value()) {
-        children.push_back(
-            make(sourcemeta::blaze::InstructionIndex::LoopPropertiesStartsWith,
-                 context, schema_context, dynamic_context,
-                 ValueString{maybe_prefix.value()}, std::move(substeps)));
+        children.push_back(make(InstructionIndex::LoopPropertiesStartsWith,
+                                context, schema_context, dynamic_context,
+                                ValueString{maybe_prefix.value()},
+                                std::move(substeps)));
       } else {
         children.push_back(
-            make(sourcemeta::blaze::InstructionIndex::LoopPropertiesRegex,
-                 context, schema_context, dynamic_context,
+            make(InstructionIndex::LoopPropertiesRegex, context, schema_context,
+                 dynamic_context,
                  ValueRegex{
                      .first = parse_regex(pattern, context, schema_context.base,
                                           schema_context.relative_pointer),
@@ -1580,7 +1488,7 @@ properties_enforce_closed_object(const Context &context,
   // pointer must outlive `new_schema_context`
   const auto properties_pointer{
       schema_context.relative_pointer.initial().concat(
-          sourcemeta::blaze::make_weak_pointer(KEYWORD_PROPERTIES))};
+          make_weak_pointer(KEYWORD_PROPERTIES))};
   const SchemaContext new_schema_context{
       .relative_pointer = properties_pointer,
       .schema = schema_context.schema,
@@ -1625,9 +1533,9 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
                                 sourcemeta::core::EMPTY_WEAK_POINTER)};
 
   if (annotate && annotations_enabled(context, dynamic_context.keyword)) {
-    children.push_back(
-        make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
-             context, schema_context, relative_dynamic_context(), ValueNone{}));
+    children.push_back(make(InstructionIndex::AnnotationBasenameToParent,
+                            context, schema_context, relative_dynamic_context(),
+                            ValueNone{}));
   }
 
   ValueStringSet filter_strings;
@@ -1653,11 +1561,10 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
         static const std::string PATTERN_PROPERTIES_KEYWORD{
             "patternProperties"};
         filter_regexes.push_back(
-            {.first =
-                 parse_regex(entry.first, context, schema_context.base,
-                             schema_context.relative_pointer.initial().concat(
-                                 sourcemeta::blaze::make_weak_pointer(
-                                     PATTERN_PROPERTIES_KEYWORD))),
+            {.first = parse_regex(
+                 entry.first, context, schema_context.base,
+                 schema_context.relative_pointer.initial().concat(
+                     make_weak_pointer(PATTERN_PROPERTIES_KEYWORD))),
              .second = entry.first});
       }
     }
@@ -1730,13 +1637,13 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
   if (!filter_strings.empty() || !filter_prefixes.empty() ||
       !filter_regexes.empty()) {
     if (track_evaluation) {
-      children.push_back(
-          make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-               schema_context, relative_dynamic_context(), ValuePointer{}));
+      children.push_back(make(InstructionIndex::ControlEvaluate, context,
+                              schema_context, relative_dynamic_context(),
+                              ValuePointer{}));
     }
 
-    return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept,
-                 context, schema_context, dynamic_context,
+    return {make(InstructionIndex::LoopPropertiesExcept, context,
+                 schema_context, dynamic_context,
                  ValuePropertyFilter{std::move(filter_strings),
                                      std::move(filter_prefixes),
                                      std::move(filter_regexes)},
@@ -1748,19 +1655,17 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
     // conditional branch evaluated against an array, it would wrongly mark that
     // array evaluated and suppress a sibling `unevaluatedItems`. An
     // object-guarded marker only records objects, and needs no children
-    return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesEvaluate,
-                 context, schema_context, dynamic_context, ValueNone{},
+    return {make(InstructionIndex::LoopPropertiesEvaluate, context,
+                 schema_context, dynamic_context, ValueNone{},
                  std::move(children))};
   }
   if (children.size() == 1 &&
       children.front().type == InstructionIndex::AssertionFail) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionObjectSizeLess,
-                 context, schema_context, dynamic_context,
-                 ValueUnsignedInteger{1})};
+    return {make(InstructionIndex::AssertionObjectSizeLess, context,
+                 schema_context, dynamic_context, ValueUnsignedInteger{1})};
   }
-  return {make(sourcemeta::blaze::InstructionIndex::LoopProperties, context,
-               schema_context, dynamic_context, ValueNone{},
-               std::move(children))};
+  return {make(InstructionIndex::LoopProperties, context, schema_context,
+               dynamic_context, ValueNone{}, std::move(children))};
 }
 
 auto compiler_draft3_applicator_additionalproperties(
@@ -1776,9 +1681,7 @@ auto compiler_draft3_validation_pattern(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_string()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_STRING);
+    throw_keyword_error(context, schema_context, EXPECTED_STRING);
   }
 
   if (narrows_type_away(schema_context.schema, {"string"})) {
@@ -1787,8 +1690,8 @@ auto compiler_draft3_validation_pattern(const Context &context,
 
   const auto &regex_string{
       schema_context.schema.at(dynamic_context.keyword).to_string()};
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionRegex, context,
-               schema_context, dynamic_context,
+  return {make(InstructionIndex::AssertionRegex, context, schema_context,
+               dynamic_context,
                ValueRegex{.first = parse_regex(regex_string, context,
                                                schema_context.base,
                                                schema_context.relative_pointer),
@@ -1804,23 +1707,19 @@ auto compiler_draft3_applicator_items_array(
   }
 
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_ARRAY);
+    throw_keyword_error(context, schema_context, EXPECTED_ARRAY);
   }
 
   // Draft 3 puts no lower bound on how many schemas the tuple form may list,
   // whereas every dialect after it asks for at least one
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  const auto allows_empty{schema_context.vocabularies.contains_any(
-      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER})};
+  const auto allows_empty{is_draft3(schema_context.vocabularies)};
   const auto &items{schema_context.schema.at(dynamic_context.keyword)};
   if ((items.empty() && !allows_empty) ||
       !all_are_schemas(items,
                        booleans_are_schemas(schema_context.vocabularies))) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        allows_empty ? EXPECTED_SCHEMA_ARRAY_ANY_SIZE : EXPECTED_SCHEMA_ARRAY);
+    throw_keyword_error(context, schema_context,
+                        allows_empty ? EXPECTED_SCHEMA_ARRAY
+                                     : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
   }
 
   const auto items_size{
@@ -1858,14 +1757,13 @@ auto compiler_draft3_applicator_items_array(
     }
 
     if (emit_annotation) {
-      subchildren.push_back(
-          make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-               schema_context, relative_dynamic_context(),
-               sourcemeta::core::JSON{cursor}));
+      subchildren.push_back(make(InstructionIndex::AnnotationEmit, context,
+                                 schema_context, relative_dynamic_context(),
+                                 sourcemeta::core::JSON{cursor}));
     }
 
-    children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
-                            context, schema_context, relative_dynamic_context(),
+    children.push_back(make(InstructionIndex::ControlGroup, context,
+                            schema_context, relative_dynamic_context(),
                             ValueNone{}, std::move(subchildren)));
   }
 
@@ -1877,27 +1775,25 @@ auto compiler_draft3_applicator_items_array(
   }
 
   if (emit_annotation) {
-    tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
-                        context, schema_context, relative_dynamic_context(),
+    tail.push_back(make(InstructionIndex::AnnotationEmit, context,
+                        schema_context, relative_dynamic_context(),
                         sourcemeta::core::JSON{children.size() - 1}));
-    tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
-                        context, schema_context, relative_dynamic_context(),
+    tail.push_back(make(InstructionIndex::AnnotationEmit, context,
+                        schema_context, relative_dynamic_context(),
                         sourcemeta::core::JSON{true}));
   }
 
-  children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
-                          context, schema_context, relative_dynamic_context(),
+  children.push_back(make(InstructionIndex::ControlGroup, context,
+                          schema_context, relative_dynamic_context(),
                           ValueNone{}, std::move(tail)));
 
   if (track_evaluation) {
-    return {
-        make(sourcemeta::blaze::InstructionIndex::AssertionArrayPrefixEvaluate,
-             context, schema_context, dynamic_context, ValueNone{},
-             std::move(children))};
+    return {make(InstructionIndex::AssertionArrayPrefixEvaluate, context,
+                 schema_context, dynamic_context, ValueNone{},
+                 std::move(children))};
   }
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionArrayPrefix,
-               context, schema_context, dynamic_context, ValueNone{},
-               std::move(children))};
+  return {make(InstructionIndex::AssertionArrayPrefix, context, schema_context,
+               dynamic_context, ValueNone{}, std::move(children))};
 }
 
 auto is_number_type_check(const Instruction &instruction) -> bool {
@@ -1997,18 +1893,14 @@ auto compiler_draft3_applicator_items_with_options(
   // keyword can apply to. Draft 3 puts no lower bound on how many it may list,
   // whereas every dialect after it asks for at least one
   if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    using Known = sourcemeta::core::SchemaVocabularies::Known;
-    const auto allows_empty{schema_context.vocabularies.contains_any(
-        {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER})};
+    const auto allows_empty{is_draft3(schema_context.vocabularies)};
     const auto &entries{schema_context.schema.at(dynamic_context.keyword)};
     if ((entries.empty() && !allows_empty) ||
         !all_are_schemas(entries,
                          booleans_are_schemas(schema_context.vocabularies))) {
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base,
-          absolute_schema_location(context, schema_context),
-          allows_empty ? EXPECTED_SCHEMA_ARRAY_ANY_SIZE
-                       : EXPECTED_SCHEMA_ARRAY);
+      throw_keyword_error(context, schema_context,
+                          allows_empty ? EXPECTED_SCHEMA_ARRAY
+                                       : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
     }
   }
 
@@ -2032,9 +1924,9 @@ auto compiler_draft3_applicator_items_with_options(
       Instructions children;
 
       if (!subchildren.empty()) {
-        children.push_back(make(sourcemeta::blaze::InstructionIndex::LoopItems,
-                                context, schema_context, dynamic_context,
-                                ValueNone{}, std::move(subchildren)));
+        children.push_back(make(InstructionIndex::LoopItems, context,
+                                schema_context, dynamic_context, ValueNone{},
+                                std::move(subchildren)));
       }
 
       if (!emit_annotation && !track_evaluation) {
@@ -2044,21 +1936,21 @@ auto compiler_draft3_applicator_items_with_options(
       Instructions tail;
 
       if (emit_annotation) {
-        tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
-                            context, schema_context, relative_dynamic_context(),
+        tail.push_back(make(InstructionIndex::AnnotationEmit, context,
+                            schema_context, relative_dynamic_context(),
                             sourcemeta::core::JSON{true}));
       }
 
       if (track_evaluation) {
-        tail.push_back(
-            make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-                 schema_context, relative_dynamic_context(), ValuePointer{}));
+        tail.push_back(make(InstructionIndex::ControlEvaluate, context,
+                            schema_context, relative_dynamic_context(),
+                            ValuePointer{}));
       }
 
-      children.push_back(
-          make(sourcemeta::blaze::InstructionIndex::LogicalWhenType, context,
-               schema_context, dynamic_context,
-               sourcemeta::core::JSON::Type::Array, std::move(tail)));
+      children.push_back(make(InstructionIndex::LogicalWhenType, context,
+                              schema_context, dynamic_context,
+                              sourcemeta::core::JSON::Type::Array,
+                              std::move(tail)));
 
       return children;
     }
@@ -2068,9 +1960,9 @@ auto compiler_draft3_applicator_items_with_options(
                                   sourcemeta::core::EMPTY_WEAK_POINTER,
                                   sourcemeta::core::EMPTY_WEAK_POINTER)};
     if (track_evaluation) {
-      children.push_back(
-          make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-               schema_context, relative_dynamic_context(), ValuePointer{}));
+      children.push_back(make(InstructionIndex::ControlEvaluate, context,
+                              schema_context, relative_dynamic_context(),
+                              ValuePointer{}));
     }
 
     if (children.empty()) {
@@ -2079,64 +1971,57 @@ auto compiler_draft3_applicator_items_with_options(
 
     if (context.mode == Mode::FastValidation && children.size() == 3 &&
         is_integer_bounded_pattern(children)) {
-      return {make(sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBounded,
-                   context, schema_context, dynamic_context,
+      return {make(InstructionIndex::LoopItemsIntegerBounded, context,
+                   schema_context, dynamic_context,
                    extract_integer_bounds(children))};
     }
 
     if (context.mode == Mode::FastValidation && children.size() == 2 &&
         is_bounded_array_items_pattern(children)) {
-      return {make(sourcemeta::blaze::InstructionIndex::
-                       LoopItemsArrayBoundedTypeStrictAny,
+      return {make(InstructionIndex::LoopItemsArrayBoundedTypeStrictAny,
                    context, schema_context, dynamic_context,
                    extract_bounded_array_items(children))};
     }
 
     if (context.mode == Mode::FastValidation && children.size() == 1) {
       if (children.front().type == InstructionIndex::AssertionTypeStrict) {
-        return {make(sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrict,
-                     context, schema_context, dynamic_context,
-                     children.front().value)};
+        return {make(InstructionIndex::LoopItemsTypeStrict, context,
+                     schema_context, dynamic_context, children.front().value)};
       }
       if (children.front().type == InstructionIndex::AssertionType) {
-        return {make(sourcemeta::blaze::InstructionIndex::LoopItemsType,
-                     context, schema_context, dynamic_context,
-                     children.front().value)};
+        return {make(InstructionIndex::LoopItemsType, context, schema_context,
+                     dynamic_context, children.front().value)};
       }
       if (children.front().type == InstructionIndex::AssertionTypeStrictAny) {
-        return {make(
-            sourcemeta::blaze::InstructionIndex::LoopItemsTypeStrictAny,
-            context, schema_context, dynamic_context, children.front().value)};
+        return {make(InstructionIndex::LoopItemsTypeStrictAny, context,
+                     schema_context, dynamic_context, children.front().value)};
       }
       if (children.front().type ==
           InstructionIndex::LoopPropertiesExactlyTypeStrictHash) {
         auto value_copy = children.front().value;
-        auto current{make(sourcemeta::blaze::InstructionIndex::LoopItems,
-                          context, schema_context, dynamic_context, ValueNone{},
-                          std::move(children))};
+        auto current{make(InstructionIndex::LoopItems, context, schema_context,
+                          dynamic_context, ValueNone{}, std::move(children))};
         if (std::get<ValueTypedHashes>(value_copy).second.first.size() == 3) {
-          return {Instruction{.type = sourcemeta::blaze::InstructionIndex::
-                                  LoopItemsPropertiesExactlyTypeStrictHash3,
-                              .relative_instance_location =
-                                  current.relative_instance_location,
-                              .value = std::move(value_copy),
-                              .children = {},
-                              .extra_index = current.extra_index}};
+          return {Instruction{
+              .type =
+                  InstructionIndex::LoopItemsPropertiesExactlyTypeStrictHash3,
+              .relative_instance_location = current.relative_instance_location,
+              .value = std::move(value_copy),
+              .children = {},
+              .extra_index = current.extra_index}};
         }
 
-        return {Instruction{.type = sourcemeta::blaze::InstructionIndex::
-                                LoopItemsPropertiesExactlyTypeStrictHash,
-                            .relative_instance_location =
-                                current.relative_instance_location,
-                            .value = std::move(value_copy),
-                            .children = {},
-                            .extra_index = current.extra_index}};
+        return {Instruction{
+            .type = InstructionIndex::LoopItemsPropertiesExactlyTypeStrictHash,
+            .relative_instance_location = current.relative_instance_location,
+            .value = std::move(value_copy),
+            .children = {},
+            .extra_index = current.extra_index}};
       }
     }
 
-    return {make(sourcemeta::blaze::InstructionIndex::LoopItems, context,
-                 schema_context, dynamic_context, ValueNone{},
-                 std::move(children))};
+    return {make(InstructionIndex::LoopItems, context, schema_context,
+                 dynamic_context, ValueNone{}, std::move(children))};
   }
 
   return compiler_draft3_applicator_items_array(
@@ -2173,17 +2058,15 @@ auto compiler_draft3_applicator_additionalitems_from_cursor(
     if (context.mode == Mode::FastValidation && cursor == 0 &&
         !emit_annotation && !track_evaluation &&
         is_integer_bounded_pattern(subchildren)) {
-      children.push_back(
-          make(sourcemeta::blaze::InstructionIndex::LoopItemsIntegerBounded,
-               context, schema_context, dynamic_context,
-               extract_integer_bounds(subchildren)));
+      children.push_back(make(InstructionIndex::LoopItemsIntegerBounded,
+                              context, schema_context, dynamic_context,
+                              extract_integer_bounds(subchildren)));
       return children;
     }
 
-    children.push_back(make(sourcemeta::blaze::InstructionIndex::LoopItemsFrom,
-                            context, schema_context, dynamic_context,
-                            ValueUnsignedInteger{cursor},
-                            std::move(subchildren)));
+    children.push_back(make(
+        InstructionIndex::LoopItemsFrom, context, schema_context,
+        dynamic_context, ValueUnsignedInteger{cursor}, std::move(subchildren)));
   }
 
   // Avoid one extra wrapper instruction if possible
@@ -2194,22 +2077,21 @@ auto compiler_draft3_applicator_additionalitems_from_cursor(
   Instructions tail;
 
   if (emit_annotation) {
-    tail.push_back(make(sourcemeta::blaze::InstructionIndex::AnnotationEmit,
-                        context, schema_context, relative_dynamic_context(),
+    tail.push_back(make(InstructionIndex::AnnotationEmit, context,
+                        schema_context, relative_dynamic_context(),
                         sourcemeta::core::JSON{true}));
   }
 
   if (track_evaluation) {
-    tail.push_back(make(sourcemeta::blaze::InstructionIndex::ControlEvaluate,
-                        context, schema_context, relative_dynamic_context(),
+    tail.push_back(make(InstructionIndex::ControlEvaluate, context,
+                        schema_context, relative_dynamic_context(),
                         ValuePointer{}));
   }
 
   assert(!tail.empty());
-  children.push_back(
-      make(sourcemeta::blaze::InstructionIndex::LogicalWhenArraySizeGreater,
-           context, schema_context, dynamic_context,
-           ValueUnsignedInteger{cursor}, std::move(tail)));
+  children.push_back(make(InstructionIndex::LogicalWhenArraySizeGreater,
+                          context, schema_context, dynamic_context,
+                          ValueUnsignedInteger{cursor}, std::move(tail)));
 
   return children;
 }
@@ -2253,48 +2135,39 @@ auto compiler_draft3_validation_enum(const Context &context,
                                      const DynamicContext &dynamic_context,
                                      const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_ARRAY);
+    throw_keyword_error(context, schema_context, EXPECTED_ARRAY);
   }
 
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  if (schema_context.vocabularies.contains_any(
-          {Known::JSON_SCHEMA_DRAFT_7, Known::JSON_SCHEMA_DRAFT_7_HYPER,
-           Known::JSON_SCHEMA_DRAFT_6, Known::JSON_SCHEMA_DRAFT_6_HYPER,
-           Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
-           Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER}) &&
+  if ((is_draft3(schema_context.vocabularies) ||
+       is_draft4(schema_context.vocabularies) ||
+       is_draft6(schema_context.vocabularies) ||
+       is_draft7(schema_context.vocabularies)) &&
       (schema_context.schema.at(dynamic_context.keyword).empty() ||
        !schema_context.schema.at(dynamic_context.keyword).unique())) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_UNIQUE_VALUES);
+    throw_keyword_error(context, schema_context, EXPECTED_UNIQUE_VALUES);
   }
 
   // The OpenAPI 3.0 Schema Object asks for at least one value, and is alone in
   // permitting duplicates among them
-  if (schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE) &&
+  if (is_openapi_3_0(schema_context.vocabularies) &&
       schema_context.schema.at(dynamic_context.keyword).empty()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_NON_EMPTY_VALUES);
+    throw_keyword_error(context, schema_context, EXPECTED_NON_EMPTY_VALUES);
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
+    return {make(InstructionIndex::AssertionFail, context, schema_context,
+                 dynamic_context, ValueNone{})};
   }
 
   if (schema_context.schema.at(dynamic_context.keyword).size() == 1) {
     return {
-        make(sourcemeta::blaze::InstructionIndex::AssertionEqual, context,
-             schema_context, dynamic_context,
+        make(InstructionIndex::AssertionEqual, context, schema_context,
+             dynamic_context,
              sourcemeta::core::JSON{
                  schema_context.schema.at(dynamic_context.keyword).front()})};
   }
 
-  std::vector<std::pair<sourcemeta::blaze::ValueString,
-                        sourcemeta::blaze::ValueStringSet::hash_type>>
+  std::vector<std::pair<ValueString, ValueStringSet::hash_type>>
       perfect_string_hashes;
   ValueSet options;
   sourcemeta::core::PropertyHashJSON<ValueString> hasher;
@@ -2320,14 +2193,13 @@ auto compiler_draft3_validation_enum(const Context &context,
   // can affect error messages
   if (context.mode == Mode::FastValidation &&
       perfect_string_hashes.size() == options.size()) {
-    return {
-        make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash,
-             context, schema_context, dynamic_context,
-             to_string_hashes(perfect_string_hashes))};
+    return {make(InstructionIndex::AssertionEqualsAnyStringHash, context,
+                 schema_context, dynamic_context,
+                 to_string_hashes(perfect_string_hashes))};
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionEqualsAny, context,
-               schema_context, dynamic_context, std::move(options))};
+  return {make(InstructionIndex::AssertionEqualsAny, context, schema_context,
+               dynamic_context, std::move(options))};
 }
 
 auto compiler_draft3_validation_uniqueitems(
@@ -2343,8 +2215,8 @@ auto compiler_draft3_validation_uniqueitems(
     return {};
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionUnique, context,
-               schema_context, dynamic_context, ValueNone{})};
+  return {make(InstructionIndex::AssertionUnique, context, schema_context,
+               dynamic_context, ValueNone{})};
 }
 
 // `maxLength`, `maxItems` and `maxProperties`, along with their lower-bound
@@ -2355,7 +2227,7 @@ auto compiler_draft3_validation_uniqueitems(
 struct SizeBound {
   sourcemeta::core::JSON::Type type;
   std::string_view name;
-  sourcemeta::blaze::InstructionIndex instruction;
+  InstructionIndex instruction;
 };
 
 // Draft 3 asks only that `maxLength` be an integer, unlike the bounds around
@@ -2370,15 +2242,11 @@ auto compile_size_upper_bound(const Context &context,
     -> Instructions {
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
   if (!is_dialect_integer(value, schema_context.vocabularies)) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_INTEGER);
+    throw_keyword_error(context, schema_context, EXPECTED_INTEGER);
   }
 
   if (!tolerate_negative && !value.is_positive()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_NON_NEGATIVE);
+    throw_keyword_error(context, schema_context, EXPECTED_NON_NEGATIVE);
   }
 
   if (narrows_type_away(schema_context.schema, {bound.name})) {
@@ -2391,8 +2259,8 @@ auto compile_size_upper_bound(const Context &context,
   if (!value.is_positive()) {
     ValueTypes types;
     types.set(std::to_underlying(bound.type));
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
-                 context, schema_context, dynamic_context, types)};
+    return {make(InstructionIndex::AssertionNotTypeStrictAny, context,
+                 schema_context, dynamic_context, types)};
   }
 
   // We'll handle it at the type level as an optimization. Note that the type
@@ -2424,15 +2292,11 @@ auto compile_size_lower_bound(const Context &context,
                               const SizeBound &bound) -> Instructions {
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
   if (!is_dialect_integer(value, schema_context.vocabularies)) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_INTEGER);
+    throw_keyword_error(context, schema_context, EXPECTED_INTEGER);
   }
 
   if (!value.is_positive()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_NON_NEGATIVE);
+    throw_keyword_error(context, schema_context, EXPECTED_NON_NEGATIVE);
   }
 
   if (narrows_type_away(schema_context.schema, {bound.name})) {
@@ -2449,14 +2313,14 @@ auto compile_size_lower_bound(const Context &context,
         return {};
       }
 
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                   schema_context, dynamic_context, ValueNone{})};
+      return {make(InstructionIndex::AssertionFail, context, schema_context,
+                   dynamic_context, ValueNone{})};
     }
 
     ValueTypes types;
     types.set(std::to_underlying(bound.type));
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
-                 context, schema_context, dynamic_context, types)};
+    return {make(InstructionIndex::AssertionNotTypeStrictAny, context,
+                 schema_context, dynamic_context, types)};
   }
 
   // We'll handle it at the type level as an optimization. Note that the type
@@ -2489,12 +2353,8 @@ auto compiler_draft3_validation_maxlength(const Context &context,
       context, schema_context, dynamic_context,
       {.type = sourcemeta::core::JSON::Type::String,
        .name = "string",
-       .instruction =
-           sourcemeta::blaze::InstructionIndex::AssertionStringSizeLess},
-      schema_context.vocabularies.contains_any(
-          {sourcemeta::core::SchemaVocabularies::Known::JSON_SCHEMA_DRAFT_3,
-           sourcemeta::core::SchemaVocabularies::Known::
-               JSON_SCHEMA_DRAFT_3_HYPER}));
+       .instruction = InstructionIndex::AssertionStringSizeLess},
+      is_draft3(schema_context.vocabularies));
 }
 
 auto compiler_draft3_validation_minlength(const Context &context,
@@ -2506,8 +2366,7 @@ auto compiler_draft3_validation_minlength(const Context &context,
       context, schema_context, dynamic_context,
       {.type = sourcemeta::core::JSON::Type::String,
        .name = "string",
-       .instruction =
-           sourcemeta::blaze::InstructionIndex::AssertionStringSizeGreater});
+       .instruction = InstructionIndex::AssertionStringSizeGreater});
 }
 
 auto compiler_draft3_validation_maxitems(const Context &context,
@@ -2518,8 +2377,7 @@ auto compiler_draft3_validation_maxitems(const Context &context,
       context, schema_context, dynamic_context,
       {.type = sourcemeta::core::JSON::Type::Array,
        .name = "array",
-       .instruction =
-           sourcemeta::blaze::InstructionIndex::AssertionArraySizeLess});
+       .instruction = InstructionIndex::AssertionArraySizeLess});
 }
 
 auto compiler_draft3_validation_minitems(const Context &context,
@@ -2530,8 +2388,7 @@ auto compiler_draft3_validation_minitems(const Context &context,
       context, schema_context, dynamic_context,
       {.type = sourcemeta::core::JSON::Type::Array,
        .name = "array",
-       .instruction =
-           sourcemeta::blaze::InstructionIndex::AssertionArraySizeGreater});
+       .instruction = InstructionIndex::AssertionArraySizeGreater});
 }
 
 auto compiler_draft3_validation_maximum(const Context &context,
@@ -2539,9 +2396,7 @@ auto compiler_draft3_validation_maximum(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_NUMBER);
+    throw_keyword_error(context, schema_context, EXPECTED_NUMBER);
   }
 
   if (narrows_type_away(schema_context.schema, {"integer", "number"})) {
@@ -2555,13 +2410,13 @@ auto compiler_draft3_validation_maximum(const Context &context,
   if (schema_context.schema.defines("exclusiveMaximum") &&
       schema_context.schema.at("exclusiveMaximum").is_boolean() &&
       schema_context.schema.at("exclusiveMaximum").to_boolean()) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionLess, context,
-                 schema_context, dynamic_context,
+    return {make(InstructionIndex::AssertionLess, context, schema_context,
+                 dynamic_context,
                  sourcemeta::core::JSON{
                      schema_context.schema.at(dynamic_context.keyword)})};
   }
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionLessEqual, context,
-               schema_context, dynamic_context,
+  return {make(InstructionIndex::AssertionLessEqual, context, schema_context,
+               dynamic_context,
                sourcemeta::core::JSON{
                    schema_context.schema.at(dynamic_context.keyword)})};
 }
@@ -2571,9 +2426,7 @@ auto compiler_draft3_validation_minimum(const Context &context,
                                         const DynamicContext &dynamic_context,
                                         const Instructions &) -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_NUMBER);
+    throw_keyword_error(context, schema_context, EXPECTED_NUMBER);
   }
 
   if (narrows_type_away(schema_context.schema, {"integer", "number"})) {
@@ -2587,13 +2440,13 @@ auto compiler_draft3_validation_minimum(const Context &context,
   if (schema_context.schema.defines("exclusiveMinimum") &&
       schema_context.schema.at("exclusiveMinimum").is_boolean() &&
       schema_context.schema.at("exclusiveMinimum").to_boolean()) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionGreater, context,
-                 schema_context, dynamic_context,
+    return {make(InstructionIndex::AssertionGreater, context, schema_context,
+                 dynamic_context,
                  sourcemeta::core::JSON{
                      schema_context.schema.at(dynamic_context.keyword)})};
   }
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionGreaterEqual,
-               context, schema_context, dynamic_context,
+  return {make(InstructionIndex::AssertionGreaterEqual, context, schema_context,
+               dynamic_context,
                sourcemeta::core::JSON{
                    schema_context.schema.at(dynamic_context.keyword)})};
 }
@@ -2604,23 +2457,18 @@ auto compiler_draft3_validation_type(const Context &context,
                                      const Instructions &) -> Instructions {
   const auto &value{schema_context.schema.at(dynamic_context.keyword)};
 
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  const auto is_draft3{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3_HYPER)};
+  const auto draft3{is_draft3(schema_context.vocabularies)};
 
   // This dialect types `type` as a string drawn from six names. It has no
   // array form and no null type, offering `nullable` in place of the latter.
   // `draft3_set_type_bits` answers for the seven JSON Schema names, so the
   // null one has to be ruled out separately
-  if (schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE)) {
+  if (is_openapi_3_0(schema_context.vocabularies)) {
     ValueTypes recognised{};
     if (!value.is_string() || value.to_string() == "null" ||
         !draft3_set_type_bits(value.to_string(), recognised)) {
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base,
-          absolute_schema_location(context, schema_context),
-          UNSUPPORTED_VALUE_FOR_DIALECT);
+      throw_keyword_error(context, schema_context,
+                          UNSUPPORTED_VALUE_FOR_DIALECT);
     }
 
     // A scalar `type` widened by `nullable` is the array form in all but
@@ -2630,12 +2478,12 @@ auto compiler_draft3_validation_type(const Context &context,
     if (is_nullable(schema_context.vocabularies, schema_context.schema)) {
       ValueTypes types{recognised};
       types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
-                   context, schema_context, dynamic_context, types)};
+      return {make(InstructionIndex::AssertionTypeStrictAny, context,
+                   schema_context, dynamic_context, types)};
     }
   }
 
-  if (is_draft3) {
+  if (draft3) {
     if (value.is_string() && value.to_string() == "any") {
       return draft3_any_type_instructions(context, schema_context,
                                           dynamic_context);
@@ -2643,10 +2491,7 @@ auto compiler_draft3_validation_type(const Context &context,
 
     if (value.is_array()) {
       if (!is_draft3_type_union(value)) {
-        throw sourcemeta::blaze::CompilerError(
-            schema_context.base,
-            absolute_schema_location(context, schema_context),
-            EXPECTED_TYPE_NAMES);
+        throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
       }
 
       bool has_object{false};
@@ -2689,14 +2534,13 @@ auto compiler_draft3_validation_type(const Context &context,
             continue;
           }
 
-          disjunctors.push_back(
-              make(sourcemeta::blaze::InstructionIndex::ControlGroup, context,
-                   schema_context, relative_dynamic_context(), ValueNone{},
-                   std::move(branch)));
+          disjunctors.push_back(make(InstructionIndex::ControlGroup, context,
+                                     schema_context, relative_dynamic_context(),
+                                     ValueNone{}, std::move(branch)));
         }
 
-        return {make(sourcemeta::blaze::InstructionIndex::LogicalOr, context,
-                     schema_context, dynamic_context, ValueBoolean{false},
+        return {make(InstructionIndex::LogicalOr, context, schema_context,
+                     dynamic_context, ValueBoolean{false},
                      std::move(disjunctors))};
       }
     }
@@ -2709,8 +2553,8 @@ auto compiler_draft3_validation_type(const Context &context,
         return {};
       }
 
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                   context, schema_context, dynamic_context,
+      return {make(InstructionIndex::AssertionTypeStrict, context,
+                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Null)};
     }
     if (type == "boolean") {
@@ -2718,12 +2562,12 @@ auto compiler_draft3_validation_type(const Context &context,
         return {};
       }
 
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                   context, schema_context, dynamic_context,
+      return {make(InstructionIndex::AssertionTypeStrict, context,
+                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Boolean)};
     }
     if (type == "object") {
-      if (!is_draft3) {
+      if (!draft3) {
         const auto minimum{unsigned_integer_property(schema_context.schema,
                                                      "minProperties", 0)};
         const auto maximum{
@@ -2731,8 +2575,8 @@ auto compiler_draft3_validation_type(const Context &context,
 
         const auto fused{fuse_type_size_bound(
             context, schema_context, dynamic_context, minimum, maximum,
-            sourcemeta::blaze::InstructionIndex::AssertionTypeObjectUpper,
-            sourcemeta::blaze::InstructionIndex::AssertionTypeObjectBounded)};
+            InstructionIndex::AssertionTypeObjectUpper,
+            InstructionIndex::AssertionTypeObjectBounded)};
         if (fused.has_value()) {
           return fused.value();
         }
@@ -2745,15 +2589,15 @@ auto compiler_draft3_validation_type(const Context &context,
       // A non-empty `required` rejects a non-object on its own, so the type
       // assertion is redundant. An empty `required` asserts nothing, so the
       // type check must stay
-      if (!is_draft3 && context.mode == Mode::FastValidation &&
+      if (!draft3 && context.mode == Mode::FastValidation &&
           schema_context.schema.defines("required") &&
           schema_context.schema.at("required").is_array() &&
           !schema_context.schema.at("required").empty()) {
         return {};
       }
 
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                   context, schema_context, dynamic_context,
+      return {make(InstructionIndex::AssertionTypeStrict, context,
+                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Object)};
     }
     if (type == "array") {
@@ -2764,8 +2608,8 @@ auto compiler_draft3_validation_type(const Context &context,
 
       const auto fused{fuse_type_size_bound(
           context, schema_context, dynamic_context, minimum, maximum,
-          sourcemeta::blaze::InstructionIndex::AssertionTypeArrayUpper,
-          sourcemeta::blaze::InstructionIndex::AssertionTypeArrayBounded)};
+          InstructionIndex::AssertionTypeArrayUpper,
+          InstructionIndex::AssertionTypeArrayBounded)};
       if (fused.has_value()) {
         return fused.value();
       }
@@ -2774,8 +2618,8 @@ auto compiler_draft3_validation_type(const Context &context,
         return {};
       }
 
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                   context, schema_context, dynamic_context,
+      return {make(InstructionIndex::AssertionTypeStrict, context,
+                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Array)};
     }
     if (type == "number") {
@@ -2787,8 +2631,8 @@ auto compiler_draft3_validation_type(const Context &context,
       types.set(std::to_underlying(sourcemeta::core::JSON::Type::Real));
       types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
       types.set(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
-                   context, schema_context, dynamic_context, types)};
+      return {make(InstructionIndex::AssertionTypeStrictAny, context,
+                   schema_context, dynamic_context, types)};
     }
     if (type == "integer") {
       // Draft 4 and earlier have no shortcut for an all-integer `enum` here,
@@ -2797,8 +2641,8 @@ auto compiler_draft3_validation_type(const Context &context,
       // is written, so the options admit an instance carrying a fractional
       // part, which none of these dialects counts as an integer, and so this
       // assertion always has work left to do
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                   context, schema_context, dynamic_context,
+      return {make(InstructionIndex::AssertionTypeStrict, context,
+                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Integer)};
     }
     if (type == "string") {
@@ -2809,8 +2653,8 @@ auto compiler_draft3_validation_type(const Context &context,
 
       const auto fused{fuse_type_size_bound(
           context, schema_context, dynamic_context, minimum, maximum,
-          sourcemeta::blaze::InstructionIndex::AssertionTypeStringUpper,
-          sourcemeta::blaze::InstructionIndex::AssertionTypeStringBounded)};
+          InstructionIndex::AssertionTypeStringUpper,
+          InstructionIndex::AssertionTypeStringBounded)};
       if (fused.has_value()) {
         return fused.value();
       }
@@ -2819,18 +2663,16 @@ auto compiler_draft3_validation_type(const Context &context,
         return {};
       }
 
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                   context, schema_context, dynamic_context,
+      return {make(InstructionIndex::AssertionTypeStrict, context,
+                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::String)};
     }
-    if (is_draft3) {
+    if (draft3) {
       // Draft 3 puts no enumeration on `type`, so any name at all satisfies
       // the meta-schema, and one we do not know constrains nothing
       return {};
     }
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_TYPE_NAMES);
+    throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
   }
   if (value.is_array() && value.size() == 1 && value.front().is_string()) {
     auto assertion{make_type_assertion(context, schema_context, dynamic_context,
@@ -2839,28 +2681,23 @@ auto compiler_draft3_validation_type(const Context &context,
       return {std::move(assertion).value()};
     }
 
-    if (is_draft3) {
+    if (draft3) {
       // Draft 3 puts no enumeration on `type`, so any name at all satisfies
       // the meta-schema, and one we do not know constrains nothing
       return {};
     }
 
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_TYPE_NAMES);
+    throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
   }
   if (value.is_array()) {
     // Draft 4 asks for a non-empty array of unique type names, whereas Draft 3
     // also admits a subschema as an alternative and tolerates an empty union
-    if (!value.unique() || (!is_draft3 && value.empty()) ||
+    if (!value.unique() || (!draft3 && value.empty()) ||
         !std::ranges::all_of(
-            value.as_array(), [is_draft3](const auto &element) -> bool {
-              return element.is_string() || (is_draft3 && element.is_object());
+            value.as_array(), [draft3](const auto &element) -> bool {
+              return element.is_string() || (draft3 && element.is_object());
             })) {
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base,
-          absolute_schema_location(context, schema_context),
-          EXPECTED_TYPE_NAMES);
+      throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
     }
 
     ValueTypes types{};
@@ -2869,11 +2706,8 @@ auto compiler_draft3_validation_type(const Context &context,
         continue;
       }
 
-      if (!draft3_set_type_bits(element.to_string(), types) && !is_draft3) {
-        throw sourcemeta::blaze::CompilerError(
-            schema_context.base,
-            absolute_schema_location(context, schema_context),
-            EXPECTED_TYPE_NAMES);
+      if (!draft3_set_type_bits(element.to_string(), types) && !draft3) {
+        throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
       }
     }
 
@@ -2883,21 +2717,19 @@ auto compiler_draft3_validation_type(const Context &context,
       // legitimate use of the keyword that we ignore, constraining nothing,
       // exactly as the scalar form does for a single unrecognised name
       if (value.empty()) {
-        return {make(sourcemeta::blaze::InstructionIndex::AssertionFail,
-                     context, schema_context, dynamic_context, ValueNone{})};
+        return {make(InstructionIndex::AssertionFail, context, schema_context,
+                     dynamic_context, ValueNone{})};
       }
 
       return {};
     }
 
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
-                 context, schema_context, dynamic_context, types)};
+    return {make(InstructionIndex::AssertionTypeStrictAny, context,
+                 schema_context, dynamic_context, types)};
   }
 
   // Every dialect asks that `type` be a type name or an array of them
-  throw sourcemeta::blaze::CompilerError(
-      schema_context.base, absolute_schema_location(context, schema_context),
-      EXPECTED_TYPE_NAMES);
+  throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
 }
 
 auto compiler_draft3_validation_disallow(const Context &context,
@@ -2910,9 +2742,7 @@ auto compiler_draft3_validation_disallow(const Context &context,
   // an array of names and subschemas
   if (!value.is_string() &&
       (!value.is_array() || !is_draft3_type_union(value))) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_TYPE_NAMES);
+    throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
   }
 
   const auto contains_any{
@@ -2922,8 +2752,8 @@ auto compiler_draft3_validation_disallow(const Context &context,
          return element.is_string() && element.to_string() == "any";
        }))};
   if (contains_any) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
+    return {make(InstructionIndex::AssertionFail, context, schema_context,
+                 dynamic_context, ValueNone{})};
   }
 
   ValueTypes types{};
@@ -2961,26 +2791,24 @@ auto compiler_draft3_validation_disallow(const Context &context,
             .is_property_name = schema_context.is_property_name};
 
         const auto element_base_schema_location{
-            sourcemeta::blaze::make_weak_pointer(dynamic_context.keyword,
-                                                 index)};
+            make_weak_pointer(dynamic_context.keyword, index)};
         const DynamicContext element_dynamic_context{
             .keyword = KEYWORD_EMPTY,
             .base_schema_location = element_base_schema_location,
             .base_instance_location = dynamic_context.base_instance_location};
 
-        subschema_nots.push_back(
-            make(sourcemeta::blaze::InstructionIndex::LogicalNot, context,
-                 element_schema_context, element_dynamic_context, ValueNone{},
-                 std::move(inner_instructions)));
+        subschema_nots.push_back(make(InstructionIndex::LogicalNot, context,
+                                      element_schema_context,
+                                      element_dynamic_context, ValueNone{},
+                                      std::move(inner_instructions)));
       }
     }
   }
 
   Instructions result;
   if (types.any()) {
-    result.push_back(
-        make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
-             context, schema_context, dynamic_context, types));
+    result.push_back(make(InstructionIndex::AssertionNotTypeStrictAny, context,
+                          schema_context, dynamic_context, types));
   }
   for (auto &&instruction : subschema_nots) {
     result.push_back(std::move(instruction));
@@ -2999,9 +2827,7 @@ auto compiler_draft3_applicator_extends(const Context &context,
   if (value.is_array() &&
       !all_are_schemas(value,
                        booleans_are_schemas(schema_context.vocabularies))) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_SCHEMA_ARRAY_ANY_SIZE);
+    throw_keyword_error(context, schema_context, EXPECTED_SCHEMA_ARRAY);
   }
 
   if (value.is_object()) {
@@ -3019,9 +2845,8 @@ auto compiler_draft3_applicator_extends(const Context &context,
       return {};
     }
 
-    return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
-                 schema_context, dynamic_context, ValueNone{},
-                 std::move(inner))};
+    return {make(InstructionIndex::LogicalAnd, context, schema_context,
+                 dynamic_context, ValueNone{}, std::move(inner))};
   }
 
   if (!value.is_array()) {
@@ -3054,8 +2879,8 @@ auto compiler_draft3_applicator_extends(const Context &context,
     if (arm.empty()) {
       continue;
     }
-    children.push_back(make(sourcemeta::blaze::InstructionIndex::ControlGroup,
-                            context, schema_context, relative_dynamic_context(),
+    children.push_back(make(InstructionIndex::ControlGroup, context,
+                            schema_context, relative_dynamic_context(),
                             ValueNone{}, std::move(arm)));
   }
 
@@ -3063,9 +2888,8 @@ auto compiler_draft3_applicator_extends(const Context &context,
     return {};
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
-               schema_context, dynamic_context, ValueNone{},
-               std::move(children))};
+  return {make(InstructionIndex::LogicalAnd, context, schema_context,
+               dynamic_context, ValueNone{}, std::move(children))};
 }
 
 auto compiler_draft3_applicator_dependencies(
@@ -3073,22 +2897,17 @@ auto compiler_draft3_applicator_dependencies(
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_OBJECT);
+    throw_keyword_error(context, schema_context, EXPECTED_OBJECT);
   }
 
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  const auto is_draft3{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3_HYPER)};
+  const auto draft3{is_draft3(schema_context.vocabularies)};
 
   // Every member must be a schema or a list of property names, plus a single
   // property name in Draft 3. A member that is none of those makes the keyword
   // as a whole stop being a constraint
   if (!std::ranges::all_of(
           schema_context.schema.at(dynamic_context.keyword).as_object(),
-          [is_draft3,
+          [draft3,
            allow_boolean = booleans_are_schemas(schema_context.vocabularies)](
               const auto &entry) -> bool {
             const auto names_only{
@@ -3097,12 +2916,10 @@ auto compiler_draft3_applicator_dependencies(
                     entry.second.as_array(),
                     [](const auto &name) -> bool { return name.is_string(); })};
             return is_schema(entry.second, allow_boolean) ||
-                   (names_only && (is_draft3 || entry.second.unique())) ||
-                   (is_draft3 && entry.second.is_string());
+                   (names_only && (draft3 || entry.second.unique())) ||
+                   (draft3 && entry.second.is_string());
           })) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_DEPENDENCIES);
+    throw_keyword_error(context, schema_context, EXPECTED_DEPENDENCIES);
   }
 
   // Only once the shape is known to be good does it matter whether the keyword
@@ -3118,11 +2935,11 @@ auto compiler_draft3_applicator_dependencies(
        schema_context.schema.at(dynamic_context.keyword).as_object()) {
     if ((entry.second.is_object() || entry.second.is_boolean())) {
       if (!entry.second.is_boolean() || !entry.second.to_boolean()) {
-        children.push_back(make(
-            sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
-            schema_context, dynamic_context, make_property(entry.first),
-            compile(context, schema_context, relative_dynamic_context(),
-                    sourcemeta::blaze::make_weak_pointer(entry.first))));
+        children.push_back(
+            make(InstructionIndex::LogicalWhenDefines, context, schema_context,
+                 dynamic_context, make_property(entry.first),
+                 compile(context, schema_context, relative_dynamic_context(),
+                         make_weak_pointer(entry.first))));
       }
     } else if (entry.second.is_array()) {
       std::vector<sourcemeta::core::JSON::String> properties;
@@ -3137,7 +2954,7 @@ auto compiler_draft3_applicator_dependencies(
       if (!properties.empty()) {
         dependencies.emplace(entry.first, properties);
       }
-    } else if (is_draft3 && entry.second.is_string()) {
+    } else if (draft3 && entry.second.is_string()) {
       dependencies.emplace(entry.first,
                            std::vector<sourcemeta::core::JSON::String>{
                                entry.second.to_string()});
@@ -3145,9 +2962,9 @@ auto compiler_draft3_applicator_dependencies(
   }
 
   if (!dependencies.empty()) {
-    children.push_back(make(
-        sourcemeta::blaze::InstructionIndex::AssertionPropertyDependencies,
-        context, schema_context, dynamic_context, std::move(dependencies)));
+    children.push_back(make(InstructionIndex::AssertionPropertyDependencies,
+                            context, schema_context, dynamic_context,
+                            std::move(dependencies)));
   }
 
   return children;
@@ -3158,9 +2975,7 @@ auto compiler_draft3_validation_divisibleby(
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_NUMBER);
+    throw_keyword_error(context, schema_context, EXPECTED_NUMBER);
   }
 
   // The meta-schema asks for a divisor strictly greater than zero, as dividing
@@ -3168,17 +2983,15 @@ auto compiler_draft3_validation_divisibleby(
   if (!schema_context.schema.at(dynamic_context.keyword).is_positive() ||
       schema_context.schema.at(dynamic_context.keyword) ==
           sourcemeta::core::JSON{0}) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_POSITIVE);
+    throw_keyword_error(context, schema_context, EXPECTED_POSITIVE);
   }
 
   if (narrows_type_away(schema_context.schema, {"integer", "number"})) {
     return {};
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionDivisible, context,
-               schema_context, dynamic_context,
+  return {make(InstructionIndex::AssertionDivisible, context, schema_context,
+               dynamic_context,
                sourcemeta::core::JSON{
                    schema_context.schema.at(dynamic_context.keyword)})};
 }
@@ -3207,23 +3020,21 @@ auto make_openapi_numeric_format_assertion(
     const DynamicContext &dynamic_context,
     const sourcemeta::core::JSON::String &name) -> Instruction {
   if (name == "int32") {
-    return make(
-        sourcemeta::blaze::InstructionIndex::AssertionNumberIntegerBounded,
-        context, schema_context, dynamic_context,
-        ValueIntegerBounds{std::numeric_limits<std::int32_t>::min(),
-                           std::numeric_limits<std::int32_t>::max()});
+    return make(InstructionIndex::AssertionNumberIntegerBounded, context,
+                schema_context, dynamic_context,
+                ValueIntegerBounds{std::numeric_limits<std::int32_t>::min(),
+                                   std::numeric_limits<std::int32_t>::max()});
   }
 
   if (name == "int64") {
-    return make(
-        sourcemeta::blaze::InstructionIndex::AssertionNumberIntegerBounded,
-        context, schema_context, dynamic_context,
-        ValueIntegerBounds{std::numeric_limits<std::int64_t>::min(),
-                           std::numeric_limits<std::int64_t>::max()});
+    return make(InstructionIndex::AssertionNumberIntegerBounded, context,
+                schema_context, dynamic_context,
+                ValueIntegerBounds{std::numeric_limits<std::int64_t>::min(),
+                                   std::numeric_limits<std::int64_t>::max()});
   }
 
-  return make(sourcemeta::blaze::InstructionIndex::AssertionNumberType, context,
-              schema_context, dynamic_context,
+  return make(InstructionIndex::AssertionNumberType, context, schema_context,
+              dynamic_context,
               name == "float" ? ValueNumberType::Float
                               : ValueNumberType::Double);
 }
@@ -3272,8 +3083,8 @@ auto compiler_draft3_validation_format(const Context &context,
       // instance type, as `ControlGroupWhenType` does not take a number
       if (annotations_enabled(context, dynamic_context.keyword)) {
         instructions.push_back(
-            make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-                 schema_context, dynamic_context,
+            make(InstructionIndex::AnnotationEmit, context, schema_context,
+                 dynamic_context,
                  sourcemeta::core::JSON{
                      schema_context.schema.at(dynamic_context.keyword)}));
       }
@@ -3324,20 +3135,20 @@ auto compiler_draft3_validation_format(const Context &context,
       return {};
     }
 
-    Instructions instructions{
-        make(sourcemeta::blaze::InstructionIndex::AssertionStringType, context,
-             schema_context, dynamic_context, type)};
+    Instructions instructions{make(InstructionIndex::AssertionStringType,
+                                   context, schema_context, dynamic_context,
+                                   type)};
 
     if (annotations_enabled(context, dynamic_context.keyword)) {
       Instructions annotation_children{
-          make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-               schema_context, dynamic_context,
+          make(InstructionIndex::AnnotationEmit, context, schema_context,
+               dynamic_context,
                sourcemeta::core::JSON{
                    schema_context.schema.at(dynamic_context.keyword)})};
-      instructions.push_back(
-          make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
-               context, schema_context, relative_dynamic_context(),
-               ValueType::String, std::move(annotation_children)));
+      instructions.push_back(make(InstructionIndex::ControlGroupWhenType,
+                                  context, schema_context,
+                                  relative_dynamic_context(), ValueType::String,
+                                  std::move(annotation_children)));
     }
 
     return instructions;
@@ -3348,11 +3159,10 @@ auto compiler_draft3_validation_format(const Context &context,
       return {};
     }
 
-    Instructions children{
-        make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-             schema_context, dynamic_context,
-             sourcemeta::core::JSON{
-                 schema_context.schema.at(dynamic_context.keyword)})};
+    Instructions children{make(InstructionIndex::AnnotationEmit, context,
+                               schema_context, dynamic_context,
+                               sourcemeta::core::JSON{schema_context.schema.at(
+                                   dynamic_context.keyword)})};
 
     // A format that applies to numbers cannot have its annotation grouped by
     // the instance type, so emit it the way the assertion path does rather
@@ -3363,9 +3173,9 @@ auto compiler_draft3_validation_format(const Context &context,
       return children;
     }
 
-    return {make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
-                 context, schema_context, relative_dynamic_context(),
-                 ValueType::String, std::move(children))};
+    return {make(InstructionIndex::ControlGroupWhenType, context,
+                 schema_context, relative_dynamic_context(), ValueType::String,
+                 std::move(children))};
   }
 
   if (!assert_active) {
@@ -3380,20 +3190,12 @@ auto compiler_draft3_validation_format(const Context &context,
   const auto &name{format.to_string()};
   ValueStringType type;
 
-  const auto is_draft3{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_3_HYPER)};
-  const auto is_draft4{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_4) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_4_HYPER)};
-  const auto is_draft6{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_6) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_6_HYPER)};
-  const auto is_draft7{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7_HYPER)};
+  const auto draft3{is_draft3(schema_context.vocabularies)};
+  const auto draft4{is_draft4(schema_context.vocabularies)};
+  const auto draft6{is_draft6(schema_context.vocabularies)};
+  const auto draft7{is_draft7(schema_context.vocabularies)};
 
-  if (schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE)) {
+  if (is_openapi_3_0(schema_context.vocabularies)) {
     // OpenAPI 3.0 defines these four for numbers, so they cannot resolve to a
     // string logical type like the rest of this chain does
     if (name == "int32" || name == "int64" || name == "float" ||
@@ -3426,7 +3228,7 @@ auto compiler_draft3_validation_format(const Context &context,
       // the two remaining formats constrains the instance
       return {};
     }
-  } else if (is_draft7) {
+  } else if (draft7) {
     if (name == "date-time") {
       type = ValueStringType::DateTime;
     } else if (name == "date") {
@@ -3464,7 +3266,7 @@ auto compiler_draft3_validation_format(const Context &context,
     } else {
       return {};
     }
-  } else if (is_draft4 || is_draft6) {
+  } else if (draft4 || draft6) {
     if (name == "date-time") {
       type = ValueStringType::DateTime;
     } else if (name == "email") {
@@ -3477,16 +3279,16 @@ auto compiler_draft3_validation_format(const Context &context,
       type = ValueStringType::IPv6;
     } else if (name == "uri") {
       type = ValueStringType::URI;
-    } else if (is_draft6 && name == "uri-reference") {
+    } else if (draft6 && name == "uri-reference") {
       type = ValueStringType::URIReference;
-    } else if (is_draft6 && name == "uri-template") {
+    } else if (draft6 && name == "uri-template") {
       type = ValueStringType::URITemplate;
-    } else if (is_draft6 && name == "json-pointer") {
+    } else if (draft6 && name == "json-pointer") {
       type = ValueStringType::JSONPointer;
     } else {
       return {};
     }
-  } else if (is_draft3) {
+  } else if (draft3) {
     if (name == "date-time") {
       type = ValueStringType::DateTime;
     } else if (name == "email") {
@@ -3506,9 +3308,8 @@ auto compiler_draft3_validation_format(const Context &context,
     } else if (name == "utc-millisec") {
       // TODO: Support this old format, even though not even the official test
       // suite covers it
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base,
-          absolute_schema_location(context, schema_context),
+      throw_keyword_error(
+          context, schema_context,
           "The \"utc-millisec\" format is not supported in assertion mode yet");
     } else if (name == "regex") {
       type = ValueStringType::Regex;
@@ -3517,29 +3318,25 @@ auto compiler_draft3_validation_format(const Context &context,
     } else if (name == "style") {
       // TODO: Support this old format, even though not even the official test
       // suite covers it
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base,
-          absolute_schema_location(context, schema_context),
+      throw_keyword_error(
+          context, schema_context,
           "The \"style\" format is not supported in assertion mode yet");
     } else if (name == "phone") {
       // TODO: Support this old format, even though not even the official test
       // suite covers it
-      throw sourcemeta::blaze::CompilerError(
-          schema_context.base,
-          absolute_schema_location(context, schema_context),
+      throw_keyword_error(
+          context, schema_context,
           "The \"phone\" format is not supported in assertion mode yet");
     } else {
       return {};
     }
   } else {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        UNSUPPORTED_DIALECT_MESSAGE);
+    throw_keyword_error(context, schema_context, UNSUPPORTED_DIALECT_MESSAGE);
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::AssertionStringType,
-               context, schema_context, dynamic_context, type)};
+  return {make(InstructionIndex::AssertionStringType, context, schema_context,
+               dynamic_context, type)};
 }
 
-} // namespace internal
+} // namespace sourcemeta::blaze
 #endif
