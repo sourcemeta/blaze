@@ -16,8 +16,7 @@ namespace sourcemeta::blaze {
 
 // A keyword that asserts nothing still needs an arm in the dispatch table, as
 // the table is what settles whether a keyword belongs to the dialect at all
-auto compiler_openapi_noop(const Context &, const SchemaContext &,
-                           const DynamicContext &, const Instructions &)
+auto compiler_openapi_noop(const KeywordContext &, const Instructions &)
     -> Instructions {
   return {};
 }
@@ -87,12 +86,10 @@ auto holds_schema(const sourcemeta::core::SchemaKeywordType type,
 }
 
 // NOLINTNEXTLINE(google-readability-function-size,hicpp-function-size,readability-function-size)
-auto dispatch_keyword(const sourcemeta::blaze::Context &context,
-                      const sourcemeta::blaze::SchemaContext &schema_context,
-                      const sourcemeta::blaze::DynamicContext &dynamic_context,
+auto dispatch_keyword(const sourcemeta::blaze::KeywordContext &context,
                       const sourcemeta::blaze::Instructions &current)
     -> sourcemeta::blaze::Instructions {
-  assert(!dynamic_context.keyword.empty());
+  assert(!context.keyword().empty());
 
   using Known = sourcemeta::core::SchemaVocabularies::Known;
   static std::unordered_set<sourcemeta::core::SchemaVocabularies::URI>
@@ -124,30 +121,30 @@ auto dispatch_keyword(const sourcemeta::blaze::Context &context,
                              Known::OPENAPI_3_2_BASE,
                              Known::SOURCEMETA_EXTENSION_V1};
 
-  schema_context.vocabularies.throw_if_any_unsupported(
+  context.vocabularies().throw_if_any_unsupported(
       supported_vocabularies, "Cannot compile unsupported vocabulary");
 
   using namespace sourcemeta::blaze;
 
 #define COMPILE(vocabulary, _keyword, handler)                                 \
-  if (schema_context.vocabularies.contains(vocabulary) &&                      \
-      dynamic_context.keyword == (_keyword)) {                                 \
-    return handler(context, schema_context, dynamic_context, current);         \
+  if (context.vocabularies().contains(vocabulary) &&                           \
+      context.keyword() == (_keyword)) {                                       \
+    return handler(context, current);                                          \
   }
 
 #define COMPILE_ANY(vocabulary_1, vocabulary_2, _keyword, handler)             \
-  if ((schema_context.vocabularies.contains(vocabulary_1) ||                   \
-       schema_context.vocabularies.contains(vocabulary_2)) &&                  \
-      dynamic_context.keyword == (_keyword)) {                                 \
-    return handler(context, schema_context, dynamic_context, current);         \
+  if ((context.vocabularies().contains(vocabulary_1) ||                        \
+       context.vocabularies().contains(vocabulary_2)) &&                       \
+      context.keyword() == (_keyword)) {                                       \
+    return handler(context, current);                                          \
   }
 
 // A rung covers both the validation vocabulary and the hyper-schema one that
 // shares it, which is what `is_draft<rung>` answers
 #define COMPILE_DRAFT(rung, _keyword, handler)                                 \
-  if (is_draft##rung(schema_context.vocabularies) &&                           \
-      dynamic_context.keyword == (_keyword)) {                                 \
-    return handler(context, schema_context, dynamic_context, current);         \
+  if (is_draft##rung(context.vocabularies()) &&                                \
+      context.keyword() == (_keyword)) {                                       \
+    return handler(context, current);                                          \
   }
 
   // ********************************************
@@ -659,34 +656,31 @@ auto dispatch_keyword(const sourcemeta::blaze::Context &context,
   // is no keyword we may ignore, so compilation refuses it rather than passing
   // it by, and the table above is therefore a complete enumeration of the
   // dialect rather than a convenience
-  if (schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE) &&
-      !dynamic_context.keyword.starts_with("x-")) {
-    throw_keyword_error(context, schema_context,
-                        PROHIBITED_KEYWORD_FOR_DIALECT);
+  if (context.vocabularies().contains(Known::OPENAPI_3_0_BASE) &&
+      !context.keyword().starts_with("x-")) {
+    throw_keyword_error(context, PROHIBITED_KEYWORD_FOR_DIALECT);
   }
 
-  if ((schema_context.vocabularies.contains(Known::JSON_SCHEMA_2019_09_CORE) ||
-       schema_context.vocabularies.contains(Known::JSON_SCHEMA_2020_12_CORE)) &&
-      !dynamic_context.keyword.starts_with('$') &&
-      dynamic_context.keyword != "definitions") {
+  if ((context.vocabularies().contains(Known::JSON_SCHEMA_2019_09_CORE) ||
+       context.vocabularies().contains(Known::JSON_SCHEMA_2020_12_CORE)) &&
+      !context.keyword().starts_with('$') &&
+      context.keyword() != "definitions") {
 
     // We handle these keywords as part of "contains"
-    if ((schema_context.vocabularies.contains(
+    if ((context.vocabularies().contains(
              Known::JSON_SCHEMA_2019_09_VALIDATION) ||
-         schema_context.vocabularies.contains(
+         context.vocabularies().contains(
              Known::JSON_SCHEMA_2020_12_VALIDATION)) &&
-        (dynamic_context.keyword == "minContains" ||
-         dynamic_context.keyword == "maxContains")) {
+        (context.keyword() == "minContains" ||
+         context.keyword() == "maxContains")) {
       return {};
     }
 
-    if (!annotations_enabled(context, dynamic_context.keyword) ||
-        schema_context.is_property_name) {
+    if (!annotations_enabled(context) || context.local.is_property_name) {
       return {};
     }
 
-    return compiler_2019_09_core_annotation(context, schema_context,
-                                            dynamic_context, current);
+    return compiler_2019_09_core_annotation(context, current);
   }
 
   return {};
@@ -695,14 +689,12 @@ auto dispatch_keyword(const sourcemeta::blaze::Context &context,
 } // namespace
 
 auto sourcemeta::blaze::default_schema_compiler(
-    const sourcemeta::blaze::Context &context,
-    const sourcemeta::blaze::SchemaContext &schema_context,
-    const sourcemeta::blaze::DynamicContext &dynamic_context,
+    const KeywordContext &context,
     const sourcemeta::blaze::Instructions &current)
     -> sourcemeta::blaze::Instructions {
-  if (ref_overrides_sibling_keywords(schema_context)) {
+  if (ref_overrides_sibling_keywords(context)) {
     const auto &metadata{
-        context.walker(dynamic_context.keyword, schema_context.vocabularies)};
+        context.global.walker(context.keyword(), context.vocabularies())};
     if (metadata.type != sourcemeta::core::SchemaKeywordType::Reference) {
       // Whether the shape an overridden keyword takes is one its dialect
       // allows at all is still for the keyword compiler to judge, so such a
@@ -715,21 +707,18 @@ auto sourcemeta::blaze::default_schema_compiler(
       //
       // Draft 3 has no boolean schemas, but its own definitions of these two
       // keywords accept a boolean in place of one
-      const auto allow_boolean{
-          booleans_are_schemas(schema_context.vocabularies) ||
-          dynamic_context.keyword == "additionalProperties" ||
-          dynamic_context.keyword == "additionalItems"};
-      if (!ref_object_ignores_siblings(schema_context.vocabularies) &&
-          !holds_schema(metadata.type,
-                        schema_context.schema.at(dynamic_context.keyword),
-                        allow_boolean)) {
-        [[maybe_unused]] const auto discarded{dispatch_keyword(
-            context, schema_context, dynamic_context, current)};
+      const auto allow_boolean{booleans_are_schemas(context.vocabularies()) ||
+                               context.keyword() == "additionalProperties" ||
+                               context.keyword() == "additionalItems"};
+      if (!ref_object_ignores_siblings(context.vocabularies()) &&
+          !holds_schema(metadata.type, context.value(), allow_boolean)) {
+        [[maybe_unused]] const auto discarded{
+            dispatch_keyword(context, current)};
       }
 
       return {};
     }
   }
 
-  return dispatch_keyword(context, schema_context, dynamic_context, current);
+  return dispatch_keyword(context, current);
 }

@@ -45,24 +45,26 @@ narrows_type_away(const sourcemeta::core::JSON &schema,
   return true;
 }
 
-static auto parse_regex(const std::string &pattern, const Context &context,
-                        const sourcemeta::core::URI &base,
+static auto parse_regex(const std::string &pattern,
+                        const KeywordContext &context,
                         const sourcemeta::core::WeakPointer &schema_location)
     -> sourcemeta::core::Regex {
   const auto result{sourcemeta::core::to_regex(pattern)};
   if (!result.has_value()) [[unlikely]] {
-    throw CompilerInvalidRegexError(
-        base, absolute_schema_location(context, base, schema_location),
-        pattern);
+    throw CompilerInvalidRegexError(context.base(),
+                                    absolute_schema_location(context.global,
+                                                             context.base(),
+                                                             schema_location),
+                                    pattern);
   }
 
   return result.value();
 }
 
-static auto relative_schema_location_size(const Context &context,
+static auto relative_schema_location_size(const KeywordContext &context,
                                           const Instruction &step)
     -> std::size_t {
-  return context.extra[step.extra_index].relative_schema_location.size();
+  return context.global.extra[step.extra_index].relative_schema_location.size();
 }
 
 static auto defines_direct_enumeration(const Instructions &steps)
@@ -94,14 +96,13 @@ static auto is_inside_disjunctor(const sourcemeta::core::WeakPointer &pointer)
 // compile the subschema the way a reachable one compiles and discard what it
 // yields: the checks are the point rather than the instructions
 static inline auto
-compile_pruned_subschema(const Context &context,
-                         const SchemaContext &schema_context,
+compile_pruned_subschema(const KeywordContext &context,
                          const sourcemeta::core::WeakPointer &suffix) -> void {
-  if (!is_openapi_3_0(schema_context.vocabularies)) {
+  if (!is_openapi_3_0(context.vocabularies())) {
     return;
   }
 
-  compile(context, schema_context, relative_dynamic_context(), suffix, suffix);
+  compile(context.relative(), suffix, suffix);
 }
 
 // Draft 3 and Draft 4 read "integer" as a number written without a fractional
@@ -211,23 +212,21 @@ static auto is_closed_properties_required(const sourcemeta::core::JSON &schema,
          });
 }
 
-static auto
-compile_properties(const Context &context, const SchemaContext &schema_context,
-                   const DynamicContext &dynamic_context, const Instructions &)
+static auto compile_properties(const KeywordContext &context,
+                               const Instructions &)
     -> std::vector<std::pair<std::string, Instructions>> {
   // The keywords that fuse with `properties` reach it from the side, past the
   // point where an overridden keyword is dropped. A `properties` that `$ref`
   // overrides enforces nothing, and nothing under it is framed, so there is
   // neither anything to compile here nor anything to fuse with
-  if (ref_overrides_sibling_keywords(schema_context)) {
+  if (ref_overrides_sibling_keywords(context)) {
     return {};
   }
 
   std::vector<std::pair<std::string, Instructions>> properties;
-  for (const auto &entry : schema_context.schema.at("properties").as_object()) {
+  for (const auto &entry : context.schema().at("properties").as_object()) {
     properties.emplace_back(entry.first,
-                            compile(context, schema_context, dynamic_context,
-                                    make_weak_pointer(entry.first),
+                            compile(context, make_weak_pointer(entry.first),
                                     make_weak_pointer(entry.first)));
   }
 
@@ -235,7 +234,7 @@ compile_properties(const Context &context, const SchemaContext &schema_context,
   // and some subschemas that are large. To attempt to improve performance,
   // we prefer to evaluate smaller subschemas first, in the hope of failing
   // earlier without spending a lot of time on other subschemas
-  if (context.tweaks.properties_reorder) {
+  if (context.global.tweaks.properties_reorder) {
     std::ranges::sort(
         properties, [&context](const auto &left, const auto &right) -> auto {
           const auto left_size{recursive_template_size(left.second)};
@@ -356,43 +355,44 @@ static auto to_named_indexes(
   return result;
 }
 
-auto compile_required_assertions(const Context &context,
-                                 const SchemaContext &schema_context,
-                                 const DynamicContext &dynamic_context,
+auto compile_required_assertions(const KeywordContext &context,
                                  const Instructions &current,
                                  ValueStringSet properties_set)
     -> Instructions {
-  if (narrows_type_away(schema_context.schema, {"object"})) {
+  if (narrows_type_away(context.schema(), {"object"})) {
     return {};
   }
 
-  const auto assume_object{assume_type(schema_context.vocabularies,
-                                       schema_context.schema, "object")};
+  const auto assume_object{
+      assume_type(context.vocabularies(), context.schema(), "object")};
 
   if (properties_set.empty()) {
     return {};
   }
   if (properties_set.size() > 1) {
-    if (is_closed_properties_required(schema_context.schema, properties_set)) {
-      if (context.mode == Mode::FastValidation && assume_object) {
+    if (is_closed_properties_required(context.schema(), properties_set)) {
+      if (context.mode() == Mode::FastValidation && assume_object) {
         static const std::string PROPERTIES_KEYWORD{"properties"};
         // `SchemaContext::relative_pointer` is a reference, so the concatenated
         // pointer must outlive `new_schema_context`
         const auto properties_pointer{
-            schema_context.relative_pointer.initial().concat(
+            context.local.relative_pointer.initial().concat(
                 make_weak_pointer(PROPERTIES_KEYWORD))};
         const SchemaContext new_schema_context{
             .relative_pointer = properties_pointer,
-            .schema = schema_context.schema,
-            .vocabularies = schema_context.vocabularies,
-            .base = schema_context.base,
-            .is_property_name = schema_context.is_property_name};
-        const DynamicContext new_dynamic_context{
-            .keyword = KEYWORD_PROPERTIES,
-            .base_schema_location = sourcemeta::core::EMPTY_WEAK_POINTER,
-            .base_instance_location = sourcemeta::core::EMPTY_WEAK_POINTER};
-        auto properties{compile_properties(context, new_schema_context,
-                                           new_dynamic_context, current)};
+            .schema = context.schema(),
+            .vocabularies = context.vocabularies(),
+            .base = context.base(),
+            .is_property_name = context.local.is_property_name};
+        const KeywordContext properties_context{
+            .global = context.global,
+            .local = new_schema_context,
+            .target = {.keyword = KEYWORD_PROPERTIES,
+                       .base_schema_location =
+                           sourcemeta::core::EMPTY_WEAK_POINTER,
+                       .base_instance_location =
+                           sourcemeta::core::EMPTY_WEAK_POINTER}};
+        auto properties{compile_properties(properties_context, current)};
         if (std::ranges::all_of(properties, [](const auto &property) -> auto {
               return property.second.size() == 1 &&
                      property.second.front().type ==
@@ -411,14 +411,14 @@ auto compile_required_assertions(const Context &context,
           // `unevaluatedProperties` depends on, which `required` is not one of
           if (types.size() == 1 &&
               !annotations_enabled(context, KEYWORD_PROPERTIES) &&
-              !requires_evaluation(context, new_schema_context)) {
+              !requires_evaluation(properties_context)) {
             // Handled in `properties`
             return {};
           }
         }
 
         sourcemeta::core::PropertyHashJSON<ValueString> hasher;
-        if (context.mode == Mode::FastValidation &&
+        if (context.mode() == Mode::FastValidation &&
             properties_set.size() == 3 &&
             std::ranges::all_of(properties_set,
                                 [&hasher](const auto &property) -> auto {
@@ -430,107 +430,94 @@ auto compile_required_assertions(const Context &context,
           }
 
           return {make(InstructionIndex::AssertionDefinesExactlyStrictHash3,
-                       context, schema_context, dynamic_context,
-                       to_string_hashes(hashes))};
+                       context, to_string_hashes(hashes))};
         }
 
         return {make(InstructionIndex::AssertionDefinesExactlyStrict, context,
-                     schema_context, dynamic_context,
                      std::move(properties_set))};
       }
       return {make(InstructionIndex::AssertionDefinesExactly, context,
-                   schema_context, dynamic_context, std::move(properties_set))};
+                   std::move(properties_set))};
     }
     if (assume_object) {
       return {make(InstructionIndex::AssertionDefinesAllStrict, context,
-                   schema_context, dynamic_context, std::move(properties_set))};
+                   std::move(properties_set))};
     }
-    return {make(InstructionIndex::AssertionDefinesAll, context, schema_context,
-                 dynamic_context, std::move(properties_set))};
+    return {make(InstructionIndex::AssertionDefinesAll, context,
+                 std::move(properties_set))};
   }
   if (assume_object) {
     return {make(InstructionIndex::AssertionDefinesStrict, context,
-                 schema_context, dynamic_context,
                  make_property(properties_set.begin()->first))};
   }
-  return {make(InstructionIndex::AssertionDefines, context, schema_context,
-               dynamic_context, make_property(properties_set.begin()->first))};
+  return {make(InstructionIndex::AssertionDefines, context,
+               make_property(properties_set.begin()->first))};
 }
 
-auto compiler_draft3_core_ref(const Context &context,
-                              const SchemaContext &schema_context,
-                              const DynamicContext &dynamic_context,
+auto compiler_draft3_core_ref(const KeywordContext &context,
                               const Instructions &) -> Instructions {
-  const auto entry_pointer{absolute_schema_pointer(context, schema_context)};
+  const auto entry_pointer{absolute_schema_pointer(context)};
   const auto type{sourcemeta::core::SchemaReferenceType::Static};
-  const auto reference{context.frame.reference(type, entry_pointer)};
+  const auto reference{context.global.frame.reference(type, entry_pointer)};
   if (!reference.has_value()) [[unlikely]] {
     throw sourcemeta::core::SchemaReferenceError(
-        "Could not resolve schema reference",
-        schema_context.schema.at(dynamic_context.keyword).to_string(),
+        "Could not resolve schema reference", context.value().to_string(),
         to_pointer(entry_pointer));
   }
 
   const auto key{std::make_tuple(type,
                                  std::string_view{reference->get().destination},
-                                 schema_context.is_property_name)};
-  assert(context.targets.contains(key));
-  return {make(InstructionIndex::ControlJump, context, schema_context,
-               dynamic_context,
-               ValueUnsignedInteger{context.targets.at(key).first})};
+                                 context.local.is_property_name)};
+  assert(context.global.targets.contains(key));
+  return {make(InstructionIndex::ControlJump, context,
+               ValueUnsignedInteger{context.global.targets.at(key).first})};
 }
 
 // There are two ways to compile `properties` depending on whether
 // most of the properties are marked as required using `required`
 // or whether most of the properties are optional. Each shines
 // in the corresponding case.
-auto properties_as_loop(const Context &context,
-                        const SchemaContext &schema_context,
+auto properties_as_loop(const KeywordContext &context,
                         const sourcemeta::core::JSON &properties) -> bool {
-  if (context.tweaks.properties_always_unroll) {
+  if (context.global.tweaks.properties_always_unroll) {
     return false;
   }
 
   using Known = sourcemeta::core::SchemaVocabularies::Known;
   const auto size{properties.size()};
   const auto imports_validation_vocabulary =
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_4) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_6) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2019_09_VALIDATION) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2020_12_VALIDATION) ||
-      schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE);
+      context.vocabularies().contains(Known::JSON_SCHEMA_DRAFT_4) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_DRAFT_6) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_DRAFT_7) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_2019_09_VALIDATION) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_2020_12_VALIDATION) ||
+      context.vocabularies().contains(Known::OPENAPI_3_0_BASE);
   // `const` is deliberately absent from the OpenAPI 3.0 dialect below, which
   // has `enum` but no `const` of its own
   const auto imports_const =
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_6) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2019_09_VALIDATION) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2020_12_VALIDATION);
+      context.vocabularies().contains(Known::JSON_SCHEMA_DRAFT_6) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_DRAFT_7) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_2019_09_VALIDATION) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_2020_12_VALIDATION);
   ValueStringSet required;
-  for (const auto &entry : required_properties(schema_context)) {
+  for (const auto &entry : required_properties(context)) {
     // Only count the required property if its indeed in "properties"
     if (properties.defines(entry.first)) {
       required.insert(entry.first);
     }
   }
 
-  const auto current_entry_pointer{
-      absolute_schema_pointer(context, schema_context)};
+  const auto current_entry_pointer{absolute_schema_pointer(context)};
   const auto inside_disjunctor{
-      is_inside_disjunctor(schema_context.relative_pointer) ||
+      is_inside_disjunctor(context.local.relative_pointer) ||
       // Check if any reference from `anyOf` or `oneOf` points to us
-      context.frame.any_reference(
+      context.global.frame.any_reference(
           [&context, &current_entry_pointer](
               const sourcemeta::core::SchemaReferenceType,
               const sourcemeta::core::WeakPointer &origin,
               const sourcemeta::core::SchemaFrame::Reference &reference)
               -> bool {
-            const auto destination{context.frame.location(
+            const auto destination{context.global.frame.location(
                 sourcemeta::core::SchemaReferenceType::Static,
                 reference.destination)};
             if (!destination.has_value()) {
@@ -542,10 +529,9 @@ auto properties_as_loop(const Context &context,
                        destination.value().get().pointer;
           })};
 
-  if (!inside_disjunctor &&
-      schema_context.schema.defines("additionalProperties") &&
-      schema_context.schema.at("additionalProperties").is_boolean() &&
-      !schema_context.schema.at("additionalProperties").to_boolean() &&
+  if (!inside_disjunctor && context.schema().defines("additionalProperties") &&
+      context.schema().at("additionalProperties").is_boolean() &&
+      !context.schema().at("additionalProperties").to_boolean() &&
       // If all properties are required, we should still unroll
       required.size() < size) {
     return true;
@@ -569,11 +555,9 @@ auto properties_as_loop(const Context &context,
            }));
 }
 
-auto draft3_any_type_instructions(const Context &context,
-                                  const SchemaContext &schema_context,
-                                  const DynamicContext &dynamic_context)
+auto draft3_any_type_instructions(const KeywordContext &context)
     -> Instructions {
-  if (context.mode != Mode::Exhaustive) {
+  if (context.mode() != Mode::Exhaustive) {
     return {};
   }
 
@@ -587,15 +571,12 @@ auto draft3_any_type_instructions(const Context &context,
   types.set(std::to_underlying(JSON::Type::Real));
   types.set(std::to_underlying(JSON::Type::Decimal));
   types.set(std::to_underlying(JSON::Type::String));
-  return {make(InstructionIndex::AssertionTypeStrictAny, context,
-               schema_context, dynamic_context, types)};
+  return {make(InstructionIndex::AssertionTypeStrictAny, context, types)};
 }
 
 // The instruction that asserts a single type name, or nothing at all for a
 // name this does not know, which constrains nothing
-auto make_type_assertion(const Context &context,
-                         const SchemaContext &schema_context,
-                         const DynamicContext &dynamic_context,
+auto make_type_assertion(const KeywordContext &context,
                          const std::string_view name)
     -> std::optional<Instruction> {
   using sourcemeta::core::JSON;
@@ -605,17 +586,16 @@ auto make_type_assertion(const Context &context,
     types.set(std::to_underlying(JSON::Type::Real));
     types.set(std::to_underlying(JSON::Type::Integer));
     types.set(std::to_underlying(JSON::Type::Decimal));
-    return make(InstructionIndex::AssertionTypeStrictAny, context,
-                schema_context, dynamic_context, types);
+    return make(InstructionIndex::AssertionTypeStrictAny, context, types);
   }
 
   // A dialect that reads a number written with a fractional part as an integer
   // needs the check that accepts one
   if (name == "integer") {
-    return make(integral_reals_are_integers(schema_context.vocabularies)
+    return make(integral_reals_are_integers(context.vocabularies())
                     ? InstructionIndex::AssertionType
                     : InstructionIndex::AssertionTypeStrict,
-                context, schema_context, dynamic_context, JSON::Type::Integer);
+                context, JSON::Type::Integer);
   }
 
   JSON::Type type{};
@@ -633,35 +613,35 @@ auto make_type_assertion(const Context &context,
     return std::nullopt;
   }
 
-  return make(InstructionIndex::AssertionTypeStrict, context, schema_context,
-              dynamic_context, type);
+  return make(InstructionIndex::AssertionTypeStrict, context, type);
 }
 
 // A pair of sibling size bounds folds into the type assertion itself, which
 // then settles the type and the size in one instruction. Bounds that cross
 // leave nothing for an instance to satisfy
-auto fuse_type_size_bound(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const std::size_t minimum,
-    const std::optional<std::size_t> maximum, const InstructionIndex upper,
-    const InstructionIndex bounded) -> std::optional<Instructions> {
-  if (context.mode != Mode::FastValidation) {
+auto fuse_type_size_bound(const KeywordContext &context,
+                          const std::size_t minimum,
+                          const std::optional<std::size_t> maximum,
+                          const InstructionIndex upper,
+                          const InstructionIndex bounded)
+    -> std::optional<Instructions> {
+  if (context.mode() != Mode::FastValidation) {
     return std::nullopt;
   }
 
   if (maximum.has_value() && minimum > maximum.value()) {
-    return Instructions{make(InstructionIndex::AssertionFail, context,
-                             schema_context, dynamic_context, ValueNone{})};
+    return Instructions{
+        make(InstructionIndex::AssertionFail, context, ValueNone{})};
   }
 
   if (maximum.has_value() && minimum == 0) {
-    return Instructions{make(upper, context, schema_context, dynamic_context,
-                             ValueUnsignedInteger{maximum.value()})};
+    return Instructions{
+        make(upper, context, ValueUnsignedInteger{maximum.value()})};
   }
 
   if (minimum > 0 || maximum.has_value()) {
-    return Instructions{make(bounded, context, schema_context, dynamic_context,
-                             ValueRange{minimum, maximum, false})};
+    return Instructions{
+        make(bounded, context, ValueRange{minimum, maximum, false})};
   }
 
   return std::nullopt;
@@ -702,14 +682,13 @@ auto value_matches_type_name(const sourcemeta::core::JSON &value,
 // already say, as every one of them is of the type anyway. An `enum` that
 // stands empty admits nothing at all, which its own keyword turns into a
 // failure, so the type assertion is just as spare there
-auto type_covered_by_enum(const Context &context,
-                          const SchemaContext &schema_context,
+auto type_covered_by_enum(const KeywordContext &context,
                           const std::string_view name) -> bool {
-  if (context.mode != Mode::FastValidation) {
+  if (context.mode() != Mode::FastValidation) {
     return false;
   }
 
-  const auto *options{schema_context.schema.try_at("enum")};
+  const auto *options{context.schema().try_at("enum")};
   return options != nullptr && options->is_array() &&
          std::ranges::all_of(options->as_array(),
                              [name](const auto &option) -> bool {
@@ -720,14 +699,13 @@ auto type_covered_by_enum(const Context &context,
 // The same, for the one option that `const` spells on its own. Only a dialect
 // that defines the keyword may be asked, as a member by that name elsewhere is
 // author data rather than a constraint
-auto type_covered_by_const(const Context &context,
-                           const SchemaContext &schema_context,
+auto type_covered_by_const(const KeywordContext &context,
                            const std::string_view name) -> bool {
-  if (context.mode != Mode::FastValidation) {
+  if (context.mode() != Mode::FastValidation) {
     return false;
   }
 
-  const auto *value{schema_context.schema.try_at("const")};
+  const auto *value{context.schema().try_at("const")};
   return value != nullptr && value_matches_type_name(*value, name);
 }
 
@@ -853,102 +831,91 @@ auto integer_lower_bound_extra_index(const Instructions &children)
 }
 
 auto compiler_draft3_applicator_properties_with_options(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &current,
+    const KeywordContext &context, const Instructions &current,
     const bool annotate, const bool track_evaluation) -> Instructions {
-  if (schema_context.is_property_name) {
+  if (context.local.is_property_name) {
     return {};
   }
 
-  if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    throw_keyword_error(context, schema_context, EXPECTED_OBJECT);
+  if (!context.value().is_object()) {
+    throw_keyword_error(context, EXPECTED_OBJECT);
   }
 
-  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
+  if (context.value().empty()) {
     return {};
   }
 
-  if (narrows_type_away(schema_context.schema, {"object"})) {
-    for (const auto &entry :
-         schema_context.schema.at(dynamic_context.keyword).as_object()) {
-      compile_pruned_subschema(context, schema_context,
-                               make_weak_pointer(entry.first));
+  if (narrows_type_away(context.schema(), {"object"})) {
+    for (const auto &entry : context.value().as_object()) {
+      compile_pruned_subschema(context, make_weak_pointer(entry.first));
     }
 
     return {};
   }
 
-  const bool emit_annotation{
-      annotate && annotations_enabled(context, dynamic_context.keyword)};
+  const bool emit_annotation{annotate && annotations_enabled(context)};
 
-  if (properties_as_loop(context, schema_context,
-                         schema_context.schema.at(dynamic_context.keyword))) {
+  if (properties_as_loop(context, context.value())) {
     std::vector<std::pair<ValueString, ValueUnsignedInteger>> names;
     Instructions children;
     std::size_t cursor = 0;
 
-    for (auto &&[name, substeps] : compile_properties(
-             context, schema_context, relative_dynamic_context(), current)) {
+    for (auto &&[name, substeps] :
+         compile_properties(context.relative(), current)) {
       names.emplace_back(name, cursor);
 
       if (track_evaluation) {
-        substeps.push_back(make(InstructionIndex::ControlEvaluate, context,
-                                schema_context, relative_dynamic_context(),
-                                ValuePointer{name}));
+        substeps.push_back(make(InstructionIndex::ControlEvaluate,
+                                context.relative(), ValuePointer{name}));
       }
 
       if (emit_annotation) {
-        substeps.push_back(make(
-            InstructionIndex::AnnotationEmitWrapped, context, schema_context,
-            relative_dynamic_context(), sourcemeta::core::JSON{name}));
+        substeps.push_back(make(InstructionIndex::AnnotationEmitWrapped,
+                                context.relative(),
+                                sourcemeta::core::JSON{name}));
       }
 
       // Note that the evaluator completely ignores this wrapper anyway
-      children.push_back(make(InstructionIndex::ControlGroup, context,
-                              schema_context, relative_dynamic_context(),
-                              ValueNone{}, std::move(substeps)));
+      children.push_back(make(InstructionIndex::ControlGroup,
+                              context.relative(), ValueNone{},
+                              std::move(substeps)));
       cursor += 1;
     }
 
-    if (context.mode == Mode::FastValidation && !track_evaluation &&
-        !schema_context.schema.defines("patternProperties") &&
-        schema_context.schema.defines("additionalProperties") &&
-        schema_context.schema.at("additionalProperties").is_boolean() &&
-        !schema_context.schema.at("additionalProperties").to_boolean()) {
+    if (context.mode() == Mode::FastValidation && !track_evaluation &&
+        !context.schema().defines("patternProperties") &&
+        context.schema().defines("additionalProperties") &&
+        context.schema().at("additionalProperties").is_boolean() &&
+        !context.schema().at("additionalProperties").to_boolean()) {
       return {make(InstructionIndex::LoopPropertiesMatchClosed, context,
-                   schema_context, dynamic_context, to_named_indexes(names),
-                   std::move(children))};
+                   to_named_indexes(names), std::move(children))};
     }
 
-    return {make(InstructionIndex::LoopPropertiesMatch, context, schema_context,
-                 dynamic_context, to_named_indexes(names),
-                 std::move(children))};
+    return {make(InstructionIndex::LoopPropertiesMatch, context,
+                 to_named_indexes(names), std::move(children))};
   }
 
   Instructions children;
 
-  const auto effective_dynamic_context{context.mode == Mode::FastValidation
-                                           ? dynamic_context
-                                           : relative_dynamic_context()};
+  const auto effective_context{
+      context.mode() == Mode::FastValidation ? context : context.relative()};
 
-  const auto assume_object{assume_type(schema_context.vocabularies,
-                                       schema_context.schema, "object")};
+  const auto assume_object{
+      assume_type(context.vocabularies(), context.schema(), "object")};
 
-  ValueStringSet required{required_properties(schema_context)};
+  ValueStringSet required{required_properties(context)};
 
-  auto properties{compile_properties(context, schema_context,
-                                     effective_dynamic_context, current)};
+  auto properties{compile_properties(effective_context, current)};
 
   // These fused forms collapse every property into a single instruction that
   // does not mark the properties it matches as evaluated, so under evaluation
   // tracking we must fall through to the form that emits the markers
-  if (!emit_annotation && context.mode == Mode::FastValidation &&
+  if (!emit_annotation && context.mode() == Mode::FastValidation &&
       !track_evaluation && !required.empty() &&
-      schema_context.schema.defines("additionalProperties") &&
-      schema_context.schema.at("additionalProperties").is_boolean() &&
-      !schema_context.schema.at("additionalProperties").to_boolean() &&
-      required.size() ==
-          schema_context.schema.at(dynamic_context.keyword).size() &&
+      context.schema().defines("additionalProperties") &&
+      context.schema().at("additionalProperties").is_boolean() &&
+      !context.schema().at("additionalProperties").to_boolean() &&
+      required.size() == context.value().size() &&
       std::ranges::all_of(properties,
                           [&required](const auto &property) -> auto {
                             return required.contains(property.first);
@@ -963,10 +930,9 @@ auto compiler_draft3_applicator_properties_with_options(
         types.insert(std::get<ValueType>(property.second.front().value));
       }
 
-      if (types.size() == 1 &&
-          !schema_context.schema.defines("patternProperties")) {
+      if (types.size() == 1 && !context.schema().defines("patternProperties")) {
         if (assume_object) {
-          if (is_closed_properties_required(schema_context.schema, required)) {
+          if (is_closed_properties_required(context.schema(), required)) {
             sourcemeta::core::PropertyHashJSON<ValueString> hasher;
             std::vector<std::pair<ValueString, ValueStringSet::hash_type>>
                 perfect_hashes;
@@ -980,20 +946,19 @@ auto compiler_draft3_applicator_properties_with_options(
             if (perfect_hashes.size() == required.size()) {
               return {
                   make(InstructionIndex::LoopPropertiesExactlyTypeStrictHash,
-                       context, schema_context, dynamic_context,
+                       context,
                        ValueTypedHashes{*types.cbegin(),
                                         to_string_hashes(perfect_hashes)})};
             }
 
             return {make(
                 InstructionIndex::LoopPropertiesExactlyTypeStrict, context,
-                schema_context, dynamic_context,
                 ValueTypedProperties{*types.cbegin(), std::move(required)})};
           }
         }
 
         return {make(InstructionIndex::LoopPropertiesTypeStrict, context,
-                     schema_context, dynamic_context, *types.cbegin())};
+                     *types.cbegin())};
       }
     }
 
@@ -1009,19 +974,19 @@ auto compiler_draft3_applicator_properties_with_options(
 
       if (types.size() == 1) {
         return {make(InstructionIndex::LoopPropertiesType, context,
-                     schema_context, dynamic_context, *types.cbegin())};
+                     *types.cbegin())};
       }
     }
   }
 
-  auto attempt_object_fusion{context.mode == Mode::FastValidation &&
+  auto attempt_object_fusion{context.mode() == Mode::FastValidation &&
                              !emit_annotation && !track_evaluation &&
                              assume_object};
   if (attempt_object_fusion) {
-    for (const auto &entry : schema_context.schema.as_object()) {
+    for (const auto &entry : context.schema().as_object()) {
       const auto &keyword{entry.first};
       if (keyword == "type" || keyword == "required" ||
-          keyword == dynamic_context.keyword) {
+          keyword == context.keyword()) {
         continue;
       }
 
@@ -1031,7 +996,7 @@ auto compiler_draft3_applicator_properties_with_options(
       }
 
       const auto &keyword_type{
-          context.walker(keyword, schema_context.vocabularies).type};
+          context.global.walker(keyword, context.vocabularies()).type};
       using enum sourcemeta::core::SchemaKeywordType;
       if (keyword_type == Assertion || keyword_type == Annotation ||
           keyword_type == Unknown || keyword_type == Comment ||
@@ -1049,26 +1014,25 @@ auto compiler_draft3_applicator_properties_with_options(
 
   for (auto &&[name, substeps] : properties) {
     if (emit_annotation) {
-      substeps.push_back(make(InstructionIndex::AnnotationEmitWrapped, context,
-                              schema_context, effective_dynamic_context,
-                              sourcemeta::core::JSON{name}));
+      substeps.push_back(make(InstructionIndex::AnnotationEmitWrapped,
+                              effective_context, sourcemeta::core::JSON{name}));
     }
 
     // Optimize `properties` where its subschemas just include a type check
 
-    if (context.mode == Mode::FastValidation && track_evaluation &&
+    if (context.mode() == Mode::FastValidation && track_evaluation &&
         substeps.size() == 1 &&
         substeps.front().type == InstructionIndex::AssertionTypeStrict) {
       children.push_back(rephrase(
           context, InstructionIndex::AssertionPropertyTypeStrictEvaluate,
           substeps.front()));
-    } else if (context.mode == Mode::FastValidation && track_evaluation &&
+    } else if (context.mode() == Mode::FastValidation && track_evaluation &&
                substeps.size() == 1 &&
                substeps.front().type == InstructionIndex::AssertionType) {
       children.push_back(
           rephrase(context, InstructionIndex::AssertionPropertyTypeEvaluate,
                    substeps.front()));
-    } else if (context.mode == Mode::FastValidation && track_evaluation &&
+    } else if (context.mode() == Mode::FastValidation && track_evaluation &&
                substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionTypeStrictAny) {
@@ -1077,45 +1041,46 @@ auto compiler_draft3_applicator_properties_with_options(
           substeps.front()));
 
       // NOLINTBEGIN(bugprone-branch-clone)
-    } else if (!fusion_possible && context.mode == Mode::FastValidation &&
+    } else if (!fusion_possible && context.mode() == Mode::FastValidation &&
                substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionPropertyTypeStrict) {
       children.push_back(
           unroll(context, substeps.front(),
-                 effective_dynamic_context.base_instance_location));
-    } else if (!fusion_possible && context.mode == Mode::FastValidation &&
+                 effective_context.target.base_instance_location));
+    } else if (!fusion_possible && context.mode() == Mode::FastValidation &&
                substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionPropertyType) {
       children.push_back(
           unroll(context, substeps.front(),
-                 effective_dynamic_context.base_instance_location));
-    } else if (!fusion_possible && context.mode == Mode::FastValidation &&
+                 effective_context.target.base_instance_location));
+    } else if (!fusion_possible && context.mode() == Mode::FastValidation &&
                substeps.size() == 1 &&
                substeps.front().type ==
                    InstructionIndex::AssertionPropertyTypeStrictAny) {
       children.push_back(
           unroll(context, substeps.front(),
-                 effective_dynamic_context.base_instance_location));
+                 effective_context.target.base_instance_location));
       // NOLINTEND(bugprone-branch-clone)
 
     } else {
       if (track_evaluation) {
         auto new_base_instance_location{
-            effective_dynamic_context.base_instance_location};
+            effective_context.target.base_instance_location};
         new_base_instance_location.push_back({name});
+        const KeywordContext evaluate_context{
+            .global = effective_context.global,
+            .local = effective_context.local,
+            .target = {.keyword = effective_context.keyword(),
+                       .base_schema_location =
+                           effective_context.target.base_schema_location,
+                       .base_instance_location = new_base_instance_location}};
         substeps.push_back(
-            make(InstructionIndex::Evaluate, context, schema_context,
-                 DynamicContext{
-                     .keyword = effective_dynamic_context.keyword,
-                     .base_schema_location =
-                         effective_dynamic_context.base_schema_location,
-                     .base_instance_location = new_base_instance_location},
-                 ValueNone{}));
+            make(InstructionIndex::Evaluate, evaluate_context, ValueNone{}));
       }
 
-      if (context.mode == Mode::FastValidation && !substeps.empty()) {
+      if (context.mode() == Mode::FastValidation && !substeps.empty()) {
         if (is_integer_type_bounded_pattern(substeps)) {
           auto bounds = extract_integer_bounds(substeps);
           const auto index =
@@ -1126,8 +1091,7 @@ auto compiler_draft3_applicator_properties_with_options(
           const auto minimum_extra_index{
               integer_lower_bound_extra_index(substeps)};
           substeps.clear();
-          auto fused = make(index, context, schema_context,
-                            relative_dynamic_context(), bounds);
+          auto fused = make(index, context.relative(), bounds);
           fused.relative_instance_location = std::move(instance_location);
           fused.extra_index = minimum_extra_index;
           substeps.push_back(std::move(fused));
@@ -1142,8 +1106,7 @@ auto compiler_draft3_applicator_properties_with_options(
               integer_lower_bound_extra_index(substeps)};
           substeps.clear();
           auto fused =
-              make(index, context, schema_context, relative_dynamic_context(),
-                   ValueIntegerBounds{minimum, 0});
+              make(index, context.relative(), ValueIntegerBounds{minimum, 0});
           fused.relative_instance_location = std::move(instance_location);
           fused.extra_index = minimum_extra_index;
           substeps.push_back(std::move(fused));
@@ -1173,9 +1136,8 @@ auto compiler_draft3_applicator_properties_with_options(
             Value fused_value{
                 ValueIntegerBoundsWithSize{integer_bounds, std::move(range)}};
             substeps.clear();
-            auto fused =
-                make(InstructionIndex::LoopItemsIntegerBoundedSized, context,
-                     schema_context, effective_dynamic_context, fused_value);
+            auto fused = make(InstructionIndex::LoopItemsIntegerBoundedSized,
+                              effective_context, fused_value);
             fused.relative_instance_location = std::move(instance_location);
             substeps.push_back(std::move(fused));
           }
@@ -1266,10 +1228,10 @@ auto compiler_draft3_applicator_properties_with_options(
         auto prop{make_property(name)};
         auto fusion_child{substeps.front()};
         fusion_child.relative_instance_location = {};
-        auto fusion_extra{context.extra[fusion_child.extra_index]};
+        auto fusion_extra{context.global.extra[fusion_child.extra_index]};
         fusion_extra.relative_schema_location = {};
-        fusion_child.extra_index = context.extra.size();
-        context.extra.push_back(std::move(fusion_extra));
+        fusion_child.extra_index = context.global.extra.size();
+        context.global.extra.push_back(std::move(fusion_extra));
 
         fusion_entries.emplace_back(prop.first, prop.second, is_required);
         fusion_children.push_back(std::move(fusion_child));
@@ -1279,30 +1241,28 @@ auto compiler_draft3_applicator_properties_with_options(
 
       if (!substeps.empty()) {
         // As a performance shortcut
-        if (effective_dynamic_context.base_instance_location.empty()) {
+        if (effective_context.target.base_instance_location.empty()) {
           if (assume_object && required.contains(name)) {
             for (auto &&step : substeps) {
               children.push_back(std::move(step));
             }
           } else {
-            children.push_back(
-                make(InstructionIndex::ControlGroupWhenDefinesDirect, context,
-                     schema_context, effective_dynamic_context,
-                     make_property(name), std::move(substeps)));
+            children.push_back(make(
+                InstructionIndex::ControlGroupWhenDefinesDirect,
+                effective_context, make_property(name), std::move(substeps)));
           }
         } else {
           children.push_back(make(InstructionIndex::ControlGroupWhenDefines,
-                                  context, schema_context,
-                                  effective_dynamic_context,
-                                  make_property(name), std::move(substeps)));
+                                  effective_context, make_property(name),
+                                  std::move(substeps)));
         }
       }
     }
   }
 
-  if (context.mode == Mode::FastValidation) {
+  if (context.mode() == Mode::FastValidation) {
     if (fusion_possible && !fusion_entries.empty() &&
-        !context.collects_annotations) {
+        !context.global.collects_annotations) {
       for (const auto &req : required) {
         const auto &req_name{req.first};
         bool already_tracked{false};
@@ -1323,7 +1283,6 @@ auto compiler_draft3_applicator_properties_with_options(
       }
 
       return {make(InstructionIndex::AssertionObjectPropertiesSimple, context,
-                   schema_context, dynamic_context,
                    Value{std::move(fusion_entries)},
                    std::move(fusion_children))};
     }
@@ -1333,29 +1292,27 @@ auto compiler_draft3_applicator_properties_with_options(
   if (children.empty()) {
     return {};
   }
-  return {make(InstructionIndex::LogicalWhenType, context, schema_context,
-               dynamic_context, sourcemeta::core::JSON::Type::Object,
-               std::move(children))};
+  return {make(InstructionIndex::LogicalWhenType, context,
+               sourcemeta::core::JSON::Type::Object, std::move(children))};
 }
 
-auto compiler_draft3_applicator_properties(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &current)
+auto compiler_draft3_applicator_properties(const KeywordContext &context,
+                                           const Instructions &current)
     -> Instructions {
   auto property_instructions{compiler_draft3_applicator_properties_with_options(
-      context, schema_context, dynamic_context, current, false, false)};
+      context, current, false, false)};
 
-  if (!is_draft3(schema_context.vocabularies)) {
+  if (!is_draft3(context.vocabularies())) {
     return property_instructions;
   }
 
-  ValueStringSet required{required_properties(schema_context)};
+  ValueStringSet required{required_properties(context)};
   if (required.empty()) {
     return property_instructions;
   }
 
-  auto required_instructions{compile_required_assertions(
-      context, schema_context, dynamic_context, current, std::move(required))};
+  auto required_instructions{
+      compile_required_assertions(context, current, std::move(required))};
   if (required_instructions.empty()) {
     return property_instructions;
   }
@@ -1368,18 +1325,17 @@ auto compiler_draft3_applicator_properties(
 }
 
 auto compiler_draft3_applicator_patternproperties_with_options(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
+    const KeywordContext &context, const bool annotate,
     const bool track_evaluation) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    throw_keyword_error(context, schema_context, EXPECTED_OBJECT);
+  if (!context.value().is_object()) {
+    throw_keyword_error(context, EXPECTED_OBJECT);
   }
 
-  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
+  if (context.value().empty()) {
     return {};
   }
 
-  if (narrows_type_away(schema_context.schema, {"object"})) {
+  if (narrows_type_away(context.schema(), {"object"})) {
     return {};
   }
 
@@ -1387,8 +1343,7 @@ auto compiler_draft3_applicator_patternproperties_with_options(
 
   // To guarantee ordering
   std::vector<std::string> patterns;
-  for (const auto &entry :
-       schema_context.schema.at(dynamic_context.keyword).as_object()) {
+  for (const auto &entry : context.value().as_object()) {
     patterns.push_back(entry.first);
   }
 
@@ -1396,36 +1351,32 @@ auto compiler_draft3_applicator_patternproperties_with_options(
 
   // For each regular expression and corresponding subschema in the object
   for (const auto &pattern : patterns) {
-    auto substeps{compile(context, schema_context, relative_dynamic_context(),
-                          make_weak_pointer(pattern))};
+    auto substeps{compile(context.relative(), make_weak_pointer(pattern))};
 
-    if (annotate && annotations_enabled(context, dynamic_context.keyword)) {
+    if (annotate && annotations_enabled(context)) {
       substeps.push_back(make(InstructionIndex::AnnotationBasenameToParent,
-                              context, schema_context,
-                              relative_dynamic_context(), ValueNone{}));
+                              context.relative(), ValueNone{}));
     }
 
     if (track_evaluation) {
-      substeps.push_back(make(InstructionIndex::ControlEvaluate, context,
-                              schema_context, relative_dynamic_context(),
-                              ValuePointer{}));
+      substeps.push_back(make(InstructionIndex::ControlEvaluate,
+                              context.relative(), ValuePointer{}));
     }
 
-    if (context.mode == Mode::FastValidation && !track_evaluation &&
+    if (context.mode() == Mode::FastValidation && !track_evaluation &&
         patterns.size() == 1 &&
-        (!schema_context.schema.defines("properties") ||
-         (schema_context.schema.at("properties").is_object() &&
-          schema_context.schema.at("properties").empty())) &&
-        schema_context.schema.defines("additionalProperties") &&
-        schema_context.schema.at("additionalProperties").is_boolean() &&
-        !schema_context.schema.at("additionalProperties").to_boolean()) {
-      children.push_back(make(
-          InstructionIndex::LoopPropertiesRegexClosed, context, schema_context,
-          dynamic_context,
-          ValueRegex{.first = parse_regex(pattern, context, schema_context.base,
-                                          schema_context.relative_pointer),
-                     .second = pattern},
-          std::move(substeps)));
+        (!context.schema().defines("properties") ||
+         (context.schema().at("properties").is_object() &&
+          context.schema().at("properties").empty())) &&
+        context.schema().defines("additionalProperties") &&
+        context.schema().at("additionalProperties").is_boolean() &&
+        !context.schema().at("additionalProperties").to_boolean()) {
+      children.push_back(
+          make(InstructionIndex::LoopPropertiesRegexClosed, context,
+               ValueRegex{.first = parse_regex(pattern, context,
+                                               context.local.relative_pointer),
+                          .second = pattern},
+               std::move(substeps)));
 
       // If the `patternProperties` subschema for the given pattern does
       // nothing, then we can avoid generating an entire loop for it
@@ -1433,18 +1384,15 @@ auto compiler_draft3_applicator_patternproperties_with_options(
       const auto maybe_prefix{pattern_as_prefix(pattern)};
       if (maybe_prefix.has_value()) {
         children.push_back(make(InstructionIndex::LoopPropertiesStartsWith,
-                                context, schema_context, dynamic_context,
-                                ValueString{maybe_prefix.value()},
+                                context, ValueString{maybe_prefix.value()},
                                 std::move(substeps)));
       } else {
-        children.push_back(
-            make(InstructionIndex::LoopPropertiesRegex, context, schema_context,
-                 dynamic_context,
-                 ValueRegex{
-                     .first = parse_regex(pattern, context, schema_context.base,
-                                          schema_context.relative_pointer),
-                     .second = pattern},
-                 std::move(substeps)));
+        children.push_back(make(
+            InstructionIndex::LoopPropertiesRegex, context,
+            ValueRegex{.first = parse_regex(pattern, context,
+                                            context.local.relative_pointer),
+                       .second = pattern},
+            std::move(substeps)));
       }
     }
   }
@@ -1452,12 +1400,11 @@ auto compiler_draft3_applicator_patternproperties_with_options(
   return children;
 }
 
-auto compiler_draft3_applicator_patternproperties(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
+auto compiler_draft3_applicator_patternproperties(const KeywordContext &context,
+                                                  const Instructions &)
     -> Instructions {
   return compiler_draft3_applicator_patternproperties_with_options(
-      context, schema_context, dynamic_context, false, false);
+      context, false, false);
 }
 
 // Determine whether the `properties` keyword on its own enforces a closed
@@ -1465,33 +1412,33 @@ auto compiler_draft3_applicator_patternproperties(
 // happens when every property subschema reduces to a single strict type
 // assertion of the same type. In that case `additionalProperties: false` is
 // already enforced by `properties` and does not need to emit anything.
-inline auto
-properties_enforce_closed_object(const Context &context,
-                                 const SchemaContext &schema_context) -> bool {
-  const bool assume_object{assume_type(schema_context.vocabularies,
-                                       schema_context.schema, "object")};
-  if (!assume_object || !schema_context.schema.defines("properties") ||
-      !schema_context.schema.at("properties").is_object()) {
+inline auto properties_enforce_closed_object(const KeywordContext &context)
+    -> bool {
+  const bool assume_object{
+      assume_type(context.vocabularies(), context.schema(), "object")};
+  if (!assume_object || !context.schema().defines("properties") ||
+      !context.schema().at("properties").is_object()) {
     return false;
   }
 
   // `SchemaContext::relative_pointer` is a reference, so the concatenated
   // pointer must outlive `new_schema_context`
-  const auto properties_pointer{
-      schema_context.relative_pointer.initial().concat(
-          make_weak_pointer(KEYWORD_PROPERTIES))};
-  const SchemaContext new_schema_context{
-      .relative_pointer = properties_pointer,
-      .schema = schema_context.schema,
-      .vocabularies = schema_context.vocabularies,
-      .base = schema_context.base,
-      .is_property_name = schema_context.is_property_name};
-  const DynamicContext new_dynamic_context{
-      .keyword = KEYWORD_PROPERTIES,
-      .base_schema_location = sourcemeta::core::EMPTY_WEAK_POINTER,
-      .base_instance_location = sourcemeta::core::EMPTY_WEAK_POINTER};
-  const auto properties{
-      compile_properties(context, new_schema_context, new_dynamic_context, {})};
+  const auto properties_pointer{context.local.relative_pointer.initial().concat(
+      make_weak_pointer(KEYWORD_PROPERTIES))};
+  const SchemaContext new_schema_context{.relative_pointer = properties_pointer,
+                                         .schema = context.schema(),
+                                         .vocabularies = context.vocabularies(),
+                                         .base = context.base(),
+                                         .is_property_name =
+                                             context.local.is_property_name};
+  const KeywordContext properties_context{
+      .global = context.global,
+      .local = new_schema_context,
+      .target = {.keyword = KEYWORD_PROPERTIES,
+                 .base_schema_location = sourcemeta::core::EMPTY_WEAK_POINTER,
+                 .base_instance_location =
+                     sourcemeta::core::EMPTY_WEAK_POINTER}};
+  const auto properties{compile_properties(properties_context, {})};
   if (!std::ranges::all_of(properties, [](const auto &property) -> auto {
         return property.second.size() == 1 &&
                property.second.front().type ==
@@ -1509,42 +1456,37 @@ properties_enforce_closed_object(const Context &context,
 }
 
 auto compiler_draft3_applicator_additionalproperties_with_options(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
+    const KeywordContext &context, const bool annotate,
     const bool track_evaluation) -> Instructions {
-  if (narrows_type_away(schema_context.schema, {"object"})) {
-    compile_pruned_subschema(context, schema_context,
-                             sourcemeta::core::EMPTY_WEAK_POINTER);
+  if (narrows_type_away(context.schema(), {"object"})) {
+    compile_pruned_subschema(context, sourcemeta::core::EMPTY_WEAK_POINTER);
     return {};
   }
 
-  Instructions children{compile(context, schema_context,
-                                relative_dynamic_context(),
+  Instructions children{compile(context.relative(),
                                 sourcemeta::core::EMPTY_WEAK_POINTER,
                                 sourcemeta::core::EMPTY_WEAK_POINTER)};
 
-  if (annotate && annotations_enabled(context, dynamic_context.keyword)) {
+  if (annotate && annotations_enabled(context)) {
     children.push_back(make(InstructionIndex::AnnotationBasenameToParent,
-                            context, schema_context, relative_dynamic_context(),
-                            ValueNone{}));
+                            context.relative(), ValueNone{}));
   }
 
   ValueStringSet filter_strings;
   ValueStrings filter_prefixes;
   std::vector<ValueRegex> filter_regexes;
 
-  if (schema_context.schema.defines("properties") &&
-      schema_context.schema.at("properties").is_object()) {
-    for (const auto &entry :
-         schema_context.schema.at("properties").as_object()) {
+  if (context.schema().defines("properties") &&
+      context.schema().at("properties").is_object()) {
+    for (const auto &entry : context.schema().at("properties").as_object()) {
       filter_strings.insert(entry.first);
     }
   }
 
-  if (schema_context.schema.defines("patternProperties") &&
-      schema_context.schema.at("patternProperties").is_object()) {
+  if (context.schema().defines("patternProperties") &&
+      context.schema().at("patternProperties").is_object()) {
     for (const auto &entry :
-         schema_context.schema.at("patternProperties").as_object()) {
+         context.schema().at("patternProperties").as_object()) {
       const auto maybe_prefix{pattern_as_prefix(entry.first)};
       if (maybe_prefix.has_value()) {
         filter_prefixes.push_back(maybe_prefix.value());
@@ -1553,8 +1495,8 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
             "patternProperties"};
         filter_regexes.push_back(
             {.first = parse_regex(
-                 entry.first, context, schema_context.base,
-                 schema_context.relative_pointer.initial().concat(
+                 entry.first, context,
+                 context.local.relative_pointer.initial().concat(
                      make_weak_pointer(PATTERN_PROPERTIES_KEYWORD))),
              .second = entry.first});
       }
@@ -1572,9 +1514,8 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
   // alone is not enough, as other subschemas that reject everything, like an
   // empty `enum`, also reduce to an unconditional failure without closing
   // anything
-  const auto rejects_with_boolean_false{
-      schema_context.schema.at(dynamic_context.keyword).is_boolean() &&
-      !schema_context.schema.at(dynamic_context.keyword).to_boolean()};
+  const auto rejects_with_boolean_false{context.value().is_boolean() &&
+                                        !context.value().to_boolean()};
 
   // When `additionalProperties: false` sits with `properties` alone and
   // `properties` compiles to its closed form, that form already rejects
@@ -1584,13 +1525,12 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
   // emitted here. An empty `patternProperties` contributes no property filters
   // yet still counts as defined, so its mere presence, not the filters it
   // yields, is what matters
-  if (context.mode == Mode::FastValidation && !track_evaluation &&
+  if (context.mode() == Mode::FastValidation && !track_evaluation &&
       rejects_with_boolean_false && children.size() == 1 &&
       children.front().type == InstructionIndex::AssertionFail &&
       !filter_strings.empty() &&
-      !schema_context.schema.defines("patternProperties") &&
-      properties_as_loop(context, schema_context,
-                         schema_context.schema.at("properties"))) {
+      !context.schema().defines("patternProperties") &&
+      properties_as_loop(context, context.schema().at("properties"))) {
     return {};
   }
 
@@ -1602,14 +1542,14 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
   // form. With a single required property `required` only compiles to
   // `AssertionDefinesStrict`, which does not reject unknown properties, so we
   // must still emit the closure unless `properties` enforces it.
-  if (context.mode == Mode::FastValidation && children.size() == 1 &&
+  if (context.mode() == Mode::FastValidation && children.size() == 1 &&
       children.front().type == InstructionIndex::AssertionFail &&
       !filter_strings.empty() && filter_prefixes.empty() &&
       filter_regexes.empty()) {
-    const auto required{required_properties(schema_context)};
-    if (is_closed_properties_required(schema_context.schema, required) &&
+    const auto required{required_properties(context)};
+    if (is_closed_properties_required(context.schema(), required) &&
         (required.size() > 1 ||
-         (properties_enforce_closed_object(context, schema_context) &&
+         (properties_enforce_closed_object(context) &&
           !annotations_enabled(context, "properties")))) {
       return {};
     }
@@ -1618,7 +1558,7 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
   // Similarly, `patternProperties` only compiles to its closed form, which
   // rejects unmatched properties on its own, when `additionalProperties` is
   // the boolean `false`
-  if (context.mode == Mode::FastValidation && filter_strings.empty() &&
+  if (context.mode() == Mode::FastValidation && filter_strings.empty() &&
       filter_prefixes.empty() && filter_regexes.size() == 1 &&
       !track_evaluation && rejects_with_boolean_false && !children.empty() &&
       children.front().type == InstructionIndex::AssertionFail) {
@@ -1628,13 +1568,11 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
   if (!filter_strings.empty() || !filter_prefixes.empty() ||
       !filter_regexes.empty()) {
     if (track_evaluation) {
-      children.push_back(make(InstructionIndex::ControlEvaluate, context,
-                              schema_context, relative_dynamic_context(),
-                              ValuePointer{}));
+      children.push_back(make(InstructionIndex::ControlEvaluate,
+                              context.relative(), ValuePointer{}));
     }
 
     return {make(InstructionIndex::LoopPropertiesExcept, context,
-                 schema_context, dynamic_context,
                  ValuePropertyFilter{std::move(filter_strings),
                                      std::move(filter_prefixes),
                                      std::move(filter_regexes)},
@@ -1646,96 +1584,83 @@ auto compiler_draft3_applicator_additionalproperties_with_options(
     // conditional branch evaluated against an array, it would wrongly mark that
     // array evaluated and suppress a sibling `unevaluatedItems`. An
     // object-guarded marker only records objects, and needs no children
-    return {make(InstructionIndex::LoopPropertiesEvaluate, context,
-                 schema_context, dynamic_context, ValueNone{},
+    return {make(InstructionIndex::LoopPropertiesEvaluate, context, ValueNone{},
                  std::move(children))};
   }
   if (children.size() == 1 &&
       children.front().type == InstructionIndex::AssertionFail) {
     return {make(InstructionIndex::AssertionObjectSizeLess, context,
-                 schema_context, dynamic_context, ValueUnsignedInteger{1})};
+                 ValueUnsignedInteger{1})};
   }
-  return {make(InstructionIndex::LoopProperties, context, schema_context,
-               dynamic_context, ValueNone{}, std::move(children))};
+  return {make(InstructionIndex::LoopProperties, context, ValueNone{},
+               std::move(children))};
 }
 
 auto compiler_draft3_applicator_additionalproperties(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
-    -> Instructions {
+    const KeywordContext &context, const Instructions &) -> Instructions {
   return compiler_draft3_applicator_additionalproperties_with_options(
-      context, schema_context, dynamic_context, false, false);
+      context, false, false);
 }
 
-auto compiler_draft3_validation_pattern(const Context &context,
-                                        const SchemaContext &schema_context,
-                                        const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_pattern(const KeywordContext &context,
                                         const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_string()) {
-    throw_keyword_error(context, schema_context, EXPECTED_STRING);
+  if (!context.value().is_string()) {
+    throw_keyword_error(context, EXPECTED_STRING);
   }
 
-  if (narrows_type_away(schema_context.schema, {"string"})) {
+  if (narrows_type_away(context.schema(), {"string"})) {
     return {};
   }
 
-  const auto &regex_string{
-      schema_context.schema.at(dynamic_context.keyword).to_string()};
-  return {make(InstructionIndex::AssertionRegex, context, schema_context,
-               dynamic_context,
+  const auto &regex_string{context.value().to_string()};
+  return {make(InstructionIndex::AssertionRegex, context,
                ValueRegex{.first = parse_regex(regex_string, context,
-                                               schema_context.base,
-                                               schema_context.relative_pointer),
+                                               context.local.relative_pointer),
                           .second = regex_string})};
 }
 
-auto compiler_draft3_applicator_items_array(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
-    const bool track_evaluation) -> Instructions {
-  if (schema_context.is_property_name) {
+auto compiler_draft3_applicator_items_array(const KeywordContext &context,
+                                            const bool annotate,
+                                            const bool track_evaluation)
+    -> Instructions {
+  if (context.local.is_property_name) {
     return {};
   }
 
-  if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    throw_keyword_error(context, schema_context, EXPECTED_ARRAY);
+  if (!context.value().is_array()) {
+    throw_keyword_error(context, EXPECTED_ARRAY);
   }
 
   // Draft 3 puts no lower bound on how many schemas the tuple form may list,
   // whereas every dialect after it asks for at least one
-  const auto allows_empty{is_draft3(schema_context.vocabularies)};
-  const auto &items{schema_context.schema.at(dynamic_context.keyword)};
+  const auto allows_empty{is_draft3(context.vocabularies())};
+  const auto &items{context.value()};
   if ((items.empty() && !allows_empty) ||
-      !all_are_schemas(items,
-                       booleans_are_schemas(schema_context.vocabularies))) {
-    throw_keyword_error(context, schema_context,
-                        allows_empty ? EXPECTED_SCHEMA_ARRAY
+      !all_are_schemas(items, booleans_are_schemas(context.vocabularies()))) {
+    throw_keyword_error(context, allows_empty
+                                     ? EXPECTED_SCHEMA_ARRAY
                                      : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
   }
 
-  const auto items_size{
-      schema_context.schema.at(dynamic_context.keyword).size()};
+  const auto items_size{context.value().size()};
 
   if (items_size == 0) {
     return {};
   }
 
-  if (narrows_type_away(schema_context.schema, {"array"})) {
+  if (narrows_type_away(context.schema(), {"array"})) {
     return {};
   }
 
-  const bool emit_annotation{
-      annotate && annotations_enabled(context, dynamic_context.keyword)};
+  const bool emit_annotation{annotate && annotations_enabled(context)};
 
   // Precompile subschemas
   std::vector<Instructions> subschemas;
   subschemas.reserve(items_size);
-  const auto &array{
-      schema_context.schema.at(dynamic_context.keyword).as_array()};
+  const auto &array{context.value().as_array()};
   for (auto iterator{array.cbegin()}; iterator != array.cend(); ++iterator) {
-    subschemas.push_back(compile(context, schema_context,
-                                 relative_dynamic_context(),
-                                 {subschemas.size()}, {subschemas.size()}));
+    subschemas.push_back(
+        compile(context.relative(), {subschemas.size()}, {subschemas.size()}));
   }
 
   Instructions children;
@@ -1748,13 +1673,12 @@ auto compiler_draft3_applicator_items_array(
     }
 
     if (emit_annotation) {
-      subchildren.push_back(make(InstructionIndex::AnnotationEmit, context,
-                                 schema_context, relative_dynamic_context(),
+      subchildren.push_back(make(InstructionIndex::AnnotationEmit,
+                                 context.relative(),
                                  sourcemeta::core::JSON{cursor}));
     }
 
-    children.push_back(make(InstructionIndex::ControlGroup, context,
-                            schema_context, relative_dynamic_context(),
+    children.push_back(make(InstructionIndex::ControlGroup, context.relative(),
                             ValueNone{}, std::move(subchildren)));
   }
 
@@ -1766,25 +1690,21 @@ auto compiler_draft3_applicator_items_array(
   }
 
   if (emit_annotation) {
-    tail.push_back(make(InstructionIndex::AnnotationEmit, context,
-                        schema_context, relative_dynamic_context(),
+    tail.push_back(make(InstructionIndex::AnnotationEmit, context.relative(),
                         sourcemeta::core::JSON{children.size() - 1}));
-    tail.push_back(make(InstructionIndex::AnnotationEmit, context,
-                        schema_context, relative_dynamic_context(),
+    tail.push_back(make(InstructionIndex::AnnotationEmit, context.relative(),
                         sourcemeta::core::JSON{true}));
   }
 
-  children.push_back(make(InstructionIndex::ControlGroup, context,
-                          schema_context, relative_dynamic_context(),
+  children.push_back(make(InstructionIndex::ControlGroup, context.relative(),
                           ValueNone{}, std::move(tail)));
 
   if (track_evaluation) {
     return {make(InstructionIndex::AssertionArrayPrefixEvaluate, context,
-                 schema_context, dynamic_context, ValueNone{},
-                 std::move(children))};
+                 ValueNone{}, std::move(children))};
   }
-  return {make(InstructionIndex::AssertionArrayPrefix, context, schema_context,
-               dynamic_context, ValueNone{}, std::move(children))};
+  return {make(InstructionIndex::AssertionArrayPrefix, context, ValueNone{},
+               std::move(children))};
 }
 
 auto is_number_type_check(const Instruction &instruction) -> bool {
@@ -1876,39 +1796,34 @@ auto extract_bounded_array_items(const Instructions &children)
 }
 
 auto compiler_draft3_applicator_items_with_options(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
+    const KeywordContext &context, const bool annotate,
     const bool track_evaluation) -> Instructions {
   // The tuple form must be a well-formed list of schemas whatever the instance
   // turns out to be, so this runs before the check on which instances the
   // keyword can apply to. Draft 3 puts no lower bound on how many it may list,
   // whereas every dialect after it asks for at least one
-  if (schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    const auto allows_empty{is_draft3(schema_context.vocabularies)};
-    const auto &entries{schema_context.schema.at(dynamic_context.keyword)};
+  if (context.value().is_array()) {
+    const auto allows_empty{is_draft3(context.vocabularies())};
+    const auto &entries{context.value()};
     if ((entries.empty() && !allows_empty) ||
         !all_are_schemas(entries,
-                         booleans_are_schemas(schema_context.vocabularies))) {
-      throw_keyword_error(context, schema_context,
-                          allows_empty ? EXPECTED_SCHEMA_ARRAY
+                         booleans_are_schemas(context.vocabularies()))) {
+      throw_keyword_error(context, allows_empty
+                                       ? EXPECTED_SCHEMA_ARRAY
                                        : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
     }
   }
 
-  if (narrows_type_away(schema_context.schema, {"array"})) {
-    compile_pruned_subschema(context, schema_context,
-                             sourcemeta::core::EMPTY_WEAK_POINTER);
+  if (narrows_type_away(context.schema(), {"array"})) {
+    compile_pruned_subschema(context, sourcemeta::core::EMPTY_WEAK_POINTER);
     return {};
   }
 
-  const bool emit_annotation{
-      annotate && annotations_enabled(context, dynamic_context.keyword)};
+  const bool emit_annotation{annotate && annotations_enabled(context)};
 
-  if (schema_context.schema.at(dynamic_context.keyword).is_object() ||
-      schema_context.schema.at(dynamic_context.keyword).is_boolean()) {
+  if (context.value().is_object() || context.value().is_boolean()) {
     if (emit_annotation || track_evaluation) {
-      Instructions subchildren{compile(context, schema_context,
-                                       relative_dynamic_context(),
+      Instructions subchildren{compile(context.relative(),
                                        sourcemeta::core::EMPTY_WEAK_POINTER,
                                        sourcemeta::core::EMPTY_WEAK_POINTER)};
 
@@ -1916,8 +1831,7 @@ auto compiler_draft3_applicator_items_with_options(
 
       if (!subchildren.empty()) {
         children.push_back(make(InstructionIndex::LoopItems, context,
-                                schema_context, dynamic_context, ValueNone{},
-                                std::move(subchildren)));
+                                ValueNone{}, std::move(subchildren)));
       }
 
       if (!emit_annotation && !track_evaluation) {
@@ -1927,71 +1841,64 @@ auto compiler_draft3_applicator_items_with_options(
       Instructions tail;
 
       if (emit_annotation) {
-        tail.push_back(make(InstructionIndex::AnnotationEmit, context,
-                            schema_context, relative_dynamic_context(),
-                            sourcemeta::core::JSON{true}));
+        tail.push_back(make(InstructionIndex::AnnotationEmit,
+                            context.relative(), sourcemeta::core::JSON{true}));
       }
 
       if (track_evaluation) {
-        tail.push_back(make(InstructionIndex::ControlEvaluate, context,
-                            schema_context, relative_dynamic_context(),
-                            ValuePointer{}));
+        tail.push_back(make(InstructionIndex::ControlEvaluate,
+                            context.relative(), ValuePointer{}));
       }
 
       children.push_back(make(InstructionIndex::LogicalWhenType, context,
-                              schema_context, dynamic_context,
                               sourcemeta::core::JSON::Type::Array,
                               std::move(tail)));
 
       return children;
     }
 
-    Instructions children{compile(context, schema_context,
-                                  relative_dynamic_context(),
+    Instructions children{compile(context.relative(),
                                   sourcemeta::core::EMPTY_WEAK_POINTER,
                                   sourcemeta::core::EMPTY_WEAK_POINTER)};
     if (track_evaluation) {
-      children.push_back(make(InstructionIndex::ControlEvaluate, context,
-                              schema_context, relative_dynamic_context(),
-                              ValuePointer{}));
+      children.push_back(make(InstructionIndex::ControlEvaluate,
+                              context.relative(), ValuePointer{}));
     }
 
     if (children.empty()) {
       return {};
     }
 
-    if (context.mode == Mode::FastValidation && children.size() == 3 &&
+    if (context.mode() == Mode::FastValidation && children.size() == 3 &&
         is_integer_bounded_pattern(children)) {
       return {make(InstructionIndex::LoopItemsIntegerBounded, context,
-                   schema_context, dynamic_context,
                    extract_integer_bounds(children))};
     }
 
-    if (context.mode == Mode::FastValidation && children.size() == 2 &&
+    if (context.mode() == Mode::FastValidation && children.size() == 2 &&
         is_bounded_array_items_pattern(children)) {
       return {make(InstructionIndex::LoopItemsArrayBoundedTypeStrictAny,
-                   context, schema_context, dynamic_context,
-                   extract_bounded_array_items(children))};
+                   context, extract_bounded_array_items(children))};
     }
 
-    if (context.mode == Mode::FastValidation && children.size() == 1) {
+    if (context.mode() == Mode::FastValidation && children.size() == 1) {
       if (children.front().type == InstructionIndex::AssertionTypeStrict) {
         return {make(InstructionIndex::LoopItemsTypeStrict, context,
-                     schema_context, dynamic_context, children.front().value)};
+                     children.front().value)};
       }
       if (children.front().type == InstructionIndex::AssertionType) {
-        return {make(InstructionIndex::LoopItemsType, context, schema_context,
-                     dynamic_context, children.front().value)};
+        return {make(InstructionIndex::LoopItemsType, context,
+                     children.front().value)};
       }
       if (children.front().type == InstructionIndex::AssertionTypeStrictAny) {
         return {make(InstructionIndex::LoopItemsTypeStrictAny, context,
-                     schema_context, dynamic_context, children.front().value)};
+                     children.front().value)};
       }
       if (children.front().type ==
           InstructionIndex::LoopPropertiesExactlyTypeStrictHash) {
         auto value_copy = children.front().value;
-        auto current{make(InstructionIndex::LoopItems, context, schema_context,
-                          dynamic_context, ValueNone{}, std::move(children))};
+        auto current{make(InstructionIndex::LoopItems, context, ValueNone{},
+                          std::move(children))};
         if (std::get<ValueTypedHashes>(value_copy).second.first.size() == 3) {
           return {Instruction{
               .type =
@@ -2011,53 +1918,46 @@ auto compiler_draft3_applicator_items_with_options(
       }
     }
 
-    return {make(InstructionIndex::LoopItems, context, schema_context,
-                 dynamic_context, ValueNone{}, std::move(children))};
+    return {make(InstructionIndex::LoopItems, context, ValueNone{},
+                 std::move(children))};
   }
 
-  return compiler_draft3_applicator_items_array(
-      context, schema_context, dynamic_context, annotate, track_evaluation);
+  return compiler_draft3_applicator_items_array(context, annotate,
+                                                track_evaluation);
 }
 
-auto compiler_draft3_applicator_items(const Context &context,
-                                      const SchemaContext &schema_context,
-                                      const DynamicContext &dynamic_context,
+auto compiler_draft3_applicator_items(const KeywordContext &context,
                                       const Instructions &) -> Instructions {
-  return compiler_draft3_applicator_items_with_options(
-      context, schema_context, dynamic_context, false, false);
+  return compiler_draft3_applicator_items_with_options(context, false, false);
 }
 
 auto compiler_draft3_applicator_additionalitems_from_cursor(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const std::size_t cursor,
+    const KeywordContext &context, const std::size_t cursor,
     const bool annotate, const bool track_evaluation) -> Instructions {
-  if (narrows_type_away(schema_context.schema, {"array"})) {
+  if (narrows_type_away(context.schema(), {"array"})) {
     return {};
   }
 
-  const bool emit_annotation{
-      annotate && annotations_enabled(context, dynamic_context.keyword)};
+  const bool emit_annotation{annotate && annotations_enabled(context)};
 
-  Instructions subchildren{compile(context, schema_context,
-                                   relative_dynamic_context(),
+  Instructions subchildren{compile(context.relative(),
                                    sourcemeta::core::EMPTY_WEAK_POINTER,
                                    sourcemeta::core::EMPTY_WEAK_POINTER)};
 
   Instructions children;
 
   if (!subchildren.empty()) {
-    if (context.mode == Mode::FastValidation && cursor == 0 &&
+    if (context.mode() == Mode::FastValidation && cursor == 0 &&
         !emit_annotation && !track_evaluation &&
         is_integer_bounded_pattern(subchildren)) {
       children.push_back(make(InstructionIndex::LoopItemsIntegerBounded,
-                              context, schema_context, dynamic_context,
-                              extract_integer_bounds(subchildren)));
+                              context, extract_integer_bounds(subchildren)));
       return children;
     }
 
-    children.push_back(make(
-        InstructionIndex::LoopItemsFrom, context, schema_context,
-        dynamic_context, ValueUnsignedInteger{cursor}, std::move(subchildren)));
+    children.push_back(make(InstructionIndex::LoopItemsFrom, context,
+                            ValueUnsignedInteger{cursor},
+                            std::move(subchildren)));
   }
 
   // Avoid one extra wrapper instruction if possible
@@ -2068,102 +1968,87 @@ auto compiler_draft3_applicator_additionalitems_from_cursor(
   Instructions tail;
 
   if (emit_annotation) {
-    tail.push_back(make(InstructionIndex::AnnotationEmit, context,
-                        schema_context, relative_dynamic_context(),
+    tail.push_back(make(InstructionIndex::AnnotationEmit, context.relative(),
                         sourcemeta::core::JSON{true}));
   }
 
   if (track_evaluation) {
-    tail.push_back(make(InstructionIndex::ControlEvaluate, context,
-                        schema_context, relative_dynamic_context(),
+    tail.push_back(make(InstructionIndex::ControlEvaluate, context.relative(),
                         ValuePointer{}));
   }
 
   assert(!tail.empty());
   children.push_back(make(InstructionIndex::LogicalWhenArraySizeGreater,
-                          context, schema_context, dynamic_context,
-                          ValueUnsignedInteger{cursor}, std::move(tail)));
+                          context, ValueUnsignedInteger{cursor},
+                          std::move(tail)));
 
   return children;
 }
 
 auto compiler_draft3_applicator_additionalitems_with_options(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const bool annotate,
+    const KeywordContext &context, const bool annotate,
     const bool track_evaluation) -> Instructions {
-  if (narrows_type_away(schema_context.schema, {"array"})) {
+  if (narrows_type_away(context.schema(), {"array"})) {
     return {};
   }
 
-  assert(schema_context.schema.is_object());
+  assert(context.schema().is_object());
 
   // This keyword only has a say alongside an `items` array, as every other
   // form of `items` already applies to every element. Draft 6 made a boolean a
   // schema in its own right, so `items: true` is one of those forms rather
   // than an absent `items`
-  if (!schema_context.schema.defines("items") ||
-      !schema_context.schema.at("items").is_array()) {
+  if (!context.schema().defines("items") ||
+      !context.schema().at("items").is_array()) {
     return {};
   }
 
-  const auto cursor{schema_context.schema.at("items").size()};
+  const auto cursor{context.schema().at("items").size()};
 
   return compiler_draft3_applicator_additionalitems_from_cursor(
-      context, schema_context, dynamic_context, cursor, annotate,
-      track_evaluation);
+      context, cursor, annotate, track_evaluation);
 }
 
-auto compiler_draft3_applicator_additionalitems(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
+auto compiler_draft3_applicator_additionalitems(const KeywordContext &context,
+                                                const Instructions &)
     -> Instructions {
-  return compiler_draft3_applicator_additionalitems_with_options(
-      context, schema_context, dynamic_context, false, false);
+  return compiler_draft3_applicator_additionalitems_with_options(context, false,
+                                                                 false);
 }
 
-auto compiler_draft3_validation_enum(const Context &context,
-                                     const SchemaContext &schema_context,
-                                     const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_enum(const KeywordContext &context,
                                      const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_array()) {
-    throw_keyword_error(context, schema_context, EXPECTED_ARRAY);
+  if (!context.value().is_array()) {
+    throw_keyword_error(context, EXPECTED_ARRAY);
   }
 
-  if ((is_draft3(schema_context.vocabularies) ||
-       is_draft4(schema_context.vocabularies) ||
-       is_draft6(schema_context.vocabularies) ||
-       is_draft7(schema_context.vocabularies)) &&
-      (schema_context.schema.at(dynamic_context.keyword).empty() ||
-       !schema_context.schema.at(dynamic_context.keyword).unique())) {
-    throw_keyword_error(context, schema_context, EXPECTED_UNIQUE_VALUES);
+  if ((is_draft3(context.vocabularies()) || is_draft4(context.vocabularies()) ||
+       is_draft6(context.vocabularies()) ||
+       is_draft7(context.vocabularies())) &&
+      (context.value().empty() || !context.value().unique())) {
+    throw_keyword_error(context, EXPECTED_UNIQUE_VALUES);
   }
 
   // The OpenAPI 3.0 Schema Object asks for at least one value, and is alone in
   // permitting duplicates among them
-  if (is_openapi_3_0(schema_context.vocabularies) &&
-      schema_context.schema.at(dynamic_context.keyword).empty()) {
-    throw_keyword_error(context, schema_context, EXPECTED_NON_EMPTY_VALUES);
+  if (is_openapi_3_0(context.vocabularies()) && context.value().empty()) {
+    throw_keyword_error(context, EXPECTED_NON_EMPTY_VALUES);
   }
 
-  if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-    return {make(InstructionIndex::AssertionFail, context, schema_context,
-                 dynamic_context, ValueNone{})};
+  if (context.value().empty()) {
+    return {make(InstructionIndex::AssertionFail, context, ValueNone{})};
   }
 
-  if (schema_context.schema.at(dynamic_context.keyword).size() == 1) {
-    return {
-        make(InstructionIndex::AssertionEqual, context, schema_context,
-             dynamic_context,
-             sourcemeta::core::JSON{
-                 schema_context.schema.at(dynamic_context.keyword).front()})};
+  if (context.value().size() == 1) {
+    return {make(InstructionIndex::AssertionEqual, context,
+                 sourcemeta::core::JSON{context.value().front()})};
   }
 
   std::vector<std::pair<ValueString, ValueStringSet::hash_type>>
       perfect_string_hashes;
   ValueSet options;
   sourcemeta::core::PropertyHashJSON<ValueString> hasher;
-  for (const auto &option :
-       schema_context.schema.at(dynamic_context.keyword).as_array()) {
+  for (const auto &option : context.value().as_array()) {
     // Neither 2019-09 onwards nor the OpenAPI 3.0 Schema Object asks for the
     // options to be unique, and the comparison below weighs these hashes
     // against the deduplicated set of options, so a repeated option must not
@@ -2182,32 +2067,28 @@ auto compiler_draft3_validation_enum(const Context &context,
 
   // Only apply this optimisation on fast validation, as it
   // can affect error messages
-  if (context.mode == Mode::FastValidation &&
+  if (context.mode() == Mode::FastValidation &&
       perfect_string_hashes.size() == options.size()) {
     return {make(InstructionIndex::AssertionEqualsAnyStringHash, context,
-                 schema_context, dynamic_context,
                  to_string_hashes(perfect_string_hashes))};
   }
 
-  return {make(InstructionIndex::AssertionEqualsAny, context, schema_context,
-               dynamic_context, std::move(options))};
+  return {
+      make(InstructionIndex::AssertionEqualsAny, context, std::move(options))};
 }
 
-auto compiler_draft3_validation_uniqueitems(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
+auto compiler_draft3_validation_uniqueitems(const KeywordContext &context,
+                                            const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_boolean() ||
-      !schema_context.schema.at(dynamic_context.keyword).to_boolean()) {
+  if (!context.value().is_boolean() || !context.value().to_boolean()) {
     return {};
   }
 
-  if (narrows_type_away(schema_context.schema, {"array"})) {
+  if (narrows_type_away(context.schema(), {"array"})) {
     return {};
   }
 
-  return {make(InstructionIndex::AssertionUnique, context, schema_context,
-               dynamic_context, ValueNone{})};
+  return {make(InstructionIndex::AssertionUnique, context, ValueNone{})};
 }
 
 // `maxLength`, `maxItems` and `maxProperties`, along with their lower-bound
@@ -2225,22 +2106,20 @@ struct SizeBound {
 // it, which it also asks to be non-negative. Pass `tolerate_negative` there,
 // as a negative upper bound is one that no value of the type can ever be
 // small enough to meet
-auto compile_size_upper_bound(const Context &context,
-                              const SchemaContext &schema_context,
-                              const DynamicContext &dynamic_context,
+auto compile_size_upper_bound(const KeywordContext &context,
                               const SizeBound &bound,
                               const bool tolerate_negative = false)
     -> Instructions {
-  const auto &value{schema_context.schema.at(dynamic_context.keyword)};
-  if (!is_dialect_integer(value, schema_context.vocabularies)) {
-    throw_keyword_error(context, schema_context, EXPECTED_INTEGER);
+  const auto &value{context.value()};
+  if (!is_dialect_integer(value, context.vocabularies())) {
+    throw_keyword_error(context, EXPECTED_INTEGER);
   }
 
   if (!tolerate_negative && !value.is_positive()) {
-    throw_keyword_error(context, schema_context, EXPECTED_NON_NEGATIVE);
+    throw_keyword_error(context, EXPECTED_NON_NEGATIVE);
   }
 
-  if (narrows_type_away(schema_context.schema, {bound.name})) {
+  if (narrows_type_away(context.schema(), {bound.name})) {
     return {};
   }
 
@@ -2250,18 +2129,16 @@ auto compile_size_upper_bound(const Context &context,
   if (!value.is_positive()) {
     ValueTypes types;
     types.set(std::to_underlying(bound.type));
-    return {make(InstructionIndex::AssertionNotTypeStrictAny, context,
-                 schema_context, dynamic_context, types)};
+    return {make(InstructionIndex::AssertionNotTypeStrictAny, context, types)};
   }
 
   // We'll handle it at the type level as an optimization. Note that the type
   // compiler bails out before it reads these bounds when it is compiling a
   // property name, so there a string bound must still emit itself
-  if (context.mode == Mode::FastValidation &&
-      !(schema_context.is_property_name &&
+  if (context.mode() == Mode::FastValidation &&
+      !(context.local.is_property_name &&
         bound.type == sourcemeta::core::JSON::Type::String) &&
-      assume_type(schema_context.vocabularies, schema_context.schema,
-                  bound.name)) {
+      assume_type(context.vocabularies(), context.schema(), bound.name)) {
     return {};
   }
 
@@ -2272,25 +2149,23 @@ auto compile_size_upper_bound(const Context &context,
     return {};
   }
 
-  return {make(bound.instruction, context, schema_context, dynamic_context,
+  return {make(bound.instruction, context,
                ValueUnsignedInteger{
                    static_cast<unsigned long>(value.as_integer()) + 1})};
 }
 
-auto compile_size_lower_bound(const Context &context,
-                              const SchemaContext &schema_context,
-                              const DynamicContext &dynamic_context,
+auto compile_size_lower_bound(const KeywordContext &context,
                               const SizeBound &bound) -> Instructions {
-  const auto &value{schema_context.schema.at(dynamic_context.keyword)};
-  if (!is_dialect_integer(value, schema_context.vocabularies)) {
-    throw_keyword_error(context, schema_context, EXPECTED_INTEGER);
+  const auto &value{context.value()};
+  if (!is_dialect_integer(value, context.vocabularies())) {
+    throw_keyword_error(context, EXPECTED_INTEGER);
   }
 
   if (!value.is_positive()) {
-    throw_keyword_error(context, schema_context, EXPECTED_NON_NEGATIVE);
+    throw_keyword_error(context, EXPECTED_NON_NEGATIVE);
   }
 
-  if (narrows_type_away(schema_context.schema, {bound.name})) {
+  if (narrows_type_away(context.schema(), {bound.name})) {
     return {};
   }
 
@@ -2299,29 +2174,26 @@ auto compile_size_lower_bound(const Context &context,
   // property name is always a string, so a string bound leaves it no way out
   // while any other bound has nothing to say about it
   if (!bound_is_representable(value)) {
-    if (schema_context.is_property_name) {
+    if (context.local.is_property_name) {
       if (bound.type != sourcemeta::core::JSON::Type::String) {
         return {};
       }
 
-      return {make(InstructionIndex::AssertionFail, context, schema_context,
-                   dynamic_context, ValueNone{})};
+      return {make(InstructionIndex::AssertionFail, context, ValueNone{})};
     }
 
     ValueTypes types;
     types.set(std::to_underlying(bound.type));
-    return {make(InstructionIndex::AssertionNotTypeStrictAny, context,
-                 schema_context, dynamic_context, types)};
+    return {make(InstructionIndex::AssertionNotTypeStrictAny, context, types)};
   }
 
   // We'll handle it at the type level as an optimization. Note that the type
   // compiler bails out before it reads these bounds when it is compiling a
   // property name, so there a string bound must still emit itself
-  if (context.mode == Mode::FastValidation &&
-      !(schema_context.is_property_name &&
+  if (context.mode() == Mode::FastValidation &&
+      !(context.local.is_property_name &&
         bound.type == sourcemeta::core::JSON::Type::String) &&
-      assume_type(schema_context.vocabularies, schema_context.schema,
-                  bound.name)) {
+      assume_type(context.vocabularies(), context.schema(), bound.name)) {
     return {};
   }
 
@@ -2331,165 +2203,136 @@ auto compile_size_lower_bound(const Context &context,
   }
 
   return {
-      make(bound.instruction, context, schema_context, dynamic_context,
+      make(bound.instruction, context,
            ValueUnsignedInteger{static_cast<unsigned long>(bound_value - 1)})};
 }
 
-auto compiler_draft3_validation_maxlength(const Context &context,
-                                          const SchemaContext &schema_context,
-                                          const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_maxlength(const KeywordContext &context,
                                           const Instructions &)
     -> Instructions {
   return compile_size_upper_bound(
-      context, schema_context, dynamic_context,
+      context,
       {.type = sourcemeta::core::JSON::Type::String,
        .name = "string",
        .instruction = InstructionIndex::AssertionStringSizeLess},
-      is_draft3(schema_context.vocabularies));
+      is_draft3(context.vocabularies()));
 }
 
-auto compiler_draft3_validation_minlength(const Context &context,
-                                          const SchemaContext &schema_context,
-                                          const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_minlength(const KeywordContext &context,
                                           const Instructions &)
     -> Instructions {
   return compile_size_lower_bound(
-      context, schema_context, dynamic_context,
-      {.type = sourcemeta::core::JSON::Type::String,
-       .name = "string",
-       .instruction = InstructionIndex::AssertionStringSizeGreater});
+      context, {.type = sourcemeta::core::JSON::Type::String,
+                .name = "string",
+                .instruction = InstructionIndex::AssertionStringSizeGreater});
 }
 
-auto compiler_draft3_validation_maxitems(const Context &context,
-                                         const SchemaContext &schema_context,
-                                         const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_maxitems(const KeywordContext &context,
                                          const Instructions &) -> Instructions {
   return compile_size_upper_bound(
-      context, schema_context, dynamic_context,
-      {.type = sourcemeta::core::JSON::Type::Array,
-       .name = "array",
-       .instruction = InstructionIndex::AssertionArraySizeLess});
+      context, {.type = sourcemeta::core::JSON::Type::Array,
+                .name = "array",
+                .instruction = InstructionIndex::AssertionArraySizeLess});
 }
 
-auto compiler_draft3_validation_minitems(const Context &context,
-                                         const SchemaContext &schema_context,
-                                         const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_minitems(const KeywordContext &context,
                                          const Instructions &) -> Instructions {
   return compile_size_lower_bound(
-      context, schema_context, dynamic_context,
-      {.type = sourcemeta::core::JSON::Type::Array,
-       .name = "array",
-       .instruction = InstructionIndex::AssertionArraySizeGreater});
+      context, {.type = sourcemeta::core::JSON::Type::Array,
+                .name = "array",
+                .instruction = InstructionIndex::AssertionArraySizeGreater});
 }
 
-auto compiler_draft3_validation_maximum(const Context &context,
-                                        const SchemaContext &schema_context,
-                                        const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_maximum(const KeywordContext &context,
                                         const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    throw_keyword_error(context, schema_context, EXPECTED_NUMBER);
+  if (!context.value().is_number()) {
+    throw_keyword_error(context, EXPECTED_NUMBER);
   }
 
-  if (narrows_type_away(schema_context.schema, {"integer", "number"})) {
+  if (narrows_type_away(context.schema(), {"integer", "number"})) {
     return {};
   }
 
   // TODO: As an optimization, if `minimum` is set to the same number, do
   // a single equality assertion
 
-  assert(schema_context.schema.is_object());
-  if (schema_context.schema.defines("exclusiveMaximum") &&
-      schema_context.schema.at("exclusiveMaximum").is_boolean() &&
-      schema_context.schema.at("exclusiveMaximum").to_boolean()) {
-    return {make(InstructionIndex::AssertionLess, context, schema_context,
-                 dynamic_context,
-                 sourcemeta::core::JSON{
-                     schema_context.schema.at(dynamic_context.keyword)})};
+  assert(context.schema().is_object());
+  if (context.schema().defines("exclusiveMaximum") &&
+      context.schema().at("exclusiveMaximum").is_boolean() &&
+      context.schema().at("exclusiveMaximum").to_boolean()) {
+    return {make(InstructionIndex::AssertionLess, context,
+                 sourcemeta::core::JSON{context.value()})};
   }
-  return {make(InstructionIndex::AssertionLessEqual, context, schema_context,
-               dynamic_context,
-               sourcemeta::core::JSON{
-                   schema_context.schema.at(dynamic_context.keyword)})};
+  return {make(InstructionIndex::AssertionLessEqual, context,
+               sourcemeta::core::JSON{context.value()})};
 }
 
-auto compiler_draft3_validation_minimum(const Context &context,
-                                        const SchemaContext &schema_context,
-                                        const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_minimum(const KeywordContext &context,
                                         const Instructions &) -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    throw_keyword_error(context, schema_context, EXPECTED_NUMBER);
+  if (!context.value().is_number()) {
+    throw_keyword_error(context, EXPECTED_NUMBER);
   }
 
-  if (narrows_type_away(schema_context.schema, {"integer", "number"})) {
+  if (narrows_type_away(context.schema(), {"integer", "number"})) {
     return {};
   }
 
   // TODO: As an optimization, if `maximum` is set to the same number, do
   // a single equality assertion
 
-  assert(schema_context.schema.is_object());
-  if (schema_context.schema.defines("exclusiveMinimum") &&
-      schema_context.schema.at("exclusiveMinimum").is_boolean() &&
-      schema_context.schema.at("exclusiveMinimum").to_boolean()) {
-    return {make(InstructionIndex::AssertionGreater, context, schema_context,
-                 dynamic_context,
-                 sourcemeta::core::JSON{
-                     schema_context.schema.at(dynamic_context.keyword)})};
+  assert(context.schema().is_object());
+  if (context.schema().defines("exclusiveMinimum") &&
+      context.schema().at("exclusiveMinimum").is_boolean() &&
+      context.schema().at("exclusiveMinimum").to_boolean()) {
+    return {make(InstructionIndex::AssertionGreater, context,
+                 sourcemeta::core::JSON{context.value()})};
   }
-  return {make(InstructionIndex::AssertionGreaterEqual, context, schema_context,
-               dynamic_context,
-               sourcemeta::core::JSON{
-                   schema_context.schema.at(dynamic_context.keyword)})};
+  return {make(InstructionIndex::AssertionGreaterEqual, context,
+               sourcemeta::core::JSON{context.value()})};
 }
 
-auto compiler_draft3_validation_type(const Context &context,
-                                     const SchemaContext &schema_context,
-                                     const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_type(const KeywordContext &context,
                                      const Instructions &) -> Instructions {
-  const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+  const auto &value{context.value()};
 
-  const auto draft3{is_draft3(schema_context.vocabularies)};
+  const auto draft3{is_draft3(context.vocabularies())};
 
   // This dialect types `type` as a string drawn from six names. It has no
   // array form and no null type, offering `nullable` in place of the latter.
   // `draft3_set_type_bits` answers for the seven JSON Schema names, so the
   // null one has to be ruled out separately
-  if (is_openapi_3_0(schema_context.vocabularies)) {
+  if (is_openapi_3_0(context.vocabularies())) {
     ValueTypes recognised{};
     if (!value.is_string() || value.to_string() == "null" ||
         !draft3_set_type_bits(value.to_string(), recognised)) {
-      throw_keyword_error(context, schema_context,
-                          UNSUPPORTED_VALUE_FOR_DIALECT);
+      throw_keyword_error(context, UNSUPPORTED_VALUE_FOR_DIALECT);
     }
 
     // A scalar `type` widened by `nullable` is the array form in all but
     // spelling, so it takes the same instruction and skips the scalar fast
     // paths below, none of which can express a bound alongside a second
     // permitted type
-    if (is_nullable(schema_context.vocabularies, schema_context.schema)) {
+    if (is_nullable(context.vocabularies(), context.schema())) {
       ValueTypes types{recognised};
       types.set(std::to_underlying(sourcemeta::core::JSON::Type::Null));
-      return {make(InstructionIndex::AssertionTypeStrictAny, context,
-                   schema_context, dynamic_context, types)};
+      return {make(InstructionIndex::AssertionTypeStrictAny, context, types)};
     }
   }
 
   if (draft3) {
     if (value.is_string() && value.to_string() == "any") {
-      return draft3_any_type_instructions(context, schema_context,
-                                          dynamic_context);
+      return draft3_any_type_instructions(context);
     }
 
     if (value.is_array()) {
       if (!is_draft3_type_union(value)) {
-        throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
+        throw_keyword_error(context, EXPECTED_TYPE_NAMES);
       }
 
       bool has_object{false};
       for (const auto &element : value.as_array()) {
         if (element.is_string() && element.to_string() == "any") {
-          return draft3_any_type_instructions(context, schema_context,
-                                              dynamic_context);
+          return draft3_any_type_instructions(context);
         }
         if (element.is_object()) {
           has_object = true;
@@ -2497,9 +2340,9 @@ auto compiler_draft3_validation_type(const Context &context,
       }
 
       if (has_object) {
-        if (context.mode == Mode::FastValidation && value.size() == 1) {
+        if (context.mode() == Mode::FastValidation && value.size() == 1) {
           return compile(
-              context, schema_context, dynamic_context,
+              context,
               {static_cast<sourcemeta::core::Pointer::Token::Index>(0)});
         }
 
@@ -2510,12 +2353,11 @@ auto compiler_draft3_validation_type(const Context &context,
 
           if (element.is_object()) {
             branch = compile(
-                context, schema_context, relative_dynamic_context(),
+                context.relative(),
                 {static_cast<sourcemeta::core::Pointer::Token::Index>(index)});
           } else if (element.is_string()) {
-            auto assertion{make_type_assertion(context, schema_context,
-                                               relative_dynamic_context(),
-                                               element.to_string())};
+            auto assertion{
+                make_type_assertion(context.relative(), element.to_string())};
             if (!assertion.has_value()) {
               continue;
             }
@@ -2525,13 +2367,12 @@ auto compiler_draft3_validation_type(const Context &context,
             continue;
           }
 
-          disjunctors.push_back(make(InstructionIndex::ControlGroup, context,
-                                     schema_context, relative_dynamic_context(),
-                                     ValueNone{}, std::move(branch)));
+          disjunctors.push_back(make(InstructionIndex::ControlGroup,
+                                     context.relative(), ValueNone{},
+                                     std::move(branch)));
         }
 
-        return {make(InstructionIndex::LogicalOr, context, schema_context,
-                     dynamic_context, ValueBoolean{false},
+        return {make(InstructionIndex::LogicalOr, context, ValueBoolean{false},
                      std::move(disjunctors))};
       }
     }
@@ -2540,81 +2381,76 @@ auto compiler_draft3_validation_type(const Context &context,
   if (value.is_string()) {
     const auto &type{value.to_string()};
     if (type == "null") {
-      if (type_covered_by_enum(context, schema_context, "null")) {
+      if (type_covered_by_enum(context, "null")) {
         return {};
       }
 
       return {make(InstructionIndex::AssertionTypeStrict, context,
-                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Null)};
     }
     if (type == "boolean") {
-      if (type_covered_by_enum(context, schema_context, "boolean")) {
+      if (type_covered_by_enum(context, "boolean")) {
         return {};
       }
 
       return {make(InstructionIndex::AssertionTypeStrict, context,
-                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Boolean)};
     }
     if (type == "object") {
       if (!draft3) {
-        const auto minimum{unsigned_integer_property(schema_context.schema,
-                                                     "minProperties", 0)};
+        const auto minimum{
+            unsigned_integer_property(context.schema(), "minProperties", 0)};
         const auto maximum{
-            unsigned_integer_property(schema_context.schema, "maxProperties")};
+            unsigned_integer_property(context.schema(), "maxProperties")};
 
-        const auto fused{fuse_type_size_bound(
-            context, schema_context, dynamic_context, minimum, maximum,
-            InstructionIndex::AssertionTypeObjectUpper,
-            InstructionIndex::AssertionTypeObjectBounded)};
+        const auto fused{
+            fuse_type_size_bound(context, minimum, maximum,
+                                 InstructionIndex::AssertionTypeObjectUpper,
+                                 InstructionIndex::AssertionTypeObjectBounded)};
         if (fused.has_value()) {
           return fused.value();
         }
       }
 
-      if (type_covered_by_enum(context, schema_context, "object")) {
+      if (type_covered_by_enum(context, "object")) {
         return {};
       }
 
       // A non-empty `required` rejects a non-object on its own, so the type
       // assertion is redundant. An empty `required` asserts nothing, so the
       // type check must stay
-      if (!draft3 && context.mode == Mode::FastValidation &&
-          schema_context.schema.defines("required") &&
-          schema_context.schema.at("required").is_array() &&
-          !schema_context.schema.at("required").empty()) {
+      if (!draft3 && context.mode() == Mode::FastValidation &&
+          context.schema().defines("required") &&
+          context.schema().at("required").is_array() &&
+          !context.schema().at("required").empty()) {
         return {};
       }
 
       return {make(InstructionIndex::AssertionTypeStrict, context,
-                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Object)};
     }
     if (type == "array") {
       const auto minimum{
-          unsigned_integer_property(schema_context.schema, "minItems", 0)};
+          unsigned_integer_property(context.schema(), "minItems", 0)};
       const auto maximum{
-          unsigned_integer_property(schema_context.schema, "maxItems")};
+          unsigned_integer_property(context.schema(), "maxItems")};
 
       const auto fused{fuse_type_size_bound(
-          context, schema_context, dynamic_context, minimum, maximum,
-          InstructionIndex::AssertionTypeArrayUpper,
+          context, minimum, maximum, InstructionIndex::AssertionTypeArrayUpper,
           InstructionIndex::AssertionTypeArrayBounded)};
       if (fused.has_value()) {
         return fused.value();
       }
 
-      if (type_covered_by_enum(context, schema_context, "array")) {
+      if (type_covered_by_enum(context, "array")) {
         return {};
       }
 
       return {make(InstructionIndex::AssertionTypeStrict, context,
-                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Array)};
     }
     if (type == "number") {
-      if (type_covered_by_enum(context, schema_context, "number")) {
+      if (type_covered_by_enum(context, "number")) {
         return {};
       }
 
@@ -2622,8 +2458,7 @@ auto compiler_draft3_validation_type(const Context &context,
       types.set(std::to_underlying(sourcemeta::core::JSON::Type::Real));
       types.set(std::to_underlying(sourcemeta::core::JSON::Type::Integer));
       types.set(std::to_underlying(sourcemeta::core::JSON::Type::Decimal));
-      return {make(InstructionIndex::AssertionTypeStrictAny, context,
-                   schema_context, dynamic_context, types)};
+      return {make(InstructionIndex::AssertionTypeStrictAny, context, types)};
     }
     if (type == "integer") {
       // Draft 4 and earlier have no shortcut for an all-integer `enum` here,
@@ -2633,29 +2468,26 @@ auto compiler_draft3_validation_type(const Context &context,
       // part, which none of these dialects counts as an integer, and so this
       // assertion always has work left to do
       return {make(InstructionIndex::AssertionTypeStrict, context,
-                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::Integer)};
     }
     if (type == "string") {
       const auto minimum{
-          unsigned_integer_property(schema_context.schema, "minLength", 0)};
+          unsigned_integer_property(context.schema(), "minLength", 0)};
       const auto maximum{
-          unsigned_integer_property(schema_context.schema, "maxLength")};
+          unsigned_integer_property(context.schema(), "maxLength")};
 
       const auto fused{fuse_type_size_bound(
-          context, schema_context, dynamic_context, minimum, maximum,
-          InstructionIndex::AssertionTypeStringUpper,
+          context, minimum, maximum, InstructionIndex::AssertionTypeStringUpper,
           InstructionIndex::AssertionTypeStringBounded)};
       if (fused.has_value()) {
         return fused.value();
       }
 
-      if (type_covered_by_enum(context, schema_context, "string")) {
+      if (type_covered_by_enum(context, "string")) {
         return {};
       }
 
       return {make(InstructionIndex::AssertionTypeStrict, context,
-                   schema_context, dynamic_context,
                    sourcemeta::core::JSON::Type::String)};
     }
     if (draft3) {
@@ -2663,11 +2495,10 @@ auto compiler_draft3_validation_type(const Context &context,
       // the meta-schema, and one we do not know constrains nothing
       return {};
     }
-    throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
+    throw_keyword_error(context, EXPECTED_TYPE_NAMES);
   }
   if (value.is_array() && value.size() == 1 && value.front().is_string()) {
-    auto assertion{make_type_assertion(context, schema_context, dynamic_context,
-                                       value.front().to_string())};
+    auto assertion{make_type_assertion(context, value.front().to_string())};
     if (assertion.has_value()) {
       return {std::move(assertion).value()};
     }
@@ -2678,7 +2509,7 @@ auto compiler_draft3_validation_type(const Context &context,
       return {};
     }
 
-    throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
+    throw_keyword_error(context, EXPECTED_TYPE_NAMES);
   }
   if (value.is_array()) {
     // Draft 4 asks for a non-empty array of unique type names, whereas Draft 3
@@ -2688,7 +2519,7 @@ auto compiler_draft3_validation_type(const Context &context,
             value.as_array(), [draft3](const auto &element) -> bool {
               return element.is_string() || (draft3 && element.is_object());
             })) {
-      throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
+      throw_keyword_error(context, EXPECTED_TYPE_NAMES);
     }
 
     ValueTypes types{};
@@ -2698,7 +2529,7 @@ auto compiler_draft3_validation_type(const Context &context,
       }
 
       if (!draft3_set_type_bits(element.to_string(), types) && !draft3) {
-        throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
+        throw_keyword_error(context, EXPECTED_TYPE_NAMES);
       }
     }
 
@@ -2708,32 +2539,28 @@ auto compiler_draft3_validation_type(const Context &context,
       // legitimate use of the keyword that we ignore, constraining nothing,
       // exactly as the scalar form does for a single unrecognised name
       if (value.empty()) {
-        return {make(InstructionIndex::AssertionFail, context, schema_context,
-                     dynamic_context, ValueNone{})};
+        return {make(InstructionIndex::AssertionFail, context, ValueNone{})};
       }
 
       return {};
     }
 
-    return {make(InstructionIndex::AssertionTypeStrictAny, context,
-                 schema_context, dynamic_context, types)};
+    return {make(InstructionIndex::AssertionTypeStrictAny, context, types)};
   }
 
   // Every dialect asks that `type` be a type name or an array of them
-  throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
+  throw_keyword_error(context, EXPECTED_TYPE_NAMES);
 }
 
-auto compiler_draft3_validation_disallow(const Context &context,
-                                         const SchemaContext &schema_context,
-                                         const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_disallow(const KeywordContext &context,
                                          const Instructions &) -> Instructions {
-  const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+  const auto &value{context.value()};
 
   // Draft 3 gives `disallow` the same shape it gives `type`: a type name, or
   // an array of names and subschemas
   if (!value.is_string() &&
       (!value.is_array() || !is_draft3_type_union(value))) {
-    throw_keyword_error(context, schema_context, EXPECTED_TYPE_NAMES);
+    throw_keyword_error(context, EXPECTED_TYPE_NAMES);
   }
 
   const auto contains_any{
@@ -2743,8 +2570,7 @@ auto compiler_draft3_validation_disallow(const Context &context,
          return element.is_string() && element.to_string() == "any";
        }))};
   if (contains_any) {
-    return {make(InstructionIndex::AssertionFail, context, schema_context,
-                 dynamic_context, ValueNone{})};
+    return {make(InstructionIndex::AssertionFail, context, ValueNone{})};
   }
 
   ValueTypes types{};
@@ -2762,35 +2588,36 @@ auto compiler_draft3_validation_disallow(const Context &context,
         index_suffix.push_back(index);
         const auto element_uri{
             sourcemeta::core::to_uri(
-                schema_context.relative_pointer.concat(index_suffix),
-                schema_context.base)
+                context.local.relative_pointer.concat(index_suffix),
+                context.base())
                 .canonicalize()
                 .recompose()};
 
         auto inner_instructions{
-            compile(context, schema_context, relative_dynamic_context(),
-                    sourcemeta::core::EMPTY_WEAK_POINTER,
+            compile(context.relative(), sourcemeta::core::EMPTY_WEAK_POINTER,
                     sourcemeta::core::EMPTY_WEAK_POINTER, element_uri)};
 
         const auto element_relative_pointer{
-            schema_context.relative_pointer.concat(index_suffix)};
+            context.local.relative_pointer.concat(index_suffix)};
         const SchemaContext element_schema_context{
             .relative_pointer = element_relative_pointer,
-            .schema = schema_context.schema,
-            .vocabularies = schema_context.vocabularies,
-            .base = schema_context.base,
-            .is_property_name = schema_context.is_property_name};
+            .schema = context.schema(),
+            .vocabularies = context.vocabularies(),
+            .base = context.base(),
+            .is_property_name = context.local.is_property_name};
 
         const auto element_base_schema_location{
-            make_weak_pointer(dynamic_context.keyword, index)};
-        const DynamicContext element_dynamic_context{
-            .keyword = KEYWORD_EMPTY,
-            .base_schema_location = element_base_schema_location,
-            .base_instance_location = dynamic_context.base_instance_location};
+            make_weak_pointer(context.keyword(), index)};
+        const KeywordContext element_context{
+            .global = context.global,
+            .local = element_schema_context,
+            .target = {.keyword = EMPTY_KEYWORD,
+                       .base_schema_location = element_base_schema_location,
+                       .base_instance_location =
+                           context.target.base_instance_location}};
 
-        subschema_nots.push_back(make(InstructionIndex::LogicalNot, context,
-                                      element_schema_context,
-                                      element_dynamic_context, ValueNone{},
+        subschema_nots.push_back(make(InstructionIndex::LogicalNot,
+                                      element_context, ValueNone{},
                                       std::move(inner_instructions)));
       }
     }
@@ -2798,8 +2625,8 @@ auto compiler_draft3_validation_disallow(const Context &context,
 
   Instructions result;
   if (types.any()) {
-    result.push_back(make(InstructionIndex::AssertionNotTypeStrictAny, context,
-                          schema_context, dynamic_context, types));
+    result.push_back(
+        make(InstructionIndex::AssertionNotTypeStrictAny, context, types));
   }
   for (auto &&instruction : subschema_nots) {
     result.push_back(std::move(instruction));
@@ -2807,37 +2634,33 @@ auto compiler_draft3_validation_disallow(const Context &context,
   return result;
 }
 
-auto compiler_draft3_applicator_extends(const Context &context,
-                                        const SchemaContext &schema_context,
-                                        const DynamicContext &dynamic_context,
+auto compiler_draft3_applicator_extends(const KeywordContext &context,
                                         const Instructions &) -> Instructions {
-  const auto &value{schema_context.schema.at(dynamic_context.keyword)};
+  const auto &value{context.value()};
 
   // Unlike the keywords that share this shape, Draft 3 puts no lower bound on
   // how many schemas `extends` may combine
   if (value.is_array() &&
-      !all_are_schemas(value,
-                       booleans_are_schemas(schema_context.vocabularies))) {
-    throw_keyword_error(context, schema_context, EXPECTED_SCHEMA_ARRAY);
+      !all_are_schemas(value, booleans_are_schemas(context.vocabularies()))) {
+    throw_keyword_error(context, EXPECTED_SCHEMA_ARRAY);
   }
 
   if (value.is_object()) {
     // TODO: Make this work with `$dynamicRef`
-    if (context.mode == Mode::FastValidation && !context.uses_dynamic_scopes) {
-      return compile(context, schema_context, dynamic_context,
-                     sourcemeta::core::EMPTY_WEAK_POINTER,
+    if (context.mode() == Mode::FastValidation &&
+        !context.global.uses_dynamic_scopes) {
+      return compile(context, sourcemeta::core::EMPTY_WEAK_POINTER,
                      sourcemeta::core::EMPTY_WEAK_POINTER);
     }
 
-    auto inner{compile(context, schema_context, relative_dynamic_context(),
-                       sourcemeta::core::EMPTY_WEAK_POINTER,
+    auto inner{compile(context.relative(), sourcemeta::core::EMPTY_WEAK_POINTER,
                        sourcemeta::core::EMPTY_WEAK_POINTER)};
     if (inner.empty()) {
       return {};
     }
 
-    return {make(InstructionIndex::LogicalAnd, context, schema_context,
-                 dynamic_context, ValueNone{}, std::move(inner))};
+    return {make(InstructionIndex::LogicalAnd, context, ValueNone{},
+                 std::move(inner))};
   }
 
   if (!value.is_array()) {
@@ -2851,10 +2674,11 @@ auto compiler_draft3_applicator_extends(const Context &context,
   Instructions children;
 
   // TODO: Make this work with `$dynamicRef`
-  if (context.mode == Mode::FastValidation && !context.uses_dynamic_scopes) {
+  if (context.mode() == Mode::FastValidation &&
+      !context.global.uses_dynamic_scopes) {
     for (std::uint64_t index = 0; index < value.size(); index++) {
       for (auto &&step : compile(
-               context, schema_context, dynamic_context,
+               context,
                {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})) {
         children.push_back(std::move(step));
       }
@@ -2865,13 +2689,12 @@ auto compiler_draft3_applicator_extends(const Context &context,
 
   for (std::uint64_t index = 0; index < value.size(); index++) {
     auto arm{
-        compile(context, schema_context, relative_dynamic_context(),
+        compile(context.relative(),
                 {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})};
     if (arm.empty()) {
       continue;
     }
-    children.push_back(make(InstructionIndex::ControlGroup, context,
-                            schema_context, relative_dynamic_context(),
+    children.push_back(make(InstructionIndex::ControlGroup, context.relative(),
                             ValueNone{}, std::move(arm)));
   }
 
@@ -2879,28 +2702,26 @@ auto compiler_draft3_applicator_extends(const Context &context,
     return {};
   }
 
-  return {make(InstructionIndex::LogicalAnd, context, schema_context,
-               dynamic_context, ValueNone{}, std::move(children))};
+  return {make(InstructionIndex::LogicalAnd, context, ValueNone{},
+               std::move(children))};
 }
 
-auto compiler_draft3_applicator_dependencies(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
+auto compiler_draft3_applicator_dependencies(const KeywordContext &context,
+                                             const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    throw_keyword_error(context, schema_context, EXPECTED_OBJECT);
+  if (!context.value().is_object()) {
+    throw_keyword_error(context, EXPECTED_OBJECT);
   }
 
-  const auto draft3{is_draft3(schema_context.vocabularies)};
+  const auto draft3{is_draft3(context.vocabularies())};
 
   // Every member must be a schema or a list of property names, plus a single
   // property name in Draft 3. A member that is none of those makes the keyword
   // as a whole stop being a constraint
   if (!std::ranges::all_of(
-          schema_context.schema.at(dynamic_context.keyword).as_object(),
-          [draft3,
-           allow_boolean = booleans_are_schemas(schema_context.vocabularies)](
-              const auto &entry) -> bool {
+          context.value().as_object(),
+          [draft3, allow_boolean = booleans_are_schemas(
+                       context.vocabularies())](const auto &entry) -> bool {
             const auto names_only{
                 entry.second.is_array() &&
                 std::ranges::all_of(
@@ -2910,27 +2731,25 @@ auto compiler_draft3_applicator_dependencies(
                    (names_only && (draft3 || entry.second.unique())) ||
                    (draft3 && entry.second.is_string());
           })) {
-    throw_keyword_error(context, schema_context, EXPECTED_DEPENDENCIES);
+    throw_keyword_error(context, EXPECTED_DEPENDENCIES);
   }
 
   // Only once the shape is known to be good does it matter whether the keyword
   // can apply to the instances this schema admits
-  if (narrows_type_away(schema_context.schema, {"object"})) {
+  if (narrows_type_away(context.schema(), {"object"})) {
     return {};
   }
 
   Instructions children;
   ValueStringMap dependencies;
 
-  for (const auto &entry :
-       schema_context.schema.at(dynamic_context.keyword).as_object()) {
+  for (const auto &entry : context.value().as_object()) {
     if ((entry.second.is_object() || entry.second.is_boolean())) {
       if (!entry.second.is_boolean() || !entry.second.to_boolean()) {
         children.push_back(
-            make(InstructionIndex::LogicalWhenDefines, context, schema_context,
-                 dynamic_context, make_property(entry.first),
-                 compile(context, schema_context, relative_dynamic_context(),
-                         make_weak_pointer(entry.first))));
+            make(InstructionIndex::LogicalWhenDefines, context,
+                 make_property(entry.first),
+                 compile(context.relative(), make_weak_pointer(entry.first))));
       }
     } else if (entry.second.is_array()) {
       std::vector<sourcemeta::core::JSON::String> properties;
@@ -2954,47 +2773,42 @@ auto compiler_draft3_applicator_dependencies(
 
   if (!dependencies.empty()) {
     children.push_back(make(InstructionIndex::AssertionPropertyDependencies,
-                            context, schema_context, dynamic_context,
-                            std::move(dependencies)));
+                            context, std::move(dependencies)));
   }
 
   return children;
 }
 
-auto compiler_draft3_validation_divisibleby(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context, const Instructions &)
+auto compiler_draft3_validation_divisibleby(const KeywordContext &context,
+                                            const Instructions &)
     -> Instructions {
-  if (!schema_context.schema.at(dynamic_context.keyword).is_number()) {
-    throw_keyword_error(context, schema_context, EXPECTED_NUMBER);
+  if (!context.value().is_number()) {
+    throw_keyword_error(context, EXPECTED_NUMBER);
   }
 
   // The meta-schema asks for a divisor strictly greater than zero, as dividing
   // by zero names no multiple at all
-  if (!schema_context.schema.at(dynamic_context.keyword).is_positive() ||
-      schema_context.schema.at(dynamic_context.keyword) ==
-          sourcemeta::core::JSON{0}) {
-    throw_keyword_error(context, schema_context, EXPECTED_POSITIVE);
+  if (!context.value().is_positive() ||
+      context.value() == sourcemeta::core::JSON{0}) {
+    throw_keyword_error(context, EXPECTED_POSITIVE);
   }
 
-  if (narrows_type_away(schema_context.schema, {"integer", "number"})) {
+  if (narrows_type_away(context.schema(), {"integer", "number"})) {
     return {};
   }
 
-  return {make(InstructionIndex::AssertionDivisible, context, schema_context,
-               dynamic_context,
-               sourcemeta::core::JSON{
-                   schema_context.schema.at(dynamic_context.keyword)})};
+  return {make(InstructionIndex::AssertionDivisible, context,
+               sourcemeta::core::JSON{context.value()})};
 }
 
 // The formats that the OpenAPI 3.1 and 3.2 specifications define for numbers,
 // which the rest of this compiler treats apart from the string ones
-auto is_openapi_numeric_format(const SchemaContext &schema_context,
+auto is_openapi_numeric_format(const KeywordContext &context,
                                const sourcemeta::core::JSON &format) -> bool {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
   if (!format.is_string() ||
-      (!schema_context.vocabularies.contains(Known::OPENAPI_3_1_BASE) &&
-       !schema_context.vocabularies.contains(Known::OPENAPI_3_2_BASE))) {
+      (!context.vocabularies().contains(Known::OPENAPI_3_1_BASE) &&
+       !context.vocabularies().contains(Known::OPENAPI_3_2_BASE))) {
     return false;
   }
 
@@ -3007,54 +2821,49 @@ auto is_openapi_numeric_format(const SchemaContext &schema_context,
 // numbers, so the assertion each name compiles to is the same wherever it
 // appears. The caller answers for `name` being one of the four
 auto make_openapi_numeric_format_assertion(
-    const Context &context, const SchemaContext &schema_context,
-    const DynamicContext &dynamic_context,
-    const sourcemeta::core::JSON::String &name) -> Instruction {
+    const KeywordContext &context, const sourcemeta::core::JSON::String &name)
+    -> Instruction {
   if (name == "int32") {
     return make(InstructionIndex::AssertionNumberIntegerBounded, context,
-                schema_context, dynamic_context,
                 ValueIntegerBounds{std::numeric_limits<std::int32_t>::min(),
                                    std::numeric_limits<std::int32_t>::max()});
   }
 
   if (name == "int64") {
     return make(InstructionIndex::AssertionNumberIntegerBounded, context,
-                schema_context, dynamic_context,
                 ValueIntegerBounds{std::numeric_limits<std::int64_t>::min(),
                                    std::numeric_limits<std::int64_t>::max()});
   }
 
-  return make(InstructionIndex::AssertionNumberType, context, schema_context,
-              dynamic_context,
+  return make(InstructionIndex::AssertionNumberType, context,
               name == "float" ? ValueNumberType::Float
                               : ValueNumberType::Double);
 }
 
-auto compiler_draft3_validation_format(const Context &context,
-                                       const SchemaContext &schema_context,
-                                       const DynamicContext &dynamic_context,
+auto compiler_draft3_validation_format(const KeywordContext &context,
                                        const Instructions &) -> Instructions {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
   static constexpr auto UNSUPPORTED_DIALECT_MESSAGE{
       "The format assertion tweak not supported in this dialect"};
 
   const auto is_2019_09_format{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_2019_09_FORMAT)};
-  const auto is_2020_12_format_annotation{schema_context.vocabularies.contains(
+      context.vocabularies().contains(Known::JSON_SCHEMA_2019_09_FORMAT)};
+  const auto is_2020_12_format_annotation{context.vocabularies().contains(
       Known::JSON_SCHEMA_2020_12_FORMAT_ANNOTATION)};
-  const auto is_2020_12_format_assertion{schema_context.vocabularies.contains(
+  const auto is_2020_12_format_assertion{context.vocabularies().contains(
       Known::JSON_SCHEMA_2020_12_FORMAT_ASSERTION)};
 
   const auto force_assertion{
-      schema_context.schema.is_object() &&
-      schema_context.schema.defines("x-format-assertion") &&
-      schema_context.schema.at("x-format-assertion").is_boolean() &&
-      schema_context.schema.at("x-format-assertion").to_boolean()};
+      context.schema().is_object() &&
+      context.schema().defines("x-format-assertion") &&
+      context.schema().at("x-format-assertion").is_boolean() &&
+      context.schema().at("x-format-assertion").to_boolean()};
 
-  const auto assert_active{context.tweaks.format_assertion || force_assertion};
+  const auto assert_active{context.global.tweaks.format_assertion ||
+                           force_assertion};
   if ((is_2019_09_format && assert_active) || is_2020_12_format_assertion ||
       (is_2020_12_format_annotation && assert_active)) {
-    const auto &format{schema_context.schema.at(dynamic_context.keyword)};
+    const auto &format{context.value()};
     if (!format.is_string()) {
       return {};
     }
@@ -3066,18 +2875,15 @@ auto compiler_draft3_validation_format(const Context &context,
     // Registry they defer to is strictly optional
     // TODO: Consider asserting the numeric and string formats that the
     // OpenAPI Format Registry defines
-    if (is_openapi_numeric_format(schema_context, format)) {
-      Instructions instructions{make_openapi_numeric_format_assertion(
-          context, schema_context, dynamic_context, name)};
+    if (is_openapi_numeric_format(context, format)) {
+      Instructions instructions{
+          make_openapi_numeric_format_assertion(context, name)};
 
       // Unlike the string formats, the annotation cannot be grouped by the
       // instance type, as `ControlGroupWhenType` does not take a number
-      if (annotations_enabled(context, dynamic_context.keyword)) {
-        instructions.push_back(
-            make(InstructionIndex::AnnotationEmit, context, schema_context,
-                 dynamic_context,
-                 sourcemeta::core::JSON{
-                     schema_context.schema.at(dynamic_context.keyword)}));
+      if (annotations_enabled(context)) {
+        instructions.push_back(make(InstructionIndex::AnnotationEmit, context,
+                                    sourcemeta::core::JSON{context.value()}));
       }
 
       return instructions;
@@ -3126,19 +2932,15 @@ auto compiler_draft3_validation_format(const Context &context,
       return {};
     }
 
-    Instructions instructions{make(InstructionIndex::AssertionStringType,
-                                   context, schema_context, dynamic_context,
-                                   type)};
+    Instructions instructions{
+        make(InstructionIndex::AssertionStringType, context, type)};
 
-    if (annotations_enabled(context, dynamic_context.keyword)) {
+    if (annotations_enabled(context)) {
       Instructions annotation_children{
-          make(InstructionIndex::AnnotationEmit, context, schema_context,
-               dynamic_context,
-               sourcemeta::core::JSON{
-                   schema_context.schema.at(dynamic_context.keyword)})};
+          make(InstructionIndex::AnnotationEmit, context,
+               sourcemeta::core::JSON{context.value()})};
       instructions.push_back(make(InstructionIndex::ControlGroupWhenType,
-                                  context, schema_context,
-                                  relative_dynamic_context(), ValueType::String,
+                                  context.relative(), ValueType::String,
                                   std::move(annotation_children)));
     }
 
@@ -3146,34 +2948,30 @@ auto compiler_draft3_validation_format(const Context &context,
   }
 
   if (is_2019_09_format || is_2020_12_format_annotation) {
-    if (!annotations_enabled(context, dynamic_context.keyword)) {
+    if (!annotations_enabled(context)) {
       return {};
     }
 
-    Instructions children{make(InstructionIndex::AnnotationEmit, context,
-                               schema_context, dynamic_context,
-                               sourcemeta::core::JSON{schema_context.schema.at(
-                                   dynamic_context.keyword)})};
+    Instructions children{
+        make(InstructionIndex::AnnotationEmit, context,
+             sourcemeta::core::JSON{context.schema().at(context.keyword())})};
 
     // A format that applies to numbers cannot have its annotation grouped by
     // the instance type, so emit it the way the assertion path does rather
     // than collect it for strings alone
-    if (is_openapi_numeric_format(
-            schema_context,
-            schema_context.schema.at(dynamic_context.keyword))) {
+    if (is_openapi_numeric_format(context, context.value())) {
       return children;
     }
 
-    return {make(InstructionIndex::ControlGroupWhenType, context,
-                 schema_context, relative_dynamic_context(), ValueType::String,
-                 std::move(children))};
+    return {make(InstructionIndex::ControlGroupWhenType, context.relative(),
+                 ValueType::String, std::move(children))};
   }
 
   if (!assert_active) {
     return {};
   }
 
-  const auto &format{schema_context.schema.at(dynamic_context.keyword)};
+  const auto &format{context.value()};
   if (!format.is_string()) {
     return {};
   }
@@ -3181,18 +2979,17 @@ auto compiler_draft3_validation_format(const Context &context,
   const auto &name{format.to_string()};
   ValueStringType type;
 
-  const auto draft3{is_draft3(schema_context.vocabularies)};
-  const auto draft4{is_draft4(schema_context.vocabularies)};
-  const auto draft6{is_draft6(schema_context.vocabularies)};
-  const auto draft7{is_draft7(schema_context.vocabularies)};
+  const auto draft3{is_draft3(context.vocabularies())};
+  const auto draft4{is_draft4(context.vocabularies())};
+  const auto draft6{is_draft6(context.vocabularies())};
+  const auto draft7{is_draft7(context.vocabularies())};
 
-  if (is_openapi_3_0(schema_context.vocabularies)) {
+  if (is_openapi_3_0(context.vocabularies())) {
     // OpenAPI 3.0 defines these four for numbers, so they cannot resolve to a
     // string logical type like the rest of this chain does
     if (name == "int32" || name == "int64" || name == "float" ||
         name == "double") {
-      return {make_openapi_numeric_format_assertion(context, schema_context,
-                                                    dynamic_context, name)};
+      return {make_openapi_numeric_format_assertion(context, name)};
     }
 
     if (name == "date-time") {
@@ -3300,7 +3097,7 @@ auto compiler_draft3_validation_format(const Context &context,
       // TODO: Support this old format, even though not even the official test
       // suite covers it
       throw_keyword_error(
-          context, schema_context,
+          context,
           "The \"utc-millisec\" format is not supported in assertion mode yet");
     } else if (name == "regex") {
       type = ValueStringType::Regex;
@@ -3310,23 +3107,22 @@ auto compiler_draft3_validation_format(const Context &context,
       // TODO: Support this old format, even though not even the official test
       // suite covers it
       throw_keyword_error(
-          context, schema_context,
+          context,
           "The \"style\" format is not supported in assertion mode yet");
     } else if (name == "phone") {
       // TODO: Support this old format, even though not even the official test
       // suite covers it
       throw_keyword_error(
-          context, schema_context,
+          context,
           "The \"phone\" format is not supported in assertion mode yet");
     } else {
       return {};
     }
   } else {
-    throw_keyword_error(context, schema_context, UNSUPPORTED_DIALECT_MESSAGE);
+    throw_keyword_error(context, UNSUPPORTED_DIALECT_MESSAGE);
   }
 
-  return {make(InstructionIndex::AssertionStringType, context, schema_context,
-               dynamic_context, type)};
+  return {make(InstructionIndex::AssertionStringType, context, type)};
 }
 
 } // namespace sourcemeta::blaze
