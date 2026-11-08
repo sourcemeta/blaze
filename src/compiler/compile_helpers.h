@@ -19,7 +19,6 @@
 namespace sourcemeta::blaze {
 
 // Static keyword strings for use in DynamicContext references
-static const sourcemeta::core::JSON::String KEYWORD_EMPTY{};
 // NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
 static const sourcemeta::core::JSON::String KEYWORD_PROPERTIES{"properties"};
 static const sourcemeta::core::JSON::String KEYWORD_THEN{"then"};
@@ -52,12 +51,6 @@ inline auto make_weak_pointer(const std::string &property1,
   result.push_back(std::cref(property1));
   result.push_back(std::cref(property2));
   return result;
-}
-
-inline auto relative_dynamic_context() -> DynamicContext {
-  return {.keyword = KEYWORD_EMPTY,
-          .base_schema_location = sourcemeta::core::EMPTY_WEAK_POINTER,
-          .base_instance_location = sourcemeta::core::EMPTY_WEAK_POINTER};
 }
 
 inline auto schema_resource_id(const std::vector<std::string> &resources,
@@ -141,84 +134,78 @@ inline auto vocabulary_id(
 
 // Instantiate a value-oriented step with a custom resource
 inline auto make_with_resource(const InstructionIndex type,
-                               const Context &context,
-                               const SchemaContext &schema_context,
-                               const DynamicContext &dynamic_context,
+                               const KeywordContext &context,
                                const Value &value, const std::string &resource)
     -> Instruction {
   const auto schema_location{
-      dynamic_context.keyword.empty()
-          ? to_pointer(dynamic_context.base_schema_location)
-          : to_pointer(dynamic_context.base_schema_location)
-                .concat(dynamic_context.keyword)};
-  const auto extra_index{context.extra.size()};
-  context.extra.push_back(
+      context.keyword().empty()
+          ? to_pointer(context.target.base_schema_location)
+          : to_pointer(context.target.base_schema_location)
+                .concat(context.keyword())};
+  const auto extra_index{context.global.extra.size()};
+  context.global.extra.push_back(
       {.relative_schema_location = schema_location,
        .keyword_location =
-           to_uri(schema_context.relative_pointer, schema_context.base)
-               .recompose(),
-       .schema_resource = schema_resource_id(context.resources, resource),
-       .vocabulary = vocabulary_id(
-           context.vocabularies, context.frame, context.walker,
-           dynamic_context.keyword, schema_context.relative_pointer,
-           schema_context.base, schema_context.vocabularies),
+           to_uri(context.local.relative_pointer, context.base()).recompose(),
+       .schema_resource =
+           schema_resource_id(context.global.resources, resource),
+       .vocabulary =
+           vocabulary_id(context.global.vocabularies, context.global.frame,
+                         context.global.walker, context.keyword(),
+                         context.local.relative_pointer, context.base(),
+                         context.vocabularies()),
        .message = 0,
        .message_detail = 0});
   return {.type = type,
           .relative_instance_location =
-              to_pointer(dynamic_context.base_instance_location),
+              to_pointer(context.target.base_instance_location),
           .value = value,
           .children = {},
           .extra_index = extra_index};
 }
 
 // Instantiate a value-oriented step
-inline auto make(const InstructionIndex type, const Context &context,
-                 const SchemaContext &schema_context,
-                 const DynamicContext &dynamic_context, const Value &value)
-    -> Instruction {
-  return make_with_resource(type, context, schema_context, dynamic_context,
-                            value, schema_context.base.recompose());
+inline auto make(const InstructionIndex type, const KeywordContext &context,
+                 const Value &value) -> Instruction {
+  return make_with_resource(type, context, value, context.base().recompose());
 }
 
 // Instantiate an applicator step
-inline auto make(const InstructionIndex type, const Context &context,
-                 const SchemaContext &schema_context,
-                 const DynamicContext &dynamic_context, Value &&value,
-                 Instructions &&children) -> Instruction {
+inline auto make(const InstructionIndex type, const KeywordContext &context,
+                 Value &&value, Instructions &&children) -> Instruction {
   const auto schema_location{
-      dynamic_context.keyword.empty()
-          ? to_pointer(dynamic_context.base_schema_location)
-          : to_pointer(dynamic_context.base_schema_location)
-                .concat(dynamic_context.keyword)};
-  const auto extra_index{context.extra.size()};
-  context.extra.push_back(
+      context.keyword().empty()
+          ? to_pointer(context.target.base_schema_location)
+          : to_pointer(context.target.base_schema_location)
+                .concat(context.keyword())};
+  const auto extra_index{context.global.extra.size()};
+  context.global.extra.push_back(
       {.relative_schema_location = schema_location,
        .keyword_location =
-           to_uri(schema_context.relative_pointer, schema_context.base)
-               .recompose(),
-       .schema_resource = schema_resource_id(context.resources,
-                                             schema_context.base.recompose()),
-       .vocabulary = vocabulary_id(
-           context.vocabularies, context.frame, context.walker,
-           dynamic_context.keyword, schema_context.relative_pointer,
-           schema_context.base, schema_context.vocabularies),
+           to_uri(context.local.relative_pointer, context.base()).recompose(),
+       .schema_resource = schema_resource_id(context.global.resources,
+                                             context.base().recompose()),
+       .vocabulary =
+           vocabulary_id(context.global.vocabularies, context.global.frame,
+                         context.global.walker, context.keyword(),
+                         context.local.relative_pointer, context.base(),
+                         context.vocabularies()),
        .message = 0,
        .message_detail = 0});
   return {.type = type,
           .relative_instance_location =
-              to_pointer(dynamic_context.base_instance_location),
+              to_pointer(context.target.base_instance_location),
           .value = std::move(value),
           .children = std::move(children),
           .extra_index = extra_index};
 }
 
-inline auto unroll(const Context &context, const Instruction &step,
+inline auto unroll(const KeywordContext &context, const Instruction &step,
                    const sourcemeta::core::WeakPointer &base_instance_location =
                        sourcemeta::core::EMPTY_WEAK_POINTER) -> Instruction {
-  auto source_extra{context.extra[step.extra_index]};
-  const auto extra_index{context.extra.size()};
-  context.extra.push_back(std::move(source_extra));
+  auto source_extra{context.global.extra[step.extra_index]};
+  const auto extra_index{context.global.extra.size()};
+  context.global.extra.push_back(std::move(source_extra));
   return {.type = step.type,
           .relative_instance_location =
               to_pointer(base_instance_location)
@@ -228,11 +215,11 @@ inline auto unroll(const Context &context, const Instruction &step,
           .extra_index = extra_index};
 }
 
-inline auto rephrase(const Context &context, const InstructionIndex type,
+inline auto rephrase(const KeywordContext &context, const InstructionIndex type,
                      const Instruction &step) -> Instruction {
-  auto source_extra{context.extra[step.extra_index]};
-  const auto extra_index{context.extra.size()};
-  context.extra.push_back(std::move(source_extra));
+  auto source_extra{context.global.extra[step.extra_index]};
+  const auto extra_index{context.global.extra.size()};
+  context.global.extra.push_back(std::move(source_extra));
   return {.type = type,
           .relative_instance_location = step.relative_instance_location,
           .value = step.value,
@@ -332,15 +319,14 @@ inline auto is_schema_array(const sourcemeta::core::JSON &value,
 // siblings say ever takes effect, and the OpenAPI 3.0 Schema Object answers
 // with Draft 4 here. Core's schema walker frames nothing under one of those
 // drafts either, which is what keeps such a sibling from compiling at all
-inline auto ref_overrides_sibling_keywords(const SchemaContext &schema_context)
+inline auto ref_overrides_sibling_keywords(const KeywordContext &context)
     -> bool {
-  return schema_context.schema.is_object() &&
-         schema_context.schema.defines("$ref") &&
-         (is_draft3(schema_context.vocabularies) ||
-          is_draft4(schema_context.vocabularies) ||
-          is_draft6(schema_context.vocabularies) ||
-          is_draft7(schema_context.vocabularies) ||
-          is_openapi_3_0(schema_context.vocabularies));
+  return context.schema().is_object() && context.schema().defines("$ref") &&
+         (is_draft3(context.vocabularies()) ||
+          is_draft4(context.vocabularies()) ||
+          is_draft6(context.vocabularies()) ||
+          is_draft7(context.vocabularies()) ||
+          is_openapi_3_0(context.vocabularies()));
 }
 
 // The OpenAPI 3.0 Schema Object spells a reference as a Reference Object, whose
@@ -425,11 +411,10 @@ absolute_schema_location(const Context &context,
   return to_pointer(resource.value().get().pointer.concat(relative_pointer));
 }
 
-inline auto absolute_schema_location(const Context &context,
-                                     const SchemaContext &schema_context)
+inline auto absolute_schema_location(const KeywordContext &context)
     -> sourcemeta::core::Pointer {
-  return absolute_schema_location(context, schema_context.base,
-                                  schema_context.relative_pointer);
+  return absolute_schema_location(context.global, context.base(),
+                                  context.local.relative_pointer);
 }
 
 // The messages that compilation refuses a keyword with. The location such an
@@ -490,11 +475,10 @@ static constexpr auto PROHIBITED_KEYWORD_FOR_DIALECT{
 // Refuse the keyword that the schema context points at. The location the error
 // carries names that keyword, so every message passed here reads as a
 // statement about it
-[[noreturn]] inline auto
-throw_keyword_error(const Context &context, const SchemaContext &schema_context,
-                    const char *const message) -> void {
-  throw CompilerError{schema_context.base,
-                      absolute_schema_location(context, schema_context),
+[[noreturn]] inline auto throw_keyword_error(const KeywordContext &context,
+                                             const char *const message)
+    -> void {
+  throw CompilerError{context.base(), absolute_schema_location(context),
                       message};
 }
 
@@ -516,11 +500,10 @@ absolute_schema_pointer(const Context &context,
   return resource.value().get().pointer.concat(relative_pointer);
 }
 
-inline auto absolute_schema_pointer(const Context &context,
-                                    const SchemaContext &schema_context)
+inline auto absolute_schema_pointer(const KeywordContext &context)
     -> sourcemeta::core::WeakPointer {
-  return absolute_schema_pointer(context, schema_context.base,
-                                 schema_context.relative_pointer);
+  return absolute_schema_pointer(context.global, context.base(),
+                                 context.local.relative_pointer);
 }
 
 // Whether the current keyword value, as a schema, contains any nested
@@ -528,11 +511,9 @@ inline auto absolute_schema_pointer(const Context &context,
 // compiler is the parent subschema, its relative pointer already targets
 // the keyword value, so the frame entry we look up corresponds to the
 // keyword value and not to the parent subschema
-inline auto defines_nested_subschemas(const Context &context,
-                                      const SchemaContext &schema_context)
-    -> bool {
-  return context.frame.any_subschema_under(
-      absolute_schema_pointer(context, schema_context),
+inline auto defines_nested_subschemas(const KeywordContext &context) -> bool {
+  return context.global.frame.any_subschema_under(
+      absolute_schema_pointer(context),
       [](const sourcemeta::core::SchemaFrame::Location &) -> bool {
         return true;
       });
@@ -582,42 +563,43 @@ inline auto requires_evaluation(const Context &context,
   return false;
 }
 
-inline auto requires_evaluation(const Context &context,
-                                const SchemaContext &schema_context) -> bool {
-  return requires_evaluation(context,
-                             absolute_schema_pointer(context, schema_context));
+inline auto requires_evaluation(const KeywordContext &context) -> bool {
+  return requires_evaluation(context.global, absolute_schema_pointer(context));
 }
 
-inline auto annotations_enabled(const Context &context,
+inline auto annotations_enabled(const KeywordContext &context,
                                 const std::string_view keyword) -> bool {
-  if (context.tweaks.annotations.has_value()) {
-    return context.tweaks.annotations.value().contains(keyword);
+  if (context.global.tweaks.annotations.has_value()) {
+    return context.global.tweaks.annotations.value().contains(keyword);
   }
 
-  return context.mode == Mode::Exhaustive;
+  return context.mode() == Mode::Exhaustive;
+}
+
+// The same, for the keyword that the context already names
+inline auto annotations_enabled(const KeywordContext &context) -> bool {
+  return annotations_enabled(context, context.keyword());
 }
 
 // The set of property names that this schema declares as required at this
 // level
-inline auto required_properties(const SchemaContext &schema_context)
+inline auto required_properties(const KeywordContext &context)
     -> ValueStringSet {
   using Known = sourcemeta::core::SchemaVocabularies::Known;
   const auto imports_validation_vocabulary{
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_4) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_6) ||
-      schema_context.vocabularies.contains(Known::JSON_SCHEMA_DRAFT_7) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2019_09_VALIDATION) ||
-      schema_context.vocabularies.contains(
-          Known::JSON_SCHEMA_2020_12_VALIDATION) ||
-      schema_context.vocabularies.contains(Known::OPENAPI_3_0_BASE)};
+      context.vocabularies().contains(Known::JSON_SCHEMA_DRAFT_4) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_DRAFT_6) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_DRAFT_7) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_2019_09_VALIDATION) ||
+      context.vocabularies().contains(Known::JSON_SCHEMA_2020_12_VALIDATION) ||
+      context.vocabularies().contains(Known::OPENAPI_3_0_BASE)};
 
   ValueStringSet result;
 
-  if (imports_validation_vocabulary && schema_context.schema.is_object() &&
-      schema_context.schema.defines("required") &&
-      schema_context.schema.at("required").is_array()) {
-    for (const auto &entry : schema_context.schema.at("required").as_array()) {
+  if (imports_validation_vocabulary && context.schema().is_object() &&
+      context.schema().defines("required") &&
+      context.schema().at("required").is_array()) {
+    for (const auto &entry : context.schema().at("required").as_array()) {
       if (entry.is_string()) {
         result.insert(entry.to_string());
       }
@@ -626,12 +608,10 @@ inline auto required_properties(const SchemaContext &schema_context)
     return result;
   }
 
-  if (is_draft3(schema_context.vocabularies) &&
-      schema_context.schema.is_object() &&
-      schema_context.schema.defines("properties") &&
-      schema_context.schema.at("properties").is_object()) {
-    for (const auto &entry :
-         schema_context.schema.at("properties").as_object()) {
+  if (is_draft3(context.vocabularies()) && context.schema().is_object() &&
+      context.schema().defines("properties") &&
+      context.schema().at("properties").is_object()) {
+    for (const auto &entry : context.schema().at("properties").as_object()) {
       // In Draft 3, keywords sibling to `$ref` are never evaluated, so a
       // `required` flag next to a `$ref` does not make the property mandatory
       if (entry.second.is_object() && entry.second.defines("required") &&
