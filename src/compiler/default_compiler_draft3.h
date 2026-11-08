@@ -182,15 +182,6 @@ auto is_draft3_type_union(const sourcemeta::core::JSON &value) -> bool {
          });
 }
 
-// Likewise for the keywords the meta-schema describes as an array of unique
-// property names
-auto is_string_array(const sourcemeta::core::JSON &value) -> bool {
-  return value.is_array() && value.unique() &&
-         std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
-           return entry.is_string();
-         });
-}
-
 static auto json_array_to_string_set(const sourcemeta::core::JSON &document)
     -> ValueStringSet {
   ValueStringSet result;

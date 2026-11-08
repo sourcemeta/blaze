@@ -7,6 +7,7 @@
 
 #include "compile_helpers.h"
 #include "default_compiler_draft4.h"
+#include "upstream.h"
 
 namespace sourcemeta::blaze {
 
@@ -80,7 +81,8 @@ auto compiler_2019_09_validation_dependentrequired(
   if (!std::ranges::all_of(
           schema_context.schema.at(dynamic_context.keyword).as_object(),
           [](const auto &entry) -> bool {
-            return is_string_array(entry.second);
+            return sourcemeta::core::schema_is_property_name_array(
+                entry.second);
           })) {
     throw_keyword_error(context, schema_context, EXPECTED_DEPENDENCIES);
   }

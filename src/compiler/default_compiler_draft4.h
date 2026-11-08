@@ -12,6 +12,7 @@
 
 #include "compile_helpers.h"
 #include "default_compiler_draft3.h"
+#include "upstream.h"
 
 namespace sourcemeta::blaze {
 
@@ -24,7 +25,8 @@ auto compiler_draft4_validation_required(const Context &context,
   // 3.0 Schema Object, whose meta-schema is a Draft 4 document, asks the same
   const auto allows_empty{!is_draft4(schema_context.vocabularies) &&
                           !is_openapi_3_0(schema_context.vocabularies)};
-  if (!is_string_array(schema_context.schema.at(dynamic_context.keyword)) ||
+  if (!sourcemeta::core::schema_is_property_name_array(
+          schema_context.schema.at(dynamic_context.keyword)) ||
       (!allows_empty &&
        schema_context.schema.at(dynamic_context.keyword).empty())) {
     throw_keyword_error(context, schema_context, EXPECTED_PROPERTY_NAME_ARRAY);

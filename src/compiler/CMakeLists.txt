@@ -4,6 +4,7 @@ sourcemeta_library(NAMESPACE sourcemeta PROJECT blaze NAME compiler
   SOURCES
     compile.cc compile_json.cc
     compile_helpers.h postprocess.h message.h
+    upstream.h
     unevaluated.h
     default_compiler.cc
     default_compiler_2020_12.h

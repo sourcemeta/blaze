@@ -14,6 +14,8 @@
 #include <regex>      // std::regex, std::regex_match, std::smatch
 #include <utility>    // std::move
 
+#include "upstream.h"
+
 namespace sourcemeta::blaze {
 
 // Static keyword strings for use in DynamicContext references
@@ -71,19 +73,6 @@ inline auto schema_resource_id(const std::vector<std::string> &resources,
          static_cast<std::size_t>(std::distance(resources.cbegin(), iterator));
 }
 
-// A walker only views the custom vocabulary URIs it reports, as its table
-// points at static storage, so interning one has to take a copy
-inline auto own(const sourcemeta::core::SchemaVocabularies::URIView &vocabulary)
-    -> sourcemeta::core::SchemaVocabularies::URI {
-  const auto *known{
-      std::get_if<sourcemeta::core::SchemaVocabularies::Known>(&vocabulary)};
-  if (known != nullptr) {
-    return *known;
-  }
-
-  return sourcemeta::core::JSON::String{std::get<std::string_view>(vocabulary)};
-}
-
 // Intern the vocabulary that owns a keyword, as an index into
 // Template::vocabularies where zero means the keyword has none
 inline auto vocabulary_intern(
@@ -98,7 +87,8 @@ inline auto vocabulary_intern(
 
   // Intern on the vocabulary itself rather than on its string form, as the
   // known ones are a single byte and comparing them allocates nothing
-  const auto vocabulary{own(result.vocabulary.value())};
+  const auto vocabulary{
+      sourcemeta::core::schema_vocabulary_uri(result.vocabulary.value())};
   const auto iterator{std::ranges::find(vocabularies, vocabulary)};
   if (iterator == vocabularies.end()) {
     vocabularies.push_back(vocabulary);
@@ -605,39 +595,6 @@ inline auto annotations_enabled(const Context &context,
   }
 
   return context.mode == Mode::Exhaustive;
-}
-
-// TODO: Elevate to Core and test
-
-inline auto
-is_circular(const sourcemeta::core::SchemaFrame &frame,
-            const sourcemeta::core::WeakPointer &reference_origin,
-            const sourcemeta::core::SchemaFrame::Reference &reference,
-            std::unordered_set<std::string> &visited) -> bool {
-  if (visited.contains(reference.destination)) {
-    return false;
-  }
-  visited.insert(reference.destination);
-
-  const auto destination_location{frame.traverse(reference.destination)};
-  if (!destination_location.has_value()) {
-    return false;
-  }
-
-  const auto &destination_pointer{destination_location->get().pointer};
-  if (reference_origin.starts_with(destination_pointer) ||
-      destination_pointer.starts_with(reference_origin)) {
-    return true;
-  }
-
-  return frame.any_reference_from(
-      destination_pointer,
-      [&](const sourcemeta::core::SchemaReferenceType type,
-          const sourcemeta::core::WeakPointer &,
-          const sourcemeta::core::SchemaFrame::Reference &entry) -> bool {
-        return type == sourcemeta::core::SchemaReferenceType::Static &&
-               is_circular(frame, reference_origin, entry, visited);
-      });
 }
 
 // The set of property names that this schema declares as required at this

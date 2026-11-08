@@ -2,16 +2,15 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <algorithm> // std::ranges::sort, std::ranges::unique, std::max, std::min
-#include <cassert>   // assert
-#include <cstdint>   // std::uint64_t
-#include <format>    // std::format
+#include <algorithm>  // std::ranges::sort, std::ranges::unique, std::min
+#include <cassert>    // assert
+#include <cstdint>    // std::uint64_t
+#include <format>     // std::format
 #include <functional> // std::cref, std::reference_wrapper
 // TODO(C++23): Consider std::flat_map/std::flat_set when available in libc++
 #include <map>           // std::map
 #include <set>           // std::set
 #include <string_view>   // std::string_view
-#include <unordered_map> // std::unordered_map
 #include <unordered_set> // std::unordered_set
 #include <utility>       // std::move, std::pair
 #include <variant>       // std::holds_alternative
@@ -21,16 +20,9 @@
 #include "message.h"
 #include "postprocess.h"
 #include "unevaluated.h"
+#include "upstream.h"
 
 namespace {
-
-// A `$schema` reference points at a meta-schema rather than into the schema
-// itself, so reference planning ignores it
-auto is_metaschema_reference(const sourcemeta::core::WeakPointer &origin)
-    -> bool {
-  return !origin.empty() && origin.back().is_property() &&
-         origin.back().to_property() == "$schema";
-}
 
 // Draft 7 and earlier let `$ref` override whatever sits beside it, so such a
 // sibling is not a keyword of the schema at all and nothing about it, not even
@@ -257,29 +249,6 @@ auto keyword_shape_error(
   }
 }
 
-// A keyword evaluates after everything it reads, so its priority is one above
-// the highest of what it depends on
-auto schema_keyword_priority(
-    const std::string_view keyword,
-    const sourcemeta::core::SchemaVocabularies &vocabularies,
-    const sourcemeta::core::SchemaWalker &walker) -> std::uint64_t {
-  const auto &metadata{walker(keyword, vocabularies)};
-  std::uint64_t priority{0};
-  for (const auto &dependency : metadata.dependencies) {
-    priority =
-        std::max(priority,
-                 schema_keyword_priority(dependency, vocabularies, walker) + 1);
-  }
-
-  for (const auto &dependency : metadata.order_dependencies) {
-    priority =
-        std::max(priority,
-                 schema_keyword_priority(dependency, vocabularies, walker) + 1);
-  }
-
-  return priority;
-}
-
 // The top-level keywords of a schema in evaluation order
 auto schema_keywords(const sourcemeta::core::JSON &schema,
                      const sourcemeta::core::SchemaWalker &walker,
@@ -300,10 +269,10 @@ auto schema_keywords(const sourcemeta::core::JSON &schema,
   std::ranges::sort(
       result,
       [&vocabularies, &walker](const auto left, const auto right) -> bool {
-        const auto left_priority{
-            schema_keyword_priority(left.get(), vocabularies, walker)};
-        const auto right_priority{
-            schema_keyword_priority(right.get(), vocabularies, walker)};
+        const auto left_priority{sourcemeta::core::schema_keyword_priority(
+            left.get(), vocabularies, walker)};
+        const auto right_priority{sourcemeta::core::schema_keyword_priority(
+            right.get(), vocabularies, walker)};
         if (left_priority != right_priority) {
           return left_priority < right_priority;
         }
@@ -494,84 +463,6 @@ auto defines_any_whitelisted_keyword(
       });
 }
 
-// TODO: Somehow move this logic up to `sourcemeta::core::SchemaFrame`
-auto schema_frame_populate_target_types(
-    const sourcemeta::core::SchemaFrame &frame,
-    std::unordered_map<std::string_view, std::pair<bool, bool>> &target_types)
-    -> void {
-  frame.for_each_reference(
-      [&](const sourcemeta::core::SchemaReferenceType,
-          const sourcemeta::core::WeakPointer &origin,
-          const sourcemeta::core::SchemaFrame::Reference &reference) -> void {
-        if (is_metaschema_reference(origin)) {
-          return;
-        }
-
-        // A reference is always a keyword of the subschema that declares it,
-        // so that subschema is what the origin sits directly inside of
-        const auto reference_location{frame.traverse(origin.initial())};
-        assert(reference_location.has_value());
-        auto &context{target_types[reference.destination]};
-        if (reference_location->get().property_name) {
-          context.first = true;
-        } else {
-          context.second = true;
-        }
-      });
-
-  std::unordered_map<std::string_view, const sourcemeta::core::WeakPointer *>
-      destination_pointers;
-  for (const auto &[destination, context] : target_types) {
-    const auto destination_location{frame.traverse(destination)};
-    if (destination_location.has_value()) {
-      destination_pointers.emplace(destination,
-                                   &destination_location->get().pointer);
-    }
-  }
-
-  std::unordered_map<std::string_view, std::vector<std::string_view>>
-      references_within;
-  frame.for_each_reference(
-      [&](const sourcemeta::core::SchemaReferenceType,
-          const sourcemeta::core::WeakPointer &origin,
-          const sourcemeta::core::SchemaFrame::Reference &reference) -> void {
-        if (is_metaschema_reference(origin)) {
-          return;
-        }
-
-        for (const auto &[destination, destination_pointer] :
-             destination_pointers) {
-          if (origin.starts_with(*destination_pointer) &&
-              origin.size() > destination_pointer->size()) {
-            references_within[destination].push_back(reference.destination);
-          }
-        }
-      });
-
-  bool changed{true};
-  while (changed) {
-    changed = false;
-    for (const auto &[current_destination, context] : target_types) {
-      if (!context.first) {
-        continue;
-      }
-
-      const auto iterator{references_within.find(current_destination)};
-      if (iterator == references_within.end()) {
-        continue;
-      }
-
-      for (const auto &referenced_destination : iterator->second) {
-        auto &next_context{target_types[referenced_destination]};
-        if (!next_context.first) {
-          next_context.first = true;
-          changed = true;
-        }
-      }
-    }
-  }
-}
-
 } // namespace
 
 namespace sourcemeta::blaze {
@@ -710,8 +601,7 @@ auto compile(const sourcemeta::core::JSON &schema,
   // (3) Plan which static references we will precompile
   ///////////////////////////////////////////////////////////////////
 
-  std::unordered_map<std::string_view, std::pair<bool, bool>> target_types;
-  schema_frame_populate_target_types(frame, target_types);
+  const auto target_types{sourcemeta::core::schema_frame_target_types(frame)};
 
   std::map<
       std::tuple<sourcemeta::core::SchemaReferenceType, std::string_view, bool>,
@@ -726,7 +616,7 @@ auto compile(const sourcemeta::core::JSON &schema,
       [&](const sourcemeta::core::SchemaReferenceType type,
           const sourcemeta::core::WeakPointer &origin,
           const sourcemeta::core::SchemaFrame::Reference &reference) -> void {
-        if (is_metaschema_reference(origin)) {
+        if (sourcemeta::core::schema_is_metaschema_reference(origin)) {
           return;
         }
 
@@ -740,17 +630,16 @@ auto compile(const sourcemeta::core::JSON &schema,
         }
 
         assert(target_types.contains(reference.destination));
-        const auto &[needs_name,
-                     needs_instance]{target_types.at(reference.destination)};
+        const auto &target_type{target_types.at(reference.destination)};
 
-        if (needs_name) {
+        if (target_type.property_name) {
           targets_map.emplace(
               std::make_tuple(type, std::string_view{reference.destination},
                               true),
               std::make_pair(targets_map.size(), &origin));
         }
 
-        if (needs_instance) {
+        if (target_type.instance) {
           targets_map.emplace(
               std::make_tuple(type, std::string_view{reference.destination},
                               false),
