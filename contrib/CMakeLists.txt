@@ -29,6 +29,25 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   target_link_libraries(sourcemeta_blaze_contrib_validate
     PRIVATE sourcemeta::blaze::evaluator)
 
+  sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_profiler
+    FOLDER "Blaze/Contrib" SOURCES profiler.cc perf_counters.h)
+  target_link_libraries(sourcemeta_blaze_contrib_profiler
+    PRIVATE sourcemeta::core::crypto)
+  target_link_libraries(sourcemeta_blaze_contrib_profiler
+    PRIVATE sourcemeta::core::io)
+  target_link_libraries(sourcemeta_blaze_contrib_profiler
+    PRIVATE sourcemeta::core::json)
+  target_link_libraries(sourcemeta_blaze_contrib_profiler
+    PRIVATE sourcemeta::core::jsonl)
+  target_link_libraries(sourcemeta_blaze_contrib_profiler
+    PRIVATE sourcemeta::core::jsonschema)
+  target_link_libraries(sourcemeta_blaze_contrib_profiler
+    PRIVATE sourcemeta::core::options)
+  target_link_libraries(sourcemeta_blaze_contrib_profiler
+    PRIVATE sourcemeta::blaze::compiler)
+  target_link_libraries(sourcemeta_blaze_contrib_profiler
+    PRIVATE sourcemeta::blaze::evaluator)
+
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_trace
     FOLDER "Blaze/Contrib" SOURCES trace.cc)
   target_link_libraries(sourcemeta_blaze_contrib_trace
@@ -63,7 +82,7 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_perf
-      FOLDER "Blaze/Contrib" SOURCES perf.cc)
+      FOLDER "Blaze/Contrib" SOURCES perf.cc perf_counters.h)
     target_link_libraries(sourcemeta_blaze_contrib_perf
       PRIVATE sourcemeta::core::io)
     target_link_libraries(sourcemeta_blaze_contrib_perf

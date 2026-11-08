@@ -6,151 +6,69 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <linux/perf_event.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/syscall.h>
+#include "perf_counters.h"
 
-#include <algorithm>  // std::sort, std::max
-#include <cstdlib>    // EXIT_SUCCESS, EXIT_FAILURE
-#include <filesystem> // std::filesystem::path
-#include <iostream>   // std::cerr, std::cout
-#include <map>        // std::map
-#include <utility>    // std::pair
-#include <vector>     // std::vector
+#include <cstddef>     // std::size_t
+#include <cstdint>     // std::uint64_t
+#include <cstdlib>     // EXIT_SUCCESS, EXIT_FAILURE
+#include <filesystem>  // std::filesystem::path
+#include <iostream>    // std::cerr
+#include <optional>    // std::optional
+#include <string_view> // std::string_view
+#include <vector>      // std::vector
 
-static long perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
-                            int cpu, long group_fd, unsigned long flags) {
-  long fd = syscall(SYS_perf_event_open, hw_event, pid, cpu, group_fd, flags);
-  if (fd == -1) {
-    fprintf(stderr, "Error creating event");
-    exit(EXIT_FAILURE);
+auto print_ratio(const std::string_view label,
+                 const std::optional<std::uint64_t> &numerator,
+                 const std::optional<std::uint64_t> &denominator) -> void {
+  std::cerr << label << ": ";
+  const auto ratio{perf_ratio(numerator, denominator)};
+  if (ratio.has_value()) {
+    std::cerr << numerator.value() << "/" << denominator.value() << " = "
+              << ratio.value() * 100 << "%\n";
+  } else {
+    std::cerr << "n/a\n";
   }
-
-  return fd;
 }
 
-struct record_t {
-  uint64_t value;
-  uint64_t id;
-};
-
-struct read_format {
-  uint64_t nr;
-  record_t values[6];
-};
-
-class PerfEvents {
-private:
-  struct perf_event_attr pea;
-  unsigned long branch_predict_id;
-  long branch_predict_fd;
-  unsigned long branch_miss_id;
-  long branch_miss_fd;
-  unsigned long cache_access_id;
-  long cache_access_fd;
-  unsigned long cache_miss_id;
-  long cache_miss_fd;
-  unsigned long cycles_id;
-  long cycles_fd;
-  unsigned long instr_id;
-  long instr_fd;
-
-  void newHWEvent(struct perf_event_attr *newEvent, unsigned long type,
-                  long *fd, long group_fd, unsigned long *id) {
-    memset(newEvent, 0, sizeof(struct perf_event_attr));
-    newEvent->type = PERF_TYPE_HARDWARE;
-    newEvent->size = sizeof(struct perf_event_attr);
-    newEvent->config = type;
-    newEvent->disabled = 1;
-    newEvent->exclude_kernel = 1;
-    newEvent->exclude_hv = 1;
-    newEvent->read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
-    *fd = perf_event_open(newEvent, 0, -1, group_fd, 0);
-    ioctl(static_cast<int>(*fd), PERF_EVENT_IOC_ID, id);
+auto print_counters(const PerfCounters &counters) -> void {
+  const auto sample{counters.sample()};
+  // The reason they are unavailable is printed once, up front
+  if (!sample.has_value()) {
+    std::cerr << (counters.available() ? "Hardware counters could not be read\n"
+                                       : "Hardware counters unavailable\n");
+    return;
   }
 
-public:
-  PerfEvents() {
-    newHWEvent(&pea, PERF_COUNT_HW_BRANCH_INSTRUCTIONS, &branch_predict_fd, -1,
-               &branch_predict_id);
-    newHWEvent(&pea, PERF_COUNT_HW_BRANCH_MISSES, &branch_miss_fd,
-               branch_predict_fd, &branch_miss_id);
-    newHWEvent(&pea, PERF_COUNT_HW_CACHE_REFERENCES, &cache_access_fd,
-               branch_predict_fd, &cache_access_id);
-    newHWEvent(&pea, PERF_COUNT_HW_CACHE_MISSES, &cache_miss_fd,
-               branch_predict_fd, &cache_miss_id);
-    newHWEvent(&pea, PERF_COUNT_HW_CPU_CYCLES, &cycles_fd, branch_predict_fd,
-               &cycles_id);
-    newHWEvent(&pea, PERF_COUNT_HW_INSTRUCTIONS, &instr_fd, branch_predict_fd,
-               &instr_id);
+  if (!sample->scheduled()) {
+    std::cerr << "Hardware counters were never scheduled\n";
+    return;
   }
 
-  void start() {
-    ioctl(static_cast<int>(branch_predict_fd), PERF_EVENT_IOC_RESET,
-          PERF_IOC_FLAG_GROUP);
-    ioctl(static_cast<int>(branch_predict_fd), PERF_EVENT_IOC_ENABLE,
-          PERF_IOC_FLAG_GROUP);
-  }
-
-  void stop() {
-    ioctl(static_cast<int>(branch_predict_fd), PERF_EVENT_IOC_DISABLE,
-          PERF_IOC_FLAG_GROUP);
-  }
-
-  void print() {
-    char buf[4096];
-    struct read_format *rf = (struct read_format *)buf;
-    unsigned long branch_predicts = 0;
-    unsigned long branch_misses = 0;
-    unsigned long cache_accesses = 0;
-    unsigned long cache_misses = 0;
-    unsigned long cycles = 0;
-    unsigned long instructions = 0;
-
-    if (read(static_cast<int>(branch_predict_fd), buf, sizeof(buf)) <= 0) {
-      std::cerr << "Error reading performance counters\n";
-      return;
+  for (std::size_t index = 0; index < PERF_COUNTER_COUNT; index++) {
+    const auto counter{static_cast<PerfCounter>(index)};
+    std::cerr << PERF_COUNTER_NAMES[index] << ": ";
+    const auto &value{sample->at(counter)};
+    if (value.has_value()) {
+      std::cerr << value.value() << "\n";
+    } else {
+      std::cerr << "unavailable (" << counters.unavailable_reason(counter)
+                << ")\n";
     }
-    for (unsigned long i = 0; i < rf->nr; i++) {
-      if (rf->values[i].id == branch_predict_id) {
-        branch_predicts = rf->values[i].value;
-      } else if (rf->values[i].id == branch_miss_id) {
-        branch_misses = rf->values[i].value;
-      } else if (rf->values[i].id == cache_access_id) {
-        cache_accesses = rf->values[i].value;
-      } else if (rf->values[i].id == cache_miss_id) {
-        cache_misses = rf->values[i].value;
-      } else if (rf->values[i].id == cycles_id) {
-        cycles = rf->values[i].value;
-      } else if (rf->values[i].id == instr_id) {
-        instructions = rf->values[i].value;
-      }
-    }
-
-    std::cerr << "       Cycles: " << cycles << "\n";
-    std::cerr << " Instructions: " << instructions << "\n";
-    std::cerr << " Cache misses: " << cache_misses << "/" << cache_accesses
-              << " = "
-              << (static_cast<double>(cache_misses) /
-                  static_cast<double>(cache_accesses) * 100)
-              << "%\n";
-    std::cerr << "Branch misses: " << branch_misses << "/" << branch_predicts
-              << " = "
-              << (static_cast<double>(branch_misses) /
-                  static_cast<double>(branch_predicts) * 100)
-              << "%\n";
   }
 
-  ~PerfEvents() {
-    close(static_cast<int>(branch_miss_fd));
-    close(static_cast<int>(cache_access_fd));
-    close(static_cast<int>(cache_miss_fd));
-    close(static_cast<int>(cycles_fd));
-    close(static_cast<int>(instr_fd));
-    close(static_cast<int>(branch_predict_fd));
+  print_ratio("cache_misses / cache_references",
+              sample->at(PerfCounter::CacheMisses),
+              sample->at(PerfCounter::CacheReferences));
+  print_ratio("branch_misses / branch_instructions",
+              sample->at(PerfCounter::BranchMisses),
+              sample->at(PerfCounter::BranchInstructions));
+
+  if (sample->multiplexed()) {
+    std::cerr << "Note: multiplexed, counted for " << sample->time_running_ns
+              << "ns of " << sample->time_enabled_ns
+              << "ns enabled (values not scaled)\n";
   }
-};
+}
 
 bool validate_all(auto &evaluator, const auto &instances,
                   const auto &schema_template) {
@@ -186,28 +104,34 @@ auto main(int argc, char **argv) noexcept -> int {
                                  sourcemeta::blaze::Mode::FastValidation)};
 
   sourcemeta::blaze::Evaluator evaluator;
-  PerfEvents pe;
+  PerfCounters counters;
+  // Validation still runs without counters, so that the program behaves the
+  // same on machines that do not expose them
+  if (!counters.available()) {
+    std::cerr << "Hardware counters unavailable: "
+              << counters.unavailable_reason() << "\n\n";
+  }
 
-  pe.start();
+  counters.start();
   if (!validate_all(evaluator, instances, schema_template)) {
     return EXIT_FAILURE;
   }
-  pe.stop();
+  counters.stop();
 
   std::cerr << "Cold\n==============================\n";
-  pe.print();
+  print_counters(counters);
   std::cerr << "\n";
 
   for (int i = 0; i < 100; i++) {
     validate_all(evaluator, instances, schema_template);
   }
 
-  pe.start();
+  counters.start();
   validate_all(evaluator, instances, schema_template);
-  pe.stop();
+  counters.stop();
 
   std::cerr << "Warm\n==============================\n";
-  pe.print();
+  print_counters(counters);
   std::cerr << "\n";
 
   return EXIT_SUCCESS;

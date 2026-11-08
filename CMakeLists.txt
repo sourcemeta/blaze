@@ -195,6 +195,10 @@ if(BLAZE_TESTS)
     add_subdirectory(test/documentation)
   endif()
 
+  if(BLAZE_CONTRIB AND BLAZE_COMPILER AND BLAZE_EVALUATOR)
+    add_subdirectory(test/contrib)
+  endif()
+
   if(PROJECT_IS_TOP_LEVEL)
     # Otherwise we need the child project to link
     # against the sanitizers too.
