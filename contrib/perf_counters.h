@@ -234,6 +234,11 @@ public:
     if (result.has_value()) {
       result->time_enabled_ns -= this->baseline_enabled_ns_;
       result->time_running_ns -= this->baseline_running_ns_;
+      // A group that never got onto the hardware reads as zero, which would
+      // otherwise pass for having counted zero events
+      if (!result->scheduled()) {
+        result->values.fill(std::nullopt);
+      }
     }
 
     return result;

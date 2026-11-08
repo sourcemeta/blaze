@@ -35,12 +35,21 @@ blaze_contrib_profiler_test(geojson EXIT 0
 # what the trace coverage report exists to flag
 blaze_contrib_profiler_test(valid_and_invalid_fast EXIT 0
   EXPECT --instances 5 --valid 3 --trace --coverage incomplete
+    --hidden-subtrees 1
   ARGUMENTS ${PROFILER_QUICK} --trace-steps
     "${PROFILER_FIXTURES}/person.json" "${PROFILER_FIXTURES}/person.jsonl")
+# The exhaustive template hides no subtree, but still groups instructions in a
+# container that never reports itself
 blaze_contrib_profiler_test(valid_and_invalid_exhaustive EXIT 0
-  EXPECT --instances 5 --valid 3 --trace --coverage complete
+  EXPECT --instances 5 --valid 3 --trace --coverage incomplete
+    --hidden-subtrees 0
   ARGUMENTS ${PROFILER_QUICK} --trace-steps --exhaustive
     "${PROFILER_FIXTURES}/person.json" "${PROFILER_FIXTURES}/person.jsonl")
+blaze_contrib_profiler_test(complete_trace EXIT 0
+  EXPECT --instances 3 --valid 2 --trace --coverage complete
+    --hidden-subtrees 0
+  ARGUMENTS ${PROFILER_QUICK} --trace-steps
+    "${PROFILER_FIXTURES}/string.json" "${PROFILER_FIXTURES}/string.jsonl")
 blaze_contrib_profiler_test(single_json_instance EXIT 0
   EXPECT --instances 1 --valid 1
   ARGUMENTS ${PROFILER_QUICK}
@@ -59,6 +68,10 @@ blaze_contrib_profiler_test(unevaluated_marks EXIT 0
   ARGUMENTS ${PROFILER_QUICK} --trace-steps
     "${PROFILER_FIXTURES}/unevaluated.json"
     "${PROFILER_FIXTURES}/unevaluated.jsonl")
+blaze_contrib_profiler_test(no_compile_iterations EXIT 0
+  EXPECT --instances 5 --valid 3
+  ARGUMENTS --warmup 1 --iterations 2 --compile-iterations 0
+    "${PROFILER_FIXTURES}/person.json" "${PROFILER_FIXTURES}/person.jsonl")
 blaze_contrib_profiler_test(no_hardware_counters EXIT 0
   EXPECT --instances 5 --valid 3 --no-hardware
   ARGUMENTS ${PROFILER_QUICK} --no-hardware-counters

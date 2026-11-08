@@ -52,6 +52,8 @@ def check_summary(checker, name, summary):
     if summary["count"] == 0:
         checker.check(all(summary[key] is None for key in SUMMARY_KEYS),
                       f"{name} uses null for an empty summary")
+        checker.check(summary["total_ns"] == 0,
+                      f"{name}.total_ns is zero for an empty summary")
         return
 
     checker.check(summary["min_ns"] <= summary["p50_ns"] <= summary["p95_ns"]
@@ -101,7 +103,17 @@ def check_compilation(checker, compilation):
     check_summary(checker, "compile_body_repeated",
                   compilation["compile_body_repeated"])
 
+    # Without repeated compilations there is nothing to profile keywords on
     profile = compilation["keyword_profile"]
+    if compilation["compile_body_repeated"]["count"] == 0:
+        checker.check(profile is None,
+                      "no keyword profile without repeated compilations")
+        return
+    checker.check(profile is not None,
+                  "repeated compilations produce a keyword profile")
+    if profile is None:
+        return
+
     for key, value in profile["accounting"].items():
         checker.check(value is True, f"keyword accounting: {key}")
     checker.check(profile["self_ns_total"] ==
@@ -148,8 +160,9 @@ def check_evaluation(checker, report, evaluation):
                       "validation agrees with and without the callback")
         coverage = trace["coverage"]
         checker.check(coverage["complete"] ==
-                      (coverage["hidden_subtree_roots"] == 0),
-                      "trace coverage flag matches its hidden subtrees")
+                      (coverage["hidden_subtree_roots"] == 0 and
+                       not coverage["never_reported_types"]),
+                      "trace coverage flag matches what the trace misses")
 
 
 def check_report(checker, report, options):
@@ -200,6 +213,10 @@ def check_report(checker, report, options):
         checker.check(trace["coverage"]["complete"] ==
                       (options.coverage == "complete"),
                       f"trace coverage is {options.coverage}")
+    if options.hidden_subtrees is not None and trace is not None:
+        checker.check(trace["coverage"]["hidden_subtree_roots"] ==
+                      options.hidden_subtrees,
+                      f"trace hides {options.hidden_subtrees} subtrees")
     if options.marks:
         checker.check(evaluation["final_evaluation_marks"] is not None and
                       evaluation["final_evaluation_marks"]["total"] > 0,
@@ -226,6 +243,7 @@ def main():
     parser.add_argument("--valid", type=int)
     parser.add_argument("--trace", action="store_true")
     parser.add_argument("--coverage", choices=("complete", "incomplete"))
+    parser.add_argument("--hidden-subtrees", type=int)
     parser.add_argument("--marks", action="store_true")
     parser.add_argument("--no-hardware", action="store_true")
     parser.add_argument("arguments", nargs=argparse.REMAINDER)

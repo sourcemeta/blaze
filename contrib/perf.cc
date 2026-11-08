@@ -30,8 +30,10 @@ auto print_ratio(const std::string_view label,
   }
 }
 
-auto print_counters(const PerfCounters &counters) -> void {
-  const auto sample{counters.sample()};
+auto print_counters(const PerfCounters &counters, const bool measured) -> void {
+  // A phase whose counters failed to start or stop would otherwise report
+  // whatever the previous phase left behind
+  const auto sample{measured ? counters.sample() : std::nullopt};
   // The reason they are unavailable is printed once, up front
   if (!sample.has_value()) {
     std::cerr << (counters.available() ? "Hardware counters could not be read\n"
@@ -112,26 +114,26 @@ auto main(int argc, char **argv) noexcept -> int {
               << counters.unavailable_reason() << "\n\n";
   }
 
-  counters.start();
+  const auto cold_started{counters.start()};
   if (!validate_all(evaluator, instances, schema_template)) {
     return EXIT_FAILURE;
   }
-  counters.stop();
+  const auto cold_stopped{counters.stop()};
 
   std::cerr << "Cold\n==============================\n";
-  print_counters(counters);
+  print_counters(counters, cold_started && cold_stopped);
   std::cerr << "\n";
 
   for (int i = 0; i < 100; i++) {
     validate_all(evaluator, instances, schema_template);
   }
 
-  counters.start();
+  const auto warm_started{counters.start()};
   validate_all(evaluator, instances, schema_template);
-  counters.stop();
+  const auto warm_stopped{counters.stop()};
 
   std::cerr << "Warm\n==============================\n";
-  print_counters(counters);
+  print_counters(counters, warm_started && warm_stopped);
   std::cerr << "\n";
 
   return EXIT_SUCCESS;

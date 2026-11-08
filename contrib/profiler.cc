@@ -47,7 +47,7 @@
 #include <exception>    // std::exception
 #include <filesystem>   // std::filesystem::path
 #include <format>       // std::format
-#include <fstream>      // std::ifstream, std::ofstream
+#include <fstream>      // std::ofstream
 #include <functional>   // std::less
 #include <iostream>     // std::cerr, std::cout
 #include <iterator>     // std::size
@@ -56,7 +56,6 @@
 #include <numeric>      // std::accumulate
 #include <optional>     // std::optional
 #include <random>       // std::random_device
-#include <sstream>      // std::ostringstream
 #include <stdexcept>    // std::runtime_error
 #include <string>       // std::string
 #include <string_view>  // std::string_view
@@ -92,17 +91,6 @@ auto real_or_null(const std::optional<double> &value)
     -> sourcemeta::core::JSON {
   return value.has_value() ? sourcemeta::core::JSON{value.value()}
                            : sourcemeta::core::JSON{nullptr};
-}
-
-auto read_bytes(const std::filesystem::path &path) -> std::string {
-  std::ifstream stream{path, std::ios::binary};
-  if (!stream) {
-    throw std::runtime_error{"Could not open " + path.string()};
-  }
-
-  std::ostringstream buffer;
-  buffer << stream.rdbuf();
-  return buffer.str();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -340,6 +328,9 @@ auto counts_by_type(const std::array<std::uint64_t, INSTRUCTION_TYPES> &counts)
 // Hardware counters
 /////////////////////////////////////////////////////////////////////
 
+constexpr std::string_view NOT_SCHEDULED{
+    "The counter group was never scheduled on the hardware"};
+
 auto counters_to_json(const PerfCounters &counters,
                       const std::optional<PerfCounterSample> &sample,
                       const std::string_view scope) -> sourcemeta::core::JSON {
@@ -362,8 +353,11 @@ auto counters_to_json(const PerfCounters &counters,
     values.assign(name, value.has_value() ? integer(value.value())
                                           : sourcemeta::core::JSON{nullptr});
     if (!value.has_value()) {
-      unavailable.assign(
-          name, sourcemeta::core::JSON{counters.unavailable_reason(counter)});
+      // A counter that opened but has no value was in a group that the
+      // kernel never scheduled during this scope
+      const auto reason{counters.unavailable_reason(counter)};
+      unavailable.assign(name, sourcemeta::core::JSON{
+                                   reason.empty() ? NOT_SCHEDULED : reason});
     }
   }
 
@@ -387,23 +381,27 @@ auto counters_to_json(const PerfCounters &counters,
 class CounterScope {
 public:
   explicit CounterScope(std::optional<PerfCounters> &counters)
-      : counters_{counters} {
-    if (this->counters_.has_value()) {
-      this->counters_->start();
-    }
-  }
+      : counters_{counters},
+        started_{counters.has_value() && counters->start()} {}
 
+  // A scope whose counters failed to start or stop has no sample, rather than
+  // one holding whatever the previous scope left behind
   auto finish() -> std::optional<PerfCounterSample> {
     if (!this->counters_.has_value()) {
       return std::nullopt;
     }
 
-    this->counters_->stop();
+    const auto stopped{this->counters_->stop()};
+    if (!this->started_ || !stopped) {
+      return std::nullopt;
+    }
+
     return this->counters_->sample();
   }
 
 private:
   std::optional<PerfCounters> &counters_;
+  bool started_;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -637,16 +635,16 @@ auto main(int argc, char **argv) noexcept -> int {
     auto workload{sourcemeta::core::JSON::make_object()};
     auto schema_entry{sourcemeta::core::JSON::make_object()};
     schema_entry.assign("path", sourcemeta::core::JSON{schema_path.string()});
-    schema_entry.assign("sha256",
-                        sourcemeta::core::JSON{
-                            sourcemeta::core::sha256(read_bytes(schema_path))});
+    schema_entry.assign(
+        "sha256", sourcemeta::core::JSON{sourcemeta::core::sha256(
+                      sourcemeta::core::read_file_to_string(schema_path))});
     workload.assign("schema", std::move(schema_entry));
     auto instances_entry{sourcemeta::core::JSON::make_object()};
     instances_entry.assign("path",
                            sourcemeta::core::JSON{instances_path.string()});
     instances_entry.assign(
-        "sha256", sourcemeta::core::JSON{
-                      sourcemeta::core::sha256(read_bytes(instances_path))});
+        "sha256", sourcemeta::core::JSON{sourcemeta::core::sha256(
+                      sourcemeta::core::read_file_to_string(instances_path))});
     instances_entry.assign("format",
                            sourcemeta::core::JSON{is_jsonl ? "jsonl" : "json"});
     workload.assign("instances", std::move(instances_entry));
@@ -1036,20 +1034,33 @@ auto main(int argc, char **argv) noexcept -> int {
         trace.assign("wall_time_ns", integer(trace_ns));
         trace.assign("result_mismatches", integer(trace_mismatches));
 
+        // These instructions pass through to their children without ever
+        // reporting themselves, so the trace misses them whenever the
+        // template contains them
+        auto never_reported{sourcemeta::core::JSON::make_array()};
+        for (const auto type :
+             {sourcemeta::blaze::InstructionIndex::ControlGroup,
+              sourcemeta::blaze::InstructionIndex::ControlGroupWhenDefines,
+              sourcemeta::blaze::InstructionIndex::
+                  ControlGroupWhenDefinesDirect,
+              sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
+              sourcemeta::blaze::InstructionIndex::ControlEvaluate}) {
+          const auto index{std::to_underlying(type)};
+          if (statistics.by_type[index] > 0) {
+            never_reported.push_back(sourcemeta::core::JSON{
+                sourcemeta::blaze::INSTRUCTION_NAMES[index]});
+          }
+        }
+
+        const auto coverage_has_no_silent_types{never_reported.empty()};
         auto coverage{sourcemeta::core::JSON::make_object()};
         coverage.assign("complete", sourcemeta::core::JSON{
-                                        statistics.hidden_subtree_roots == 0});
+                                        statistics.hidden_subtree_roots == 0 &&
+                                        coverage_has_no_silent_types});
         coverage.assign("hidden_subtree_roots",
                         integer(statistics.hidden_subtree_roots));
         coverage.assign("hidden_static_instructions",
                         integer(statistics.hidden_instructions));
-        auto never_reported{sourcemeta::core::JSON::make_array()};
-        for (const auto *name : {"ControlGroup", "ControlGroupWhenDefines",
-                                 "ControlGroupWhenDefinesDirect",
-                                 "ControlGroupWhenType", "ControlEvaluate"}) {
-          never_reported.push_back(sourcemeta::core::JSON{name});
-        }
-
         coverage.assign("never_reported_types", std::move(never_reported));
         trace.assign("coverage", std::move(coverage));
         evaluation.assign("trace_step_counts", std::move(trace));
@@ -1063,6 +1074,12 @@ auto main(int argc, char **argv) noexcept -> int {
               "trace_step_counts are incomplete: the children of "
               "AssertionObjectPropertiesSimple, and any targets they jump to, "
               "are evaluated with the callback detached");
+        }
+        if (!coverage_has_no_silent_types) {
+          notes.emplace_back(
+              "trace_step_counts never include the instructions listed in "
+              "coverage.never_reported_types, which pass through to their "
+              "children without reporting themselves");
         }
         if (trace_mismatches > 0) {
           notes.emplace_back("Validation with the evaluation callback "
