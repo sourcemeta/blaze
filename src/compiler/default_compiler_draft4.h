@@ -13,8 +13,7 @@
 #include "compile_helpers.h"
 #include "default_compiler_draft3.h"
 
-namespace internal {
-using namespace sourcemeta::blaze;
+namespace sourcemeta::blaze {
 
 auto compiler_draft4_validation_required(const Context &context,
                                          const SchemaContext &schema_context,
@@ -23,16 +22,12 @@ auto compiler_draft4_validation_required(const Context &context,
     -> Instructions {
   // Draft 4 asks that `required` name at least one property, and the OpenAPI
   // 3.0 Schema Object, whose meta-schema is a Draft 4 document, asks the same
-  using Known = sourcemeta::core::SchemaVocabularies::Known;
-  const auto allows_empty{!schema_context.vocabularies.contains_any(
-      {Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
-       Known::OPENAPI_3_0_BASE})};
+  const auto allows_empty{!is_draft4(schema_context.vocabularies) &&
+                          !is_openapi_3_0(schema_context.vocabularies)};
   if (!is_string_array(schema_context.schema.at(dynamic_context.keyword)) ||
       (!allows_empty &&
        schema_context.schema.at(dynamic_context.keyword).empty())) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_PROPERTY_NAME_ARRAY);
+    throw_keyword_error(context, schema_context, EXPECTED_PROPERTY_NAME_ARRAY);
   }
 
   return compile_required_assertions(
@@ -50,9 +45,9 @@ auto compiler_draft4_applicator_allof(const Context &context,
   if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
                        booleans_are_schemas(schema_context.vocabularies),
                        allows_empty)) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        allows_empty ? EXPECTED_SCHEMA_ARRAY_ANY_SIZE : EXPECTED_SCHEMA_ARRAY);
+    throw_keyword_error(context, schema_context,
+                        allows_empty ? EXPECTED_SCHEMA_ARRAY
+                                     : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
   }
 
   Instructions children;
@@ -87,9 +82,8 @@ auto compiler_draft4_applicator_allof(const Context &context,
     return {};
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
-               schema_context, dynamic_context, ValueNone{},
-               std::move(children))};
+  return {make(InstructionIndex::LogicalAnd, context, schema_context,
+               dynamic_context, ValueNone{}, std::move(children))};
 }
 
 auto compiler_draft4_applicator_anyof(const Context &context,
@@ -101,17 +95,17 @@ auto compiler_draft4_applicator_anyof(const Context &context,
   if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
                        booleans_are_schemas(schema_context.vocabularies),
                        allows_empty)) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        allows_empty ? EXPECTED_SCHEMA_ARRAY_ANY_SIZE : EXPECTED_SCHEMA_ARRAY);
+    throw_keyword_error(context, schema_context,
+                        allows_empty ? EXPECTED_SCHEMA_ARRAY
+                                     : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
   }
 
   // A disjunction over no branches can never be satisfied. Only a dialect that
   // permits the empty array gets here, as the shape check above refuses it
   // everywhere else
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
+    return {make(InstructionIndex::AssertionFail, context, schema_context,
+                 dynamic_context, ValueNone{})};
   }
 
   Instructions disjunctors;
@@ -119,8 +113,8 @@ auto compiler_draft4_applicator_anyof(const Context &context,
        index < schema_context.schema.at(dynamic_context.keyword).size();
        index++) {
     disjunctors.push_back(make(
-        sourcemeta::blaze::InstructionIndex::ControlGroup, context,
-        schema_context, relative_dynamic_context(), ValueNone{},
+        InstructionIndex::ControlGroup, context, schema_context,
+        relative_dynamic_context(), ValueNone{},
         compile(
             context, schema_context, relative_dynamic_context(),
             {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})));
@@ -130,22 +124,21 @@ auto compiler_draft4_applicator_anyof(const Context &context,
       std::ranges::all_of(disjunctors, [](const auto &instruction) -> auto {
         return instruction.children.size() == 1 &&
                (instruction.children.front().type ==
-                    sourcemeta::blaze::InstructionIndex::AssertionTypeStrict ||
+                    InstructionIndex::AssertionTypeStrict ||
                 instruction.children.front().type ==
-                    sourcemeta::blaze::InstructionIndex::
-                        AssertionTypeStrictAny);
+                    InstructionIndex::AssertionTypeStrictAny);
       })) {
     ValueTypes types{};
     for (const auto &instruction : disjunctors) {
       if (instruction.children.front().type ==
-          sourcemeta::blaze::InstructionIndex::AssertionTypeStrict) {
+          InstructionIndex::AssertionTypeStrict) {
         const auto &value{
             *std::get_if<ValueType>(&instruction.children.front().value)};
         types.set(static_cast<std::uint8_t>(value));
       }
 
       if (instruction.children.front().type ==
-          sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny) {
+          InstructionIndex::AssertionTypeStrictAny) {
         const auto &value{
             *std::get_if<ValueTypes>(&instruction.children.front().value)};
         types |= value;
@@ -155,8 +148,8 @@ auto compiler_draft4_applicator_anyof(const Context &context,
     assert(types.any());
     const auto popcount{types.count()};
     if (popcount > 1) {
-      return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrictAny,
-                   context, schema_context, dynamic_context, types)};
+      return {make(InstructionIndex::AssertionTypeStrictAny, context,
+                   schema_context, dynamic_context, types)};
     }
     std::uint8_t type_index{0};
     for (std::uint8_t bit{0}; bit < 8; bit++) {
@@ -165,18 +158,17 @@ auto compiler_draft4_applicator_anyof(const Context &context,
         break;
       }
     }
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionTypeStrict,
-                 context, schema_context, dynamic_context,
-                 static_cast<ValueType>(type_index))};
+    return {make(InstructionIndex::AssertionTypeStrict, context, schema_context,
+                 dynamic_context, static_cast<ValueType>(type_index))};
   }
 
   const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
                                  context.collects_annotations ||
                                  requires_evaluation(context, schema_context)};
 
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalOr, context,
-               schema_context, dynamic_context,
-               ValueBoolean{requires_exhaustive}, std::move(disjunctors))};
+  return {make(InstructionIndex::LogicalOr, context, schema_context,
+               dynamic_context, ValueBoolean{requires_exhaustive},
+               std::move(disjunctors))};
 }
 
 // A disjunction branch is usually ruled out by a single discriminating
@@ -233,17 +225,17 @@ auto compiler_draft4_applicator_oneof(const Context &context,
   if (!is_schema_array(schema_context.schema.at(dynamic_context.keyword),
                        booleans_are_schemas(schema_context.vocabularies),
                        allows_empty)) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        allows_empty ? EXPECTED_SCHEMA_ARRAY_ANY_SIZE : EXPECTED_SCHEMA_ARRAY);
+    throw_keyword_error(context, schema_context,
+                        allows_empty ? EXPECTED_SCHEMA_ARRAY
+                                     : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
   }
 
   // A disjunction over no branches can never be satisfied. Only a dialect that
   // permits the empty array gets here, as the shape check above refuses it
   // everywhere else
   if (schema_context.schema.at(dynamic_context.keyword).empty()) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionFail, context,
-                 schema_context, dynamic_context, ValueNone{})};
+    return {make(InstructionIndex::AssertionFail, context, schema_context,
+                 dynamic_context, ValueNone{})};
   }
 
   Instructions disjunctors;
@@ -258,19 +250,18 @@ auto compiler_draft4_applicator_oneof(const Context &context,
       hoist_discriminator(branch);
     }
 
-    disjunctors.push_back(
-        make(sourcemeta::blaze::InstructionIndex::ControlGroup, context,
-             schema_context, relative_dynamic_context(), ValueNone{},
-             std::move(branch)));
+    disjunctors.push_back(make(InstructionIndex::ControlGroup, context,
+                               schema_context, relative_dynamic_context(),
+                               ValueNone{}, std::move(branch)));
   }
 
   const auto requires_exhaustive{context.mode == Mode::Exhaustive ||
                                  context.collects_annotations ||
                                  requires_evaluation(context, schema_context)};
 
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalXor, context,
-               schema_context, dynamic_context,
-               ValueBoolean{requires_exhaustive}, std::move(disjunctors))};
+  return {make(InstructionIndex::LogicalXor, context, schema_context,
+               dynamic_context, ValueBoolean{requires_exhaustive},
+               std::move(disjunctors))};
 }
 
 auto compiler_draft4_applicator_not(const Context &context,
@@ -297,13 +288,11 @@ auto compiler_draft4_applicator_not(const Context &context,
   // we can skip
   if (subschemas &&
       (requires_evaluation(context, schema_context) || track_items)) {
-    return {make(sourcemeta::blaze::InstructionIndex::LogicalNotEvaluate,
-                 context, schema_context, dynamic_context, ValueNone{},
-                 std::move(children))};
+    return {make(InstructionIndex::LogicalNotEvaluate, context, schema_context,
+                 dynamic_context, ValueNone{}, std::move(children))};
   }
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalNot, context,
-               schema_context, dynamic_context, ValueNone{},
-               std::move(children))};
+  return {make(InstructionIndex::LogicalNot, context, schema_context,
+               dynamic_context, ValueNone{}, std::move(children))};
 }
 
 auto compiler_draft4_validation_maxproperties(
@@ -314,8 +303,7 @@ auto compiler_draft4_validation_maxproperties(
       context, schema_context, dynamic_context,
       {.type = sourcemeta::core::JSON::Type::Object,
        .name = "object",
-       .instruction =
-           sourcemeta::blaze::InstructionIndex::AssertionObjectSizeLess});
+       .instruction = InstructionIndex::AssertionObjectSizeLess});
 }
 
 auto compiler_draft4_validation_minproperties(
@@ -326,9 +314,8 @@ auto compiler_draft4_validation_minproperties(
       context, schema_context, dynamic_context,
       {.type = sourcemeta::core::JSON::Type::Object,
        .name = "object",
-       .instruction =
-           sourcemeta::blaze::InstructionIndex::AssertionObjectSizeGreater});
+       .instruction = InstructionIndex::AssertionObjectSizeGreater});
 }
 
-} // namespace internal
+} // namespace sourcemeta::blaze
 #endif

@@ -8,17 +8,14 @@
 #include "compile_helpers.h"
 #include "default_compiler_draft4.h"
 
-namespace internal {
-using namespace sourcemeta::blaze;
+namespace sourcemeta::blaze {
 
 auto compiler_2019_09_applicator_dependentschemas(
     const Context &context, const SchemaContext &schema_context,
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_OBJECT);
+    throw_keyword_error(context, schema_context, EXPECTED_OBJECT);
   }
 
   if (!std::ranges::all_of(
@@ -27,9 +24,7 @@ auto compiler_2019_09_applicator_dependentschemas(
               const auto &entry) -> bool {
             return is_schema(entry.second, allow_boolean);
           })) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_SCHEMA_OBJECT);
+    throw_keyword_error(context, schema_context, EXPECTED_SCHEMA_OBJECT);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -56,11 +51,11 @@ auto compiler_2019_09_applicator_dependentschemas(
     }
 
     if (!dependency.is_boolean() || !dependency.to_boolean()) {
-      children.push_back(make(
-          sourcemeta::blaze::InstructionIndex::LogicalWhenDefines, context,
-          schema_context, relative_dynamic_context(), make_property(dependent),
-          compile(context, schema_context, relative_dynamic_context(),
-                  sourcemeta::blaze::make_weak_pointer(dependent))));
+      children.push_back(
+          make(InstructionIndex::LogicalWhenDefines, context, schema_context,
+               relative_dynamic_context(), make_property(dependent),
+               compile(context, schema_context, relative_dynamic_context(),
+                       make_weak_pointer(dependent))));
     }
   }
 
@@ -69,9 +64,9 @@ auto compiler_2019_09_applicator_dependentschemas(
   }
 
   // TODO: Is this wrapper really necessary?
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalWhenType, context,
-               schema_context, dynamic_context,
-               sourcemeta::core::JSON::Type::Object, std::move(children))};
+  return {make(InstructionIndex::LogicalWhenType, context, schema_context,
+               dynamic_context, sourcemeta::core::JSON::Type::Object,
+               std::move(children))};
 }
 
 auto compiler_2019_09_validation_dependentrequired(
@@ -79,9 +74,7 @@ auto compiler_2019_09_validation_dependentrequired(
     const DynamicContext &dynamic_context, const Instructions &)
     -> Instructions {
   if (!schema_context.schema.at(dynamic_context.keyword).is_object()) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_OBJECT);
+    throw_keyword_error(context, schema_context, EXPECTED_OBJECT);
   }
 
   if (!std::ranges::all_of(
@@ -89,9 +82,7 @@ auto compiler_2019_09_validation_dependentrequired(
           [](const auto &entry) -> bool {
             return is_string_array(entry.second);
           })) {
-    throw sourcemeta::blaze::CompilerError(
-        schema_context.base, absolute_schema_location(context, schema_context),
-        EXPECTED_DEPENDENCIES);
+    throw_keyword_error(context, schema_context, EXPECTED_DEPENDENCIES);
   }
 
   if (schema_context.schema.defines("type") &&
@@ -122,17 +113,16 @@ auto compiler_2019_09_validation_dependentrequired(
     return {};
   }
 
-  return {
-      make(sourcemeta::blaze::InstructionIndex::AssertionPropertyDependencies,
-           context, schema_context, dynamic_context, std::move(dependencies))};
+  return {make(InstructionIndex::AssertionPropertyDependencies, context,
+               schema_context, dynamic_context, std::move(dependencies))};
 }
 
 auto compiler_2019_09_core_annotation(const Context &context,
                                       const SchemaContext &schema_context,
                                       const DynamicContext &dynamic_context,
                                       const Instructions &) -> Instructions {
-  return {make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-               schema_context, dynamic_context,
+  return {make(InstructionIndex::AnnotationEmit, context, schema_context,
+               dynamic_context,
                sourcemeta::core::JSON{
                    schema_context.schema.at(dynamic_context.keyword)})};
 }
@@ -184,8 +174,8 @@ auto compiler_2019_09_applicator_contains_with_options(
   if (minimum_is_unreachable) {
     ValueTypes types;
     types.set(std::to_underlying(sourcemeta::core::JSON::Type::Array));
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionNotTypeStrictAny,
-                 context, schema_context, dynamic_context, types)};
+    return {make(InstructionIndex::AssertionNotTypeStrictAny, context,
+                 schema_context, dynamic_context, types)};
   }
 
   // An unsatisfiable range is deliberately left for the general check below,
@@ -203,9 +193,9 @@ auto compiler_2019_09_applicator_contains_with_options(
                                 sourcemeta::core::EMPTY_WEAK_POINTER)};
 
   if (annotate && annotations_enabled(context, dynamic_context.keyword)) {
-    children.push_back(
-        make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
-             context, schema_context, relative_dynamic_context(), ValueNone{}));
+    children.push_back(make(InstructionIndex::AnnotationBasenameToParent,
+                            context, schema_context, relative_dynamic_context(),
+                            ValueNone{}));
 
     // TODO: If after emitting the above annotation, the number of annotations
     // for the current schema location + instance location is equal to the
@@ -214,9 +204,9 @@ auto compiler_2019_09_applicator_contains_with_options(
   }
 
   if (track_evaluation) {
-    children.push_back(
-        make(sourcemeta::blaze::InstructionIndex::ControlEvaluate, context,
-             schema_context, relative_dynamic_context(), ValuePointer{}));
+    children.push_back(make(InstructionIndex::ControlEvaluate, context,
+                            schema_context, relative_dynamic_context(),
+                            ValuePointer{}));
   }
 
   // A trivial subschema matches every element, so the number of matches
@@ -225,13 +215,12 @@ auto compiler_2019_09_applicator_contains_with_options(
   // any higher minimum or any maximum needs the general range check, which
   // handles an empty subschema correctly on its own
   if (children.empty() && minimum == 1 && !maximum.has_value()) {
-    return {make(sourcemeta::blaze::InstructionIndex::AssertionArraySizeGreater,
-                 context, schema_context, dynamic_context,
-                 ValueUnsignedInteger{0})};
+    return {make(InstructionIndex::AssertionArraySizeGreater, context,
+                 schema_context, dynamic_context, ValueUnsignedInteger{0})};
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::LoopContains, context,
-               schema_context, dynamic_context,
+  return {make(InstructionIndex::LoopContains, context, schema_context,
+               dynamic_context,
                ValueRange{minimum, maximum, annotate || track_evaluation},
                std::move(children))};
 }
@@ -331,10 +320,9 @@ auto compiler_2019_09_applicator_unevaluateditems(
                                 sourcemeta::core::EMPTY_WEAK_POINTER)};
 
   if (annotations_enabled(context, dynamic_context.keyword)) {
-    children.push_back(
-        make(sourcemeta::blaze::InstructionIndex::AnnotationToParent, context,
-             schema_context, relative_dynamic_context(),
-             sourcemeta::core::JSON{true}));
+    children.push_back(make(InstructionIndex::AnnotationToParent, context,
+                            schema_context, relative_dynamic_context(),
+                            sourcemeta::core::JSON{true}));
   }
 
   if (children.empty()) {
@@ -346,17 +334,15 @@ auto compiler_2019_09_applicator_unevaluateditems(
     // An unconditional marker would record this instance as evaluated whatever
     // its type, so against a non-array it would wrongly suppress a sibling
     // `unevaluatedProperties`. An array-guarded marker only records arrays
-    return {make(sourcemeta::blaze::InstructionIndex::LoopItemsUnevaluated,
-                 context, schema_context, dynamic_context, ValueNone{},
-                 Instructions{})};
+    return {make(InstructionIndex::LoopItemsUnevaluated, context,
+                 schema_context, dynamic_context, ValueNone{}, Instructions{})};
   }
 
   // TODO: Attempt to short-circuit evaluation tracking by looking at sibling
   // and adjacent keywords like we do for `unevaluatedProperties`
 
-  return {make(sourcemeta::blaze::InstructionIndex::LoopItemsUnevaluated,
-               context, schema_context, dynamic_context, ValueNone{},
-               std::move(children))};
+  return {make(InstructionIndex::LoopItemsUnevaluated, context, schema_context,
+               dynamic_context, ValueNone{}, std::move(children))};
 }
 
 auto compiler_2019_09_applicator_unevaluatedproperties(
@@ -375,9 +361,9 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
                                 sourcemeta::core::EMPTY_WEAK_POINTER)};
 
   if (annotations_enabled(context, dynamic_context.keyword)) {
-    children.push_back(
-        make(sourcemeta::blaze::InstructionIndex::AnnotationBasenameToParent,
-             context, schema_context, relative_dynamic_context(), ValueNone{}));
+    children.push_back(make(InstructionIndex::AnnotationBasenameToParent,
+                            context, schema_context, relative_dynamic_context(),
+                            ValueNone{}));
   }
 
   ValueStringSet filter_strings;
@@ -413,8 +399,7 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
                 {.first = parse_regex(
                      property.first, context, schema_context.base,
                      schema_context.relative_pointer.initial().concat(
-                         sourcemeta::blaze::make_weak_pointer(
-                             PATTERN_PROPERTIES_KEYWORD))),
+                         make_weak_pointer(PATTERN_PROPERTIES_KEYWORD))),
                  .second = property.first});
           }
         }
@@ -432,38 +417,35 @@ auto compiler_2019_09_applicator_unevaluatedproperties(
     }
     if (!filter_strings.empty() || !filter_prefixes.empty() ||
         !filter_regexes.empty()) {
-      return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesExcept,
-                   context, schema_context, dynamic_context,
+      return {make(InstructionIndex::LoopPropertiesExcept, context,
+                   schema_context, dynamic_context,
                    ValuePropertyFilter{std::move(filter_strings),
                                        std::move(filter_prefixes),
                                        std::move(filter_regexes)},
                    std::move(children))};
     }
-    return {make(sourcemeta::blaze::InstructionIndex::LoopProperties, context,
-                 schema_context, dynamic_context, ValueNone{},
-                 std::move(children))};
+    return {make(InstructionIndex::LoopProperties, context, schema_context,
+                 dynamic_context, ValueNone{}, std::move(children))};
   }
 
   if (children.empty()) {
     // An unconditional marker would record this instance as evaluated whatever
     // its type, so against a non-object it would wrongly suppress a sibling
     // `unevaluatedItems`. An object-guarded marker only records objects
-    return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesEvaluate,
-                 context, schema_context, dynamic_context, ValueNone{},
-                 Instructions{})};
+    return {make(InstructionIndex::LoopPropertiesEvaluate, context,
+                 schema_context, dynamic_context, ValueNone{}, Instructions{})};
   }
   if (!filter_strings.empty() || !filter_prefixes.empty() ||
       !filter_regexes.empty()) {
-    return {make(
-        sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluatedExcept,
-        context, schema_context, dynamic_context,
-        ValuePropertyFilter{std::move(filter_strings),
-                            std::move(filter_prefixes),
-                            std::move(filter_regexes)},
-        std::move(children))};
+    return {make(InstructionIndex::LoopPropertiesUnevaluatedExcept, context,
+                 schema_context, dynamic_context,
+                 ValuePropertyFilter{std::move(filter_strings),
+                                     std::move(filter_prefixes),
+                                     std::move(filter_regexes)},
+                 std::move(children))};
   }
-  return {make(sourcemeta::blaze::InstructionIndex::LoopPropertiesUnevaluated,
-               context, schema_context, dynamic_context, ValueNone{},
+  return {make(InstructionIndex::LoopPropertiesUnevaluated, context,
+               schema_context, dynamic_context, ValueNone{},
                std::move(children))};
 }
 
@@ -482,8 +464,8 @@ auto compiler_2019_09_core_recursiveref(const Context &context,
                                     current);
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::ControlDynamicAnchorJump,
-               context, schema_context, dynamic_context, "")};
+  return {make(InstructionIndex::ControlDynamicAnchorJump, context,
+               schema_context, dynamic_context, "")};
 }
 
 auto compiler_2019_09_applicator_properties(
@@ -513,15 +495,14 @@ auto compiler_2019_09_content_contentencoding(
     return {};
   }
 
-  Instructions children{
-      make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-           schema_context, dynamic_context,
-           sourcemeta::core::JSON{
-               schema_context.schema.at(dynamic_context.keyword)})};
+  Instructions children{make(InstructionIndex::AnnotationEmit, context,
+                             schema_context, dynamic_context,
+                             sourcemeta::core::JSON{schema_context.schema.at(
+                                 dynamic_context.keyword)})};
 
-  return {make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
-               context, schema_context, relative_dynamic_context(),
-               ValueType::String, std::move(children))};
+  return {make(InstructionIndex::ControlGroupWhenType, context, schema_context,
+               relative_dynamic_context(), ValueType::String,
+               std::move(children))};
 }
 
 auto compiler_2019_09_content_contentmediatype(
@@ -532,15 +513,14 @@ auto compiler_2019_09_content_contentmediatype(
     return {};
   }
 
-  Instructions children{
-      make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-           schema_context, dynamic_context,
-           sourcemeta::core::JSON{
-               schema_context.schema.at(dynamic_context.keyword)})};
+  Instructions children{make(InstructionIndex::AnnotationEmit, context,
+                             schema_context, dynamic_context,
+                             sourcemeta::core::JSON{schema_context.schema.at(
+                                 dynamic_context.keyword)})};
 
-  return {make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
-               context, schema_context, relative_dynamic_context(),
-               ValueType::String, std::move(children))};
+  return {make(InstructionIndex::ControlGroupWhenType, context, schema_context,
+               relative_dynamic_context(), ValueType::String,
+               std::move(children))};
 }
 
 auto compiler_2019_09_content_contentschema(
@@ -556,16 +536,15 @@ auto compiler_2019_09_content_contentschema(
     return {};
   }
 
-  Instructions children{
-      make(sourcemeta::blaze::InstructionIndex::AnnotationEmit, context,
-           schema_context, dynamic_context,
-           sourcemeta::core::JSON{
-               schema_context.schema.at(dynamic_context.keyword)})};
+  Instructions children{make(InstructionIndex::AnnotationEmit, context,
+                             schema_context, dynamic_context,
+                             sourcemeta::core::JSON{schema_context.schema.at(
+                                 dynamic_context.keyword)})};
 
-  return {make(sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
-               context, schema_context, relative_dynamic_context(),
-               ValueType::String, std::move(children))};
+  return {make(InstructionIndex::ControlGroupWhenType, context, schema_context,
+               relative_dynamic_context(), ValueType::String,
+               std::move(children))};
 }
 
-} // namespace internal
+} // namespace sourcemeta::blaze
 #endif

@@ -5,8 +5,7 @@
 
 #include "compile_helpers.h"
 
-namespace internal {
-using namespace sourcemeta::blaze;
+namespace sourcemeta::blaze {
 
 // TODO: Don't generate `if` if neither `then` nor `else` is defined
 auto compiler_draft7_applicator_if(const Context &context,
@@ -56,8 +55,7 @@ auto compiler_draft7_applicator_if(const Context &context,
           .base = schema_context.base,
           .is_property_name = schema_context.is_property_name};
       return {make(
-          sourcemeta::blaze::InstructionIndex::LogicalAnd, context,
-          then_schema_context,
+          InstructionIndex::LogicalAnd, context, then_schema_context,
           {.keyword = KEYWORD_THEN,
            .base_schema_location = dynamic_context.base_schema_location,
            .base_instance_location = dynamic_context.base_instance_location},
@@ -118,9 +116,9 @@ auto compiler_draft7_applicator_if(const Context &context,
     }
   }
 
-  return {make(sourcemeta::blaze::InstructionIndex::LogicalCondition, context,
-               schema_context, dynamic_context,
-               ValueIndexPair{then_cursor, else_cursor}, std::move(children))};
+  return {make(InstructionIndex::LogicalCondition, context, schema_context,
+               dynamic_context, ValueIndexPair{then_cursor, else_cursor},
+               std::move(children))};
 }
 
 // We handle `then` as part of `if`
@@ -141,5 +139,5 @@ auto compiler_draft7_applicator_else(const Context &, const SchemaContext &,
   return {};
 }
 
-} // namespace internal
+} // namespace sourcemeta::blaze
 #endif
