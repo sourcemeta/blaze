@@ -2138,9 +2138,7 @@ TEST(nested_independent_compilation_accepts_null_fast) {
 
   std::optional<sourcemeta::blaze::Template> nested;
   auto nesting_compiler =
-      [&nested](const sourcemeta::blaze::Context &context,
-                const sourcemeta::blaze::SchemaContext &schema_context,
-                const sourcemeta::blaze::DynamicContext &dynamic_context,
+      [&nested](const sourcemeta::blaze::KeywordContext &context,
                 const sourcemeta::blaze::Instructions &current)
       -> sourcemeta::blaze::Instructions {
     if (!nested.has_value()) {
@@ -2155,8 +2153,7 @@ TEST(nested_independent_compilation_accepts_null_fast) {
           sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT);
     }
 
-    return sourcemeta::blaze::default_schema_compiler(context, schema_context,
-                                                      dynamic_context, current);
+    return sourcemeta::blaze::default_schema_compiler(context, current);
   };
 
   [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
@@ -2184,9 +2181,7 @@ TEST(nested_independent_compilation_accepts_an_integer_fast) {
 
   std::optional<sourcemeta::blaze::Template> nested;
   auto nesting_compiler =
-      [&nested](const sourcemeta::blaze::Context &context,
-                const sourcemeta::blaze::SchemaContext &schema_context,
-                const sourcemeta::blaze::DynamicContext &dynamic_context,
+      [&nested](const sourcemeta::blaze::KeywordContext &context,
                 const sourcemeta::blaze::Instructions &current)
       -> sourcemeta::blaze::Instructions {
     if (!nested.has_value()) {
@@ -2201,8 +2196,7 @@ TEST(nested_independent_compilation_accepts_an_integer_fast) {
           sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT);
     }
 
-    return sourcemeta::blaze::default_schema_compiler(context, schema_context,
-                                                      dynamic_context, current);
+    return sourcemeta::blaze::default_schema_compiler(context, current);
   };
 
   [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
@@ -2230,9 +2224,7 @@ TEST(nested_independent_compilation_rejects_a_string_fast) {
 
   std::optional<sourcemeta::blaze::Template> nested;
   auto nesting_compiler =
-      [&nested](const sourcemeta::blaze::Context &context,
-                const sourcemeta::blaze::SchemaContext &schema_context,
-                const sourcemeta::blaze::DynamicContext &dynamic_context,
+      [&nested](const sourcemeta::blaze::KeywordContext &context,
                 const sourcemeta::blaze::Instructions &current)
       -> sourcemeta::blaze::Instructions {
     if (!nested.has_value()) {
@@ -2247,8 +2239,7 @@ TEST(nested_independent_compilation_rejects_a_string_fast) {
           sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT);
     }
 
-    return sourcemeta::blaze::default_schema_compiler(context, schema_context,
-                                                      dynamic_context, current);
+    return sourcemeta::blaze::default_schema_compiler(context, current);
   };
 
   [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
@@ -2276,9 +2267,7 @@ TEST(nested_independent_compilation_matches_a_standalone_compilation_fast) {
 
   std::optional<sourcemeta::blaze::Template> nested;
   auto nesting_compiler =
-      [&nested](const sourcemeta::blaze::Context &context,
-                const sourcemeta::blaze::SchemaContext &schema_context,
-                const sourcemeta::blaze::DynamicContext &dynamic_context,
+      [&nested](const sourcemeta::blaze::KeywordContext &context,
                 const sourcemeta::blaze::Instructions &current)
       -> sourcemeta::blaze::Instructions {
     if (!nested.has_value()) {
@@ -2293,8 +2282,7 @@ TEST(nested_independent_compilation_matches_a_standalone_compilation_fast) {
           sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT);
     }
 
-    return sourcemeta::blaze::default_schema_compiler(context, schema_context,
-                                                      dynamic_context, current);
+    return sourcemeta::blaze::default_schema_compiler(context, current);
   };
 
   [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
