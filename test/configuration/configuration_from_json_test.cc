@@ -48,7 +48,7 @@ TEST(valid_1) {
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::path{TEST_DIRECTORY} / "schemas");
   EXPECT_TRUE(manifest.absolute_path_explicit);
-  EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com");
+  EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com/");
   EXPECT_TRUE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.default_dialect.value(),
             "http://json-schema.org/draft-07/schema#");

@@ -534,32 +534,32 @@ TEST(vocabulary_of_a_subschema_under_a_property_named_after_a_keyword) {
 
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 0, Push, "LogicalWhenType", "", "/properties",
-      "https://example.com#/properties", std::nullopt,
+      "https://example.com/#/properties", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 1, Push, "LogicalOr", "/type", "/properties/type/anyOf",
-      "https://example.com#/properties/type/anyOf", std::nullopt,
+      "https://example.com/#/properties/type/anyOf", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 2, Push, "AssertionStringSizeGreater", "/type",
       "/properties/type/anyOf/0/minLength",
-      "https://example.com#/properties/type/anyOf/0/minLength", std::nullopt,
+      "https://example.com/#/properties/type/anyOf/0/minLength", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/validation");
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 3, Pass, "AssertionStringSizeGreater", "/type",
       "/properties/type/anyOf/0/minLength",
-      "https://example.com#/properties/type/anyOf/0/minLength", std::nullopt,
+      "https://example.com/#/properties/type/anyOf/0/minLength", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/validation");
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 4, Pass, "LogicalOr", "/type", "/properties/type/anyOf",
-      "https://example.com#/properties/type/anyOf", std::nullopt,
+      "https://example.com/#/properties/type/anyOf", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 5, Annotation, "AnnotationEmitWrapped", "", "/properties",
-      "https://example.com#/properties", sourcemeta::core::JSON{"type"},
+      "https://example.com/#/properties", sourcemeta::core::JSON{"type"},
       "https://json-schema.org/draft/2020-12/vocab/applicator");
   EXPECT_OUTPUT_WITH_VOCABULARY(
       traces, 6, Pass, "LogicalWhenType", "", "/properties",
-      "https://example.com#/properties", std::nullopt,
+      "https://example.com/#/properties", std::nullopt,
       "https://json-schema.org/draft/2020-12/vocab/applicator");
 }

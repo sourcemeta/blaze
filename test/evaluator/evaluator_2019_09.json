@@ -1270,10 +1270,10 @@
     "fast": {},
     "exhaustive": {
       "pre": [
-        [ "Annotation", "/title", "https://example.com#/title", "" ]
+        [ "Annotation", "/title", "https://example.com/#/title", "" ]
       ],
       "post": [
-        [ true, "Annotation", "/title", "https://example.com#/title", "", "My title" ]
+        [ true, "Annotation", "/title", "https://example.com/#/title", "", "My title" ]
       ],
       "descriptions": [
         "The title of the instance was \"My title\""
@@ -4234,10 +4234,10 @@
     "fast": {},
     "exhaustive": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+        [ "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
       ],
       "post": [
-        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+        [ true, "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
       ],
       "descriptions": [
         "The integer value was expected to validate against the referenced schema"
@@ -5073,10 +5073,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string"
@@ -5084,12 +5084,12 @@
     },
     "exhaustive": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ],
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ],
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ],
-        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ],
+        [ true, "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
@@ -5109,10 +5109,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string"
@@ -5120,12 +5120,12 @@
     },
     "exhaustive": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ],
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ],
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ],
-        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ],
+        [ true, "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
@@ -13522,20 +13522,20 @@
     "fast": {},
     "exhaustive": {
       "pre": [
-        [ "LoopPropertiesRegex", "/patternProperties", "https://example.com#/patternProperties", "" ],
-        [ "Annotation", "/patternProperties", "https://example.com#/patternProperties", "" ],
-        [ "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
-        [ "Annotation", "/properties", "https://example.com#/properties", "" ],
-        [ "LoopPropertiesExcept", "/additionalProperties", "https://example.com#/additionalProperties", "" ],
-        [ "Annotation", "/additionalProperties", "https://example.com#/additionalProperties", "" ]
+        [ "LoopPropertiesRegex", "/patternProperties", "https://example.com/#/patternProperties", "" ],
+        [ "Annotation", "/patternProperties", "https://example.com/#/patternProperties", "" ],
+        [ "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ],
+        [ "Annotation", "/properties", "https://example.com/#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "https://example.com/#/additionalProperties", "" ],
+        [ "Annotation", "/additionalProperties", "https://example.com/#/additionalProperties", "" ]
       ],
       "post": [
-        [ true, "Annotation", "/patternProperties", "https://example.com#/patternProperties", "", "@a" ],
-        [ true, "LoopPropertiesRegex", "/patternProperties", "https://example.com#/patternProperties", "" ],
-        [ true, "Annotation", "/properties", "https://example.com#/properties", "", "foo" ],
-        [ true, "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
-        [ true, "Annotation", "/additionalProperties", "https://example.com#/additionalProperties", "", "z" ],
-        [ true, "LoopPropertiesExcept", "/additionalProperties", "https://example.com#/additionalProperties", "" ]
+        [ true, "Annotation", "/patternProperties", "https://example.com/#/patternProperties", "", "@a" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "https://example.com/#/patternProperties", "" ],
+        [ true, "Annotation", "/properties", "https://example.com/#/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ],
+        [ true, "Annotation", "/additionalProperties", "https://example.com/#/additionalProperties", "", "z" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "https://example.com/#/additionalProperties", "" ]
       ],
       "descriptions": [
         "The object property \"@a\" successfully validated against its pattern property subschema",
@@ -13569,20 +13569,20 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://example.com#/$ref", "" ],
+        [ "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
         [ "ControlDynamicAnchorJump", "/$ref/properties/branches/$recursiveRef", "https://example.com/tree#/properties/branches/$recursiveRef", "/branches" ],
-        [ "ControlJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com#/$ref", "/branches" ],
-        [ "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com#/properties", "/branches/name" ],
+        [ "ControlJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com/#/$ref", "/branches" ],
+        [ "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches/name" ],
         [ "LoopPropertiesUnevaluated", "/$ref/properties/branches/unevaluatedProperties", "https://example.com/tree#/properties/branches/unevaluatedProperties", "/branches" ],
         [ "Evaluate", "/$ref/properties", "https://example.com/tree#/properties", "/branches" ]
       ],
       "post": [
-        [ true, "ControlJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com#/$ref", "/branches" ],
-        [ true, "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com#/properties", "/branches/name" ],
+        [ true, "ControlJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com/#/$ref", "/branches" ],
+        [ true, "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches/name" ],
         [ true, "ControlDynamicAnchorJump", "/$ref/properties/branches/$recursiveRef", "https://example.com/tree#/properties/branches/$recursiveRef", "/branches" ],
         [ true, "LoopPropertiesUnevaluated", "/$ref/properties/branches/unevaluatedProperties", "https://example.com/tree#/properties/branches/unevaluatedProperties", "/branches" ],
         [ true, "Evaluate", "/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
-        [ true, "ControlJump", "/$ref", "https://example.com#/$ref", "" ]
+        [ true, "ControlJump", "/$ref", "https://example.com/#/$ref", "" ]
       ],
       "descriptions": [
         "The object value was expected to validate against the referenced schema",
@@ -13595,32 +13595,32 @@
     },
     "exhaustive": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://example.com#/$ref", "" ],
+        [ "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
         [ "LogicalWhenType", "/$ref/properties", "https://example.com/tree#/properties", "" ],
         [ "ControlDynamicAnchorJump", "/$ref/properties/branches/$recursiveRef", "https://example.com/tree#/properties/branches/$recursiveRef", "/branches" ],
-        [ "ControlJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com#/$ref", "/branches" ],
+        [ "ControlJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com/#/$ref", "/branches" ],
         [ "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
-        [ "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com#/properties", "/branches" ],
-        [ "Annotation", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com#/properties", "/branches" ],
-        [ "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com#/properties", "/branches/name" ],
+        [ "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches" ],
+        [ "Annotation", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches" ],
+        [ "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches/name" ],
         [ "LoopPropertiesUnevaluated", "/$ref/properties/branches/unevaluatedProperties", "https://example.com/tree#/properties/branches/unevaluatedProperties", "/branches" ],
         [ "Annotation", "/$ref/properties", "https://example.com/tree#/properties", "" ],
         [ "Evaluate", "/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
-        [ "LogicalWhenType", "/properties", "https://example.com#/properties", "" ]
+        [ "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ]
       ],
       "post": [
         [ true, "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
-        [ true, "ControlJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com#/$ref", "/branches" ],
-        [ true, "Annotation", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com#/properties", "/branches", "name" ],
-        [ true, "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com#/properties", "/branches/name" ],
-        [ true, "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com#/properties", "/branches" ],
+        [ true, "ControlJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com/#/$ref", "/branches" ],
+        [ true, "Annotation", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches", "name" ],
+        [ true, "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches/name" ],
+        [ true, "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches" ],
         [ true, "ControlDynamicAnchorJump", "/$ref/properties/branches/$recursiveRef", "https://example.com/tree#/properties/branches/$recursiveRef", "/branches" ],
         [ true, "LoopPropertiesUnevaluated", "/$ref/properties/branches/unevaluatedProperties", "https://example.com/tree#/properties/branches/unevaluatedProperties", "/branches" ],
         [ true, "Annotation", "/$ref/properties", "https://example.com/tree#/properties", "", "branches" ],
         [ true, "Evaluate", "/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
         [ true, "LogicalWhenType", "/$ref/properties", "https://example.com/tree#/properties", "" ],
-        [ true, "ControlJump", "/$ref", "https://example.com#/$ref", "" ],
-        [ true, "LogicalWhenType", "/properties", "https://example.com#/properties", "" ]
+        [ true, "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
+        [ true, "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ]
       ],
       "descriptions": [
         "The object value was expected to validate against the single defined property subschema",
@@ -13773,18 +13773,18 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://example.com#/$ref", "" ],
+        [ "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
         [ "AssertionArrayPrefixEvaluate", "/$ref/items", "https://example.com/test#/items", "" ],
         [ "ControlJump", "/$ref/items/0/$ref", "https://example.com/test#/items/0/$ref", "/0" ],
         [ "AssertionArrayPrefixEvaluate", "/$ref/items/0/$ref/items", "https://example.com/test#/items", "/0" ],
-        [ "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com#/unevaluatedItems", "" ]
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/#/unevaluatedItems", "" ]
       ],
       "post": [
         [ true, "AssertionArrayPrefixEvaluate", "/$ref/items/0/$ref/items", "https://example.com/test#/items", "/0" ],
         [ true, "ControlJump", "/$ref/items/0/$ref", "https://example.com/test#/items/0/$ref", "/0" ],
         [ true, "AssertionArrayPrefixEvaluate", "/$ref/items", "https://example.com/test#/items", "" ],
-        [ true, "ControlJump", "/$ref", "https://example.com#/$ref", "" ],
-        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com#/unevaluatedItems", "" ]
+        [ true, "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/#/unevaluatedItems", "" ]
       ],
       "descriptions": [
         "The first item of the array value was expected to validate against the corresponding subschemas",
@@ -13796,13 +13796,13 @@
     },
     "exhaustive": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://example.com#/$ref", "" ],
+        [ "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
         [ "AssertionArrayPrefixEvaluate", "/$ref/items", "https://example.com/test#/items", "" ],
         [ "ControlJump", "/$ref/items/0/$ref", "https://example.com/test#/items/0/$ref", "/0" ],
         [ "AssertionArrayPrefixEvaluate", "/$ref/items/0/$ref/items", "https://example.com/test#/items", "/0" ],
         [ "Annotation", "/$ref/items", "https://example.com/test#/items", "" ],
         [ "Annotation", "/$ref/items", "https://example.com/test#/items", "" ],
-        [ "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com#/unevaluatedItems", "" ]
+        [ "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/#/unevaluatedItems", "" ]
       ],
       "post": [
         [ true, "AssertionArrayPrefixEvaluate", "/$ref/items/0/$ref/items", "https://example.com/test#/items", "/0" ],
@@ -13810,8 +13810,8 @@
         [ true, "Annotation", "/$ref/items", "https://example.com/test#/items", "", 0 ],
         [ true, "Annotation", "/$ref/items", "https://example.com/test#/items", "", true ],
         [ true, "AssertionArrayPrefixEvaluate", "/$ref/items", "https://example.com/test#/items", "" ],
-        [ true, "ControlJump", "/$ref", "https://example.com#/$ref", "" ],
-        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com#/unevaluatedItems", "" ]
+        [ true, "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
+        [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/#/unevaluatedItems", "" ]
       ],
       "descriptions": [
         "The first item of the array value was expected to validate against the corresponding subschemas",
