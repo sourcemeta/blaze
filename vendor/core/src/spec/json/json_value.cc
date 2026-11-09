@@ -960,7 +960,7 @@ auto JSON::operator-=(const JSON &substractive) -> JSON & {
       this->data_string};
 }
 
-[[nodiscard]] auto JSON::at_or(const String &key, const Object::hash_type hash,
+[[nodiscard]] auto JSON::at_or(const String &key, const Object::hash_type &hash,
                                const JSON &otherwise) const -> const JSON & {
   assert(this->is_object());
   const auto *const result{this->try_at(key, hash)};
@@ -1330,7 +1330,7 @@ auto JSON::assign_assume_new(JSON::String &&key, JSON &&value) -> void {
 }
 
 auto JSON::assign_assume_new(JSON::String &&key, JSON &&value,
-                             Object::hash_type hash) -> JSON & {
+                             const Object::hash_type &hash) -> JSON & {
   assert(this->is_object());
   return this->data_object.emplace_assume_new(std::move(key), std::move(value),
                                               hash);

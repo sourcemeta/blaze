@@ -1377,24 +1377,6 @@ auto bundle_internal(JSON &schema, const SchemaWalker &walker,
                                remaining, callback);
 }
 
-// A limit error that the caller's own resolver or callback raised carries an
-// allowance of theirs rather than the one set for this operation, so marking
-// it on the way out is what keeps it from being restated as this one
-struct ForeignFrameLimitError {
-  SchemaFrameLimitError error;
-};
-
-auto guard_resolver(const SchemaResolver &resolver) -> SchemaResolver {
-  return
-      [&resolver](const std::string_view identifier) -> SchemaResolverResult {
-        try {
-          return resolver(identifier);
-        } catch (const SchemaFrameLimitError &error) {
-          throw ForeignFrameLimitError{error};
-        }
-      };
-}
-
 auto guard_callback(const SchemaBundleOptions::Callback &callback)
     -> SchemaBundleOptions::Callback {
   if (!callback) {
@@ -1420,10 +1402,10 @@ auto schema_bundle(JSON &schema, const SchemaWalker &walker,
                    const SchemaBundleOptions &options) -> std::uint64_t {
   auto remaining{options.max_locations};
   try {
-    bundle_internal(schema, walker, guard_resolver(resolver), options.mode,
-                    default_dialect, default_id, options.default_container,
-                    options.paths, options.default_base, remaining,
-                    guard_callback(options.callback));
+    bundle_internal(
+        schema, walker, resolver_within_allowance(resolver), options.mode,
+        default_dialect, default_id, options.default_container, options.paths,
+        options.default_base, remaining, guard_callback(options.callback));
   } catch (const ForeignFrameLimitError &foreign) {
     throw foreign.error;
   } catch (const SchemaFrameLimitError &) {
