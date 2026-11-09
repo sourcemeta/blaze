@@ -665,10 +665,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string"
@@ -676,14 +676,14 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalAnd", "/allOf", "https://www.example.com#/allOf", "" ],
-        [ "ControlJump", "/allOf/0/$ref", "https://www.example.com#/allOf/0/$ref", "" ],
-        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+        [ "LogicalAnd", "/allOf", "https://www.example.com/#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "https://www.example.com/#/allOf/0/$ref", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ],
-        [ true, "ControlJump", "/allOf/0/$ref", "https://www.example.com#/allOf/0/$ref", "" ],
-        [ true, "LogicalAnd", "/allOf", "https://www.example.com#/allOf", "" ]
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com/#/definitions/test/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "https://www.example.com/#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "https://www.example.com/#/allOf", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
@@ -704,10 +704,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string"
@@ -715,14 +715,14 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalAnd", "/allOf", "https://www.example.com#/allOf", "" ],
-        [ "ControlJump", "/allOf/0/$ref", "https://www.example.com#/allOf/0/$ref", "" ],
-        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ]
+        [ "LogicalAnd", "/allOf", "https://www.example.com/#/allOf", "" ],
+        [ "ControlJump", "/allOf/0/$ref", "https://www.example.com/#/allOf/0/$ref", "" ],
+        [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com#/definitions/test/type", "" ],
-        [ true, "ControlJump", "/allOf/0/$ref", "https://www.example.com#/allOf/0/$ref", "" ],
-        [ true, "LogicalAnd", "/allOf", "https://www.example.com#/allOf", "" ]
+        [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://www.example.com/#/definitions/test/type", "" ],
+        [ true, "ControlJump", "/allOf/0/$ref", "https://www.example.com/#/allOf/0/$ref", "" ],
+        [ true, "LogicalAnd", "/allOf", "https://www.example.com/#/allOf", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",

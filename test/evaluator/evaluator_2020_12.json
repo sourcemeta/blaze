@@ -1477,10 +1477,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/items/type", "" ]
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/items/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/items/type", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/items/type", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string"
@@ -1489,10 +1489,10 @@
     "exhaustive": {
       "pre": [
         [ "ControlJump", "/$ref", "#/$ref", "" ],
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/items/type", "" ]
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/items/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/items/type", "" ],
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/items/type", "" ],
         [ true, "ControlJump", "/$ref", "#/$ref", "" ]
       ],
       "descriptions": [
@@ -1577,10 +1577,10 @@
     "fast": {},
     "exhaustive": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+        [ "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
       ],
       "post": [
-        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+        [ true, "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
       ],
       "descriptions": [
         "The integer value was expected to validate against the referenced schema"
@@ -4278,10 +4278,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string"
@@ -4289,12 +4289,12 @@
     },
     "exhaustive": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ],
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ],
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ],
-        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ],
+        [ true, "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
@@ -4314,10 +4314,10 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string"
@@ -4325,12 +4325,12 @@
     },
     "exhaustive": {
       "pre": [
-        [ "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ],
-        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ]
+        [ "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ],
+        [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ]
       ],
       "post": [
-        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com#/$defs/test/type", "" ],
-        [ true, "ControlJump", "/$ref", "https://www.example.com#/$ref", "" ]
+        [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/$defs/test/type", "" ],
+        [ true, "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type string",
@@ -15655,20 +15655,20 @@
     "fast": {},
     "exhaustive": {
       "pre": [
-        [ "LoopPropertiesRegex", "/patternProperties", "https://example.com#/patternProperties", "" ],
-        [ "Annotation", "/patternProperties", "https://example.com#/patternProperties", "" ],
-        [ "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
-        [ "Annotation", "/properties", "https://example.com#/properties", "" ],
-        [ "LoopPropertiesExcept", "/additionalProperties", "https://example.com#/additionalProperties", "" ],
-        [ "Annotation", "/additionalProperties", "https://example.com#/additionalProperties", "" ]
+        [ "LoopPropertiesRegex", "/patternProperties", "https://example.com/#/patternProperties", "" ],
+        [ "Annotation", "/patternProperties", "https://example.com/#/patternProperties", "" ],
+        [ "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ],
+        [ "Annotation", "/properties", "https://example.com/#/properties", "" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "https://example.com/#/additionalProperties", "" ],
+        [ "Annotation", "/additionalProperties", "https://example.com/#/additionalProperties", "" ]
       ],
       "post": [
-        [ true, "Annotation", "/patternProperties", "https://example.com#/patternProperties", "", "@a" ],
-        [ true, "LoopPropertiesRegex", "/patternProperties", "https://example.com#/patternProperties", "" ],
-        [ true, "Annotation", "/properties", "https://example.com#/properties", "", "foo" ],
-        [ true, "LogicalWhenType", "/properties", "https://example.com#/properties", "" ],
-        [ true, "Annotation", "/additionalProperties", "https://example.com#/additionalProperties", "", "z" ],
-        [ true, "LoopPropertiesExcept", "/additionalProperties", "https://example.com#/additionalProperties", "" ]
+        [ true, "Annotation", "/patternProperties", "https://example.com/#/patternProperties", "", "@a" ],
+        [ true, "LoopPropertiesRegex", "/patternProperties", "https://example.com/#/patternProperties", "" ],
+        [ true, "Annotation", "/properties", "https://example.com/#/properties", "", "foo" ],
+        [ true, "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ],
+        [ true, "Annotation", "/additionalProperties", "https://example.com/#/additionalProperties", "", "z" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "https://example.com/#/additionalProperties", "" ]
       ],
       "descriptions": [
         "The object property \"@a\" successfully validated against its pattern property subschema",
@@ -16077,16 +16077,16 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com#/$dynamicRef", "" ],
-        [ "ControlJump", "/$dynamicRef/$ref", "https://example.com#/$defs/bar/$ref", "" ],
+        [ "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/#/$dynamicRef", "" ],
+        [ "ControlJump", "/$dynamicRef/$ref", "https://example.com/#/$defs/bar/$ref", "" ],
         [ "Evaluate", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "/foo" ],
-        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com#/unevaluatedProperties", "" ]
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com/#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "Evaluate", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "/foo" ],
-        [ true, "ControlJump", "/$dynamicRef/$ref", "https://example.com#/$defs/bar/$ref", "" ],
-        [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com#/$dynamicRef", "" ],
-        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com#/unevaluatedProperties", "" ]
+        [ true, "ControlJump", "/$dynamicRef/$ref", "https://example.com/#/$defs/bar/$ref", "" ],
+        [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/#/$dynamicRef", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com/#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
         "The instance location was marked as evaluated",
@@ -16097,20 +16097,20 @@
     },
     "exhaustive": {
       "pre": [
-        [ "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com#/$dynamicRef", "" ],
-        [ "ControlJump", "/$dynamicRef/$ref", "https://example.com#/$defs/bar/$ref", "" ],
+        [ "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/#/$dynamicRef", "" ],
+        [ "ControlJump", "/$dynamicRef/$ref", "https://example.com/#/$defs/bar/$ref", "" ],
         [ "LogicalWhenType", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "" ],
         [ "Annotation", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "" ],
         [ "Evaluate", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "/foo" ],
-        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com#/unevaluatedProperties", "" ]
+        [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com/#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "Annotation", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "", "foo" ],
         [ true, "Evaluate", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "/foo" ],
         [ true, "LogicalWhenType", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "" ],
-        [ true, "ControlJump", "/$dynamicRef/$ref", "https://example.com#/$defs/bar/$ref", "" ],
-        [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com#/$dynamicRef", "" ],
-        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com#/unevaluatedProperties", "" ]
+        [ true, "ControlJump", "/$dynamicRef/$ref", "https://example.com/#/$defs/bar/$ref", "" ],
+        [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/#/$dynamicRef", "" ],
+        [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com/#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
         "The object property \"foo\" successfully validated against its property subschema",

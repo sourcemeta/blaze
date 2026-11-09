@@ -290,7 +290,7 @@ TEST(pattern_6) {
     EXPECT_EQ(error.regex(), "^[a-zA-Z0-9\\/\\_]{1,32}$");
     EXPECT_EQ(error.location(),
               sourcemeta::core::Pointer({"properties", "foo", "pattern"}));
-    EXPECT_EQ(error.base().recompose(), "https://nested.com");
+    EXPECT_EQ(error.base().recompose(), "https://nested.com/");
   } catch (...) {
     FAIL();
   }
@@ -317,7 +317,7 @@ TEST(pattern_7) {
     EXPECT_EQ(error.regex(), "(");
     EXPECT_EQ(error.location(),
               sourcemeta::core::Pointer({"properties", "foo", "pattern"}));
-    EXPECT_EQ(error.base().recompose(), "https://nested.com");
+    EXPECT_EQ(error.base().recompose(), "https://nested.com/");
   } catch (...) {
     FAIL();
   }

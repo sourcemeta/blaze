@@ -50,8 +50,8 @@ TEST(read_json_valid_1) {
   EXPECT_EQ(manifest.absolute_path,
             std::filesystem::path{ROOT_NAME "/test"} / "schemas");
   EXPECT_TRUE(manifest.absolute_path_explicit);
-  EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com");
-  EXPECT_EQ(manifest.base_uri.recompose(), "https://schemas.sourcemeta.com");
+  EXPECT_EQ(manifest.base, "https://schemas.sourcemeta.com/");
+  EXPECT_EQ(manifest.base_uri.recompose(), "https://schemas.sourcemeta.com/");
   EXPECT_TRUE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.default_dialect.value(),
             "http://json-schema.org/draft-07/schema#");
@@ -83,8 +83,8 @@ TEST(read_json_valid_without_path) {
   EXPECT_FALSE(manifest.website.has_value());
   EXPECT_EQ(manifest.absolute_path, std::filesystem::path{ROOT_NAME "/test"});
   EXPECT_FALSE(manifest.absolute_path_explicit);
-  EXPECT_EQ(manifest.base, "https://example.com");
-  EXPECT_EQ(manifest.base_uri.recompose(), "https://example.com");
+  EXPECT_EQ(manifest.base, "https://example.com/");
+  EXPECT_EQ(manifest.base_uri.recompose(), "https://example.com/");
   EXPECT_FALSE(manifest.default_dialect.has_value());
   EXPECT_EQ(manifest.resolve.size(), 0);
   EXPECT_EQ(manifest.extra.size(), 0);
@@ -201,7 +201,7 @@ TEST(to_json_roundtrip) {
     "email": "hello@sourcemeta.com",
     "github": "sourcemeta",
     "website": "https://www.sourcemeta.com",
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "defaultDialect": "http://json-schema.org/draft-07/schema#",
     "path": ")JSON" ROOT_NAME R"JSON(/test/schemas",
     "x-foo": "bar"
@@ -217,7 +217,7 @@ TEST(to_json_roundtrip) {
 TEST(to_json_roundtrip_without_path) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "title": "Test Project",
-    "baseUri": "https://schemas.sourcemeta.com"
+    "baseUri": "https://schemas.sourcemeta.com/"
   })JSON")};
 
   const auto config{
@@ -230,7 +230,7 @@ TEST(to_json_roundtrip_without_path) {
 
 TEST(to_json_roundtrip_with_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
@@ -246,7 +246,7 @@ TEST(to_json_roundtrip_with_dependencies) {
 
 TEST(to_json_roundtrip_with_multiple_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "dependencies": {
       "https://example.com/common.json": "./vendor/common.json",
@@ -263,7 +263,7 @@ TEST(to_json_roundtrip_with_multiple_dependencies) {
 
 TEST(to_json_roundtrip_with_parent_dependency) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "../vendor/2020-12.json"
@@ -279,7 +279,7 @@ TEST(to_json_roundtrip_with_parent_dependency) {
 
 TEST(to_json_roundtrip_path_differs_from_base) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test/schemas",
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
@@ -295,7 +295,7 @@ TEST(to_json_roundtrip_path_differs_from_base) {
 
 TEST(to_json_roundtrip_dependencies_resolve_extra) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "resolve": {
       "https://other.com/single.json": "../single.json"
@@ -371,7 +371,7 @@ TEST(to_json_empty_lint) {
 
 TEST(to_json_roundtrip_with_lint_rules) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ "./rules/my-rule.json" ]
@@ -438,7 +438,7 @@ TEST(to_json_with_mixed_lint_rules) {
 
 TEST(to_json_roundtrip_with_top_level_lint_rule) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ { "path": "./rules/my-rule.json", "topLevel": true } ]
@@ -454,7 +454,7 @@ TEST(to_json_roundtrip_with_top_level_lint_rule) {
 
 TEST(to_json_object_lint_rule_without_top_level_as_string) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ { "path": "./rules/my-rule.json" } ]
@@ -466,7 +466,7 @@ TEST(to_json_object_lint_rule_without_top_level_as_string) {
   const auto output{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ "./rules/my-rule.json" ]
@@ -478,7 +478,7 @@ TEST(to_json_object_lint_rule_without_top_level_as_string) {
 
 TEST(to_json_roundtrip_with_lint_and_dependencies) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "dependencies": {
       "https://json-schema.org/draft/2020-12/schema": "./vendor/2020-12.json"
@@ -567,7 +567,7 @@ TEST(to_json_with_lint_rules_and_exclude) {
 
 TEST(to_json_lint_exclude_duplicates_in_document_emitted_once) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "exclude": [ "enum_to_const", "enum_to_const", "enum_to_const" ]
@@ -579,7 +579,7 @@ TEST(to_json_lint_exclude_duplicates_in_document_emitted_once) {
   const auto output{config.to_json()};
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "exclude": [ "enum_to_const" ]
@@ -591,7 +591,7 @@ TEST(to_json_lint_exclude_duplicates_in_document_emitted_once) {
 
 TEST(to_json_roundtrip_with_lint_exclude) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "exclude": [ "enum_to_const", "top_level_title" ]
@@ -607,7 +607,7 @@ TEST(to_json_roundtrip_with_lint_exclude) {
 
 TEST(to_json_roundtrip_with_lint_rules_and_exclude) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "path": ")JSON" ROOT_NAME R"JSON(/test",
     "lint": {
       "rules": [ "./rules/my-rule.json" ],
@@ -698,7 +698,7 @@ TEST(to_json_empty_ignore) {
 
 TEST(to_json_roundtrip_with_ignore) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "ignore": [ "./vendor" ],
     "path": ")JSON" ROOT_NAME R"JSON(/test"
   })JSON")};
@@ -712,7 +712,7 @@ TEST(to_json_roundtrip_with_ignore) {
 
 TEST(to_json_roundtrip_with_ignore_and_lint) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
-    "baseUri": "https://schemas.sourcemeta.com",
+    "baseUri": "https://schemas.sourcemeta.com/",
     "ignore": [ "./vendor" ],
     "lint": {
       "rules": [ "./rules/my-rule.json" ]

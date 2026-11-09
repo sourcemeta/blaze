@@ -9,6 +9,7 @@
 #include <sourcemeta/core/jsonpointer.h>
 
 // NOLINTBEGIN(misc-include-cleaner)
+#include <sourcemeta/core/jsonschema_dependencies.h>
 #include <sourcemeta/core/jsonschema_error.h>
 #include <sourcemeta/core/jsonschema_frame.h>
 #include <sourcemeta/core/jsonschema_types.h>
@@ -29,7 +30,8 @@
 /// independently of what that operation is: identification, dialect and
 /// vocabulary detection, resolution of remote schemas, keyword classification
 /// across dialects, framing a schema into the locations and references it
-/// declares, and bundling a schema into a self-contained document. Evaluation
+/// declares, reporting what a schema depends on, and bundling a schema into a
+/// self-contained document. Evaluation
 /// is only one of the consumers of these utilities, alongside linting,
 /// transformation, code generation, and documentation tooling.
 ///

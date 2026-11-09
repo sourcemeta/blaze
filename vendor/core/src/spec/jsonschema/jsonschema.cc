@@ -8,6 +8,18 @@
 #include <unordered_set> // std::unordered_set
 #include <utility>       // std::move, std::to_underlying, std::unreachable
 
+namespace {
+
+// How many meta-schemas deep a chain of them may go before determining a base
+// dialect gives up. A document declares the dialect it is written against,
+// which may itself declare another, and following that is what settles which
+// revision of the specification applies. Every revision needs a handful of
+// links at most, so a chain longer than this is one no document means, and
+// following it is recursion, so the stack is what an unbounded one costs
+constexpr std::size_t BASE_DIALECT_CHAIN_LIMIT{64};
+
+} // namespace
+
 // TODO: Make this function detect schemas only using identifier/comment
 // keywords, etc
 auto sourcemeta::core::base_dialect_uri(const SchemaBaseDialect base_dialect)
@@ -282,18 +294,6 @@ auto sourcemeta::core::dialect(const sourcemeta::core::JSON &schema,
   return dialect_value->to_string();
 }
 
-// Settling a URI costs a parse, and the only spellings that settle into
-// something else are the ones carrying an upper case letter in a part that is
-// compared without regard to case, or an empty fragment. Reading the string
-// first is what keeps every dialect that has to be resolved from paying for a
-// parse that was never going to change it
-static auto may_settle_differently(const std::string_view uri) -> bool {
-  return uri.ends_with('#') ||
-         std::ranges::any_of(uri, [](const auto character) {
-           return character >= 'A' && character <= 'Z';
-         });
-}
-
 // A URI that differs only in the case of its scheme or its host names the same
 // meta-schema, so a dialect the library knows is still one it knows however
 // the document happens to spell it. Settling a URI also drops an empty
@@ -301,10 +301,6 @@ static auto may_settle_differently(const std::string_view uri) -> bool {
 // the document spells is held up against both forms
 static auto base_dialect_of_settled(const std::string_view dialect)
     -> std::optional<sourcemeta::core::SchemaBaseDialect> {
-  if (!may_settle_differently(dialect)) {
-    return std::nullopt;
-  }
-
   const auto settled{sourcemeta::core::maybe_canonicalize(dialect)};
   if (!settled.has_value() || settled.value() == dialect) {
     return std::nullopt;
@@ -423,10 +419,6 @@ auto sourcemeta::core::metaschema_try_embedded(
 static auto resolve_settled(const sourcemeta::core::SchemaResolver &resolver,
                             const std::string_view identifier)
     -> sourcemeta::core::SchemaResolverResult {
-  if (!may_settle_differently(identifier)) {
-    return std::nullopt;
-  }
-
   const auto settled{sourcemeta::core::maybe_canonicalize(identifier)};
   if (!settled.has_value() || settled.value() == identifier) {
     return std::nullopt;
@@ -464,8 +456,10 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
     return settled_result;
   }
 
-  // Detect cycles in the metaschema chain
-  if (!visited.emplace(effective_dialect).second) {
+  // Detect cycles in the metaschema chain, and refuse one that goes deeper
+  // than any document means, which no allowance a caller sets can reach
+  if (visited.size() >= BASE_DIALECT_CHAIN_LIMIT ||
+      !visited.emplace(effective_dialect).second) {
     throw sourcemeta::core::SchemaUnknownBaseDialectError();
   }
 
@@ -508,6 +502,13 @@ base_dialect_with_visited(const sourcemeta::core::JSON &schema,
     }
     throw sourcemeta::core::SchemaResolutionError(
         "Could not resolve the metaschema of the schema", effective_dialect);
+  }
+
+  // An answer has to be a schema before it can say which dialect it is written
+  // against, so one that is neither an object nor a boolean leaves the base
+  // dialect as undeterminable as no answer at all
+  if (!metaschema.value().is_object() && !metaschema.value().is_boolean()) {
+    throw sourcemeta::core::SchemaUnknownBaseDialectError();
   }
 
   // If the metaschema declares the same dialect (self-descriptive), and it's
@@ -768,11 +769,29 @@ auto sourcemeta::core::vocabularies(const SchemaResolver &resolver,
    */
 
   const auto core{core_vocabulary_known(base_dialect)};
-  auto result{parse_vocabularies(schema_dialect, base_dialect, dialect)
-                  .value_or(SchemaVocabularies{})};
-  if (result.empty()) {
-    result.insert(core, true);
-  }
+  const auto declared{
+      parse_vocabularies(schema_dialect, base_dialect, dialect)};
+
+  // A metaschema that declares nothing gets the core vocabulary and no more.
+  // Section 8 of both 2019-09, draft-handrews-json-schema-02, and 2020-12,
+  // draft-bhutton-json-schema-01, requires that much of one: "Meta-schemas
+  // that do not use "$vocabulary" MUST be considered to require the Core
+  // vocabulary as if its URI were present with a value of true". Each of the
+  // other vocabularies asks for the same treatment in its own section, though
+  // only as a SHOULD, and section 8.1.2.1 would have an implementation built
+  // for a purpose assume every vocabulary relevant to it. Neither applies
+  // here. That allowance is for a metaschema that is "not recognized, or is
+  // missing", and one that answers is neither, so what it declares is taken
+  // as what it means rather than filled out on its behalf. Reading keywords
+  // into a document against a metaschema that never claimed them is the
+  // greater risk
+  //
+  // Declaring none of them is a different matter from declaring nothing, so
+  // the two are told apart here rather than being folded together. Section 8
+  // leaves the first undefined and asks for an error, which the checks below
+  // raise once this stops standing in for it
+  auto result{declared.has_value() ? declared.value()
+                                   : SchemaVocabularies{{core, true}}};
 
   // The specification recommends these checks
   if (!result.contains(core)) {

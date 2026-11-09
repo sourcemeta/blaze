@@ -657,11 +657,11 @@ TEST(subschema_with_direct_ref) {
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$ref": "https://example.com#/properties/foo",
+    "$ref": "https://example.com/#/properties/foo",
     "$defs": {
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://example.com",
+        "$id": "https://example.com/",
         "$defs": {
           "string": { "type": "string" }
         },
@@ -699,11 +699,11 @@ TEST(subschema_with_nested_ref) {
 
   const auto expected{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$ref": "https://example.com#/properties/foo",
+    "$ref": "https://example.com/#/properties/foo",
     "$defs": {
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://example.com",
+        "$id": "https://example.com/",
         "$defs": {
           "string": { "type": "string" }
         },

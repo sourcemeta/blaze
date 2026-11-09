@@ -28,7 +28,7 @@ constexpr auto HASH_JTI{sourcemeta::core::JSON::Object::hash("jti"sv)};
 
 auto string_claim(const sourcemeta::core::JSON &object,
                   const sourcemeta::core::JSON::StringView name,
-                  const sourcemeta::core::JSON::Object::hash_type hash)
+                  const sourcemeta::core::JSON::Object::hash_type &hash)
     -> std::optional<std::string_view> {
   const auto *member{object.try_at(name, hash)};
   if (member == nullptr || !member->is_string()) {
@@ -56,7 +56,7 @@ auto strip_application_prefix(const std::string_view value)
 
 auto date_claim(const sourcemeta::core::JSON &object,
                 const sourcemeta::core::JSON::StringView name,
-                const sourcemeta::core::JSON::Object::hash_type hash)
+                const sourcemeta::core::JSON::Object::hash_type &hash)
     -> std::optional<std::chrono::system_clock::time_point> {
   const auto *member{object.try_at(name, hash)};
   if (member == nullptr || !member->is_number()) {
