@@ -260,14 +260,11 @@ private:
 
 auto profiling_compiler(KeywordProfile &profile)
     -> sourcemeta::blaze::Compiler {
-  return [&profile](const sourcemeta::blaze::Context &context,
-                    const sourcemeta::blaze::SchemaContext &schema_context,
-                    const sourcemeta::blaze::DynamicContext &dynamic_context,
+  return [&profile](const sourcemeta::blaze::KeywordContext &context,
                     const sourcemeta::blaze::Instructions &current)
              -> sourcemeta::blaze::Instructions {
-    KeywordProfile::Frame frame{profile, dynamic_context.keyword};
-    auto result{sourcemeta::blaze::default_schema_compiler(
-        context, schema_context, dynamic_context, current)};
+    KeywordProfile::Frame frame{profile, context.keyword()};
+    auto result{sourcemeta::blaze::default_schema_compiler(context, current)};
     frame.finish(result.size());
     return result;
   };
