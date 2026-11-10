@@ -448,24 +448,21 @@ auto defines_any_whitelisted_keyword(
                                  sourcemeta::core::JSON::Object::hash(keyword));
   }
 
-  return frame.any_subschema(
+  return sourcemeta::core::schema_frame_any_reachable_subschema(
+      frame, entrypoint_location, walker, resolver,
       [&](const sourcemeta::core::SchemaFrame::Location &location) -> bool {
         const auto &subschema{sourcemeta::core::get(schema, location.pointer)};
         if (!subschema.is_object()) {
           return false;
         }
 
-        bool defines_keyword{false};
         for (const auto &[keyword, keyword_hash] : hashed_keywords) {
           if (subschema.defines(keyword, keyword_hash)) {
-            defines_keyword = true;
-            break;
+            return true;
           }
         }
 
-        return defines_keyword &&
-               frame.is_reachable(entrypoint_location, location, walker,
-                                  resolver);
+        return false;
       });
 }
 

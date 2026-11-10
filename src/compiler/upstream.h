@@ -6,6 +6,7 @@
 
 #include <algorithm>     // std::ranges::all_of, std::max
 #include <cassert>       // assert
+#include <concepts>      // std::predicate
 #include <cstdint>       // std::uint64_t
 #include <string_view>   // std::string_view
 #include <unordered_map> // std::unordered_map
@@ -264,6 +265,59 @@ inline auto schema_frame_target_types(const SchemaFrame &frame)
   }
 
   return result;
+}
+
+// Waiting on: `SchemaFrame`, as members of it, each of which it is better
+// placed to answer than any caller is
+
+// The pointer into the analysed document that a pointer relative to the given
+// base addresses, which is the inverse of the URI that a frame already hands
+// back for a location. A base that the frame locates no resource for is the one
+// the caller framed a wrapper document with, under which every relative pointer
+// starts at the top of the document
+inline auto schema_frame_absolute_pointer(const SchemaFrame &frame,
+                                          const std::string_view base,
+                                          const WeakPointer &relative)
+    -> WeakPointer {
+  const auto resource{frame.location(SchemaReferenceType::Static, base)};
+  if (!resource.has_value()) {
+    // Framing holds the base it was given, so once this is a member the check
+    // is a comparison rather than this scan. Missing the resource of any other
+    // base would silently address a different place, so catch that drift here
+    assert(frame.any_subschema(
+        [base](const SchemaFrame::Location &location) -> bool {
+          return location.base == base && location.relative_pointer == 0;
+        }));
+    return relative;
+  }
+
+  return resource.value().get().pointer.concat(relative);
+}
+
+// Whether any schema resource or subschema that evaluation can reach from the
+// given entry point satisfies the predicate. A frame offers both halves of this
+// on its own, and the order they go in matters, as the reachability of a
+// location costs a walk while a predicate tends not to
+template <std::predicate<const SchemaFrame::Location &> F>
+auto schema_frame_any_reachable_subschema(
+    const SchemaFrame &frame, const SchemaFrame::Location &entrypoint,
+    const SchemaWalker &walker, const SchemaResolver &resolver,
+    const F &predicate) -> bool {
+  return frame.any_subschema(
+      [&](const SchemaFrame::Location &location) -> bool {
+        return predicate(location) &&
+               frame.is_reachable(entrypoint, location, walker, resolver);
+      });
+}
+
+// Whether anything strictly below this pointer is a schema resource or a
+// subschema of its own, as the named counterpart of the questions a frame
+// already answers about the references that reach a pointer
+inline auto schema_frame_has_subschemas_under(const SchemaFrame &frame,
+                                              const WeakPointer &pointer)
+    -> bool {
+  return frame.any_subschema_under(
+      pointer, [](const SchemaFrame::Location &) -> bool { return true; });
 }
 
 } // namespace sourcemeta::core
