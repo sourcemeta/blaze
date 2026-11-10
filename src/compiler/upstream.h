@@ -78,9 +78,10 @@ inline auto schema_type_set(const JSON &type) -> JSON::TypeSet {
 
 // Whether a value is an array of property names. Uniqueness is deliberately
 // not part of the shape, as which keyword asks for it is a question per keyword
-// and per dialect: Draft 4 onwards spell `required` and `dependentRequired`
-// through a definition that asks for unique entries, while the array form of
-// Draft 3 `dependencies` asks for none. A value that is not this shape names no
+// and per dialect: `required` from Draft 4, `dependentRequired` from 2019-09,
+// and the array form of `dependencies` from Draft 4 to Draft 7 all go through a
+// definition that asks for unique entries, while the array form of Draft 3
+// `dependencies` asks for none. A value that is not this shape names no
 // property at all, so nothing may be derived from it
 inline auto schema_is_property_name_array(const JSON &value) -> bool {
   return value.is_array() &&
