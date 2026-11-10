@@ -19,12 +19,14 @@ namespace sourcemeta::blaze {
 auto compiler_draft4_validation_required(const KeywordContext &context,
                                          const Instructions &current)
     -> Instructions {
-  // Draft 4 asks that `required` name at least one property, and the OpenAPI
-  // 3.0 Schema Object, whose meta-schema is a Draft 4 document, asks the same
+  // Every dialect that spells `required` as an array of property names asks
+  // for unique entries. Draft 4 asks that it name at least one property too,
+  // and the OpenAPI 3.0 Schema Object, whose meta-schema is a Draft 4
+  // document, asks the same
   const auto allows_empty{!is_draft4(context.vocabularies()) &&
                           !is_openapi_3_0(context.vocabularies())};
   if (!sourcemeta::core::schema_is_property_name_array(context.value()) ||
-      (!allows_empty && context.value().empty())) {
+      !context.value().unique() || (!allows_empty && context.value().empty())) {
     throw_keyword_error(context, EXPECTED_PROPERTY_NAME_ARRAY);
   }
 

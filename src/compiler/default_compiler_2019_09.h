@@ -71,12 +71,15 @@ auto compiler_2019_09_validation_dependentrequired(
     throw_keyword_error(context, EXPECTED_OBJECT);
   }
 
+  // The validation vocabulary spells every value of this keyword through the
+  // same definition that `required` uses, which asks for unique entries
   if (!std::ranges::all_of(
           context.value().as_object(), [](const auto &entry) -> bool {
             return sourcemeta::core::schema_is_property_name_array(
-                entry.second);
+                       entry.second) &&
+                   entry.second.unique();
           })) {
-    throw_keyword_error(context, EXPECTED_DEPENDENCIES);
+    throw_keyword_error(context, EXPECTED_PROPERTY_NAME_ARRAYS);
   }
 
   if (context.schema().defines("type") &&

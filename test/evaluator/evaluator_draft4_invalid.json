@@ -394,6 +394,18 @@
     }
   },
   {
+    "description": "dependencies_duplicate_names",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "dependencies": { "a": [ "b", "b" ] }
+    },
+    "error": {
+      "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+      "base": "",
+      "location": "/dependencies"
+    }
+  },
+  {
     "description": "properties_boolean_subschema",
     "schema": {
       "$schema": "http://json-schema.org/draft-04/schema#",
