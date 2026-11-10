@@ -226,13 +226,25 @@
     }
   },
   {
+    "description": "dependencies_non_string_entry",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-03/schema#",
+      "dependencies": { "a": [ "b", 1 ] }
+    },
+    "error": {
+      "message": "Every value of this keyword was expected to be a valid schema, a property name, or an array of property names",
+      "base": "",
+      "location": "/dependencies"
+    }
+  },
+  {
     "description": "dependencies_boolean_subschema",
     "schema": {
       "$schema": "http://json-schema.org/draft-03/schema#",
       "dependencies": { "foo": true }
     },
     "error": {
-      "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+      "message": "Every value of this keyword was expected to be a valid schema, a property name, or an array of property names",
       "base": "",
       "location": "/dependencies"
     }
@@ -400,7 +412,7 @@
       "properties": { "n": { "$ref": "#", "dependencies": { "a": 1 } } }
     },
     "error": {
-      "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+      "message": "Every value of this keyword was expected to be a valid schema, a property name, or an array of property names",
       "base": "",
       "location": "/properties/n/dependencies"
     }
@@ -436,7 +448,7 @@
       "properties": { "n": { "$ref": "#", "dependencies": { "a": true } } }
     },
     "error": {
-      "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+      "message": "Every value of this keyword was expected to be a valid schema, a property name, or an array of property names",
       "base": "",
       "location": "/properties/n/dependencies"
     }

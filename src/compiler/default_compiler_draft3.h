@@ -17,6 +17,7 @@
 #include <utility>          // std::move, std::to_underlying
 
 #include "compile_helpers.h"
+#include "upstream.h"
 
 namespace sourcemeta::blaze {
 
@@ -2716,22 +2717,21 @@ auto compiler_draft3_applicator_dependencies(const KeywordContext &context,
   const auto draft3{is_draft3(context.vocabularies())};
 
   // Every member must be a schema or a list of property names, plus a single
-  // property name in Draft 3. A member that is none of those makes the keyword
-  // as a whole stop being a constraint
+  // property name in Draft 3. Draft 4 onwards ask that such a list have no
+  // repeats, which Draft 3 does not ask for at all. A member that is none of
+  // those makes the keyword as a whole stop being a constraint
   if (!std::ranges::all_of(
           context.value().as_object(),
           [draft3, allow_boolean = booleans_are_schemas(
                        context.vocabularies())](const auto &entry) -> bool {
-            const auto names_only{
-                entry.second.is_array() &&
-                std::ranges::all_of(
-                    entry.second.as_array(),
-                    [](const auto &name) -> bool { return name.is_string(); })};
             return is_schema(entry.second, allow_boolean) ||
-                   (names_only && (draft3 || entry.second.unique())) ||
+                   (sourcemeta::core::schema_is_property_name_array(
+                        entry.second) &&
+                    (draft3 || entry.second.unique())) ||
                    (draft3 && entry.second.is_string());
           })) {
-    throw_keyword_error(context, EXPECTED_DEPENDENCIES);
+    throw_keyword_error(context, draft3 ? EXPECTED_DEPENDENCIES_DRAFT3
+                                        : EXPECTED_DEPENDENCIES);
   }
 
   // Only once the shape is known to be good does it matter whether the keyword

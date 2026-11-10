@@ -21,6 +21,10 @@
 // error, which is the outcome we want. One that lands it under another name, or
 // another signature, leaves a silent duplicate behind, so read this file
 // against the Core changelog on every upgrade
+//
+// An entry whose home is a member of a Core class is the exception, as a header
+// that may not touch Core cannot stage a member. Each of those names the member
+// it is waiting to become, and landing it does rewrite its call sites
 
 namespace sourcemeta::core {
 
@@ -72,17 +76,23 @@ inline auto schema_type_set(const JSON &type) -> JSON::TypeSet {
 
 // Waiting on: the `jsonschema` module
 
-// JSON Schema describes `required` and its relatives as an array of unique
-// property names. A value that does not satisfy that names no property at all,
-// so nothing may be derived from it
+// Whether a value is an array of property names. Uniqueness is deliberately
+// not part of the shape, as which keyword asks for it is a question per keyword
+// and per dialect: `required` from Draft 4, `dependentRequired` from 2019-09,
+// and the array form of `dependencies` from Draft 4 to Draft 7 all go through a
+// definition that asks for unique entries, while the array form of Draft 3
+// `dependencies` asks for none. A value that is not this shape names no
+// property at all, so nothing may be derived from it
 inline auto schema_is_property_name_array(const JSON &value) -> bool {
-  return value.is_array() && value.unique() &&
+  return value.is_array() &&
          std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
            return entry.is_string();
          });
 }
 
-// Waiting on: the `jsonschema` module, where it lived until Core #980
+// Waiting on: the `jsonschema` module, where it lived until Core #980, and
+// better still a field of `SchemaWalkerResult`, as the answer is fixed per
+// keyword and vocabulary set while this recomputes it on every call
 
 // A keyword evaluates after everything it reads, so its priority is one above
 // the highest of what it depends on
@@ -108,7 +118,9 @@ inline auto schema_keyword_priority(const std::string_view keyword,
 }
 
 // Waiting on: `SchemaVocabularies`, which declares both of these types and
-// nothing that crosses between them
+// nothing that crosses between them, as a static member of it rather than as a
+// free function, which would sit beside the `vocabulary_uri` that Core already
+// has for converting the other way
 
 // A walker only views the custom vocabulary URIs it reports, as its table
 // points at static storage, so keeping one past the walker means taking a copy
@@ -122,8 +134,10 @@ inline auto schema_vocabulary_uri(const SchemaVocabularies::URIView &vocabulary)
   return JSON::String{std::get<std::string_view>(vocabulary)};
 }
 
-// Waiting on: `SchemaFrame`, as `SchemaFrame::TargetType` and a member that
-// returns them
+// Waiting on: `SchemaFrame`, as a field of `SchemaFrame::Reference` set while
+// framing, which is where the answer is known without deriving it from a
+// pointer. Core repeats this very test when it decides whether a schema stands
+// alone
 
 // A `$schema` reference points at a meta-schema rather than into the schema
 // itself, so it describes the document rather than what the document says
@@ -131,6 +145,9 @@ inline auto schema_is_metaschema_reference(const WeakPointer &origin) -> bool {
   return !origin.empty() && origin.back().is_property() &&
          origin.back().to_property() == "$schema";
 }
+
+// Waiting on: `SchemaFrame`, as `SchemaFrame::TargetType` and a member that
+// returns them, derived into the frame's cache the way its vocabularies are
 
 // What a reference target gets evaluated against. Both hold of a target that
 // references of both kinds arrive at

@@ -293,7 +293,31 @@
       "dependentRequired": { "a": [ 1 ] }
     },
     "error": {
-      "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+      "message": "Every value of this keyword was expected to be an array of unique property names",
+      "base": "",
+      "location": "/dependentRequired"
+    }
+  },
+  {
+    "description": "dependentrequired_duplicate_names",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentRequired": { "a": [ "b", "b" ] }
+    },
+    "error": {
+      "message": "Every value of this keyword was expected to be an array of unique property names",
+      "base": "",
+      "location": "/dependentRequired"
+    }
+  },
+  {
+    "description": "dependentrequired_schema_value",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "dependentRequired": { "a": {} }
+    },
+    "error": {
+      "message": "Every value of this keyword was expected to be an array of unique property names",
       "base": "",
       "location": "/dependentRequired"
     }

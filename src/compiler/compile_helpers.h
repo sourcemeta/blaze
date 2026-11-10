@@ -452,6 +452,9 @@ static constexpr auto EXPECTED_SCHEMA_OBJECT{
 static constexpr auto EXPECTED_PROPERTY_NAME_ARRAY{
     "This keyword was expected to be set to an array of unique property "
     "names"};
+static constexpr auto EXPECTED_PROPERTY_NAME_ARRAYS{
+    "Every value of this keyword was expected to be an array of unique "
+    "property names"};
 static constexpr auto EXPECTED_POSITIVE{
     "This keyword was expected to be set to a number greater than zero"};
 static constexpr auto EXPECTED_NON_NEGATIVE{
@@ -467,6 +470,9 @@ static constexpr auto EXPECTED_NON_EMPTY_VALUES{
 static constexpr auto EXPECTED_DEPENDENCIES{
     "Every value of this keyword was expected to be a valid schema or an "
     "array of unique property names"};
+static constexpr auto EXPECTED_DEPENDENCIES_DRAFT3{
+    "Every value of this keyword was expected to be a valid schema, a "
+    "property name, or an array of property names"};
 static constexpr auto UNSUPPORTED_VALUE_FOR_DIALECT{
     "The value this keyword is set to is not supported by this dialect"};
 static constexpr auto PROHIBITED_KEYWORD_FOR_DIALECT{

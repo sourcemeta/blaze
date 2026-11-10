@@ -46,5 +46,17 @@
       "base": "",
       "location": "/dependentSchemas"
     }
+  },
+  {
+    "description": "dependentRequired_duplicate_names",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "dependentRequired": { "a": [ "b", "b" ] }
+    },
+    "error": {
+      "message": "Every value of this keyword was expected to be an array of unique property names",
+      "base": "",
+      "location": "/dependentRequired"
+    }
   }
 ]
