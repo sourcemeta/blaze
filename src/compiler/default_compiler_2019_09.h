@@ -20,9 +20,9 @@ auto compiler_2019_09_applicator_dependentschemas(const KeywordContext &context,
 
   if (!std::ranges::all_of(
           context.value().as_object(),
-          [allow_boolean = booleans_are_schemas(context.vocabularies())](
-              const auto &entry) -> bool {
-            return is_schema(entry.second, allow_boolean);
+          [&vocabularies = context.vocabularies()](const auto &entry) -> bool {
+            return sourcemeta::core::schema_is_schema(entry.second,
+                                                      vocabularies);
           })) {
     throw_keyword_error(context, EXPECTED_SCHEMA_OBJECT);
   }
@@ -73,12 +73,11 @@ auto compiler_2019_09_validation_dependentrequired(
 
   // The validation vocabulary spells every value of this keyword through the
   // same definition that `required` uses, which asks for unique entries
-  if (!std::ranges::all_of(
-          context.value().as_object(), [](const auto &entry) -> bool {
-            return sourcemeta::core::schema_is_property_name_array(
-                       entry.second) &&
-                   entry.second.unique();
-          })) {
+  if (!std::ranges::all_of(context.value().as_object(),
+                           [](const auto &entry) -> bool {
+                             return is_property_name_array(entry.second) &&
+                                    entry.second.unique();
+                           })) {
     throw_keyword_error(context, EXPECTED_PROPERTY_NAME_ARRAYS);
   }
 
