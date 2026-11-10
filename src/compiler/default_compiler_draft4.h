@@ -12,7 +12,6 @@
 
 #include "compile_helpers.h"
 #include "default_compiler_draft3.h"
-#include "upstream.h"
 
 namespace sourcemeta::blaze {
 
@@ -25,8 +24,8 @@ auto compiler_draft4_validation_required(const KeywordContext &context,
   // document, asks the same
   const auto allows_empty{!is_draft4(context.vocabularies()) &&
                           !is_openapi_3_0(context.vocabularies())};
-  if (!sourcemeta::core::schema_is_property_name_array(context.value()) ||
-      !context.value().unique() || (!allows_empty && context.value().empty())) {
+  if (!is_property_name_array(context.value()) || !context.value().unique() ||
+      (!allows_empty && context.value().empty())) {
     throw_keyword_error(context, EXPECTED_PROPERTY_NAME_ARRAY);
   }
 
@@ -38,9 +37,7 @@ auto compiler_draft4_applicator_allof(const KeywordContext &context,
                                       const Instructions &) -> Instructions {
   const auto allows_empty{
       in_place_applicators_may_be_empty(context.vocabularies())};
-  if (!is_schema_array(context.value(),
-                       booleans_are_schemas(context.vocabularies()),
-                       allows_empty)) {
+  if (!is_schema_array(context.value(), context.vocabularies(), allows_empty)) {
     throw_keyword_error(context, allows_empty
                                      ? EXPECTED_SCHEMA_ARRAY
                                      : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
@@ -82,9 +79,7 @@ auto compiler_draft4_applicator_anyof(const KeywordContext &context,
                                       const Instructions &) -> Instructions {
   const auto allows_empty{
       in_place_applicators_may_be_empty(context.vocabularies())};
-  if (!is_schema_array(context.value(),
-                       booleans_are_schemas(context.vocabularies()),
-                       allows_empty)) {
+  if (!is_schema_array(context.value(), context.vocabularies(), allows_empty)) {
     throw_keyword_error(context, allows_empty
                                      ? EXPECTED_SCHEMA_ARRAY
                                      : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);
@@ -204,9 +199,7 @@ auto compiler_draft4_applicator_oneof(const KeywordContext &context,
                                       const Instructions &) -> Instructions {
   const auto allows_empty{
       in_place_applicators_may_be_empty(context.vocabularies())};
-  if (!is_schema_array(context.value(),
-                       booleans_are_schemas(context.vocabularies()),
-                       allows_empty)) {
+  if (!is_schema_array(context.value(), context.vocabularies(), allows_empty)) {
     throw_keyword_error(context, allows_empty
                                      ? EXPECTED_SCHEMA_ARRAY
                                      : EXPECTED_SCHEMA_ARRAY_NON_EMPTY);

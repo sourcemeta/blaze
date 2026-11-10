@@ -76,18 +76,38 @@ inline auto schema_type_set(const JSON &type) -> JSON::TypeSet {
 
 // Waiting on: the `jsonschema` module
 
-// Whether a value is an array of property names. Uniqueness is deliberately
-// not part of the shape, as which keyword asks for it is a question per keyword
-// and per dialect: `required` from Draft 4, `dependentRequired` from 2019-09,
-// and the array form of `dependencies` from Draft 4 to Draft 7 all go through a
-// definition that asks for unique entries, while the array form of Draft 3
-// `dependencies` asks for none. A value that is not this shape names no
-// property at all, so nothing may be derived from it
-inline auto schema_is_property_name_array(const JSON &value) -> bool {
-  return value.is_array() &&
-         std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
-           return entry.is_string();
-         });
+// Draft 6 introduced boolean schemas. Draft 4 and earlier have none, and the
+// OpenAPI 3.0 Schema Object has none either
+inline auto schema_is_schema(const JSON &value,
+                             const SchemaVocabularies &vocabularies) -> bool {
+  using Known = SchemaVocabularies::Known;
+  return value.is_object() ||
+         (value.is_boolean() &&
+          !vocabularies.contains_any(
+              {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
+               Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
+               Known::OPENAPI_3_0_BASE}));
+}
+
+// Draft 3 and Draft 4 read "integer" as a number written without a fractional
+// part, so a bound like `2.0` is not one there. Draft 6 onwards widened it to
+// any number whose fractional part is zero. The OpenAPI 3.0 Schema Object
+// answers with Draft 4, as its meta-schema is a Draft 4 document.
+//
+// Note that OpenAPI 3.0.4 says the opposite in prose, that "both `1` and
+// `1.0` are equivalent, and are both considered to be integers", reversing
+// what 3.0.3 said. We keep the Draft 4 reading for every dated OpenAPI 3.0
+// dialect regardless, because the Schema Object extends the Draft 4 base
+// dialect and so is the base dialect's question to answer, not a patch
+// release's to redefine
+inline auto
+schema_integral_reals_are_integers(const SchemaVocabularies &vocabularies)
+    -> bool {
+  using Known = SchemaVocabularies::Known;
+  return !vocabularies.contains_any(
+      {Known::JSON_SCHEMA_DRAFT_3, Known::JSON_SCHEMA_DRAFT_3_HYPER,
+       Known::JSON_SCHEMA_DRAFT_4, Known::JSON_SCHEMA_DRAFT_4_HYPER,
+       Known::OPENAPI_3_0_BASE});
 }
 
 // Waiting on: the `jsonschema` module, where it lived until Core #980, and
@@ -147,7 +167,10 @@ inline auto schema_is_metaschema_reference(const WeakPointer &origin) -> bool {
 }
 
 // Waiting on: `SchemaFrame`, as `SchemaFrame::TargetType` and a member that
-// returns them, derived into the frame's cache the way its vocabularies are
+// returns them, derived into the frame's cache the way its vocabularies are. A
+// field of `SchemaFrame::Location` would read better where this is asked, as a
+// caller holds one already, but the answer only exists once every reference is
+// known, so it would stand for nothing in the modes that record none
 
 // What a reference target gets evaluated against. Both hold of a target that
 // references of both kinds arrive at
@@ -156,10 +179,14 @@ struct SchemaFrameTargetType {
   bool instance{false};
 };
 
-// What every reference target in a frame gets evaluated against, keyed by
-// destination. A target evaluated against property names passes that on to
-// everything it references in turn, so the answer is a closure rather than a
-// tally of the references that arrive directly
+// One table over the whole frame, computed once, so that asking what a given
+// target is evaluated against costs a lookup rather than a walk of everything
+// that reaches it. The frame already answers the lexical half of this on its
+// locations, as a subschema written inside `propertyNames` carries it, and what
+// is left is what arrives through a reference: a target evaluated against
+// property names passes that on to everything it references in turn, so the
+// answer is a closure rather than a tally of the references that arrive
+// directly
 inline auto schema_frame_target_types(const SchemaFrame &frame)
     -> std::unordered_map<std::string_view, SchemaFrameTargetType> {
   std::unordered_map<std::string_view, SchemaFrameTargetType> result;

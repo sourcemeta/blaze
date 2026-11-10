@@ -5,14 +5,15 @@
 #include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/uri.h>
 
-#include <algorithm>  // std::ranges::find, std::ranges::all_of
-#include <cassert>    // assert
-#include <functional> // std::cref
-#include <iterator>   // std::distance
-#include <limits>     // std::numeric_limits
-#include <optional>   // std::optional
-#include <regex>      // std::regex, std::regex_match, std::smatch
-#include <utility>    // std::move
+#include <algorithm>   // std::ranges::find, std::ranges::all_of
+#include <cassert>     // assert
+#include <functional>  // std::cref
+#include <iterator>    // std::distance
+#include <limits>      // std::numeric_limits
+#include <optional>    // std::optional
+#include <regex>       // std::regex, std::regex_match, std::smatch
+#include <string_view> // std::string_view
+#include <utility>     // std::move
 
 #include "upstream.h"
 
@@ -292,27 +293,57 @@ booleans_are_schemas(const sourcemeta::core::SchemaVocabularies &vocabularies)
          !is_openapi_3_0(vocabularies);
 }
 
-inline auto is_schema(const sourcemeta::core::JSON &value,
-                      const bool allow_boolean) -> bool {
-  return value.is_object() || (allow_boolean && value.is_boolean());
+// The same as `is_schema_array`, for the callers that have already settled how
+// many schemas the keyword may hold
+inline auto
+all_are_schemas(const sourcemeta::core::JSON &value,
+                const sourcemeta::core::SchemaVocabularies &vocabularies)
+    -> bool {
+  return std::ranges::all_of(
+      value.as_array(), [&vocabularies](const auto &entry) -> bool {
+        return sourcemeta::core::schema_is_schema(entry, vocabularies);
+      });
 }
 
-inline auto all_are_schemas(const sourcemeta::core::JSON &value,
-                            const bool allow_boolean) -> bool {
-  return std::ranges::all_of(value.as_array(),
-                             [allow_boolean](const auto &entry) -> bool {
-                               return is_schema(entry, allow_boolean);
-                             });
-}
-
-// The meta-schema describes these as a non-empty array of schemas. A keyword
-// that does not satisfy that is not a constraint at all, so we ignore it
-// rather than compile part of it or turn it into a failure
-inline auto is_schema_array(const sourcemeta::core::JSON &value,
-                            const bool allow_boolean,
-                            const bool allow_empty = false) -> bool {
+// The meta-schema describes these as a non-empty array of schemas, other than
+// the OpenAPI 3.0 Schema Object, which leaves an empty one well-formed. A
+// keyword that does not satisfy that is not a constraint at all, so we ignore
+// it rather than compile part of it or turn it into a failure
+inline auto
+is_schema_array(const sourcemeta::core::JSON &value,
+                const sourcemeta::core::SchemaVocabularies &vocabularies,
+                const bool allow_empty = false) -> bool {
   return value.is_array() && (allow_empty || !value.empty()) &&
-         all_are_schemas(value, allow_boolean);
+         all_are_schemas(value, vocabularies);
+}
+
+// Whether a boolean stands for a schema where this keyword holds its value, as
+// the dialects that have no boolean schemas still define `additionalProperties`
+// and `additionalItems` to accept one in place of a schema
+inline auto
+is_keyword_schema(const sourcemeta::core::JSON &value,
+                  const sourcemeta::core::SchemaVocabularies &vocabularies,
+                  const std::string_view keyword) -> bool {
+  if (value.is_boolean() &&
+      (keyword == "additionalProperties" || keyword == "additionalItems")) {
+    return true;
+  }
+
+  return sourcemeta::core::schema_is_schema(value, vocabularies);
+}
+
+// JSON Schema spells `required` and its relatives as an array of property
+// names. Which of them asks for those names to be unique is a question per
+// keyword and per dialect, so it is not part of this shape: `required` from
+// Draft 4, `dependentRequired` from 2019-09, and the array form of
+// `dependencies` from Draft 4 to Draft 7 all ask for unique entries, while the
+// array form of Draft 3 `dependencies` asks for none
+inline auto is_property_name_array(const sourcemeta::core::JSON &value)
+    -> bool {
+  return value.is_array() &&
+         std::ranges::all_of(value.as_array(), [](const auto &entry) -> bool {
+           return entry.is_string();
+         });
 }
 
 // Draft 3 to 7 let `$ref` replace every sibling keyword, so nothing those

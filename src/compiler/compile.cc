@@ -55,7 +55,7 @@ auto exclusive_bounds_need_a_sibling(
 auto keyword_shape_error(
     const sourcemeta::core::JSON::String &keyword,
     const sourcemeta::core::SchemaKeywordType type, const bool known,
-    const sourcemeta::core::JSON &value, const bool allow_boolean,
+    const sourcemeta::core::JSON &value,
     const sourcemeta::core::SchemaVocabularies &vocabularies) -> const char * {
   using namespace sourcemeta::blaze;
 
@@ -168,11 +168,12 @@ auto keyword_shape_error(
         // no meta-schema before Draft 4 defines either of them
         !is_draft3(vocabularies)) {
       return (value.is_object() &&
-              std::ranges::all_of(value.as_object(),
-                                  [allow_boolean](const auto &entry) -> bool {
-                                    return is_schema(entry.second,
-                                                     allow_boolean);
-                                  }))
+              std::ranges::all_of(
+                  value.as_object(),
+                  [&vocabularies, &keyword](const auto &entry) -> bool {
+                    return is_keyword_schema(entry.second, vocabularies,
+                                             keyword);
+                  }))
                  ? nullptr
                  : EXPECTED_SCHEMA_OBJECT;
     }
@@ -195,11 +196,13 @@ auto keyword_shape_error(
     case sourcemeta::core::SchemaKeywordType::ApplicatorValueInPlaceMaybe:
     case sourcemeta::core::SchemaKeywordType::ApplicatorValueInPlaceOther:
     case sourcemeta::core::SchemaKeywordType::ApplicatorValueInPlaceNegate:
-      return is_schema(value, allow_boolean) ? nullptr : EXPECTED_SCHEMA;
+      return is_keyword_schema(value, vocabularies, keyword) ? nullptr
+                                                             : EXPECTED_SCHEMA;
     case sourcemeta::core::SchemaKeywordType::
         ApplicatorValueOrElementsTraverseAnyItemOrItem:
     case sourcemeta::core::SchemaKeywordType::ApplicatorValueOrElementsInPlace:
-      return (is_schema(value, allow_boolean) || value.is_array())
+      return (is_keyword_schema(value, vocabularies, keyword) ||
+              value.is_array())
                  ? nullptr
                  : EXPECTED_SCHEMA_OR_ARRAY;
     // Note that `ApplicatorElementsInPlaceSome` and its negated variant are
@@ -210,10 +213,11 @@ auto keyword_shape_error(
     case sourcemeta::core::SchemaKeywordType::ApplicatorElementsTraverseItem:
     case sourcemeta::core::SchemaKeywordType::ApplicatorElementsInPlace:
       return (value.is_array() &&
-              std::ranges::all_of(value.as_array(),
-                                  [allow_boolean](const auto &entry) -> bool {
-                                    return is_schema(entry, allow_boolean);
-                                  }))
+              std::ranges::all_of(
+                  value.as_array(),
+                  [&vocabularies, &keyword](const auto &entry) -> bool {
+                    return is_keyword_schema(entry, vocabularies, keyword);
+                  }))
                  ? nullptr
                  : EXPECTED_SCHEMA_ARRAY;
     case sourcemeta::core::SchemaKeywordType::
@@ -221,11 +225,12 @@ auto keyword_shape_error(
     case sourcemeta::core::SchemaKeywordType::
         ApplicatorMembersTraversePropertyRegex:
       return (value.is_object() &&
-              std::ranges::all_of(value.as_object(),
-                                  [allow_boolean](const auto &entry) -> bool {
-                                    return is_schema(entry.second,
-                                                     allow_boolean);
-                                  }))
+              std::ranges::all_of(
+                  value.as_object(),
+                  [&vocabularies, &keyword](const auto &entry) -> bool {
+                    return is_keyword_schema(entry.second, vocabularies,
+                                             keyword);
+                  }))
                  ? nullptr
                  : EXPECTED_SCHEMA_OBJECT;
     // The walker only reports this for a keyword the dialect in use actually
@@ -353,14 +358,9 @@ auto compile_subschema(const sourcemeta::blaze::KeywordContext &context)
         metadata.vocabulary.has_value() &&
         std::holds_alternative<sourcemeta::core::SchemaVocabularies::Known>(
             metadata.vocabulary.value())};
-    // Draft 3 has no boolean schemas, but its own definitions of these two
-    // keywords accept a boolean in place of one
-    const auto allow_boolean{booleans_are_schemas(context.vocabularies()) ||
-                             keyword == "additionalProperties" ||
-                             keyword == "additionalItems"};
-    const auto *shape_error{
-        keyword_shape_error(keyword, metadata.type, official, keyword_value,
-                            allow_boolean, context.vocabularies())};
+    const auto *shape_error{keyword_shape_error(keyword, metadata.type,
+                                                official, keyword_value,
+                                                context.vocabularies())};
     static const sourcemeta::core::JSON::String KEYWORD_REF{"$ref"};
     const auto overridden_by_ref{
         keyword != KEYWORD_REF && context.schema().defines(KEYWORD_REF) &&
