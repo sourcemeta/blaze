@@ -618,7 +618,6 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
   assert(!value.empty());
   result = true;
   const auto &object{target.as_object()};
-  const sourcemeta::core::PropertyHashJSON<ValueString> hasher;
   for (const auto &entry : value) {
     if (!object.defines(entry.first, entry.hash)) {
       continue;
@@ -626,7 +625,7 @@ INSTRUCTION_HANDLER(AssertionPropertyDependencies) {
 
     assert(!entry.second.empty());
     for (const auto &dependency : entry.second) {
-      if (!object.defines(dependency, hasher(dependency))) [[unlikely]] {
+      if (!object.defines(dependency.first, dependency.second)) [[unlikely]] {
         result = false;
         EVALUATE_END(AssertionPropertyDependencies);
       }
@@ -888,8 +887,8 @@ INSTRUCTION_DIRECT(AssertionEqualsAnyStringHash, ValueStringHashes) {
   }
   const auto &target_string{target.to_string()};
   const auto string_size{target_string.size()};
-  const sourcemeta::core::PropertyHashJSON<ValueString> hasher;
-  const auto value_hash{hasher(target_string)};
+  static constexpr sourcemeta::core::PropertyHashJSON<ValueString> HASHER;
+  const auto value_hash{HASHER(target_string)};
   if (string_size < value.second.size()) [[likely]] {
     const auto &hint{value.second[string_size]};
     if (hint.second != 0) [[likely]] {
@@ -908,8 +907,8 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
   const auto &value{assume_value<ValueStringHashes>(instruction.value)};
 
   if (context.property_target) [[unlikely]] {
-    const sourcemeta::core::PropertyHashJSON<ValueString> hasher;
-    const auto value_hash{hasher(*context.property_target)};
+    static constexpr sourcemeta::core::PropertyHashJSON<ValueString> HASHER;
+    const auto value_hash{HASHER(*context.property_target)};
     const auto string_size{context.property_target->size()};
     if (string_size < value.second.size()) [[likely]] {
       const auto &hint{value.second[string_size]};
@@ -917,7 +916,7 @@ INSTRUCTION_HANDLER(AssertionEqualsAnyStringHash) {
       SOURCEMETA_ASSUME(hint.first <= hint.second);
       if (hint.second != 0) [[likely]] {
         for (std::size_t index = hint.first - 1; index < hint.second; index++) {
-          assert(hasher.is_perfect(value.first[index].first));
+          assert(HASHER.is_perfect(value.first[index].first));
           if (value.first[index].first == value_hash) {
             result = true;
             break;

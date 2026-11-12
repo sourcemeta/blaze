@@ -614,8 +614,7 @@ class Blaze {
       parent: parent,
       key: key,
       pathTokens: this.snapshotPathTokens(),
-      pathLength: this.evaluatePathLength,
-      skip: false
+      pathLength: this.evaluatePathLength
     });
   }
 
@@ -628,8 +627,6 @@ class Blaze {
 
     for (let index = this.evaluated.length - 1; index >= 0; index--) {
       const entry = this.evaluated[index];
-      if (entry.skip) continue;
-
       if (isPrimitive && hasLocation && entry.parent !== undefined) {
         if (entry.parent !== parent || entry.key !== key) continue;
       } else {
@@ -648,24 +645,6 @@ class Blaze {
       if (match) return true;
     }
     return false;
-  }
-
-  unevaluate() {
-    const pathLen = this.evaluatePathLength;
-    const tokens = this.evaluatePathTokens;
-    for (let index = 0; index < this.evaluated.length; index++) {
-      const entry = this.evaluated[index];
-      if (entry.skip) continue;
-      if (entry.pathLength < pathLen) continue;
-      let match = true;
-      for (let token = 0; token < pathLen; token++) {
-        if (entry.pathTokens[token] !== tokens[token]) {
-          match = false;
-          break;
-        }
-      }
-      if (match) entry.skip = true;
-    }
   }
 
   checkpoint() {
@@ -1694,6 +1673,7 @@ function LogicalNot(instruction, instance, depth, template, evaluator) {
 
 function LogicalNotEvaluate(instruction, instance, depth, template, evaluator) {
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
+  const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
   const target = resolveInstance(instance, instruction[2]);
   const children = instruction[7];
   let result = false;
@@ -1705,7 +1685,7 @@ function LogicalNotEvaluate(instruction, instance, depth, template, evaluator) {
       }
     }
   }
-  if (evaluator.trackMode) evaluator.unevaluate();
+  if (evaluator.trackMode) evaluator.rewind(checkpoint);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, result);
   return result;
 };
@@ -3627,6 +3607,7 @@ function Evaluate_fast(instruction, instance, depth, template, evaluator) {
 }
 
 function LogicalNotEvaluate_fast(instruction, instance, depth, template, evaluator) {
+  const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
   const relInstance = instruction[2];
   const target = relInstance.length === 0 ? instance : resolveInstance(instance, relInstance);
   const children = instruction[7];
@@ -3639,7 +3620,7 @@ function LogicalNotEvaluate_fast(instruction, instance, depth, template, evaluat
       }
     }
   }
-  if (evaluator.trackMode) evaluator.unevaluate();
+  if (evaluator.trackMode) evaluator.rewind(checkpoint);
   return result;
 }
 
