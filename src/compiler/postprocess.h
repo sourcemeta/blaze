@@ -567,6 +567,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
          current_target_index < targets.size(); ++current_target_index) {
       auto &target{targets[current_target_index]};
       auto &current_stats{statistics[current_target_index]};
+      bool target_changed{false};
 
       std::vector<std::pair<Instructions *, Instruction *>> worklist;
       std::vector<std::tuple<Instructions *, std::size_t, Instruction *>> stack;
@@ -624,7 +625,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
                             owner->type == InstructionIndex::LogicalXor))};
 
         if (!disjoint && fuse_numeric_bounds(*current, extra)) {
-          changed = true;
+          target_changed = true;
         }
 
         // A fused simple-properties instruction only enforces that a property
@@ -698,7 +699,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
                   }
                 }
                 if (all_covered) {
-                  changed = true;
+                  target_changed = true;
                   continue;
                 }
                 break;
@@ -707,7 +708,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
               case InstructionIndex::AssertionDefines: {
                 const auto &value{std::get<ValueProperty>(instruction.value)};
                 if (fusion->second.contains(value.first)) {
-                  changed = true;
+                  target_changed = true;
                   continue;
                 }
                 break;
@@ -716,7 +717,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
               case InstructionIndex::AssertionType:
                 if (std::get<ValueType>(instruction.value) ==
                     sourcemeta::core::JSON::Type::Object) {
-                  changed = true;
+                  target_changed = true;
                   continue;
                 }
                 break;
@@ -728,7 +729,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
           if (transform_instruction(instruction, result, extra, targets,
                                     statistics, current_stats, tweaks,
                                     uses_dynamic_scopes, positional)) {
-            changed = true;
+            target_changed = true;
           }
 
           if (positional) {
@@ -784,6 +785,18 @@ inline auto postprocess(std::vector<Instructions> &targets,
         }
 
         *current = std::move(result);
+      }
+
+      if (target_changed) {
+        // Later targets may inline this one, so their size and scope checks
+        // must describe the rewritten instructions rather than the original
+        // jumps. Otherwise a small shared graph can expand into a large tree
+        // while every target still appears to fit the inlining threshold.
+        current_stats = {.count = 0,
+                         .jump_targets = {},
+                         .requires_empty_instance_location = false};
+        collect_statistics(target, current_stats);
+        changed = true;
       }
     }
   }
