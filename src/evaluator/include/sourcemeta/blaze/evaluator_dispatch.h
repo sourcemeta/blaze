@@ -1642,16 +1642,37 @@ INSTRUCTION_HANDLER(ControlGroupWhenDefines) {
 INSTRUCTION_HANDLER(ControlGroupWhenDefinesDirect) {
   EVALUATE_BEGIN_PASS_THROUGH(ControlGroupWhenDefinesDirect);
   assert(!instruction.children.empty());
-  assert(instruction.relative_instance_location.empty());
   const auto &value{assume_value<ValueProperty>(instruction.value)};
+  if (!instance.is_object()) {
+    EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefinesDirect);
+  }
 
-  if (instance.is_object() && instance.defines(value.first, value.second)) {
-    for (const auto &child : instruction.children) {
-      if (!EVALUATE_RECURSE(child, instance)) [[unlikely]] {
-        result = false;
-        break;
-      }
+  const auto &object{instance.as_object()};
+  const auto match{object.find(value.first, value.second)};
+  if (match == object.cend()) {
+    EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefinesDirect);
+  }
+
+  // Carrying an instance location means the children navigate no further, as
+  // the single lookup above is the one they would each have repeated
+  const auto &target{instruction.relative_instance_location.empty()
+                         ? instance
+                         : match->second};
+  if constexpr (HasCallback) {
+    context.evaluator->instance_location.push_back(
+        instruction.relative_instance_location);
+  }
+
+  for (const auto &child : instruction.children) {
+    if (!EVALUATE_RECURSE(child, target)) [[unlikely]] {
+      result = false;
+      break;
     }
+  }
+
+  if constexpr (HasCallback) {
+    context.evaluator->instance_location.pop_back(
+        instruction.relative_instance_location.size());
   }
 
   EVALUATE_END_PASS_THROUGH(ControlGroupWhenDefinesDirect);

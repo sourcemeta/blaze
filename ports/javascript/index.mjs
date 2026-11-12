@@ -353,7 +353,7 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
     case 97: return fb(97);
     case 98: { if(!children||children.length===0)return 'return true;'; var c=''; for(var j=0;j<children.length;j++){var r2=compileInstructionToCode(children[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(children[j]);c+='if(!_e(_c['+ci+'],i,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(i,d+1,_t,_v))return false;';}} return c+'return true;'; }
     case 99: { var r=R('t'); if(!r)return null; var c=r+TO+'return true;if(!Object.hasOwn(t,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
-    case 100: { var c=IO+'if(!Object.hasOwn(i,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
+    case 100: { if(ri.length!==0)return fb(100); var c=IO+'if(!Object.hasOwn(i,'+JSON.stringify(value)+'))return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
     case 101: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
     case 102: return 'return true;';
     case 103: return fb(103);
@@ -2649,14 +2649,30 @@ function ControlGroupWhenDefines(instruction, instance, depth, template, evaluat
 
 function ControlGroupWhenDefinesDirect(instruction, instance, depth, template, evaluator) {
   if (!isObject(instance)) return true;
-  if (!Object.hasOwn(instance, instruction[6])) return true;
+  const name = instruction[6];
+  if (!Object.hasOwn(instance, name)) return true;
   const children = instruction[7];
-  if (children) {
-    for (let index = 0; index < children.length; index++) {
-      if (!evaluateInstruction(children[index], instance, depth + 1, template, evaluator)) return false;
+  if (!children) return true;
+  const relInstance = instruction[2];
+  const target = relInstance.length === 0 ? instance : instance[name];
+  if (evaluator.callbackMode) {
+    for (let index = 0; index < relInstance.length; index++) {
+      evaluator.pushInstanceToken(relInstance[index]);
     }
   }
-  return true;
+  let result = true;
+  for (let index = 0; index < children.length; index++) {
+    if (!evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
+      result = false;
+      break;
+    }
+  }
+  if (evaluator.callbackMode) {
+    for (let index = 0; index < relInstance.length; index++) {
+      evaluator.popInstanceToken();
+    }
+  }
+  return result;
 };
 
 function ControlGroupWhenType(instruction, instance, depth, template, evaluator) {

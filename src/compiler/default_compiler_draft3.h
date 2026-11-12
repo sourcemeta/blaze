@@ -1233,9 +1233,33 @@ auto compiler_draft3_applicator_properties_with_options(
               children.push_back(std::move(step));
             }
           } else {
-            children.push_back(make(
-                InstructionIndex::ControlGroupWhenDefinesDirect,
-                effective_context, make_property(name), std::move(substeps)));
+            // Every child navigates into the same property, so the group can
+            // resolve it once and hand the value over, rather than each child
+            // scanning the object for a name the group has already found
+            const auto hoist_property{std::ranges::all_of(
+                substeps, [&name](const auto &step) -> bool {
+                  return accepts_resolved_instance(step.type) &&
+                         step.relative_instance_location.size() == 1 &&
+                         step.relative_instance_location.at(0).is_property() &&
+                         step.relative_instance_location.at(0).to_property() ==
+                             name;
+                })};
+
+            if (hoist_property) {
+              for (auto &step : substeps) {
+                step.relative_instance_location = {};
+              }
+            }
+
+            auto group{make(InstructionIndex::ControlGroupWhenDefinesDirect,
+                            effective_context, make_property(name),
+                            std::move(substeps))};
+            if (hoist_property) {
+              group.relative_instance_location =
+                  sourcemeta::core::Pointer{name};
+            }
+
+            children.push_back(std::move(group));
           }
         } else {
           children.push_back(make(InstructionIndex::ControlGroupWhenDefines,

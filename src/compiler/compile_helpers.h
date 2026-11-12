@@ -544,6 +544,45 @@ inline auto recursive_template_size(const Instructions &steps) -> std::size_t {
   return result;
 }
 
+// Whether an instruction checks the instance it is handed, rather than
+// resolving a property out of it or relaying to children that stay relative to
+// it. A group that applies several instructions to one property can resolve
+// that property once and hand the value to all of them, but only when every
+// one of them accepts it. Any instruction that navigates on its own behalf has
+// to be listed here, or it would be handed the property's value and then look
+// for the property inside it
+inline auto accepts_resolved_instance(const InstructionIndex type) noexcept
+    -> bool {
+  switch (type) {
+    case InstructionIndex::AssertionPropertyType:
+    case InstructionIndex::AssertionPropertyTypeEvaluate:
+    case InstructionIndex::AssertionPropertyTypeStrict:
+    case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
+    case InstructionIndex::AssertionPropertyTypeStrictAny:
+    case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
+    case InstructionIndex::AssertionPropertyEqual:
+    // Postprocessing promotes these three into the property forms above
+    // whenever they carry a property location, so hoisting would hand them the
+    // value and leave them looking for the property inside it
+    case InstructionIndex::AssertionType:
+    case InstructionIndex::AssertionTypeStrict:
+    case InstructionIndex::AssertionTypeStrictAny:
+    case InstructionIndex::ControlGroup:
+    case InstructionIndex::ControlGroupWhenDefines:
+    case InstructionIndex::ControlGroupWhenDefinesDirect:
+    case InstructionIndex::ControlGroupWhenType:
+    case InstructionIndex::ControlEvaluate:
+    // Reference inlining splices a target's instructions in place of the jump
+    // and anchors them on the location the jump carried, so clearing it would
+    // strip the property token from everything inlined
+    case InstructionIndex::ControlJump:
+    case InstructionIndex::ControlDynamicAnchorJump:
+      return false;
+    default:
+      return true;
+  }
+}
+
 inline auto make_property(const ValueString &property) -> ValueProperty {
   static const sourcemeta::core::PropertyHashJSON<ValueString> HASHER;
   return {property, HASHER(property)};
