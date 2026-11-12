@@ -196,7 +196,36 @@ public:
 
   /// Attempt to find an entry by key
   [[nodiscard]] auto find(const Key &key) const -> const_iterator {
-    const auto key_hash{this->hash(key)};
+    return this->find(key, this->hash(key));
+  }
+
+  /// Attempt to find an entry by key
+  template <typename T>
+    requires std::same_as<std::remove_cvref_t<T>, KeyView>
+  [[nodiscard]] auto find(T key) const -> const_iterator {
+    return this->find(key, this->hash(key));
+  }
+
+  /// Attempt to find an entry by key given a pre-calculated property hash. The
+  /// resulting iterator also locates the entry by position, as its distance
+  /// from the beginning of the object. For example:
+  ///
+  /// ```cpp
+  /// #include <sourcemeta/core/json.h>
+  /// #include <cassert>
+  /// #include <iterator>
+  ///
+  /// const sourcemeta::core::JSON document =
+  ///   sourcemeta::core::parse_json("{ \"foo\": 1, \"bar\": 2 }");
+  /// const auto &object{document.as_object()};
+  /// const auto iterator{object.find("bar", object.hash("bar"))};
+  /// assert(iterator != object.cend());
+  /// assert(iterator->second.to_integer() == 2);
+  /// assert(std::distance(object.cbegin(), iterator) == 1);
+  /// ```
+  [[nodiscard]] auto find(const Key &key, const hash_type key_hash) const
+      -> const_iterator {
+    assert(this->hash(key) == key_hash);
 
     // Move the perfect hash condition out of the loop for extra performance
     if (this->HASHER.is_perfect(key_hash)) {
@@ -221,11 +250,14 @@ public:
     return this->cend();
   }
 
-  /// Attempt to find an entry by key
+  /// Attempt to find an entry by key given a pre-calculated property hash. The
+  /// resulting iterator also locates the entry by position, as its distance
+  /// from the beginning of the object
   template <typename T>
     requires std::same_as<std::remove_cvref_t<T>, KeyView>
-  [[nodiscard]] auto find(T key) const -> const_iterator {
-    const auto key_hash{this->hash(key)};
+  [[nodiscard]] auto find(T key, const hash_type key_hash) const
+      -> const_iterator {
+    assert(this->hash(key) == key_hash);
 
     // Move the perfect hash condition out of the loop for extra performance
     if (this->HASHER.is_perfect(key_hash)) {
@@ -310,7 +342,8 @@ public:
 
   /// Access an object entry by its underlying positional index
   [[nodiscard]] auto at(const size_type index) const -> const Entry & {
-    return this->data_.at(index);
+    assert(index < this->data_.size());
+    return this->data_[index];
   }
 
   /// Access an object entry by its key name

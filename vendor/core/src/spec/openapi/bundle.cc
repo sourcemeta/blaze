@@ -273,18 +273,20 @@ auto absolutize_schemas(sourcemeta::core::JSON &value,
       continue;
     }
 
-    const auto held{(discriminator.origin).resolve_from(origin)};
-    const auto *written{sourcemeta::core::try_get(value, held)};
-    if (written == nullptr || !written->is_string()) {
-      continue;
-    }
-
     // Section 4.3.3 resolves a name against the Components Object of the entry
     // document wherever the Discriminator Object naming it sits, so moving the
     // schema leaves it naming exactly what it named. That holds whether or not
     // the name also happens to lead into what moves, so it is settled before
-    // any route is, or a name would be written out as the route it took
-    if (sourcemeta::core::openapi_is_component_key(written->to_string())) {
+    // any route is, or a name would be written out as the route it took.
+    // Which of the two readings the description wrote is the frame's to say,
+    // as the one that settled it
+    if (discriminator.by_name) {
+      continue;
+    }
+
+    const auto held{(discriminator.origin).resolve_from(origin)};
+    const auto *written{sourcemeta::core::try_get(value, held)};
+    if (written == nullptr || !written->is_string()) {
       continue;
     }
 
