@@ -178,7 +178,8 @@ inline auto collect_statistics(const Instructions &instructions,
     }
 
     if (instruction.type == InstructionIndex::ControlGroupWhenDefinesDirect ||
-        instruction.type == InstructionIndex::ControlGroupWhenType) {
+        instruction.type == InstructionIndex::ControlGroupWhenType ||
+        instruction.type == InstructionIndex::ControlFrame) {
       statistics.requires_empty_instance_location = true;
     }
 

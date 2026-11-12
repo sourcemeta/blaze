@@ -357,7 +357,8 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
     case 101: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
     case 102: return 'return true;';
     case 103: return fb(103);
-    case 104: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(104); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(104); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
+    case 104: return fb(104);
+    case 105: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(105); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(105); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
     default: return null;
   }
 }
@@ -467,6 +468,7 @@ class Blaze {
     const dynamic = template[1];
     this.framesMode = track;
     this.dynamicMode = dynamic;
+    this.frame = 0;
     this.callbackMode = callback !== undefined;
     this.callback = callback;
 
