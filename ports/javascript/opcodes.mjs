@@ -101,8 +101,9 @@ export const CONTROL_GROUP_WHEN_DEFINES = 99;
 export const CONTROL_GROUP_WHEN_DEFINES_DIRECT = 100;
 export const CONTROL_GROUP_WHEN_TYPE = 101;
 export const CONTROL_EVALUATE = 102;
-export const CONTROL_DYNAMIC_ANCHOR_JUMP = 103;
-export const CONTROL_JUMP = 104;
+export const CONTROL_FRAME = 103;
+export const CONTROL_DYNAMIC_ANCHOR_JUMP = 104;
+export const CONTROL_JUMP = 105;
 
 export const INSTRUCTION_NAMES = {
   "AssertionFail": ASSERTION_FAIL,
@@ -208,6 +209,7 @@ export const INSTRUCTION_NAMES = {
   "ControlGroupWhenDefinesDirect": CONTROL_GROUP_WHEN_DEFINES_DIRECT,
   "ControlGroupWhenType": CONTROL_GROUP_WHEN_TYPE,
   "ControlEvaluate": CONTROL_EVALUATE,
+  "ControlFrame": CONTROL_FRAME,
   "ControlDynamicAnchorJump": CONTROL_DYNAMIC_ANCHOR_JUMP,
   "ControlJump": CONTROL_JUMP,
   "Annotation": -1

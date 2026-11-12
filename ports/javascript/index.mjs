@@ -3,11 +3,11 @@ import {
   isWrappedAnnotationOpcode,
   ASSERTION_EQUALS_ANY,
   CONTROL_GROUP as CONTROL_GROUP_START,
-  CONTROL_EVALUATE as CONTROL_EVALUATE_END,
+  CONTROL_FRAME as CONTROL_PASS_THROUGH_END,
   CONTROL_JUMP, CONTROL_DYNAMIC_ANCHOR_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 15;
+const JSON_VERSION = 16;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -357,7 +357,8 @@ function compileInstructionToCode(instruction, captures, visited, budget) {
     case 101: { var c='if(_jt(i)!=='+value+')return true;'; if(children&&children.length>0)c+=seq(children,'i'); return c+'return true;'; }
     case 102: return 'return true;';
     case 103: return fb(103);
-    case 104: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(104); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(104); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
+    case 104: return fb(104);
+    case 105: { if(!value)return 'return true;'; if(visited&&visited.has(instruction))return fb(105); if(!visited)visited=new Set(); visited.add(instruction); var r=R('t'); if(!r)return fb(105); var c=r; for(var j=0;j<value.length;j++){var r2=compileInstructionToCode(value[j],captures,visited,budget); if(r2===null){var ci=captures.length;captures.push(value[j]);c+='if(!_e(_c['+ci+'],t,d+1,_t,_v))return false;';}else{budget[0]-=r2.length;c+='if(!(function(i,d,_t,_v){'+r2+'})(t,d+1,_t,_v))return false;';}} return c+'return true;'; }
     default: return null;
   }
 }
@@ -432,7 +433,7 @@ class Blaze {
     compile(template);
     this.template = template;
     this.callbackMode = false;
-    this.trackMode = false;
+    this.framesMode = false;
     this.dynamicMode = false;
     this.callback = null;
     this.evaluatePathLength = 0;
@@ -441,6 +442,7 @@ class Blaze {
     this.instanceLocationTokens = null;
     this.resources = null;
     this.evaluated = null;
+    this.frame = 0;
     this.propertyTarget = undefined;
     this.propertyParent = undefined;
     this.propertyKey = undefined;
@@ -464,8 +466,9 @@ class Blaze {
 
     const track = template[2];
     const dynamic = template[1];
-    this.trackMode = track;
+    this.framesMode = track;
     this.dynamicMode = dynamic;
+    this.frame = 0;
     this.callbackMode = callback !== undefined;
     this.callback = callback;
 
@@ -515,10 +518,6 @@ class Blaze {
     return result;
   }
 
-  snapshotPathTokens() {
-    return this.evaluatePathTokens.slice(0, this.evaluatePathLength);
-  }
-
   pushPath(relativeSchemaLocation) {
     for (let index = 0; index < relativeSchemaLocation.length; index++) {
       if (this.evaluatePathLength < this.evaluatePathTokens.length) {
@@ -535,7 +534,7 @@ class Blaze {
   }
 
   callbackPush(instruction) {
-    if (!this.trackMode) {
+    if (!this.framesMode) {
       this.pushPath(instruction[1]);
     }
     const relInstance = instruction[2];
@@ -555,7 +554,7 @@ class Blaze {
       buildJsonPointer(this.evaluatePathTokens, this.evaluatePathLength),
       buildJsonPointer(this.instanceLocationTokens, this.instanceLocationLength),
       isAnnotation ? instruction[6] : null);
-    if (!this.trackMode) {
+    if (!this.framesMode) {
       this.popPath(instruction[1].length);
     }
     const relInstance = instruction[2];
@@ -565,7 +564,7 @@ class Blaze {
   }
 
   callbackAnnotation(instruction) {
-    if (!this.trackMode) {
+    if (!this.framesMode) {
       this.pushPath(instruction[1]);
     }
     const relInstance = instruction[2];
@@ -587,7 +586,7 @@ class Blaze {
     }
     this.callback("pre", true, instruction, evaluatePath, instanceLocation, null);
     this.callback("post", true, instruction, evaluatePath, instanceLocation, annotationValue);
-    if (!this.trackMode) {
+    if (!this.framesMode) {
       this.popPath(instruction[1].length);
     }
     for (let index = 0; index < relInstance.length; index++) {
@@ -609,40 +608,20 @@ class Blaze {
   }
 
   markEvaluated(target, parent, key) {
-    this.evaluated.push({
-      instance: target,
-      parent: parent,
-      key: key,
-      pathTokens: this.snapshotPathTokens(),
-      pathLength: this.evaluatePathLength
-    });
+    this.evaluated.push({ instance: target, parent: parent, key: key });
   }
 
   isEvaluated(target, parent, key) {
-    const pathLen = this.evaluatePathLength;
-    const initialLen = pathLen <= 1 ? 0 : pathLen - 1;
-    const initialTokens = this.evaluatePathTokens;
     const isPrimitive = target === null || typeof target !== 'object';
     const hasLocation = parent !== undefined;
 
-    for (let index = this.evaluated.length - 1; index >= 0; index--) {
+    for (let index = this.evaluated.length - 1; index >= this.frame; index--) {
       const entry = this.evaluated[index];
       if (isPrimitive && hasLocation && entry.parent !== undefined) {
-        if (entry.parent !== parent || entry.key !== key) continue;
-      } else {
-        if (entry.instance !== target) continue;
+        if (entry.parent === parent && entry.key === key) return true;
+      } else if (entry.instance === target) {
+        return true;
       }
-
-      if (initialLen === 0) return true;
-      if (entry.pathLength < initialLen) continue;
-      let match = true;
-      for (let token = 0; token < initialLen; token++) {
-        if (entry.pathTokens[token] !== initialTokens[token]) {
-          match = false;
-          break;
-        }
-      }
-      if (match) return true;
     }
     return false;
   }
@@ -673,8 +652,8 @@ function evaluateInstructionTracked(instruction, instance, depth, template, eval
   if (!handler) return true;
 
   const type = instruction[0];
-  if (type < CONTROL_GROUP_START || type > CONTROL_EVALUATE_END) {
-    if (evaluator.trackMode) {
+  if (type < CONTROL_GROUP_START || type > CONTROL_PASS_THROUGH_END) {
+    if (evaluator.framesMode) {
       evaluator.pushPath(instruction[1]);
     }
     if (evaluator.dynamicMode) {
@@ -683,7 +662,7 @@ function evaluateInstructionTracked(instruction, instance, depth, template, eval
 
     const result = handler(instruction, instance, depth, template, evaluator);
 
-    if (evaluator.trackMode) {
+    if (evaluator.framesMode) {
       evaluator.popPath(instruction[1].length);
     }
     if (evaluator.dynamicMode) {
@@ -710,7 +689,7 @@ function evaluateInstructionFastCallback(instruction, instance, depth, template,
 function evaluateInstructionWithoutCallback(instruction, instance, depth, template, evaluator) {
   const previousDispatch = evaluateInstruction;
   const previousCallbackMode = evaluator.callbackMode;
-  evaluateInstruction = (evaluator.trackMode || evaluator.dynamicMode)
+  evaluateInstruction = (evaluator.framesMode || evaluator.dynamicMode)
     ? evaluateInstructionTracked
     : evaluateInstructionFast;
   evaluator.callbackMode = false;
@@ -728,8 +707,8 @@ function evaluateInstructionTrackedCallback(instruction, instance, depth, templa
   if (!handler) return true;
 
   const type = instruction[0];
-  if (type < CONTROL_GROUP_START || type > CONTROL_EVALUATE_END) {
-    if (evaluator.trackMode) {
+  if (type < CONTROL_GROUP_START || type > CONTROL_PASS_THROUGH_END) {
+    if (evaluator.framesMode) {
       evaluator.pushPath(instruction[1]);
     }
     if (evaluator.dynamicMode) {
@@ -738,7 +717,7 @@ function evaluateInstructionTrackedCallback(instruction, instance, depth, templa
 
     const result = handler(instruction, instance, depth, template, evaluator);
 
-    if (evaluator.trackMode) {
+    if (evaluator.framesMode) {
       evaluator.popPath(instruction[1].length);
     }
     if (evaluator.dynamicMode) {
@@ -1472,7 +1451,7 @@ function AssertionPropertyTypeEvaluate(instruction, instance, depth, template, e
   const expected = instruction[6];
   const actual = jsonTypeOf(target);
   const result = actual === expected || (expected === Type.Integer && isIntegral(target));
-  if (result && evaluator.trackMode) {
+  if (result && evaluator.framesMode) {
     const location = instruction[2];
     evaluator.markEvaluated(target, instance, location.length > 0 ? location[location.length - 1] : undefined);
   }
@@ -1506,7 +1485,7 @@ function AssertionPropertyTypeStrictEvaluate(instruction, instance, depth, templ
   if (target === undefined) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const result = effectiveTypeStrictReal(target) === instruction[6];
-  if (result && evaluator.trackMode) {
+  if (result && evaluator.framesMode) {
     const location = instruction[2];
     evaluator.markEvaluated(target, instance, location.length > 0 ? location[location.length - 1] : undefined);
   }
@@ -1530,7 +1509,7 @@ function AssertionPropertyTypeStrictAnyEvaluate(instruction, instance, depth, te
   if (target === undefined) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
   const result = typeSetTest(instruction[6], effectiveTypeStrictReal(target));
-  if (result && evaluator.trackMode) {
+  if (result && evaluator.framesMode) {
     const location = instruction[2];
     evaluator.markEvaluated(target, instance, location.length > 0 ? location[location.length - 1] : undefined);
   }
@@ -1584,7 +1563,7 @@ function AssertionArrayPrefixEvaluate(instruction, instance, depth, template, ev
       }
     }
   }
-  if (evaluator.trackMode) {
+  if (evaluator.framesMode) {
     if (target.length === prefixes) {
       evaluator.markEvaluated(target);
     } else {
@@ -1647,7 +1626,7 @@ function AnnotationBasenameToParent(instruction, instance, depth, template, eval
 
 function Evaluate(instruction, instance, depth, template, evaluator) {
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
-  if (evaluator.trackMode) {
+  if (evaluator.framesMode) {
     const target = resolveInstance(instance, instruction[2]);
     evaluator.markEvaluated(target);
   }
@@ -1673,7 +1652,7 @@ function LogicalNot(instruction, instance, depth, template, evaluator) {
 
 function LogicalNotEvaluate(instruction, instance, depth, template, evaluator) {
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
-  const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+  const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
   const target = resolveInstance(instance, instruction[2]);
   const children = instruction[7];
   let result = false;
@@ -1685,7 +1664,7 @@ function LogicalNotEvaluate(instruction, instance, depth, template, evaluator) {
       }
     }
   }
-  if (evaluator.trackMode) evaluator.rewind(checkpoint);
+  if (evaluator.framesMode) evaluator.rewind(checkpoint);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, result);
   return result;
 };
@@ -1702,21 +1681,21 @@ function LogicalOr(instruction, instance, depth, template, evaluator) {
   let result = false;
   if (exhaustive) {
     for (let index = 0; index < children.length; index++) {
-      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+      const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
         result = true;
-      } else if (evaluator.trackMode) {
+      } else if (evaluator.framesMode) {
         evaluator.rewind(checkpoint);
       }
     }
   } else {
     for (let index = 0; index < children.length; index++) {
-      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+      const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
         result = true;
         break;
       }
-      if (evaluator.trackMode) evaluator.rewind(checkpoint);
+      if (evaluator.framesMode) evaluator.rewind(checkpoint);
     }
   }
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, result);
@@ -1748,7 +1727,7 @@ function LogicalXor(instruction, instance, depth, template, evaluator) {
   let hasMatched = false;
   if (children) {
     for (let index = 0; index < children.length; index++) {
-      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+      const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
         if (hasMatched) {
           result = false;
@@ -1756,7 +1735,7 @@ function LogicalXor(instruction, instance, depth, template, evaluator) {
         } else {
           hasMatched = true;
         }
-      } else if (evaluator.trackMode) {
+      } else if (evaluator.framesMode) {
         evaluator.rewind(checkpoint);
       }
     }
@@ -1776,7 +1755,7 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
 
   const target = resolveInstance(instance, instruction[2]);
 
-  const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+  const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
   let conditionResult = true;
   for (let cursor = 0; cursor < thenStart; cursor++) {
     if (!evaluateInstruction(children[cursor], target, depth + 1, template, evaluator)) {
@@ -1784,7 +1763,7 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
       break;
     }
   }
-  if (!conditionResult && evaluator.trackMode) evaluator.rewind(checkpoint);
+  if (!conditionResult && evaluator.framesMode) evaluator.rewind(checkpoint);
 
   let consequenceStart;
   let consequenceEnd;
@@ -1797,7 +1776,7 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
   }
 
   if (consequenceStart < consequenceEnd) {
-    if (evaluator.trackMode || evaluator.callbackMode) {
+    if (evaluator.framesMode || evaluator.callbackMode) {
       evaluator.popPath(instruction[1].length);
     }
 
@@ -1809,7 +1788,7 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
       }
     }
 
-    if (evaluator.trackMode || evaluator.callbackMode) {
+    if (evaluator.framesMode || evaluator.callbackMode) {
       evaluator.pushPath(instruction[1]);
     }
 
@@ -1876,13 +1855,13 @@ function LoopPropertiesUnevaluated(instruction, instance, depth, template, evalu
   const target = resolveInstance(instance, instruction[2]);
   if (!isObject(target)) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
-  if (evaluator.trackMode && evaluator.isEvaluated(target)) {
+  if (evaluator.framesMode && evaluator.isEvaluated(target)) {
     if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
     return true;
   }
   const children = instruction[7];
   for (const key in target) {
-    if (evaluator.trackMode && evaluator.isEvaluated(target[key], target, key)) continue;
+    if (evaluator.framesMode && evaluator.isEvaluated(target[key], target, key)) continue;
     if (evaluator.callbackMode) evaluator.pushInstanceToken(key);
     if (children) {
       for (let childIndex = 0; childIndex < children.length; childIndex++) {
@@ -1895,7 +1874,7 @@ function LoopPropertiesUnevaluated(instruction, instance, depth, template, evalu
     }
     if (evaluator.callbackMode) evaluator.popInstanceToken();
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
   return true;
 };
@@ -1904,7 +1883,7 @@ function LoopPropertiesUnevaluatedExcept(instruction, instance, depth, template,
   const target = resolveInstance(instance, instruction[2]);
   if (!isObject(target)) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
-  if (evaluator.trackMode && evaluator.isEvaluated(target)) {
+  if (evaluator.framesMode && evaluator.isEvaluated(target)) {
     if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
     return true;
   }
@@ -1925,7 +1904,7 @@ function LoopPropertiesUnevaluatedExcept(instruction, instance, depth, template,
       if (filterRegexes[index].test(key)) { matched = true; break; }
     }
     if (matched) continue;
-    if (evaluator.trackMode && evaluator.isEvaluated(target[key], target, key)) continue;
+    if (evaluator.framesMode && evaluator.isEvaluated(target[key], target, key)) continue;
     if (evaluator.callbackMode) evaluator.pushInstanceToken(key);
     if (children) {
       for (let childIndex = 0; childIndex < children.length; childIndex++) {
@@ -1938,7 +1917,7 @@ function LoopPropertiesUnevaluatedExcept(instruction, instance, depth, template,
     }
     if (evaluator.callbackMode) evaluator.popInstanceToken();
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
   return true;
 };
@@ -2040,7 +2019,7 @@ function LoopPropertiesEvaluate(instruction, instance, depth, template, evaluato
   }
   evaluator.propertyParent = undefined;
   evaluator.propertyKey = undefined;
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
   return true;
 };
@@ -2203,7 +2182,7 @@ function LoopPropertiesTypeEvaluate(instruction, instance, depth, template, eval
       return false;
     }
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
   return true;
 };
@@ -2288,7 +2267,7 @@ function LoopPropertiesTypeStrictEvaluate(instruction, instance, depth, template
       return false;
     }
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
   return true;
 };
@@ -2319,7 +2298,7 @@ function LoopPropertiesTypeStrictAnyEvaluate(instruction, instance, depth, templ
       return false;
     }
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
   return true;
 };
@@ -2399,13 +2378,13 @@ function LoopItemsUnevaluated(instruction, instance, depth, template, evaluator)
   const target = resolveInstance(instance, instruction[2]);
   if (!Array.isArray(target)) return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
-  if (evaluator.trackMode && evaluator.isEvaluated(target)) {
+  if (evaluator.framesMode && evaluator.isEvaluated(target)) {
     if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
     return true;
   }
   const children = instruction[7];
   for (let index = 0; index < target.length; index++) {
-    if (evaluator.trackMode && evaluator.isEvaluated(target[index], target, index)) continue;
+    if (evaluator.framesMode && evaluator.isEvaluated(target[index], target, index)) continue;
     if (evaluator.callbackMode) evaluator.pushInstanceToken(index);
     if (children) {
       for (let childIndex = 0; childIndex < children.length; childIndex++) {
@@ -2418,7 +2397,7 @@ function LoopItemsUnevaluated(instruction, instance, depth, template, evaluator)
     }
     if (evaluator.callbackMode) evaluator.popInstanceToken();
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, true);
   return true;
 };
@@ -2624,6 +2603,25 @@ function LoopContains(instruction, instance, depth, template, evaluator) {
   return result;
 };
 
+// Opens the scope an `unevaluated*` keyword reads from. It has to be an
+// instruction because the compiler flattens sibling subschemas into a single
+// list, where nothing else records which subschema a mark came from
+function ControlFrame(instruction, instance, depth, template, evaluator) {
+  const children = instruction[7];
+  if (!children) return true;
+  const parentFrame = evaluator.frame;
+  if (evaluator.framesMode) evaluator.frame = evaluator.evaluated.length;
+  let result = true;
+  for (let index = 0; index < children.length; index++) {
+    if (!evaluateInstruction(children[index], instance, depth + 1, template, evaluator)) {
+      result = false;
+      break;
+    }
+  }
+  if (evaluator.framesMode) evaluator.frame = parentFrame;
+  return result;
+};
+
 function ControlGroup(instruction, instance, depth, template, evaluator) {
   const children = instruction[7];
   if (children) {
@@ -2671,7 +2669,7 @@ function ControlGroupWhenType(instruction, instance, depth, template, evaluator)
 };
 
 function ControlEvaluate(instruction, instance, depth, template, evaluator) {
-  if (evaluator.trackMode) {
+  if (evaluator.framesMode) {
     const target = resolveInstance(instance, instruction[6]);
     evaluator.markEvaluated(target, evaluator.propertyParent, evaluator.propertyKey);
   }
@@ -2829,8 +2827,9 @@ const handlers = [
   ControlGroupWhenDefinesDirect,           // 100
   ControlGroupWhenType,                    // 101
   ControlEvaluate,                         // 102
-  ControlDynamicAnchorJump,                // 103
-  ControlJump                              // 104
+  ControlFrame,                            // 103
+  ControlDynamicAnchorJump,                // 104
+  ControlJump                              // 105
 ];
 
 function AssertionTypeArrayBounded_fast(instruction, instance, depth, template, evaluator) {
@@ -2913,15 +2912,15 @@ function LogicalOr_fast(instruction, instance, depth, template, evaluator) {
   let result = false;
   if (exhaustive) {
     for (let index = 0; index < children.length; index++) {
-      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+      const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) result = true;
-      else if (evaluator.trackMode) evaluator.rewind(checkpoint);
+      else if (evaluator.framesMode) evaluator.rewind(checkpoint);
     }
   } else {
     for (let index = 0; index < children.length; index++) {
-      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+      const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) return true;
-      if (evaluator.trackMode) evaluator.rewind(checkpoint);
+      if (evaluator.framesMode) evaluator.rewind(checkpoint);
     }
   }
   return result;
@@ -2966,7 +2965,7 @@ function LogicalXor_fast(instruction, instance, depth, template, evaluator) {
   let hasMatched = false;
   if (children) {
     for (let index = 0; index < children.length; index++) {
-      const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+      const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
       if (evaluateInstruction(children[index], target, depth + 1, template, evaluator)) {
         if (hasMatched) {
           result = false;
@@ -2974,7 +2973,7 @@ function LogicalXor_fast(instruction, instance, depth, template, evaluator) {
         } else {
           hasMatched = true;
         }
-      } else if (evaluator.trackMode) {
+      } else if (evaluator.framesMode) {
         evaluator.rewind(checkpoint);
       }
     }
@@ -3074,7 +3073,7 @@ function LogicalCondition_fast(instruction, instance, depth, template, evaluator
   const childrenSize = children ? children.length : 0;
   const relInstance = instruction[2];
   const target = relInstance.length === 0 ? instance : resolveInstance(instance, relInstance);
-  const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+  const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
   let conditionResult = true;
   for (let cursor = 0; cursor < thenStart; cursor++) {
     if (!evaluateInstruction(children[cursor], target, depth + 1, template, evaluator)) {
@@ -3082,7 +3081,7 @@ function LogicalCondition_fast(instruction, instance, depth, template, evaluator
       break;
     }
   }
-  if (!conditionResult && evaluator.trackMode) evaluator.rewind(checkpoint);
+  if (!conditionResult && evaluator.framesMode) evaluator.rewind(checkpoint);
   let consequenceStart;
   let consequenceEnd;
   if (conditionResult) {
@@ -3093,7 +3092,7 @@ function LogicalCondition_fast(instruction, instance, depth, template, evaluator
     consequenceEnd = elseStart > 0 ? childrenSize : elseStart;
   }
   if (consequenceStart < consequenceEnd) {
-    if (evaluator.trackMode) {
+    if (evaluator.framesMode) {
       evaluator.popPath(instruction[1].length);
     }
     let result = true;
@@ -3103,7 +3102,7 @@ function LogicalCondition_fast(instruction, instance, depth, template, evaluator
         break;
       }
     }
-    if (evaluator.trackMode) {
+    if (evaluator.framesMode) {
       evaluator.pushPath(instruction[1]);
     }
     return result;
@@ -3489,7 +3488,7 @@ function AssertionPropertyTypeEvaluate_fast(instruction, instance, depth, templa
   const expected = instruction[6];
   const actual = jsonTypeOf(target);
   const result = actual === expected || (expected === Type.Integer && isIntegral(target));
-  if (result && evaluator.trackMode) {
+  if (result && evaluator.framesMode) {
     const location = instruction[2];
     evaluator.markEvaluated(target, instance, location.length > 0 ? location[location.length - 1] : undefined);
   }
@@ -3501,7 +3500,7 @@ function AssertionPropertyTypeStrictEvaluate_fast(instruction, instance, depth, 
   const target = resolveInstance(instance, instruction[2]);
   if (target === undefined) return true;
   const result = effectiveTypeStrictReal(target) === instruction[6];
-  if (result && evaluator.trackMode) {
+  if (result && evaluator.framesMode) {
     const location = instruction[2];
     evaluator.markEvaluated(target, instance, location.length > 0 ? location[location.length - 1] : undefined);
   }
@@ -3520,7 +3519,7 @@ function AssertionPropertyTypeStrictAnyEvaluate_fast(instruction, instance, dept
   const target = resolveInstance(instance, instruction[2]);
   if (target === undefined) return true;
   const result = typeSetTest(instruction[6], effectiveTypeStrictReal(target));
-  if (result && evaluator.trackMode) {
+  if (result && evaluator.framesMode) {
     const location = instruction[2];
     evaluator.markEvaluated(target, instance, location.length > 0 ? location[location.length - 1] : undefined);
   }
@@ -3558,7 +3557,7 @@ function AssertionArrayPrefixEvaluate_fast(instruction, instance, depth, templat
       if (!evaluateInstruction(entryChildren[index], target, depth + 1, template, evaluator)) return false;
     }
   }
-  if (evaluator.trackMode) {
+  if (evaluator.framesMode) {
     if (target.length === prefixes) {
       evaluator.markEvaluated(target);
     } else {
@@ -3599,7 +3598,7 @@ function AnnotationToParent_fast() { return true; }
 function AnnotationBasenameToParent_fast() { return true; }
 
 function Evaluate_fast(instruction, instance, depth, template, evaluator) {
-  if (evaluator.trackMode) {
+  if (evaluator.framesMode) {
     const target = resolveInstance(instance, instruction[2]);
     evaluator.markEvaluated(target);
   }
@@ -3607,7 +3606,7 @@ function Evaluate_fast(instruction, instance, depth, template, evaluator) {
 }
 
 function LogicalNotEvaluate_fast(instruction, instance, depth, template, evaluator) {
-  const checkpoint = evaluator.trackMode ? evaluator.checkpoint() : 0;
+  const checkpoint = evaluator.framesMode ? evaluator.checkpoint() : 0;
   const relInstance = instruction[2];
   const target = relInstance.length === 0 ? instance : resolveInstance(instance, relInstance);
   const children = instruction[7];
@@ -3620,7 +3619,7 @@ function LogicalNotEvaluate_fast(instruction, instance, depth, template, evaluat
       }
     }
   }
-  if (evaluator.trackMode) evaluator.rewind(checkpoint);
+  if (evaluator.framesMode) evaluator.rewind(checkpoint);
   return result;
 }
 
@@ -3639,24 +3638,24 @@ function LogicalWhenArraySizeGreater_fast(instruction, instance, depth, template
 function LoopPropertiesUnevaluated_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
   if (!isObject(target)) return true;
-  if (evaluator.trackMode && evaluator.isEvaluated(target)) return true;
+  if (evaluator.framesMode && evaluator.isEvaluated(target)) return true;
   const children = instruction[7];
   for (const key in target) {
-    if (evaluator.trackMode && evaluator.isEvaluated(target[key], target, key)) continue;
+    if (evaluator.framesMode && evaluator.isEvaluated(target[key], target, key)) continue;
     if (children) {
       for (let childIndex = 0; childIndex < children.length; childIndex++) {
         if (!evaluateInstruction(children[childIndex], target[key], depth + 1, template, evaluator)) return false;
       }
     }
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   return true;
 }
 
 function LoopPropertiesUnevaluatedExcept_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
   if (!isObject(target)) return true;
-  if (evaluator.trackMode && evaluator.isEvaluated(target)) return true;
+  if (evaluator.framesMode && evaluator.isEvaluated(target)) return true;
   const filter = instruction[6];
   const filterStrings = filter[0];
   const filterPrefixes = filter[1];
@@ -3674,14 +3673,14 @@ function LoopPropertiesUnevaluatedExcept_fast(instruction, instance, depth, temp
       if (filterRegexes[index].test(key)) { matched = true; break; }
     }
     if (matched) continue;
-    if (evaluator.trackMode && evaluator.isEvaluated(target[key], target, key)) continue;
+    if (evaluator.framesMode && evaluator.isEvaluated(target[key], target, key)) continue;
     if (children) {
       for (let childIndex = 0; childIndex < children.length; childIndex++) {
         if (!evaluateInstruction(children[childIndex], target[key], depth + 1, template, evaluator)) return false;
       }
     }
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   return true;
 }
 
@@ -3705,7 +3704,7 @@ function LoopPropertiesEvaluate_fast(instruction, instance, depth, template, eva
   }
   evaluator.propertyParent = undefined;
   evaluator.propertyKey = undefined;
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   return true;
 }
 
@@ -3807,7 +3806,7 @@ function LoopPropertiesTypeEvaluate_fast(instruction, instance, depth, template,
     const actual = jsonTypeOf(target[key]);
     if (actual !== expected && !(expected === Type.Integer && isIntegral(target[key]))) return false;
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   return true;
 }
 
@@ -3861,7 +3860,7 @@ function LoopPropertiesTypeStrictEvaluate_fast(instruction, instance, depth, tem
   for (const key in target) {
     if (effectiveTypeStrictReal(target[key]) !== expected) return false;
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   return true;
 }
 
@@ -3884,7 +3883,7 @@ function LoopPropertiesTypeStrictAnyEvaluate_fast(instruction, instance, depth, 
   for (const key in target) {
     if (!typeSetTest(bitmask, effectiveTypeStrictReal(target[key]))) return false;
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   return true;
 }
 
@@ -3926,17 +3925,17 @@ function LoopItemsFrom_fast(instruction, instance, depth, template, evaluator) {
 function LoopItemsUnevaluated_fast(instruction, instance, depth, template, evaluator) {
   const target = resolveInstance(instance, instruction[2]);
   if (!Array.isArray(target)) return true;
-  if (evaluator.trackMode && evaluator.isEvaluated(target)) return true;
+  if (evaluator.framesMode && evaluator.isEvaluated(target)) return true;
   const children = instruction[7];
   for (let index = 0; index < target.length; index++) {
-    if (evaluator.trackMode && evaluator.isEvaluated(target[index], target, index)) continue;
+    if (evaluator.framesMode && evaluator.isEvaluated(target[index], target, index)) continue;
     if (children) {
       for (let childIndex = 0; childIndex < children.length; childIndex++) {
         if (!evaluateInstruction(children[childIndex], target[index], depth + 1, template, evaluator)) return false;
       }
     }
   }
-  if (evaluator.trackMode) evaluator.markEvaluated(target);
+  if (evaluator.framesMode) evaluator.markEvaluated(target);
   return true;
 }
 
@@ -4074,7 +4073,7 @@ fastHandlers[4] = AssertionDefinesAllStrict_fast;
 fastHandlers[27] = AssertionEqual_fast;
 fastHandlers[69] = LoopPropertiesMatch_fast;
 fastHandlers[60] = LogicalOr_fast;
-fastHandlers[104] = ControlJump_fast;
+fastHandlers[105] = ControlJump_fast;
 fastHandlers[29] = AssertionEqualsAnyStringHash_fast;
 fastHandlers[62] = LogicalXor_fast;
 fastHandlers[2] = AssertionDefinesStrict_fast;
@@ -4164,7 +4163,7 @@ fastHandlers[92] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
 fastHandlers[93] = LoopItemsPropertiesExactlyTypeStrictHash_fast;
 fastHandlers[94] = LoopItemsIntegerBounded_fast;
 fastHandlers[95] = LoopItemsIntegerBoundedSized_fast;
-fastHandlers[103] = ControlDynamicAnchorJump_fast;
+fastHandlers[104] = ControlDynamicAnchorJump_fast;
 
 import { describe } from './describe.mjs';
 

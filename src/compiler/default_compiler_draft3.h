@@ -1208,7 +1208,8 @@ auto compiler_draft3_applicator_properties_with_options(
           substeps.front().type !=
               InstructionIndex::ControlGroupWhenDefinesDirect &&
           substeps.front().type != InstructionIndex::ControlGroupWhenType &&
-          substeps.front().type != InstructionIndex::ControlEvaluate};
+          substeps.front().type != InstructionIndex::ControlEvaluate &&
+          substeps.front().type != InstructionIndex::ControlFrame};
       if (fusion_possible && fusable_single) {
         const auto is_required{assume_object && required.contains(name)};
         auto prop{make_property(name)};

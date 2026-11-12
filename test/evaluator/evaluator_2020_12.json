@@ -19659,5 +19659,96 @@
         "The object value was expected to validate against the single defined property subschema"
       ]
     }
+  },
+  {
+    "description": "unevaluated_items_within_a_fused_object_property",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": { "a": { "unevaluatedItems": false } }
+    },
+    "instance": { "a": [] },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopItemsUnevaluated", "/properties/a/unevaluatedItems", "#/properties/a/unevaluatedItems", "/a" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsUnevaluated", "/properties/a/unevaluatedItems", "#/properties/a/unevaluatedItems", "/a" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "LoopItemsUnevaluated", "/properties/a/unevaluatedItems", "#/properties/a/unevaluatedItems", "/a" ],
+        [ "Annotation", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "LoopItemsUnevaluated", "/properties/a/unevaluatedItems", "#/properties/a/unevaluatedItems", "/a" ],
+        [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+        [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+        "The object property \"a\" successfully validated against its property subschema",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "unevaluated_items_in_an_inlined_reference_target",
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": { "closed": { "unevaluatedItems": false } },
+      "properties": { "a": { "$ref": "#/$defs/closed" } }
+    },
+    "instance": { "a": [ 1 ] },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ "LoopItemsUnevaluated", "/properties/a/$ref/unevaluatedItems", "#/$defs/closed/unevaluatedItems", "/a" ],
+        [ "AssertionFail", "/properties/a/$ref/unevaluatedItems", "#/$defs/closed/unevaluatedItems", "/a/0" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/a/$ref/unevaluatedItems", "#/$defs/closed/unevaluatedItems", "/a/0" ],
+        [ false, "LoopItemsUnevaluated", "/properties/a/$ref/unevaluatedItems", "#/$defs/closed/unevaluatedItems", "/a" ],
+        [ false, "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ]
+      ],
+      "descriptions": [
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+        "The array value was expected to validate against the referenced schema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LogicalWhenType", "/properties", "#/properties", "" ],
+        [ "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ "LoopItemsUnevaluated", "/properties/a/$ref/unevaluatedItems", "#/$defs/closed/unevaluatedItems", "/a" ],
+        [ "AssertionFail", "/properties/a/$ref/unevaluatedItems", "#/$defs/closed/unevaluatedItems", "/a/0" ]
+      ],
+      "post": [
+        [ false, "AssertionFail", "/properties/a/$ref/unevaluatedItems", "#/$defs/closed/unevaluatedItems", "/a/0" ],
+        [ false, "LoopItemsUnevaluated", "/properties/a/$ref/unevaluatedItems", "#/$defs/closed/unevaluatedItems", "/a" ],
+        [ false, "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+        [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The array value was not expected to define the item at index 0",
+        "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+        "The array value was expected to validate against the referenced schema",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
   }
 ]
