@@ -1131,6 +1131,7 @@ auto OpenAPIFrame::to_json(
 
       entry.assign_assume_new("destination", JSON{discriminator.destination});
       entry.assign_assume_new("scope", JSON{discriminator.scope});
+      entry.assign_assume_new("byName", JSON{discriminator.by_name});
       entry.assign_assume_new("dangling", JSON{discriminator.dangling});
       discriminators.push_back(std::move(entry));
     }

@@ -78,7 +78,8 @@ openapi_record_discriminator(std::vector<OpenAPIDiscriminator> &result,
     const auto &holder{names == nullptr ? base : *names};
     result.push_back({.origin = std::move(origin),
                       .destination = openapi_location_uri(holder, named),
-                      .scope = holder});
+                      .scope = holder,
+                      .by_name = true});
     return;
   }
 
