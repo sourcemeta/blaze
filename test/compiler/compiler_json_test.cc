@@ -35,7 +35,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -81,7 +81,7 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -153,7 +153,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -198,7 +198,7 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -296,7 +296,7 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       true,
       [
@@ -348,7 +348,7 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       true,
       [
@@ -454,7 +454,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -873,7 +873,7 @@ TEST(items_fused_as_a_bounded_array_type_loop) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -1030,7 +1030,7 @@ TEST(messages_pool_survives_a_json_round_trip) {
 TEST(accepts_a_message_index_at_the_pool_size) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -1050,7 +1050,7 @@ TEST(accepts_a_message_index_at_the_pool_size) {
 TEST(rejects_a_message_index_beyond_the_pool) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -1070,7 +1070,7 @@ TEST(rejects_a_message_index_beyond_the_pool) {
 TEST(rejects_a_message_detail_index_beyond_the_pool) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -1090,7 +1090,7 @@ TEST(rejects_a_message_detail_index_beyond_the_pool) {
 TEST(rejects_a_vocabulary_index_beyond_the_pool) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      16,
+      15,
       false,
       false,
       [
@@ -1110,7 +1110,7 @@ TEST(rejects_a_vocabulary_index_beyond_the_pool) {
 TEST(rejects_the_previous_template_version) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      15,
+      14,
       false,
       false,
       [
