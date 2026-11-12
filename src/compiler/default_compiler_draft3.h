@@ -2733,22 +2733,22 @@ auto compiler_draft3_applicator_dependencies(const KeywordContext &context,
                  compile(context.relative(), make_weak_pointer(entry.first))));
       }
     } else if (entry.second.is_array()) {
-      std::vector<sourcemeta::core::JSON::String> properties;
+      ValueStringSet properties;
       for (const auto &property : entry.second.as_array()) {
         if (!property.is_string()) {
           continue;
         }
 
-        properties.push_back(property.to_string());
+        properties.insert(property.to_string());
       }
 
       if (!properties.empty()) {
-        dependencies.emplace(entry.first, properties);
+        dependencies.emplace(entry.first, std::move(properties));
       }
     } else if (draft3 && entry.second.is_string()) {
-      dependencies.emplace(entry.first,
-                           std::vector<sourcemeta::core::JSON::String>{
-                               entry.second.to_string()});
+      ValueStringSet properties;
+      properties.insert(entry.second.to_string());
+      dependencies.emplace(entry.first, std::move(properties));
     }
   }
 

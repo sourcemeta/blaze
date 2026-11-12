@@ -90,17 +90,17 @@ auto compiler_2019_09_validation_dependentrequired(
   ValueStringMap dependencies;
   for (const auto &entry : context.value().as_object()) {
 
-    std::vector<sourcemeta::core::JSON::String> properties;
+    ValueStringSet properties;
     for (const auto &property : entry.second.as_array()) {
       if (!property.is_string()) {
         continue;
       }
 
-      properties.push_back(property.to_string());
+      properties.insert(property.to_string());
     }
 
     if (!properties.empty()) {
-      dependencies.emplace(entry.first, properties);
+      dependencies.emplace(entry.first, std::move(properties));
     }
   }
 
