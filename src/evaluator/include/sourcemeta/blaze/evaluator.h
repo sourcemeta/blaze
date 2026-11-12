@@ -231,9 +231,7 @@ public:
   }
 
   auto evaluate(const sourcemeta::core::JSON *target) -> void {
-    Evaluation mark{.instance = target,
-                    .evaluate_path = this->evaluate_path,
-                    .skip = false};
+    Evaluation mark{.instance = target, .evaluate_path = this->evaluate_path};
     this->evaluated.push_back(std::move(mark));
   }
 
@@ -242,7 +240,7 @@ public:
     // NOLINTNEXTLINE(modernize-loop-convert)
     for (auto iterator = this->evaluated.rbegin();
          iterator != this->evaluated.rend(); ++iterator) {
-      if (target == iterator->instance && !iterator->skip &&
+      if (target == iterator->instance &&
           iterator->evaluate_path.starts_with_initial(this->evaluate_path)) {
         return true;
       }
@@ -251,19 +249,12 @@ public:
     return false;
   }
 
-  auto unevaluate() -> void {
-    for (auto &entry : this->evaluated) {
-      if (!entry.skip && entry.evaluate_path.starts_with(this->evaluate_path)) {
-        entry.skip = true;
-      }
-    }
-  }
-
   // A subschema that ends up failing must not contribute any of the marks it
   // made along the way, so a disjunction records the length here before each
-  // branch and truncates back to it when the branch does not hold. Marks are
-  // only ever appended, never inserted earlier, so everything a branch adds
-  // sits past the recorded length and nothing from outside it can be lost
+  // branch and truncates back to it when the branch does not hold, as does a
+  // negation for its whole subtree. Marks are only ever appended, never
+  // inserted earlier, so everything a branch adds sits past the recorded
+  // length and nothing from outside it can be lost
   [[nodiscard]] auto checkpoint() const -> std::size_t {
     return this->evaluated.size();
   }
@@ -283,7 +274,6 @@ public:
   struct Evaluation {
     const sourcemeta::core::JSON *instance;
     sourcemeta::core::WeakPointer evaluate_path;
-    bool skip;
   };
 
   std::vector<Evaluation> evaluated;
@@ -318,7 +308,7 @@ auto sourcemeta::blaze::Evaluator::evaluate_impl(
     }
   }
 
-  if constexpr (Track || HasCallback) {
+  if constexpr (Track) {
     assert(this->evaluate_path.empty());
   }
   if constexpr (HasCallback) {

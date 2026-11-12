@@ -78,7 +78,6 @@
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
-  [[maybe_unused]] constexpr bool track{Track || HasCallback};                 \
   EVALUATE_PUSH()                                                              \
   bool result{false};
 
@@ -89,7 +88,6 @@
   if (!(precondition)) [[unlikely]] {                                          \
     return true;                                                               \
   }                                                                            \
-  [[maybe_unused]] constexpr bool track{Track || HasCallback};                 \
   EVALUATE_PUSH()                                                              \
   bool result{false};
 
@@ -126,7 +124,6 @@
 
 #define EVALUATE_BEGIN_NO_PRECONDITION(instruction_type)                       \
   assert(instruction.type == InstructionIndex::instruction_type);              \
-  [[maybe_unused]] constexpr bool track{Track || HasCallback};                 \
   EVALUATE_PUSH()                                                              \
   bool result{false};
 
@@ -1586,12 +1583,10 @@ INSTRUCTION_HANDLER(LogicalCondition) {
 
   result = true;
   if (consequence_start < consequence_end) {
-    if constexpr (Track || HasCallback) {
-      if (track) {
-        context.evaluator->evaluate_path.pop_back(
-            context.schema->extra[instruction.extra_index]
-                .relative_schema_location.size());
-      }
+    if constexpr (Track) {
+      context.evaluator->evaluate_path.pop_back(
+          context.schema->extra[instruction.extra_index]
+              .relative_schema_location.size());
     }
 
     for (auto cursor = consequence_start; cursor < consequence_end; cursor++) {
@@ -1601,12 +1596,10 @@ INSTRUCTION_HANDLER(LogicalCondition) {
       }
     }
 
-    if constexpr (Track || HasCallback) {
-      if (track) {
-        context.evaluator->evaluate_path.push_back(
-            context.schema->extra[instruction.extra_index]
-                .relative_schema_location);
-      }
+    if constexpr (Track) {
+      context.evaluator->evaluate_path.push_back(
+          context.schema->extra[instruction.extra_index]
+              .relative_schema_location);
     }
   }
 
@@ -1800,6 +1793,11 @@ INSTRUCTION_HANDLER(LogicalNot) {
 INSTRUCTION_HANDLER(LogicalNotEvaluate) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalNotEvaluate);
 
+  [[maybe_unused]] std::size_t checkpoint{0};
+  if constexpr (Track) {
+    checkpoint = context.evaluator->checkpoint();
+  }
+
   const auto &target{
       resolve_instance(instance, instruction.relative_instance_location)};
   for (const auto &child : instruction.children) {
@@ -1809,7 +1807,9 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
     }
   }
 
-  context.evaluator->unevaluate();
+  if constexpr (Track) {
+    context.evaluator->rewind(checkpoint);
+  }
 
   EVALUATE_END(LogicalNotEvaluate);
 }
@@ -2039,9 +2039,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
   result = true;
   for (const auto &entry : target.as_object()) {
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(entry.first);
-      }
+      context.evaluator->instance_location.push_back(entry.first);
     }
 
     for (const auto &child : instruction.children) {
@@ -2049,9 +2047,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
         result = false;
 
         if constexpr (HasCallback) {
-          if (track) {
-            context.evaluator->instance_location.pop_back();
-          }
+          context.evaluator->instance_location.pop_back();
         }
 
         EVALUATE_END(LoopProperties);
@@ -2059,9 +2055,7 @@ INSTRUCTION_HANDLER(LoopProperties) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
   }
 
@@ -2075,9 +2069,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
   result = true;
   for (const auto &entry : target.as_object()) {
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(entry.first);
-      }
+      context.evaluator->instance_location.push_back(entry.first);
     }
 
     for (const auto &child : instruction.children) {
@@ -2085,9 +2077,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
         result = false;
 
         if constexpr (HasCallback) {
-          if (track) {
-            context.evaluator->instance_location.pop_back();
-          }
+          context.evaluator->instance_location.pop_back();
         }
 
         EVALUATE_END(LoopPropertiesEvaluate);
@@ -2095,9 +2085,7 @@ INSTRUCTION_HANDLER(LoopPropertiesEvaluate) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
   }
 
@@ -2116,9 +2104,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(entry.first);
-      }
+      context.evaluator->instance_location.push_back(entry.first);
     }
 
     for (const auto &child : instruction.children) {
@@ -2126,9 +2112,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
         result = false;
 
         if constexpr (HasCallback) {
-          if (track) {
-            context.evaluator->instance_location.pop_back();
-          }
+          context.evaluator->instance_location.pop_back();
         }
 
         EVALUATE_END(LoopPropertiesRegex);
@@ -2136,9 +2120,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegex) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
   }
 
@@ -2160,9 +2142,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(entry.first);
-      }
+      context.evaluator->instance_location.push_back(entry.first);
     }
 
     for (const auto &child : instruction.children) {
@@ -2170,9 +2150,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
         result = false;
 
         if constexpr (HasCallback) {
-          if (track) {
-            context.evaluator->instance_location.pop_back();
-          }
+          context.evaluator->instance_location.pop_back();
         }
 
         EVALUATE_END(LoopPropertiesRegexClosed);
@@ -2180,9 +2158,7 @@ INSTRUCTION_HANDLER(LoopPropertiesRegexClosed) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
   }
 
@@ -2200,9 +2176,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(entry.first);
-      }
+      context.evaluator->instance_location.push_back(entry.first);
     }
 
     for (const auto &child : instruction.children) {
@@ -2210,9 +2184,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
         result = false;
 
         if constexpr (HasCallback) {
-          if (track) {
-            context.evaluator->instance_location.pop_back();
-          }
+          context.evaluator->instance_location.pop_back();
         }
 
         EVALUATE_END(LoopPropertiesStartsWith);
@@ -2220,9 +2192,7 @@ INSTRUCTION_HANDLER(LoopPropertiesStartsWith) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
   }
 
@@ -2259,9 +2229,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(entry.first);
-      }
+      context.evaluator->instance_location.push_back(entry.first);
     }
 
     for (const auto &child : instruction.children) {
@@ -2269,9 +2237,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
         result = false;
 
         if constexpr (HasCallback) {
-          if (track) {
-            context.evaluator->instance_location.pop_back();
-          }
+          context.evaluator->instance_location.pop_back();
         }
 
         EVALUATE_END(LoopPropertiesExcept);
@@ -2279,9 +2245,7 @@ INSTRUCTION_HANDLER(LoopPropertiesExcept) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
   }
 
@@ -2484,9 +2448,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
   result = true;
   for (const auto &entry : target.as_object()) {
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(entry.first);
-      }
+      context.evaluator->instance_location.push_back(entry.first);
     }
 
     for (const auto &child : instruction.children) {
@@ -2495,9 +2457,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
         result = false;
 
         if constexpr (HasCallback) {
-          if (track) {
-            context.evaluator->instance_location.pop_back();
-          }
+          context.evaluator->instance_location.pop_back();
         }
 
         EVALUATE_END(LoopKeys);
@@ -2505,9 +2465,7 @@ INSTRUCTION_HANDLER(LoopKeys) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
   }
 
@@ -2555,9 +2513,7 @@ INSTRUCTION_HANDLER(LoopItems) {
   } else {
     for (std::size_t index = 0; index < target.array_size(); index++) {
       if constexpr (HasCallback) {
-        if (track) {
-          context.evaluator->instance_location.push_back(index);
-        }
+        context.evaluator->instance_location.push_back(index);
       }
 
       const auto &new_instance{target.at(index)};
@@ -2566,9 +2522,7 @@ INSTRUCTION_HANDLER(LoopItems) {
           result = false;
 
           if constexpr (HasCallback) {
-            if (track) {
-              context.evaluator->instance_location.pop_back();
-            }
+            context.evaluator->instance_location.pop_back();
           }
 
           EVALUATE_END(LoopItems);
@@ -2576,9 +2530,7 @@ INSTRUCTION_HANDLER(LoopItems) {
       }
 
       if constexpr (HasCallback) {
-        if (track) {
-          context.evaluator->instance_location.pop_back();
-        }
+        context.evaluator->instance_location.pop_back();
       }
     }
   }
@@ -2594,9 +2546,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
   result = true;
   for (std::size_t index = value; index < target.array_size(); index++) {
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(index);
-      }
+      context.evaluator->instance_location.push_back(index);
     }
 
     const auto &new_instance{target.at(index)};
@@ -2605,9 +2555,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
         result = false;
 
         if constexpr (HasCallback) {
-          if (track) {
-            context.evaluator->instance_location.pop_back();
-          }
+          context.evaluator->instance_location.pop_back();
         }
 
         EVALUATE_END(LoopItemsFrom);
@@ -2615,9 +2563,7 @@ INSTRUCTION_HANDLER(LoopItemsFrom) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
   }
 
@@ -2987,9 +2933,7 @@ INSTRUCTION_HANDLER(LoopContains) {
 
   for (std::size_t index = 0; index < target.array_size(); index++) {
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.push_back(index);
-      }
+      context.evaluator->instance_location.push_back(index);
     }
 
     const auto &new_instance{target.at(index)};
@@ -3002,9 +2946,7 @@ INSTRUCTION_HANDLER(LoopContains) {
     }
 
     if constexpr (HasCallback) {
-      if (track) {
-        context.evaluator->instance_location.pop_back();
-      }
+      context.evaluator->instance_location.pop_back();
     }
 
     if (subresult) {
