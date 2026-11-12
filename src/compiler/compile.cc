@@ -834,8 +834,7 @@ auto compile(const sourcemeta::core::JSON &schema,
     template_vocabularies.push_back(std::format("{}", vocabulary));
   }
 
-  const bool track{
-      context.mode != Mode::FastValidation ||
+  const bool frames{
       requires_evaluation(context, entrypoint_location.pointer) ||
       // TODO: This expression should go away if we start properly compiling
       // `unevaluatedItems` like we compile `unevaluatedProperties`
@@ -844,7 +843,7 @@ auto compile(const sourcemeta::core::JSON &schema,
             return dependency.first.ends_with("unevaluatedItems");
           })};
   return {.dynamic = uses_dynamic_scopes,
-          .frames = track,
+          .frames = frames,
           .targets = std::move(compiled_targets),
           .labels = std::move(labels_map),
           .extra = std::move(instruction_extra).release(),

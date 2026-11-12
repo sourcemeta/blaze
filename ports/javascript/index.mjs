@@ -651,23 +651,14 @@ function evaluateInstructionTracked(instruction, instance, depth, template, eval
   const handler = fastHandlers[instruction[0]];
   if (!handler) return true;
 
+  // The evaluate path used to be maintained here for `isEvaluated` to compare
+  // against. Nothing reads it any more, and no callback can observe it
   const type = instruction[0];
-  if (type < CONTROL_GROUP_START || type > CONTROL_PASS_THROUGH_END) {
-    if (evaluator.framesMode) {
-      evaluator.pushPath(instruction[1]);
-    }
-    if (evaluator.dynamicMode) {
-      evaluator.resources.push(instruction[4]);
-    }
-
+  if (evaluator.dynamicMode &&
+      (type < CONTROL_GROUP_START || type > CONTROL_PASS_THROUGH_END)) {
+    evaluator.resources.push(instruction[4]);
     const result = handler(instruction, instance, depth, template, evaluator);
-
-    if (evaluator.framesMode) {
-      evaluator.popPath(instruction[1].length);
-    }
-    if (evaluator.dynamicMode) {
-      evaluator.resources.pop();
-    }
+    evaluator.resources.pop();
     return result;
   }
 

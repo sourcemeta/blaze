@@ -123,8 +123,10 @@ public:
       this->evaluated.clear();
       return this->evaluate_impl<true, false, false>(schema, instance, nullptr);
     } else if (schema.dynamic) [[unlikely]] {
+      assert(this->evaluated.empty());
       return this->evaluate_impl<false, true, false>(schema, instance, nullptr);
     } else {
+      assert(this->evaluated.empty());
       return this->evaluate_impl<false, false, false>(schema, instance,
                                                       nullptr);
     }
