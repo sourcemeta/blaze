@@ -55,6 +55,7 @@ inline auto is_noop_without_children(const InstructionIndex type) noexcept
     case InstructionIndex::ControlGroupWhenDefines:
     case InstructionIndex::ControlGroupWhenDefinesDirect:
     case InstructionIndex::ControlGroupWhenType:
+    case InstructionIndex::ControlFrame:
       return true;
     default:
       return false;
@@ -124,6 +125,7 @@ inline auto is_pass_through_instruction(const InstructionIndex type) noexcept
     case InstructionIndex::ControlGroupWhenDefinesDirect:
     case InstructionIndex::ControlGroupWhenType:
     case InstructionIndex::ControlEvaluate:
+    case InstructionIndex::ControlFrame:
       return true;
     default:
       return false;

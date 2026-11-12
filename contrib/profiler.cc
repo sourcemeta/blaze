@@ -1048,7 +1048,7 @@ auto main(int argc, char **argv) noexcept -> int {
       compilation.assign("template_size_bytes",
                          sourcemeta::core::JSON{nullptr});
       compilation.assign("template_tracks_evaluation",
-                         sourcemeta::core::JSON{schema_template->track});
+                         sourcemeta::core::JSON{schema_template->frames});
       compilation.assign("template_uses_dynamic_scopes",
                          sourcemeta::core::JSON{schema_template->dynamic});
 
@@ -1163,7 +1163,7 @@ auto main(int argc, char **argv) noexcept -> int {
           expected.push_back(result);
           // Whatever evaluation marks survive a validation are left behind
           // until the next one starts, so they can be read from here
-          if (schema_template->track) {
+          if (schema_template->frames) {
             const auto marks{evaluator.evaluated.size()};
             marks_total += marks;
             marks_max = std::max<std::uint64_t>(marks_max, marks);
@@ -1261,7 +1261,7 @@ auto main(int argc, char **argv) noexcept -> int {
                            "one, which must never happen");
       }
 
-      if (schema_template->track) {
+      if (schema_template->frames) {
         auto marks{sourcemeta::core::JSON::make_object()};
         marks.assign("total", integer(marks_total));
         marks.assign("max", integer(marks_max));

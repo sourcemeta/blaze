@@ -123,6 +123,7 @@ enum class InstructionIndex : std::uint8_t {
   ControlGroupWhenDefinesDirect,
   ControlGroupWhenType,
   ControlEvaluate,
+  ControlFrame,
   ControlDynamicAnchorJump,
   ControlJump
 };
@@ -233,6 +234,7 @@ constexpr std::string_view INSTRUCTION_NAMES[] = {
     "ControlGroupWhenDefinesDirect",
     "ControlGroupWhenType",
     "ControlEvaluate",
+    "ControlFrame",
     "ControlDynamicAnchorJump",
     "ControlJump"};
 

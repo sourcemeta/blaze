@@ -28,7 +28,7 @@
 #define SOURCEMETA_STRINGIFY(x) #x
 
 #define EVALUATE_PUSH()                                                        \
-  if constexpr (Track) {                                                       \
+  if constexpr (HasCallback) {                                                 \
     context.evaluator->evaluate_path.push_back(                                \
         context.schema->extra[instruction.extra_index]                         \
             .relative_schema_location);                                        \
@@ -57,7 +57,7 @@
                         context.evaluator->instance_location,                  \
                         Evaluator::NULL_VALUE);                                \
   }                                                                            \
-  if constexpr (Track) {                                                       \
+  if constexpr (HasCallback) {                                                 \
     context.evaluator->evaluate_path.pop_back(                                 \
         context.schema->extra[instruction.extra_index]                         \
             .relative_schema_location.size());                                 \
@@ -415,35 +415,38 @@ inline auto assume_value_copy(const Value &variant) noexcept -> T {
   return *pointer;
 }
 
-template <bool Track, bool Dynamic, bool HasCallback> struct DispatchContext {
+template <bool Frames, bool Dynamic, bool HasCallback> struct DispatchContext {
   const sourcemeta::blaze::Template *schema;
   const sourcemeta::blaze::Callback *callback;
   sourcemeta::blaze::Evaluator *evaluator;
   const sourcemeta::core::JSON::String *property_target;
+  // Marks below this point were made outside the subschema being evaluated,
+  // so an `unevaluated*` keyword within it must not see them
+  std::size_t frame;
 };
 
-template <bool Track, bool Dynamic, bool HasCallback>
+template <bool Frames, bool Dynamic, bool HasCallback>
 inline auto
 evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                      const sourcemeta::core::JSON &instance,
                      const std::uint64_t depth,
-                     DispatchContext<Track, Dynamic, HasCallback> &context)
+                     DispatchContext<Frames, Dynamic, HasCallback> &context)
     -> bool;
 
-template <bool Track, bool Dynamic, bool HasCallback>
+template <bool Frames, bool Dynamic, bool HasCallback>
 inline auto evaluate_instruction_with_property(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    DispatchContext<Track, Dynamic, HasCallback> &context,
+    DispatchContext<Frames, Dynamic, HasCallback> &context,
     const sourcemeta::core::JSON::String &name) -> bool;
 
 #define INSTRUCTION_HANDLER(name)                                              \
-  template <bool Track, bool Dynamic, bool HasCallback>                        \
+  template <bool Frames, bool Dynamic, bool HasCallback>                       \
   static inline auto name(                                                     \
       [[maybe_unused]] const sourcemeta::blaze::Instruction &instruction,      \
       [[maybe_unused]] const sourcemeta::core::JSON &instance,                 \
       [[maybe_unused]] const std::uint64_t depth,                              \
-      [[maybe_unused]] DispatchContext<Track, Dynamic, HasCallback> &context)  \
+      [[maybe_unused]] DispatchContext<Frames, Dynamic, HasCallback> &context) \
       -> bool
 
 #define INSTRUCTION_DIRECT(name, value_type)                                   \
@@ -1393,14 +1396,14 @@ INSTRUCTION_HANDLER(LogicalOr) {
       // evaluation it marked before failing. Only a schema that tracks
       // evaluation can ever observe those marks
       [[maybe_unused]] std::size_t checkpoint{0};
-      if constexpr (Track) {
+      if constexpr (Frames) {
         checkpoint = context.evaluator->checkpoint();
       }
 
       if (EVALUATE_RECURSE(child, target)) {
         result = true;
       } else {
-        if constexpr (Track) {
+        if constexpr (Frames) {
           context.evaluator->rewind(checkpoint);
         }
       }
@@ -1408,7 +1411,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
   } else {
     for (const auto &child : instruction.children) {
       [[maybe_unused]] std::size_t checkpoint{0};
-      if constexpr (Track) {
+      if constexpr (Frames) {
         checkpoint = context.evaluator->checkpoint();
       }
 
@@ -1417,7 +1420,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
         break;
       }
 
-      if constexpr (Track) {
+      if constexpr (Frames) {
         context.evaluator->rewind(checkpoint);
       }
     }
@@ -1507,7 +1510,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
     // A branch that does not hold contributes nothing, including any
     // evaluation it marked before failing
     [[maybe_unused]] std::size_t checkpoint{0};
-    if constexpr (Track) {
+    if constexpr (Frames) {
       checkpoint = context.evaluator->checkpoint();
     }
 
@@ -1522,7 +1525,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
         has_matched = true;
       }
     } else {
-      if constexpr (Track) {
+      if constexpr (Frames) {
         context.evaluator->rewind(checkpoint);
       }
     }
@@ -1551,7 +1554,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   // A condition that holds does contribute the evaluation it marked, but one
   // that does not hold contributes nothing at all
   [[maybe_unused]] std::size_t checkpoint{0};
-  if constexpr (Track) {
+  if constexpr (Frames) {
     checkpoint = context.evaluator->checkpoint();
   }
 
@@ -1563,7 +1566,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
   }
 
   if (!result) {
-    if constexpr (Track) {
+    if constexpr (Frames) {
       context.evaluator->rewind(checkpoint);
     }
   }
@@ -1582,7 +1585,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
 
   result = true;
   if (consequence_start < consequence_end) {
-    if constexpr (Track) {
+    if constexpr (HasCallback) {
       context.evaluator->evaluate_path.pop_back(
           context.schema->extra[instruction.extra_index]
               .relative_schema_location.size());
@@ -1595,7 +1598,7 @@ INSTRUCTION_HANDLER(LogicalCondition) {
       }
     }
 
-    if constexpr (Track) {
+    if constexpr (HasCallback) {
       context.evaluator->evaluate_path.push_back(
           context.schema->extra[instruction.extra_index]
               .relative_schema_location);
@@ -1689,6 +1692,28 @@ INSTRUCTION_HANDLER(ControlEvaluate) {
   const auto &value{assume_value<ValuePointer>(instruction.value)};
   context.evaluator->evaluate(&get(instance, value));
   EVALUATE_END_PASS_THROUGH(ControlEvaluate);
+}
+
+INSTRUCTION_HANDLER(ControlFrame) {
+  EVALUATE_BEGIN_PASS_THROUGH(ControlFrame);
+  assert(!instruction.children.empty());
+  [[maybe_unused]] const auto parent_frame{context.frame};
+  if constexpr (Frames) {
+    context.frame = context.evaluator->checkpoint();
+  }
+
+  for (const auto &child : instruction.children) {
+    if (!EVALUATE_RECURSE(child, instance)) [[unlikely]] {
+      result = false;
+      break;
+    }
+  }
+
+  if constexpr (Frames) {
+    context.frame = parent_frame;
+  }
+
+  EVALUATE_END_PASS_THROUGH(ControlFrame);
 }
 
 INSTRUCTION_HANDLER(ControlDynamicAnchorJump) {
@@ -1793,7 +1818,7 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalNotEvaluate);
 
   [[maybe_unused]] std::size_t checkpoint{0};
-  if constexpr (Track) {
+  if constexpr (Frames) {
     checkpoint = context.evaluator->checkpoint();
   }
 
@@ -1806,7 +1831,7 @@ INSTRUCTION_HANDLER(LogicalNotEvaluate) {
     }
   }
 
-  if constexpr (Track) {
+  if constexpr (Frames) {
     context.evaluator->rewind(checkpoint);
   }
 
@@ -1818,9 +1843,9 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluated) {
   assert(!instruction.children.empty());
   result = true;
 
-  if (!context.evaluator->is_evaluated(&target)) {
+  if (!context.evaluator->is_evaluated(&target, context.frame)) {
     for (const auto &entry : target.as_object()) {
-      if (context.evaluator->is_evaluated(&entry.second)) {
+      if (context.evaluator->is_evaluated(&entry.second, context.frame)) {
         continue;
       }
 
@@ -1859,7 +1884,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
   assert(!filter_strings.empty() || !filter_prefixes.empty() ||
          !filter_regexes.empty());
 
-  if (!context.evaluator->is_evaluated(&target)) {
+  if (!context.evaluator->is_evaluated(&target, context.frame)) {
     for (const auto &entry : target.as_object()) {
       if (filter_strings.contains(entry.first, entry.hash)) {
         continue;
@@ -1879,7 +1904,7 @@ INSTRUCTION_HANDLER(LoopPropertiesUnevaluatedExcept) {
         continue;
       }
 
-      if (context.evaluator->is_evaluated(&entry.second)) {
+      if (context.evaluator->is_evaluated(&entry.second, context.frame)) {
         continue;
       }
 
@@ -1920,7 +1945,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   // path would skip, and children are evaluated at `depth + 1`, which the
   // direct path does not route through the depth check. Every condition holds
   // for every child, so decide once rather than per property
-  const auto direct_children{!Track && !HasCallback && !Dynamic &&
+  const auto direct_children{!Frames && !HasCallback && !Dynamic &&
                              depth < DEPTH_LIMIT};
   for (const auto &entry : target.as_object()) {
     const auto *index{named_index(value, entry.first, entry.hash)};
@@ -1982,7 +2007,7 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   // path would skip, and children are evaluated at `depth + 1`, which the
   // direct path does not route through the depth check. Every condition holds
   // for every child, so decide once rather than per property
-  const auto direct_children{!Track && !HasCallback && !Dynamic &&
+  const auto direct_children{!Frames && !HasCallback && !Dynamic &&
                              depth < DEPTH_LIMIT};
   for (const auto &entry : target.as_object()) {
     const auto *index{named_index(value, entry.first, entry.hash)};
@@ -2477,7 +2502,7 @@ INSTRUCTION_HANDLER(LoopItems) {
   result = true;
 
   // To avoid index lookups and unnecessary conditionals
-  if constexpr (!Track && !HasCallback) {
+  if constexpr (!Frames && !HasCallback) {
     // Dynamic pushes and pops a resource per instruction that the direct path
     // would skip, and children are evaluated at `depth + 1`, which the direct
     // path does not route through the depth check. Both conditions hold for
@@ -2575,10 +2600,10 @@ INSTRUCTION_HANDLER(LoopItemsUnevaluated) {
   // trivially matches and only the evaluation marking below takes effect
   result = true;
 
-  if (!context.evaluator->is_evaluated(&target)) {
+  if (!context.evaluator->is_evaluated(&target, context.frame)) {
     for (std::size_t index = 0; index < target.array_size(); index++) {
       const auto &new_instance{target.at(index)};
-      if (context.evaluator->is_evaluated(&new_instance)) {
+      if (context.evaluator->is_evaluated(&new_instance, context.frame)) {
         continue;
       }
 
@@ -2979,15 +3004,15 @@ INSTRUCTION_HANDLER(LoopContains) {
 
 #undef INSTRUCTION_HANDLER
 
-template <bool Track, bool Dynamic, bool HasCallback>
+template <bool Frames, bool Dynamic, bool HasCallback>
 using DispatchHandler = bool (*)(
     const sourcemeta::blaze::Instruction &, const sourcemeta::core::JSON &,
-    std::uint64_t, DispatchContext<Track, Dynamic, HasCallback> &);
+    std::uint64_t, DispatchContext<Frames, Dynamic, HasCallback> &);
 
-template <bool Track, bool Dynamic, bool HasCallback>
+template <bool Frames, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[105] = {
+static constexpr DispatchHandler<Frames, Dynamic, HasCallback> HANDLERS[106] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -3091,30 +3116,31 @@ static constexpr DispatchHandler<Track, Dynamic, HasCallback> HANDLERS[105] = {
     ControlGroupWhenDefinesDirect,
     ControlGroupWhenType,
     ControlEvaluate,
+    ControlFrame,
     ControlDynamicAnchorJump,
     ControlJump};
 
-template <bool Track, bool Dynamic, bool HasCallback>
+template <bool Frames, bool Dynamic, bool HasCallback>
 inline auto
 evaluate_instruction(const sourcemeta::blaze::Instruction &instruction,
                      const sourcemeta::core::JSON &instance,
                      const std::uint64_t depth,
-                     DispatchContext<Track, Dynamic, HasCallback> &context)
+                     DispatchContext<Frames, Dynamic, HasCallback> &context)
     -> bool {
   if (depth > DEPTH_LIMIT) [[unlikely]] {
     throw EvaluationError("The evaluation path depth limit was reached "
                           "likely due to infinite recursion");
   }
 
-  return HANDLERS<Track, Dynamic, HasCallback>[std::to_underlying(
+  return HANDLERS<Frames, Dynamic, HasCallback>[std::to_underlying(
       instruction.type)](instruction, instance, depth, context);
 }
 
-template <bool Track, bool Dynamic, bool HasCallback>
+template <bool Frames, bool Dynamic, bool HasCallback>
 inline auto evaluate_instruction_without_callback(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    DispatchContext<Track, Dynamic, HasCallback> &context) -> bool {
+    DispatchContext<Frames, Dynamic, HasCallback> &context) -> bool {
   if (depth > DEPTH_LIMIT) [[unlikely]] {
     throw EvaluationError("The evaluation path depth limit was reached "
                           "likely due to infinite recursion");
@@ -3122,16 +3148,16 @@ inline auto evaluate_instruction_without_callback(
 
   DispatchContext<false, Dynamic, false> plain_context{
       context.schema, context.callback, context.evaluator,
-      context.property_target};
+      context.property_target, context.frame};
   return HANDLERS<false, Dynamic, false>[std::to_underlying(instruction.type)](
       instruction, instance, depth, plain_context);
 }
 
-template <bool Track, bool Dynamic, bool HasCallback>
+template <bool Frames, bool Dynamic, bool HasCallback>
 inline auto evaluate_instruction_with_property(
     const sourcemeta::blaze::Instruction &instruction,
     const sourcemeta::core::JSON &instance, const std::uint64_t depth,
-    DispatchContext<Track, Dynamic, HasCallback> &context,
+    DispatchContext<Frames, Dynamic, HasCallback> &context,
     const sourcemeta::core::JSON::String &name) -> bool {
   const auto *previous = context.property_target;
   context.property_target = &name;

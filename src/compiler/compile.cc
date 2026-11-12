@@ -428,6 +428,26 @@ auto compile_subschema(const sourcemeta::blaze::KeywordContext &context)
     }
   }
 
+  // An `unevaluated*` keyword reads the marks its own subschema made, and
+  // nothing else. Sibling subschemas get flattened into a single instruction
+  // list, so the boundary of that scope has to be carried by an instruction
+  // rather than recovered at evaluation time
+  if (std::ranges::any_of(steps, [](const auto &step) -> bool {
+        return step.type == InstructionIndex::LoopPropertiesUnevaluated ||
+               step.type == InstructionIndex::LoopPropertiesUnevaluatedExcept ||
+               step.type == InstructionIndex::LoopItemsUnevaluated;
+      })) {
+    const KeywordContext frame_context{
+        .global = context.global,
+        .local = context.local,
+        .target = {.keyword = EMPTY_KEYWORD,
+                   .base_schema_location = sourcemeta::core::EMPTY_WEAK_POINTER,
+                   .base_instance_location =
+                       sourcemeta::core::EMPTY_WEAK_POINTER}};
+    return {make(InstructionIndex::ControlFrame, frame_context, ValueNone{},
+                 std::move(steps))};
+  }
+
   return steps;
 }
 
@@ -824,7 +844,7 @@ auto compile(const sourcemeta::core::JSON &schema,
             return dependency.first.ends_with("unevaluatedItems");
           })};
   return {.dynamic = uses_dynamic_scopes,
-          .track = track,
+          .frames = track,
           .targets = std::move(compiled_targets),
           .labels = std::move(labels_map),
           .extra = std::move(instruction_extra).release(),
