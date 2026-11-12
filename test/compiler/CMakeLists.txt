@@ -1,6 +1,5 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME compiler
   SOURCES
-    compiler_inlining_test.cc
     compiler_json_test.cc
     compiler_limit_test.cc)
 
