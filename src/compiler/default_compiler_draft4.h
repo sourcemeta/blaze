@@ -4,11 +4,10 @@
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
-#include <algorithm> // std::ranges::any_of, std::ranges::all_of, std::ranges::none_of, std::find_if, std::rotate
-#include <cassert>   // assert
-#include <iterator>  // std::next
-#include <set>       // std::set
-#include <utility>   // std::move, std::to_underlying
+#include <algorithm> // std::ranges::any_of, std::ranges::all_of, std::ranges::none_of
+#include <cassert> // assert
+#include <set>     // std::set
+#include <utility> // std::move, std::to_underlying
 
 #include "compile_helpers.h"
 #include "default_compiler_draft3.h"
@@ -150,51 +149,6 @@ auto compiler_draft4_applicator_anyof(const KeywordContext &context,
                ValueBoolean{requires_exhaustive}, std::move(disjunctors))};
 }
 
-// A disjunction branch is usually ruled out by a single discriminating
-// property, as a tagged union does, yet the branch spends its first
-// instructions on the wider checks that the tag makes irrelevant. Running the
-// tag comparison first lets every branch but the matching one fail on one
-// property lookup. The comparison is only sound ahead of the check that proves
-// the property is there, so it becomes the variant that holds vacuously when
-// the property is missing, leaving that proof to the check it now precedes
-auto hoist_discriminator(Instructions &branch) -> void {
-  ValueStringSet guaranteed;
-  for (const auto &step : branch) {
-    if (!step.relative_instance_location.empty()) {
-      continue;
-    }
-
-    if (step.type == InstructionIndex::AssertionDefinesStrict) {
-      const auto &property{std::get<ValueProperty>(step.value)};
-      guaranteed.insert(property.first, property.second);
-    } else if (step.type == InstructionIndex::AssertionDefinesAllStrict) {
-      for (const auto &property : std::get<ValueStringSet>(step.value)) {
-        guaranteed.insert(property.first, property.second);
-      }
-    }
-  }
-
-  if (guaranteed.empty()) {
-    return;
-  }
-
-  const auto match{std::find_if(
-      branch.begin(), branch.end(), [&guaranteed](const auto &step) -> bool {
-        return step.type == InstructionIndex::AssertionEqual &&
-               step.relative_instance_location.size() == 1 &&
-               step.relative_instance_location.back().is_property() &&
-               guaranteed.contains(
-                   step.relative_instance_location.back().to_property());
-      })};
-
-  if (match == branch.cend() || match == branch.cbegin()) {
-    return;
-  }
-
-  match->type = InstructionIndex::AssertionPropertyEqual;
-  std::rotate(branch.begin(), match, std::next(match));
-}
-
 auto compiler_draft4_applicator_oneof(const KeywordContext &context,
                                       const Instructions &) -> Instructions {
   const auto allows_empty{
@@ -214,17 +168,11 @@ auto compiler_draft4_applicator_oneof(const KeywordContext &context,
 
   Instructions disjunctors;
   for (std::uint64_t index = 0; index < context.value().size(); index++) {
-    auto branch{
-        compile(context.relative(),
-                {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})};
-    if (context.mode() == Mode::FastValidation &&
-        !context.global.collects_annotations && !requires_evaluation(context)) {
-      hoist_discriminator(branch);
-    }
-
-    disjunctors.push_back(make(InstructionIndex::ControlGroup,
-                               context.relative(), ValueNone{},
-                               std::move(branch)));
+    disjunctors.push_back(make(
+        InstructionIndex::ControlGroup, context.relative(), ValueNone{},
+        compile(
+            context.relative(),
+            {static_cast<sourcemeta::core::Pointer::Token::Index>(index)})));
   }
 
   const auto requires_exhaustive{context.mode() == Mode::Exhaustive ||
