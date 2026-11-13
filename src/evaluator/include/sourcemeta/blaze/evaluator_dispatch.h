@@ -1390,6 +1390,64 @@ INSTRUCTION_HANDLER(AssertionArrayPrefixEvaluate) {
   EVALUATE_END(AssertionArrayPrefixEvaluate);
 }
 
+// Every branch of a disjunction is wrapped in a group that only runs the
+// instructions it holds, and the tag that rules the branch out is the first of
+// them. Doing both here spares a dispatch for the wrapper and, where the
+// branch leads with its tag, another one for the tag. The wrapper reports
+// nothing of its own, so running it here is indistinguishable from dispatching
+// it, yet the tag does report, which is why it only steps aside when there is
+// no callback to report to
+template <bool Frames, bool Dynamic, bool HasCallback>
+SOURCEMETA_FORCEINLINE inline auto
+evaluate_branch(const sourcemeta::blaze::Instruction &branch,
+                const sourcemeta::core::JSON &target, const std::uint64_t depth,
+                DispatchContext<Frames, Dynamic, HasCallback> &context)
+    -> bool {
+  if (branch.type != InstructionIndex::ControlGroup) [[unlikely]] {
+    return evaluate_instruction(branch, target, depth, context);
+  }
+
+  auto step{branch.children.cbegin()};
+  const auto last{branch.children.cend()};
+
+  if constexpr (!HasCallback) {
+    if (step != last && target.is_object() &&
+        step->relative_instance_location.size() == 1 &&
+        step->relative_instance_location.back().is_property()) {
+      const auto &token{step->relative_instance_location.back()};
+      if (step->type == InstructionIndex::AssertionPropertyEqual) {
+        const auto *tag{
+            target.try_at(token.to_property(), token.property_hash())};
+        if (tag != nullptr && !DIRECT(AssertionEqual, *tag,
+                                      assume_value<ValueJSON>(step->value))) {
+          return false;
+        }
+
+        ++step;
+      } else if (step->type ==
+                 InstructionIndex::AssertionPropertyEqualsAnyStringHash) {
+        const auto *tag{
+            target.try_at(token.to_property(), token.property_hash())};
+        if (tag != nullptr &&
+            !DIRECT(AssertionEqualsAnyStringHash, *tag,
+                    assume_value<ValueStringHashes>(step->value))) {
+          return false;
+        }
+
+        ++step;
+      }
+    }
+  }
+
+  for (; step != last; ++step) {
+    if (!evaluate_instruction(*step, target, depth + 1, context)) [[unlikely]] {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 INSTRUCTION_HANDLER(LogicalOr) {
   EVALUATE_BEGIN_NO_PRECONDITION(LogicalOr);
   result = instruction.children.empty();
@@ -1408,7 +1466,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
         checkpoint = context.evaluator->checkpoint();
       }
 
-      if (EVALUATE_RECURSE(child, target)) {
+      if (evaluate_branch(child, target, depth + 1, context)) {
         result = true;
       } else {
         if constexpr (Frames) {
@@ -1423,7 +1481,7 @@ INSTRUCTION_HANDLER(LogicalOr) {
         checkpoint = context.evaluator->checkpoint();
       }
 
-      if (EVALUATE_RECURSE(child, target)) {
+      if (evaluate_branch(child, target, depth + 1, context)) {
         result = true;
         break;
       }
@@ -1522,7 +1580,7 @@ INSTRUCTION_HANDLER(LogicalXor) {
       checkpoint = context.evaluator->checkpoint();
     }
 
-    if (EVALUATE_RECURSE(child, target)) {
+    if (evaluate_branch(child, target, depth + 1, context)) {
       if (has_matched) [[unlikely]] {
         result = false;
         // This boolean value controls whether we should be exhaustive
