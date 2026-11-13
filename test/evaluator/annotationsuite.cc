@@ -8,15 +8,21 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <cassert>
-#include <filesystem>
-#include <functional>
-#include <iostream>
-#include <ostream>
-#include <sstream>
-#include <string>
-#include <unordered_set>
-#include <utility>
+#include "suite_compatibility.h"
+
+#include <cassert>       // assert
+#include <cstddef>       // std::size_t
+#include <cstdint>       // std::uint32_t
+#include <cstdlib>       // EXIT_FAILURE
+#include <filesystem>    // std::filesystem
+#include <functional>    // std::ref
+#include <iostream>      // std::cerr
+#include <ostream>       // std::ostream
+#include <sstream>       // std::ostringstream
+#include <stdexcept>     // std::runtime_error
+#include <string>        // std::string
+#include <unordered_set> // std::unordered_set
+#include <utility>       // std::move
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
   for (const auto character : input) {
@@ -34,15 +40,22 @@ static auto schema_location_matches(const std::string &actual,
 
   // The annotation may use an absolute URI based on an intermediate
   // identifier while the test suite uses root-relative JSON pointer
-  // fragments. Resolve via the frame to normalize to the root-relative form.
-  const auto entry{frame.traverse(actual)};
-  if (entry.has_value()) {
-    const auto normalized{
-        sourcemeta::core::to_uri(entry->get().pointer).recompose()};
-    return normalized == expected;
+  // fragments. The frame locates subschemas rather than the keywords inside
+  // them, so resolve the location without its keyword and put the keyword
+  // back afterwards
+  const auto keyword{actual.find_last_of('/')};
+  if (keyword == std::string::npos) {
+    return false;
   }
 
-  return false;
+  const auto entry{frame.traverse(actual.substr(0, keyword))};
+  if (!entry.has_value()) {
+    return false;
+  }
+
+  auto normalized{sourcemeta::core::to_uri(entry->get().pointer).recompose()};
+  normalized += actual.substr(keyword);
+  return normalized == expected;
 }
 
 static auto
@@ -191,113 +204,88 @@ auto run_annotation_test(const sourcemeta::core::JSON &schema_json,
 }
 } // namespace
 
-static auto register_tests(const std::string &suite_name,
-                           const std::string &default_dialect,
+static auto register_tests(const std::string &default_dialect,
                            const std::string &default_dialect_name,
-                           const std::unordered_set<std::string> &targets)
-    -> void {
-  auto suite_path{std::filesystem::path{ANNOTATION_SUITE_PATH} / suite_name};
-  suite_path.replace_extension(".json");
-  assert(std::filesystem::exists(suite_path));
+                           const std::uint32_t version) -> void {
+  std::size_t registered{0};
 
-  std::cerr << "Registering suite: " << suite_path.string() << "\n";
-  std::cerr << "-- Dialect: " << default_dialect << "\n";
-  std::cerr << "-- Targets:";
-  assert(!targets.empty());
-  for (const auto &target : targets) {
-    std::cerr << " " << target;
-  }
-  std::cerr << "\n";
+  for (const std::filesystem::directory_entry &suite_file :
+       std::filesystem::directory_iterator{ANNOTATION_SUITE_PATH}) {
+    if (!suite_file.is_regular_file() ||
+        suite_file.path().extension() != ".json") {
+      continue;
+    }
 
-  const auto suite{sourcemeta::core::read_json(suite_path)};
-  assert(suite.is_object());
-  assert(suite.defines("suite"));
-  assert(suite.at("suite").is_array());
+    const auto suite_name{suite_file.path().stem().string()};
+    std::cerr << "Registering suite: " << suite_file.path().string() << "\n";
+    std::cerr << "-- Dialect: " << default_dialect << "\n";
 
-  for (const auto &entry : suite.at("suite").as_array()) {
-    assert(entry.is_object());
-    std::ostringstream category;
-    category << "JSONSchemaAnnotationSuite_";
-    slugify(default_dialect_name, category);
-    category << "_" << suite_name << "_";
-    assert(entry.defines("description"));
-    assert(entry.at("description").is_string());
-    slugify(entry.at("description").to_string(), category);
+    const auto suite{sourcemeta::core::read_json(suite_file.path())};
+    assert(suite.is_object());
+    assert(suite.defines("suite"));
+    assert(suite.at("suite").is_array());
 
-    if (entry.defines("compatibility")) {
-      assert(entry.at("compatibility").is_string());
-      const auto &compatibility{entry.at("compatibility").to_string()};
-      if (!targets.contains(compatibility)) {
-        std::cerr << "-- Skipping " << category.str() << " for compatibility "
-                  << compatibility << "\n";
-        continue;
+    for (const auto &entry : suite.at("suite").as_array()) {
+      assert(entry.is_object());
+      std::ostringstream category;
+      category << "JSONSchemaAnnotationSuite_";
+      slugify(default_dialect_name, category);
+      category << "_" << suite_name << "_";
+      assert(entry.defines("description"));
+      assert(entry.at("description").is_string());
+      slugify(entry.at("description").to_string(), category);
+
+      if (entry.defines("compatibility")) {
+        assert(entry.at("compatibility").is_string());
+        const auto &compatibility{entry.at("compatibility").to_string()};
+        if (!suite_compatibility(compatibility, version)) {
+          std::cerr << "-- Skipping " << category.str() << " for compatibility "
+                    << compatibility << "\n";
+          continue;
+        }
+      }
+
+      std::cerr << "-- Compiling " << category.str() << "\n";
+      registered++;
+      assert(entry.defines("schema"));
+      const auto &schema{entry.at("schema")};
+      assert((schema.is_object() || schema.is_boolean()));
+
+      assert(entry.defines("tests"));
+      assert(entry.at("tests").is_array());
+      for (std::size_t index = 0; index < entry.at("tests").size(); index++) {
+        std::ostringstream title;
+        title << index;
+        const auto &test{entry.at("tests").at(index)};
+        assert(test.is_object());
+        assert(test.defines("instance"));
+        const auto &instance{test.at("instance")};
+        assert(test.defines("assertions"));
+        assert(test.at("assertions").is_array());
+        const auto &assertions{test.at("assertions").as_array()};
+
+        sourcemeta::core::test_register(
+            category.str(), title.str(), __FILE__, __LINE__,
+            [schema, default_dialect, instance, assertions]() -> void {
+              run_annotation_test(schema, default_dialect, instance,
+                                  assertions);
+            });
       }
     }
+  }
 
-    std::cerr << "-- Compiling " << category.str() << "\n";
-    assert(entry.defines("schema"));
-    const auto &schema{entry.at("schema")};
-    assert((schema.is_object() || schema.is_boolean()));
-
-    assert(entry.defines("tests"));
-    assert(entry.at("tests").is_array());
-    for (std::size_t index = 0; index < entry.at("tests").size(); index++) {
-      std::ostringstream title;
-      title << index;
-      const auto &test{entry.at("tests").at(index)};
-      assert(test.is_object());
-      assert(test.defines("instance"));
-      const auto &instance{test.at("instance")};
-      assert(test.defines("assertions"));
-      assert(test.at("assertions").is_array());
-      const auto &assertions{test.at("assertions").as_array()};
-
-      sourcemeta::core::test_register(
-          category.str(), title.str(), __FILE__, __LINE__,
-          [schema, default_dialect, instance, assertions]() -> void {
-            run_annotation_test(schema, default_dialect, instance, assertions);
-          });
-    }
+  if (registered == 0) {
+    throw std::runtime_error{"No test cases were registered for " +
+                             default_dialect};
   }
 }
 
 auto main(int argc, char **argv) -> int {
   try {
-    // 2020-12
-    register_tests("applicators",
-                   "https://json-schema.org/draft/2020-12/schema", "2020-12",
-                   {"3", "4", "6", "7", "2019", "2020"});
-    register_tests("content", "https://json-schema.org/draft/2020-12/schema",
-                   "2020-12", {"3", "4", "6", "7", "2019", "2020"});
-    register_tests("core", "https://json-schema.org/draft/2020-12/schema",
-                   "2020-12", {"3", "4", "6", "7", "2019", "2020"});
-    register_tests("format", "https://json-schema.org/draft/2020-12/schema",
-                   "2020-12", {"3", "4", "6", "7", "2019", "2020"});
-    register_tests("meta-data", "https://json-schema.org/draft/2020-12/schema",
-                   "2020-12", {"3", "4", "6", "7", "2019", "2020"});
-    register_tests("unevaluated",
-                   "https://json-schema.org/draft/2020-12/schema", "2020-12",
-                   {"3", "4", "6", "7", "2019", "2020"});
-    register_tests("unknown", "https://json-schema.org/draft/2020-12/schema",
-                   "2020-12", {"3", "4", "6", "7", "2019", "2020"});
-
-    // 2019-09
-    register_tests("applicators",
-                   "https://json-schema.org/draft/2019-09/schema", "2019-09",
-                   {"3", "4", "6", "7", "2019"});
-    register_tests("content", "https://json-schema.org/draft/2019-09/schema",
-                   "2019-09", {"3", "4", "6", "7", "2019"});
-    register_tests("core", "https://json-schema.org/draft/2019-09/schema",
-                   "2019-09", {"3", "4", "6", "7", "2019"});
-    register_tests("format", "https://json-schema.org/draft/2019-09/schema",
-                   "2019-09", {"3", "4", "6", "7", "2019"});
-    register_tests("meta-data", "https://json-schema.org/draft/2019-09/schema",
-                   "2019-09", {"3", "4", "6", "7", "2019"});
-    register_tests("unevaluated",
-                   "https://json-schema.org/draft/2019-09/schema", "2019-09",
-                   {"3", "4", "6", "7", "2019"});
-    register_tests("unknown", "https://json-schema.org/draft/2019-09/schema",
-                   "2019-09", {"3", "4", "6", "7", "2019"});
+    register_tests("https://json-schema.org/draft/2020-12/schema", "2020-12",
+                   2020);
+    register_tests("https://json-schema.org/draft/2019-09/schema", "2019-09",
+                   2019);
   } catch (const std::exception &error) {
     std::cerr << "Error: " << error.what() << "\n";
     return EXIT_FAILURE;
