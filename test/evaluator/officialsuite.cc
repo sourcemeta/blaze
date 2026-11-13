@@ -286,21 +286,6 @@ static auto register_tests(const std::filesystem::path &group,
 }
 
 auto main(int argc, char **argv) -> int {
-  // Blaze validates `idn-hostname` without the UTS 46 mapping step, so it
-  // rejects the host names that only become valid once mapped
-  // TODO: Apply the UTS 46 mapping step when validating `idn-hostname`
-  std::set<std::string> idn_hostname_skips;
-  for (const auto *description :
-       {"a label of 63 fullwidth characters is valid after mapping",
-        "a non-NFC U-label is valid after UTS 46 normalisation",
-        "a zero width space is ignored by the mapping",
-        "an ACE prefix produced by the mapping step is decoded as an A-label",
-        "fullwidth digits are mapped to ASCII digits"}) {
-    idn_hostname_skips.insert(skip_key(
-        "format-idn-hostname::validation of internationalized host names",
-        description));
-  }
-
   // The compiler refuses to reference what the dialect in use does not
   // consider a subschema
   // TODO: Can we make this work?
@@ -344,24 +329,21 @@ auto main(int argc, char **argv) -> int {
   try {
     // 2020-12
     register_tests("", "JSONSchemaOfficialSuite_2020_12",
-                   "https://json-schema.org/draft/2020-12/schema", 2020,
-                   idn_hostname_skips);
+                   "https://json-schema.org/draft/2020-12/schema", 2020, {});
     register_tests("optional", "JSONSchemaOfficialSuite_2020_12_Optional",
                    "https://json-schema.org/draft/2020-12/schema", 2020,
                    non_schemas_skips);
 
     // 2019-09
     register_tests("", "JSONSchemaOfficialSuite_2019_09",
-                   "https://json-schema.org/draft/2019-09/schema", 2019,
-                   idn_hostname_skips);
+                   "https://json-schema.org/draft/2019-09/schema", 2019, {});
     register_tests("optional", "JSONSchemaOfficialSuite_2019_09_Optional",
                    "https://json-schema.org/draft/2019-09/schema", 2019,
                    non_schemas_skips);
 
     // Draft 7
     register_tests("", "JSONSchemaOfficialSuite_Draft7",
-                   "http://json-schema.org/draft-07/schema#", 7,
-                   idn_hostname_skips);
+                   "http://json-schema.org/draft-07/schema#", 7, {});
     register_tests("optional", "JSONSchemaOfficialSuite_Draft7_Optional",
                    "http://json-schema.org/draft-07/schema#", 7,
                    draft7_optional_skips);

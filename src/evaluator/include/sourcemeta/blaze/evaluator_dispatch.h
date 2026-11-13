@@ -1101,7 +1101,7 @@ INSTRUCTION_HANDLER(AssertionStringType) {
       result = is_hostname(target);
       break;
     case ValueStringType::IDNHostname:
-      result = is_idn_hostname(target);
+      result = is_idn_hostname_uts46(target);
       break;
     case ValueStringType::DateTime:
       result = is_rfc3339_datetime(target);
