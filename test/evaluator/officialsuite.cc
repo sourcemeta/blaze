@@ -289,47 +289,57 @@ auto main(int argc, char **argv) -> int {
   // Blaze validates `idn-hostname` without the UTS 46 mapping step, so it
   // rejects the host names that only become valid once mapped
   // TODO: Apply the UTS 46 mapping step when validating `idn-hostname`
-  const std::set<std::string> idn_hostname_skips{
-      "format-idn-hostname::validation of internationalized host "
-      "names::fullwidth digits are mapped to ASCII digits",
-      "format-idn-hostname::validation of internationalized host names::a "
-      "zero width space is ignored by the mapping",
-      "format-idn-hostname::validation of internationalized host names::a "
-      "non-NFC U-label is valid after UTS 46 normalisation",
-      "format-idn-hostname::validation of internationalized host names::a "
-      "label of 63 fullwidth characters is valid after mapping",
-      "format-idn-hostname::validation of internationalized host names::an "
-      "ACE prefix produced by the mapping step is decoded as an A-label"};
+  std::set<std::string> idn_hostname_skips;
+  for (const auto *description :
+       {"a label of 63 fullwidth characters is valid after mapping",
+        "a non-NFC U-label is valid after UTS 46 normalisation",
+        "a zero width space is ignored by the mapping",
+        "an ACE prefix produced by the mapping step is decoded as an A-label",
+        "fullwidth digits are mapped to ASCII digits"}) {
+    idn_hostname_skips.insert(skip_key(
+        "format-idn-hostname::validation of internationalized host names",
+        description));
+  }
 
   // The compiler refuses to reference what the dialect in use does not
   // consider a subschema
   // TODO: Can we make this work?
-  const std::set<std::string> non_schemas_skips{
-      "optional/non-schemas::reference of a root arbitrary keyword",
-      "optional/non-schemas::reference of a root arbitrary keyword with "
-      "encoded ref",
-      "optional/non-schemas::reference of an arbitrary keyword of a "
-      "sub-schema",
-      "optional/non-schemas::reference of an arbitrary keyword of a "
-      "sub-schema with encoded ref",
-      "optional/non-schemas::reference internals of known non-applicator"};
+  std::set<std::string> non_schemas_skips;
+  for (const auto *description :
+       {"reference of a root arbitrary keyword",
+        "reference of a root arbitrary keyword with encoded ref",
+        "reference of an arbitrary keyword of a sub-schema",
+        "reference of an arbitrary keyword of a sub-schema with encoded ref",
+        "reference internals of known non-applicator"}) {
+    non_schemas_skips.insert(skip_key("optional/non-schemas", description));
+  }
 
-  const std::set<std::string> draft7_optional_skips{
-      // Draft 7 defines the content keywords as assertions rather than as the
-      // annotations that later dialects make of them
-      // TODO: Assert `contentEncoding` and `contentMediaType` on Draft 7
-      "optional/content::validation of string-encoded content based on media "
-      "type::an invalid JSON document",
-      "optional/content::validation of binary string-encoding::an invalid "
-      "base64 string (% is not a valid character)",
-      "optional/content::validation of binary-encoded media type "
-      "documents::a validly-encoded invalid JSON document",
-      "optional/content::validation of binary-encoded media type "
-      "documents::an invalid base64 string that is valid JSON",
-      // TODO: Support bundling a Draft 7 schema whose top-level `$ref` sits
-      // next to other keywords
-      "optional/cross-draft::refs to future drafts are processed as future "
-      "drafts (2020)"};
+  // Draft 7 defines the content keywords as assertions rather than as the
+  // annotations that later dialects make of them
+  // TODO: Assert `contentEncoding` and `contentMediaType` on Draft 7
+  std::set<std::string> draft7_optional_skips;
+  for (const auto &[case_description, test_description] :
+       {std::pair<const char *, const char *>{
+            "validation of string-encoded content based on media type",
+            "an invalid JSON document"},
+        std::pair<const char *, const char *>{
+            "validation of binary string-encoding",
+            "an invalid base64 string (% is not a valid character)"},
+        std::pair<const char *, const char *>{
+            "validation of binary-encoded media type documents",
+            "a validly-encoded invalid JSON document"},
+        std::pair<const char *, const char *>{
+            "validation of binary-encoded media type documents",
+            "an invalid base64 string that is valid JSON"}}) {
+    draft7_optional_skips.insert(skip_key(
+        skip_key("optional/content", case_description), test_description));
+  }
+
+  // TODO: Support bundling a Draft 7 schema whose top-level `$ref` sits next
+  // to other keywords
+  draft7_optional_skips.insert(
+      skip_key("optional/cross-draft",
+               "refs to future drafts are processed as future drafts (2020)"));
 
   try {
     // 2020-12
