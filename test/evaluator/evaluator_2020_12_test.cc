@@ -43,6 +43,57 @@ static auto test_resolver(std::string_view identifier)
 }
 
 // NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
+TEST(metaschema_1) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "https://json-schema.org/draft/2020-12/schema")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": {
+        "type": [ "string" ]
+      }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 53, "");
+}
+
+TEST(metaschema_invalid_definition) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "https://json-schema.org/draft/2020-12/schema")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": {
+        "type": 1
+      }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(metaschema.value(), instance, 22, "");
+}
+
+TEST(metaschema_invalid_definition_exhaustive) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "https://json-schema.org/draft/2020-12/schema")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "foo": {
+        "type": 1
+      }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(metaschema.value(), instance, 30, "");
+}
+
 TEST(metaschema_hyper_1) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};

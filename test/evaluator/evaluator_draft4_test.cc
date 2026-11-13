@@ -34,6 +34,40 @@ TEST(metaschema_2) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 16, "");
 }
 
+TEST(metaschema_invalid_definition) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-04/schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": {
+        "type": 1
+      }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(metaschema.value(), instance, 10, "");
+}
+
+TEST(metaschema_invalid_definition_exhaustive) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "http://json-schema.org/draft-04/schema#")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+      "foo": {
+        "type": 1
+      }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(metaschema.value(), instance, 11, "");
+}
+
 TEST(metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "http://json-schema.org/draft-04/hyper-schema#")};
