@@ -486,18 +486,16 @@ class Blaze {
       } else {
         evaluateInstruction = evaluateInstructionFastCallback;
       }
-    } else if (track || dynamic) {
-      evaluateInstruction = evaluateInstructionTracked;
+    } else {
+      evaluateInstruction = dynamic
+        ? evaluateInstructionTracked
+        : evaluateInstructionFast;
       if (track) {
-        this.evaluatePathLength = 0;
-        this.evaluatePathTokens = [];
         this.evaluated = [];
       }
       if (dynamic) {
         this.resources = [];
       }
-    } else {
-      evaluateInstruction = evaluateInstructionFast;
     }
 
     const instructions = targets[0];
@@ -651,8 +649,8 @@ function evaluateInstructionTracked(instruction, instance, depth, template, eval
   const handler = fastHandlers[instruction[0]];
   if (!handler) return true;
 
-  // The evaluate path used to be maintained here for `isEvaluated` to compare
-  // against. Nothing reads it any more, and no callback can observe it
+  // Only a callback reads the evaluate path, so this dispatcher never builds
+  // one and is reached solely for the dynamic scope
   const type = instruction[0];
   if (evaluator.dynamicMode &&
       (type < CONTROL_GROUP_START || type > CONTROL_PASS_THROUGH_END)) {
@@ -680,7 +678,7 @@ function evaluateInstructionFastCallback(instruction, instance, depth, template,
 function evaluateInstructionWithoutCallback(instruction, instance, depth, template, evaluator) {
   const previousDispatch = evaluateInstruction;
   const previousCallbackMode = evaluator.callbackMode;
-  evaluateInstruction = (evaluator.framesMode || evaluator.dynamicMode)
+  evaluateInstruction = evaluator.dynamicMode
     ? evaluateInstructionTracked
     : evaluateInstructionFast;
   evaluator.callbackMode = false;
@@ -1767,7 +1765,7 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
   }
 
   if (consequenceStart < consequenceEnd) {
-    if (evaluator.framesMode || evaluator.callbackMode) {
+    if (evaluator.callbackMode) {
       evaluator.popPath(instruction[1].length);
     }
 
@@ -1779,7 +1777,7 @@ function LogicalCondition(instruction, instance, depth, template, evaluator) {
       }
     }
 
-    if (evaluator.framesMode || evaluator.callbackMode) {
+    if (evaluator.callbackMode) {
       evaluator.pushPath(instruction[1]);
     }
 
@@ -3083,18 +3081,12 @@ function LogicalCondition_fast(instruction, instance, depth, template, evaluator
     consequenceEnd = elseStart > 0 ? childrenSize : elseStart;
   }
   if (consequenceStart < consequenceEnd) {
-    if (evaluator.framesMode) {
-      evaluator.popPath(instruction[1].length);
-    }
     let result = true;
     for (let cursor = consequenceStart; cursor < consequenceEnd; cursor++) {
       if (!evaluateInstruction(children[cursor], target, depth + 1, template, evaluator)) {
         result = false;
         break;
       }
-    }
-    if (evaluator.framesMode) {
-      evaluator.pushPath(instruction[1]);
     }
     return result;
   }
