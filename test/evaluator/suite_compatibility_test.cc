@@ -8,8 +8,7 @@
 #include "suite_compatibility.h"
 
 namespace {
-constexpr std::array<std::uint32_t, 7> VERSIONS{
-    {3, 4, 6, 7, 2019, 2020, 9999}};
+constexpr std::array<std::uint32_t, 7> VERSIONS{{3, 4, 6, 7, 2019, 2020, 9999}};
 
 auto matching_versions(const std::string_view compatibility) -> std::string {
   std::string result;
