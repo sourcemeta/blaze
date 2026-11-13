@@ -69,6 +69,15 @@ public:
     }
   };
 
+  // A key and a value stand between one hash and the next, so a search over
+  // the hashes strides across a cache line per entry. Giving the hashes
+  // storage of their own, and nothing else, reads the same as this layout at
+  // eight and at thirty two entries, because the width of a hash holds the
+  // search back rather than the stride. Ruling out several candidates at once
+  // instead, over a narrow discriminator and without the branch that leaves
+  // on the first match, did read faster, by around a quarter of the search,
+  // but by less than the same timings move between runs on the machine they
+  // were taken on, so that one is open rather than refused
   using underlying_type = std::vector<Entry>;
   using value_type = underlying_type::value_type;
   using size_type = underlying_type::size_type;
@@ -108,6 +117,9 @@ public:
       }
     }
 
+    // A key named twice leaves both objects holding the same number of
+    // entries while naming a different number of keys, so the scan above can
+    // find nothing to disagree on and this one still settle the outcome
     for (const auto &entry : other.data_) {
       if (this->find(entry.first) == this->cend() &&
           (decisive_key == nullptr || entry.first < *decisive_key)) {

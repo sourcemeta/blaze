@@ -6,6 +6,7 @@
 #include "components.h"
 #include "helpers.h"
 
+#include <cassert>     // assert
 #include <optional>    // std::optional, std::nullopt
 #include <set>         // std::set
 #include <string_view> // std::string_view
@@ -116,7 +117,8 @@ inline auto openapi_discriminators(
                               &walker, &resolver,
                               names](const auto &location) -> void {
     const auto *schema{try_get(document, location.pointer)};
-    if (schema == nullptr || !schema->is_object()) {
+    assert(schema != nullptr);
+    if (!schema->is_object()) {
       return;
     }
 
