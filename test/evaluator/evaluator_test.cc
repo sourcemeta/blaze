@@ -166,6 +166,40 @@ TEST(integer_lower_bound_real_needs_exact_decimal_conversion) {
       "The value was expected to be an integer above the given minimum");
 }
 
+TEST(reuse_after_a_template_that_opens_frames) {
+  // A disjunction makes the dependency dynamic, which is what keeps the
+  // keyword from being compiled away into a static property filter
+  const sourcemeta::core::JSON tracking{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [ { "properties": { "foo": true } } ],
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON plain{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "foo": { "type": "string" } }
+  })JSON")};
+
+  const auto tracking_template{
+      sourcemeta::blaze::compile(tracking, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler)};
+  const auto plain_template{sourcemeta::blaze::compile(
+      plain, sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler)};
+
+  EXPECT_TRUE(tracking_template.frames);
+  EXPECT_FALSE(plain_template.frames);
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  EXPECT_TRUE(evaluator.validate(tracking_template, instance));
+  EXPECT_TRUE(evaluator.validate(plain_template, instance));
+  EXPECT_TRUE(evaluator.validate(tracking_template, instance));
+}
+
 TEST(boolean_true_exhaustive) {
   const sourcemeta::core::JSON schema{true};
 
