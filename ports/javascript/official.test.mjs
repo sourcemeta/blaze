@@ -157,14 +157,21 @@ function supportedTags(testCase) {
 function writeExternalSchemas(externalSchemas) {
   const directory = mkdtempSync(join(tmpdir(), 'blaze-official-suite-'));
 
-  for (const [identifier, schema] of Object.entries(externalSchemas)) {
-    if (!identifier.startsWith(EXTERNAL_SCHEMA_PREFIX)) {
-      throw new Error(`Unsupported external schema identifier: ${identifier}`);
-    }
+  // The caller only learns about the directory once this returns, so whatever
+  // goes wrong before that has to be cleaned up here
+  try {
+    for (const [identifier, schema] of Object.entries(externalSchemas)) {
+      if (!identifier.startsWith(EXTERNAL_SCHEMA_PREFIX)) {
+        throw new Error(`Unsupported external schema identifier: ${identifier}`);
+      }
 
-    const target = join(directory, identifier.slice(EXTERNAL_SCHEMA_PREFIX.length));
-    mkdirSync(dirname(target), { recursive: true });
-    writeFileSync(target, JSON.stringify(schema));
+      const target = join(directory, identifier.slice(EXTERNAL_SCHEMA_PREFIX.length));
+      mkdirSync(dirname(target), { recursive: true });
+      writeFileSync(target, JSON.stringify(schema));
+    }
+  } catch (error) {
+    rmSync(directory, { recursive: true, force: true });
+    throw error;
   }
 
   return directory;
