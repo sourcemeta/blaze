@@ -27,6 +27,40 @@ TEST(metaschema_1) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 48, "");
 }
 
+TEST(metaschema_invalid_definition) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "https://json-schema.org/draft/2019-09/schema")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "foo": {
+        "type": 1
+      }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_FAST_FAILURE(metaschema.value(), instance, 19, "");
+}
+
+TEST(metaschema_invalid_definition_exhaustive) {
+  const auto metaschema{sourcemeta::core::schema_resolver(
+      "https://json-schema.org/draft/2019-09/schema")};
+  EXPECT_TRUE(metaschema.has_value());
+
+  const auto instance{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "foo": {
+        "type": 1
+      }
+    }
+  })JSON")};
+
+  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(metaschema.value(), instance, 25, "");
+}
+
 TEST(metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2019-09/hyper-schema")};
