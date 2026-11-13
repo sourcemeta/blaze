@@ -1081,7 +1081,9 @@ auto describe(const Template &schema_template, const bool valid,
   }
 
   if (step.type ==
-      sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash) {
+          sourcemeta::blaze::InstructionIndex::AssertionEqualsAnyStringHash ||
+      step.type == sourcemeta::blaze::InstructionIndex::
+                       AssertionPropertyEqualsAnyStringHash) {
     assert(!instruction_value<ValueStringHashes>(step).first.empty());
     return render_message(message_format(schema_template, step),
                           {describe_subject(evaluate_path, instance_location,

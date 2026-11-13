@@ -6,6 +6,8 @@
 
 #include <sourcemeta/core/uri.h>
 
+#include "compile_helpers.h"
+
 #include <algorithm> // std::ranges::all_of, std::ranges::find, std::max, std::min
 #include <array>     // std::array
 #include <cstddef>   // std::size_t
@@ -549,6 +551,27 @@ inline auto transform_instruction(
   return false;
 }
 
+// Reference inlining replaces a branch that was a bare jump with the
+// instructions it stood for, so the discriminating property of a branch
+// written as a reference only becomes visible once inlining has settled. A
+// disjunction that must try every branch reports each of them, which makes the
+// order its instructions run in observable, and it carries that requirement as
+// its own value
+inline auto hoist_discriminators(Instructions &instructions) -> void {
+  for (auto &instruction : instructions) {
+    if (instruction.type == InstructionIndex::LogicalXor &&
+        !std::get<ValueBoolean>(instruction.value)) {
+      for (auto &branch : instruction.children) {
+        if (branch.type == InstructionIndex::ControlGroup) {
+          hoist_discriminator(branch.children);
+        }
+      }
+    }
+
+    hoist_discriminators(instruction.children);
+  }
+}
+
 inline auto postprocess(std::vector<Instructions> &targets,
                         InstructionExtras &extra, const Tweaks &tweaks,
                         const bool uses_dynamic_scopes) -> void {
@@ -802,6 +825,10 @@ inline auto postprocess(std::vector<Instructions> &targets,
         changed = true;
       }
     }
+  }
+
+  for (auto &target : targets) {
+    hoist_discriminators(target);
   }
 }
 

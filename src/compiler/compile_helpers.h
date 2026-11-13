@@ -5,10 +5,10 @@
 #include <sourcemeta/core/jsonschema.h>
 #include <sourcemeta/core/uri.h>
 
-#include <algorithm>   // std::ranges::find, std::ranges::all_of
+#include <algorithm> // std::ranges::find, std::ranges::all_of, std::find_if, std::rotate
 #include <cassert>     // assert
 #include <functional>  // std::cref
-#include <iterator>    // std::distance
+#include <iterator>    // std::distance, std::next
 #include <limits>      // std::numeric_limits
 #include <optional>    // std::optional
 #include <regex>       // std::regex, std::regex_match, std::smatch
@@ -629,6 +629,54 @@ inline auto required_properties(const KeywordContext &context)
   }
 
   return result;
+}
+
+// A disjunction branch is usually ruled out by a single discriminating
+// property, as a tagged union does, yet the branch spends its first
+// instructions on the wider checks that the tag makes irrelevant. Running the
+// tag comparison first lets every branch but the matching one fail on one
+// property lookup. The comparison is only sound ahead of the check that proves
+// the property is there, so it becomes the variant that holds vacuously when
+// the property is missing, leaving that proof to the check it now precedes
+inline auto hoist_discriminator(Instructions &branch) -> void {
+  ValueStringSet guaranteed;
+  for (const auto &step : branch) {
+    if (!step.relative_instance_location.empty()) {
+      continue;
+    }
+
+    if (step.type == InstructionIndex::AssertionDefinesStrict) {
+      const auto &property{std::get<ValueProperty>(step.value)};
+      guaranteed.insert(property.first, property.second);
+    } else if (step.type == InstructionIndex::AssertionDefinesAllStrict) {
+      for (const auto &property : std::get<ValueStringSet>(step.value)) {
+        guaranteed.insert(property.first, property.second);
+      }
+    }
+  }
+
+  if (guaranteed.empty()) {
+    return;
+  }
+
+  const auto match{std::find_if(
+      branch.begin(), branch.end(), [&guaranteed](const auto &step) -> bool {
+        return (step.type == InstructionIndex::AssertionEqual ||
+                step.type == InstructionIndex::AssertionEqualsAnyStringHash) &&
+               step.relative_instance_location.size() == 1 &&
+               step.relative_instance_location.back().is_property() &&
+               guaranteed.contains(
+                   step.relative_instance_location.back().to_property());
+      })};
+
+  if (match == branch.cend() || match == branch.cbegin()) {
+    return;
+  }
+
+  match->type = match->type == InstructionIndex::AssertionEqual
+                    ? InstructionIndex::AssertionPropertyEqual
+                    : InstructionIndex::AssertionPropertyEqualsAnyStringHash;
+  std::rotate(branch.begin(), match, std::next(match));
 }
 
 } // namespace sourcemeta::blaze

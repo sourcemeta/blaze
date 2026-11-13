@@ -1320,6 +1320,14 @@ INSTRUCTION_HANDLER(AssertionObjectPropertiesSimple) {
   EVALUATE_END(AssertionObjectPropertiesSimple);
 }
 
+INSTRUCTION_HANDLER(AssertionPropertyEqualsAnyStringHash) {
+  EVALUATE_BEGIN_TRY_TARGET(AssertionPropertyEqualsAnyStringHash);
+  const auto &value{assume_value<ValueStringHashes>(instruction.value)};
+  // Now here we refer to the actual property
+  result = DIRECT(AssertionEqualsAnyStringHash, *target_check, value);
+  EVALUATE_END(AssertionPropertyEqualsAnyStringHash);
+}
+
 INSTRUCTION_HANDLER(AssertionArrayPrefix) {
   EVALUATE_BEGIN_NON_STRING(AssertionArrayPrefix, target.is_array());
   // Otherwise there is no point in emitting this instruction
@@ -3012,7 +3020,7 @@ using DispatchHandler = bool (*)(
 template <bool Frames, bool Dynamic, bool HasCallback>
 // Must have same order as InstructionIndex
 // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-static constexpr DispatchHandler<Frames, Dynamic, HasCallback> HANDLERS[106] = {
+static constexpr DispatchHandler<Frames, Dynamic, HasCallback> HANDLERS[107] = {
     AssertionFail,
     AssertionDefines,
     AssertionDefinesStrict,
@@ -3063,6 +3071,7 @@ static constexpr DispatchHandler<Frames, Dynamic, HasCallback> HANDLERS[106] = {
     AssertionPropertyTypeStrictAny,
     AssertionPropertyTypeStrictAnyEvaluate,
     AssertionPropertyEqual,
+    AssertionPropertyEqualsAnyStringHash,
     AssertionArrayPrefix,
     AssertionArrayPrefixEvaluate,
     AssertionObjectPropertiesSimple,
