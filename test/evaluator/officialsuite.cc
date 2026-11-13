@@ -1,220 +1,29 @@
 #include <sourcemeta/core/test.h>
 
-#include <cassert>
-#include <cctype>
-#include <cstdlib>
-#include <filesystem>
-#include <iostream>
-#include <optional>
-#include <ostream>
-#include <set>
-#include <sstream>
-#include <string>
-#include <string_view>
-#include <utility>
-
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-static auto test_resolver(std::string_view identifier)
-    -> sourcemeta::core::SchemaResolverResult {
-  const std::filesystem::path remotes_path{
-      std::filesystem::path{OFFICIAL_SUITE_PATH} / "remotes"};
+#include "suite_compatibility.h"
 
-#define READ_SCHEMA_FILE(uri, relative_path)                                   \
-  if (identifier == (uri)) {                                                   \
-    return sourcemeta::core::read_json(remotes_path / (relative_path));        \
-  }
-
-  // We keep an explicit list instead of dynamically reading into the directory
-  // to make sure we are only pulling in the right files
-
-  READ_SCHEMA_FILE("http://localhost:1234/integer.json", "integer.json")
-
-  READ_SCHEMA_FILE("http://localhost:1234/nested/foo-ref-string.json",
-                   std::filesystem::path{"nested"} / "foo-ref-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/nested/string.json",
-                   std::filesystem::path{"nested"} / "string.json")
-
-  READ_SCHEMA_FILE("http://localhost:1234/baseUriChange/folderInteger.json",
-                   std::filesystem::path{"baseUriChange"} /
-                       "folderInteger.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/baseUriChangeFolder/folderInteger.json",
-      std::filesystem::path{"baseUriChangeFolder"} / "folderInteger.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/baseUriChangeFolderInSubschema/folderInteger.json",
-      std::filesystem::path{"baseUriChangeFolderInSubschema"} /
-          "folderInteger.json")
-
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2019-09/metaschema-no-validation.json",
-      std::filesystem::path{"draft2019-09"} / "metaschema-no-validation.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2019-09/metaschema-optional-vocabulary.json",
-      std::filesystem::path{"draft2019-09"} /
-          "metaschema-optional-vocabulary.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/integer.json",
-                   std::filesystem::path{"draft2019-09"} / "integer.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/subSchemas.json",
-                   std::filesystem::path{"draft2019-09"} / "subSchemas.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2019-09/locationIndependentIdentifier.json",
-      std::filesystem::path{"draft2019-09"} /
-          "locationIndependentIdentifier.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2019-09/baseUriChange/folderInteger.json",
-      std::filesystem::path{"draft2019-09"} / "baseUriChange" /
-          "folderInteger.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/baseUriChangeFolder/"
-                   "folderInteger.json",
-                   std::filesystem::path{"draft2019-09"} /
-                       "baseUriChangeFolder" / "folderInteger.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2019-09/baseUriChangeFolderInSubschema/"
-      "folderInteger.json",
-      std::filesystem::path{"draft2019-09"} / "baseUriChangeFolderInSubschema" /
-          "folderInteger.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/name-defs.json",
-                   std::filesystem::path{"draft2019-09"} / "name-defs.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/ref-and-defs.json",
-                   std::filesystem::path{"draft2019-09"} / "ref-and-defs.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2019-09/nested/foo-ref-string.json",
-      std::filesystem::path{"draft2019-09"} / "nested" / "foo-ref-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/nested/string.json",
-                   std::filesystem::path{"draft2019-09"} / "nested" /
-                       "string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/detached-ref.json",
-                   std::filesystem::path{"draft2019-09"} / "detached-ref.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/dependentRequired.json",
-                   std::filesystem::path{"draft2019-09"} /
-                       "dependentRequired.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/ignore-prefixItems.json",
-                   std::filesystem::path{"draft2019-09"} /
-                       "ignore-prefixItems.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2019-09/different-id-ref-string.json",
-      std::filesystem::path{"draft2019-09"} / "different-id-ref-string.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2019-09/nested-absolute-ref-to-string.json",
-      std::filesystem::path{"draft2019-09"} /
-          "nested-absolute-ref-to-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2019-09/urn-ref-string.json",
-                   std::filesystem::path{"draft2019-09"} /
-                       "urn-ref-string.json")
-
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/prefixItems.json",
-                   std::filesystem::path{"draft2020-12"} / "prefixItems.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/metaschema-no-validation.json",
-      std::filesystem::path{"draft2020-12"} / "metaschema-no-validation.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/metaschema-optional-vocabulary.json",
-      std::filesystem::path{"draft2020-12"} /
-          "metaschema-optional-vocabulary.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/integer.json",
-                   std::filesystem::path{"draft2020-12"} / "integer.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/detached-dynamicref.json",
-      std::filesystem::path{"draft2020-12"} / "detached-dynamicref.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/detached-ref.json",
-                   std::filesystem::path{"draft2020-12"} / "detached-ref.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/extendible-dynamic-ref.json",
-      std::filesystem::path{"draft2020-12"} / "extendible-dynamic-ref.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/format-assertion-false.json",
-      std::filesystem::path{"draft2020-12"} / "format-assertion-false.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/format-assertion-true.json",
-      std::filesystem::path{"draft2020-12"} / "format-assertion-true.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/locationIndependentIdentifier.json",
-      std::filesystem::path{"draft2020-12"} /
-          "locationIndependentIdentifier.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/name-defs.json",
-                   std::filesystem::path{"draft2020-12"} / "name-defs.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/ref-and-defs.json",
-                   std::filesystem::path{"draft2020-12"} / "ref-and-defs.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/subSchemas.json",
-                   std::filesystem::path{"draft2020-12"} / "subSchemas.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/tree.json",
-                   std::filesystem::path{"draft2020-12"} / "tree.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/baseUriChangeFolder/"
-                   "folderInteger.json",
-                   std::filesystem::path{"draft2020-12"} /
-                       "baseUriChangeFolder" / "folderInteger.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/"
-                   "baseUriChangeFolderInSubschema/folderInteger.json",
-                   std::filesystem::path{"draft2020-12"} /
-                       "baseUriChangeFolderInSubschema" / "folderInteger.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/baseUriChange/folderInteger.json",
-      std::filesystem::path{"draft2020-12"} / "baseUriChange" /
-          "folderInteger.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/nested/foo-ref-string.json",
-      std::filesystem::path{"draft2020-12"} / "nested" / "foo-ref-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/nested/string.json",
-                   std::filesystem::path{"draft2020-12"} / "nested" /
-                       "string.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/different-id-ref-string.json",
-      std::filesystem::path{"draft2020-12"} / "different-id-ref-string.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft2020-12/nested-absolute-ref-to-string.json",
-      std::filesystem::path{"draft2020-12"} /
-          "nested-absolute-ref-to-string.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft2020-12/urn-ref-string.json",
-                   std::filesystem::path{"draft2020-12"} /
-                       "urn-ref-string.json")
-
-  READ_SCHEMA_FILE("http://localhost:1234/draft7/detached-ref.json",
-                   std::filesystem::path{"draft7"} / "detached-ref.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft7/ignore-dependentRequired.json",
-                   std::filesystem::path{"draft7"} /
-                       "ignore-dependentRequired.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft7/locationIndependentIdentifier.json",
-      std::filesystem::path{"draft7"} / "locationIndependentIdentifier.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft7/name.json",
-                   std::filesystem::path{"draft7"} / "name.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft7/ref-and-definitions.json",
-                   std::filesystem::path{"draft7"} / "ref-and-definitions.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft7/subSchemas.json",
-                   std::filesystem::path{"draft7"} / "subSchemas.json")
-
-  READ_SCHEMA_FILE("http://localhost:1234/draft6/detached-ref.json",
-                   std::filesystem::path{"draft6"} / "detached-ref.json")
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft6/locationIndependentIdentifier.json",
-      std::filesystem::path{"draft6"} / "locationIndependentIdentifier.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft6/name.json",
-                   std::filesystem::path{"draft6"} / "name.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft6/ref-and-definitions.json",
-                   std::filesystem::path{"draft6"} / "ref-and-definitions.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft6/subSchemas.json",
-                   std::filesystem::path{"draft6"} / "subSchemas.json")
-
-  READ_SCHEMA_FILE(
-      "http://localhost:1234/draft4/locationIndependentIdentifier.json",
-      std::filesystem::path{"draft4"} / "locationIndependentIdentifier.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft4/name.json",
-                   std::filesystem::path{"draft4"} / "name.json")
-  READ_SCHEMA_FILE("http://localhost:1234/draft4/subSchemas.json",
-                   std::filesystem::path{"draft4"} / "subSchemas.json")
-
-  READ_SCHEMA_FILE("http://localhost:1234/draft3/subSchemas.json",
-                   std::filesystem::path{"draft3"} / "subSchemas.json")
-
-#undef READ_SCHEMA_FILE
-
-  return sourcemeta::core::schema_resolver(identifier);
-}
+#include <cassert>     // assert
+#include <cctype>      // std::isalnum
+#include <cstddef>     // std::size_t
+#include <cstdint>     // std::uint32_t
+#include <cstdlib>     // EXIT_FAILURE
+#include <exception>   // std::exception
+#include <filesystem>  // std::filesystem
+#include <iostream>    // std::cerr
+#include <optional>    // std::optional
+#include <ostream>     // std::ostream
+#include <set>         // std::set
+#include <sstream>     // std::ostringstream
+#include <stdexcept>   // std::runtime_error
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <utility>     // std::unreachable
 
 static auto slugify(const std::string &input, std::ostream &output) -> void {
   for (const auto character : input) {
@@ -223,6 +32,79 @@ static auto slugify(const std::string &input, std::ostream &output) -> void {
 }
 
 namespace {
+
+// Every test case that relies on references declares the schemas those
+// references resolve to, which replaces the standalone directory of remote
+// schemas that older revisions of the suite shipped
+struct ExternalSchemaResolver {
+  const sourcemeta::core::JSON *external_schemas{nullptr};
+
+  auto operator()(const std::string_view identifier) const
+      -> sourcemeta::core::SchemaResolverResult {
+    if (this->external_schemas != nullptr &&
+        this->external_schemas->defines(identifier)) {
+      return this->external_schemas->at(identifier);
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  }
+};
+
+auto mode_name(const sourcemeta::blaze::Mode mode) -> std::string_view {
+  switch (mode) {
+    case sourcemeta::blaze::Mode::FastValidation:
+      return "fast_validation";
+    case sourcemeta::blaze::Mode::Exhaustive:
+      return "exhaustive";
+  }
+
+  std::unreachable();
+}
+
+// Upstream asks implementations to run a test case only if they provide the
+// behaviour that every one of its tags stands for
+auto supported_tags(const sourcemeta::core::JSON &test_case) -> bool {
+  if (!test_case.defines("tags")) {
+    return true;
+  }
+
+  assert(test_case.at("tags").is_array());
+  for (const auto &tag : test_case.at("tags").as_array()) {
+    assert(tag.is_string());
+    if (tag.to_string() != "format-annotation" &&
+        tag.to_string() != "format-assertion") {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+auto declares_format_assertion(const sourcemeta::core::JSON &test_case)
+    -> bool {
+  if (!test_case.defines("tags")) {
+    return false;
+  }
+
+  for (const auto &tag : test_case.at("tags").as_array()) {
+    if (tag.to_string() == "format-assertion") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+auto write_case_title(const sourcemeta::blaze::Mode mode,
+                      const std::string &file_name,
+                      const std::string &case_description,
+                      std::ostream &output) -> void {
+  output << mode_name(mode) << "_";
+  slugify(file_name, output);
+  output << "__";
+  slugify(case_description, output);
+}
+
 auto run_official_test(const bool valid,
                        const sourcemeta::blaze::Template &schema,
                        const sourcemeta::core::JSON &instance) -> void {
@@ -236,75 +118,138 @@ auto run_official_test(const bool valid,
 }
 } // namespace
 
-static auto register_tests(
-    const std::filesystem::path &subdirectory, const std::string &suite_name,
-    const std::string &default_dialect, const std::set<std::string> &blacklist,
-    const std::optional<sourcemeta::blaze::Tweaks> &tweaks = std::nullopt)
-    -> void {
+// The skip list is keyed by the path of the test file relative to the suite
+// directory, optionally followed by `::` and a case description, optionally
+// followed by `::` and a test description
+static auto register_tests(const std::filesystem::path &group,
+                           const std::string &suite_name,
+                           const std::string &default_dialect,
+                           const std::uint32_t version,
+                           const std::set<std::string> &skips) -> void {
+  std::cerr << "-- Registering: " << suite_name << "\n";
+  std::size_t registered{0};
+
   for (const std::filesystem::directory_entry &entry :
        std::filesystem::directory_iterator(
-           std::filesystem::path{OFFICIAL_SUITE_PATH} / "tests" /
-           subdirectory)) {
-    if (!entry.is_regular_file()) {
+           std::filesystem::path{OFFICIAL_SUITE_PATH} / "validation" / "tests" /
+           group)) {
+    if (!entry.is_regular_file() || entry.path().extension() != ".json") {
       continue;
     }
 
-    const std::string name{entry.path().stem().string()};
-    if (blacklist.contains(name)) {
+    const auto file_name{entry.path().stem().string()};
+    const auto file_key{(group / file_name).generic_string()};
+    if (skips.contains(file_key)) {
       continue;
     }
 
     std::cerr << "-- Parsing: " << entry.path().string() << "\n";
     const sourcemeta::core::JSON suite{
         sourcemeta::core::read_json(entry.path())};
-    assert(suite.is_array());
-    for (const auto &test : suite.as_array()) {
-      assert(test.is_object());
-      assert(test.defines("description"));
-      assert(test.defines("schema"));
-      assert(test.defines("tests"));
-      assert(test.at("description").is_string());
-      assert(test.at("schema").is_object() || test.at("schema").is_boolean());
-      assert(test.at("tests").is_array());
+    assert(suite.is_object());
+    assert(suite.defines("description"));
+    assert(suite.defines("tests"));
+    assert(suite.at("tests").is_array());
 
-      std::cerr << "    Compiling: " << test.at("description").to_string()
-                << "\n";
+    for (const auto &test_case : suite.at("tests").as_array()) {
+      assert(test_case.is_object());
+      assert(test_case.defines("description"));
+      assert(test_case.defines("schema"));
+      assert(test_case.defines("tests"));
+      assert(test_case.at("description").is_string());
+      assert(test_case.at("schema").is_object() ||
+             test_case.at("schema").is_boolean());
+      assert(test_case.at("tests").is_array());
+
+      const auto &case_description{test_case.at("description").to_string()};
+      const auto case_key{file_key + "::" + case_description};
+      if (skips.contains(case_key)) {
+        continue;
+      }
+
+      if (test_case.defines("compatibility")) {
+        assert(test_case.at("compatibility").is_string());
+        if (!suite_compatibility(test_case.at("compatibility").to_string(),
+                                 version)) {
+          continue;
+        }
+      }
+
+      if (!supported_tags(test_case)) {
+        continue;
+      }
+
+      // Note that the two cases of `optional/format-assertion.json` carry no
+      // tag at all and still exercise format assertions, as they declare a
+      // meta-schema of their own that opts into the format-assertion
+      // vocabulary, which the compiler honours without this tweak
+      std::optional<sourcemeta::blaze::Tweaks> tweaks;
+      if (declares_format_assertion(test_case)) {
+        tweaks = sourcemeta::blaze::Tweaks{.format_assertion = true};
+      }
+
+      const sourcemeta::core::JSON *external_schemas{nullptr};
+      if (test_case.defines("externalSchemas")) {
+        assert(test_case.at("externalSchemas").is_object());
+        external_schemas = &test_case.at("externalSchemas");
+      }
+
+      registered++;
 
       for (const auto mode : {sourcemeta::blaze::Mode::FastValidation,
                               sourcemeta::blaze::Mode::Exhaustive}) {
-        const auto schema_template{sourcemeta::blaze::compile(
-            test.at("schema"), sourcemeta::core::schema_walker, test_resolver,
-            sourcemeta::blaze::default_schema_compiler, mode, default_dialect,
-            "", "", tweaks)};
+        sourcemeta::blaze::Template schema_template{};
 
-        for (const auto &test_case : test.at("tests").as_array()) {
+        try {
+          schema_template = sourcemeta::blaze::compile(
+              test_case.at("schema"), sourcemeta::core::schema_walker,
+              ExternalSchemaResolver{external_schemas},
+              sourcemeta::blaze::default_schema_compiler, mode, default_dialect,
+              "", "", tweaks);
+        } catch (const std::exception &error) {
+          // Registering the failure keeps it addressable by name and stops one
+          // schema the compiler refuses from taking down the whole run
           std::ostringstream title;
-          switch (mode) {
-            case sourcemeta::blaze::Mode::FastValidation:
-              title << "fast_validation";
-              break;
-            case sourcemeta::blaze::Mode::Exhaustive:
-              title << "exhaustive";
-              break;
-            default:
-              // We should never get here
-              assert(false);
+          write_case_title(mode, file_name, case_description, title);
+          title << "__compile_error";
+          const std::string message{"Cannot compile " + case_key + " with " +
+                                    default_dialect + ": " + error.what()};
+          sourcemeta::core::test_register(
+              suite_name, title.str(), __FILE__, __LINE__,
+              [message]() -> void {
+                sourcemeta::core::test_report_failure(__FILE__, __LINE__,
+                                                      message);
+              });
+          continue;
+        }
+
+        std::size_t ordinal{0};
+        for (const auto &test : test_case.at("tests").as_array()) {
+          // Several cases hold tests whose descriptions only differ in
+          // punctuation, which the slug drops, so the position within the case
+          // is what keeps their names apart
+          ordinal++;
+
+          assert(test.is_object());
+          assert(test.defines("data"));
+          assert(test.defines("description"));
+          assert(test.defines("valid"));
+          assert(test.at("description").is_string());
+          assert(test.at("valid").is_boolean());
+
+          if (skips.contains(case_key + "::" +
+                             test.at("description").to_string())) {
+            continue;
           }
 
-          assert(test_case.is_object());
-          assert(test_case.defines("data"));
-          assert(test_case.defines("description"));
-          assert(test_case.defines("valid"));
-          assert(test_case.at("description").is_string());
-          assert(test_case.at("valid").is_boolean());
-
-          const auto &instance{test_case.at("data")};
-          const bool valid{test_case.at("valid").to_boolean()};
-
-          title << "_";
-          slugify(test.at("description").to_string(), title);
+          std::ostringstream title;
+          write_case_title(mode, file_name, case_description, title);
           title << "__";
-          slugify(test_case.at("description").to_string(), title);
+          slugify(test.at("description").to_string(), title);
+          title << "__" << ordinal;
+
+          const auto &instance{test.at("data")};
+          const auto valid{test.at("valid").to_boolean()};
 
           sourcemeta::core::test_register(
               suite_name, title.str(), __FILE__, __LINE__,
@@ -315,83 +260,49 @@ static auto register_tests(
       }
     }
   }
+
+  if (registered == 0) {
+    throw std::runtime_error{"No test cases were registered for " + suite_name};
+  }
 }
 
 auto main(int argc, char **argv) -> int {
   try {
     // 2020-12
-    register_tests("draft2020-12", "JSONSchemaOfficialSuite_2020_12",
-                   "https://json-schema.org/draft/2020-12/schema", {});
-    register_tests(std::filesystem::path{"draft2020-12"} / "optional",
-                   "JSONSchemaOfficialSuite_2020_12_Optional",
-                   "https://json-schema.org/draft/2020-12/schema",
-                   // TODO: Can we make this work?
-                   {"refOfUnknownKeyword"});
-    register_tests(std::filesystem::path{"draft2020-12"} / "optional" /
-                       "format",
-                   "JSONSchemaOfficialSuite_2020_12_Optional_Format",
-                   "https://json-schema.org/draft/2020-12/schema", {},
-                   sourcemeta::blaze::Tweaks{.format_assertion = true});
+    register_tests("", "JSONSchemaOfficialSuite_2020_12",
+                   "https://json-schema.org/draft/2020-12/schema", 2020, {});
+    register_tests("optional", "JSONSchemaOfficialSuite_2020_12_Optional",
+                   "https://json-schema.org/draft/2020-12/schema", 2020, {});
 
     // 2019-09
-    register_tests("draft2019-09", "JSONSchemaOfficialSuite_2019_09",
-                   "https://json-schema.org/draft/2019-09/schema", {});
-    register_tests(std::filesystem::path{"draft2019-09"} / "optional",
-                   "JSONSchemaOfficialSuite_2019_09_Optional",
-                   "https://json-schema.org/draft/2019-09/schema",
-                   // TODO: Can we make this work?
-                   {"refOfUnknownKeyword"});
-    register_tests(std::filesystem::path{"draft2019-09"} / "optional" /
-                       "format",
-                   "JSONSchemaOfficialSuite_2019_09_Optional_Format",
-                   "https://json-schema.org/draft/2019-09/schema", {},
-                   sourcemeta::blaze::Tweaks{.format_assertion = true});
+    register_tests("", "JSONSchemaOfficialSuite_2019_09",
+                   "https://json-schema.org/draft/2019-09/schema", 2019, {});
+    register_tests("optional", "JSONSchemaOfficialSuite_2019_09_Optional",
+                   "https://json-schema.org/draft/2019-09/schema", 2019, {});
 
     // Draft 7
-    register_tests("draft7", "JSONSchemaOfficialSuite_Draft7",
-                   "http://json-schema.org/draft-07/schema#", {});
-    register_tests(std::filesystem::path{"draft7"} / "optional",
-                   "JSONSchemaOfficialSuite_Draft7_Optional",
-                   "http://json-schema.org/draft-07/schema#",
-                   // TODO: Enable all tests
-                   {"content"});
-    register_tests(std::filesystem::path{"draft7"} / "optional" / "format",
-                   "JSONSchemaOfficialSuite_Draft7_Optional_Format",
-                   "http://json-schema.org/draft-07/schema#", {},
-                   sourcemeta::blaze::Tweaks{.format_assertion = true});
+    register_tests("", "JSONSchemaOfficialSuite_Draft7",
+                   "http://json-schema.org/draft-07/schema#", 7, {});
+    register_tests("optional", "JSONSchemaOfficialSuite_Draft7_Optional",
+                   "http://json-schema.org/draft-07/schema#", 7, {});
 
     // Draft 6
-    register_tests("draft6", "JSONSchemaOfficialSuite_Draft6",
-                   "http://json-schema.org/draft-06/schema#", {});
-    register_tests(std::filesystem::path{"draft6"} / "optional",
-                   "JSONSchemaOfficialSuite_Draft6_Optional",
-                   "http://json-schema.org/draft-06/schema#", {});
-    register_tests(std::filesystem::path{"draft6"} / "optional" / "format",
-                   "JSONSchemaOfficialSuite_Draft6_Optional_Format",
-                   "http://json-schema.org/draft-06/schema#", {},
-                   sourcemeta::blaze::Tweaks{.format_assertion = true});
+    register_tests("", "JSONSchemaOfficialSuite_Draft6",
+                   "http://json-schema.org/draft-06/schema#", 6, {});
+    register_tests("optional", "JSONSchemaOfficialSuite_Draft6_Optional",
+                   "http://json-schema.org/draft-06/schema#", 6, {});
 
-    // Draft4
-    register_tests("draft4", "JSONSchemaOfficialSuite_Draft4",
-                   "http://json-schema.org/draft-04/schema#", {});
-    register_tests(std::filesystem::path{"draft4"} / "optional",
-                   "JSONSchemaOfficialSuite_Draft4_Optional",
-                   "http://json-schema.org/draft-04/schema#", {});
-    register_tests(std::filesystem::path{"draft4"} / "optional" / "format",
-                   "JSONSchemaOfficialSuite_Draft4_Optional_Format",
-                   "http://json-schema.org/draft-04/schema#", {},
-                   sourcemeta::blaze::Tweaks{.format_assertion = true});
+    // Draft 4
+    register_tests("", "JSONSchemaOfficialSuite_Draft4",
+                   "http://json-schema.org/draft-04/schema#", 4, {});
+    register_tests("optional", "JSONSchemaOfficialSuite_Draft4_Optional",
+                   "http://json-schema.org/draft-04/schema#", 4, {});
 
     // Draft 3
-    register_tests("draft3", "JSONSchemaOfficialSuite_Draft3",
-                   "http://json-schema.org/draft-03/schema#", {});
-    register_tests(std::filesystem::path{"draft3"} / "optional",
-                   "JSONSchemaOfficialSuite_Draft3_Optional",
-                   "http://json-schema.org/draft-03/schema#", {});
-    register_tests(std::filesystem::path{"draft3"} / "optional" / "format",
-                   "JSONSchemaOfficialSuite_Draft3_Optional_Format",
-                   "http://json-schema.org/draft-03/schema#", {},
-                   sourcemeta::blaze::Tweaks{.format_assertion = true});
+    register_tests("", "JSONSchemaOfficialSuite_Draft3",
+                   "http://json-schema.org/draft-03/schema#", 3, {});
+    register_tests("optional", "JSONSchemaOfficialSuite_Draft3_Optional",
+                   "http://json-schema.org/draft-03/schema#", 3, {});
   } catch (const sourcemeta::core::SchemaResolutionError &error) {
     std::cerr << error.what() << ": " << error.identifier() << "\n";
     return EXIT_FAILURE;

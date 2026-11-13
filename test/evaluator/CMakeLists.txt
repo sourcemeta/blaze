@@ -1,6 +1,7 @@
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
   SOURCES
     evaluator_utils.h
+    suite_compatibility.h
     evaluator_2019_09_test.cc
     evaluator_2020_12_test.cc
     evaluator_draft3_test.cc
@@ -12,7 +13,8 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
     evaluator_openapi_3_1_test.cc
     evaluator_openapi_3_2_test.cc
     evaluator_sourcemeta_v1_test.cc
-    evaluator_test.cc)
+    evaluator_test.cc
+    suite_compatibility_test.cc)
 
 target_link_libraries(sourcemeta_blaze_evaluator_unit
   PRIVATE sourcemeta::core::json)
@@ -31,7 +33,7 @@ endif()
 # JSON Schema Test Suite
 # See https://github.com/json-schema-org/JSON-Schema-Test-Suite
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_official_suite
-  SOURCES officialsuite.cc)
+  SOURCES officialsuite.cc suite_compatibility.h)
 target_compile_definitions(sourcemeta_blaze_evaluator_official_suite_unit
   PRIVATE OFFICIAL_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite")
 target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sourcemeta::core::json)
@@ -42,7 +44,7 @@ target_link_libraries(sourcemeta_blaze_evaluator_official_suite_unit PRIVATE sou
 # JSON Schema Test Suite (annotations)
 # See https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/annotations
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_annotation_suite
-  SOURCES annotationsuite.cc)
+  SOURCES annotationsuite.cc suite_compatibility.h)
 target_compile_definitions(sourcemeta_blaze_evaluator_annotation_suite_unit
   PRIVATE ANNOTATION_SUITE_PATH="${PROJECT_SOURCE_DIR}/vendor/jsonschema-test-suite/annotations/tests")
 target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE sourcemeta::core::json)
