@@ -24,7 +24,7 @@ TEST(metaschema_1) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 48, "");
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 35, "");
 }
 
 TEST(metaschema_invalid_definition) {
@@ -41,7 +41,7 @@ TEST(metaschema_invalid_definition) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_FAILURE(metaschema.value(), instance, 19, "");
+  EVALUATE_WITH_TRACE_FAST_FAILURE(metaschema.value(), instance, 14, "");
 }
 
 TEST(metaschema_invalid_definition_exhaustive) {
@@ -65,7 +65,7 @@ TEST(metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2019-09/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 91,
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 67,
                                    "");
 }
 

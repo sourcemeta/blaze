@@ -57,7 +57,7 @@ TEST(metaschema_1) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 53, "");
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 36, "");
 }
 
 TEST(metaschema_invalid_definition) {
@@ -74,7 +74,7 @@ TEST(metaschema_invalid_definition) {
     }
   })JSON")};
 
-  EVALUATE_WITH_TRACE_FAST_FAILURE(metaschema.value(), instance, 22, "");
+  EVALUATE_WITH_TRACE_FAST_FAILURE(metaschema.value(), instance, 14, "");
 }
 
 TEST(metaschema_invalid_definition_exhaustive) {
@@ -99,14 +99,14 @@ TEST(metaschema_hyper_1) {
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
   const auto instance{sourcemeta::core::parse_json(R"JSON({})JSON")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 24, "");
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), instance, 14, "");
 }
 
 TEST(metaschema_hyper_self) {
   const auto metaschema{sourcemeta::core::schema_resolver(
       "https://json-schema.org/draft/2020-12/hyper-schema")};
   EXPECT_TRUE(metaschema.has_value());
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 100,
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(metaschema.value(), metaschema.value(), 66,
                                    "");
 }
 
@@ -5995,30 +5995,22 @@ TEST(dynamic_unevaluated_properties_does_not_mark_array) {
 
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON([ 1 ])JSON")};
-  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 5, "");
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 3, "");
 
-  EVALUATE_TRACE_PRE(0, LogicalAnd, "/allOf", "https://example.com/root#/allOf",
-                     "");
-  EVALUATE_TRACE_PRE(1, ControlJump, "/allOf/0/$ref",
-                     "https://example.com/root#/allOf/0/$ref", "");
-  EVALUATE_TRACE_PRE(2, ControlDynamicAnchorJump, "/allOf/0/$ref/$dynamicRef",
+  EVALUATE_TRACE_PRE(0, ControlDynamicAnchorJump, "/allOf/0/$ref/$dynamicRef",
                      "https://example.com/inner#/$dynamicRef", "");
-  EVALUATE_TRACE_PRE(3, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(1, LoopItemsUnevaluated, "/unevaluatedItems",
                      "https://example.com/root#/unevaluatedItems", "");
-  EVALUATE_TRACE_PRE(4, AssertionFail, "/unevaluatedItems",
+  EVALUATE_TRACE_PRE(2, AssertionFail, "/unevaluatedItems",
                      "https://example.com/root#/unevaluatedItems", "/0");
 
   EVALUATE_TRACE_POST_SUCCESS(0, ControlDynamicAnchorJump,
                               "/allOf/0/$ref/$dynamicRef",
                               "https://example.com/inner#/$dynamicRef", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, ControlJump, "/allOf/0/$ref",
-                              "https://example.com/root#/allOf/0/$ref", "");
-  EVALUATE_TRACE_POST_SUCCESS(2, LogicalAnd, "/allOf",
-                              "https://example.com/root#/allOf", "");
-  EVALUATE_TRACE_POST_FAILURE(3, AssertionFail, "/unevaluatedItems",
+  EVALUATE_TRACE_POST_FAILURE(1, AssertionFail, "/unevaluatedItems",
                               "https://example.com/root#/unevaluatedItems",
                               "/0");
-  EVALUATE_TRACE_POST_FAILURE(4, LoopItemsUnevaluated, "/unevaluatedItems",
+  EVALUATE_TRACE_POST_FAILURE(2, LoopItemsUnevaluated, "/unevaluatedItems",
                               "https://example.com/root#/unevaluatedItems", "");
 }
 
