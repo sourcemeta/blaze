@@ -119,6 +119,7 @@ public:
       -> bool {
     assert(this->evaluate_path.empty());
     assert(this->instance_location.empty());
+    assert(this->binding_undo.empty());
 
     if (schema.frames) [[unlikely]] {
       this->evaluated.clear();
@@ -192,6 +193,7 @@ public:
                 const Callback &callback) -> bool {
     assert(this->evaluate_path.empty());
     assert(this->instance_location.empty());
+    assert(this->binding_undo.empty());
     this->evaluated.clear();
     return this->evaluate_impl<true, true>(schema, instance, &callback);
   }
@@ -339,6 +341,8 @@ auto sourcemeta::blaze::Evaluator::evaluate_impl(
     assert(this->evaluate_path.empty());
     assert(this->instance_location.empty());
   }
+
+  assert(this->binding_undo.empty());
 
   return overall;
 }

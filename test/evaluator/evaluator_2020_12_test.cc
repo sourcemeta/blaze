@@ -6012,6 +6012,18 @@ TEST(dynamic_unevaluated_properties_does_not_mark_array) {
                               "/0");
   EVALUATE_TRACE_POST_FAILURE(2, LoopItemsUnevaluated, "/unevaluatedItems",
                               "https://example.com/root#/unevaluatedItems", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The array value was expected to validate against the first subschema in "
+      "scope that declared the dynamic anchor \"T\"");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The array value was not expected to define the item at index 0");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The array items not covered by other array keywords, if any, were "
+      "expected to validate against this subschema");
 }
 
 TEST(properties_closed_required_annotation_whitelist_fast) {
