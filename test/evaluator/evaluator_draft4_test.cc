@@ -1227,6 +1227,11 @@ TEST(items_integer_bounded_decimal_in_range) {
   EVALUATE_TRACE_PRE(0, LoopItemsIntegerBounded, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsIntegerBounded, "/items", "#/items",
                               "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "Every item in the array was expected to be a number within the "
+      "given range");
 }
 
 TEST(items_integer_bounded_decimal_out_of_range) {
@@ -1243,6 +1248,11 @@ TEST(items_integer_bounded_decimal_out_of_range) {
   EVALUATE_TRACE_PRE(0, LoopItemsIntegerBounded, "/items", "#/items", "");
   EVALUATE_TRACE_POST_FAILURE(0, LoopItemsIntegerBounded, "/items", "#/items",
                               "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "Every item in the array was expected to be a number within the "
+      "given range");
 }
 
 TEST(items_integer_bounded_large_decimal_in_range) {
@@ -1259,6 +1269,11 @@ TEST(items_integer_bounded_large_decimal_in_range) {
   EVALUATE_TRACE_PRE(0, LoopItemsIntegerBounded, "/items", "#/items", "");
   EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsIntegerBounded, "/items", "#/items",
                               "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "Every item in the array was expected to be a number within the "
+      "given range");
 }
 
 TEST(prop_type_integer_bounded_strict_real_3_0_fails) {
@@ -3378,6 +3393,10 @@ TEST(format_under_items_valid_with_tweak_fast) {
       instance, 1,
       "The string value \"https://example.org\" was expected to represent a "
       "valid URI");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "Every item in the array value was expected to validate against the "
+      "given subschema");
 }
 
 TEST(format_under_items_invalid_with_tweak_fast) {
@@ -3412,6 +3431,10 @@ TEST(format_under_items_invalid_with_tweak_fast) {
       instance, 1,
       "The string value \"relative/path\" was expected to represent a valid "
       "URI");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "Every item in the array value was expected to validate against the "
+      "given subschema");
 }
 
 TEST(format_with_type_string_valid_with_tweak_fast) {
