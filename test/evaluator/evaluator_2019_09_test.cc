@@ -3626,6 +3626,10 @@ TEST(format_under_items_valid_with_tweak_fast) {
       instance, 1,
       "The string value \"/bar/baz\" was expected to represent a valid JSON "
       "Pointer");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "Every item in the array value was expected to validate against the "
+      "given subschema");
 }
 
 TEST(format_under_items_invalid_with_tweak_fast) {
@@ -3662,6 +3666,10 @@ TEST(format_under_items_invalid_with_tweak_fast) {
       instance, 1,
       "The string value \"{bad\" was expected to represent a valid URI "
       "template");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "Every item in the array value was expected to validate against the "
+      "given subschema");
 }
 
 TEST(format_with_type_string_valid_with_tweak_fast) {

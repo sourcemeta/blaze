@@ -2553,6 +2553,10 @@ TEST(format_under_items_valid_with_tweak_fast) {
       instance, 1,
       "The string value \"www.example.org\" was expected to represent a valid "
       "hostname");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "Every item in the array value was expected to validate against the "
+      "given subschema");
 }
 
 TEST(format_under_items_invalid_with_tweak_fast) {
@@ -2587,6 +2591,10 @@ TEST(format_under_items_invalid_with_tweak_fast) {
       instance, 1,
       "The string value \"-bad-host\" was expected to represent a valid "
       "hostname");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "Every item in the array value was expected to validate against the "
+      "given subschema");
 }
 
 TEST(format_with_type_string_valid_with_tweak_fast) {
@@ -2711,6 +2719,15 @@ TEST(type_any_keeps_min_length_success) {
 
   const sourcemeta::core::JSON instance{"abc"};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringSizeGreater, "/minLength", "#/minLength",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringSizeGreater, "/minLength",
+                              "#/minLength", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"abc\" was expected to consist of at least 2 "
+      "characters and its length was 3");
 }
 
 TEST(type_any_keeps_min_length_failure) {
@@ -2722,6 +2739,15 @@ TEST(type_any_keeps_min_length_failure) {
 
   const sourcemeta::core::JSON instance{"a"};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionStringSizeGreater, "/minLength", "#/minLength",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringSizeGreater, "/minLength",
+                              "#/minLength", "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"a\" was expected to consist of at least 2 characters "
+      "but its length was 1");
 }
 
 TEST(type_any_keeps_min_length_ignores_other_types) {
@@ -2747,6 +2773,14 @@ TEST(type_any_keeps_properties_success) {
   const auto instance{
       sourcemeta::core::parse_json(R"JSON({ "foo": "bar" })JSON")};
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
 }
 
 TEST(type_any_keeps_properties_failure) {
@@ -2760,6 +2794,16 @@ TEST(type_any_keeps_properties_failure) {
 
   const auto instance{sourcemeta::core::parse_json(R"JSON({ "foo": 1 })JSON")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionPropertyTypeStrict, "/properties/foo/type",
+                     "#/properties/foo/type", "/foo");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionPropertyTypeStrict,
+                              "/properties/foo/type", "#/properties/foo/type",
+                              "/foo");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type string but it was of type "
+      "integer");
 }
 
 TEST(integer_type_with_integral_enum_real_fast) {
