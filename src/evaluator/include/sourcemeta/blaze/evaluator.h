@@ -240,6 +240,12 @@ public:
     this->evaluated.resize(checkpoint);
   }
 
+  // What the schema resource the entry point sits in declares, which no
+  // instruction stands for. This lives in a translation unit of its own, as
+  // inlining it pushes the evaluation path past what its caller will take on,
+  // which costs a call per evaluation on every schema, dynamic anchors or not
+  auto enter_entrypoint_resource(const Template &schema) -> void;
+
   // A schema resource claims each dynamic anchor it declares that no enclosing
   // resource already holds, so a name resolves to its outermost declaration.
   // What the slots held goes on a stack of its own, as only a resource that
@@ -319,13 +325,8 @@ auto sourcemeta::blaze::Evaluator::evaluate_impl(
                                                              nullptr,
                                                          .frame = 0};
 
-  // Evaluation begins by entering the resource the entry point sits in, which
-  // no instruction stands for, so what it declares is bound here
   if (!schema.anchors.empty()) [[unlikely]] {
-    this->dynamic_bindings.assign(schema.anchors.size(), 0);
-    for (const auto &binding : schema.bindings[schema.target_bindings[0]]) {
-      this->dynamic_bindings[binding.first] = binding.second;
-    }
+    this->enter_entrypoint_resource(schema);
   }
 
   bool overall{true};
