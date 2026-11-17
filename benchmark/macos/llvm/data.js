@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1794920122598,
+  "lastUpdate": 1794924067679,
   "repoUrl": "https://github.com/sourcemeta/blaze",
   "entries": {
     "Benchmark (macos/llvm)": [
@@ -821562,6 +821562,715 @@ window.BENCHMARK_DATA = {
           {
             "name": "Convert_201909_To_2020_12_Unevaluated",
             "value": 288028.29858299595,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jv@jviotti.com",
+            "name": "Juan Cruz Viotti",
+            "username": "jviotti"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0c510a3ec24e89910ccc8c766bbaefe67c5ffb7a",
+          "message": "Don't unconditionally enables frames when a callback is set (#1210)\n\nSigned-off-by: Juan Cruz Viotti <jv@jviotti.com>",
+          "timestamp": "2026-11-17T09:55:03-03:00",
+          "tree_id": "009f4a4070d461e02f7b88ef516953b3b8c20fc4",
+          "url": "https://github.com/sourcemeta/blaze/commit/0c510a3ec24e89910ccc8c766bbaefe67c5ffb7a"
+        },
+        "date": 1794923899139,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "E2E_Compiler_adaptivecard",
+            "value": 20931541.666666668,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_ansible_meta",
+            "value": 7953677.083333333,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_aws_cdk",
+            "value": 145025.15768463074,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_babelrc",
+            "value": 747756.1438848921,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_clang_format",
+            "value": 4758956.604166667,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_cmake_presets",
+            "value": 13745636,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_code_climate",
+            "value": 553544.5829015544,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_cql2",
+            "value": 6467603,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_cspell",
+            "value": 15385773.785714285,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_cypress",
+            "value": 1465903.1862745099,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_deno",
+            "value": 3055796.568627451,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_dependabot",
+            "value": 1118407.502617801,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_draft_04",
+            "value": 1090200.4855072463,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_fabric_mod",
+            "value": 2093187.5,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_geojson",
+            "value": 8568144.956521738,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_gitpod_configuration",
+            "value": 1622110.3333333333,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_helm_chart_lock",
+            "value": 228059.792,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_importmap",
+            "value": 107615.51280062064,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_jasmine",
+            "value": 404131.4672,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_jshintrc",
+            "value": 1024054.641509434,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_jsconfig",
+            "value": 5458669.204081632,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_krakend",
+            "value": 57976979.25,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_lazygit",
+            "value": 11446895.8125,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_lerna",
+            "value": 489384.75975975976,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_nest_cli",
+            "value": 2611087.08,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_omc",
+            "value": 82627229,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_omnisharp",
+            "value": 3601053.038961039,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_openapi",
+            "value": 24485134.222222224,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_pre_commit_hooks",
+            "value": 1059072.0756756756,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_pulumi",
+            "value": 2066875.56,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_semantic_release",
+            "value": 710215.8387096775,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_stale",
+            "value": 438211.01985111664,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_stylecop",
+            "value": 2870474.734042553,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_tmuxinator",
+            "value": 1016875.2530120482,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_ui5",
+            "value": 43605741.6,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_ui5_manifest",
+            "value": 237895625,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_unreal_engine_uproject",
+            "value": 2021515,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_users_array",
+            "value": 307161.1213307241,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_vercel",
+            "value": 5011506.2830188675,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Compiler_yamllint",
+            "value": 112949.51515151515,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_adaptivecard",
+            "value": 28929.677047129153,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ansible_meta",
+            "value": 219632.9595505618,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_aws_cdk",
+            "value": 51877.7967735954,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_babelrc",
+            "value": 82985.99382916531,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cerebrum_criminal_case",
+            "value": 705663.4056939501,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_clang_format",
+            "value": 31645.431744562702,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cmake_presets",
+            "value": 4125991.0714285714,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_code_climate",
+            "value": 155424.02559726962,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cql2",
+            "value": 76493.57909029193,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cspell",
+            "value": 534710.4694280078,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_cypress",
+            "value": 74933.38260135135,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_deno",
+            "value": 226964.63654822335,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_dependabot",
+            "value": 277007.3902027027,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_draft_04",
+            "value": 4074444.962264151,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_fabric_mod",
+            "value": 481188.8020833333,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_geojson",
+            "value": 7184612.621621622,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_gitpod_configuration",
+            "value": 204671.89907550078,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_helm_chart_lock",
+            "value": 369155.4082840237,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_importmap",
+            "value": 45101.95840371621,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jasmine",
+            "value": 109000.88320413437,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jshintrc",
+            "value": 399902.94923076924,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_jsconfig",
+            "value": 258566.47930283225,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_krakend",
+            "value": 170444.14124293785,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_lazygit",
+            "value": 130237.20715166461,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_lerna",
+            "value": 141352.38905238375,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_nest_cli",
+            "value": 157210.83941997853,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_omc",
+            "value": 19898.107925475433,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_omnisharp",
+            "value": 175002.87327586208,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_openapi",
+            "value": 5286902.777777778,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_pre_commit_hooks",
+            "value": 305222.4692671395,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_pulumi",
+            "value": 655421.5838509317,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_semantic_release",
+            "value": 68988.64182487957,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_stale",
+            "value": 135440.68687782806,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_stylecop",
+            "value": 201263.03742038217,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_tmuxinator",
+            "value": 58397.19705549264,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ui5",
+            "value": 417557.80716723547,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_ui5_manifest",
+            "value": 2427683.653846154,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_unreal_engine_uproject",
+            "value": 363869.1979865772,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_users_array",
+            "value": 473835.3905579399,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_vercel",
+            "value": 227139.791,
+            "unit": "ns"
+          },
+          {
+            "name": "E2E_Evaluator_yamllint",
+            "value": 7558.2448738920375,
+            "unit": "ns"
+          },
+          {
+            "name": "JSONLD_Catalog_Simple",
+            "value": 26703791.75,
+            "unit": "ns"
+          },
+          {
+            "name": "JSONLD_Catalog_Override_Agreeing",
+            "value": 20386245.444444444,
+            "unit": "ns"
+          },
+          {
+            "name": "JSONLD_Catalog_Override_Shadowing",
+            "value": 30621972.222222224,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Meta_1_No_Callback",
+            "value": 119.39940406128066,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Required_Properties",
+            "value": 747.963959168242,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Many_Optional_Properties_Minimal_Match",
+            "value": 14.96325,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Few_Optional_Properties_Minimal_Match",
+            "value": 7.878922036980687,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Items_Schema",
+            "value": 288.52765281991475,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Nested_Object",
+            "value": 0.9153307616551281,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Properties_Triad_Optional",
+            "value": 231.2293011808178,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Properties_Triad_Required",
+            "value": 299.28816233014106,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Properties_Triad_Closed",
+            "value": 193.0255739811403,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Properties_Closed",
+            "value": 30.457325975099568,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Non_Recursive_Ref",
+            "value": 13.9767541,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Pattern_Properties_Empty",
+            "value": 182.005583,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Ref_To_Single_Property",
+            "value": 8.964597485730103,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Additional_Properties_Type",
+            "value": 31.277198005547376,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Nested_Oneof",
+            "value": 43.15632255495777,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Short_Enum",
+            "value": 7.443707731220728,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Long_Enum",
+            "value": 13.044882942554949,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Long_Enum_Short_Strings",
+            "value": 8.123052772038777,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Type_Object",
+            "value": 3.7949528804611465,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Ref_Single_100",
+            "value": 1016055.1929824562,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Compile_Ref_Many_Nested",
+            "value": 708393.2983293557,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft4_Compile_Wrap",
+            "value": 941578.7213114754,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft6_Property_Names",
+            "value": 132.2753262238572,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft6_Compile_FHIR",
+            "value": 6590311167,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_Draft7_If_Then_Else",
+            "value": 22.09496709576914,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2019_09_Unevaluated_Properties",
+            "value": 35.260025824376946,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2019_09_Compile_Wrap",
+            "value": 75032639,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Dynamic_Ref",
+            "value": 693.6389200877873,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Dynamic_Ref_Single",
+            "value": 3.7295459530433246,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Mask",
+            "value": 748.5585363976418,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Mask_Control",
+            "value": 787.6965981879341,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Mask_Noop",
+            "value": 753.1611461679859,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Annotations",
+            "value": 47946.07851552638,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Annotation_Dropping",
+            "value": 1095189.6766169155,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Annotation_Dropping_Control",
+            "value": 21594.714532685037,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Simple_Output_Annotation_Dropping_Noop",
+            "value": 160068.042,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Compile_NonCircular_Shared_Refs",
+            "value": 528450.6769825919,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric",
+            "value": 4322.637033343521,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_SimpleOutput",
+            "value": 27632.59598934231,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_Noop",
+            "value": 10971.03432108714,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_TraceOutput",
+            "value": 16948.337063936182,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_Fail",
+            "value": 46.76827799560491,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_Fail_SimpleOutput",
+            "value": 1911.0147894345355,
+            "unit": "ns"
+          },
+          {
+            "name": "Micro_2020_12_Exhaustive_Deep_Numeric_Fail_Noop",
+            "value": 164.440458,
+            "unit": "ns"
+          },
+          {
+            "name": "TestSuite_Parse_WoT",
+            "value": 6219004.638888889,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Readibility_ISO_Language_Set_3",
+            "value": 184244833,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Readibility_OMC",
+            "value": 49754233.4,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Readibility_KrakenD",
+            "value": 628016417,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Apply_Readibility_KrakenD",
+            "value": 57085962208,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Invalid_External_Refs",
+            "value": 145527625,
+            "unit": "ns"
+          },
+          {
+            "name": "Alterschema_Check_Resolvable_External_Refs",
+            "value": 167158.08868999186,
+            "unit": "ns"
+          },
+          {
+            "name": "Convert_Draft3_To_2020_12",
+            "value": 1721992,
+            "unit": "ns"
+          },
+          {
+            "name": "Convert_201909_To_2020_12_Unevaluated",
+            "value": 253209.8459273798,
             "unit": "ns"
           }
         ]
