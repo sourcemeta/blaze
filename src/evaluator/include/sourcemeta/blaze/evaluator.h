@@ -242,8 +242,8 @@ public:
 
   // What the schema resource the entry point sits in declares, which no
   // instruction stands for. This lives in a translation unit of its own, as
-  // inlining it would grow what evaluate_impl asks its caller to take on and
-  // cost a call per evaluation on every schema, dynamic anchors or not
+  // inlining it pushes the evaluation path past what its caller will take on,
+  // which costs a call per evaluation on every schema, dynamic anchors or not
   auto enter_entrypoint_resource(const Template &schema) -> void;
 
   // A schema resource claims each dynamic anchor it declares that no enclosing
