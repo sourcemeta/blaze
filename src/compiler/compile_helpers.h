@@ -602,6 +602,24 @@ inline auto requires_evaluation(const KeywordContext &context) -> bool {
   return requires_evaluation(context.global, absolute_schema_pointer(context));
 }
 
+// TODO: This should go away if we start properly compiling `unevaluatedItems`
+// like we compile `unevaluatedProperties`, as the dependencies of the former
+// are not traced, so any occurrence of it anywhere forces tracking
+inline auto defines_unevaluated_items(const Context &context) -> bool {
+  return std::ranges::any_of(
+      context.unevaluated, [](const auto &dependency) -> bool {
+        return dependency.first.ends_with("unevaluatedItems");
+      });
+}
+
+// Whether an evaluation mark made underneath this keyword can be observed,
+// which is what decides between an instruction that keeps track of evaluation
+// and the cheaper one that does not
+inline auto tracks_evaluation(const KeywordContext &context) -> bool {
+  return requires_evaluation(context) ||
+         defines_unevaluated_items(context.global);
+}
+
 inline auto annotations_enabled(const KeywordContext &context,
                                 const std::string_view keyword) -> bool {
   if (context.global.tweaks.annotations.has_value()) {

@@ -6184,7 +6184,7 @@ TEST(any_of_reference_branch_items_extra) {
       sourcemeta::core::parse_json(R"JSON([ 1, 2 ])JSON")};
   EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 6, "");
 
-  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_PRE(0, LogicalOrEvaluate, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type", "#/anyOf/0/type",
                      "");
   EVALUATE_TRACE_PRE(2, AssertionArrayPrefixEvaluate,
@@ -6204,7 +6204,7 @@ TEST(any_of_reference_branch_items_extra) {
   EVALUATE_TRACE_POST_SUCCESS(2, AssertionArrayPrefixEvaluate,
                               "/anyOf/1/$ref/prefixItems",
                               "#/$defs/D/prefixItems", "");
-  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOr, "/anyOf", "#/anyOf", "");
+  EVALUATE_TRACE_POST_SUCCESS(3, LogicalOrEvaluate, "/anyOf", "#/anyOf", "");
   EVALUATE_TRACE_POST_FAILURE(4, AssertionFail, "/unevaluatedItems",
                               "#/unevaluatedItems", "/1");
   EVALUATE_TRACE_POST_FAILURE(5, LoopItemsUnevaluated, "/unevaluatedItems",
