@@ -194,8 +194,14 @@ public:
     assert(this->evaluate_path.empty());
     assert(this->instance_location.empty());
     assert(this->binding_undo.empty());
-    this->evaluated.clear();
-    return this->evaluate_impl<true, true>(schema, instance, &callback);
+
+    if (schema.frames) [[unlikely]] {
+      this->evaluated.clear();
+      return this->evaluate_impl<true, true>(schema, instance, &callback);
+    } else {
+      assert(this->evaluated.empty());
+      return this->evaluate_impl<false, true>(schema, instance, &callback);
+    }
   }
 
 #ifndef DOXYGEN
