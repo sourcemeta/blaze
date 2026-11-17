@@ -340,7 +340,7 @@ TEST(resolve_key_invalid_uri) {
       "The keys in the resolve object must represent valid URIs", "/resolve/%");
 }
 
-TEST(resolve_keys_denoting_the_same_uri) {
+TEST(resolve_keys_denoting_the_same_uri_report_the_second_as_written) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "resolve": {
       "https://example.com/single.json": "../first.json",
@@ -352,6 +352,36 @@ TEST(resolve_keys_denoting_the_same_uri) {
       input, TEST_DIRECTORY,
       "Two keys in the resolve object denote the same URI",
       "/resolve/HTTPS:~1~1Example.com:443~1single.json");
+}
+
+TEST(resolve_keys_denoting_the_same_uri_report_the_third_as_written) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "https://example.com/other.json": "../other.json",
+      "https://example.com/single.json": "../first.json",
+      "HTTPS://Example.com:443/single.json": "../second.json"
+    }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "Two keys in the resolve object denote the same URI",
+      "/resolve/HTTPS:~1~1Example.com:443~1single.json");
+}
+
+TEST(
+    resolve_keys_denoting_the_same_uri_report_the_second_when_the_first_is_non_canonical) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "HTTPS://Example.com:443/single.json": "../first.json",
+      "https://example.com/single.json": "../second.json"
+    }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "Two keys in the resolve object denote the same URI",
+      "/resolve/https:~1~1example.com~1single.json");
 }
 
 TEST(resolve_key_non_canonical) {
