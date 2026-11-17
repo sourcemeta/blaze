@@ -12,17 +12,22 @@ namespace {
 
 // The `.json` extension is not a URI concern, so this single alternative is
 // tried by hand, and always after the identifier itself, so that a mapping
-// that holds both spellings is unambiguous
+// that holds both spellings is unambiguous. Only a path can carry the
+// extension, so a query or a fragment stays where it is
 auto resolve_alternative(const std::string_view identifier)
     -> sourcemeta::core::JSON::String {
   constexpr std::string_view JSON_EXTENSION{".json"};
-  if (identifier.ends_with(JSON_EXTENSION)) {
-    return sourcemeta::core::JSON::String{
-        identifier.substr(0, identifier.size() - JSON_EXTENSION.size())};
-  }
+  const auto suffix{identifier.find_first_of("?#")};
+  const auto path_size{suffix == std::string_view::npos ? identifier.size()
+                                                        : suffix};
 
   sourcemeta::core::JSON::String result{identifier};
-  result += JSON_EXTENSION;
+  if (identifier.substr(0, path_size).ends_with(JSON_EXTENSION)) {
+    result.erase(path_size - JSON_EXTENSION.size(), JSON_EXTENSION.size());
+  } else {
+    result.insert(path_size, JSON_EXTENSION);
+  }
+
   return result;
 }
 

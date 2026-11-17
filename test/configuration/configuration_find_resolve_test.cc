@@ -149,3 +149,51 @@ TEST(identifier_that_is_not_a_uri) {
 
   EXPECT_TRUE(config.find_resolve("%") == nullptr);
 }
+
+TEST(identifier_with_a_query_without_the_json_extension) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "https://example.com/single.json?version=2": "../single.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  const auto *match{
+      config.find_resolve("https://example.com/single?version=2")};
+  EXPECT_TRUE(match != nullptr);
+  EXPECT_EQ(*match, "../single.json");
+}
+
+TEST(identifier_with_a_query_with_the_json_extension) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "https://example.com/single?version=2": "../single.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  const auto *match{
+      config.find_resolve("https://example.com/single.json?version=2")};
+  EXPECT_TRUE(match != nullptr);
+  EXPECT_EQ(*match, "../single.json");
+}
+
+TEST(identifier_with_an_empty_fragment) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "https://example.com/single": "../single.json",
+      "https://example.com/single#.json": "../fragment.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  const auto *match{config.find_resolve("https://example.com/single#")};
+  EXPECT_TRUE(match != nullptr);
+  EXPECT_EQ(*match, "../single.json");
+}
