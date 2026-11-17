@@ -197,3 +197,45 @@ TEST(identifier_with_an_empty_fragment) {
   EXPECT_TRUE(match != nullptr);
   EXPECT_EQ(*match, "../single.json");
 }
+
+TEST(key_populated_without_canonicalisation_matches_only_its_own_spelling) {
+  sourcemeta::blaze::Configuration config;
+  config.resolve.emplace("HTTPS://Example.com:443/single.json",
+                         "../single.json");
+
+  const auto *match{config.find_resolve("HTTPS://Example.com:443/single.json")};
+  EXPECT_TRUE(match != nullptr);
+  EXPECT_EQ(*match, "../single.json");
+  EXPECT_TRUE(config.find_resolve("https://example.com/single.json") ==
+              nullptr);
+}
+
+TEST(identifier_whose_entire_path_is_the_json_extension) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "": "../empty.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  const auto *match{config.find_resolve(".json")};
+  EXPECT_TRUE(match != nullptr);
+  EXPECT_EQ(*match, "../empty.json");
+}
+
+TEST(identifier_that_is_empty) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      ".json": "../extension.json"
+    }
+  })JSON")};
+
+  const auto config{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  const auto *match{config.find_resolve("")};
+  EXPECT_TRUE(match != nullptr);
+  EXPECT_EQ(*match, "../extension.json");
+}
